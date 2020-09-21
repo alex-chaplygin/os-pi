@@ -4,26 +4,16 @@
 
 Для начала работы:
 
-	git clone https://github.com/alex-chaplygin/jpeg-cs-92_1
+	git clone https://github.com/alex-chaplygin/os-po
 
 
 Настройка удалённого репозитория
 
-	git remote set-url origin https://github.com/alex-chaplygin/jpeg-cs-92_1
+	git remote set-url origin https://github.com/alex-chaplygin/os-pi
 
 
 
 
-Чтобы проверить правильность параметров предыдущего пункта:
-
-	git remote -v
-
-Там должны быть строчки:
-
->origin  https://github.com/alex-chaplygin/jpeg-cs-92_1 (fetch)
->
->origin  https://github.com/alex-chaplygin/jpeg-cs-92_1 (push)
-	
 
 
 
@@ -31,14 +21,7 @@
 	
 	git config --global user.name "ВАШЕ ИМЯ НА GITHUB"
 	git config --global user.email "ВАША ПОЧТА"
-	
-Настройка ядра git:
-	
-	git config --system core.autocrlf input
-	git config core.repositoryformatversion 0
-	git config core.filemode true
-	git config core.bare false
-	git config core.logallrefupdates true
+
 	
 
 ***
