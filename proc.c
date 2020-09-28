@@ -1,17 +1,8 @@
 #include "proc.h"
 #include "limits.h"
 
-struct proc {
-    //pid, состояние, адрес кода, адрес, данных, адрес стека.
-    int pid;
-    int state;
-    unsigned char*  codePtr;
-    unsigned char*  dataPtr;
-    unsigned char*  stackPtr;
-};
 
 struct proc processes[MAX_PROC_AMOUNT];
-
 
 void initProcesses(){
     for (int i = 0; i < MAX_PROC_AMOUNT; i++)
@@ -24,12 +15,12 @@ void initProcesses(){
     } 
 }
 
-int isFree(int recordIndex){
-    if (recordIndex < 0 || recordIndex > MAX_PROC_AMOUNT){
+int isFree(unsigned int pid){
+    if (pid < 0 || pid > MAX_PROC_AMOUNT){
         return -1;
     }
 
-    if (processes[recordIndex].pid == -1){
+    if (processes[pid].pid == -1){
         return 1;
     } else {
         return 0;
