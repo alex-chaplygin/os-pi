@@ -6,15 +6,30 @@ section .text
         dd 0x00                    ;flags
         dd - (0x1BADB002 + 0x00)   ;checksum. m+f+c should be zero
 
-global start
+global start, kernel_code, load_idt, a_isrZeroDivisionException
 
-extern kmain 		;this is defined in the c file
+extern kmain, isrZeroDivisionException		;this is defined in the c file
 
 start:
 	cli 				;block interrupts
+        mov ax, cs
+        mov [kernel_code], ax
 	mov esp, stack_space
 	call kmain
 	hlt 				;halt the CPU
+
+load_idt:
+        lidt [esp + 4]
+        sti
+        ret
+
+a_isrZeroDivisionException:
+        cli
+        call isrZeroDivisionException
+        sti
+        iret
+
+kernel_code dw ?
 
 section .bss
 resb 8192; 8KB for stack

@@ -11,5 +11,8 @@ typedef struct idtGateDescriptor {
     ushort highOffset;
 } idtGateDescriptor;
 
-void idtInit();
 void idtSetDescriptor(int index, uint handler, ushort selector, uchar type);
+void idtInit();
+
+extern void load_idt(void *);
+extern ushort kernel_code;

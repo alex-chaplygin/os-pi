@@ -1,15 +1,13 @@
 #include "console.h"
+#include "idt.h"
 /* video memory begins at address 0xb8000 */
 
 
 void kmain(void)
 {
-/*  int pos = 0;
-  for (int i = 0; i < 80 * 25; i++) {
-    videoptr[pos++] = '#';
-    videoptr[pos++] = i % 0xff;
-  }*/
+  idtInit();
   console_clear();
+  //int a = 1 / 0;
   kprint("TEST\n");
   for (int i = 0; i < 22; i++){
     kprint("123456789\n");

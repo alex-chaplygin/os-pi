@@ -3,7 +3,8 @@
  * cessor exceptions, and first 19 of them   *
  * must be handled by the functions declared *
  * below.                                    *
- ********************************************/
+ *********************************************/
+extern void a_isrZeroDivisionException();
 void isrZeroDivisionException();
 void isrDebugException();
 void isrNonMaskableInterruptException();
@@ -23,3 +24,4 @@ void isrUnknownInterruptException();
 void isrCoprocessorFaultException();
 void isrAlignmentCheckException();
 void isrMachineCheckException();
+void isrNonExistent();
