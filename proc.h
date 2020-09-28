@@ -1,0 +1,4 @@
+#define STATUS_INIT 0
+#define STATUS_RUNNING 1
+#define STATUS_SLEEPING 2
+#define STATUS_STOPPING 3

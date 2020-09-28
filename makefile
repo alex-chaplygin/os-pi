@@ -1,4 +1,4 @@
-OBJS=main.o console.o x86.o libc.o
+OBJS=main.o console.o x86.o libc.o proc.o
 CFLAGS=-m32
 
 kernel: $(OBJS)
