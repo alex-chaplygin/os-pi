@@ -1,6 +1,8 @@
 #include "console.h"
 
-void isrZeroDivisionException(){ kprint("division by zero"); }
+void isrZeroDivisionException(){
+  kprint("division by zero");
+}
 void isrDebugException(){}
 void isrNonMaskableInterruptException(){}
 void isrBreakpointException(){}

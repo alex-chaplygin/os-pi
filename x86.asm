@@ -19,7 +19,8 @@ start:
 	hlt 				;halt the CPU
 
 load_idt:
-        lidt [esp + 4]
+        mov edx, [esp + 4]
+	lidt [edx]
         sti
         ret
 
@@ -27,9 +28,9 @@ a_isrZeroDivisionException:
         cli
         call isrZeroDivisionException
         sti
-        iret
+        iretd
 
-kernel_code dw ?
+kernel_code dw 0
 
 section .bss
 resb 8192; 8KB for stack

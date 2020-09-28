@@ -1,7 +1,8 @@
 #include "idt.h"
 #include "isr.h"
 
-idtGateDescriptor idt[256];
+idtGateDescriptor idt[IDT_SIZE];
+unsigned long idt_ptr[2];
 
 // idtInit initializes IDT in the static memory.
 void idtInit() {
@@ -28,8 +29,10 @@ void idtInit() {
     for (int i = 19; i < 32; i++) {
         idtSetDescriptor(i, (uint)isrNonExistent, kernel_code, 0x8E);
     }
+    idt_ptr[0] = (sizeof (idtGateDescriptor) * IDT_SIZE) + (((ulong)idt & 0xffff) << 16);
+    idt_ptr[1] = (ulong)idt >> 16 ;
 
-    load_idt(idt);
+    load_idt(idt_ptr);
 }
 
 // idtSetDescriptor sets a gate descriptor in the IDT.
@@ -37,7 +40,7 @@ void idtSetDescriptor(int index, uint handler, ushort selector, uchar type) {
     idtGateDescriptor* d = &idt[index];
 
     ushort lowOffset = handler & 0xFFFF;
-    ushort highOffset = handler >> 16;
+    ushort highOffset = (handler & 0xFFFF0000) >> 16;
 
     d->lowOffset = lowOffset;
     d->selector = selector;

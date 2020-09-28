@@ -4,3 +4,5 @@ typedef unsigned int uint;
 typedef unsigned short ushort;
 // uchar is unsigned char.
 typedef unsigned char uchar;
+
+typedef unsigned long ulong;

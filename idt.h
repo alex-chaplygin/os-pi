@@ -1,5 +1,7 @@
 #include "types.h"
 
+#define IDT_SIZE 256
+
 // idtGateDescriptor represents
 // a row for interrupt descriptors
 // table.
