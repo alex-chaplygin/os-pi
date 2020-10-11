@@ -1,5 +1,5 @@
-OBJS=main.o console.o x86.o idt.o isr.o
-CFLAGS=-m32
+OBJS=main.o console.o x86.o libc.o proc.o idt.o isr.o
+CFLAGS=-m32 -nostdlib -nodefaultlibs -Wno-builtin-declaration-mismatch
 
 kernel: $(OBJS)
 	ld -m elf_i386 -T link.ld -o kernel $(OBJS)

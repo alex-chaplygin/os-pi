@@ -4,7 +4,7 @@
 
 Для начала работы:
 
-	git clone https://github.com/alex-chaplygin/os-po
+	git clone https://github.com/alex-chaplygin/os-pi
 
 
 Настройка удалённого репозитория

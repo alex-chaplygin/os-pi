@@ -4,3 +4,7 @@
 void kprint(char *str);
 
 void console_clear();
+
+char* intToStr(int n);
+
+void scrollConsole(int n);
