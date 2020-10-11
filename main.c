@@ -7,7 +7,7 @@ void kmain(void)
 {
   idtInit();
   console_clear();
-  int a = 1 / 0;
+  // int a = 1 / 0;
   kprint("TEST\n");
   for (int i = 0; i < 22; i++){
     kprint("123456789\n");

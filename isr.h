@@ -4,7 +4,7 @@
  * must be handled by the functions declared *
  * below.                                    *
  *********************************************/
-extern void a_isrZeroDivisionException();
+void exception_handler(int num);
 void isrZeroDivisionException();
 void isrDebugException();
 void isrNonMaskableInterruptException();
@@ -18,7 +18,6 @@ void isrCoprocessorSegmentOverrunException();
 void isrBadTSSException();
 void isrSegmentNotPresentException();
 void isrStackFaultException();
-void isrGeneralProtectionFaultException();
 void isrPageFaultException();
 void isrUnknownInterruptException();
 void isrCoprocessorFaultException();

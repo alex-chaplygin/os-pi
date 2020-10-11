@@ -6,9 +6,29 @@ section .text
         dd 0x00                    ;flags
         dd - (0x1BADB002 + 0x00)   ;checksum. m+f+c should be zero
 
-global start, kernel_code, load_idt, a_isrZeroDivisionException
+global start, kernel_code, load_idt
+global a_isrZeroDivisionException
+global a_isrDebugException
+global a_isrNonMaskableInterruptException
+global a_isrBreakpointException
+global a_isrIntoDetectedOverflowException
+global a_isrOutOfBoundsException
+global a_isrInvalidOpcodeException
+global a_isrNoCoprocessorException
+global a_isrDoubleFaultException
+global a_isrCoprocessorSegmentOverrunException
+global a_isrBadTSSException
+global a_isrSegmentNotPresentException
+global a_isrStackFaultException
+global a_isrGeneralProtectionFaultException
+global a_isrPageFaultException
+global a_isrUnknownInterruptException
+global a_isrCoprocessorFaultException
+global a_isrAlignmentCheckException
+global a_isrMachineCheckException
+global a_isrNonExistent
 
-extern kmain, isrZeroDivisionException		;this is defined in the c file
+extern kmain, exception_handler		;this is defined in the c file
 
 start:
 	cli 				;block interrupts
@@ -24,12 +44,36 @@ load_idt:
         sti
         ret
 
-a_isrZeroDivisionException:
+%macro exception 1
         cli
-        call isrZeroDivisionException
+        push %1
+        call exception_handler
+	pop eax
         sti
         iretd
+%endmacro
 
+a_isrZeroDivisionException: exception 0
+a_isrDebugException: exception 1
+a_isrNonMaskableInterruptException: exception 2
+a_isrBreakpointException: exception 3
+a_isrIntoDetectedOverflowException: exception 4
+a_isrOutOfBoundsException: exception 5
+a_isrInvalidOpcodeException: exception 6
+a_isrNoCoprocessorException: exception 7
+a_isrDoubleFaultException: exception 8
+a_isrCoprocessorSegmentOverrunException: exception 9
+a_isrBadTSSException: exception 10
+a_isrSegmentNotPresentException: exception 11
+a_isrStackFaultException: exception 12
+a_isrGeneralProtectionFaultException: exception 13
+a_isrPageFaultException: exception 14
+a_isrUnknownInterruptException: exception 15
+a_isrCoprocessorFaultException: exception 16
+a_isrAlignmentCheckException: exception 17
+a_isrMachineCheckException: exception 18
+a_isrNonExistent: exception 19
+	
 kernel_code dw 0
 
 section .bss
