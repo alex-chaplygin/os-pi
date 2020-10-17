@@ -27,6 +27,7 @@ global a_isrCoprocessorFaultException
 global a_isrAlignmentCheckException
 global a_isrMachineCheckException
 global a_isrNonExistent
+global read_port, write_port	
 
 extern kmain, exception_handler		;this is defined in the c file
 
@@ -44,6 +45,17 @@ load_idt:
         sti
         ret
 
+read_port:
+	mov edx, [esp + 4]
+	in al, dx
+	ret
+
+write_port:
+	mov   edx, [esp + 4]    
+	mov   al, [esp + 4 + 4]  
+	out   dx, al  
+	ret
+	
 %macro exception 1
         cli
         push %1
