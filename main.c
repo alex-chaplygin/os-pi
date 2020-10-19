@@ -20,6 +20,8 @@ void kmain(void)
     kprint(intToStr(i));
     kprint("\n");
   }
+  
+  kprint(int_to_str_hex(255));
 
   test_syscall();
   while(1);
