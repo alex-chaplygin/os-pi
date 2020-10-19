@@ -17,6 +17,8 @@ void kmain(void)
     kprint(intToStr(i));
     kprint("\n");
   }
+  
+  kprint(int_to_str_hex(255));
 
   while(1);
 }

@@ -12,7 +12,7 @@ void memcpy(unsigned char* destptr, unsigned char* srcptr, int num ){
 // int num = положительное целое число от 0 до 2147483647
 //*************************************************************
 char * int_to_str_hex(int num) {
-    if ((num < 0) || (num > 2147483647)) return NULL; // Проверка на исключение
+    if ((num < 0) || (num > 2147483647)) return 0; // Проверка на исключение
 
     int numLength = 1;
     int numLengthBuffer = num;
@@ -20,7 +20,7 @@ char * int_to_str_hex(int num) {
         numLength++;
         numLengthBuffer /= 10;
     }
-    char * outbuf = malloc(numLength); // Выделение памяти для возвращаемого значения
+    char * outbuf;// = malloc(numLength); // Выделение памяти для возвращаемого значения
     outbuf[0] = '0'; // Добавление HEX префикса C
     outbuf[1] = 'x';
     int base = 16; // Возвращаемая система счисления
