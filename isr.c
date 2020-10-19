@@ -29,26 +29,26 @@ char *table[] = {
 "FPU Error Interrupt",
 };
 
+void panic(){
+  kprint("\nPanic\n");
+  while(1){
+    
+  }
+}
+
 void exception_handler(int num){
   kprint(table[num]);
+  //  panic();
 }
-/*
-void isrDebugException(){}
-void isrNonMaskableInterruptException(){}
-void isrBreakpointException(){}
-void isrIntoDetectedOverflowException(){}
-void isrOutOfBoundsException(){}
-void isrInvalidOpcodeException(){}
-void isrNoCoprocessorException(){}
-void isrDoubleFaultException(){}
-void isrCoprocessorSegmentOverrunException(){}
-void isrBadTSSException(){}
-void isrSegmentNotPresentException(){}
-void isrStackFaultException(){}
-void isrGeneralProtectionFaultException(){}
-void isrPageFaultException(){}
-void isrUnknownInterruptException(){}
-void isrCoprocessorFaultException(){}
-void isrAlignmentCheckException(){}
-void isrMachineCheckException(){}
-void isrNonExistent(){}*/
+
+void sys_call(int num, int param1, int param2, int param3)
+{
+    kprint("\nSys call ");
+    kprint(intToStr(num));
+    kprint(" ");
+    kprint(intToStr(param1));
+    kprint(" ");
+    kprint(intToStr(param2));
+    kprint(" ");
+    kprint(intToStr(param3));
+}

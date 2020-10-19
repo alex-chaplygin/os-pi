@@ -25,10 +25,14 @@ void idtInit() {
     idtSetDescriptor(16, (uint)a_isrCoprocessorFaultException, kernel_code, 0x8E);
     idtSetDescriptor(17, (uint)a_isrAlignmentCheckException, kernel_code, 0x8E);
     idtSetDescriptor(18, (uint)a_isrMachineCheckException, kernel_code, 0x8E);
+    
 
     for (int i = 19; i < 32; i++) {
         idtSetDescriptor(i, (uint)a_isrNonExistent, kernel_code, 0x8E);
     }
+    
+    idtSetDescriptor(0x80, (uint)a_syscall, kernel_code, 0x8E);
+    
     idt_ptr[0] = (sizeof (idtGateDescriptor) * IDT_SIZE) + (((ulong)idt & 0xffff) << 16);
     idt_ptr[1] = (ulong)idt >> 16 ;
 
@@ -47,3 +51,4 @@ void idtSetDescriptor(int index, uint handler, ushort selector, uchar type) {
     d->type = type;
     d->highOffset = highOffset;
 }
+
