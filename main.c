@@ -2,12 +2,14 @@
 #include "idt.h"
 #include "libc.h"
 #include "timer.h"
+#include "irq.h"
 /* video memory begins at address 0xb8000 */
 
 extern void test_syscall();
 
 void kmain(void)
 {
+  init_interrupts(0x20, 0x28);
   idtInit();
   //init_timer(1000);
   console_clear();
