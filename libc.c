@@ -3,5 +3,5 @@ void memcpy(unsigned char* destptr, unsigned char* srcptr, int num ){
     {
         destptr[i] = srcptr[i];
     }
-    
+    //proverka
 }
