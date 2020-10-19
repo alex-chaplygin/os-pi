@@ -1,5 +1,6 @@
 #include "idt.h"
 #include "isr.h"
+#include "x86.h"
 
 idtGateDescriptor idt[IDT_SIZE];
 unsigned long idt_ptr[2];

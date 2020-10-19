@@ -2,6 +2,7 @@
 #include "idt.h"
 #include "libc.h"
 #include "timer.h"
+#include "mouse.h"
 /* video memory begins at address 0xb8000 */
 
 extern void test_syscall();
@@ -23,6 +24,13 @@ void kmain(void)
   
   kprint(int_to_str_hex(255));
 
-  test_syscall();
-  while(1);
+  if (mouseCheck() == 0xAA) {
+    kprint("Mouse detected\n");
+  } else {
+    kprint("No mouse\n");
+  }
+  
+
+  //test_syscall();
+  //while(1);
 }

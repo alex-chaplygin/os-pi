@@ -1,4 +1,4 @@
-#include "types.h"
+#include "x86.h"
 
 void init_timer(int frequency)
 {
