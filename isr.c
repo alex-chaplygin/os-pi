@@ -29,8 +29,16 @@ char *table[] = {
 "FPU Error Interrupt",
 };
 
+void panic(){
+  kprint("\nPanic\n");
+  while(1){
+    
+  }
+}
+
 void exception_handler(int num){
   kprint(table[num]);
+  //  panic();
 }
 
 void sys_call(int num, int param1, int param2, int param3)
