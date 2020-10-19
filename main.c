@@ -1,12 +1,25 @@
+/**
+ * @file   main.c
+ * @author alex <alex@alex-Inspiron-N5040>
+ * @date   Mon Oct 19 13:44:56 2020
+ * 
+ * @brief  OS main start code
+ * 
+ * 
+ */
+
 #include "console.h"
 #include "idt.h"
 #include "libc.h"
 #include "timer.h"
 #include "irq.h"
-/* video memory begins at address 0xb8000 */
 
 extern void test_syscall();
 
+/** 
+ * Kernel entry point
+ * 
+ */
 void kmain(void)
 {
   init_interrupts(0x20, 0x28);
