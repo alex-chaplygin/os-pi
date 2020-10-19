@@ -9,7 +9,7 @@ extern void test_syscall();
 void kmain(void)
 {
   idtInit();
-  init_timer(1000);
+  //init_timer(1000);
   console_clear();
   // int a = 1 / 0;
   //kprint("qwerty\n");
