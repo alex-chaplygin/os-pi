@@ -1,0 +1,133 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.8.11"/>
+<title>OS-PI: Исходный файл idt.h</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<script type="text/javascript">
+  $(document).ready(function() { init_search(); });
+</script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td id="projectalign" style="padding-left: 0.5em;">
+   <div id="projectname">OS-PI
+   &#160;<span id="projectnumber">0.1</span>
+   </div>
+   <div id="projectbrief">Операционная система</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Создано системой Doxygen 1.8.11 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
+</script>
+  <div id="navrow1" class="tabs">
+    <ul class="tablist">
+      <li><a href="index.html"><span>Титульная&#160;страница</span></a></li>
+      <li><a href="annotated.html"><span>Классы</span></a></li>
+      <li class="current"><a href="files.html"><span>Файлы</span></a></li>
+      <li>
+        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <img id="MSearchSelect" src="search/mag_sel.png"
+               onmouseover="return searchBox.OnSearchSelectShow()"
+               onmouseout="return searchBox.OnSearchSelectHide()"
+               alt=""/>
+          <input type="text" id="MSearchField" value="Поиск" accesskey="S"
+               onfocus="searchBox.OnSearchFieldFocus(true)" 
+               onblur="searchBox.OnSearchFieldFocus(false)" 
+               onkeyup="searchBox.OnSearchFieldChange(event)"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><img id="MSearchCloseImg" border="0" src="search/close.png" alt=""/></a>
+          </span>
+        </div>
+      </li>
+    </ul>
+  </div>
+  <div id="navrow2" class="tabs2">
+    <ul class="tablist">
+      <li><a href="files.html"><span>Файлы</span></a></li>
+      <li><a href="globals.html"><span>Список&#160;членов&#160;всех&#160;файлов</span></a></li>
+    </ul>
+  </div>
+</div><!-- top -->
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<iframe src="javascript:void(0)" frameborder="0" 
+        name="MSearchResults" id="MSearchResults">
+</iframe>
+</div>
+
+<div class="header">
+  <div class="headertitle">
+<div class="title">idt.h</div>  </div>
+</div><!--header-->
+<div class="contents">
+<a href="idt_8h.html">См. документацию.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="types_8h.html">types.h</a>&quot;</span></div><div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;</div><div class="line"><a name="l00003"></a><span class="lineno"><a class="line" href="idt_8h.html#a6eb438cc75ca0a7284346ea8b3f94999">    3</a></span>&#160;<span class="preprocessor">#define IDT_SIZE 256</span></div><div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;</div><div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="comment">// idtGateDescriptor represents</span></div><div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="comment">// a row for interrupt descriptors</span></div><div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="comment">// table.</span></div><div class="line"><a name="l00008"></a><span class="lineno"><a class="line" href="structidtGateDescriptor.html">    8</a></span>&#160;<span class="keyword">typedef</span> <span class="keyword">struct </span><a class="code" href="structidtGateDescriptor.html">idtGateDescriptor</a> {</div><div class="line"><a name="l00009"></a><span class="lineno"><a class="line" href="structidtGateDescriptor.html#ae5fe7c684b93e28afa1dc467db9fff7b">    9</a></span>&#160;    <a class="code" href="types_8h.html#ab95f123a6c9bcfee6a343170ef8c5f69">ushort</a> <a class="code" href="structidtGateDescriptor.html#ae5fe7c684b93e28afa1dc467db9fff7b">lowOffset</a>;</div><div class="line"><a name="l00010"></a><span class="lineno"><a class="line" href="structidtGateDescriptor.html#a2c137ec567230f7b626d00eeaba2a811">   10</a></span>&#160;    <a class="code" href="types_8h.html#ab95f123a6c9bcfee6a343170ef8c5f69">ushort</a> <a class="code" href="structidtGateDescriptor.html#a2c137ec567230f7b626d00eeaba2a811">selector</a>;</div><div class="line"><a name="l00011"></a><span class="lineno"><a class="line" href="structidtGateDescriptor.html#ace291b1edc2eb621423534f13bfb55df">   11</a></span>&#160;    <a class="code" href="types_8h.html#a65f85814a8290f9797005d3b28e7e5fc">uchar</a> <a class="code" href="structidtGateDescriptor.html#ace291b1edc2eb621423534f13bfb55df">zero</a>;</div><div class="line"><a name="l00012"></a><span class="lineno"><a class="line" href="structidtGateDescriptor.html#a87cbb8981740ac896a563352e96a2b9e">   12</a></span>&#160;    <a class="code" href="types_8h.html#a65f85814a8290f9797005d3b28e7e5fc">uchar</a> <a class="code" href="structidtGateDescriptor.html#a87cbb8981740ac896a563352e96a2b9e">type</a>;</div><div class="line"><a name="l00013"></a><span class="lineno"><a class="line" href="structidtGateDescriptor.html#a8df892f9e5e8a0780d8693e13d459cad">   13</a></span>&#160;    <a class="code" href="types_8h.html#ab95f123a6c9bcfee6a343170ef8c5f69">ushort</a> <a class="code" href="structidtGateDescriptor.html#a8df892f9e5e8a0780d8693e13d459cad">highOffset</a>;</div><div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;} <a class="code" href="idt_8h.html#aee0167f2ad2d04fb7e603a2a1c507788">idtGateDescriptor</a>;</div><div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;</div><div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;<span class="keywordtype">void</span> <a class="code" href="idt_8h.html#a4ebca227b37c1e28c42db6f0c3dc97d6">idtSetDescriptor</a>(<span class="keywordtype">int</span> index, <a class="code" href="types_8h.html#a91ad9478d81a7aaf2593e8d9c3d06a14">uint</a> handler, <a class="code" href="types_8h.html#ab95f123a6c9bcfee6a343170ef8c5f69">ushort</a> <a class="code" href="structidtGateDescriptor.html#a2c137ec567230f7b626d00eeaba2a811">selector</a>, <a class="code" href="types_8h.html#a65f85814a8290f9797005d3b28e7e5fc">uchar</a> <a class="code" href="structidtGateDescriptor.html#a87cbb8981740ac896a563352e96a2b9e">type</a>);</div><div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="keywordtype">void</span> <a class="code" href="idt_8h.html#abea4b1a4cb3c59e925bfe8bedd626dcc">idtInit</a>();</div><div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;</div><div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="keyword">extern</span> <span class="keywordtype">void</span> <a class="code" href="idt_8h.html#a60460668a5d56db4700a2625c1df5c69">load_idt</a>(<span class="keywordtype">void</span> *);</div><div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="keyword">extern</span> <a class="code" href="types_8h.html#ab95f123a6c9bcfee6a343170ef8c5f69">ushort</a> <a class="code" href="idt_8h.html#a6edc7d0ec336e10ae0a904887e12a156">kernel_code</a>;</div><div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;</div><div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="keyword">extern</span> <span class="keywordtype">void</span> <a class="code" href="idt_8h.html#a0a6934337150db280fc15c9663673528">a_isrZeroDivisionException</a>();</div><div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="keyword">extern</span> <span class="keywordtype">void</span>  <a class="code" href="idt_8h.html#a7ae6e3fe4110ccd71cbfa0f659dd5960">a_isrDebugException</a>();</div><div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="keyword">extern</span> <span class="keywordtype">void</span>  <a class="code" href="idt_8h.html#a51dd51b6c69ab83cf4dfeb300c3e26e7">a_isrNonMaskableInterruptException</a>();</div><div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="keyword">extern</span> <span class="keywordtype">void</span>  <a class="code" href="idt_8h.html#a32ee2c771853d162d021a738a4262828">a_isrBreakpointException</a>();</div><div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="keyword">extern</span> <span class="keywordtype">void</span>  <a class="code" href="idt_8h.html#a96be12a3b3fc94d4a6eecf004ba3a320">a_isrIntoDetectedOverflowException</a>();</div><div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="keyword">extern</span> <span class="keywordtype">void</span>  <a class="code" href="idt_8h.html#a0fda98168fb04d665983ea2c89bdc5bd">a_isrOutOfBoundsException</a>();</div><div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="keyword">extern</span> <span class="keywordtype">void</span>  <a class="code" href="idt_8h.html#a426befd2ddcc090501120c75be4d787f">a_isrInvalidOpcodeException</a>();</div><div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;<span class="keyword">extern</span> <span class="keywordtype">void</span>  <a class="code" href="idt_8h.html#a68c70e963482eae29a0068c1ee545e47">a_isrNoCoprocessorException</a>();</div><div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;<span class="keyword">extern</span> <span class="keywordtype">void</span>  <a class="code" href="idt_8h.html#a797a45b8efeee30bed02d5166795cdbe">a_isrDoubleFaultException</a>();</div><div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;<span class="keyword">extern</span> <span class="keywordtype">void</span>  <a class="code" href="idt_8h.html#ab9d5a12f0e6e7ef16ef5bae01bdaea80">a_isrCoprocessorSegmentOverrunException</a>();</div><div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="keyword">extern</span> <span class="keywordtype">void</span>  <a class="code" href="idt_8h.html#a484c2b110e0a17da6718ddfc8758c677">a_isrBadTSSException</a>();</div><div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="keyword">extern</span> <span class="keywordtype">void</span>  <a class="code" href="idt_8h.html#a042dbc0e286679968a3fd645de4a2a6a">a_isrSegmentNotPresentException</a>();</div><div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="keyword">extern</span> <span class="keywordtype">void</span>  <a class="code" href="idt_8h.html#a9c526c5c01b549f28c64a138645fc31c">a_isrStackFaultException</a>();</div><div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="keyword">extern</span> <span class="keywordtype">void</span>  <a class="code" href="idt_8h.html#a718107db5ccd6bce676ecb28736bc97e">a_isrGeneralProtectionFaultException</a>();</div><div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="keyword">extern</span> <span class="keywordtype">void</span>  <a class="code" href="idt_8h.html#a14c40d7e27210be9025829aa17a228a4">a_isrPageFaultException</a>();</div><div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="keyword">extern</span> <span class="keywordtype">void</span>  <a class="code" href="idt_8h.html#a5cfba30941c7069b770ae8354c8a650d">a_isrUnknownInterruptException</a>();</div><div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="keyword">extern</span> <span class="keywordtype">void</span>  <a class="code" href="idt_8h.html#abfe831e97b239de2022a67efcc60decc">a_isrCoprocessorFaultException</a>();</div><div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="keyword">extern</span> <span class="keywordtype">void</span>  <a class="code" href="idt_8h.html#a67a6e625b139dadfceb260f568c9d42f">a_isrAlignmentCheckException</a>();</div><div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="keyword">extern</span> <span class="keywordtype">void</span>  <a class="code" href="idt_8h.html#a6008f188a9b1f42c48fc9a4018d3cf96">a_isrMachineCheckException</a>();</div><div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="keyword">extern</span> <span class="keywordtype">void</span>  <a class="code" href="idt_8h.html#a3eb384173f3f05315cadc49ec65ba555">a_isrNonExistent</a>();</div><div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="keyword">extern</span> <span class="keywordtype">void</span> <a class="code" href="idt_8h.html#a29d946a439a9e5723856465cc74c2862">a_syscall</a>();</div><div class="ttc" id="idt_8h_html_a4ebca227b37c1e28c42db6f0c3dc97d6"><div class="ttname"><a href="idt_8h.html#a4ebca227b37c1e28c42db6f0c3dc97d6">idtSetDescriptor</a></div><div class="ttdeci">void idtSetDescriptor(int index, uint handler, ushort selector, uchar type)</div><div class="ttdef"><b>Definition:</b> idt.c:64</div></div>
+<div class="ttc" id="idt_8h_html_a60460668a5d56db4700a2625c1df5c69"><div class="ttname"><a href="idt_8h.html#a60460668a5d56db4700a2625c1df5c69">load_idt</a></div><div class="ttdeci">void load_idt(void *)</div></div>
+<div class="ttc" id="idt_8h_html_a5cfba30941c7069b770ae8354c8a650d"><div class="ttname"><a href="idt_8h.html#a5cfba30941c7069b770ae8354c8a650d">a_isrUnknownInterruptException</a></div><div class="ttdeci">void a_isrUnknownInterruptException()</div></div>
+<div class="ttc" id="types_8h_html"><div class="ttname"><a href="types_8h.html">types.h</a></div></div>
+<div class="ttc" id="idt_8h_html_a3eb384173f3f05315cadc49ec65ba555"><div class="ttname"><a href="idt_8h.html#a3eb384173f3f05315cadc49ec65ba555">a_isrNonExistent</a></div><div class="ttdeci">void a_isrNonExistent()</div></div>
+<div class="ttc" id="idt_8h_html_ab9d5a12f0e6e7ef16ef5bae01bdaea80"><div class="ttname"><a href="idt_8h.html#ab9d5a12f0e6e7ef16ef5bae01bdaea80">a_isrCoprocessorSegmentOverrunException</a></div><div class="ttdeci">void a_isrCoprocessorSegmentOverrunException()</div></div>
+<div class="ttc" id="structidtGateDescriptor_html_a2c137ec567230f7b626d00eeaba2a811"><div class="ttname"><a href="structidtGateDescriptor.html#a2c137ec567230f7b626d00eeaba2a811">idtGateDescriptor::selector</a></div><div class="ttdeci">ushort selector</div><div class="ttdef"><b>Definition:</b> idt.h:10</div></div>
+<div class="ttc" id="idt_8h_html_a797a45b8efeee30bed02d5166795cdbe"><div class="ttname"><a href="idt_8h.html#a797a45b8efeee30bed02d5166795cdbe">a_isrDoubleFaultException</a></div><div class="ttdeci">void a_isrDoubleFaultException()</div></div>
+<div class="ttc" id="types_8h_html_a65f85814a8290f9797005d3b28e7e5fc"><div class="ttname"><a href="types_8h.html#a65f85814a8290f9797005d3b28e7e5fc">uchar</a></div><div class="ttdeci">unsigned char uchar</div><div class="ttdef"><b>Definition:</b> types.h:6</div></div>
+<div class="ttc" id="idt_8h_html_a6edc7d0ec336e10ae0a904887e12a156"><div class="ttname"><a href="idt_8h.html#a6edc7d0ec336e10ae0a904887e12a156">kernel_code</a></div><div class="ttdeci">ushort kernel_code</div></div>
+<div class="ttc" id="idt_8h_html_a426befd2ddcc090501120c75be4d787f"><div class="ttname"><a href="idt_8h.html#a426befd2ddcc090501120c75be4d787f">a_isrInvalidOpcodeException</a></div><div class="ttdeci">void a_isrInvalidOpcodeException()</div></div>
+<div class="ttc" id="structidtGateDescriptor_html_ace291b1edc2eb621423534f13bfb55df"><div class="ttname"><a href="structidtGateDescriptor.html#ace291b1edc2eb621423534f13bfb55df">idtGateDescriptor::zero</a></div><div class="ttdeci">uchar zero</div><div class="ttdef"><b>Definition:</b> idt.h:11</div></div>
+<div class="ttc" id="idt_8h_html_a7ae6e3fe4110ccd71cbfa0f659dd5960"><div class="ttname"><a href="idt_8h.html#a7ae6e3fe4110ccd71cbfa0f659dd5960">a_isrDebugException</a></div><div class="ttdeci">void a_isrDebugException()</div></div>
+<div class="ttc" id="idt_8h_html_a96be12a3b3fc94d4a6eecf004ba3a320"><div class="ttname"><a href="idt_8h.html#a96be12a3b3fc94d4a6eecf004ba3a320">a_isrIntoDetectedOverflowException</a></div><div class="ttdeci">void a_isrIntoDetectedOverflowException()</div></div>
+<div class="ttc" id="idt_8h_html_a6008f188a9b1f42c48fc9a4018d3cf96"><div class="ttname"><a href="idt_8h.html#a6008f188a9b1f42c48fc9a4018d3cf96">a_isrMachineCheckException</a></div><div class="ttdeci">void a_isrMachineCheckException()</div></div>
+<div class="ttc" id="idt_8h_html_a68c70e963482eae29a0068c1ee545e47"><div class="ttname"><a href="idt_8h.html#a68c70e963482eae29a0068c1ee545e47">a_isrNoCoprocessorException</a></div><div class="ttdeci">void a_isrNoCoprocessorException()</div></div>
+<div class="ttc" id="idt_8h_html_a0a6934337150db280fc15c9663673528"><div class="ttname"><a href="idt_8h.html#a0a6934337150db280fc15c9663673528">a_isrZeroDivisionException</a></div><div class="ttdeci">void a_isrZeroDivisionException()</div></div>
+<div class="ttc" id="structidtGateDescriptor_html_a8df892f9e5e8a0780d8693e13d459cad"><div class="ttname"><a href="structidtGateDescriptor.html#a8df892f9e5e8a0780d8693e13d459cad">idtGateDescriptor::highOffset</a></div><div class="ttdeci">ushort highOffset</div><div class="ttdef"><b>Definition:</b> idt.h:13</div></div>
+<div class="ttc" id="idt_8h_html_abfe831e97b239de2022a67efcc60decc"><div class="ttname"><a href="idt_8h.html#abfe831e97b239de2022a67efcc60decc">a_isrCoprocessorFaultException</a></div><div class="ttdeci">void a_isrCoprocessorFaultException()</div></div>
+<div class="ttc" id="idt_8h_html_a51dd51b6c69ab83cf4dfeb300c3e26e7"><div class="ttname"><a href="idt_8h.html#a51dd51b6c69ab83cf4dfeb300c3e26e7">a_isrNonMaskableInterruptException</a></div><div class="ttdeci">void a_isrNonMaskableInterruptException()</div></div>
+<div class="ttc" id="structidtGateDescriptor_html_a87cbb8981740ac896a563352e96a2b9e"><div class="ttname"><a href="structidtGateDescriptor.html#a87cbb8981740ac896a563352e96a2b9e">idtGateDescriptor::type</a></div><div class="ttdeci">uchar type</div><div class="ttdef"><b>Definition:</b> idt.h:12</div></div>
+<div class="ttc" id="idt_8h_html_a042dbc0e286679968a3fd645de4a2a6a"><div class="ttname"><a href="idt_8h.html#a042dbc0e286679968a3fd645de4a2a6a">a_isrSegmentNotPresentException</a></div><div class="ttdeci">void a_isrSegmentNotPresentException()</div></div>
+<div class="ttc" id="types_8h_html_a91ad9478d81a7aaf2593e8d9c3d06a14"><div class="ttname"><a href="types_8h.html#a91ad9478d81a7aaf2593e8d9c3d06a14">uint</a></div><div class="ttdeci">unsigned int uint</div><div class="ttdef"><b>Definition:</b> types.h:2</div></div>
+<div class="ttc" id="idt_8h_html_a14c40d7e27210be9025829aa17a228a4"><div class="ttname"><a href="idt_8h.html#a14c40d7e27210be9025829aa17a228a4">a_isrPageFaultException</a></div><div class="ttdeci">void a_isrPageFaultException()</div></div>
+<div class="ttc" id="idt_8h_html_a0fda98168fb04d665983ea2c89bdc5bd"><div class="ttname"><a href="idt_8h.html#a0fda98168fb04d665983ea2c89bdc5bd">a_isrOutOfBoundsException</a></div><div class="ttdeci">void a_isrOutOfBoundsException()</div></div>
+<div class="ttc" id="idt_8h_html_a718107db5ccd6bce676ecb28736bc97e"><div class="ttname"><a href="idt_8h.html#a718107db5ccd6bce676ecb28736bc97e">a_isrGeneralProtectionFaultException</a></div><div class="ttdeci">void a_isrGeneralProtectionFaultException()</div></div>
+<div class="ttc" id="structidtGateDescriptor_html_ae5fe7c684b93e28afa1dc467db9fff7b"><div class="ttname"><a href="structidtGateDescriptor.html#ae5fe7c684b93e28afa1dc467db9fff7b">idtGateDescriptor::lowOffset</a></div><div class="ttdeci">ushort lowOffset</div><div class="ttdef"><b>Definition:</b> idt.h:9</div></div>
+<div class="ttc" id="idt_8h_html_a9c526c5c01b549f28c64a138645fc31c"><div class="ttname"><a href="idt_8h.html#a9c526c5c01b549f28c64a138645fc31c">a_isrStackFaultException</a></div><div class="ttdeci">void a_isrStackFaultException()</div></div>
+<div class="ttc" id="idt_8h_html_abea4b1a4cb3c59e925bfe8bedd626dcc"><div class="ttname"><a href="idt_8h.html#abea4b1a4cb3c59e925bfe8bedd626dcc">idtInit</a></div><div class="ttdeci">void idtInit()</div><div class="ttdef"><b>Definition:</b> idt.c:21</div></div>
+<div class="ttc" id="idt_8h_html_a32ee2c771853d162d021a738a4262828"><div class="ttname"><a href="idt_8h.html#a32ee2c771853d162d021a738a4262828">a_isrBreakpointException</a></div><div class="ttdeci">void a_isrBreakpointException()</div></div>
+<div class="ttc" id="structidtGateDescriptor_html"><div class="ttname"><a href="structidtGateDescriptor.html">idtGateDescriptor</a></div><div class="ttdef"><b>Definition:</b> idt.h:8</div></div>
+<div class="ttc" id="idt_8h_html_a29d946a439a9e5723856465cc74c2862"><div class="ttname"><a href="idt_8h.html#a29d946a439a9e5723856465cc74c2862">a_syscall</a></div><div class="ttdeci">void a_syscall()</div></div>
+<div class="ttc" id="idt_8h_html_a484c2b110e0a17da6718ddfc8758c677"><div class="ttname"><a href="idt_8h.html#a484c2b110e0a17da6718ddfc8758c677">a_isrBadTSSException</a></div><div class="ttdeci">void a_isrBadTSSException()</div></div>
+<div class="ttc" id="types_8h_html_ab95f123a6c9bcfee6a343170ef8c5f69"><div class="ttname"><a href="types_8h.html#ab95f123a6c9bcfee6a343170ef8c5f69">ushort</a></div><div class="ttdeci">unsigned short ushort</div><div class="ttdef"><b>Definition:</b> types.h:4</div></div>
+<div class="ttc" id="idt_8h_html_aee0167f2ad2d04fb7e603a2a1c507788"><div class="ttname"><a href="idt_8h.html#aee0167f2ad2d04fb7e603a2a1c507788">idtGateDescriptor</a></div><div class="ttdeci">struct idtGateDescriptor idtGateDescriptor</div></div>
+<div class="ttc" id="idt_8h_html_a67a6e625b139dadfceb260f568c9d42f"><div class="ttname"><a href="idt_8h.html#a67a6e625b139dadfceb260f568c9d42f">a_isrAlignmentCheckException</a></div><div class="ttdeci">void a_isrAlignmentCheckException()</div></div>
+</div><!-- fragment --></div><!-- contents -->
+<!-- start footer part -->
+<hr class="footer"/><address class="footer"><small>
+Создано системой &#160;<a href="http://www.doxygen.org/index.html">
+<img class="footer" src="doxygen.png" alt="doxygen"/>
+</a> 1.8.11
+</small></address>
+</body>
+</html>

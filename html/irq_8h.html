@@ -1,0 +1,404 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.8.11"/>
+<title>OS-PI: Файл irq.h</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<script type="text/javascript">
+  $(document).ready(function() { init_search(); });
+</script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td id="projectalign" style="padding-left: 0.5em;">
+   <div id="projectname">OS-PI
+   &#160;<span id="projectnumber">0.1</span>
+   </div>
+   <div id="projectbrief">Операционная система</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Создано системой Doxygen 1.8.11 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
+</script>
+  <div id="navrow1" class="tabs">
+    <ul class="tablist">
+      <li><a href="index.html"><span>Титульная&#160;страница</span></a></li>
+      <li><a href="annotated.html"><span>Классы</span></a></li>
+      <li class="current"><a href="files.html"><span>Файлы</span></a></li>
+      <li>
+        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <img id="MSearchSelect" src="search/mag_sel.png"
+               onmouseover="return searchBox.OnSearchSelectShow()"
+               onmouseout="return searchBox.OnSearchSelectHide()"
+               alt=""/>
+          <input type="text" id="MSearchField" value="Поиск" accesskey="S"
+               onfocus="searchBox.OnSearchFieldFocus(true)" 
+               onblur="searchBox.OnSearchFieldFocus(false)" 
+               onkeyup="searchBox.OnSearchFieldChange(event)"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><img id="MSearchCloseImg" border="0" src="search/close.png" alt=""/></a>
+          </span>
+        </div>
+      </li>
+    </ul>
+  </div>
+  <div id="navrow2" class="tabs2">
+    <ul class="tablist">
+      <li><a href="files.html"><span>Файлы</span></a></li>
+      <li><a href="globals.html"><span>Список&#160;членов&#160;всех&#160;файлов</span></a></li>
+    </ul>
+  </div>
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<iframe src="javascript:void(0)" frameborder="0" 
+        name="MSearchResults" id="MSearchResults">
+</iframe>
+</div>
+
+</div><!-- top -->
+<div class="header">
+  <div class="summary">
+<a href="#define-members">Макросы</a> &#124;
+<a href="#func-members">Функции</a>  </div>
+  <div class="headertitle">
+<div class="title">Файл irq.h</div>  </div>
+</div><!--header-->
+<div class="contents">
+<div class="textblock"><div class="dynheader">
+Граф файлов, в которые включается этот файл:</div>
+<div class="dyncontent">
+<div class="center"><img src="irq_8h__dep__incl.png" border="0" usemap="#irq_8hdep" alt=""/></div>
+<map name="irq_8hdep" id="irq_8hdep">
+<area shape="rect" id="node2" href="irq_8c.html" title="irq.c" alt="" coords="5,80,52,107"/>
+<area shape="rect" id="node3" href="main_8c.html" title="main.c" alt="" coords="77,80,138,107"/>
+</map>
+</div>
+</div>
+<p><a href="irq_8h_source.html">См. исходные тексты.</a></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
+Макросы</h2></td></tr>
+<tr class="memitem:a964d12193d2b36e8a7ec7fa57438e313"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="irq_8h.html#a964d12193d2b36e8a7ec7fa57438e313">ICW1_ICW4</a>&#160;&#160;&#160;0x01		/* ICW4 (not) needed */</td></tr>
+<tr class="separator:a964d12193d2b36e8a7ec7fa57438e313"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6c092603fb5e22cc80954531ae319d01"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="irq_8h.html#a6c092603fb5e22cc80954531ae319d01">ICW1_SINGLE</a>&#160;&#160;&#160;0x02		/* Single (cascade) mode */</td></tr>
+<tr class="separator:a6c092603fb5e22cc80954531ae319d01"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6ba324062a88dc9ff1e2916abdcde17e"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="irq_8h.html#a6ba324062a88dc9ff1e2916abdcde17e">ICW1_INTERVAL4</a>&#160;&#160;&#160;0x04		/* Call address interval 4 (8) */</td></tr>
+<tr class="separator:a6ba324062a88dc9ff1e2916abdcde17e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8b06fbc75942c0a61e6ad80ea4736bd3"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="irq_8h.html#a8b06fbc75942c0a61e6ad80ea4736bd3">ICW1_LEVEL</a>&#160;&#160;&#160;0x08		/* Level triggered (edge) mode */</td></tr>
+<tr class="separator:a8b06fbc75942c0a61e6ad80ea4736bd3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a286dc251f3d73c08e08a53a4696f31ef"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="irq_8h.html#a286dc251f3d73c08e08a53a4696f31ef">ICW1_INIT</a>&#160;&#160;&#160;0x10		/* Initialization - required! */</td></tr>
+<tr class="separator:a286dc251f3d73c08e08a53a4696f31ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a42803c5ddcec9e120a6dbf7bc5c1b7af"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="irq_8h.html#a42803c5ddcec9e120a6dbf7bc5c1b7af">ICW4_8086</a>&#160;&#160;&#160;0x01		/* 8086/88 (MCS-80/85) mode */</td></tr>
+<tr class="separator:a42803c5ddcec9e120a6dbf7bc5c1b7af"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a16777bf654a4c5630e4f53902a25235a"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="irq_8h.html#a16777bf654a4c5630e4f53902a25235a">ICW4_AUTO</a>&#160;&#160;&#160;0x02		/* Auto (normal) EOI */</td></tr>
+<tr class="separator:a16777bf654a4c5630e4f53902a25235a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af5443900cdd9096e97898e5584c316bb"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="irq_8h.html#af5443900cdd9096e97898e5584c316bb">ICW4_BUF_SLAVE</a>&#160;&#160;&#160;0x08		/* Buffered mode/slave */</td></tr>
+<tr class="separator:af5443900cdd9096e97898e5584c316bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af3f1b53c727d98166710d198aca13411"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="irq_8h.html#af3f1b53c727d98166710d198aca13411">ICW4_BUF_MASTER</a>&#160;&#160;&#160;0x0C		/* Buffered mode/master */</td></tr>
+<tr class="separator:af3f1b53c727d98166710d198aca13411"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0ecb67a3f71d1d10502fbd834b0292f1"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="irq_8h.html#a0ecb67a3f71d1d10502fbd834b0292f1">ICW4_SFNM</a>&#160;&#160;&#160;0x10		/* Special fully nested (not) */</td></tr>
+<tr class="separator:a0ecb67a3f71d1d10502fbd834b0292f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6b115109e4a0d3c5fb6252d091e86bfe"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="irq_8h.html#a6b115109e4a0d3c5fb6252d091e86bfe">PIC1</a>&#160;&#160;&#160;0x20		/* IO base address for master PIC */</td></tr>
+<tr class="separator:a6b115109e4a0d3c5fb6252d091e86bfe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac90003f52c8d736193efc954ece08e58"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="irq_8h.html#ac90003f52c8d736193efc954ece08e58">PIC2</a>&#160;&#160;&#160;0xA0		/* IO base address for slave PIC */</td></tr>
+<tr class="separator:ac90003f52c8d736193efc954ece08e58"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad1ba81484ab03e762d2e09f851c0901f"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="irq_8h.html#ad1ba81484ab03e762d2e09f851c0901f">PIC1_COMMAND</a>&#160;&#160;&#160;<a class="el" href="irq_8h.html#a6b115109e4a0d3c5fb6252d091e86bfe">PIC1</a></td></tr>
+<tr class="separator:ad1ba81484ab03e762d2e09f851c0901f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af27e966ec947ca1172f30ae301c5f24b"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="irq_8h.html#af27e966ec947ca1172f30ae301c5f24b">PIC1_DATA</a>&#160;&#160;&#160;(<a class="el" href="irq_8h.html#a6b115109e4a0d3c5fb6252d091e86bfe">PIC1</a>+1)</td></tr>
+<tr class="separator:af27e966ec947ca1172f30ae301c5f24b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a11d8793812c9d340e9a64cce26ee0570"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="irq_8h.html#a11d8793812c9d340e9a64cce26ee0570">PIC2_COMMAND</a>&#160;&#160;&#160;<a class="el" href="irq_8h.html#ac90003f52c8d736193efc954ece08e58">PIC2</a></td></tr>
+<tr class="separator:a11d8793812c9d340e9a64cce26ee0570"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab6d3b9f6f427357310896adf176145f1"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="irq_8h.html#ab6d3b9f6f427357310896adf176145f1">PIC2_DATA</a>&#160;&#160;&#160;(<a class="el" href="irq_8h.html#ac90003f52c8d736193efc954ece08e58">PIC2</a>+1)</td></tr>
+<tr class="separator:ab6d3b9f6f427357310896adf176145f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a170d8eebdb48c16cfcd60cbd46760cb2"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="irq_8h.html#a170d8eebdb48c16cfcd60cbd46760cb2">PIC_EOI</a>&#160;&#160;&#160;0x20</td></tr>
+<tr class="separator:a170d8eebdb48c16cfcd60cbd46760cb2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
+Функции</h2></td></tr>
+<tr class="memitem:ac3ff77aaf3544920de54b959587195f7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="irq_8h.html#ac3ff77aaf3544920de54b959587195f7">init_interrupts</a> (int offset1, int offset2)</td></tr>
+<tr class="separator:ac3ff77aaf3544920de54b959587195f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a04d6dabf7d99ebf12d8bc314bfddcb77"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="irq_8h.html#a04d6dabf7d99ebf12d8bc314bfddcb77">end_of_interrupt</a> (unsigned char irq)</td></tr>
+<tr class="separator:a04d6dabf7d99ebf12d8bc314bfddcb77"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<h2 class="groupheader">Макросы</h2>
+<a class="anchor" id="a964d12193d2b36e8a7ec7fa57438e313"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define ICW1_ICW4&#160;&#160;&#160;0x01		/* ICW4 (not) needed */</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a286dc251f3d73c08e08a53a4696f31ef"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define ICW1_INIT&#160;&#160;&#160;0x10		/* Initialization - required! */</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a6ba324062a88dc9ff1e2916abdcde17e"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define ICW1_INTERVAL4&#160;&#160;&#160;0x04		/* Call address interval 4 (8) */</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a8b06fbc75942c0a61e6ad80ea4736bd3"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define ICW1_LEVEL&#160;&#160;&#160;0x08		/* Level triggered (edge) mode */</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a6c092603fb5e22cc80954531ae319d01"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define ICW1_SINGLE&#160;&#160;&#160;0x02		/* Single (cascade) mode */</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a42803c5ddcec9e120a6dbf7bc5c1b7af"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define ICW4_8086&#160;&#160;&#160;0x01		/* 8086/88 (MCS-80/85) mode */</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a16777bf654a4c5630e4f53902a25235a"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define ICW4_AUTO&#160;&#160;&#160;0x02		/* Auto (normal) EOI */</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="af3f1b53c727d98166710d198aca13411"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define ICW4_BUF_MASTER&#160;&#160;&#160;0x0C		/* Buffered mode/master */</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="af5443900cdd9096e97898e5584c316bb"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define ICW4_BUF_SLAVE&#160;&#160;&#160;0x08		/* Buffered mode/slave */</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a0ecb67a3f71d1d10502fbd834b0292f1"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define ICW4_SFNM&#160;&#160;&#160;0x10		/* Special fully nested (not) */</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a6b115109e4a0d3c5fb6252d091e86bfe"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define PIC1&#160;&#160;&#160;0x20		/* IO base address for master PIC */</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ad1ba81484ab03e762d2e09f851c0901f"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define PIC1_COMMAND&#160;&#160;&#160;<a class="el" href="irq_8h.html#a6b115109e4a0d3c5fb6252d091e86bfe">PIC1</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="af27e966ec947ca1172f30ae301c5f24b"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define PIC1_DATA&#160;&#160;&#160;(<a class="el" href="irq_8h.html#a6b115109e4a0d3c5fb6252d091e86bfe">PIC1</a>+1)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ac90003f52c8d736193efc954ece08e58"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define PIC2&#160;&#160;&#160;0xA0		/* IO base address for slave PIC */</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a11d8793812c9d340e9a64cce26ee0570"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define PIC2_COMMAND&#160;&#160;&#160;<a class="el" href="irq_8h.html#ac90003f52c8d736193efc954ece08e58">PIC2</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ab6d3b9f6f427357310896adf176145f1"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define PIC2_DATA&#160;&#160;&#160;(<a class="el" href="irq_8h.html#ac90003f52c8d736193efc954ece08e58">PIC2</a>+1)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a170d8eebdb48c16cfcd60cbd46760cb2"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define PIC_EOI&#160;&#160;&#160;0x20</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<h2 class="groupheader">Функции</h2>
+<a class="anchor" id="a04d6dabf7d99ebf12d8bc314bfddcb77"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void end_of_interrupt </td>
+          <td>(</td>
+          <td class="paramtype">unsigned char&#160;</td>
+          <td class="paramname"><em>irq</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ac3ff77aaf3544920de54b959587195f7"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void init_interrupts </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>offset1</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>offset2</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+</div><!-- contents -->
+<!-- start footer part -->
+<hr class="footer"/><address class="footer"><small>
+Создано системой &#160;<a href="http://www.doxygen.org/index.html">
+<img class="footer" src="doxygen.png" alt="doxygen"/>
+</a> 1.8.11
+</small></address>
+</body>
+</html>

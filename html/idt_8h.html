@@ -1,0 +1,630 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.8.11"/>
+<title>OS-PI: Файл idt.h</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<script type="text/javascript">
+  $(document).ready(function() { init_search(); });
+</script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td id="projectalign" style="padding-left: 0.5em;">
+   <div id="projectname">OS-PI
+   &#160;<span id="projectnumber">0.1</span>
+   </div>
+   <div id="projectbrief">Операционная система</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Создано системой Doxygen 1.8.11 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
+</script>
+  <div id="navrow1" class="tabs">
+    <ul class="tablist">
+      <li><a href="index.html"><span>Титульная&#160;страница</span></a></li>
+      <li><a href="annotated.html"><span>Классы</span></a></li>
+      <li class="current"><a href="files.html"><span>Файлы</span></a></li>
+      <li>
+        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <img id="MSearchSelect" src="search/mag_sel.png"
+               onmouseover="return searchBox.OnSearchSelectShow()"
+               onmouseout="return searchBox.OnSearchSelectHide()"
+               alt=""/>
+          <input type="text" id="MSearchField" value="Поиск" accesskey="S"
+               onfocus="searchBox.OnSearchFieldFocus(true)" 
+               onblur="searchBox.OnSearchFieldFocus(false)" 
+               onkeyup="searchBox.OnSearchFieldChange(event)"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><img id="MSearchCloseImg" border="0" src="search/close.png" alt=""/></a>
+          </span>
+        </div>
+      </li>
+    </ul>
+  </div>
+  <div id="navrow2" class="tabs2">
+    <ul class="tablist">
+      <li><a href="files.html"><span>Файлы</span></a></li>
+      <li><a href="globals.html"><span>Список&#160;членов&#160;всех&#160;файлов</span></a></li>
+    </ul>
+  </div>
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<iframe src="javascript:void(0)" frameborder="0" 
+        name="MSearchResults" id="MSearchResults">
+</iframe>
+</div>
+
+</div><!-- top -->
+<div class="header">
+  <div class="summary">
+<a href="#nested-classes">Классы</a> &#124;
+<a href="#define-members">Макросы</a> &#124;
+<a href="#typedef-members">Определения типов</a> &#124;
+<a href="#func-members">Функции</a> &#124;
+<a href="#var-members">Переменные</a>  </div>
+  <div class="headertitle">
+<div class="title">Файл idt.h</div>  </div>
+</div><!--header-->
+<div class="contents">
+<div class="textblock"><code>#include &quot;<a class="el" href="types_8h_source.html">types.h</a>&quot;</code><br />
+</div><div class="textblock"><div class="dynheader">
+Граф включаемых заголовочных файлов для idt.h:</div>
+<div class="dyncontent">
+<div class="center"><img src="idt_8h__incl.png" border="0" usemap="#idt_8h" alt=""/></div>
+<map name="idt_8h" id="idt_8h">
+<area shape="rect" id="node2" href="types_8h.html" title="types.h" alt="" coords="5,80,71,107"/>
+</map>
+</div>
+</div><div class="textblock"><div class="dynheader">
+Граф файлов, в которые включается этот файл:</div>
+<div class="dyncontent">
+<div class="center"><img src="idt_8h__dep__incl.png" border="0" usemap="#idt_8hdep" alt=""/></div>
+<map name="idt_8hdep" id="idt_8hdep">
+<area shape="rect" id="node2" href="idt_8c.html" title="Interrupt description table handle. " alt="" coords="5,80,52,107"/>
+<area shape="rect" id="node3" href="main_8c.html" title="main.c" alt="" coords="77,80,138,107"/>
+</map>
+</div>
+</div>
+<p><a href="idt_8h_source.html">См. исходные тексты.</a></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
+Классы</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structidtGateDescriptor.html">idtGateDescriptor</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
+Макросы</h2></td></tr>
+<tr class="memitem:a6eb438cc75ca0a7284346ea8b3f94999"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="idt_8h.html#a6eb438cc75ca0a7284346ea8b3f94999">IDT_SIZE</a>&#160;&#160;&#160;256</td></tr>
+<tr class="separator:a6eb438cc75ca0a7284346ea8b3f94999"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
+Определения типов</h2></td></tr>
+<tr class="memitem:aee0167f2ad2d04fb7e603a2a1c507788"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structidtGateDescriptor.html">idtGateDescriptor</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="idt_8h.html#aee0167f2ad2d04fb7e603a2a1c507788">idtGateDescriptor</a></td></tr>
+<tr class="separator:aee0167f2ad2d04fb7e603a2a1c507788"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
+Функции</h2></td></tr>
+<tr class="memitem:a4ebca227b37c1e28c42db6f0c3dc97d6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="idt_8h.html#a4ebca227b37c1e28c42db6f0c3dc97d6">idtSetDescriptor</a> (int index, <a class="el" href="types_8h.html#a91ad9478d81a7aaf2593e8d9c3d06a14">uint</a> handler, <a class="el" href="types_8h.html#ab95f123a6c9bcfee6a343170ef8c5f69">ushort</a> selector, <a class="el" href="types_8h.html#a65f85814a8290f9797005d3b28e7e5fc">uchar</a> type)</td></tr>
+<tr class="separator:a4ebca227b37c1e28c42db6f0c3dc97d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abea4b1a4cb3c59e925bfe8bedd626dcc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="idt_8h.html#abea4b1a4cb3c59e925bfe8bedd626dcc">idtInit</a> ()</td></tr>
+<tr class="separator:abea4b1a4cb3c59e925bfe8bedd626dcc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a60460668a5d56db4700a2625c1df5c69"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="idt_8h.html#a60460668a5d56db4700a2625c1df5c69">load_idt</a> (void *)</td></tr>
+<tr class="separator:a60460668a5d56db4700a2625c1df5c69"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0a6934337150db280fc15c9663673528"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="idt_8h.html#a0a6934337150db280fc15c9663673528">a_isrZeroDivisionException</a> ()</td></tr>
+<tr class="separator:a0a6934337150db280fc15c9663673528"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7ae6e3fe4110ccd71cbfa0f659dd5960"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="idt_8h.html#a7ae6e3fe4110ccd71cbfa0f659dd5960">a_isrDebugException</a> ()</td></tr>
+<tr class="separator:a7ae6e3fe4110ccd71cbfa0f659dd5960"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a51dd51b6c69ab83cf4dfeb300c3e26e7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="idt_8h.html#a51dd51b6c69ab83cf4dfeb300c3e26e7">a_isrNonMaskableInterruptException</a> ()</td></tr>
+<tr class="separator:a51dd51b6c69ab83cf4dfeb300c3e26e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a32ee2c771853d162d021a738a4262828"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="idt_8h.html#a32ee2c771853d162d021a738a4262828">a_isrBreakpointException</a> ()</td></tr>
+<tr class="separator:a32ee2c771853d162d021a738a4262828"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a96be12a3b3fc94d4a6eecf004ba3a320"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="idt_8h.html#a96be12a3b3fc94d4a6eecf004ba3a320">a_isrIntoDetectedOverflowException</a> ()</td></tr>
+<tr class="separator:a96be12a3b3fc94d4a6eecf004ba3a320"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0fda98168fb04d665983ea2c89bdc5bd"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="idt_8h.html#a0fda98168fb04d665983ea2c89bdc5bd">a_isrOutOfBoundsException</a> ()</td></tr>
+<tr class="separator:a0fda98168fb04d665983ea2c89bdc5bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a426befd2ddcc090501120c75be4d787f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="idt_8h.html#a426befd2ddcc090501120c75be4d787f">a_isrInvalidOpcodeException</a> ()</td></tr>
+<tr class="separator:a426befd2ddcc090501120c75be4d787f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a68c70e963482eae29a0068c1ee545e47"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="idt_8h.html#a68c70e963482eae29a0068c1ee545e47">a_isrNoCoprocessorException</a> ()</td></tr>
+<tr class="separator:a68c70e963482eae29a0068c1ee545e47"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a797a45b8efeee30bed02d5166795cdbe"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="idt_8h.html#a797a45b8efeee30bed02d5166795cdbe">a_isrDoubleFaultException</a> ()</td></tr>
+<tr class="separator:a797a45b8efeee30bed02d5166795cdbe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab9d5a12f0e6e7ef16ef5bae01bdaea80"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="idt_8h.html#ab9d5a12f0e6e7ef16ef5bae01bdaea80">a_isrCoprocessorSegmentOverrunException</a> ()</td></tr>
+<tr class="separator:ab9d5a12f0e6e7ef16ef5bae01bdaea80"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a484c2b110e0a17da6718ddfc8758c677"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="idt_8h.html#a484c2b110e0a17da6718ddfc8758c677">a_isrBadTSSException</a> ()</td></tr>
+<tr class="separator:a484c2b110e0a17da6718ddfc8758c677"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a042dbc0e286679968a3fd645de4a2a6a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="idt_8h.html#a042dbc0e286679968a3fd645de4a2a6a">a_isrSegmentNotPresentException</a> ()</td></tr>
+<tr class="separator:a042dbc0e286679968a3fd645de4a2a6a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9c526c5c01b549f28c64a138645fc31c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="idt_8h.html#a9c526c5c01b549f28c64a138645fc31c">a_isrStackFaultException</a> ()</td></tr>
+<tr class="separator:a9c526c5c01b549f28c64a138645fc31c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a718107db5ccd6bce676ecb28736bc97e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="idt_8h.html#a718107db5ccd6bce676ecb28736bc97e">a_isrGeneralProtectionFaultException</a> ()</td></tr>
+<tr class="separator:a718107db5ccd6bce676ecb28736bc97e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a14c40d7e27210be9025829aa17a228a4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="idt_8h.html#a14c40d7e27210be9025829aa17a228a4">a_isrPageFaultException</a> ()</td></tr>
+<tr class="separator:a14c40d7e27210be9025829aa17a228a4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5cfba30941c7069b770ae8354c8a650d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="idt_8h.html#a5cfba30941c7069b770ae8354c8a650d">a_isrUnknownInterruptException</a> ()</td></tr>
+<tr class="separator:a5cfba30941c7069b770ae8354c8a650d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abfe831e97b239de2022a67efcc60decc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="idt_8h.html#abfe831e97b239de2022a67efcc60decc">a_isrCoprocessorFaultException</a> ()</td></tr>
+<tr class="separator:abfe831e97b239de2022a67efcc60decc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a67a6e625b139dadfceb260f568c9d42f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="idt_8h.html#a67a6e625b139dadfceb260f568c9d42f">a_isrAlignmentCheckException</a> ()</td></tr>
+<tr class="separator:a67a6e625b139dadfceb260f568c9d42f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6008f188a9b1f42c48fc9a4018d3cf96"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="idt_8h.html#a6008f188a9b1f42c48fc9a4018d3cf96">a_isrMachineCheckException</a> ()</td></tr>
+<tr class="separator:a6008f188a9b1f42c48fc9a4018d3cf96"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3eb384173f3f05315cadc49ec65ba555"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="idt_8h.html#a3eb384173f3f05315cadc49ec65ba555">a_isrNonExistent</a> ()</td></tr>
+<tr class="separator:a3eb384173f3f05315cadc49ec65ba555"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a29d946a439a9e5723856465cc74c2862"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="idt_8h.html#a29d946a439a9e5723856465cc74c2862">a_syscall</a> ()</td></tr>
+<tr class="separator:a29d946a439a9e5723856465cc74c2862"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
+Переменные</h2></td></tr>
+<tr class="memitem:a6edc7d0ec336e10ae0a904887e12a156"><td class="memItemLeft" align="right" valign="top"><a class="el" href="types_8h.html#ab95f123a6c9bcfee6a343170ef8c5f69">ushort</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="idt_8h.html#a6edc7d0ec336e10ae0a904887e12a156">kernel_code</a></td></tr>
+<tr class="separator:a6edc7d0ec336e10ae0a904887e12a156"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<h2 class="groupheader">Макросы</h2>
+<a class="anchor" id="a6eb438cc75ca0a7284346ea8b3f94999"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define IDT_SIZE&#160;&#160;&#160;256</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<h2 class="groupheader">Типы</h2>
+<a class="anchor" id="aee0167f2ad2d04fb7e603a2a1c507788"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef struct <a class="el" href="structidtGateDescriptor.html">idtGateDescriptor</a>  <a class="el" href="structidtGateDescriptor.html">idtGateDescriptor</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<h2 class="groupheader">Функции</h2>
+<a class="anchor" id="a67a6e625b139dadfceb260f568c9d42f"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void a_isrAlignmentCheckException </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a484c2b110e0a17da6718ddfc8758c677"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void a_isrBadTSSException </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a32ee2c771853d162d021a738a4262828"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void a_isrBreakpointException </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="abfe831e97b239de2022a67efcc60decc"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void a_isrCoprocessorFaultException </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ab9d5a12f0e6e7ef16ef5bae01bdaea80"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void a_isrCoprocessorSegmentOverrunException </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a7ae6e3fe4110ccd71cbfa0f659dd5960"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void a_isrDebugException </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a797a45b8efeee30bed02d5166795cdbe"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void a_isrDoubleFaultException </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a718107db5ccd6bce676ecb28736bc97e"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void a_isrGeneralProtectionFaultException </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a96be12a3b3fc94d4a6eecf004ba3a320"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void a_isrIntoDetectedOverflowException </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a426befd2ddcc090501120c75be4d787f"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void a_isrInvalidOpcodeException </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a6008f188a9b1f42c48fc9a4018d3cf96"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void a_isrMachineCheckException </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a68c70e963482eae29a0068c1ee545e47"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void a_isrNoCoprocessorException </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a3eb384173f3f05315cadc49ec65ba555"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void a_isrNonExistent </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a51dd51b6c69ab83cf4dfeb300c3e26e7"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void a_isrNonMaskableInterruptException </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a0fda98168fb04d665983ea2c89bdc5bd"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void a_isrOutOfBoundsException </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a14c40d7e27210be9025829aa17a228a4"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void a_isrPageFaultException </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a042dbc0e286679968a3fd645de4a2a6a"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void a_isrSegmentNotPresentException </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a9c526c5c01b549f28c64a138645fc31c"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void a_isrStackFaultException </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a5cfba30941c7069b770ae8354c8a650d"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void a_isrUnknownInterruptException </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a0a6934337150db280fc15c9663673528"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void a_isrZeroDivisionException </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a29d946a439a9e5723856465cc74c2862"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void a_syscall </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="abea4b1a4cb3c59e925bfe8bedd626dcc"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void idtInit </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>idtInit initializes IDT in the static memory. </p>
+
+</div>
+</div>
+<a class="anchor" id="a4ebca227b37c1e28c42db6f0c3dc97d6"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void idtSetDescriptor </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>index</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="types_8h.html#a91ad9478d81a7aaf2593e8d9c3d06a14">uint</a>&#160;</td>
+          <td class="paramname"><em>handler</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="types_8h.html#ab95f123a6c9bcfee6a343170ef8c5f69">ushort</a>&#160;</td>
+          <td class="paramname"><em>selector</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="types_8h.html#a65f85814a8290f9797005d3b28e7e5fc">uchar</a>&#160;</td>
+          <td class="paramname"><em>type</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>idtSetDescriptor sets a gate descriptor in the IDT.</p>
+<dl class="params"><dt>Аргументы</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">index</td><td>interrupt vector number </td></tr>
+    <tr><td class="paramname">handler</td><td>handle function address </td></tr>
+    <tr><td class="paramname">selector</td><td>memory segment number </td></tr>
+    <tr><td class="paramname">type</td><td>flags </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a60460668a5d56db4700a2625c1df5c69"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void load_idt </td>
+          <td>(</td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<h2 class="groupheader">Переменные</h2>
+<a class="anchor" id="a6edc7d0ec336e10ae0a904887e12a156"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="types_8h.html#ab95f123a6c9bcfee6a343170ef8c5f69">ushort</a> kernel_code</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+</div><!-- contents -->
+<!-- start footer part -->
+<hr class="footer"/><address class="footer"><small>
+Создано системой &#160;<a href="http://www.doxygen.org/index.html">
+<img class="footer" src="doxygen.png" alt="doxygen"/>
+</a> 1.8.11
+</small></address>
+</body>
+</html>

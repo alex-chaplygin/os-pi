@@ -1,11 +1,25 @@
+/**
+ * @file   idt.c
+ * @author alex <alex@alex-Inspiron-N5040>
+ * @date   Mon Oct 19 13:10:13 2020
+ * 
+ * @brief  Interrupt description table handle
+ * 
+ * 
+ */
+
 #include "idt.h"
 #include "isr.h"
 
+/// IDT table
 idtGateDescriptor idt[IDT_SIZE];
-unsigned long idt_ptr[2];
 
-// idtInit initializes IDT in the static memory.
+/** 
+ * idtInit initializes IDT in the static memory.
+ * 
+ */
 void idtInit() {
+  unsigned long idt_ptr[2];
     idtSetDescriptor(0, (uint)a_isrZeroDivisionException, kernel_code, 0x8E);
     idtSetDescriptor(1, (uint)a_isrDebugException, kernel_code, 0x8E);
     idtSetDescriptor(2, (uint)a_isrNonMaskableInterruptException, kernel_code, 0x8E);
@@ -39,7 +53,14 @@ void idtInit() {
     load_idt(idt_ptr);
 }
 
-// idtSetDescriptor sets a gate descriptor in the IDT.
+/** 
+ *  idtSetDescriptor sets a gate descriptor in the IDT.
+ * 
+ * @param index  interrupt vector number
+ * @param handler  handle function address
+ * @param selector  memory segment number
+ * @param type flags
+ */
 void idtSetDescriptor(int index, uint handler, ushort selector, uchar type) {
     idtGateDescriptor* d = &idt[index];
 
