@@ -1,4 +1,4 @@
-OBJS=main.o console.o x86.o libc.o proc.o idt.o isr.o
+OBJS=main.o console.o x86.o libc.o proc.o idt.o isr.o timer.o
 CFLAGS=-m32 -nostdlib -nodefaultlibs -Wno-builtin-declaration-mismatch
 
 kernel: $(OBJS)
@@ -8,3 +8,5 @@ x86.o: x86.asm
 	nasm -f elf32 x86.asm -o x86.o
 run:
 	qemu-system-i386 -kernel kernel
+debug:
+	qemu-system-i386 -kernel kernel -s -S

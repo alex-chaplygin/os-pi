@@ -27,9 +27,11 @@ global a_isrCoprocessorFaultException
 global a_isrAlignmentCheckException
 global a_isrMachineCheckException
 global a_isrNonExistent
+global a_syscall
+global test_syscall
 global read_port, write_port	
 
-extern kmain, exception_handler		;this is defined in the c file
+extern kmain, exception_handler, sys_call		;this is defined in the c file
 
 start:
 	cli 				;block interrupts
@@ -56,6 +58,23 @@ write_port:
 	out   dx, al  
 	ret
 	
+a_syscall:
+	push edx
+	push ecx
+	push ebx
+	push eax
+	call sys_call
+	add esp, 16
+	iret
+	
+test_syscall:
+    mov eax, 10 ; syscall num
+    mov ebx, 11 ; param 1
+    mov ecx, 12 ; param 2
+    mov edx, 13 ; param 3
+    int 0x80
+    ret
+
 %macro exception 1
         cli
         push %1
