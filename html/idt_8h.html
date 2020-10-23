@@ -106,8 +106,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
 <div class="dyncontent">
 <div class="center"><img src="idt_8h__dep__incl.png" border="0" usemap="#idt_8hdep" alt=""/></div>
 <map name="idt_8hdep" id="idt_8hdep">
-<area shape="rect" id="node2" href="idt_8c.html" title="Interrupt description table handle. " alt="" coords="5,80,52,107"/>
-<area shape="rect" id="node3" href="main_8c.html" title="main.c" alt="" coords="77,80,138,107"/>
+<area shape="rect" id="node2" href="idt_8c.html" title="Установка таблицы IDT &#45; дескриптеров прерываний " alt="" coords="5,80,52,107"/>
+<area shape="rect" id="node3" href="main_8c.html" title="OS main start code. " alt="" coords="77,80,138,107"/>
 </map>
 </div>
 </div>
@@ -538,7 +538,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
         </tr>
       </table>
 </div><div class="memdoc">
-<p>idtInit initializes IDT in the static memory. </p>
+<p>idtInit Инициализирует таблицу дескриптеров прерываний, устанавливает обработчики исключений </p>
 
 </div>
 </div>
@@ -577,13 +577,13 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
         </tr>
       </table>
 </div><div class="memdoc">
-<p>idtSetDescriptor sets a gate descriptor in the IDT.</p>
+<p>idtSetDescriptor Установка обработчика прерывания</p>
 <dl class="params"><dt>Аргументы</dt><dd>
   <table class="params">
-    <tr><td class="paramname">index</td><td>interrupt vector number </td></tr>
-    <tr><td class="paramname">handler</td><td>handle function address </td></tr>
-    <tr><td class="paramname">selector</td><td>memory segment number </td></tr>
-    <tr><td class="paramname">type</td><td>flags </td></tr>
+    <tr><td class="paramname">index</td><td>вектор прерывания </td></tr>
+    <tr><td class="paramname">handler</td><td>адрес обработчика </td></tr>
+    <tr><td class="paramname">selector</td><td>селектор сегмента, где находится обработчик </td></tr>
+    <tr><td class="paramname">type</td><td>флаги </td></tr>
   </table>
   </dd>
 </dl>

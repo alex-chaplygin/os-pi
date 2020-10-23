@@ -3,7 +3,7 @@
  * @author alex <alex@alex-Inspiron-N5040>
  * @date   Mon Oct 19 13:10:13 2020
  * 
- * @brief  Interrupt description table handle
+ * @brief  Установка таблицы IDT - дескриптеров прерываний
  * 
  * 
  */
@@ -11,11 +11,11 @@
 #include "idt.h"
 #include "isr.h"
 
-/// IDT table
+/// таблица дескриптеров прерываний
 idtGateDescriptor idt[IDT_SIZE];
 
 /** 
- * idtInit initializes IDT in the static memory.
+ * idtInit Инициализирует таблицу дескриптеров прерываний, устанавливает обработчики исключений
  * 
  */
 void idtInit() {
@@ -54,12 +54,12 @@ void idtInit() {
 }
 
 /** 
- *  idtSetDescriptor sets a gate descriptor in the IDT.
+ *  idtSetDescriptor Установка обработчика прерывания
  * 
- * @param index  interrupt vector number
- * @param handler  handle function address
- * @param selector  memory segment number
- * @param type flags
+ * @param index  вектор прерывания
+ * @param handler адрес обработчика
+ * @param selector селектор сегмента, где находится обработчик
+ * @param type флаги
  */
 void idtSetDescriptor(int index, uint handler, ushort selector, uchar type) {
     idtGateDescriptor* d = &idt[index];

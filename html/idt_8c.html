@@ -90,7 +90,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
 </div><!--header-->
 <div class="contents">
 
-<p>Interrupt description table handle.  
+<p>Установка таблицы IDT - дескриптеров прерываний  
 <a href="#details">Подробнее...</a></p>
 <div class="textblock"><code>#include &quot;<a class="el" href="idt_8h_source.html">idt.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="isr_8h_source.html">isr.h</a>&quot;</code><br />
@@ -115,11 +115,11 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
 Переменные</h2></td></tr>
 <tr class="memitem:ac504c22d5156f1338ea612a1a730ece3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structidtGateDescriptor.html">idtGateDescriptor</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="idt_8c.html#ac504c22d5156f1338ea612a1a730ece3">idt</a> [<a class="el" href="idt_8h.html#a6eb438cc75ca0a7284346ea8b3f94999">IDT_SIZE</a>]</td></tr>
-<tr class="memdesc:ac504c22d5156f1338ea612a1a730ece3"><td class="mdescLeft">&#160;</td><td class="mdescRight">IDT table.  <a href="#ac504c22d5156f1338ea612a1a730ece3">Подробнее...</a><br /></td></tr>
+<tr class="memdesc:ac504c22d5156f1338ea612a1a730ece3"><td class="mdescLeft">&#160;</td><td class="mdescRight">таблица дескриптеров прерываний  <a href="#ac504c22d5156f1338ea612a1a730ece3">Подробнее...</a><br /></td></tr>
 <tr class="separator:ac504c22d5156f1338ea612a1a730ece3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Подробное описание</h2>
-<div class="textblock"><p>Interrupt description table handle. </p>
+<div class="textblock"><p>Установка таблицы IDT - дескриптеров прерываний </p>
 <dl class="section author"><dt>Автор</dt><dd>alex &lt;alex-Inspiron-N5040&gt; </dd></dl>
 <dl class="section date"><dt>Дата</dt><dd>Mon Oct 19 13:10:13 2020 </dd></dl>
 </div><h2 class="groupheader">Функции</h2>
@@ -135,7 +135,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
         </tr>
       </table>
 </div><div class="memdoc">
-<p>idtInit initializes IDT in the static memory. </p>
+<p>idtInit Инициализирует таблицу дескриптеров прерываний, устанавливает обработчики исключений </p>
 
 </div>
 </div>
@@ -174,13 +174,13 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
         </tr>
       </table>
 </div><div class="memdoc">
-<p>idtSetDescriptor sets a gate descriptor in the IDT.</p>
+<p>idtSetDescriptor Установка обработчика прерывания</p>
 <dl class="params"><dt>Аргументы</dt><dd>
   <table class="params">
-    <tr><td class="paramname">index</td><td>interrupt vector number </td></tr>
-    <tr><td class="paramname">handler</td><td>handle function address </td></tr>
-    <tr><td class="paramname">selector</td><td>memory segment number </td></tr>
-    <tr><td class="paramname">type</td><td>flags </td></tr>
+    <tr><td class="paramname">index</td><td>вектор прерывания </td></tr>
+    <tr><td class="paramname">handler</td><td>адрес обработчика </td></tr>
+    <tr><td class="paramname">selector</td><td>селектор сегмента, где находится обработчик </td></tr>
+    <tr><td class="paramname">type</td><td>флаги </td></tr>
   </table>
   </dd>
 </dl>
@@ -198,7 +198,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
       </table>
 </div><div class="memdoc">
 
-<p>IDT table. </p>
+<p>таблица дескриптеров прерываний </p>
 
 </div>
 </div>
