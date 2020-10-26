@@ -88,13 +88,22 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
 <div class="title">Файл timer.c</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>Инициализация программируемого интервального таймера  
+<a href="#details">Подробнее...</a></p>
 <div class="textblock"><code>#include &quot;<a class="el" href="types_8h_source.html">types.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="idt_8h_source.html">idt.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="console_8h_source.html">console.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="irq_8h_source.html">irq.h</a>&quot;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Граф включаемых заголовочных файлов для timer.c:</div>
 <div class="dyncontent">
 <div class="center"><img src="timer_8c__incl.png" border="0" usemap="#timer_8c" alt=""/></div>
 <map name="timer_8c" id="timer_8c">
-<area shape="rect" id="node2" href="types_8h.html" title="types.h" alt="" coords="5,80,71,107"/>
+<area shape="rect" id="node2" href="types_8h.html" title="types.h" alt="" coords="5,155,71,181"/>
+<area shape="rect" id="node3" href="idt_8h.html" title="idt.h" alt="" coords="45,80,92,107"/>
+<area shape="rect" id="node4" href="console_8h.html" title="console.h" alt="" coords="116,80,195,107"/>
+<area shape="rect" id="node5" href="irq_8h.html" title="irq.h" alt="" coords="219,80,265,107"/>
 </map>
 </div>
 </div><table class="memberdecls">
@@ -102,8 +111,15 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
 Функции</h2></td></tr>
 <tr class="memitem:a8c58b3f60c8e4c2a758d93e7a4207570"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="timer_8c.html#a8c58b3f60c8e4c2a758d93e7a4207570">init_timer</a> (int frequency)</td></tr>
 <tr class="separator:a8c58b3f60c8e4c2a758d93e7a4207570"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0cf8e8b7323cd0b02826e25051be9203"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="timer_8c.html#a0cf8e8b7323cd0b02826e25051be9203">timer_event</a> ()</td></tr>
+<tr class="memdesc:a0cf8e8b7323cd0b02826e25051be9203"><td class="mdescLeft">&#160;</td><td class="mdescRight">Обработчик срабатывания таймера  <a href="#a0cf8e8b7323cd0b02826e25051be9203">Подробнее...</a><br /></td></tr>
+<tr class="separator:a0cf8e8b7323cd0b02826e25051be9203"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Функции</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Подробное описание</h2>
+<div class="textblock"><p>Инициализация программируемого интервального таймера </p>
+<dl class="section author"><dt>Автор</dt><dd>TSAG <a href="#" onclick="location.href='mai'+'lto:'+'tsa'+'g@'+'kal'+'i.'+'tsa'+'g.'+'com'; return false;">tsag@<span style="display: none;">.nosp@m.</span>kali<span style="display: none;">.nosp@m.</span>.tsag<span style="display: none;">.nosp@m.</span>.com</a> </dd></dl>
+<dl class="section date"><dt>Дата</dt><dd>Mon Oct 26 09:04:54 2020 </dd></dl>
+</div><h2 class="groupheader">Функции</h2>
 <a class="anchor" id="a8c58b3f60c8e4c2a758d93e7a4207570"></a>
 <div class="memitem">
 <div class="memproto">
@@ -117,6 +133,30 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
         </tr>
       </table>
 </div><div class="memdoc">
+<p>инициализация таймера с заданной частотой</p>
+<dl class="params"><dt>Аргументы</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">frequency</td><td>частота </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a0cf8e8b7323cd0b02826e25051be9203"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void timer_event </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Обработчик срабатывания таймера </p>
 
 </div>
 </div>

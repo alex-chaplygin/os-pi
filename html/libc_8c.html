@@ -88,17 +88,28 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
 <div class="title">Файл libc.c</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>Реализация функций стандартной библиотеки  
+<a href="#details">Подробнее...</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Функции</h2></td></tr>
 <tr class="memitem:abb4df4a73166f4c4dc2215c620c75b46"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="libc_8c.html#abb4df4a73166f4c4dc2215c620c75b46">memcpy</a> (unsigned char *destptr, unsigned char *srcptr, int num)</td></tr>
+<tr class="memdesc:abb4df4a73166f4c4dc2215c620c75b46"><td class="mdescLeft">&#160;</td><td class="mdescRight">Копирует блок памяти  <a href="#abb4df4a73166f4c4dc2215c620c75b46">Подробнее...</a><br /></td></tr>
 <tr class="separator:abb4df4a73166f4c4dc2215c620c75b46"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa4fa560ab0c521c8d66cd0f3dcfe879c"><td class="memItemLeft" align="right" valign="top">char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="libc_8c.html#aa4fa560ab0c521c8d66cd0f3dcfe879c">int_to_str_hex</a> (int num)</td></tr>
+<tr class="memdesc:aa4fa560ab0c521c8d66cd0f3dcfe879c"><td class="mdescLeft">&#160;</td><td class="mdescRight">НЕ РАБОТАЕТ Переводит положительное целое число в шестнадцатиричную строку типа 0 = 0x0.  <a href="#aa4fa560ab0c521c8d66cd0f3dcfe879c">Подробнее...</a><br /></td></tr>
 <tr class="separator:aa4fa560ab0c521c8d66cd0f3dcfe879c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a71002613ef16fc85ed4a79c5abab9c32"><td class="memItemLeft" align="right" valign="top">char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="libc_8c.html#a71002613ef16fc85ed4a79c5abab9c32">intToStr</a> (int n)</td></tr>
+<tr class="memdesc:a71002613ef16fc85ed4a79c5abab9c32"><td class="mdescLeft">&#160;</td><td class="mdescRight">Переводит int в нуль-терминируемую "строку".  <a href="#a71002613ef16fc85ed4a79c5abab9c32">Подробнее...</a><br /></td></tr>
 <tr class="separator:a71002613ef16fc85ed4a79c5abab9c32"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Функции</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Подробное описание</h2>
+<div class="textblock"><p>Реализация функций стандартной библиотеки </p>
+<dl class="section version"><dt>Версия</dt><dd>0.1 </dd></dl>
+<dl class="section date"><dt>Дата</dt><dd>2020-10-26</dd></dl>
+<dl class="section copyright"><dt>Авторство</dt><dd>Copyright (c) 2020 </dd></dl>
+</div><h2 class="groupheader">Функции</h2>
 <a class="anchor" id="aa4fa560ab0c521c8d66cd0f3dcfe879c"></a>
 <div class="memitem">
 <div class="memproto">
@@ -112,6 +123,15 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>НЕ РАБОТАЕТ Переводит положительное целое число в шестнадцатиричную строку типа 0 = 0x0. </p>
+<dl class="params"><dt>Аргументы</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">num</td><td>Положительное целое число от 0 до 2147483647 </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Возвращает</dt><dd>char* Указатель на первый символ строки </dd></dl>
 
 </div>
 </div>
@@ -128,6 +148,15 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Переводит int в нуль-терминируемую "строку". </p>
+<dl class="params"><dt>Аргументы</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">n</td><td>Входное число </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Возвращает</dt><dd>char* Указатель на первый символ строки </dd></dl>
 
 </div>
 </div>
@@ -160,6 +189,16 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Копирует блок памяти </p>
+<dl class="params"><dt>Аргументы</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">destptr</td><td>Адрес откуда </td></tr>
+    <tr><td class="paramname">srcptr</td><td>Адрес куда </td></tr>
+    <tr><td class="paramname">num</td><td>Количество копируемых байт </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>

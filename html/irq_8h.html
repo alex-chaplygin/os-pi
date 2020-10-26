@@ -94,8 +94,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
 <div class="dyncontent">
 <div class="center"><img src="irq_8h__dep__incl.png" border="0" usemap="#irq_8hdep" alt=""/></div>
 <map name="irq_8hdep" id="irq_8hdep">
-<area shape="rect" id="node2" href="irq_8c.html" title="irq.c" alt="" coords="5,80,52,107"/>
+<area shape="rect" id="node2" href="irq_8c.html" title="Контроллер прерываний " alt="" coords="5,80,52,107"/>
 <area shape="rect" id="node3" href="main_8c.html" title="OS main start code. " alt="" coords="77,80,138,107"/>
+<area shape="rect" id="node4" href="timer_8c.html" title="Инициализация программируемого интервального таймера " alt="" coords="163,80,225,107"/>
 </map>
 </div>
 </div>
@@ -141,8 +142,10 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Функции</h2></td></tr>
 <tr class="memitem:ac3ff77aaf3544920de54b959587195f7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="irq_8h.html#ac3ff77aaf3544920de54b959587195f7">init_interrupts</a> (int offset1, int offset2)</td></tr>
+<tr class="memdesc:ac3ff77aaf3544920de54b959587195f7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Инициализирует контроллер прерываний  <a href="#ac3ff77aaf3544920de54b959587195f7">Подробнее...</a><br /></td></tr>
 <tr class="separator:ac3ff77aaf3544920de54b959587195f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a04d6dabf7d99ebf12d8bc314bfddcb77"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="irq_8h.html#a04d6dabf7d99ebf12d8bc314bfddcb77">end_of_interrupt</a> (unsigned char irq)</td></tr>
+<tr class="memdesc:a04d6dabf7d99ebf12d8bc314bfddcb77"><td class="mdescLeft">&#160;</td><td class="mdescRight">Вызывается после исполнения обработчика прерывания  <a href="#a04d6dabf7d99ebf12d8bc314bfddcb77">Подробнее...</a><br /></td></tr>
 <tr class="separator:a04d6dabf7d99ebf12d8bc314bfddcb77"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Макросы</h2>
@@ -365,6 +368,14 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
       </table>
 </div><div class="memdoc">
 
+<p>Вызывается после исполнения обработчика прерывания </p>
+<dl class="params"><dt>Аргументы</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">irq</td><td>номер обрабатываемого прерывания (0-16) </td></tr>
+  </table>
+  </dd>
+</dl>
+
 </div>
 </div>
 <a class="anchor" id="ac3ff77aaf3544920de54b959587195f7"></a>
@@ -390,6 +401,15 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Инициализирует контроллер прерываний </p>
+<dl class="params"><dt>Аргументы</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">offset1</td><td>базовый вектор первого контроллера (по умолчанию 20) </td></tr>
+    <tr><td class="paramname">offset2</td><td>базовый вектор второго контроллера (по умолчанию 20+8) </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>

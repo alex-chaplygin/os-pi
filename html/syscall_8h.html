@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.11"/>
-<title>OS-PI: Исходный файл console.h</title>
+<title>OS-PI: Файл syscall.h</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -66,7 +66,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
       <li><a href="globals.html"><span>Список&#160;членов&#160;всех&#160;файлов</span></a></li>
     </ul>
   </div>
-</div><!-- top -->
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
      onmouseover="return searchBox.OnSearchSelectShow()"
@@ -81,15 +80,72 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
 </iframe>
 </div>
 
+</div><!-- top -->
 <div class="header">
+  <div class="summary">
+<a href="#func-members">Функции</a>  </div>
   <div class="headertitle">
-<div class="title">console.h</div>  </div>
+<div class="title">Файл syscall.h</div>  </div>
 </div><!--header-->
 <div class="contents">
-<a href="console_8h.html">См. документацию.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno"><a class="line" href="console_8h.html#ad3d90dd005277d631df532b2f3c7f8b9">    1</a></span>&#160;<span class="preprocessor">#define CONSOLE_ROWS 25</span></div><div class="line"><a name="l00002"></a><span class="lineno"><a class="line" href="console_8h.html#a49e428f77f59742929dafea7443b7c2d">    2</a></span>&#160;<span class="preprocessor">#define CONSOLE_COLS 80</span></div><div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;</div><div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="keywordtype">void</span> <a class="code" href="console_8h.html#a9c163b4ca9a9bd7315ab683595dc5868">kprint</a>(<span class="keywordtype">char</span> *str);</div><div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;</div><div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="keywordtype">void</span> <a class="code" href="console_8h.html#a54a293959bd682e2c2ec170f9a50011f">console_clear</a>();</div><div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;</div><div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="keywordtype">void</span> <a class="code" href="console_8h.html#a76c6902f85817f6510a40da8af440b36">scrollConsole</a>(<span class="keywordtype">int</span> n);</div><div class="ttc" id="console_8h_html_a76c6902f85817f6510a40da8af440b36"><div class="ttname"><a href="console_8h.html#a76c6902f85817f6510a40da8af440b36">scrollConsole</a></div><div class="ttdeci">void scrollConsole(int n)</div><div class="ttdoc">Сдвигает текст в консоли вверх </div><div class="ttdef"><b>Definition:</b> console.c:77</div></div>
-<div class="ttc" id="console_8h_html_a9c163b4ca9a9bd7315ab683595dc5868"><div class="ttname"><a href="console_8h.html#a9c163b4ca9a9bd7315ab683595dc5868">kprint</a></div><div class="ttdeci">void kprint(char *str)</div><div class="ttdoc">Печатает текст в консоль  Начиная от указателя на первый символ вплоть до нуль-терминатора (\0) ...</div><div class="ttdef"><b>Definition:</b> console.c:24</div></div>
-<div class="ttc" id="console_8h_html_a54a293959bd682e2c2ec170f9a50011f"><div class="ttname"><a href="console_8h.html#a54a293959bd682e2c2ec170f9a50011f">console_clear</a></div><div class="ttdeci">void console_clear()</div><div class="ttdoc">Очищает консоль </div><div class="ttdef"><b>Definition:</b> console.c:63</div></div>
-</div><!-- fragment --></div><!-- contents -->
+
+<p><a href="syscall_8h_source.html">См. исходные тексты.</a></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
+Функции</h2></td></tr>
+<tr class="memitem:a2229d15c4758f12a0570a0327fe4e9eb"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="syscall_8h.html#a2229d15c4758f12a0570a0327fe4e9eb">sys_call</a> (int num, int param1, int param2, int param3)</td></tr>
+<tr class="separator:a2229d15c4758f12a0570a0327fe4e9eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<h2 class="groupheader">Функции</h2>
+<a class="anchor" id="a2229d15c4758f12a0570a0327fe4e9eb"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void sys_call </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>num</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>param1</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>param2</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>param3</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Функция <a class="el" href="syscall_8c.html#a2229d15c4758f12a0570a0327fe4e9eb">sys_call(int num, int p1, int p2, int p3)</a> должна по номеру вызвать нужный обработчик из таблицы адресов системных вызовов</p>
+<dl class="params"><dt>Аргументы</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">num</td><td>Номер системного вызова </td></tr>
+    <tr><td class="paramname">param1</td><td>Параметр 1 </td></tr>
+    <tr><td class="paramname">param2</td><td>Параметр 2 </td></tr>
+    <tr><td class="paramname">param3</td><td>Параметр 3 </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+</div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Создано системой &#160;<a href="http://www.doxygen.org/index.html">

@@ -20,5 +20,6 @@ var searchData=
   ['a_5fisrstackfaultexception',['a_isrStackFaultException',['../idt_8h.html#a9c526c5c01b549f28c64a138645fc31c',1,'idt.h']]],
   ['a_5fisrunknowninterruptexception',['a_isrUnknownInterruptException',['../idt_8h.html#a5cfba30941c7069b770ae8354c8a650d',1,'idt.h']]],
   ['a_5fisrzerodivisionexception',['a_isrZeroDivisionException',['../idt_8h.html#a0a6934337150db280fc15c9663673528',1,'idt.h']]],
-  ['a_5fsyscall',['a_syscall',['../idt_8h.html#a29d946a439a9e5723856465cc74c2862',1,'idt.h']]]
+  ['a_5fsyscall',['a_syscall',['../idt_8h.html#a29d946a439a9e5723856465cc74c2862',1,'idt.h']]],
+  ['a_5ftimer',['a_timer',['../idt_8h.html#aea7fa3b10d9fce3e330e13361ddd2767',1,'idt.h']]]
 ];

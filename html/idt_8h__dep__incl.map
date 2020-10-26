@@ -1,4 +1,5 @@
 <map id="idt.h" name="idt.h">
 <area shape="rect" id="node2" href="$idt_8c.html" title="Установка таблицы IDT &#45; дескриптеров прерываний " alt="" coords="5,80,52,107"/>
 <area shape="rect" id="node3" href="$main_8c.html" title="OS main start code. " alt="" coords="77,80,138,107"/>
+<area shape="rect" id="node4" href="$timer_8c.html" title="Инициализация программируемого интервального таймера " alt="" coords="163,80,225,107"/>
 </map>

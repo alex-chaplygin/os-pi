@@ -89,6 +89,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
 <div class="title">Файл console.c</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>Работа с консолью  
+<a href="#details">Подробнее...</a></p>
 <div class="textblock"><code>#include &quot;<a class="el" href="console_8h_source.html">console.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="libc_8h_source.html">libc.h</a>&quot;</code><br />
 </div><div class="textblock"><div class="dynheader">
@@ -104,10 +107,14 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Функции</h2></td></tr>
 <tr class="memitem:a9c163b4ca9a9bd7315ab683595dc5868"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="console_8c.html#a9c163b4ca9a9bd7315ab683595dc5868">kprint</a> (char *str)</td></tr>
+<tr class="memdesc:a9c163b4ca9a9bd7315ab683595dc5868"><td class="mdescLeft">&#160;</td><td class="mdescRight">Печатает текст в консоль <br />
+Начиная от указателя на первый символ вплоть до нуль-терминатора (\0)  <a href="#a9c163b4ca9a9bd7315ab683595dc5868">Подробнее...</a><br /></td></tr>
 <tr class="separator:a9c163b4ca9a9bd7315ab683595dc5868"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a54a293959bd682e2c2ec170f9a50011f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="console_8c.html#a54a293959bd682e2c2ec170f9a50011f">console_clear</a> ()</td></tr>
+<tr class="memdesc:a54a293959bd682e2c2ec170f9a50011f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Очищает консоль  <a href="#a54a293959bd682e2c2ec170f9a50011f">Подробнее...</a><br /></td></tr>
 <tr class="separator:a54a293959bd682e2c2ec170f9a50011f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a76c6902f85817f6510a40da8af440b36"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="console_8c.html#a76c6902f85817f6510a40da8af440b36">scrollConsole</a> (int n)</td></tr>
+<tr class="memdesc:a76c6902f85817f6510a40da8af440b36"><td class="mdescLeft">&#160;</td><td class="mdescRight">Сдвигает текст в консоли вверх  <a href="#a76c6902f85817f6510a40da8af440b36">Подробнее...</a><br /></td></tr>
 <tr class="separator:a76c6902f85817f6510a40da8af440b36"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
@@ -117,7 +124,13 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
 <tr class="memitem:a3a37e732e455883658e3a66e3c6b7d00"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="console_8c.html#a3a37e732e455883658e3a66e3c6b7d00">printPtr</a> = 0</td></tr>
 <tr class="separator:a3a37e732e455883658e3a66e3c6b7d00"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Функции</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Подробное описание</h2>
+<div class="textblock"><p>Работа с консолью </p>
+<dl class="section author"><dt>Автор</dt><dd>ubunterro (<a href="#" onclick="location.href='mai'+'lto:'+'fin'+'ko'+'-il'+'ya'+'@ya'+'nd'+'ex.'+'ru'; return false;">finko<span style="display: none;">.nosp@m.</span>-ily<span style="display: none;">.nosp@m.</span>a@yan<span style="display: none;">.nosp@m.</span>dex.<span style="display: none;">.nosp@m.</span>ru</a>) </dd></dl>
+<dl class="section version"><dt>Версия</dt><dd>0.1 </dd></dl>
+<dl class="section date"><dt>Дата</dt><dd>2020-10-26</dd></dl>
+<dl class="section copyright"><dt>Авторство</dt><dd>Copyright (c) 2020 </dd></dl>
+</div><h2 class="groupheader">Функции</h2>
 <a class="anchor" id="a54a293959bd682e2c2ec170f9a50011f"></a>
 <div class="memitem">
 <div class="memproto">
@@ -130,6 +143,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Очищает консоль </p>
 
 </div>
 </div>
@@ -147,6 +162,15 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
       </table>
 </div><div class="memdoc">
 
+<p>Печатает текст в консоль <br />
+Начиная от указателя на первый символ вплоть до нуль-терминатора (\0) </p>
+<dl class="params"><dt>Аргументы</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">str</td><td>Указатель на первый символ текста </td></tr>
+  </table>
+  </dd>
+</dl>
+
 </div>
 </div>
 <a class="anchor" id="a76c6902f85817f6510a40da8af440b36"></a>
@@ -162,6 +186,14 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Сдвигает текст в консоли вверх </p>
+<dl class="params"><dt>Аргументы</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">n</td><td>Колличество строк, на сколько сдвигается текст </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>

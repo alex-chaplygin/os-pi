@@ -1,7 +1,7 @@
 /**
  * @file irq.c
  * @author your name (you@domain.com)
- * @brief 
+ * @brief Контроллер прерываний
  * @version 0.1
  * @date 2020-10-26
  * 
@@ -14,14 +14,14 @@
 /**
  * @brief Инициализирует контроллер прерываний
  * 
- * @param offset1 адрес первого контроллера (по умолчанию 20)
- * @param offset2 адрес второго контроллера (по умолчанию 20+8)
+ * @param offset1 базовый вектор первого контроллера (по умолчанию 20)
+ * @param offset2 базовый вектор второго контроллера (по умолчанию 20+8)
  */
 void init_interrupts(int offset1, int offset2)
 {
 	unsigned char a1, a2;
  
-	a1 = ~1;//read_port(PIC1_DATA);                        // save masks
+	a1 = ~1; // разрешаем только IRQ0 (таймер), все остальное запрещаем
 	a2 = read_port(PIC2_DATA);
  
 	write_port(PIC1_COMMAND, ICW1_INIT | ICW1_ICW4);  // starts the initialization sequence (in cascade mode)
@@ -38,7 +38,7 @@ void init_interrupts(int offset1, int offset2)
 	write_port(PIC1_DATA, ICW4_8086);
 	write_port(PIC2_DATA, ICW4_8086);
 
-	write_port(PIC1_DATA, a1);   // restore saved masks.
+	write_port(PIC1_DATA, a1);   // установка масок 2х контроллеров прерываний
 	write_port(PIC2_DATA, a2);
 }
 
