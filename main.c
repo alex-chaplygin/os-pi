@@ -24,7 +24,8 @@ void kmain(void)
 {
   idtInit();
   init_interrupts(0x20, 0x28);
-  //init_timer(1000);
+
+  init_timer(10);
   console_clear();
   // int a = 1 / 0;
   //kprint("qwerty\n");

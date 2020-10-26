@@ -45,6 +45,7 @@ void idtInit() {
         idtSetDescriptor(i, (uint)a_isrNonExistent, kernel_code, 0x8E);
     }
     
+    idtSetDescriptor(0x20, (uint)a_timer, kernel_code, 0x8E);
     idtSetDescriptor(0x80, (uint)a_syscall, kernel_code, 0x8E);
     
     idt_ptr[0] = (sizeof (idtGateDescriptor) * IDT_SIZE) + (((ulong)idt & 0xffff) << 16);
