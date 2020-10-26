@@ -54,3 +54,13 @@ git push origin iss<номер>
 git branch -d iss<номер>
 
 git push origin --delete iss<номер>
+
+## Настройка Emacs
+
+(global-set-key [f5] 'compile)
+
+(global-set-key [f1] 'doxymacs-insert-file-comment)
+
+(global-set-key [f2] 'doxymacs-insert-function-comment)
+
+(global-set-key [f3] 'doxymacs-insert-member-comment)

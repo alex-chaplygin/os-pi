@@ -6,3 +6,6 @@ typedef unsigned short ushort;
 typedef unsigned char uchar;
 
 typedef unsigned long ulong;
+
+int read_port(int num);
+void write_port(int num, int data);
