@@ -12,7 +12,6 @@ kernel
 
 # Linker output
 *.ilk
-*.map
 *.exp
 
 # Precompiled Headers
