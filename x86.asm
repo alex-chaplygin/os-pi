@@ -30,8 +30,9 @@ global a_isrNonExistent
 global a_syscall
 global test_syscall
 global read_port, write_port	
+global a_timer
 
-extern kmain, exception_handler, sys_call		;this is defined in the c file
+extern kmain, exception_handler, sys_call, timer_event,end_of_interrupt		;this is defined in the c file
 
 start:
 	cli 				;block interrupts
@@ -65,6 +66,13 @@ a_syscall:
 	push eax
 	call sys_call
 	add esp, 16
+	iret
+
+a_timer:
+	call timer_event
+	push 0
+        call end_of_interrupt
+        add esp, 4
 	iret
 	
 test_syscall:

@@ -22,21 +22,24 @@ extern void test_syscall();
  */
 void kmain(void)
 {
-  init_interrupts(0x20, 0x28);
   idtInit();
-  //init_timer(1000);
+  init_interrupts(0x20, 0x28);
+
+  init_timer(10);
   console_clear();
   // int a = 1 / 0;
   //kprint("qwerty\n");
   //kprint("ASDFGHJK\n");
   //kprint("Azxcvbn\n");
 
-  for (int i = 0; i < 60; i++){
+  /*for (int i = 0; i < 60; i++){
     kprint(intToStr(i));
     kprint("\n");
   }
   
   kprint(int_to_str_hex(255));
+*/
+  
 
   test_syscall();
   while(1);

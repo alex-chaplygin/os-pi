@@ -9,6 +9,9 @@
  */
 
 #include "types.h"
+#include "idt.h"
+#include "console.h"
+#include "irq.h"
 
 
 /** 
@@ -35,4 +38,11 @@ void init_timer(int frequency)
   /* Отсылаем в канал 0 PIT */
   write_port(0x40, low);
   write_port(0x40, high);
+
+
 }
+
+void timer_event(){
+  kprint("1");
+}
+

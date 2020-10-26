@@ -40,3 +40,4 @@ extern void  a_isrAlignmentCheckException();
 extern void  a_isrMachineCheckException();
 extern void  a_isrNonExistent();
 extern void a_syscall();
+extern void a_timer();
