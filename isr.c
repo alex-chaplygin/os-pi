@@ -30,6 +30,10 @@ char *table[] = {
 "FPU Error Interrupt",
 };
 
+/**
+ * @brief Вызывается при панике ядра
+ * 
+ */
 void panic(){
   kprint("\nPanic\n");
   while(1){
@@ -37,11 +41,24 @@ void panic(){
   }
 }
 
+/**
+ * @brief Обработчик исключения
+ * 
+ * @param num Номер исключения
+ */
 void exception_handler(int num){
   kprint(table[num]);
   //  panic();
 }
 
+/**
+ * @brief Производит системный вызов
+ * 
+ * @param num Номер вызова
+ * @param param1 Параметр 1
+ * @param param2 Параметр 2
+ * @param param3 Параметр 3
+ */
 void sys_call(int num, int param1, int param2, int param3)
 {
     kprint("\nSys call ");

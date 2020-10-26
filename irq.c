@@ -1,6 +1,22 @@
+/**
+ * @file irq.c
+ * @author your name (you@domain.com)
+ * @brief 
+ * @version 0.1
+ * @date 2020-10-26
+ * 
+ * @copyright Copyright (c) 2020
+ * 
+ */
 #include "types.h"
 #include "irq.h"
 
+/**
+ * @brief Инициализирует контроллер прерываний
+ * 
+ * @param offset1 адрес первого контроллера (по умолчанию 20)
+ * @param offset2 адрес второго контроллера (по умолчанию 20+8)
+ */
 void init_interrupts(int offset1, int offset2)
 {
 	unsigned char a1, a2;
@@ -26,6 +42,11 @@ void init_interrupts(int offset1, int offset2)
 	//write_port(PIC2_DATA, a2);
 }
 
+/**
+ * @brief Вызывается после исполнения обработчика прерывания
+ * 
+ * @param irq номер обрабатываемого прерывания (0-16) 
+ */
 void end_of_interrupt(unsigned char irq)
 {
 	if(irq >= 8)

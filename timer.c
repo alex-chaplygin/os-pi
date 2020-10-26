@@ -42,6 +42,10 @@ void init_timer(int frequency)
 
 }
 
+/**
+ * @brief Обработчик срабатывания таймера
+ * 
+ */
 void timer_event(){
   kprint("1");
 }

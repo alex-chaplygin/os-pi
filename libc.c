@@ -1,3 +1,21 @@
+/**
+ * @file libc.c
+ * @brief Реализация функций стандартной библиотеки
+ * @version 0.1
+ * @date 2020-10-26
+ * 
+ * @copyright Copyright (c) 2020
+ * 
+ */
+
+
+/**
+ * @brief Копирует блок памяти
+ * 
+ * @param destptr Адрес откуда
+ * @param srcptr Адрес куда
+ * @param num Количество копируемых байт
+ */
 void memcpy(unsigned char* destptr, unsigned char* srcptr, int num ){
     for (int i = 0; i < num; i++)
     {
@@ -5,11 +23,13 @@ void memcpy(unsigned char* destptr, unsigned char* srcptr, int num ){
     }    
 }
 
-//*************************************************************
-// Функция char * int_to_str_hex(int num) переводит положительное 
-// целое число в шестнадцатиричную строку типа 0 = 0x0.
-// int num = положительное целое число от 0 до 2147483647
-//*************************************************************
+/**
+ * @brief НЕ РАБОТАЕТ Переводит положительное 
+// целое число в шестнадцатиричную строку типа 0 = 0x0
+ * 
+ * @param num Положительное целое число от 0 до 2147483647
+ * @return char* Указатель на первый символ строки
+ */
 char * int_to_str_hex(int num) {
     if ((num < 0) || (num > 2147483647)) return 0; // Проверка на исключение
 
@@ -41,6 +61,12 @@ char * int_to_str_hex(int num) {
     return outbuf;
 }
 
+/**
+ * @brief Переводит int в нуль-терминируемую "строку"
+ * 
+ * @param n Входное число
+ * @return char* Указатель на первый символ строки
+ */
 char* intToStr(int n)
 {
     char* c;

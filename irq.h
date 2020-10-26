@@ -20,13 +20,6 @@
 
 #define PIC_EOI		0x20	
 
-/*
-arguments:
-	offset1 - vector offset for master PIC
-		vectors on the master become offset1..offset1+7
-	offset2 - same for slave PIC: offset2..offset2+7
-*/
-void init_interrupts(int offset1, int offset2);
 
-// send after end of interrupt
+void init_interrupts(int offset1, int offset2);
 void end_of_interrupt(unsigned char irq);
