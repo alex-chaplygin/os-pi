@@ -5,7 +5,7 @@
  * below.                                    *
  *********************************************/
 void exception_handler(int num);
-void sys_call(int num, int param1, int param2, int param3);
+//void sys_call(int num, int param1, int param2, int param3);
 void isrZeroDivisionException();
 void isrDebugException();
 void isrNonMaskableInterruptException();
@@ -24,5 +24,4 @@ void isrUnknownInterruptException();
 void isrCoprocessorFaultException();
 void isrAlignmentCheckException();
 void isrMachineCheckException();
-
 void isrNonExistent();

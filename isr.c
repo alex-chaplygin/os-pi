@@ -33,7 +33,7 @@ void exception_handler(int num){
   kprint(table[num]);
 }
 
-void sys_call(int num, int param1, int param2, int param3)
+/*void sys_call(int num, int param1, int param2, int param3)
 {
     kprint("\nSys call ");
     kprint(intToStr(num));
@@ -43,4 +43,4 @@ void sys_call(int num, int param1, int param2, int param3)
     kprint(intToStr(param2));
     kprint(" ");
     kprint(intToStr(param3));
-}
+}*/

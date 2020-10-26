@@ -68,7 +68,7 @@ a_syscall:
 	iret
 	
 test_syscall:
-    mov eax, 10 ; syscall num
+    mov eax, 0 ; syscall num
     mov ebx, 11 ; param 1
     mov ecx, 12 ; param 2
     mov edx, 13 ; param 3
