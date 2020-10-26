@@ -1,5 +1,21 @@
+/**
+ * @file   timer.c
+ * @author TSAG <tsag@kali.tsag.com>
+ * @date   Mon Oct 26 09:04:54 2020
+ * 
+ * @brief Инициализация программируемого интервального таймера
+ * 
+ * 
+ */
+
 #include "types.h"
 
+
+/** 
+ * инициализация таймера с заданной частотой
+ * 
+ * @param frequency частота
+ */
 void init_timer(int frequency)
 {
   int divisor; /* Делитель частоты */
