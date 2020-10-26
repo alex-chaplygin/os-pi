@@ -3,7 +3,7 @@
  * @author yri066 <yri066@ubuntu>
  * @date   Mon Oct 26 09:06:06 2020
  * 
- * @brief  Функция sys_call(int num, int p1, int p2, int p3) должна по номеру вызвать нужный обработчик из таблицы адресов системных вызовов
+ * @brief  Таблица системных вызовов
  * 
  * 
  */
@@ -44,10 +44,10 @@ syscall_f sys_call_table[] = {
 /** 
  * Функция sys_call(int num, int p1, int p2, int p3) должна по номеру вызвать нужный обработчик из таблицы адресов системных вызовов
  * 
- * @param num 
- * @param param1 
- * @param param2 
- * @param param3 
+ * @param num Номер системного вызова 
+ * @param param1 Параметр 1 
+ * @param param2 Параметр 2
+ * @param param3 Параметр 3
  */
 void sys_call(int num, int param1, int param2, int param3)
 {
