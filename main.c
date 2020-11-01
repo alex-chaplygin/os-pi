@@ -13,6 +13,7 @@
 #include "libc.h"
 #include "timer.h"
 #include "irq.h"
+#include "gdt.h"
 
 extern void test_syscall();
 
@@ -22,6 +23,7 @@ extern void test_syscall();
  */
 void kmain(void)
 {
+  init_gdt();
   init_interrupts(0x20, 0x28);
   idtInit();
   //init_timer(1000);

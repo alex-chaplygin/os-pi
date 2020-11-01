@@ -1,4 +1,4 @@
-OBJS=main.o console.o x86.o libc.o proc.o idt.o isr.o timer.o irq.o
+OBJS=main.o console.o x86.o libc.o proc.o idt.o isr.o timer.o irq.o gdt.o
 CFLAGS=-m32 -nostdlib -nodefaultlibs -Wno-builtin-declaration-mismatch
 
 kernel: $(OBJS)
