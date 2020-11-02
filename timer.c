@@ -12,7 +12,7 @@
 #include "idt.h"
 #include "console.h"
 #include "irq.h"
-
+#include "x86.h"
 
 /** 
  * инициализация таймера с заданной частотой

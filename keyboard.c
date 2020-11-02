@@ -15,12 +15,12 @@
  */
 void init_keyboard() {
   uchar data; 
-  write_port(0x64, 0xAB);
+  write_port(0x64, 0xAA);
   data = read_port(0x60);
-  if (data == 0x00)
-    kprint("keyboard is enabled");
-    else
-    kprint("keyboard is not enabled");
+  if (data == 0x55)
+    kprint("Кeyboard is enabled\n");
+  else
+    kprint("No keyboard\n");
 }
 
 

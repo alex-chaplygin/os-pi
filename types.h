@@ -4,8 +4,11 @@ typedef unsigned int uint;
 typedef unsigned short ushort;
 // uchar is unsigned char.
 typedef unsigned char uchar;
-
+// ulong is unsigned long.
 typedef unsigned long ulong;
-
-int read_port(int num);
-void write_port(int num, int data);
+// byte is unsigned char.
+typedef unsigned char byte;
+// sbyte is signed char.
+typedef signed char sbyte;
+// dword is unsigned int.
+typedef unsigned int dword;

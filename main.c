@@ -3,7 +3,7 @@
  * @author alex <alex@alex-Inspiron-N5040>
  * @date   Mon Oct 19 13:44:56 2020
  * 
- * @brief  OS main start code
+ * @brief  Главный модуль ядра
  * 
  * 
  */
@@ -14,11 +14,12 @@
 #include "timer.h"
 #include "irq.h"
 #include "keyboard.h"
+#include "mouse.h"
 
 extern void test_syscall();
 
 /** 
- * Kernel entry point
+ * Точка входа в ядро
  * 
  */
 void kmain(void)
@@ -28,7 +29,7 @@ void kmain(void)
 
   init_timer(10);
   console_clear();
-  init_keyboard();
+  //  init_keyboard();
   // int a = 1 / 0;
   //kprint("qwerty\n");
   //kprint("ASDFGHJK\n");
@@ -42,5 +43,12 @@ void kmain(void)
   //kprint(int_to_str_hex(255));
 
   //test_syscall();
+
+  if (mouse_check() == 0xAA) {
+    kprint("Mouse detected\n");
+  } else {
+    kprint("No mouse\n");
+  }
+
   while(1);
-}
+ }

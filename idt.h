@@ -16,9 +16,6 @@ typedef struct idtGateDescriptor {
 void idtSetDescriptor(int index, uint handler, ushort selector, uchar type);
 void idtInit();
 
-extern void load_idt(void *);
-extern ushort kernel_code;
-
 extern void a_isrZeroDivisionException();
 extern void  a_isrDebugException();
 extern void  a_isrNonMaskableInterruptException();

@@ -10,6 +10,7 @@
 
 #include "idt.h"
 #include "isr.h"
+#include "x86.h"
 
 /// таблица дескриптеров прерываний
 idtGateDescriptor idt[IDT_SIZE];
