@@ -24,7 +24,7 @@ void kmain(void)
   
   kprint(int_to_str_hex(255));
 
-  if (mouseCheck() == 0xAA) {
+  if (mouse_check() == 0xAA) {
     kprint("Mouse detected\n");
   } else {
     kprint("No mouse\n");

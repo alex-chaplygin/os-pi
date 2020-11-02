@@ -1,7 +1,7 @@
 #include "types.h"
 #include "x86.h"
 
-void mouseWait(byte type) {
+void mouse_wait(byte type) {
     uint timeout = 10000;
 
     if (type == 0) {
@@ -19,56 +19,56 @@ void mouseWait(byte type) {
     }
 }
 
-void mouseWrite(byte data) {
+void mouse_write(byte data) {
     // Wait to be able to send a command.
-    mouseWait(1);
+    mouse_wait(1);
     // Tell the mouse we are sending a command.
     write_port(0x64, 0xD4);
     // Wait for the final part.
-    mouseWait(1);
+    mouse_wait(1);
     // Finally write.
     write_port(0x60, data);
 }
 
-byte mouseRead() {
+byte mouse_read() {
     // Get the response from the mouse.
-    mouseWait(0);
+    mouse_wait(0);
 
     return read_port(0x60);
 }
 
-byte mouseCheck() {
-    mouseWrite(0xFF);
+byte mouse_check() {
+    mouse_write(0xFF);
     // Acknowledge.
     read_port(0x60);
 
-    return mouseRead();
+    return mouse_read();
 }
 
-void mouseInit() {
+void mouse_init() {
     byte status;
 
     // Allow mouse.
-    mouseWait(1);
+    mouse_wait(1);
     write_port(0x64, 0xA8);
 
     // Enable the interrupts.
-    mouseWait(1);
+    mouse_wait(1);
     write_port(0x64, 0x20);
-    mouseWait(0);
+    mouse_wait(0);
     status = read_port(0x60) | 2;
-    mouseWait(1);
+    mouse_wait(1);
     write_port(0x64, 0x60);
-    mouseWait(1);
+    mouse_wait(1);
     write_port(0x60, status);
 
     // Tell the mouse to use default settings.
-    mouseWrite(0xF6);
+    mouse_write(0xF6);
     // Acknowledge.
-    mouseRead();
+    mouse_read();
 
     // Enable the mouse.
-    mouseWrite(0xF4);
+    mouse_write(0xF4);
     // Acknowledge.
-    mouseRead();
+    mouse_read();
 }
