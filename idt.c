@@ -4,7 +4,9 @@
 idtGateDescriptor idt[IDT_SIZE];
 unsigned long idt_ptr[2];
 
-// idtInit initializes IDT in the static memory.
+///обозначение прерывания
+idtInterrupt idt[/*?*/|INTERRUPT_GATE];
+
 void idtInit() {
     idtSetDescriptor(0, (uint)a_isrZeroDivisionException, kernel_code, 0x8E);
     idtSetDescriptor(1, (uint)a_isrDebugException, kernel_code, 0x8E);
