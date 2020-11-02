@@ -7,19 +7,20 @@
  * 
  * 
  */
-#include keyboard.h
+#include "types.h"
+#include "console.h"
 /** 
  * проверка подключения клавиатуры
  * 
  */
 void init_keyboard() {
-  byte data; 
-  write_port (0x64, 0xAB);
-  read_port (0x60, data);
-  if (data==0x00)
-    kprint ("keyboard is enabled")
-  else
-    kprint ("keyboard is not enabled");
+  uchar data; 
+  write_port(0x64, 0xAB);
+  data = read_port(0x60);
+  if (data == 0x00)
+    kprint("keyboard is enabled");
+    else
+    kprint("keyboard is not enabled");
 }
 
 
