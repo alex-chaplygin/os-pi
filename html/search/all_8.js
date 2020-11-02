@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['main_2ec',['main.c',['../main_8c.html',1,'']]],
-  ['max_5fproc_5famount',['MAX_PROC_AMOUNT',['../proc_8c.html#a2ac2ebb57daf1d65d690add93280b1a5',1,'limits.h']]],
-  ['memcpy',['memcpy',['../libc_8c.html#abb4df4a73166f4c4dc2215c620c75b46',1,'memcpy(unsigned char *destptr, unsigned char *srcptr, int num):&#160;libc.c'],['../libc_8h.html#abb4df4a73166f4c4dc2215c620c75b46',1,'memcpy(unsigned char *destptr, unsigned char *srcptr, int num):&#160;libc.c']]]
+  ['kernel_5fcode',['kernel_code',['../idt_8h.html#a6edc7d0ec336e10ae0a904887e12a156',1,'idt.h']]],
+  ['kmain',['kmain',['../main_8c.html#a406c20548822065e144564476378f8a1',1,'main.c']]],
+  ['kprint',['kprint',['../console_8c.html#a9c163b4ca9a9bd7315ab683595dc5868',1,'kprint(char *str):&#160;console.c'],['../console_8h.html#a9c163b4ca9a9bd7315ab683595dc5868',1,'kprint(char *str):&#160;console.c']]]
 ];
