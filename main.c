@@ -13,6 +13,7 @@
 #include "libc.h"
 #include "timer.h"
 #include "irq.h"
+#include "keyboard.h"
 
 extern void test_syscall();
 
@@ -27,6 +28,7 @@ void kmain(void)
 
   init_timer(10);
   console_clear();
+  init_keyboard();
   // int a = 1 / 0;
   //kprint("qwerty\n");
   //kprint("ASDFGHJK\n");
@@ -39,6 +41,6 @@ void kmain(void)
   
   //kprint(int_to_str_hex(255));
 
-  test_syscall();
+  //test_syscall();
   while(1);
 }
