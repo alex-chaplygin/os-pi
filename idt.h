@@ -2,6 +2,7 @@
 
 #define IDT_SIZE 256
 /// DPL
+#define DPL0 0
 #define DPL1 (1 << 5)
 #define DPL2 (2 << 5)
 #define DPL3 (3 << 5)
@@ -14,7 +15,6 @@
 #define TASK_GATE 0xD
 #define INTERRUPT_GATE 0xE
 #define TRAP_GATE 0xF
-/// где Р бит присутствия = 0 или 1
 
 // idtGateDescriptor represents
 // a row for interrupt descriptors
