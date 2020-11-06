@@ -1,6 +1,20 @@
 #include "types.h"
 
 #define IDT_SIZE 256
+/// DPL
+#define DPL0 0
+#define DPL1 (1 << 5)
+#define DPL2 (2 << 5)
+#define DPL3 (3 << 5)
+/// IDT TYPE
+#define CALL_GATE_286 0x4
+#define TASK_GATE_286 0x5
+#define INTERRUPT_GATE_286 0x6
+#define TRAP_GATE_286 0x7
+#define CALL_GATE 0xC
+#define TASK_GATE 0xD
+#define INTERRUPT_GATE 0xE
+#define TRAP_GATE 0xF
 
 // idtGateDescriptor represents
 // a row for interrupt descriptors
