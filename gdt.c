@@ -47,8 +47,8 @@ void init_gdt()
     gdt_ptr.base  = (uint32_t) & gdt_entries;
 	
     create_descriptor(0, 0, 0, 0);
-    create_descriptor(1, 0, 0xFFFFFFFF, (GDT_CODE_PL0));
-    create_descriptor(2, 0, 0xFFFFFFFF, (GDT_DATA_PL0));
+    create_descriptor(0x8, 0, 0xFFFFFFFF, (GDT_CODE_PL0));
+    create_descriptor(0x10, 0, 0xFFFFFFFF, (GDT_DATA_PL0));
     create_descriptor(3, 0, 0xFFFFFFFF, (GDT_CODE_PL3));
     create_descriptor(4, 0, 0xFFFFFFFF, (GDT_DATA_PL3));
 

@@ -25,11 +25,10 @@ extern void test_syscall();
  */
 void kmain(void)
 {
-  init_gdt();
+  //init_gdt();
   init_interrupts(0x20, 0x28);
   idtInit();
-  init_interrupts(0x20, 0x28);
-
+  
   init_timer(10);
   console_clear();
   //  init_keyboard();
