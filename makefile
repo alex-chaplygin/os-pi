@@ -1,4 +1,4 @@
-OBJS=main.o console.o x86.o libc.o proc.o idt.o isr.o syscall.o irq.o timer.o keyboard.o mouse.o gdt.o
+OBJS=main.o console.o x86.o libc.o proc.o idt.o isr.o syscall.o irq.o timer.o keyboard.o mouse.o gdt.o mem.o
 CFLAGS=-m32 -nostdlib -nodefaultlibs -Wno-builtin-declaration-mismatch
 
 kernel: $(OBJS)
@@ -7,8 +7,6 @@ kernel: $(OBJS)
 x86.o: x86.asm
 	nasm -f elf32 x86.asm -o x86.o
 run:
-	qemu-system-i386 -kernel kernel
-run_nokey:
-	qemu-system-i386 -kernel kernel -bt device:keyboard
+	qemu-system-i386 -kernel kernel -m 4M
 debug:
 	qemu-system-i386 -kernel kernel -s -S

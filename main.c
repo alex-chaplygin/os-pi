@@ -16,6 +16,7 @@
 #include "keyboard.h"
 #include "mouse.h"
 #include "gdt.h"
+#include "mem.h"
 
 extern void test_syscall();
 
@@ -32,6 +33,7 @@ void kmain(void)
   init_timer(10);
   console_clear();
   //  init_keyboard();
+  //kprint(intToStr(get_phys_mem_size()));
   // int a = 1 / 0;
   //kprint("qwerty\n");
   //kprint("ASDFGHJK\n");
