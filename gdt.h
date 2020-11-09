@@ -57,7 +57,8 @@ struct gdt_entry_struct {
     u16int limit_low;		/**< Младшие 16 бит смещения */
     u16int base_low;		/**< Младшие 16 бит базы */
     u8int  base_middle;		/**< Следующие восемь бит базы */
-    uint16_t  access;		/**< Флаг определяет уровень доступа */
+    byte  access;		/**< Флаг определяет уровень доступа */
+  byte gran;			/**< гранулярность */
     u8int  base_high;		/**< Cтаршие 8 бит базы */
 } __attribute__((packed));
 /// Указатель на структуру
@@ -78,7 +79,7 @@ typedef struct gdt_ptr_struct gdt_ptr_t;
  * @param limit Селектор
  * @param flag Доступ
  */
-void create_descriptor(uint32_t, uint32_t, uint32_t, uint16_t);
+void create_descriptor(uint32_t, uint32_t, uint32_t, uint8_t, byte);
 
 /** 
  * Инициализирующая GDT функция
