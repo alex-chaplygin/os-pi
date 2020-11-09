@@ -33,7 +33,7 @@ void create_descriptor(uint32_t num,uint32_t base, uint32_t limit, uint16_t flag
 
  
     // Create the low 32 bit segment
-    gdt_entries[num].base_low = base  << 16;                       // set base bits 15:0
+    gdt_entries[num].base_low = base & 0xFFFF;                       // set base bits 15:0
     gdt_entries[num].limit_low = limit  & 0x0000FFFF;               // set limit bits 15:0
 }
 
@@ -43,12 +43,12 @@ void create_descriptor(uint32_t num,uint32_t base, uint32_t limit, uint16_t flag
  */
 void init_gdt()
 {
-	gdt_ptr.limit = (sizeof(gdt_entry_t)*5) - 1;
+    gdt_ptr.limit = sizeof(gdt_entry_t)*5;
     gdt_ptr.base  = (uint32_t) & gdt_entries;
 	
     create_descriptor(0, 0, 0, 0);
-    create_descriptor(0x8, 0, 0xFFFFFFFF, (GDT_CODE_PL0));
-    create_descriptor(0x10, 0, 0xFFFFFFFF, (GDT_DATA_PL0));
+    create_descriptor(1, 0, 0xFFFFFFFF, (GDT_CODE_PL0));
+    create_descriptor(2, 0, 0xFFFFFFFF, (GDT_DATA_PL0));
     create_descriptor(3, 0, 0xFFFFFFFF, (GDT_CODE_PL3));
     create_descriptor(4, 0, 0xFFFFFFFF, (GDT_DATA_PL3));
 
