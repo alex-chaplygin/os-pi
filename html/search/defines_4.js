@@ -1,11 +1,16 @@
 var searchData=
 [
-  ['pic1',['PIC1',['../irq_8h.html#a6b115109e4a0d3c5fb6252d091e86bfe',1,'irq.h']]],
-  ['pic1_5fcommand',['PIC1_COMMAND',['../irq_8h.html#ad1ba81484ab03e762d2e09f851c0901f',1,'irq.h']]],
-  ['pic1_5fdata',['PIC1_DATA',['../irq_8h.html#af27e966ec947ca1172f30ae301c5f24b',1,'irq.h']]],
-  ['pic2',['PIC2',['../irq_8h.html#ac90003f52c8d736193efc954ece08e58',1,'irq.h']]],
-  ['pic2_5fcommand',['PIC2_COMMAND',['../irq_8h.html#a11d8793812c9d340e9a64cce26ee0570',1,'irq.h']]],
-  ['pic2_5fdata',['PIC2_DATA',['../irq_8h.html#ab6d3b9f6f427357310896adf176145f1',1,'irq.h']]],
-  ['pic_5feoi',['PIC_EOI',['../irq_8h.html#a170d8eebdb48c16cfcd60cbd46760cb2',1,'irq.h']]],
-  ['pmode',['PMODE',['../dd_8c.html#a3d0f761bc3b47fa0576b2fd02b8a3e70',1,'dd.c']]]
+  ['icw1_5ficw4_403',['ICW1_ICW4',['../irq_8h.html#a964d12193d2b36e8a7ec7fa57438e313',1,'irq.h']]],
+  ['icw1_5finit_404',['ICW1_INIT',['../irq_8h.html#a286dc251f3d73c08e08a53a4696f31ef',1,'irq.h']]],
+  ['icw1_5finterval4_405',['ICW1_INTERVAL4',['../irq_8h.html#a6ba324062a88dc9ff1e2916abdcde17e',1,'irq.h']]],
+  ['icw1_5flevel_406',['ICW1_LEVEL',['../irq_8h.html#a8b06fbc75942c0a61e6ad80ea4736bd3',1,'irq.h']]],
+  ['icw1_5fsingle_407',['ICW1_SINGLE',['../irq_8h.html#a6c092603fb5e22cc80954531ae319d01',1,'irq.h']]],
+  ['icw4_5f8086_408',['ICW4_8086',['../irq_8h.html#a42803c5ddcec9e120a6dbf7bc5c1b7af',1,'irq.h']]],
+  ['icw4_5fauto_409',['ICW4_AUTO',['../irq_8h.html#a16777bf654a4c5630e4f53902a25235a',1,'irq.h']]],
+  ['icw4_5fbuf_5fmaster_410',['ICW4_BUF_MASTER',['../irq_8h.html#af3f1b53c727d98166710d198aca13411',1,'irq.h']]],
+  ['icw4_5fbuf_5fslave_411',['ICW4_BUF_SLAVE',['../irq_8h.html#af5443900cdd9096e97898e5584c316bb',1,'irq.h']]],
+  ['icw4_5fsfnm_412',['ICW4_SFNM',['../irq_8h.html#a0ecb67a3f71d1d10502fbd834b0292f1',1,'irq.h']]],
+  ['idt_5fsize_413',['IDT_SIZE',['../idt_8h.html#a6eb438cc75ca0a7284346ea8b3f94999',1,'idt.h']]],
+  ['interrupt_5fgate_414',['INTERRUPT_GATE',['../idt_8h.html#a1333fae35de655788c779116db4d6331',1,'idt.h']]],
+  ['interrupt_5fgate_5f286_415',['INTERRUPT_GATE_286',['../idt_8h.html#abca36ffae5647fd1b91f76c870f47f40',1,'idt.h']]]
 ];

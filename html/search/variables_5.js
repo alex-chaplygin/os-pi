@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['lowoffset',['lowOffset',['../structidtGateDescriptor.html#ae5fe7c684b93e28afa1dc467db9fff7b',1,'idtGateDescriptor']]]
+  ['highoffset_353',['highOffset',['../structidtGateDescriptor.html#a8df892f9e5e8a0780d8693e13d459cad',1,'idtGateDescriptor']]]
 ];

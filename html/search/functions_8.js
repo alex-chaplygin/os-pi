@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['main',['main',['../dd_8c.html#a0ddf1224851353fc92bfbff6f499fa97',1,'dd.c']]],
-  ['memcpy',['memcpy',['../libc_8c.html#abb4df4a73166f4c4dc2215c620c75b46',1,'memcpy(unsigned char *destptr, unsigned char *srcptr, int num):&#160;libc.c'],['../libc_8h.html#abb4df4a73166f4c4dc2215c620c75b46',1,'memcpy(unsigned char *destptr, unsigned char *srcptr, int num):&#160;libc.c']]]
+  ['load_5fgdt_324',['load_gdt',['../gdt_8h.html#a5abce4305252b99f5ae60259d7a7513e',1,'gdt.h']]],
+  ['load_5fidt_325',['load_idt',['../x86_8h.html#a60460668a5d56db4700a2625c1df5c69',1,'x86.h']]]
 ];

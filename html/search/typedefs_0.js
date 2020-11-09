@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['idtgatedescriptor',['idtGateDescriptor',['../idt_8h.html#aee0167f2ad2d04fb7e603a2a1c507788',1,'idt.h']]]
+  ['byte_370',['byte',['../types_8h.html#a0c8186d9b9b7880309c27230bbb5e69d',1,'types.h']]]
 ];

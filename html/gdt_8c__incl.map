@@ -1,0 +1,5 @@
+<map id="gdt.c" name="gdt.c">
+<area shape="rect" id="node1" title="Инициализация GDT." alt="" coords="13,5,68,32"/>
+<area shape="rect" id="node2" href="$gdt_8h.html" title="Header&#45;файл для инициализации в gdt.c." alt="" coords="13,80,68,107"/>
+<area shape="rect" id="node3" href="$types_8h.html" title=" " alt="" coords="5,155,76,181"/>
+</map>

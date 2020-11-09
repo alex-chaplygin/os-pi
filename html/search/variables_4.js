@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['kernel_5fcode',['kernel_code',['../idt_8h.html#a6edc7d0ec336e10ae0a904887e12a156',1,'idt.h']]]
+  ['gdt_5fentries_351',['gdt_entries',['../gdt_8c.html#a2c6764431fbf00ca62844969a27c885a',1,'gdt.c']]],
+  ['gdt_5fptr_352',['gdt_ptr',['../gdt_8c.html#ab0888c07dfb9352ef76d05e63464cf0b',1,'gdt.c']]]
 ];

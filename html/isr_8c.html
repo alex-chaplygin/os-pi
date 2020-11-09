@@ -1,9 +1,9 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<meta name="generator" content="Doxygen 1.8.13"/>
+<meta name="generator" content="Doxygen 1.8.18"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>OS-PI: Файл isr.c</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
@@ -31,18 +31,21 @@
 </table>
 </div>
 <!-- end header part -->
-<!-- Создано системой Doxygen 1.8.13 -->
+<!-- Создано системой Doxygen 1.8.18 -->
 <script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
 var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
+/* @license-end */
 </script>
 <script type="text/javascript" src="menudata.js"></script>
 <script type="text/javascript" src="menu.js"></script>
 <script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
 $(function() {
   initMenu('',true,false,'search.php','Поиск');
   $(document).ready(function() { init_search(); });
 });
-</script>
+/* @license-end */</script>
 <div id="main-nav"></div>
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
@@ -74,18 +77,19 @@ $(function() {
 <div class="dyncontent">
 <div class="center"><img src="isr_8c__incl.png" border="0" usemap="#isr_8c" alt=""/></div>
 <map name="isr_8c" id="isr_8c">
-<area shape="rect" id="node2" href="console_8h.html" title="console.h" alt="" coords="5,80,84,107"/>
-<area shape="rect" id="node3" href="libc_8h.html" title="libc.h" alt="" coords="109,80,162,107"/>
+<area shape="rect" title=" " alt="" coords="69,5,119,32"/>
+<area shape="rect" href="console_8h.html" title=" " alt="" coords="5,80,89,107"/>
+<area shape="rect" href="libc_8h.html" title=" " alt="" coords="113,80,171,107"/>
 </map>
 </div>
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Функции</h2></td></tr>
 <tr class="memitem:a7a0c4d3a5c8e3ff0467ef6d997d5a666"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="isr_8c.html#a7a0c4d3a5c8e3ff0467ef6d997d5a666">panic</a> ()</td></tr>
-<tr class="memdesc:a7a0c4d3a5c8e3ff0467ef6d997d5a666"><td class="mdescLeft">&#160;</td><td class="mdescRight">Вызывается при панике ядра  <a href="#a7a0c4d3a5c8e3ff0467ef6d997d5a666">Подробнее...</a><br /></td></tr>
+<tr class="memdesc:a7a0c4d3a5c8e3ff0467ef6d997d5a666"><td class="mdescLeft">&#160;</td><td class="mdescRight">Вызывается при панике ядра  <a href="isr_8c.html#a7a0c4d3a5c8e3ff0467ef6d997d5a666">Подробнее...</a><br /></td></tr>
 <tr class="separator:a7a0c4d3a5c8e3ff0467ef6d997d5a666"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac1bbe6595dafd1956e922dad4af06d53"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="isr_8c.html#ac1bbe6595dafd1956e922dad4af06d53">exception_handler</a> (int num)</td></tr>
-<tr class="memdesc:ac1bbe6595dafd1956e922dad4af06d53"><td class="mdescLeft">&#160;</td><td class="mdescRight">Обработчик исключения  <a href="#ac1bbe6595dafd1956e922dad4af06d53">Подробнее...</a><br /></td></tr>
+<tr class="memdesc:ac1bbe6595dafd1956e922dad4af06d53"><td class="mdescLeft">&#160;</td><td class="mdescRight">Обработчик исключения  <a href="isr_8c.html#ac1bbe6595dafd1956e922dad4af06d53">Подробнее...</a><br /></td></tr>
 <tr class="separator:ac1bbe6595dafd1956e922dad4af06d53"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
@@ -151,7 +155,35 @@ $(function() {
         </tr>
       </table>
 </div><div class="memdoc">
-<b>Инициализатор</b><div class="fragment"><div class="line">= {</div><div class="line"><span class="stringliteral">&quot;Divide-by-zero Error   0 (0x0)     Fault   #DE     No&quot;</span>,</div><div class="line"><span class="stringliteral">&quot;Debug  1 (0x1)     Fault/Trap  #DB     No&quot;</span>,</div><div class="line"><span class="stringliteral">&quot;Non-maskable Interrupt     2 (0x2)     Interrupt   -   No&quot;</span>,</div><div class="line"><span class="stringliteral">&quot;Breakpoint     3 (0x3)     Trap    #BP     No&quot;</span>,</div><div class="line"><span class="stringliteral">&quot;Overflow   4 (0x4)     Trap    #OF     No&quot;</span>,</div><div class="line"><span class="stringliteral">&quot;Bound Range Exceeded   5 (0x5)     Fault   #BR     No&quot;</span>,</div><div class="line"><span class="stringliteral">&quot;Invalid Opcode     6 (0x6)     Fault   #UD     No&quot;</span>,</div><div class="line"><span class="stringliteral">&quot;Device Not Available   7 (0x7)     Fault   #NM     No&quot;</span>,</div><div class="line"><span class="stringliteral">&quot;Double Fault   8 (0x8)     Abort   #DF     Yes (Zero)&quot;</span>,</div><div class="line"><span class="stringliteral">&quot;Coprocessor Segment Overrun    9 (0x9)     Fault   -   No&quot;</span>,</div><div class="line"><span class="stringliteral">&quot;Invalid TSS    10 (0xA)    Fault   #TS     Yes&quot;</span>,</div><div class="line"><span class="stringliteral">&quot;Segment Not Present    11 (0xB)    Fault   #NP     Yes&quot;</span>,</div><div class="line"><span class="stringliteral">&quot;Stack-Segment Fault    12 (0xC)    Fault   #SS     Yes&quot;</span>,</div><div class="line"><span class="stringliteral">&quot;General Protection Fault   13 (0xD)    Fault   #GP     Yes&quot;</span>,</div><div class="line"><span class="stringliteral">&quot;Page Fault     14 (0xE)    Fault   #PF     Yes&quot;</span>,</div><div class="line"><span class="stringliteral">&quot;Reserved   15 (0xF)    -   -   No&quot;</span>,</div><div class="line"><span class="stringliteral">&quot;x87 Floating-Point Exception   16 (0x10)   Fault   #MF     No&quot;</span>,</div><div class="line"><span class="stringliteral">&quot;Alignment Check    17 (0x11)   Fault   #AC     Yes&quot;</span>,</div><div class="line"><span class="stringliteral">&quot;Machine Check  18 (0x12)   Abort   #MC     No&quot;</span>,</div><div class="line"><span class="stringliteral">&quot;SIMD Floating-Point Exception  19 (0x13)   Fault   #XM/#XF     No&quot;</span>,</div><div class="line"><span class="stringliteral">&quot;Virtualization Exception   20 (0x14)   Fault   #VE     No&quot;</span>,</div><div class="line"><span class="stringliteral">&quot;Reserved   21-29 (0x15-0x1D)   -   -   No&quot;</span>,</div><div class="line"><span class="stringliteral">&quot;Security Exception     30 (0x1E)   -   #SX     Yes&quot;</span>,</div><div class="line"><span class="stringliteral">&quot;Reserved   31 (0x1F)   -   -   No&quot;</span>,</div><div class="line"><span class="stringliteral">&quot;Triple Fault   -   -   -   No&quot;</span>,</div><div class="line"><span class="stringliteral">&quot;FPU Error Interrupt&quot;</span>,</div><div class="line">}</div></div><!-- fragment -->
+<b>Инициализатор</b><div class="fragment"><div class="line">= {</div>
+<div class="line"><span class="stringliteral">&quot;Divide-by-zero Error   0 (0x0)     Fault   #DE     No&quot;</span>,</div>
+<div class="line"><span class="stringliteral">&quot;Debug  1 (0x1)     Fault/Trap  #DB     No&quot;</span>,</div>
+<div class="line"><span class="stringliteral">&quot;Non-maskable Interrupt     2 (0x2)     Interrupt   -   No&quot;</span>,</div>
+<div class="line"><span class="stringliteral">&quot;Breakpoint     3 (0x3)     Trap    #BP     No&quot;</span>,</div>
+<div class="line"><span class="stringliteral">&quot;Overflow   4 (0x4)     Trap    #OF     No&quot;</span>,</div>
+<div class="line"><span class="stringliteral">&quot;Bound Range Exceeded   5 (0x5)     Fault   #BR     No&quot;</span>,</div>
+<div class="line"><span class="stringliteral">&quot;Invalid Opcode     6 (0x6)     Fault   #UD     No&quot;</span>,</div>
+<div class="line"><span class="stringliteral">&quot;Device Not Available   7 (0x7)     Fault   #NM     No&quot;</span>,</div>
+<div class="line"><span class="stringliteral">&quot;Double Fault   8 (0x8)     Abort   #DF     Yes (Zero)&quot;</span>,</div>
+<div class="line"><span class="stringliteral">&quot;Coprocessor Segment Overrun    9 (0x9)     Fault   -   No&quot;</span>,</div>
+<div class="line"><span class="stringliteral">&quot;Invalid TSS    10 (0xA)    Fault   #TS     Yes&quot;</span>,</div>
+<div class="line"><span class="stringliteral">&quot;Segment Not Present    11 (0xB)    Fault   #NP     Yes&quot;</span>,</div>
+<div class="line"><span class="stringliteral">&quot;Stack-Segment Fault    12 (0xC)    Fault   #SS     Yes&quot;</span>,</div>
+<div class="line"><span class="stringliteral">&quot;General Protection Fault   13 (0xD)    Fault   #GP     Yes&quot;</span>,</div>
+<div class="line"><span class="stringliteral">&quot;Page Fault     14 (0xE)    Fault   #PF     Yes&quot;</span>,</div>
+<div class="line"><span class="stringliteral">&quot;Reserved   15 (0xF)    -   -   No&quot;</span>,</div>
+<div class="line"><span class="stringliteral">&quot;x87 Floating-Point Exception   16 (0x10)   Fault   #MF     No&quot;</span>,</div>
+<div class="line"><span class="stringliteral">&quot;Alignment Check    17 (0x11)   Fault   #AC     Yes&quot;</span>,</div>
+<div class="line"><span class="stringliteral">&quot;Machine Check  18 (0x12)   Abort   #MC     No&quot;</span>,</div>
+<div class="line"><span class="stringliteral">&quot;SIMD Floating-Point Exception  19 (0x13)   Fault   #XM/#XF     No&quot;</span>,</div>
+<div class="line"><span class="stringliteral">&quot;Virtualization Exception   20 (0x14)   Fault   #VE     No&quot;</span>,</div>
+<div class="line"><span class="stringliteral">&quot;Reserved   21-29 (0x15-0x1D)   -   -   No&quot;</span>,</div>
+<div class="line"><span class="stringliteral">&quot;Security Exception     30 (0x1E)   -   #SX     Yes&quot;</span>,</div>
+<div class="line"><span class="stringliteral">&quot;Reserved   31 (0x1F)   -   -   No&quot;</span>,</div>
+<div class="line"><span class="stringliteral">&quot;Triple Fault   -   -   -   No&quot;</span>,</div>
+<div class="line"><span class="stringliteral">&quot;FPU Error Interrupt&quot;</span>,</div>
+<div class="line">}</div>
+</div><!-- fragment -->
 </div>
 </div>
 </div><!-- contents -->
@@ -159,7 +191,7 @@ $(function() {
 <hr class="footer"/><address class="footer"><small>
 Создано системой &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
-</a> 1.8.13
+</a> 1.8.18
 </small></address>
 </body>
 </html>

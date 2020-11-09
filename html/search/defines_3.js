@@ -1,5 +1,8 @@
 var searchData=
 [
-  ['max_5fproc_5famount',['MAX_PROC_AMOUNT',['../proc_8c.html#a2ac2ebb57daf1d65d690add93280b1a5',1,'limits.h']]],
-  ['maxfilenamelength',['MAXFILENAMELENGTH',['../dd_8c.html#ae888bad586ab55d3ddc7c96ad1430734',1,'dd.c']]]
+  ['gdt_5fcode_5fpl0_398',['GDT_CODE_PL0',['../gdt_8h.html#a1f0371c2601d212b404ee3d832962a11',1,'gdt.h']]],
+  ['gdt_5fcode_5fpl3_399',['GDT_CODE_PL3',['../gdt_8h.html#a307042d14679328146daee6ff2eb8586',1,'gdt.h']]],
+  ['gdt_5fdata_5fpl0_400',['GDT_DATA_PL0',['../gdt_8h.html#a9d40207e0f852f936c193a4023613235',1,'gdt.h']]],
+  ['gdt_5fdata_5fpl3_401',['GDT_DATA_PL3',['../gdt_8h.html#a6a0506a9971c27bcc1755d957ffa6c59',1,'gdt.h']]],
+  ['gdt_5fsize_402',['GDT_SIZE',['../gdt_8h.html#a6815d23aa1b3d9288eb0301178bc3063',1,'gdt.h']]]
 ];

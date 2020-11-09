@@ -1,9 +1,9 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<meta name="generator" content="Doxygen 1.8.13"/>
+<meta name="generator" content="Doxygen 1.8.18"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>OS-PI: Файл timer.c</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
@@ -31,18 +31,21 @@
 </table>
 </div>
 <!-- end header part -->
-<!-- Создано системой Doxygen 1.8.13 -->
+<!-- Создано системой Doxygen 1.8.18 -->
 <script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
 var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
+/* @license-end */
 </script>
 <script type="text/javascript" src="menudata.js"></script>
 <script type="text/javascript" src="menu.js"></script>
 <script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
 $(function() {
   initMenu('',true,false,'search.php','Поиск');
   $(document).ready(function() { init_search(); });
 });
-</script>
+/* @license-end */</script>
 <div id="main-nav"></div>
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
@@ -73,15 +76,18 @@ $(function() {
 <code>#include &quot;<a class="el" href="idt_8h_source.html">idt.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="console_8h_source.html">console.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="irq_8h_source.html">irq.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="x86_8h_source.html">x86.h</a>&quot;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Граф включаемых заголовочных файлов для timer.c:</div>
 <div class="dyncontent">
 <div class="center"><img src="timer_8c__incl.png" border="0" usemap="#timer_8c" alt=""/></div>
 <map name="timer_8c" id="timer_8c">
-<area shape="rect" id="node2" href="types_8h.html" title="types.h" alt="" coords="5,155,71,181"/>
-<area shape="rect" id="node3" href="idt_8h.html" title="idt.h" alt="" coords="45,80,92,107"/>
-<area shape="rect" id="node4" href="console_8h.html" title="console.h" alt="" coords="116,80,195,107"/>
-<area shape="rect" id="node5" href="irq_8h.html" title="irq.h" alt="" coords="219,80,265,107"/>
+<area shape="rect" title="Инициализация программируемого интервального таймера" alt="" coords="106,5,174,32"/>
+<area shape="rect" href="types_8h.html" title=" " alt="" coords="13,155,83,181"/>
+<area shape="rect" href="idt_8h.html" title=" " alt="" coords="23,80,73,107"/>
+<area shape="rect" href="console_8h.html" title=" " alt="" coords="98,80,182,107"/>
+<area shape="rect" href="irq_8h.html" title=" " alt="" coords="207,80,257,107"/>
+<area shape="rect" href="x86_8h.html" title=" " alt="" coords="281,80,340,107"/>
 </map>
 </div>
 </div><table class="memberdecls">
@@ -90,7 +96,7 @@ $(function() {
 <tr class="memitem:a8c58b3f60c8e4c2a758d93e7a4207570"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="timer_8c.html#a8c58b3f60c8e4c2a758d93e7a4207570">init_timer</a> (int frequency)</td></tr>
 <tr class="separator:a8c58b3f60c8e4c2a758d93e7a4207570"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0cf8e8b7323cd0b02826e25051be9203"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="timer_8c.html#a0cf8e8b7323cd0b02826e25051be9203">timer_event</a> ()</td></tr>
-<tr class="memdesc:a0cf8e8b7323cd0b02826e25051be9203"><td class="mdescLeft">&#160;</td><td class="mdescRight">Обработчик срабатывания таймера  <a href="#a0cf8e8b7323cd0b02826e25051be9203">Подробнее...</a><br /></td></tr>
+<tr class="memdesc:a0cf8e8b7323cd0b02826e25051be9203"><td class="mdescLeft">&#160;</td><td class="mdescRight">Обработчик срабатывания таймера  <a href="timer_8c.html#a0cf8e8b7323cd0b02826e25051be9203">Подробнее...</a><br /></td></tr>
 <tr class="separator:a0cf8e8b7323cd0b02826e25051be9203"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Подробное описание</h2>
@@ -147,7 +153,7 @@ $(function() {
 <hr class="footer"/><address class="footer"><small>
 Создано системой &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
-</a> 1.8.13
+</a> 1.8.18
 </small></address>
 </body>
 </html>

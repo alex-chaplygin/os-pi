@@ -1,7 +1,5 @@
 var searchData=
 [
-  ['uchar',['uchar',['../types_8h.html#a65f85814a8290f9797005d3b28e7e5fc',1,'types.h']]],
-  ['uint',['uint',['../types_8h.html#a91ad9478d81a7aaf2593e8d9c3d06a14',1,'types.h']]],
-  ['ulong',['ulong',['../types_8h.html#a718b4eb2652c286f4d42dc18a8e71a1a',1,'types.h']]],
-  ['ushort',['ushort',['../types_8h.html#ab95f123a6c9bcfee6a343170ef8c5f69',1,'types.h']]]
+  ['gdt_5fentry_5ft_372',['gdt_entry_t',['../gdt_8h.html#ab0b5c60e06a63669c783705278ff641e',1,'gdt.h']]],
+  ['gdt_5fptr_5ft_373',['gdt_ptr_t',['../gdt_8h.html#a3bf3fa6f397bda8399e1afb6283b66ca',1,'gdt.h']]]
 ];

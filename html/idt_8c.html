@@ -1,9 +1,9 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<meta name="generator" content="Doxygen 1.8.13"/>
+<meta name="generator" content="Doxygen 1.8.18"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>OS-PI: Файл idt.c</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
@@ -31,18 +31,21 @@
 </table>
 </div>
 <!-- end header part -->
-<!-- Создано системой Doxygen 1.8.13 -->
+<!-- Создано системой Doxygen 1.8.18 -->
 <script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
 var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
+/* @license-end */
 </script>
 <script type="text/javascript" src="menudata.js"></script>
 <script type="text/javascript" src="menu.js"></script>
 <script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
 $(function() {
   initMenu('',true,false,'search.php','Поиск');
   $(document).ready(function() { init_search(); });
 });
-</script>
+/* @license-end */</script>
 <div id="main-nav"></div>
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
@@ -72,14 +75,17 @@ $(function() {
 <a href="#details">Подробнее...</a></p>
 <div class="textblock"><code>#include &quot;<a class="el" href="idt_8h_source.html">idt.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="isr_8h_source.html">isr.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="x86_8h_source.html">x86.h</a>&quot;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Граф включаемых заголовочных файлов для idt.c:</div>
 <div class="dyncontent">
 <div class="center"><img src="idt_8c__incl.png" border="0" usemap="#idt_8c" alt=""/></div>
 <map name="idt_8c" id="idt_8c">
-<area shape="rect" id="node2" href="idt_8h.html" title="idt.h" alt="" coords="15,80,61,107"/>
-<area shape="rect" id="node4" href="isr_8h.html" title="isr.h" alt="" coords="85,80,132,107"/>
-<area shape="rect" id="node3" href="types_8h.html" title="types.h" alt="" coords="5,155,71,181"/>
+<area shape="rect" title="Установка таблицы IDT &#45; дескриптеров прерываний" alt="" coords="80,5,131,32"/>
+<area shape="rect" href="idt_8h.html" title=" " alt="" coords="5,80,56,107"/>
+<area shape="rect" href="isr_8h.html" title=" " alt="" coords="80,80,131,107"/>
+<area shape="rect" href="x86_8h.html" title=" " alt="" coords="155,80,213,107"/>
+<area shape="rect" href="types_8h.html" title=" " alt="" coords="71,155,142,181"/>
 </map>
 </div>
 </div><table class="memberdecls">
@@ -93,12 +99,12 @@ $(function() {
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
 Переменные</h2></td></tr>
 <tr class="memitem:ac504c22d5156f1338ea612a1a730ece3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structidtGateDescriptor.html">idtGateDescriptor</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="idt_8c.html#ac504c22d5156f1338ea612a1a730ece3">idt</a> [<a class="el" href="idt_8h.html#a6eb438cc75ca0a7284346ea8b3f94999">IDT_SIZE</a>]</td></tr>
-<tr class="memdesc:ac504c22d5156f1338ea612a1a730ece3"><td class="mdescLeft">&#160;</td><td class="mdescRight">таблица дескриптеров прерываний  <a href="#ac504c22d5156f1338ea612a1a730ece3">Подробнее...</a><br /></td></tr>
+<tr class="memdesc:ac504c22d5156f1338ea612a1a730ece3"><td class="mdescLeft">&#160;</td><td class="mdescRight">таблица дескриптеров прерываний  <a href="idt_8c.html#ac504c22d5156f1338ea612a1a730ece3">Подробнее...</a><br /></td></tr>
 <tr class="separator:ac504c22d5156f1338ea612a1a730ece3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Подробное описание</h2>
 <div class="textblock"><p>Установка таблицы IDT - дескриптеров прерываний </p>
-<dl class="section author"><dt>Автор</dt><dd>alex &lt;alex-Inspiron-N5040&gt; </dd></dl>
+<dl class="section author"><dt>Автор</dt><dd>alex &lt;alex@alex-Inspiron-N5040&gt; </dd></dl>
 <dl class="section date"><dt>Дата</dt><dd>Mon Oct 19 13:10:13 2020 </dd></dl>
 </div><h2 class="groupheader">Функции</h2>
 <a id="abea4b1a4cb3c59e925bfe8bedd626dcc"></a>
@@ -191,7 +197,7 @@ $(function() {
 <hr class="footer"/><address class="footer"><small>
 Создано системой &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
-</a> 1.8.13
+</a> 1.8.18
 </small></address>
 </body>
 </html>

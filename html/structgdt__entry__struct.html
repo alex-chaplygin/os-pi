@@ -1,0 +1,181 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.8.18"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>OS-PI: Структура gdt_entry_struct</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td id="projectalign" style="padding-left: 0.5em;">
+   <div id="projectname">OS-PI
+   &#160;<span id="projectnumber">0.1</span>
+   </div>
+   <div id="projectbrief">Операционная система</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Создано системой Doxygen 1.8.18 -->
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
+var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
+/* @license-end */
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
+$(function() {
+  initMenu('',true,false,'search.php','Поиск');
+  $(document).ready(function() { init_search(); });
+});
+/* @license-end */</script>
+<div id="main-nav"></div>
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<iframe src="javascript:void(0)" frameborder="0" 
+        name="MSearchResults" id="MSearchResults">
+</iframe>
+</div>
+
+</div><!-- top -->
+<div class="header">
+  <div class="summary">
+<a href="#pub-attribs">Открытые атрибуты</a> &#124;
+<a href="structgdt__entry__struct-members.html">Полный список членов класса</a>  </div>
+  <div class="headertitle">
+<div class="title">Структура gdt_entry_struct</div>  </div>
+</div><!--header-->
+<div class="contents">
+
+<p>Эта структура содержит значения для одной записи GDT.  
+ <a href="structgdt__entry__struct.html#details">Подробнее...</a></p>
+
+<p><code>#include &lt;<a class="el" href="gdt_8h_source.html">gdt.h</a>&gt;</code></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
+Открытые атрибуты</h2></td></tr>
+<tr class="memitem:ada721fbdc3e8d3feae3b07d4b82a37bd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="types_8h.html#a863d9497073aad2b991aeab2211d87af">u16int</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structgdt__entry__struct.html#ada721fbdc3e8d3feae3b07d4b82a37bd">limit_low</a></td></tr>
+<tr class="separator:ada721fbdc3e8d3feae3b07d4b82a37bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a90f05cd7f227a34e977a639843a23275"><td class="memItemLeft" align="right" valign="top"><a class="el" href="types_8h.html#a863d9497073aad2b991aeab2211d87af">u16int</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structgdt__entry__struct.html#a90f05cd7f227a34e977a639843a23275">base_low</a></td></tr>
+<tr class="separator:a90f05cd7f227a34e977a639843a23275"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae90eeaedf4cd7e5b4696a83531675810"><td class="memItemLeft" align="right" valign="top"><a class="el" href="types_8h.html#a1026e682ffdadc1701c42cd44ce9efcf">u8int</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structgdt__entry__struct.html#ae90eeaedf4cd7e5b4696a83531675810">base_middle</a></td></tr>
+<tr class="separator:ae90eeaedf4cd7e5b4696a83531675810"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad6d478b905423338705a8278078d33bd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="types_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structgdt__entry__struct.html#ad6d478b905423338705a8278078d33bd">access</a></td></tr>
+<tr class="separator:ad6d478b905423338705a8278078d33bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa03c14867c293012449a3b18a07f45f2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="types_8h.html#a1026e682ffdadc1701c42cd44ce9efcf">u8int</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structgdt__entry__struct.html#aa03c14867c293012449a3b18a07f45f2">base_high</a></td></tr>
+<tr class="separator:aa03c14867c293012449a3b18a07f45f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<a name="details" id="details"></a><h2 class="groupheader">Подробное описание</h2>
+<div class="textblock"><p>Эта структура содержит значения для одной записи GDT. </p>
+</div><h2 class="groupheader">Данные класса</h2>
+<a id="ad6d478b905423338705a8278078d33bd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad6d478b905423338705a8278078d33bd">&#9670;&nbsp;</a></span>access</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="types_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a> gdt_entry_struct::access</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Флаг определяет уровень доступа </p>
+
+</div>
+</div>
+<a id="aa03c14867c293012449a3b18a07f45f2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa03c14867c293012449a3b18a07f45f2">&#9670;&nbsp;</a></span>base_high</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="types_8h.html#a1026e682ffdadc1701c42cd44ce9efcf">u8int</a> gdt_entry_struct::base_high</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Cтаршие 8 бит базы </p>
+
+</div>
+</div>
+<a id="a90f05cd7f227a34e977a639843a23275"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a90f05cd7f227a34e977a639843a23275">&#9670;&nbsp;</a></span>base_low</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="types_8h.html#a863d9497073aad2b991aeab2211d87af">u16int</a> gdt_entry_struct::base_low</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Младшие 16 бит базы </p>
+
+</div>
+</div>
+<a id="ae90eeaedf4cd7e5b4696a83531675810"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae90eeaedf4cd7e5b4696a83531675810">&#9670;&nbsp;</a></span>base_middle</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="types_8h.html#a1026e682ffdadc1701c42cd44ce9efcf">u8int</a> gdt_entry_struct::base_middle</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Следующие восемь бит базы </p>
+
+</div>
+</div>
+<a id="ada721fbdc3e8d3feae3b07d4b82a37bd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ada721fbdc3e8d3feae3b07d4b82a37bd">&#9670;&nbsp;</a></span>limit_low</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="types_8h.html#a863d9497073aad2b991aeab2211d87af">u16int</a> gdt_entry_struct::limit_low</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Младшие 16 бит смещения </p>
+
+</div>
+</div>
+<hr/>Объявления и описания членов структуры находятся в файле:<ul>
+<li><a class="el" href="gdt_8h_source.html">gdt.h</a></li>
+</ul>
+</div><!-- contents -->
+<!-- start footer part -->
+<hr class="footer"/><address class="footer"><small>
+Создано системой &#160;<a href="http://www.doxygen.org/index.html">
+<img class="footer" src="doxygen.png" alt="doxygen"/>
+</a> 1.8.18
+</small></address>
+</body>
+</html>

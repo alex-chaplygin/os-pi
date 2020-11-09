@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['highoffset',['highOffset',['../structidtGateDescriptor.html#a8df892f9e5e8a0780d8693e13d459cad',1,'idtGateDescriptor']]]
+  ['codeptr_349',['codePtr',['../structproc.html#aabd88e6132ca72e95bbfb4d0a6af7cbe',1,'proc']]]
 ];

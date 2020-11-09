@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['zero',['zero',['../structidtGateDescriptor.html#ace291b1edc2eb621423534f13bfb55df',1,'idtGateDescriptor']]]
+  ['x86_2easm_225',['x86.asm',['../x86_8asm.html',1,'']]],
+  ['x86_2eh_226',['x86.h',['../x86_8h.html',1,'']]]
 ];
