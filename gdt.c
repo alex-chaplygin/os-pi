@@ -31,7 +31,7 @@ void create_descriptor(uint32_t num,uint32_t base, uint32_t limit, uint8_t acces
     gdt_entries[num].limit_low = limit  & 0xFFFF;               // set limit bits 15:0
     gdt_entries[num].gran = (limit >> 16) & 0x0F;
     gdt_entries[num].gran |= gran & 0xF0;
-    gdt_entries[num].access = access;  
+    gdt_entries[num].access = access | 0x90;  
 }
 
 /** 
@@ -44,10 +44,10 @@ void init_gdt()
     gdt_ptr.base  = (uint32_t) & gdt_entries;
 	
     create_descriptor(0, 0, 0, 0, 0);
-    create_descriptor(1, 0, 0xFFFFFFFF, 0x9A, 0xCF);
-    create_descriptor(2, 0, 0xFFFFFFFF, 0x92, 0xCF);
-    create_descriptor(3, 0, 0xFFFFFFFF, 0xFA, 0xCF);
-    create_descriptor(4, 0, 0xFFFFFFFF, 0xF2, 0xCF);
+    create_descriptor(1, 0, 0xFFFFFFFF, SEG_CODE_EXRD | DPL(0), GRAN_ENABLE); 
+    create_descriptor(2, 0, 0xFFFFFFFF, SEG_DATA_RDWR | DPL(0), GRAN_ENABLE); 
+    create_descriptor(3, 0, 0xFFFFFFFF, SEG_CODE_EXRD | DPL(3), GRAN_ENABLE);
+    create_descriptor(4, 0, 0xFFFFFFFF, SEG_DATA_RDWR | DPL(3), GRAN_ENABLE);
 
     load_gdt((uint32_t)&gdt_ptr);
 }
