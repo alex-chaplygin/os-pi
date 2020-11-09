@@ -40,7 +40,7 @@ char * int_to_str_hex(int num) {
         numLengthBuffer /= 10;
     }
     
-    char * outbuf;// = malloc(numLength); // Выделение памяти для возвращаемого значения
+    char * outbuf = malloc(numLength); // Выделение памяти для возвращаемого значения
     outbuf[0] = '0'; // Добавление HEX префикса C
     outbuf[1] = 'x';
     int base = 16; // Возвращаемая система счисления
