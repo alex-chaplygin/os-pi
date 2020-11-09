@@ -15,6 +15,7 @@
 #include "irq.h"
 #include "keyboard.h"
 #include "mouse.h"
+#include "gdt.h"
 
 extern void test_syscall();
 
@@ -24,6 +25,8 @@ extern void test_syscall();
  */
 void kmain(void)
 {
+  init_gdt();
+  init_interrupts(0x20, 0x28);
   idtInit();
   init_interrupts(0x20, 0x28);
 

@@ -6,7 +6,7 @@ section .text
         dd 0x00                    ;flags
         dd - (0x1BADB002 + 0x00)   ;checksum. m+f+c should be zero
 
-global start, kernel_code, load_idt
+global start, kernel_code, load_idt, load_gdt
 global a_isrZeroDivisionException
 global a_isrDebugException
 global a_isrNonMaskableInterruptException
@@ -47,6 +47,14 @@ load_idt:
 	lidt [edx]
         sti
         ret
+
+load_gdt:
+        mov edx, [esp + 4]
+	lgdt [edx]
+	;; mov ax, 1		
+	;; mov cs, ax
+        ret
+	
 
 read_port:
 	mov edx, [esp + 4]
