@@ -9,34 +9,33 @@
  */
 
 #include "gdt.h"
-
-/// Указатель на записи GDT
-gdt_entry_t    gdt_entries[GDT_SIZE];
 /// Указатель на местонахождение GDT
 gdt_ptr_t    gdt_ptr;
+/// Указатель на записи GDT
+gdt_entry_t    gdt_entries[GDT_SIZE];
+
 
 /** 
- * @brief Устанавливает значения для пяти дескрипторов
+ * Создание дескриптора сегмента.
  * 
- * @param num Количество записей
+ * @param num Селектор сегмента.
  * @param base Базовый адрес сегмента
- * @param limit Размер записей таблицы
- * @param access Флаг определяет уровень доступа
- * @param gran Гранулярность
+ * @param limit Предельный адрес сегмента.
+ * @param flag Флаги доступа к сегменту.
  */
-static void gdt_set_gate(u32int num, u32int base, u32int limit, u8int access, u8int gran)
-{
-    gdt_entries[num].base_low     = (base & 0xFFFF);
-    gdt_entries[num].base_middle = (base >> 16) & 0xFF;
-    gdt_entries[num].base_high     = (base >> 24) & 0xFF;
+void create_descriptor(uint32_t num,uint32_t base, uint32_t limit, uint16_t flag)
+{ 
+    // Create the high 32 bit segment
+    gdt_entries[num].access = (flag <<  8) & 0x00F0FF00;         // set type, p, dpl, s, g, d/b, l and avl fields
+    gdt_entries[num].base_middle = (base >> 16) & 0x000000FF;         // set base bits 23:16
+    gdt_entries[num].base_high =  base & 0xFF000000;         // set base bits 31:24
+     // Shift by 32 to allow for low part of segment
 
-    gdt_entries[num].limit_low     = (limit & 0xFFFF);
-    gdt_entries[num].granularity = (limit >> 16) & 0x0F;
-
-    gdt_entries[num].granularity |= gran & 0xF0;
-    gdt_entries[num].access         = access;
+ 
+    // Create the low 32 bit segment
+    gdt_entries[num].base_low = base  << 16;                       // set base bits 15:0
+    gdt_entries[num].limit_low = limit  & 0x0000FFFF;               // set limit bits 15:0
 }
-
 
 /** 
  * @brief  Инициализация GDT
@@ -44,16 +43,14 @@ static void gdt_set_gate(u32int num, u32int base, u32int limit, u8int access, u8
  */
 void init_gdt()
 {
-    gdt_ptr.limit = (sizeof(gdt_entry_t)*5) - 1;
-    gdt_ptr.base  = (u32int) & gdt_entries;
+	gdt_ptr.limit = (sizeof(gdt_entry_t)*5) - 1;
+    gdt_ptr.base  = (uint32_t) & gdt_entries;
+	
+    create_descriptor(0, 0, 0, 0);
+    create_descriptor(1, 0, 0xFFFFFFFF, (GDT_CODE_PL0));
+    create_descriptor(2, 0, 0xFFFFFFFF, (GDT_DATA_PL0));
+    create_descriptor(3, 0, 0xFFFFFFFF, (GDT_CODE_PL3));
+    create_descriptor(4, 0, 0xFFFFFFFF, (GDT_DATA_PL3));
 
-    gdt_set_gate(0, 0, 0, 0, 0); /**< Нулевой сегмент */
-    gdt_set_gate(1, 0, LIM, 0x9A, GRAN);	/**< Сегмент кода */
-    gdt_set_gate(2, 0, LIM, 0x92, GRAN);	/**< Сегмент данных */
-    gdt_set_gate(3, 0, LIM, 0xFA, GRAN);	/**< Сегмент кода уровня пользовательских процессов */
-    gdt_set_gate(4, 0, LIM, 0xF2, GRAN);	/**< Сегмент данных уровня пользовательских процессов */
-
-    load_gdt((u32int)&gdt_ptr);
+    load_gdt((uint32_t)&gdt_ptr);
 }
-
-

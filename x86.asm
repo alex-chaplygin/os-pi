@@ -50,6 +50,8 @@ load_idt:
 load_gdt:
         mov edx, [esp + 4]
 	lgdt [edx]
+	;; mov ax, 1		
+	;; mov cs, ax
         ret
 	
 
