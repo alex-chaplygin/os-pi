@@ -23,18 +23,15 @@ gdt_entry_t    gdt_entries[GDT_SIZE];
  * @param limit Предельный адрес сегмента.
  * @param flag Флаги доступа к сегменту.
  */
-void create_descriptor(uint32_t num,uint32_t base, uint32_t limit, uint16_t flag)
+void create_descriptor(uint32_t num,uint32_t base, uint32_t limit, uint8_t access, byte gran)
 { 
-    // Create the high 32 bit segment
-    gdt_entries[num].access = (flag <<  8) & 0x00F0FF00;         // set type, p, dpl, s, g, d/b, l and avl fields
-    gdt_entries[num].base_middle = (base >> 16) & 0x000000FF;         // set base bits 23:16
-    gdt_entries[num].base_high =  base & 0xFF000000;         // set base bits 31:24
-     // Shift by 32 to allow for low part of segment
-
- 
-    // Create the low 32 bit segment
-    gdt_entries[num].base_low = base  << 16;                       // set base bits 15:0
-    gdt_entries[num].limit_low = limit  & 0x0000FFFF;               // set limit bits 15:0
+  gdt_entries[num].base_low = (base & 0xFFFF);                       // set base bits 15:0
+    gdt_entries[num].base_middle = (base >> 16) & 0xFF;         // set base bits 23:16
+    gdt_entries[num].base_high =  (base >> 24) & 0xFF;         // set base bits 31:24
+    gdt_entries[num].limit_low = limit  & 0xFFFF;               // set limit bits 15:0
+    gdt_entries[num].gran = (limit >> 16) & 0x0F;
+    gdt_entries[num].gran |= gran & 0xF0;
+    gdt_entries[num].access = access;  
 }
 
 /** 
@@ -43,14 +40,14 @@ void create_descriptor(uint32_t num,uint32_t base, uint32_t limit, uint16_t flag
  */
 void init_gdt()
 {
-	gdt_ptr.limit = (sizeof(gdt_entry_t)*5) - 1;
+    gdt_ptr.limit = sizeof(gdt_entry_t)*5 - 1;
     gdt_ptr.base  = (uint32_t) & gdt_entries;
 	
-    create_descriptor(0, 0, 0, 0);
-    create_descriptor(0x8, 0, 0xFFFFFFFF, (GDT_CODE_PL0));
-    create_descriptor(0x10, 0, 0xFFFFFFFF, (GDT_DATA_PL0));
-    create_descriptor(3, 0, 0xFFFFFFFF, (GDT_CODE_PL3));
-    create_descriptor(4, 0, 0xFFFFFFFF, (GDT_DATA_PL3));
+    create_descriptor(0, 0, 0, 0, 0);
+    create_descriptor(1, 0, 0xFFFFFFFF, 0x9A, 0xCF);
+    create_descriptor(2, 0, 0xFFFFFFFF, 0x92, 0xCF);
+    create_descriptor(3, 0, 0xFFFFFFFF, 0xFA, 0xCF);
+    create_descriptor(4, 0, 0xFFFFFFFF, 0xF2, 0xCF);
 
     load_gdt((uint32_t)&gdt_ptr);
 }

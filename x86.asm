@@ -49,10 +49,8 @@ load_idt:
         ret
 
 load_gdt:
-        mov edx, [esp + 4]
-	lgdt [edx]
-	;; mov ax, 1		
-	;; mov cs, ax
+	mov edx, [esp + 4]
+	lgdt [edx]		
         ret
 	
 
