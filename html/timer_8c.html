@@ -1,10 +1,9 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<meta name="generator" content="Doxygen 1.8.18"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="generator" content="Doxygen 1.8.11"/>
 <title>OS-PI: Файл timer.c</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
@@ -12,6 +11,9 @@
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/searchdata.js"></script>
 <script type="text/javascript" src="search/search.js"></script>
+<script type="text/javascript">
+  $(document).ready(function() { init_search(); });
+</script>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
@@ -31,22 +33,39 @@
 </table>
 </div>
 <!-- end header part -->
-<!-- Создано системой Doxygen 1.8.18 -->
+<!-- Создано системой Doxygen 1.8.11 -->
 <script type="text/javascript">
-/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
 var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
-/* @license-end */
 </script>
-<script type="text/javascript" src="menudata.js"></script>
-<script type="text/javascript" src="menu.js"></script>
-<script type="text/javascript">
-/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
-$(function() {
-  initMenu('',true,false,'search.php','Поиск');
-  $(document).ready(function() { init_search(); });
-});
-/* @license-end */</script>
-<div id="main-nav"></div>
+  <div id="navrow1" class="tabs">
+    <ul class="tablist">
+      <li><a href="index.html"><span>Титульная&#160;страница</span></a></li>
+      <li><a href="annotated.html"><span>Классы</span></a></li>
+      <li class="current"><a href="files.html"><span>Файлы</span></a></li>
+      <li>
+        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <img id="MSearchSelect" src="search/mag_sel.png"
+               onmouseover="return searchBox.OnSearchSelectShow()"
+               onmouseout="return searchBox.OnSearchSelectHide()"
+               alt=""/>
+          <input type="text" id="MSearchField" value="Поиск" accesskey="S"
+               onfocus="searchBox.OnSearchFieldFocus(true)" 
+               onblur="searchBox.OnSearchFieldFocus(false)" 
+               onkeyup="searchBox.OnSearchFieldChange(event)"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><img id="MSearchCloseImg" border="0" src="search/close.png" alt=""/></a>
+          </span>
+        </div>
+      </li>
+    </ul>
+  </div>
+  <div id="navrow2" class="tabs2">
+    <ul class="tablist">
+      <li><a href="files.html"><span>Файлы</span></a></li>
+      <li><a href="globals.html"><span>Список&#160;членов&#160;всех&#160;файлов</span></a></li>
+    </ul>
+  </div>
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
      onmouseover="return searchBox.OnSearchSelectShow()"
@@ -82,12 +101,11 @@ $(function() {
 <div class="dyncontent">
 <div class="center"><img src="timer_8c__incl.png" border="0" usemap="#timer_8c" alt=""/></div>
 <map name="timer_8c" id="timer_8c">
-<area shape="rect" title="Инициализация программируемого интервального таймера" alt="" coords="106,5,174,32"/>
-<area shape="rect" href="types_8h.html" title=" " alt="" coords="13,155,83,181"/>
-<area shape="rect" href="idt_8h.html" title=" " alt="" coords="23,80,73,107"/>
-<area shape="rect" href="console_8h.html" title=" " alt="" coords="98,80,182,107"/>
-<area shape="rect" href="irq_8h.html" title=" " alt="" coords="207,80,257,107"/>
-<area shape="rect" href="x86_8h.html" title=" " alt="" coords="281,80,340,107"/>
+<area shape="rect" id="node2" href="types_8h.html" title="types.h" alt="" coords="14,155,79,181"/>
+<area shape="rect" id="node3" href="idt_8h.html" title="idt.h" alt="" coords="23,80,70,107"/>
+<area shape="rect" id="node4" href="console_8h.html" title="console.h" alt="" coords="94,80,173,107"/>
+<area shape="rect" id="node5" href="irq_8h.html" title="irq.h" alt="" coords="197,80,243,107"/>
+<area shape="rect" id="node6" href="x86_8h.html" title="x86.h" alt="" coords="267,80,322,107"/>
 </map>
 </div>
 </div><table class="memberdecls">
@@ -96,7 +114,7 @@ $(function() {
 <tr class="memitem:a8c58b3f60c8e4c2a758d93e7a4207570"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="timer_8c.html#a8c58b3f60c8e4c2a758d93e7a4207570">init_timer</a> (int frequency)</td></tr>
 <tr class="separator:a8c58b3f60c8e4c2a758d93e7a4207570"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0cf8e8b7323cd0b02826e25051be9203"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="timer_8c.html#a0cf8e8b7323cd0b02826e25051be9203">timer_event</a> ()</td></tr>
-<tr class="memdesc:a0cf8e8b7323cd0b02826e25051be9203"><td class="mdescLeft">&#160;</td><td class="mdescRight">Обработчик срабатывания таймера  <a href="timer_8c.html#a0cf8e8b7323cd0b02826e25051be9203">Подробнее...</a><br /></td></tr>
+<tr class="memdesc:a0cf8e8b7323cd0b02826e25051be9203"><td class="mdescLeft">&#160;</td><td class="mdescRight">Обработчик срабатывания таймера  <a href="#a0cf8e8b7323cd0b02826e25051be9203">Подробнее...</a><br /></td></tr>
 <tr class="separator:a0cf8e8b7323cd0b02826e25051be9203"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Подробное описание</h2>
@@ -104,9 +122,7 @@ $(function() {
 <dl class="section author"><dt>Автор</dt><dd>TSAG <a href="#" onclick="location.href='mai'+'lto:'+'tsa'+'g@'+'kal'+'i.'+'tsa'+'g.'+'com'; return false;">tsag@<span style="display: none;">.nosp@m.</span>kali<span style="display: none;">.nosp@m.</span>.tsag<span style="display: none;">.nosp@m.</span>.com</a> </dd></dl>
 <dl class="section date"><dt>Дата</dt><dd>Mon Oct 26 09:04:54 2020 </dd></dl>
 </div><h2 class="groupheader">Функции</h2>
-<a id="a8c58b3f60c8e4c2a758d93e7a4207570"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8c58b3f60c8e4c2a758d93e7a4207570">&#9670;&nbsp;</a></span>init_timer()</h2>
-
+<a class="anchor" id="a8c58b3f60c8e4c2a758d93e7a4207570"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -129,9 +145,7 @@ $(function() {
 
 </div>
 </div>
-<a id="a0cf8e8b7323cd0b02826e25051be9203"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a0cf8e8b7323cd0b02826e25051be9203">&#9670;&nbsp;</a></span>timer_event()</h2>
-
+<a class="anchor" id="a0cf8e8b7323cd0b02826e25051be9203"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -153,7 +167,7 @@ $(function() {
 <hr class="footer"/><address class="footer"><small>
 Создано системой &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
-</a> 1.8.18
+</a> 1.8.11
 </small></address>
 </body>
 </html>

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['kernel_5fcode_355',['kernel_code',['../x86_8h.html#a6edc7d0ec336e10ae0a904887e12a156',1,'x86.h']]]
+  ['idt',['idt',['../idt_8c.html#ac504c22d5156f1338ea612a1a730ece3',1,'idt.c']]]
 ];

@@ -1,5 +1,4 @@
 <map id="isr.c" name="isr.c">
-<area shape="rect" id="node1" title=" " alt="" coords="69,5,119,32"/>
-<area shape="rect" id="node2" href="$console_8h.html" title=" " alt="" coords="5,80,89,107"/>
-<area shape="rect" id="node3" href="$libc_8h.html" title=" " alt="" coords="113,80,171,107"/>
+<area shape="rect" id="node2" href="$console_8h.html" title="console.h" alt="" coords="5,80,84,107"/>
+<area shape="rect" id="node3" href="$libc_8h.html" title="libc.h" alt="" coords="109,80,162,107"/>
 </map>

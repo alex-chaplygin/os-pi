@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['zero_369',['zero',['../structidtGateDescriptor.html#ace291b1edc2eb621423534f13bfb55df',1,'idtGateDescriptor']]]
+  ['table',['table',['../isr_8c.html#a8867c0aeee99c3cbc2cdcce9defa4807',1,'isr.c']]],
+  ['type',['type',['../structidtGateDescriptor.html#a87cbb8981740ac896a563352e96a2b9e',1,'idtGateDescriptor']]]
 ];

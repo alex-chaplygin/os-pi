@@ -1,6 +1,5 @@
 <map id="x86.h" name="x86.h">
-<area shape="rect" id="node1" title=" " alt="" coords="89,5,148,32"/>
-<area shape="rect" id="node2" href="$idt_8c.html" title="Установка таблицы IDT &#45; дескриптеров прерываний" alt="" coords="5,80,56,107"/>
-<area shape="rect" id="node3" href="$mouse_8c.html" title=" " alt="" coords="80,80,157,107"/>
-<area shape="rect" id="node4" href="$timer_8c.html" title="Инициализация программируемого интервального таймера" alt="" coords="182,80,250,107"/>
+<area shape="rect" id="node2" href="$idt_8c.html" title="Установка таблицы IDT &#45; дескриптеров прерываний " alt="" coords="5,80,52,107"/>
+<area shape="rect" id="node3" href="$mouse_8c.html" title="mouse.c" alt="" coords="77,80,149,107"/>
+<area shape="rect" id="node4" href="$timer_8c.html" title="Инициализация программируемого интервального таймера " alt="" coords="173,80,236,107"/>
 </map>

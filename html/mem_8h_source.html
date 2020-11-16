@@ -1,10 +1,9 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<meta name="generator" content="Doxygen 1.8.18"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="generator" content="Doxygen 1.8.11"/>
 <title>OS-PI: Исходный файл mem.h</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
@@ -12,6 +11,9 @@
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/searchdata.js"></script>
 <script type="text/javascript" src="search/search.js"></script>
+<script type="text/javascript">
+  $(document).ready(function() { init_search(); });
+</script>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
@@ -31,22 +33,39 @@
 </table>
 </div>
 <!-- end header part -->
-<!-- Создано системой Doxygen 1.8.18 -->
+<!-- Создано системой Doxygen 1.8.11 -->
 <script type="text/javascript">
-/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
 var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
-/* @license-end */
 </script>
-<script type="text/javascript" src="menudata.js"></script>
-<script type="text/javascript" src="menu.js"></script>
-<script type="text/javascript">
-/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
-$(function() {
-  initMenu('',true,false,'search.php','Поиск');
-  $(document).ready(function() { init_search(); });
-});
-/* @license-end */</script>
-<div id="main-nav"></div>
+  <div id="navrow1" class="tabs">
+    <ul class="tablist">
+      <li><a href="index.html"><span>Титульная&#160;страница</span></a></li>
+      <li><a href="annotated.html"><span>Классы</span></a></li>
+      <li class="current"><a href="files.html"><span>Файлы</span></a></li>
+      <li>
+        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <img id="MSearchSelect" src="search/mag_sel.png"
+               onmouseover="return searchBox.OnSearchSelectShow()"
+               onmouseout="return searchBox.OnSearchSelectHide()"
+               alt=""/>
+          <input type="text" id="MSearchField" value="Поиск" accesskey="S"
+               onfocus="searchBox.OnSearchFieldFocus(true)" 
+               onblur="searchBox.OnSearchFieldFocus(false)" 
+               onkeyup="searchBox.OnSearchFieldChange(event)"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><img id="MSearchCloseImg" border="0" src="search/close.png" alt=""/></a>
+          </span>
+        </div>
+      </li>
+    </ul>
+  </div>
+  <div id="navrow2" class="tabs2">
+    <ul class="tablist">
+      <li><a href="files.html"><span>Файлы</span></a></li>
+      <li><a href="globals.html"><span>Список&#160;членов&#160;всех&#160;файлов</span></a></li>
+    </ul>
+  </div>
 </div><!-- top -->
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
@@ -67,14 +86,14 @@ $(function() {
 <div class="title">mem.h</div>  </div>
 </div><!--header-->
 <div class="contents">
-<a href="mem_8h.html">См. документацию.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="keywordtype">int</span> <a class="code" href="mem_8h.html#ab4ae6d511fde0d9b17f8065f761df6ff">get_phys_mem_size</a>();</div>
+<a href="mem_8h.html">См. документацию.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno"><a class="line" href="mem_8h.html#a5155355bbabd39029d45b74529beba04">    1</a></span>&#160;<span class="preprocessor">#define MAX_SEGMENTS 1024 </span></div><div class="line"><a name="l00002"></a><span class="lineno"><a class="line" href="mem_8h.html#ad0db2fa7d0c61fadd68de06d7ea2489d">    2</a></span>&#160;<span class="preprocessor">#define START_ADDRESS 0x2000000 </span></div><div class="line"><a name="l00003"></a><span class="lineno"><a class="line" href="mem_8h.html#a2dcf8c45f945dd0c4301a94700f2112c">    3</a></span>&#160;<span class="preprocessor">#define MEM_SIZE 0x4FFFFFFF</span></div><div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;</div><div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="keywordtype">void</span> <a class="code" href="mem_8h.html#a9ce51c33e96ef646614c4c93f271e316">mem_init</a>(); </div><div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="keywordtype">void</span> *<a class="code" href="mem_8h.html#a76481785cc2cb7d43fc6317ebec427b4">malloc</a>(<span class="keywordtype">int</span> size);</div><div class="ttc" id="mem_8h_html_a9ce51c33e96ef646614c4c93f271e316"><div class="ttname"><a href="mem_8h.html#a9ce51c33e96ef646614c4c93f271e316">mem_init</a></div><div class="ttdeci">void mem_init()</div><div class="ttdef"><b>Definition:</b> mem.c:33</div></div>
+<div class="ttc" id="mem_8h_html_a76481785cc2cb7d43fc6317ebec427b4"><div class="ttname"><a href="mem_8h.html#a76481785cc2cb7d43fc6317ebec427b4">malloc</a></div><div class="ttdeci">void * malloc(int size)</div><div class="ttdef"><b>Definition:</b> mem.c:50</div></div>
 </div><!-- fragment --></div><!-- contents -->
-<div class="ttc" id="amem_8h_html_ab4ae6d511fde0d9b17f8065f761df6ff"><div class="ttname"><a href="mem_8h.html#ab4ae6d511fde0d9b17f8065f761df6ff">get_phys_mem_size</a></div><div class="ttdeci">int get_phys_mem_size()</div><div class="ttdef"><b>Definition:</b> mem.c:7</div></div>
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Создано системой &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
-</a> 1.8.18
+</a> 1.8.11
 </small></address>
 </body>
 </html>

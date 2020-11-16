@@ -1,10 +1,9 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<meta name="generator" content="Doxygen 1.8.18"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="generator" content="Doxygen 1.8.11"/>
 <title>OS-PI: Исходный файл irq.h</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
@@ -12,6 +11,9 @@
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/searchdata.js"></script>
 <script type="text/javascript" src="search/search.js"></script>
+<script type="text/javascript">
+  $(document).ready(function() { init_search(); });
+</script>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
@@ -31,22 +33,39 @@
 </table>
 </div>
 <!-- end header part -->
-<!-- Создано системой Doxygen 1.8.18 -->
+<!-- Создано системой Doxygen 1.8.11 -->
 <script type="text/javascript">
-/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
 var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
-/* @license-end */
 </script>
-<script type="text/javascript" src="menudata.js"></script>
-<script type="text/javascript" src="menu.js"></script>
-<script type="text/javascript">
-/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
-$(function() {
-  initMenu('',true,false,'search.php','Поиск');
-  $(document).ready(function() { init_search(); });
-});
-/* @license-end */</script>
-<div id="main-nav"></div>
+  <div id="navrow1" class="tabs">
+    <ul class="tablist">
+      <li><a href="index.html"><span>Титульная&#160;страница</span></a></li>
+      <li><a href="annotated.html"><span>Классы</span></a></li>
+      <li class="current"><a href="files.html"><span>Файлы</span></a></li>
+      <li>
+        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <img id="MSearchSelect" src="search/mag_sel.png"
+               onmouseover="return searchBox.OnSearchSelectShow()"
+               onmouseout="return searchBox.OnSearchSelectHide()"
+               alt=""/>
+          <input type="text" id="MSearchField" value="Поиск" accesskey="S"
+               onfocus="searchBox.OnSearchFieldFocus(true)" 
+               onblur="searchBox.OnSearchFieldFocus(false)" 
+               onkeyup="searchBox.OnSearchFieldChange(event)"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><img id="MSearchCloseImg" border="0" src="search/close.png" alt=""/></a>
+          </span>
+        </div>
+      </li>
+    </ul>
+  </div>
+  <div id="navrow2" class="tabs2">
+    <ul class="tablist">
+      <li><a href="files.html"><span>Файлы</span></a></li>
+      <li><a href="globals.html"><span>Список&#160;членов&#160;всех&#160;файлов</span></a></li>
+    </ul>
+  </div>
 </div><!-- top -->
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
@@ -67,39 +86,14 @@ $(function() {
 <div class="title">irq.h</div>  </div>
 </div><!--header-->
 <div class="contents">
-<a href="irq_8h.html">См. документацию.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#define ICW1_ICW4   0x01        </span><span class="comment">/* ICW4 (not) needed */</span><span class="preprocessor"></span></div>
-<div class="line"><a name="l00002"></a><span class="lineno"><a class="line" href="irq_8h.html#a964d12193d2b36e8a7ec7fa57438e313">    2</a></span>&#160;<span class="preprocessor">#define ICW1_SINGLE 0x02        </span><span class="comment">/* Single (cascade) mode */</span><span class="preprocessor"></span></div>
-<div class="line"><a name="l00003"></a><span class="lineno"><a class="line" href="irq_8h.html#a6c092603fb5e22cc80954531ae319d01">    3</a></span>&#160;<span class="preprocessor">#define ICW1_INTERVAL4  0x04        </span><span class="comment">/* Call address interval 4 (8) */</span><span class="preprocessor"></span></div>
-<div class="line"><a name="l00004"></a><span class="lineno"><a class="line" href="irq_8h.html#a6ba324062a88dc9ff1e2916abdcde17e">    4</a></span>&#160;<span class="preprocessor">#define ICW1_LEVEL  0x08        </span><span class="comment">/* Level triggered (edge) mode */</span><span class="preprocessor"></span></div>
-<div class="line"><a name="l00005"></a><span class="lineno"><a class="line" href="irq_8h.html#a8b06fbc75942c0a61e6ad80ea4736bd3">    5</a></span>&#160;<span class="preprocessor">#define ICW1_INIT   0x10        </span><span class="comment">/* Initialization - required! */</span><span class="preprocessor"></span></div>
-<div class="line"><a name="l00006"></a><span class="lineno"><a class="line" href="irq_8h.html#a286dc251f3d73c08e08a53a4696f31ef">    6</a></span>&#160; </div>
-<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="preprocessor">#define ICW4_8086   0x01        </span><span class="comment">/* 8086/88 (MCS-80/85) mode */</span><span class="preprocessor"></span></div>
-<div class="line"><a name="l00008"></a><span class="lineno"><a class="line" href="irq_8h.html#a42803c5ddcec9e120a6dbf7bc5c1b7af">    8</a></span>&#160;<span class="preprocessor">#define ICW4_AUTO   0x02        </span><span class="comment">/* Auto (normal) EOI */</span><span class="preprocessor"></span></div>
-<div class="line"><a name="l00009"></a><span class="lineno"><a class="line" href="irq_8h.html#a16777bf654a4c5630e4f53902a25235a">    9</a></span>&#160;<span class="preprocessor">#define ICW4_BUF_SLAVE  0x08        </span><span class="comment">/* Buffered mode/slave */</span><span class="preprocessor"></span></div>
-<div class="line"><a name="l00010"></a><span class="lineno"><a class="line" href="irq_8h.html#af5443900cdd9096e97898e5584c316bb">   10</a></span>&#160;<span class="preprocessor">#define ICW4_BUF_MASTER 0x0C        </span><span class="comment">/* Buffered mode/master */</span><span class="preprocessor"></span></div>
-<div class="line"><a name="l00011"></a><span class="lineno"><a class="line" href="irq_8h.html#af3f1b53c727d98166710d198aca13411">   11</a></span>&#160;<span class="preprocessor">#define ICW4_SFNM   0x10        </span><span class="comment">/* Special fully nested (not) */</span><span class="preprocessor"></span></div>
-<div class="line"><a name="l00012"></a><span class="lineno"><a class="line" href="irq_8h.html#a0ecb67a3f71d1d10502fbd834b0292f1">   12</a></span>&#160; </div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160; </div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="preprocessor">#define PIC1        0x20        </span><span class="comment">/* IO base address for master PIC */</span><span class="preprocessor"></span></div>
-<div class="line"><a name="l00015"></a><span class="lineno"><a class="line" href="irq_8h.html#a6b115109e4a0d3c5fb6252d091e86bfe">   15</a></span>&#160;<span class="preprocessor">#define PIC2        0xA0        </span><span class="comment">/* IO base address for slave PIC */</span><span class="preprocessor"></span></div>
-<div class="line"><a name="l00016"></a><span class="lineno"><a class="line" href="irq_8h.html#ac90003f52c8d736193efc954ece08e58">   16</a></span>&#160;<span class="preprocessor">#define PIC1_COMMAND    PIC1</span></div>
-<div class="line"><a name="l00017"></a><span class="lineno"><a class="line" href="irq_8h.html#ad1ba81484ab03e762d2e09f851c0901f">   17</a></span>&#160;<span class="preprocessor">#define PIC1_DATA   (PIC1+1)</span></div>
-<div class="line"><a name="l00018"></a><span class="lineno"><a class="line" href="irq_8h.html#af27e966ec947ca1172f30ae301c5f24b">   18</a></span>&#160;<span class="preprocessor">#define PIC2_COMMAND    PIC2</span></div>
-<div class="line"><a name="l00019"></a><span class="lineno"><a class="line" href="irq_8h.html#a11d8793812c9d340e9a64cce26ee0570">   19</a></span>&#160;<span class="preprocessor">#define PIC2_DATA   (PIC2+1)</span></div>
-<div class="line"><a name="l00020"></a><span class="lineno"><a class="line" href="irq_8h.html#ab6d3b9f6f427357310896adf176145f1">   20</a></span>&#160; </div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="preprocessor">#define PIC_EOI     0x20    </span></div>
-<div class="line"><a name="l00022"></a><span class="lineno"><a class="line" href="irq_8h.html#a170d8eebdb48c16cfcd60cbd46760cb2">   22</a></span>&#160; </div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160; </div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="keywordtype">void</span> <a class="code" href="irq_8h.html#ac3ff77aaf3544920de54b959587195f7">init_interrupts</a>(<span class="keywordtype">int</span> offset1, <span class="keywordtype">int</span> offset2);</div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="keywordtype">void</span> <a class="code" href="irq_8h.html#a04d6dabf7d99ebf12d8bc314bfddcb77">end_of_interrupt</a>(<span class="keywordtype">unsigned</span> <span class="keywordtype">char</span> irq);</div>
+<a href="irq_8h.html">См. документацию.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno"><a class="line" href="irq_8h.html#a964d12193d2b36e8a7ec7fa57438e313">    1</a></span>&#160;<span class="preprocessor">#define ICW1_ICW4   0x01        </span><span class="comment">/* ICW4 (not) needed */</span><span class="preprocessor"></span></div><div class="line"><a name="l00002"></a><span class="lineno"><a class="line" href="irq_8h.html#a6c092603fb5e22cc80954531ae319d01">    2</a></span>&#160;<span class="preprocessor">#define ICW1_SINGLE 0x02        </span><span class="comment">/* Single (cascade) mode */</span><span class="preprocessor"></span></div><div class="line"><a name="l00003"></a><span class="lineno"><a class="line" href="irq_8h.html#a6ba324062a88dc9ff1e2916abdcde17e">    3</a></span>&#160;<span class="preprocessor">#define ICW1_INTERVAL4  0x04        </span><span class="comment">/* Call address interval 4 (8) */</span><span class="preprocessor"></span></div><div class="line"><a name="l00004"></a><span class="lineno"><a class="line" href="irq_8h.html#a8b06fbc75942c0a61e6ad80ea4736bd3">    4</a></span>&#160;<span class="preprocessor">#define ICW1_LEVEL  0x08        </span><span class="comment">/* Level triggered (edge) mode */</span><span class="preprocessor"></span></div><div class="line"><a name="l00005"></a><span class="lineno"><a class="line" href="irq_8h.html#a286dc251f3d73c08e08a53a4696f31ef">    5</a></span>&#160;<span class="preprocessor">#define ICW1_INIT   0x10        </span><span class="comment">/* Initialization - required! */</span><span class="preprocessor"></span></div><div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160; </div><div class="line"><a name="l00007"></a><span class="lineno"><a class="line" href="irq_8h.html#a42803c5ddcec9e120a6dbf7bc5c1b7af">    7</a></span>&#160;<span class="preprocessor">#define ICW4_8086   0x01        </span><span class="comment">/* 8086/88 (MCS-80/85) mode */</span><span class="preprocessor"></span></div><div class="line"><a name="l00008"></a><span class="lineno"><a class="line" href="irq_8h.html#a16777bf654a4c5630e4f53902a25235a">    8</a></span>&#160;<span class="preprocessor">#define ICW4_AUTO   0x02        </span><span class="comment">/* Auto (normal) EOI */</span><span class="preprocessor"></span></div><div class="line"><a name="l00009"></a><span class="lineno"><a class="line" href="irq_8h.html#af5443900cdd9096e97898e5584c316bb">    9</a></span>&#160;<span class="preprocessor">#define ICW4_BUF_SLAVE  0x08        </span><span class="comment">/* Buffered mode/slave */</span><span class="preprocessor"></span></div><div class="line"><a name="l00010"></a><span class="lineno"><a class="line" href="irq_8h.html#af3f1b53c727d98166710d198aca13411">   10</a></span>&#160;<span class="preprocessor">#define ICW4_BUF_MASTER 0x0C        </span><span class="comment">/* Buffered mode/master */</span><span class="preprocessor"></span></div><div class="line"><a name="l00011"></a><span class="lineno"><a class="line" href="irq_8h.html#a0ecb67a3f71d1d10502fbd834b0292f1">   11</a></span>&#160;<span class="preprocessor">#define ICW4_SFNM   0x10        </span><span class="comment">/* Special fully nested (not) */</span><span class="preprocessor"></span></div><div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160; </div><div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;</div><div class="line"><a name="l00014"></a><span class="lineno"><a class="line" href="irq_8h.html#a6b115109e4a0d3c5fb6252d091e86bfe">   14</a></span>&#160;<span class="preprocessor">#define PIC1        0x20        </span><span class="comment">/* IO base address for master PIC */</span><span class="preprocessor"></span></div><div class="line"><a name="l00015"></a><span class="lineno"><a class="line" href="irq_8h.html#ac90003f52c8d736193efc954ece08e58">   15</a></span>&#160;<span class="preprocessor">#define PIC2        0xA0        </span><span class="comment">/* IO base address for slave PIC */</span><span class="preprocessor"></span></div><div class="line"><a name="l00016"></a><span class="lineno"><a class="line" href="irq_8h.html#ad1ba81484ab03e762d2e09f851c0901f">   16</a></span>&#160;<span class="preprocessor">#define PIC1_COMMAND    PIC1</span></div><div class="line"><a name="l00017"></a><span class="lineno"><a class="line" href="irq_8h.html#af27e966ec947ca1172f30ae301c5f24b">   17</a></span>&#160;<span class="preprocessor">#define PIC1_DATA   (PIC1+1)</span></div><div class="line"><a name="l00018"></a><span class="lineno"><a class="line" href="irq_8h.html#a11d8793812c9d340e9a64cce26ee0570">   18</a></span>&#160;<span class="preprocessor">#define PIC2_COMMAND    PIC2</span></div><div class="line"><a name="l00019"></a><span class="lineno"><a class="line" href="irq_8h.html#ab6d3b9f6f427357310896adf176145f1">   19</a></span>&#160;<span class="preprocessor">#define PIC2_DATA   (PIC2+1)</span></div><div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;</div><div class="line"><a name="l00021"></a><span class="lineno"><a class="line" href="irq_8h.html#a170d8eebdb48c16cfcd60cbd46760cb2">   21</a></span>&#160;<span class="preprocessor">#define PIC_EOI     0x20    </span></div><div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;</div><div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;</div><div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="keywordtype">void</span> <a class="code" href="irq_8h.html#ac3ff77aaf3544920de54b959587195f7">init_interrupts</a>(<span class="keywordtype">int</span> offset1, <span class="keywordtype">int</span> offset2);</div><div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="keywordtype">void</span> <a class="code" href="irq_8h.html#a04d6dabf7d99ebf12d8bc314bfddcb77">end_of_interrupt</a>(<span class="keywordtype">unsigned</span> <span class="keywordtype">char</span> irq);</div><div class="ttc" id="irq_8h_html_ac3ff77aaf3544920de54b959587195f7"><div class="ttname"><a href="irq_8h.html#ac3ff77aaf3544920de54b959587195f7">init_interrupts</a></div><div class="ttdeci">void init_interrupts(int offset1, int offset2)</div><div class="ttdoc">Инициализирует контроллер прерываний </div><div class="ttdef"><b>Definition:</b> irq.c:20</div></div>
+<div class="ttc" id="irq_8h_html_a04d6dabf7d99ebf12d8bc314bfddcb77"><div class="ttname"><a href="irq_8h.html#a04d6dabf7d99ebf12d8bc314bfddcb77">end_of_interrupt</a></div><div class="ttdeci">void end_of_interrupt(unsigned char irq)</div><div class="ttdoc">Вызывается после исполнения обработчика прерывания </div><div class="ttdef"><b>Definition:</b> irq.c:50</div></div>
 </div><!-- fragment --></div><!-- contents -->
-<div class="ttc" id="airq_8h_html_ac3ff77aaf3544920de54b959587195f7"><div class="ttname"><a href="irq_8h.html#ac3ff77aaf3544920de54b959587195f7">init_interrupts</a></div><div class="ttdeci">void init_interrupts(int offset1, int offset2)</div><div class="ttdoc">Инициализирует контроллер прерываний</div><div class="ttdef"><b>Definition:</b> irq.c:20</div></div>
-<div class="ttc" id="airq_8h_html_a04d6dabf7d99ebf12d8bc314bfddcb77"><div class="ttname"><a href="irq_8h.html#a04d6dabf7d99ebf12d8bc314bfddcb77">end_of_interrupt</a></div><div class="ttdeci">void end_of_interrupt(unsigned char irq)</div><div class="ttdoc">Вызывается после исполнения обработчика прерывания</div><div class="ttdef"><b>Definition:</b> irq.c:50</div></div>
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Создано системой &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
-</a> 1.8.18
+</a> 1.8.11
 </small></address>
 </body>
 </html>

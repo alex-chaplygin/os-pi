@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['read_5fport_334',['read_port',['../types_8h.html#a4553fd4f9ce5e07eb9e871ccb04a240c',1,'read_port(int num):&#160;types.h'],['../x86_8h.html#a4553fd4f9ce5e07eb9e871ccb04a240c',1,'read_port(int num):&#160;x86.h']]]
+  ['panic',['panic',['../isr_8c.html#a7a0c4d3a5c8e3ff0467ef6d997d5a666',1,'isr.c']]]
 ];

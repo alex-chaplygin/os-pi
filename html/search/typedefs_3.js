@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['idtgatedescriptor_374',['idtGateDescriptor',['../idt_8h.html#a5250789178d6495157bfd5d38a15e3f3',1,'idt.h']]]
+  ['gdt_5fentry_5ft',['gdt_entry_t',['../gdt_8h.html#ab0b5c60e06a63669c783705278ff641e',1,'gdt.h']]],
+  ['gdt_5fptr_5ft',['gdt_ptr_t',['../gdt_8h.html#a3bf3fa6f397bda8399e1afb6283b66ca',1,'gdt.h']]]
 ];

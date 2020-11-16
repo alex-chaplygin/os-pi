@@ -1,7 +1,6 @@
 <map id="idt.c" name="idt.c">
-<area shape="rect" id="node1" title="Установка таблицы IDT &#45; дескриптеров прерываний" alt="" coords="80,5,131,32"/>
-<area shape="rect" id="node2" href="$idt_8h.html" title=" " alt="" coords="5,80,56,107"/>
-<area shape="rect" id="node4" href="$isr_8h.html" title=" " alt="" coords="80,80,131,107"/>
-<area shape="rect" id="node5" href="$x86_8h.html" title=" " alt="" coords="155,80,213,107"/>
-<area shape="rect" id="node3" href="$types_8h.html" title=" " alt="" coords="71,155,142,181"/>
+<area shape="rect" id="node2" href="$idt_8h.html" title="idt.h" alt="" coords="5,80,52,107"/>
+<area shape="rect" id="node4" href="$isr_8h.html" title="isr.h" alt="" coords="76,80,123,107"/>
+<area shape="rect" id="node5" href="$x86_8h.html" title="x86.h" alt="" coords="147,80,201,107"/>
+<area shape="rect" id="node3" href="$types_8h.html" title="types.h" alt="" coords="68,155,133,181"/>
 </map>

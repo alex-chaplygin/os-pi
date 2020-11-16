@@ -1,10 +1,9 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<meta name="generator" content="Doxygen 1.8.18"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="generator" content="Doxygen 1.8.11"/>
 <title>OS-PI: Исходный файл x86.h</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
@@ -12,6 +11,9 @@
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/searchdata.js"></script>
 <script type="text/javascript" src="search/search.js"></script>
+<script type="text/javascript">
+  $(document).ready(function() { init_search(); });
+</script>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
@@ -31,22 +33,39 @@
 </table>
 </div>
 <!-- end header part -->
-<!-- Создано системой Doxygen 1.8.18 -->
+<!-- Создано системой Doxygen 1.8.11 -->
 <script type="text/javascript">
-/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
 var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
-/* @license-end */
 </script>
-<script type="text/javascript" src="menudata.js"></script>
-<script type="text/javascript" src="menu.js"></script>
-<script type="text/javascript">
-/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
-$(function() {
-  initMenu('',true,false,'search.php','Поиск');
-  $(document).ready(function() { init_search(); });
-});
-/* @license-end */</script>
-<div id="main-nav"></div>
+  <div id="navrow1" class="tabs">
+    <ul class="tablist">
+      <li><a href="index.html"><span>Титульная&#160;страница</span></a></li>
+      <li><a href="annotated.html"><span>Классы</span></a></li>
+      <li class="current"><a href="files.html"><span>Файлы</span></a></li>
+      <li>
+        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <img id="MSearchSelect" src="search/mag_sel.png"
+               onmouseover="return searchBox.OnSearchSelectShow()"
+               onmouseout="return searchBox.OnSearchSelectHide()"
+               alt=""/>
+          <input type="text" id="MSearchField" value="Поиск" accesskey="S"
+               onfocus="searchBox.OnSearchFieldFocus(true)" 
+               onblur="searchBox.OnSearchFieldFocus(false)" 
+               onkeyup="searchBox.OnSearchFieldChange(event)"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><img id="MSearchCloseImg" border="0" src="search/close.png" alt=""/></a>
+          </span>
+        </div>
+      </li>
+    </ul>
+  </div>
+  <div id="navrow2" class="tabs2">
+    <ul class="tablist">
+      <li><a href="files.html"><span>Файлы</span></a></li>
+      <li><a href="globals.html"><span>Список&#160;членов&#160;всех&#160;файлов</span></a></li>
+    </ul>
+  </div>
 </div><!-- top -->
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
@@ -67,24 +86,18 @@ $(function() {
 <div class="title">x86.h</div>  </div>
 </div><!--header-->
 <div class="contents">
-<a href="x86_8h.html">См. документацию.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="types_8h.html">types.h</a>&quot;</span></div>
-<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160; </div>
-<div class="line"><a name="l00003"></a><span class="lineno"><a class="line" href="x86_8h.html#a4553fd4f9ce5e07eb9e871ccb04a240c">    3</a></span>&#160;<span class="keyword">extern</span> <span class="keywordtype">int</span> <a class="code" href="x86_8h.html#a4553fd4f9ce5e07eb9e871ccb04a240c">read_port</a>(<span class="keywordtype">int</span> num);</div>
-<div class="line"><a name="l00004"></a><span class="lineno"><a class="line" href="x86_8h.html#a69da26bf7ac1140d88860a35526aa551">    4</a></span>&#160;<span class="keyword">extern</span> <span class="keywordtype">void</span> <a class="code" href="x86_8h.html#a69da26bf7ac1140d88860a35526aa551">write_port</a>(<span class="keywordtype">int</span> num, <span class="keywordtype">int</span> data);</div>
-<div class="line"><a name="l00005"></a><span class="lineno"><a class="line" href="x86_8h.html#a60460668a5d56db4700a2625c1df5c69">    5</a></span>&#160;<span class="keyword">extern</span> <span class="keywordtype">void</span> <a class="code" href="x86_8h.html#a60460668a5d56db4700a2625c1df5c69">load_idt</a>(<span class="keywordtype">void</span> *);</div>
-<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="keyword">extern</span> <a class="code" href="types_8h.html#ab95f123a6c9bcfee6a343170ef8c5f69">ushort</a> <a class="code" href="x86_8h.html#a6edc7d0ec336e10ae0a904887e12a156">kernel_code</a>;</div>
+<a href="x86_8h.html">См. документацию.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="types_8h.html">types.h</a>&quot;</span></div><div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;</div><div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="keyword">extern</span> <span class="keywordtype">int</span> <a class="code" href="x86_8h.html#a4553fd4f9ce5e07eb9e871ccb04a240c">read_port</a>(<span class="keywordtype">int</span> num);</div><div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="keyword">extern</span> <span class="keywordtype">void</span> <a class="code" href="x86_8h.html#a69da26bf7ac1140d88860a35526aa551">write_port</a>(<span class="keywordtype">int</span> num, <span class="keywordtype">int</span> data);</div><div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="keyword">extern</span> <span class="keywordtype">void</span> <a class="code" href="x86_8h.html#a60460668a5d56db4700a2625c1df5c69">load_idt</a>(<span class="keywordtype">void</span> *);</div><div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="keyword">extern</span> <a class="code" href="types_8h.html#ab95f123a6c9bcfee6a343170ef8c5f69">ushort</a> <a class="code" href="x86_8h.html#a6edc7d0ec336e10ae0a904887e12a156">kernel_code</a>;</div><div class="ttc" id="types_8h_html"><div class="ttname"><a href="types_8h.html">types.h</a></div></div>
+<div class="ttc" id="x86_8h_html_a60460668a5d56db4700a2625c1df5c69"><div class="ttname"><a href="x86_8h.html#a60460668a5d56db4700a2625c1df5c69">load_idt</a></div><div class="ttdeci">void load_idt(void *)</div></div>
+<div class="ttc" id="x86_8h_html_a6edc7d0ec336e10ae0a904887e12a156"><div class="ttname"><a href="x86_8h.html#a6edc7d0ec336e10ae0a904887e12a156">kernel_code</a></div><div class="ttdeci">ushort kernel_code</div></div>
+<div class="ttc" id="x86_8h_html_a69da26bf7ac1140d88860a35526aa551"><div class="ttname"><a href="x86_8h.html#a69da26bf7ac1140d88860a35526aa551">write_port</a></div><div class="ttdeci">void write_port(int num, int data)</div></div>
+<div class="ttc" id="types_8h_html_ab95f123a6c9bcfee6a343170ef8c5f69"><div class="ttname"><a href="types_8h.html#ab95f123a6c9bcfee6a343170ef8c5f69">ushort</a></div><div class="ttdeci">unsigned short ushort</div><div class="ttdef"><b>Definition:</b> types.h:4</div></div>
+<div class="ttc" id="x86_8h_html_a4553fd4f9ce5e07eb9e871ccb04a240c"><div class="ttname"><a href="x86_8h.html#a4553fd4f9ce5e07eb9e871ccb04a240c">read_port</a></div><div class="ttdeci">int read_port(int num)</div></div>
 </div><!-- fragment --></div><!-- contents -->
-<div class="ttc" id="ax86_8h_html_a6edc7d0ec336e10ae0a904887e12a156"><div class="ttname"><a href="x86_8h.html#a6edc7d0ec336e10ae0a904887e12a156">kernel_code</a></div><div class="ttdeci">ushort kernel_code</div></div>
-<div class="ttc" id="atypes_8h_html"><div class="ttname"><a href="types_8h.html">types.h</a></div></div>
-<div class="ttc" id="ax86_8h_html_a4553fd4f9ce5e07eb9e871ccb04a240c"><div class="ttname"><a href="x86_8h.html#a4553fd4f9ce5e07eb9e871ccb04a240c">read_port</a></div><div class="ttdeci">int read_port(int num)</div></div>
-<div class="ttc" id="atypes_8h_html_ab95f123a6c9bcfee6a343170ef8c5f69"><div class="ttname"><a href="types_8h.html#ab95f123a6c9bcfee6a343170ef8c5f69">ushort</a></div><div class="ttdeci">unsigned short ushort</div><div class="ttdef"><b>Definition:</b> types.h:4</div></div>
-<div class="ttc" id="ax86_8h_html_a69da26bf7ac1140d88860a35526aa551"><div class="ttname"><a href="x86_8h.html#a69da26bf7ac1140d88860a35526aa551">write_port</a></div><div class="ttdeci">void write_port(int num, int data)</div></div>
-<div class="ttc" id="ax86_8h_html_a60460668a5d56db4700a2625c1df5c69"><div class="ttname"><a href="x86_8h.html#a60460668a5d56db4700a2625c1df5c69">load_idt</a></div><div class="ttdeci">void load_idt(void *)</div></div>
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Создано системой &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
-</a> 1.8.18
+</a> 1.8.11
 </small></address>
 </body>
 </html>

@@ -1,5 +1,4 @@
 <map id="gdt.h" name="gdt.h">
-<area shape="rect" id="node1" title="Header&#45;файл для инициализации в gdt.c." alt="" coords="48,5,103,32"/>
-<area shape="rect" id="node2" href="$gdt_8c.html" title="Инициализация GDT." alt="" coords="5,80,60,107"/>
-<area shape="rect" id="node3" href="$main_8c.html" title="Главный модуль ядра" alt="" coords="85,80,151,107"/>
+<area shape="rect" id="node2" href="$gdt_8c.html" title="Инициализация GDT. " alt="" coords="5,80,56,107"/>
+<area shape="rect" id="node3" href="$main_8c.html" title="Главный модуль ядра " alt="" coords="80,80,141,107"/>
 </map>

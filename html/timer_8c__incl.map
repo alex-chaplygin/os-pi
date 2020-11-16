@@ -1,8 +1,7 @@
 <map id="timer.c" name="timer.c">
-<area shape="rect" id="node1" title="Инициализация программируемого интервального таймера" alt="" coords="106,5,174,32"/>
-<area shape="rect" id="node2" href="$types_8h.html" title=" " alt="" coords="13,155,83,181"/>
-<area shape="rect" id="node3" href="$idt_8h.html" title=" " alt="" coords="23,80,73,107"/>
-<area shape="rect" id="node4" href="$console_8h.html" title=" " alt="" coords="98,80,182,107"/>
-<area shape="rect" id="node5" href="$irq_8h.html" title=" " alt="" coords="207,80,257,107"/>
-<area shape="rect" id="node6" href="$x86_8h.html" title=" " alt="" coords="281,80,340,107"/>
+<area shape="rect" id="node2" href="$types_8h.html" title="types.h" alt="" coords="14,155,79,181"/>
+<area shape="rect" id="node3" href="$idt_8h.html" title="idt.h" alt="" coords="23,80,70,107"/>
+<area shape="rect" id="node4" href="$console_8h.html" title="console.h" alt="" coords="94,80,173,107"/>
+<area shape="rect" id="node5" href="$irq_8h.html" title="irq.h" alt="" coords="197,80,243,107"/>
+<area shape="rect" id="node6" href="$x86_8h.html" title="x86.h" alt="" coords="267,80,322,107"/>
 </map>

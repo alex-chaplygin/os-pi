@@ -1,10 +1,9 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<meta name="generator" content="Doxygen 1.8.18"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="generator" content="Doxygen 1.8.11"/>
 <title>OS-PI: Файл mem.c</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
@@ -12,6 +11,9 @@
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/searchdata.js"></script>
 <script type="text/javascript" src="search/search.js"></script>
+<script type="text/javascript">
+  $(document).ready(function() { init_search(); });
+</script>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
@@ -31,22 +33,39 @@
 </table>
 </div>
 <!-- end header part -->
-<!-- Создано системой Doxygen 1.8.18 -->
+<!-- Создано системой Doxygen 1.8.11 -->
 <script type="text/javascript">
-/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
 var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
-/* @license-end */
 </script>
-<script type="text/javascript" src="menudata.js"></script>
-<script type="text/javascript" src="menu.js"></script>
-<script type="text/javascript">
-/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
-$(function() {
-  initMenu('',true,false,'search.php','Поиск');
-  $(document).ready(function() { init_search(); });
-});
-/* @license-end */</script>
-<div id="main-nav"></div>
+  <div id="navrow1" class="tabs">
+    <ul class="tablist">
+      <li><a href="index.html"><span>Титульная&#160;страница</span></a></li>
+      <li><a href="annotated.html"><span>Классы</span></a></li>
+      <li class="current"><a href="files.html"><span>Файлы</span></a></li>
+      <li>
+        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <img id="MSearchSelect" src="search/mag_sel.png"
+               onmouseover="return searchBox.OnSearchSelectShow()"
+               onmouseout="return searchBox.OnSearchSelectHide()"
+               alt=""/>
+          <input type="text" id="MSearchField" value="Поиск" accesskey="S"
+               onfocus="searchBox.OnSearchFieldFocus(true)" 
+               onblur="searchBox.OnSearchFieldFocus(false)" 
+               onkeyup="searchBox.OnSearchFieldChange(event)"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><img id="MSearchCloseImg" border="0" src="search/close.png" alt=""/></a>
+          </span>
+        </div>
+      </li>
+    </ul>
+  </div>
+  <div id="navrow2" class="tabs2">
+    <ul class="tablist">
+      <li><a href="files.html"><span>Файлы</span></a></li>
+      <li><a href="globals.html"><span>Список&#160;членов&#160;всех&#160;файлов</span></a></li>
+    </ul>
+  </div>
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
      onmouseover="return searchBox.OnSearchSelectShow()"
@@ -64,34 +83,100 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#func-members">Функции</a>  </div>
+<a href="#nested-classes">Классы</a> &#124;
+<a href="#func-members">Функции</a> &#124;
+<a href="#var-members">Переменные</a>  </div>
   <div class="headertitle">
 <div class="title">Файл mem.c</div>  </div>
 </div><!--header-->
 <div class="contents">
-<table class="memberdecls">
+
+<p>Выделение памяти malloc.  
+<a href="#details">Подробнее...</a></p>
+<div class="textblock"><code>#include &quot;<a class="el" href="mem_8h_source.html">mem.h</a>&quot;</code><br />
+</div><div class="textblock"><div class="dynheader">
+Граф включаемых заголовочных файлов для mem.c:</div>
+<div class="dyncontent">
+<div class="center"><img src="mem_8c__incl.png" border="0" usemap="#mem_8c" alt=""/></div>
+<map name="mem_8c" id="mem_8c">
+<area shape="rect" id="node2" href="mem_8h.html" title="mem.h" alt="" coords="5,80,68,107"/>
+</map>
+</div>
+</div><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
+Классы</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmemory.html">memory</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Функции</h2></td></tr>
-<tr class="memitem:ab4ae6d511fde0d9b17f8065f761df6ff"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="mem_8c.html#ab4ae6d511fde0d9b17f8065f761df6ff">get_phys_mem_size</a> ()</td></tr>
-<tr class="separator:ab4ae6d511fde0d9b17f8065f761df6ff"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9ce51c33e96ef646614c4c93f271e316"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="mem_8c.html#a9ce51c33e96ef646614c4c93f271e316">mem_init</a> ()</td></tr>
+<tr class="separator:a9ce51c33e96ef646614c4c93f271e316"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a76481785cc2cb7d43fc6317ebec427b4"><td class="memItemLeft" align="right" valign="top">void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="mem_8c.html#a76481785cc2cb7d43fc6317ebec427b4">malloc</a> (int size)</td></tr>
+<tr class="separator:a76481785cc2cb7d43fc6317ebec427b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
+Переменные</h2></td></tr>
+<tr class="memitem:ab893fdcc51df49ef52fd49e6c449445d"><td class="memItemLeft" align="right" valign="top">struct <a class="el" href="structmemory.html">memory</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="mem_8c.html#ab893fdcc51df49ef52fd49e6c449445d">mem</a> [<a class="el" href="mem_8h.html#a5155355bbabd39029d45b74529beba04">MAX_SEGMENTS</a>]</td></tr>
+<tr class="memdesc:ab893fdcc51df49ef52fd49e6c449445d"><td class="mdescLeft">&#160;</td><td class="mdescRight">массив сегментов  <a href="#ab893fdcc51df49ef52fd49e6c449445d">Подробнее...</a><br /></td></tr>
+<tr class="separator:ab893fdcc51df49ef52fd49e6c449445d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Функции</h2>
-<a id="ab4ae6d511fde0d9b17f8065f761df6ff"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab4ae6d511fde0d9b17f8065f761df6ff">&#9670;&nbsp;</a></span>get_phys_mem_size()</h2>
-
+<a name="details" id="details"></a><h2 class="groupheader">Подробное описание</h2>
+<div class="textblock"><p>Выделение памяти malloc. </p>
+<dl class="section author"><dt>Автор</dt><dd>yri066 &lt;yri066&gt; </dd></dl>
+<dl class="section date"><dt>Дата</dt><dd>Mon Nov 9 08:25:46 2020 </dd></dl>
+</div><h2 class="groupheader">Функции</h2>
+<a class="anchor" id="a76481785cc2cb7d43fc6317ebec427b4"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">int get_phys_mem_size </td>
+          <td class="memname">void* malloc </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>size</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Выделяет необходимый размер памяти</p>
+<dl class="params"><dt>Аргументы</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">size</td><td>размер выделяемой памяти </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a9ce51c33e96ef646614c4c93f271e316"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void mem_init </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Расчет размера оперативной памяти</p>
-<dl class="section return"><dt>Возвращает</dt><dd>размер оперативной памяти в байтах </dd></dl>
+<p><a class="el" href="mem_8c.html#a9ce51c33e96ef646614c4c93f271e316">mem_init()</a> инициализирует массив сегментов </p>
+
+</div>
+</div>
+<h2 class="groupheader">Переменные</h2>
+<a class="anchor" id="ab893fdcc51df49ef52fd49e6c449445d"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct <a class="el" href="structmemory.html">memory</a> mem[<a class="el" href="mem_8h.html#a5155355bbabd39029d45b74529beba04">MAX_SEGMENTS</a>]</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>массив сегментов </p>
 
 </div>
 </div>
@@ -100,7 +185,7 @@ $(function() {
 <hr class="footer"/><address class="footer"><small>
 Создано системой &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
-</a> 1.8.18
+</a> 1.8.11
 </small></address>
 </body>
 </html>
