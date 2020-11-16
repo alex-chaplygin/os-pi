@@ -27,9 +27,10 @@ extern void test_syscall();
 void kmain(void)
 {
   init_gdt();
+  remove_descriptor(2);
+  add_descriptor(2, 0, 0xFFFFFFFF, SEG_DATA_RDWR | DPL(0), GRAN_ENABLE);
   init_interrupts(0x20, 0x28);
   idtInit();
-  
   init_timer(10);
   console_clear();
   //  init_keyboard();
