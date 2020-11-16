@@ -18,18 +18,19 @@ int printPtr = 0;
 /**
  * @brief Печатает текст в консоль \n
  * Начиная от указателя на первый символ вплоть до нуль-терминатора (\\0)
+ * 2.0 Посимвольный вывод в консоль
  * 
  * @param str Указатель на первый символ текста
+ * 2.0 с Указатель на переданный символ
  */
-void kprint(char *str){
+void putchar(char *c){
     
-    while (*str != '\0'){
-
-
+  // while (*str != '\0'){
+  //Начало цикла для обработки строки
 
         int currRow = printPtr / 2 / CONSOLE_COLS;
 
-        if (*str == '\n'){
+        if (*c == '\n'){
             int nextRow = CONSOLE_COLS * (currRow + 1);
 
             printPtr = nextRow * 2;
@@ -40,7 +41,7 @@ void kprint(char *str){
                 scrollConsole(1);
                 printPtr = (CONSOLE_ROWS-1) * CONSOLE_COLS * 2;
             }
-            videoptr[printPtr++] = *str;
+            videoptr[printPtr++] = *c;
 
         //printPtr++;
             videoptr[printPtr++] = 0x07;
@@ -48,13 +49,10 @@ void kprint(char *str){
         
         //videoptr++;
 
-        str++;
-
-        
+	//Код окончания цикла дл обработки строки
+	//   str++;
+	//  }
     }
-
-    
-}
 
 /**
  * @brief Очищает консоль
@@ -77,4 +75,31 @@ void console_clear(){
 void scrollConsole(int n){
     memcpy(videoptr, videoptr+CONSOLE_COLS*2 * n, CONSOLE_COLS*(CONSOLE_ROWS-1)*2);
     
+}
+
+
+/**
+ * @brief Посимвольный анализ строки для печати типа printf - вывод значения многих переменных
+ * @param *str указатель на строку
+ *
+ */
+
+void kprint(char *str,...){
+    int i=0,u=1;
+    
+     for(i=0; str[i]!='\0'; i++){
+      char symbol=str[i];
+      char next_symbol=str[i+1];
+      
+       if(symbol=='%' && next_symbol=='i'){
+         int *param = (int *)&str;
+         char *param_int = intToStr(*(param + u));      
+          kprint(param_int);
+          i++;
+          u++;
+       }
+        else{
+            putchar(&symbol); 
+    }
+  }
 }
