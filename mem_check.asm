@@ -1,3 +1,5 @@
+global physical_memory_size
+
 map_entries equ 0x8000 		;колличество записей
 physical_memory_size dd 0
 	
