@@ -48,12 +48,13 @@ void kmain(void)
   kprint("\n");
   
   //test_syscall();
+  
 
   if (mouse_check() == 0xAA) {
     kprint("Mouse detected\n");
   } else {
     kprint("No mouse\n");
   }
-
-  while(1);
+    kprint("Result a=%i and b=%i",15,46);
+   while(1);
  }
