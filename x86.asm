@@ -31,7 +31,8 @@ global a_syscall
 global test_syscall
 global read_port, write_port	
 global a_timer
-
+global num_segments
+	
 extern kmain, exception_handler, sys_call, timer_event,end_of_interrupt		;this is defined in the c file
 
 start:
