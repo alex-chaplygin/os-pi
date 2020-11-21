@@ -19,7 +19,7 @@ idtGateDescriptor idt[IDT_SIZE];
  * idtInit Инициализирует таблицу дескриптеров прерываний, устанавливает обработчики исключений
  * 
  */
-void idtInit() {
+void init_interrupt_handlers() {
   unsigned long idt_ptr[2];
 
     idtSetDescriptor(0, (uint)a_isrZeroDivisionException, kernel_code, INTERRUPT_GATE | DPL0);

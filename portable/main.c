@@ -28,7 +28,7 @@ void kmain(void)
 {
   init_memory();
   init_interrupts(0x20, 0x28);
-  idtInit();
+  init_interrupt_handlers();
   
   init_timer(10);
   console_clear();
