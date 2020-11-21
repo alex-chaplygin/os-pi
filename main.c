@@ -55,6 +55,6 @@ void kmain(void)
   } else {
     kprint("No mouse\n");
   }
-    kprint("Result a=%i and b=%i",15,46);
+  kprint("Result a=%i and x=%d and y=%x",19,7,26);
    while(1);
  }
