@@ -92,9 +92,26 @@ void kprint(char *str,...){
       kprint(param_int);
       i++;
       u++;
-    }
+    }  
     else{
-      putchar(symbol); 
+      if(symbol=='%' && next_symbol=='d'){
+	int *param = (int *)&str;
+	char *param_int = intToStr(*(param + u));      
+	kprint(param_int);
+	i++;
+	u++;
+      }else{
+	if(symbol=='%' && next_symbol=='x'){
+	  int *param = (int *)&str;
+	  char *param_int = int_to_str_hex(*(param + u));      
+	  kprint(param_int);
+	  i++;
+	  u++;
+	}else{
+	  putchar(symbol);
+	}
+	
+      }
     }
   }
 }
