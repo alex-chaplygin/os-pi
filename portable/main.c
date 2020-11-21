@@ -8,15 +8,15 @@
  * 
  */
 
-#include "console.h"
-#include "idt.h"
-#include "libc.h"
-#include "timer.h"
-#include "irq.h"
-#include "keyboard.h"
-#include "mouse.h"
-#include "gdt.h"
-#include "mem.h"
+#include <portable/console.h>
+#include <portable/libc.h>
+#include <portable/mem.h>
+#include <x86/idt.h>
+#include <x86/timer.h>
+#include <x86/irq.h>
+#include <x86/keyboard.h>
+#include <x86/mouse.h>
+#include <x86/gdt.h>
 
 extern void test_syscall();
 

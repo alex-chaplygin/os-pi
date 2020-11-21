@@ -8,7 +8,8 @@
  * 
  */
 
-#include "console.h"
+#include <portable/syscall.h>
+#include <portable/console.h>
 
 /// Тип функции для системного вызова
 typedef void (* syscall_f)(int, int, int);

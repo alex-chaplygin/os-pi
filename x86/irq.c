@@ -8,8 +8,8 @@
  * @copyright Copyright (c) 2020
  * 
  */
-#include "types.h"
-#include "irq.h"
+#include <x86/ports.h>
+#include <x86/irq.h>
 
 /**
  * @brief Инициализирует контроллер прерываний

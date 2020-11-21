@@ -1,5 +1,5 @@
-#include "proc.h"
-#include "limits.h"
+#include <portable/proc.h>
+#include <portable/limits.h>
 
 
 struct proc processes[MAX_PROC_AMOUNT];

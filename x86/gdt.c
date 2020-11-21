@@ -8,7 +8,7 @@
  * 
  */
 
-#include "gdt.h"
+#include <x86/gdt.h>
 /// Указатель на местонахождение GDT
 gdt_ptr_t    gdt_ptr;
 /// Указатель на записи GDT

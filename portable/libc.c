@@ -8,6 +8,7 @@
  * 
  */
 
+#include <portable/libc.h>
 
 /**
  * @brief Копирует блок памяти
