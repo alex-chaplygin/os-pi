@@ -50,3 +50,11 @@ void exception_handler(int num){
   kprint(table[num]);
   //  panic();
 }
+
+/** 
+ * Обработчик прерываний
+ * 
+ * @param num Номер прерывания
+ */
+void interrupt_handler(int num) {
+}
