@@ -28,7 +28,7 @@ typedef struct idtGateDescriptor {
 } idtGateDescriptor;
 
 void idtSetDescriptor(int index, uint handler, ushort selector, uchar type);
-void init_interrupt_handlers();
+void init_interrupts();
 
 extern void a_isrZeroDivisionException();
 extern void  a_isrDebugException();

@@ -9,6 +9,7 @@
  */
 #include <x86/idt.h>
 #include <x86/isr.h>
+#include <x86/irq.h>
 #include <x86/x86.h>
 
 /// таблица дескриптеров прерываний
@@ -19,8 +20,10 @@ idtGateDescriptor idt[IDT_SIZE];
  * idtInit Инициализирует таблицу дескриптеров прерываний, устанавливает обработчики исключений
  * 
  */
-void init_interrupt_handlers() {
-  unsigned long idt_ptr[2];
+void init_interrupts() {
+    init_pic(0x20, 0x28);
+    
+    unsigned long idt_ptr[2];
 
     idtSetDescriptor(0, (uint)a_isrZeroDivisionException, kernel_code, INTERRUPT_GATE | DPL0);
     idtSetDescriptor(1, (uint)a_isrDebugException, kernel_code, INTERRUPT_GATE | DPL0);
