@@ -37,8 +37,6 @@ void init_timer(int frequency)
   /* Отсылаем в канал 0 PIT */
   write_port(0x40, low);
   write_port(0x40, high);
-
-
 }
 
 /**
