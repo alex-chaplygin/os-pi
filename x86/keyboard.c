@@ -7,8 +7,9 @@
  * 
  * 
  */
-#include "types.h"
-#include "console.h"
+#include <x86/x86.h>
+#include <portable/console.h>
+#include <portable/types.h>
 /** 
  * проверка подключения клавиатуры
  * 

@@ -9,8 +9,8 @@
  * 
  */
 
-#include "console.h"
-#include "libc.h"
+#include <portable/console.h>
+#include <portable/libc.h>
 
 char *videoptr = (char*)0xb8000;
 int printPtr = 0;

@@ -1,4 +1,4 @@
-#include "types.h"
+#include <portable/types.h>
 
 #define IDT_SIZE 256
 /// DPL
@@ -28,7 +28,7 @@ typedef struct idtGateDescriptor {
 } idtGateDescriptor;
 
 void idtSetDescriptor(int index, uint handler, ushort selector, uchar type);
-void idtInit();
+void init_interrupts();
 
 extern void a_isrZeroDivisionException();
 extern void  a_isrDebugException();

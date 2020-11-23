@@ -8,7 +8,7 @@
  * 
  */
 
-#include "gdt.h"
+#include <x86/gdt.h>
 /// Указатель на местонахождение GDT
 gdt_ptr_t    gdt_ptr;
 /// Указатель на записи GDT
@@ -38,7 +38,7 @@ void create_descriptor(uint32_t num,uint32_t base, uint32_t limit, uint8_t acces
  * @brief  Инициализация GDT
  * 
  */
-void init_gdt()
+void init_memory()
 {
     gdt_ptr.limit = sizeof(gdt_entry_t)*5 - 1;
     gdt_ptr.base  = (uint32_t) & gdt_entries;

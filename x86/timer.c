@@ -7,12 +7,11 @@
  * 
  * 
  */
-
-#include "types.h"
-#include "idt.h"
-#include "console.h"
-#include "irq.h"
-#include "x86.h"
+#include <portable/console.h>
+#include <portable/types.h>
+#include <x86/idt.h>
+#include <x86/irq.h>
+#include <x86/x86.h>
 
 /** 
  * инициализация таймера с заданной частотой

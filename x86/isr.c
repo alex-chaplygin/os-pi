@@ -1,5 +1,5 @@
-#include "console.h"
-#include "libc.h"
+#include <portable/console.h>
+#include <portable/libc.h>
 
 char *table[] = {
 "Divide-by-zero Error 	0 (0x0) 	Fault 	#DE 	No",

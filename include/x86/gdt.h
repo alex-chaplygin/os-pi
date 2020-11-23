@@ -7,7 +7,7 @@
  * 
  * 
  */
-#include "types.h"
+#include <portable/types.h>
 // Each define here is for a specific flag in the descriptor.
 // Refer to the intel documentation for a description of what each one does.
 
@@ -67,5 +67,5 @@ void create_descriptor(uint32_t, uint32_t, uint32_t, uint8_t, byte);
  * Инициализирующая GDT функция
  * 
  */
-void init_gdt();
+void init_memory();
 extern void load_gdt(u32int);

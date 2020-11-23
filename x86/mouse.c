@@ -1,5 +1,4 @@
-#include "types.h"
-#include "x86.h"
+#include <x86/x86.h>
 
 void mouse_wait(byte type) {
     uint timeout = 10000;

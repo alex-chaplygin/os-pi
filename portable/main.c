@@ -8,15 +8,15 @@
  * 
  */
 
-#include "console.h"
-#include "idt.h"
-#include "libc.h"
-#include "timer.h"
-#include "irq.h"
-#include "keyboard.h"
-#include "mouse.h"
-#include "gdt.h"
-#include "mem.h"
+#include <portable/console.h>
+#include <portable/libc.h>
+#include <portable/mem.h>
+#include <x86/idt.h>
+#include <portable/timer.h>
+#include <x86/irq.h>
+#include <portable/keyboard.h>
+#include <x86/mouse.h>
+#include <x86/gdt.h>
 
 extern void test_syscall();
 
@@ -26,9 +26,8 @@ extern void test_syscall();
  */
 void kmain(void)
 {
-  init_gdt();
-  init_interrupts(0x20, 0x28);
-  idtInit();
+  init_memory();
+  init_interrupts();
   
   init_timer(10);
   console_clear();

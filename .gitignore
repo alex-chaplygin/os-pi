@@ -1,6 +1,6 @@
 *~
 *.o
-kernel
+bin/kernel
 # Prerequisites
 *.d
 

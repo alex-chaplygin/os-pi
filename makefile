@@ -1,15 +1,15 @@
-OBJS=main.o console.o x86.o libc.o proc.o idt.o isr.o syscall.o irq.o timer.o keyboard.o mouse.o gdt.o mem.o mem_check.o
-CFLAGS=-m32 -nostdlib -nodefaultlibs -Wno-builtin-declaration-mismatch
+SUBDIRS=x86 portable
 
-kernel: $(OBJS)
-	ld -m elf_i386 -T link.ld -o kernel $(OBJS)
+bin/kernel: $(SUBDIRS)
+	ld -m elf_i386 -T link.ld -o bin/kernel x86/*.o portable/*.o
 
-mem_check.o: mem_check.asm
-	nasm -f elf32 mem_check.asm -o mem_check.o
+$(SUBDIRS):
+	$(MAKE) -C $@
 
-x86.o: x86.asm
-	nasm -f elf32 x86.asm -o x86.o
+.PHONY:	/bin/kernel $(SUBDIRS)
+
 run:
-	qemu-system-i386 -kernel kernel -m 4M
+	qemu-system-i386 -kernel bin/kernel -m 4M
+
 debug:
-	qemu-system-i386 -kernel kernel -s -S
+	qemu-system-i386 -kernel bin/kernel -s -S

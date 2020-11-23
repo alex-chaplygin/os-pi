@@ -14,6 +14,3 @@ typedef signed char sbyte;
 typedef unsigned int dword;
 typedef unsigned char u8int, uint8_t;
 typedef unsigned long u64int, uint64_t;
-
-int read_port(int num);
-void write_port(int num, int data);
