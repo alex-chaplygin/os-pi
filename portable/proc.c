@@ -58,8 +58,13 @@ int deleteProc(unsigned int pid){
 
     processes[pid].pid = -1;
     return 0;
-
 }
 
-
+/** 
+ * Планировщик задач.
+ * Переключает контекст на новый процесс при необходимости.
+ */
+void sheduler()
+{
+}
 
