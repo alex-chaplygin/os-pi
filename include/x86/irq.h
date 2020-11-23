@@ -21,5 +21,5 @@
 #define PIC_EOI		0x20	
 
 
-void init_interrupts(int offset1, int offset2);
+void init_pic(int offset1, int offset2);
 void end_of_interrupt(unsigned char irq);

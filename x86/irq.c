@@ -8,7 +8,7 @@
  * @copyright Copyright (c) 2020
  * 
  */
-#include <x86/ports.h>
+#include <x86/x86.h>
 #include <x86/irq.h>
 
 /**
@@ -17,7 +17,7 @@
  * @param offset1 базовый вектор первого контроллера (по умолчанию 20)
  * @param offset2 базовый вектор второго контроллера (по умолчанию 20+8)
  */
-void init_interrupts(int offset1, int offset2)
+void init_pic(int offset1, int offset2)
 {
 	unsigned char a1, a2;
  
