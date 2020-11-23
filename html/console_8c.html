@@ -106,16 +106,18 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Функции</h2></td></tr>
-<tr class="memitem:a9c163b4ca9a9bd7315ab683595dc5868"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="console_8c.html#a9c163b4ca9a9bd7315ab683595dc5868">kprint</a> (char *str)</td></tr>
-<tr class="memdesc:a9c163b4ca9a9bd7315ab683595dc5868"><td class="mdescLeft">&#160;</td><td class="mdescRight">Печатает текст в консоль <br />
-Начиная от указателя на первый символ вплоть до нуль-терминатора (\0)  <a href="#a9c163b4ca9a9bd7315ab683595dc5868">Подробнее...</a><br /></td></tr>
-<tr class="separator:a9c163b4ca9a9bd7315ab683595dc5868"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a948b7a0779c308ac5502c57e282e6933"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="console_8c.html#a948b7a0779c308ac5502c57e282e6933">putchar</a> (char c)</td></tr>
+<tr class="memdesc:a948b7a0779c308ac5502c57e282e6933"><td class="mdescLeft">&#160;</td><td class="mdescRight">Печатает символ в консоль обрабатывает перевод строки  <a href="#a948b7a0779c308ac5502c57e282e6933">Подробнее...</a><br /></td></tr>
+<tr class="separator:a948b7a0779c308ac5502c57e282e6933"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a54a293959bd682e2c2ec170f9a50011f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="console_8c.html#a54a293959bd682e2c2ec170f9a50011f">console_clear</a> ()</td></tr>
 <tr class="memdesc:a54a293959bd682e2c2ec170f9a50011f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Очищает консоль  <a href="#a54a293959bd682e2c2ec170f9a50011f">Подробнее...</a><br /></td></tr>
 <tr class="separator:a54a293959bd682e2c2ec170f9a50011f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a76c6902f85817f6510a40da8af440b36"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="console_8c.html#a76c6902f85817f6510a40da8af440b36">scrollConsole</a> (int n)</td></tr>
 <tr class="memdesc:a76c6902f85817f6510a40da8af440b36"><td class="mdescLeft">&#160;</td><td class="mdescRight">Сдвигает текст в консоли вверх  <a href="#a76c6902f85817f6510a40da8af440b36">Подробнее...</a><br /></td></tr>
 <tr class="separator:a76c6902f85817f6510a40da8af440b36"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac3496eabd99766e2124394ddb12d80fe"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="console_8c.html#ac3496eabd99766e2124394ddb12d80fe">kprint</a> (char *str,...)</td></tr>
+<tr class="memdesc:ac3496eabd99766e2124394ddb12d80fe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Посимвольный анализ строки для печати типа printf - вывод значения многих переменных i - вывод целого числа  <a href="#ac3496eabd99766e2124394ddb12d80fe">Подробнее...</a><br /></td></tr>
+<tr class="separator:ac3496eabd99766e2124394ddb12d80fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
 Переменные</h2></td></tr>
@@ -148,7 +150,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
 
 </div>
 </div>
-<a class="anchor" id="a9c163b4ca9a9bd7315ab683595dc5868"></a>
+<a class="anchor" id="ac3496eabd99766e2124394ddb12d80fe"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -156,17 +158,50 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
           <td class="memname">void kprint </td>
           <td>(</td>
           <td class="paramtype">char *&#160;</td>
-          <td class="paramname"><em>str</em></td><td>)</td>
+          <td class="paramname"><em>str</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>...</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Посимвольный анализ строки для печати типа printf - вывод значения многих переменных i - вывод целого числа </p>
+<dl class="params"><dt>Аргументы</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">*str</td><td>указатель на строку </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a948b7a0779c308ac5502c57e282e6933"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void putchar </td>
+          <td>(</td>
+          <td class="paramtype">char&#160;</td>
+          <td class="paramname"><em>c</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Печатает текст в консоль <br />
-Начиная от указателя на первый символ вплоть до нуль-терминатора (\0) </p>
+<p>Печатает символ в консоль обрабатывает перевод строки </p>
 <dl class="params"><dt>Аргументы</dt><dd>
   <table class="params">
-    <tr><td class="paramname">str</td><td>Указатель на первый символ текста </td></tr>
+    <tr><td class="paramname">с</td><td>переданный символ </td></tr>
   </table>
   </dd>
 </dl>

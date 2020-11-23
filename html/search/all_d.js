@@ -18,5 +18,6 @@ var searchData=
   ['proc',['proc',['../structproc.html',1,'']]],
   ['proc_2ec',['proc.c',['../proc_8c.html',1,'']]],
   ['proc_2eh',['proc.h',['../proc_8h.html',1,'']]],
-  ['processes',['processes',['../proc_8c.html#a94810dfbd8e5f91d8469e40564998469',1,'proc.c']]]
+  ['processes',['processes',['../proc_8c.html#a94810dfbd8e5f91d8469e40564998469',1,'proc.c']]],
+  ['putchar',['putchar',['../console_8c.html#a948b7a0779c308ac5502c57e282e6933',1,'putchar(char c):&#160;console.c'],['../console_8h.html#a948b7a0779c308ac5502c57e282e6933',1,'putchar(char c):&#160;console.c']]]
 ];
