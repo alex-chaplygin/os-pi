@@ -81,7 +81,7 @@ void init_gdt();
  * 
  * @return Селектор сегмента
  */
-int add_descriptor(uint32_t,uint32_t, uint32_t, uint8_t, byte);
+int add_descriptor(uint32_t, uint32_t, uint8_t, byte);
 
 /** 
  * удаляет сегмент в GDT и перезагружает GDT

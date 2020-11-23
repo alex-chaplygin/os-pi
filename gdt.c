@@ -27,10 +27,20 @@ int num_segments = GDT_SIZE;
  * 
  * @return Селектор сегмента
  */
-int add_descriptor(uint32_t num,uint32_t base, uint32_t limit, uint8_t access, byte gran)
+int add_descriptor(uint32_t base, uint32_t limit, uint8_t access, byte gran)
 {
+	uint32_t num = 2;
+	for (uint32_t i=2; i < num_segments; i++)
+	{
+		if (gdt_entries[num].base_low == 0 && gdt_entries[num].base_middle == 0 && gdt_entries[num].base_high == 0 && gdt_entries[num].limit_low == 0 && gdt_entries[num].gran == 0 && gdt_entries[num].access == 0x90)
+		{
+			num = i;
+			break;
+		}
+	}
     create_descriptor(num, base, limit, access, gran);
-	gdt_ptr.limit = sizeof(gdt_entry_t)*GDT_SIZE - 1;
+	++num_segments;
+	gdt_ptr.limit = sizeof(gdt_entry_t)*num_segments - 1;
     load_gdt((uint32_t)&gdt_ptr);
     return num;
 }
@@ -43,8 +53,8 @@ int add_descriptor(uint32_t num,uint32_t base, uint32_t limit, uint8_t access, b
 void remove_descriptor(int num)
 {
     create_descriptor(num, 0, 0, 0, 0);
-	gdt_entries[num].access = 0;
-	gdt_ptr.limit = sizeof(gdt_entry_t)*GDT_SIZE - 1;
+	--num_segments;
+	gdt_ptr.limit = sizeof(gdt_entry_t)*num_segments - 1;
     load_gdt((uint32_t)&gdt_ptr);
 }
 
@@ -74,7 +84,7 @@ void create_descriptor(uint32_t num, uint32_t base, uint32_t limit, uint8_t acce
  */
 void init_gdt()
 {
-    gdt_ptr.limit = sizeof(gdt_entry_t)*GDT_SIZE - 1;
+    gdt_ptr.limit = sizeof(gdt_entry_t)*num_segments - 1;
     gdt_ptr.base  = (uint32_t) & gdt_entries;
 	
     create_descriptor(0, 0, 0, 0, 0);

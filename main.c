@@ -28,7 +28,7 @@ void kmain(void)
 {
   init_gdt();
   remove_descriptor(2);
-  add_descriptor(2, 0, 0xFFFFFFFF, SEG_DATA_RDWR | DPL(0), GRAN_ENABLE);
+  add_descriptor(0, 0xFFFFFFFF, SEG_DATA_RDWR | DPL(0), GRAN_ENABLE);
   init_interrupts(0x20, 0x28);
   idtInit();
   init_timer(10);
