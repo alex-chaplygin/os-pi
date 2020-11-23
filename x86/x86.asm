@@ -29,6 +29,7 @@ global a_isrMachineCheckException
 global a_isrNonExistent
 global a_syscall
 global test_syscall
+global save_regs, restore_regs
 global read_port, write_port	
 global a_timer
 
@@ -52,7 +53,50 @@ load_gdt:
 	mov edx, [esp + 4]
 	lgdt [edx]		
         ret
-	
+
+save_regs:
+	pushf eflags
+	push ebx
+	mov ebx, [esp + 12]
+	mov [ebx + 0], eax
+	mov [ebx + 4], ecx
+	mov [ebx + 8], edx
+	mov [ebx + 12], ebp
+	mov [ebx + 16], esi
+	mov [ebx + 20], edi
+	mov ax, ds
+	mov [ebx + 24], ax
+	mov ax, es
+	mov [ebx + 26], ax
+	mov eax, [esp + 4]
+	mov [ebx + 28], eax
+	popf eflags
+	mov edx, ebx
+	pop ebx
+	mov [edx + 32], ebx
+	ret
+
+restore_regs:
+	mov ebx, [esp + 4]
+	mov eax, [ebx + 0]
+	mov ecx, [ebx + 4]
+	mov edx, [ebx + 8]
+	mov ebp, [ebx + 12]
+	mov esi, [ebx + 16]
+	mov edi, [ebx + 20]
+	push eax
+	mov ax, [ebx + 24]
+	mov ds, ax
+	mov ax, [ebx + 26]
+	mov es, ax
+	mov eax, [ebx + 28]
+	mov eflags, eax
+	pop eax
+	push edx
+	mov edx, ebx
+	mov ebx, [edx + 32]
+	pop edx
+	ret
 
 read_port:
 	mov edx, [esp + 4]
