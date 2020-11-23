@@ -32,8 +32,10 @@ global test_syscall
 global save_regs, restore_regs
 global read_port, write_port	
 global a_timer
+global a_interrupt_handler
 
 extern kmain, exception_handler, sys_call, timer_event,end_of_interrupt		;this is defined in the c file
+extern interrupt_handler	
 
 start:
 	cli 				;block interrupts
@@ -54,8 +56,9 @@ load_gdt:
 	lgdt [edx]		
         ret
 
+	;; сохранение регистров
 save_regs:
-	pushf eflags
+	pushf
 	push ebx
 	mov ebx, [esp + 12]
 	mov [ebx + 0], eax
@@ -70,12 +73,13 @@ save_regs:
 	mov [ebx + 26], ax
 	mov eax, [esp + 4]
 	mov [ebx + 28], eax
-	popf eflags
+	popf
 	mov edx, ebx
 	pop ebx
 	mov [edx + 32], ebx
 	ret
 
+	;; восстановление регистров
 restore_regs:
 	mov ebx, [esp + 4]
 	mov eax, [ebx + 0]
@@ -90,7 +94,6 @@ restore_regs:
 	mov ax, [ebx + 26]
 	mov es, ax
 	mov eax, [ebx + 28]
-	mov eflags, eax
 	pop eax
 	push edx
 	mov edx, ebx
@@ -131,7 +134,19 @@ test_syscall:
     mov ecx, 12 ; param 2
     mov edx, 13 ; param 3
     int 0x80
-    ret
+	ret
+
+	;; обработчик прерывания
+a_interrupt_handler:
+	;; сохранить регистры текущего процесса
+	;; установить стек ядра
+	push eax		; номер прерывания
+	;; вызов обработчика прерывания
+	call interrupt_handler
+	add esp, 4
+	;; подтверждение контроллеру прерываний
+	call end_of_interrupt
+	iret
 
 %macro exception 1
         cli
