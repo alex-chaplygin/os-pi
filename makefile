@@ -1,6 +1,6 @@
 SUBDIRS=x86 portable
 
-bin/kernel: portable/*.o x86/*.o
+bin/kernel: $(SUBDIRS)
 	ld -m elf_i386 -T link.ld -o bin/kernel x86/*.o portable/*.o
 
 $(SUBDIRS):
