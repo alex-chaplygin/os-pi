@@ -1,4 +1,5 @@
-<map id="keyboard.c" name="keyboard.c">
-<area shape="rect" id="node2" href="$types_8h.html" title="types.h" alt="" coords="5,80,71,107"/>
-<area shape="rect" id="node3" href="$console_8h.html" title="console.h" alt="" coords="95,80,173,107"/>
+<map id="x86/keyboard.c" name="x86/keyboard.c">
+<area shape="rect" id="node2" href="$x86_8h.html" title="x86/x86.h" alt="" coords="5,80,84,107"/>
+<area shape="rect" id="node3" href="$types_8h.html" title="portable/types.h" alt="" coords="26,155,141,181"/>
+<area shape="rect" id="node4" href="$console_8h.html" title="portable/console.h" alt="" coords="159,80,287,107"/>
 </map>

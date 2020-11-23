@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['zero',['zero',['../structidtGateDescriptor.html#ace291b1edc2eb621423534f13bfb55df',1,'idtGateDescriptor']]]
+  ['videoptr',['videoptr',['../console_8c.html#a63b257a80f5fb3f6f1af597a081eae4c',1,'console.c']]]
 ];

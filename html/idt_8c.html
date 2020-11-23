@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.11"/>
-<title>OS-PI: Файл idt.c</title>
+<title>OS-PI: Файл x86/idt.c</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -80,6 +80,10 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
 </iframe>
 </div>
 
+<div id="nav-path" class="navpath">
+  <ul>
+<li class="navelem"><a class="el" href="dir_70ef696279286f8491369e3b59714092.html">x86</a></li>  </ul>
+</div>
 </div><!-- top -->
 <div class="header">
   <div class="summary">
@@ -92,25 +96,27 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
 
 <p>Установка таблицы IDT - дескриптеров прерываний  
 <a href="#details">Подробнее...</a></p>
-<div class="textblock"><code>#include &quot;<a class="el" href="idt_8h_source.html">idt.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="isr_8h_source.html">isr.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="x86_8h_source.html">x86.h</a>&quot;</code><br />
+<div class="textblock"><code>#include &lt;<a class="el" href="idt_8h_source.html">x86/idt.h</a>&gt;</code><br />
+<code>#include &lt;<a class="el" href="isr_8h_source.html">x86/isr.h</a>&gt;</code><br />
+<code>#include &lt;<a class="el" href="irq_8h_source.html">x86/irq.h</a>&gt;</code><br />
+<code>#include &lt;<a class="el" href="x86_8h_source.html">x86/x86.h</a>&gt;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Граф включаемых заголовочных файлов для idt.c:</div>
 <div class="dyncontent">
-<div class="center"><img src="idt_8c__incl.png" border="0" usemap="#idt_8c" alt=""/></div>
-<map name="idt_8c" id="idt_8c">
-<area shape="rect" id="node2" href="idt_8h.html" title="idt.h" alt="" coords="5,80,52,107"/>
-<area shape="rect" id="node4" href="isr_8h.html" title="isr.h" alt="" coords="76,80,123,107"/>
-<area shape="rect" id="node5" href="x86_8h.html" title="x86.h" alt="" coords="147,80,201,107"/>
-<area shape="rect" id="node3" href="types_8h.html" title="types.h" alt="" coords="68,155,133,181"/>
+<div class="center"><img src="idt_8c__incl.png" border="0" usemap="#x86_2idt_8c" alt=""/></div>
+<map name="x86_2idt_8c" id="x86_2idt_8c">
+<area shape="rect" id="node2" href="idt_8h.html" title="x86/idt.h" alt="" coords="5,80,77,107"/>
+<area shape="rect" id="node4" href="isr_8h.html" title="x86/isr.h" alt="" coords="101,80,173,107"/>
+<area shape="rect" id="node5" href="irq_8h.html" title="x86/irq.h" alt="" coords="197,80,269,107"/>
+<area shape="rect" id="node6" href="x86_8h.html" title="x86/x86.h" alt="" coords="294,80,373,107"/>
+<area shape="rect" id="node3" href="types_8h.html" title="portable/types.h" alt="" coords="129,155,244,181"/>
 </map>
 </div>
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Функции</h2></td></tr>
-<tr class="memitem:abea4b1a4cb3c59e925bfe8bedd626dcc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="idt_8c.html#abea4b1a4cb3c59e925bfe8bedd626dcc">idtInit</a> ()</td></tr>
-<tr class="separator:abea4b1a4cb3c59e925bfe8bedd626dcc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a88ada49c1954d38252049786595d9a5f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="idt_8c.html#a88ada49c1954d38252049786595d9a5f">init_interrupts</a> ()</td></tr>
+<tr class="separator:a88ada49c1954d38252049786595d9a5f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4ebca227b37c1e28c42db6f0c3dc97d6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="idt_8c.html#a4ebca227b37c1e28c42db6f0c3dc97d6">idtSetDescriptor</a> (int index, <a class="el" href="types_8h.html#a91ad9478d81a7aaf2593e8d9c3d06a14">uint</a> handler, <a class="el" href="types_8h.html#ab95f123a6c9bcfee6a343170ef8c5f69">ushort</a> selector, <a class="el" href="types_8h.html#a65f85814a8290f9797005d3b28e7e5fc">uchar</a> type)</td></tr>
 <tr class="separator:a4ebca227b37c1e28c42db6f0c3dc97d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -125,22 +131,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
 <dl class="section author"><dt>Автор</dt><dd>alex &lt;alex-Inspiron-N5040&gt; </dd></dl>
 <dl class="section date"><dt>Дата</dt><dd>Mon Oct 19 13:10:13 2020 </dd></dl>
 </div><h2 class="groupheader">Функции</h2>
-<a class="anchor" id="abea4b1a4cb3c59e925bfe8bedd626dcc"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void idtInit </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>idtInit Инициализирует таблицу дескриптеров прерываний, устанавливает обработчики исключений </p>
-
-</div>
-</div>
 <a class="anchor" id="a4ebca227b37c1e28c42db6f0c3dc97d6"></a>
 <div class="memitem">
 <div class="memproto">
@@ -186,6 +176,22 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<a class="anchor" id="a88ada49c1954d38252049786595d9a5f"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void init_interrupts </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>idtInit Инициализирует таблицу дескриптеров прерываний, устанавливает обработчики исключений </p>
 
 </div>
 </div>

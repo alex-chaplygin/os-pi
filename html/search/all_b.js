@@ -1,5 +1,6 @@
 var searchData=
 [
+  ['ldt',['ldt',['../structtss__struct.html#a67e37acd1a39cd15bb2f082081d3b674',1,'tss_struct']]],
   ['libc_2ec',['libc.c',['../libc_8c.html',1,'']]],
   ['libc_2eh',['libc.h',['../libc_8h.html',1,'']]],
   ['limit',['limit',['../structgdt__ptr__struct.html#a1771cbf43de4c2e0582b7a7bcee07607',1,'gdt_ptr_struct::limit()'],['../gdt_8h.html#a68fd3b4f6c14a331ca9b226cbf122e13',1,'limit():&#160;gdt.h']]],

@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.11"/>
-<title>OS-PI: Файл types.h</title>
+<title>OS-PI: Файл include/portable/types.h</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -80,11 +80,14 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
 </iframe>
 </div>
 
+<div id="nav-path" class="navpath">
+  <ul>
+<li class="navelem"><a class="el" href="dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li><li class="navelem"><a class="el" href="dir_352e408293fcc49eea93f4009b7bfd2e.html">portable</a></li>  </ul>
+</div>
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#typedef-members">Определения типов</a> &#124;
-<a href="#func-members">Функции</a>  </div>
+<a href="#typedef-members">Определения типов</a>  </div>
   <div class="headertitle">
 <div class="title">Файл types.h</div>  </div>
 </div><!--header-->
@@ -92,19 +95,19 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
 <div class="textblock"><div class="dynheader">
 Граф файлов, в которые включается этот файл:</div>
 <div class="dyncontent">
-<div class="center"><img src="types_8h__dep__incl.png" border="0" usemap="#types_8hdep" alt=""/></div>
-<map name="types_8hdep" id="types_8hdep">
-<area shape="rect" id="node2" href="gdt_8h.html" title="Header&#45;файл для инициализации в gdt.c. " alt="" coords="5,80,56,107"/>
-<area shape="rect" id="node5" href="idt_8h.html" title="idt.h" alt="" coords="227,80,274,107"/>
-<area shape="rect" id="node7" href="timer_8c.html" title="Инициализация программируемого интервального таймера " alt="" coords="197,155,259,181"/>
-<area shape="rect" id="node8" href="x86_8h.html" title="x86.h" alt="" coords="298,80,353,107"/>
-<area shape="rect" id="node9" href="mouse_8c.html" title="mouse.c" alt="" coords="355,155,427,181"/>
-<area shape="rect" id="node10" href="irq_8c.html" title="Контроллер прерываний " alt="" coords="429,80,475,107"/>
-<area shape="rect" id="node11" href="keyboard_8c.html" title="Инициализация клавиатуры " alt="" coords="499,80,586,107"/>
-<area shape="rect" id="node12" href="mouse_8h.html" title="mouse.h" alt="" coords="80,80,152,107"/>
-<area shape="rect" id="node3" href="gdt_8c.html" title="Инициализация GDT. " alt="" coords="5,155,56,181"/>
-<area shape="rect" id="node4" href="main_8c.html" title="Главный модуль ядра " alt="" coords="85,155,147,181"/>
-<area shape="rect" id="node6" href="idt_8c.html" title="Установка таблицы IDT &#45; дескриптеров прерываний " alt="" coords="283,155,330,181"/>
+<div class="center"><img src="types_8h__dep__incl.png" border="0" usemap="#include_2portable_2types_8hdep" alt=""/></div>
+<map name="include_2portable_2types_8hdep" id="include_2portable_2types_8hdep">
+<area shape="rect" id="node2" href="gdt_8h.html" title="Header&#45;файл для инициализации в gdt.c. " alt="" coords="5,80,127,107"/>
+<area shape="rect" id="node5" href="idt_8h.html" title="include/x86/idt.h" alt="" coords="317,80,434,107"/>
+<area shape="rect" id="node7" href="timer_8c.html" title="Инициализация программируемого интервального таймера " alt="" coords="412,155,499,181"/>
+<area shape="rect" id="node8" href="mouse_8h.html" title="include/x86/mouse.h" alt="" coords="151,80,293,107"/>
+<area shape="rect" id="node9" href="x86_8h.html" title="include/x86/x86.h" alt="" coords="509,80,633,107"/>
+<area shape="rect" id="node11" href="keyboard_8c.html" title="Инициализация клавиатуры " alt="" coords="741,155,852,181"/>
+<area shape="rect" id="node3" href="main_8c.html" title="Главный модуль ядра " alt="" coords="167,155,277,181"/>
+<area shape="rect" id="node4" href="gdt_8c.html" title="Инициализация GDT. " alt="" coords="28,155,104,181"/>
+<area shape="rect" id="node6" href="idt_8c.html" title="Установка таблицы IDT &#45; дескриптеров прерываний " alt="" coords="315,155,387,181"/>
+<area shape="rect" id="node10" href="irq_8c.html" title="Контроллер прерываний " alt="" coords="645,155,717,181"/>
+<area shape="rect" id="node12" href="mouse_8c.html" title="x86/mouse.c" alt="" coords="523,155,620,181"/>
 </map>
 </div>
 </div>
@@ -142,13 +145,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
 <tr class="separator:a690c2256e22c802fbab60ff8e0756a26"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa232ecf786a74ce5363c36c10798d2b1"><td class="memItemLeft" align="right" valign="top">typedef unsigned long&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="types_8h.html#aa232ecf786a74ce5363c36c10798d2b1">uint64_t</a></td></tr>
 <tr class="separator:aa232ecf786a74ce5363c36c10798d2b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
-Функции</h2></td></tr>
-<tr class="memitem:a4553fd4f9ce5e07eb9e871ccb04a240c"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="types_8h.html#a4553fd4f9ce5e07eb9e871ccb04a240c">read_port</a> (int num)</td></tr>
-<tr class="separator:a4553fd4f9ce5e07eb9e871ccb04a240c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a69da26bf7ac1140d88860a35526aa551"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="types_8h.html#a69da26bf7ac1140d88860a35526aa551">write_port</a> (int num, int data)</td></tr>
-<tr class="separator:a69da26bf7ac1140d88860a35526aa551"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Типы</h2>
 <a class="anchor" id="a0c8186d9b9b7880309c27230bbb5e69d"></a>
@@ -156,7 +152,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">typedef unsigned char <a class="el" href="fs_8c.html#a0c8186d9b9b7880309c27230bbb5e69d">byte</a></td>
+          <td class="memname">typedef unsigned char <a class="el" href="types_8h.html#a0c8186d9b9b7880309c27230bbb5e69d">byte</a></td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -325,49 +321,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
       <table class="memname">
         <tr>
           <td class="memname">typedef unsigned short <a class="el" href="types_8h.html#ab95f123a6c9bcfee6a343170ef8c5f69">ushort</a></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<h2 class="groupheader">Функции</h2>
-<a class="anchor" id="a4553fd4f9ce5e07eb9e871ccb04a240c"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">int read_port </td>
-          <td>(</td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>num</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a class="anchor" id="a69da26bf7ac1140d88860a35526aa551"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void write_port </td>
-          <td>(</td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>num</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>data</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
         </tr>
       </table>
 </div><div class="memdoc">

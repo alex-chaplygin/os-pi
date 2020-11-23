@@ -1,7 +1,7 @@
 var searchData=
 [
-  ['selector',['selector',['../structidtGateDescriptor.html#a2c137ec567230f7b626d00eeaba2a811',1,'idtGateDescriptor']]],
-  ['stackptr',['stackPtr',['../structproc.html#a6ee38800b859a281309ba1a15a08a630',1,'proc']]],
-  ['state',['state',['../structproc.html#a8a8d2b911aa1db402a5a4bded523c91d',1,'proc']]],
-  ['sys_5fcall_5ftable',['sys_call_table',['../syscall_8c.html#ab60382599a0813a2ef38a2f790e2ce1b',1,'syscall.c']]]
+  ['pid',['pid',['../structproc.html#acf2bdf54d1f957ccbcdc987007029944',1,'proc']]],
+  ['prev_5ftss',['prev_tss',['../structtss__struct.html#a12c27f19349af341892d7ea0e26a14a8',1,'tss_struct']]],
+  ['printptr',['printPtr',['../console_8c.html#a3a37e732e455883658e3a66e3c6b7d00',1,'console.c']]],
+  ['processes',['processes',['../proc_8c.html#a94810dfbd8e5f91d8469e40564998469',1,'proc.c']]]
 ];

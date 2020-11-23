@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.11"/>
-<title>OS-PI: Файл syscall.c</title>
+<title>OS-PI: Файл portable/syscall.c</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -80,6 +80,10 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
 </iframe>
 </div>
 
+<div id="nav-path" class="navpath">
+  <ul>
+<li class="navelem"><a class="el" href="dir_9351dc27d5d245e4d0777b9ea98f52d2.html">portable</a></li>  </ul>
+</div>
 </div><!-- top -->
 <div class="header">
   <div class="summary">
@@ -93,13 +97,15 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
 
 <p>Таблица системных вызовов  
 <a href="#details">Подробнее...</a></p>
-<div class="textblock"><code>#include &quot;<a class="el" href="console_8h_source.html">console.h</a>&quot;</code><br />
+<div class="textblock"><code>#include &lt;<a class="el" href="syscall_8h_source.html">portable/syscall.h</a>&gt;</code><br />
+<code>#include &lt;<a class="el" href="console_8h_source.html">portable/console.h</a>&gt;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Граф включаемых заголовочных файлов для syscall.c:</div>
 <div class="dyncontent">
-<div class="center"><img src="syscall_8c__incl.png" border="0" usemap="#syscall_8c" alt=""/></div>
-<map name="syscall_8c" id="syscall_8c">
-<area shape="rect" id="node2" href="console_8h.html" title="console.h" alt="" coords="5,80,84,107"/>
+<div class="center"><img src="syscall_8c__incl.png" border="0" usemap="#portable_2syscall_8c" alt=""/></div>
+<map name="portable_2syscall_8c" id="portable_2syscall_8c">
+<area shape="rect" id="node2" href="syscall_8h.html" title="portable/syscall.h" alt="" coords="5,80,129,107"/>
+<area shape="rect" id="node3" href="console_8h.html" title="portable/console.h" alt="" coords="154,80,282,107"/>
 </map>
 </div>
 </div><table class="memberdecls">
@@ -334,10 +340,10 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
         </tr>
       </table>
 </div><div class="memdoc">
-<b>Инициализатор</b><div class="fragment"><div class="line">= {</div><div class="line">    <a class="code" href="syscall_8c.html#a232349af22d269c546bbd939f3a6e3ad">sys_call1</a>,</div><div class="line">    <a class="code" href="syscall_8c.html#a46dde3bc2d2c2e5011146921632f8562">sys_call2</a>,</div><div class="line">    <a class="code" href="syscall_8c.html#af05359fd124da35dd39ec1b4cfe7f064">sys_call3</a>,</div><div class="line">    <a class="code" href="syscall_8c.html#a43b1948bd271ec8e3f7358dfb70139db">sys_call4</a></div><div class="line">}</div><div class="ttc" id="syscall_8c_html_af05359fd124da35dd39ec1b4cfe7f064"><div class="ttname"><a href="syscall_8c.html#af05359fd124da35dd39ec1b4cfe7f064">sys_call3</a></div><div class="ttdeci">void sys_call3(int p1, int p2, int p3)</div><div class="ttdef"><b>Definition:</b> syscall.c:26</div></div>
-<div class="ttc" id="syscall_8c_html_a232349af22d269c546bbd939f3a6e3ad"><div class="ttname"><a href="syscall_8c.html#a232349af22d269c546bbd939f3a6e3ad">sys_call1</a></div><div class="ttdeci">void sys_call1(int p1, int p2, int p3)</div><div class="ttdef"><b>Definition:</b> syscall.c:16</div></div>
-<div class="ttc" id="syscall_8c_html_a43b1948bd271ec8e3f7358dfb70139db"><div class="ttname"><a href="syscall_8c.html#a43b1948bd271ec8e3f7358dfb70139db">sys_call4</a></div><div class="ttdeci">void sys_call4(int p1, int p2, int p3)</div><div class="ttdef"><b>Definition:</b> syscall.c:31</div></div>
-<div class="ttc" id="syscall_8c_html_a46dde3bc2d2c2e5011146921632f8562"><div class="ttname"><a href="syscall_8c.html#a46dde3bc2d2c2e5011146921632f8562">sys_call2</a></div><div class="ttdeci">void sys_call2(int p1, int p2, int p3)</div><div class="ttdef"><b>Definition:</b> syscall.c:21</div></div>
+<b>Инициализатор</b><div class="fragment"><div class="line">= {</div><div class="line">    <a class="code" href="syscall_8c.html#a232349af22d269c546bbd939f3a6e3ad">sys_call1</a>,</div><div class="line">    <a class="code" href="syscall_8c.html#a46dde3bc2d2c2e5011146921632f8562">sys_call2</a>,</div><div class="line">    <a class="code" href="syscall_8c.html#af05359fd124da35dd39ec1b4cfe7f064">sys_call3</a>,</div><div class="line">    <a class="code" href="syscall_8c.html#a43b1948bd271ec8e3f7358dfb70139db">sys_call4</a></div><div class="line">}</div><div class="ttc" id="syscall_8c_html_af05359fd124da35dd39ec1b4cfe7f064"><div class="ttname"><a href="syscall_8c.html#af05359fd124da35dd39ec1b4cfe7f064">sys_call3</a></div><div class="ttdeci">void sys_call3(int p1, int p2, int p3)</div><div class="ttdef"><b>Definition:</b> syscall.c:27</div></div>
+<div class="ttc" id="syscall_8c_html_a232349af22d269c546bbd939f3a6e3ad"><div class="ttname"><a href="syscall_8c.html#a232349af22d269c546bbd939f3a6e3ad">sys_call1</a></div><div class="ttdeci">void sys_call1(int p1, int p2, int p3)</div><div class="ttdef"><b>Definition:</b> syscall.c:17</div></div>
+<div class="ttc" id="syscall_8c_html_a43b1948bd271ec8e3f7358dfb70139db"><div class="ttname"><a href="syscall_8c.html#a43b1948bd271ec8e3f7358dfb70139db">sys_call4</a></div><div class="ttdeci">void sys_call4(int p1, int p2, int p3)</div><div class="ttdef"><b>Definition:</b> syscall.c:32</div></div>
+<div class="ttc" id="syscall_8c_html_a46dde3bc2d2c2e5011146921632f8562"><div class="ttname"><a href="syscall_8c.html#a46dde3bc2d2c2e5011146921632f8562">sys_call2</a></div><div class="ttdeci">void sys_call2(int p1, int p2, int p3)</div><div class="ttdef"><b>Definition:</b> syscall.c:22</div></div>
 </div><!-- fragment -->
 <p>Таблица адресов системных вызовов </p>
 

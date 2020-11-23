@@ -1,4 +1,4 @@
-<map id="console.c" name="console.c">
-<area shape="rect" id="node2" href="$console_8h.html" title="console.h" alt="" coords="5,80,84,107"/>
-<area shape="rect" id="node3" href="$libc_8h.html" title="libc.h" alt="" coords="109,80,162,107"/>
+<map id="portable/console.c" name="portable/console.c">
+<area shape="rect" id="node2" href="$console_8h.html" title="portable/console.h" alt="" coords="5,80,133,107"/>
+<area shape="rect" id="node3" href="$libc_8h.html" title="portable/libc.h" alt="" coords="158,80,261,107"/>
 </map>

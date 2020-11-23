@@ -1,0 +1,131 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.8.11"/>
+<title>OS-PI: Исходный файл include/x86/tss.h</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<script type="text/javascript">
+  $(document).ready(function() { init_search(); });
+</script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td id="projectalign" style="padding-left: 0.5em;">
+   <div id="projectname">OS-PI
+   &#160;<span id="projectnumber">0.1</span>
+   </div>
+   <div id="projectbrief">Операционная система</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Создано системой Doxygen 1.8.11 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
+</script>
+  <div id="navrow1" class="tabs">
+    <ul class="tablist">
+      <li><a href="index.html"><span>Титульная&#160;страница</span></a></li>
+      <li><a href="annotated.html"><span>Классы</span></a></li>
+      <li class="current"><a href="files.html"><span>Файлы</span></a></li>
+      <li>
+        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <img id="MSearchSelect" src="search/mag_sel.png"
+               onmouseover="return searchBox.OnSearchSelectShow()"
+               onmouseout="return searchBox.OnSearchSelectHide()"
+               alt=""/>
+          <input type="text" id="MSearchField" value="Поиск" accesskey="S"
+               onfocus="searchBox.OnSearchFieldFocus(true)" 
+               onblur="searchBox.OnSearchFieldFocus(false)" 
+               onkeyup="searchBox.OnSearchFieldChange(event)"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><img id="MSearchCloseImg" border="0" src="search/close.png" alt=""/></a>
+          </span>
+        </div>
+      </li>
+    </ul>
+  </div>
+  <div id="navrow2" class="tabs2">
+    <ul class="tablist">
+      <li><a href="files.html"><span>Файлы</span></a></li>
+      <li><a href="globals.html"><span>Список&#160;членов&#160;всех&#160;файлов</span></a></li>
+    </ul>
+  </div>
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<iframe src="javascript:void(0)" frameborder="0" 
+        name="MSearchResults" id="MSearchResults">
+</iframe>
+</div>
+
+<div id="nav-path" class="navpath">
+  <ul>
+<li class="navelem"><a class="el" href="dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li><li class="navelem"><a class="el" href="dir_4a973423dd1829c7c364ae0c73125019.html">x86</a></li>  </ul>
+</div>
+</div><!-- top -->
+<div class="header">
+  <div class="headertitle">
+<div class="title">tss.h</div>  </div>
+</div><!--header-->
+<div class="contents">
+<a href="tss_8h.html">См. документацию.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="comment">// Структура, описывающая сегмент состояния задачи Task State Segment.</span></div><div class="line"><a name="l00002"></a><span class="lineno"><a class="line" href="structtss__struct.html">    2</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structtss__struct.html">tss_struct</a></div><div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;{</div><div class="line"><a name="l00004"></a><span class="lineno"><a class="line" href="structtss__struct.html#a12c27f19349af341892d7ea0e26a14a8">    4</a></span>&#160;   <a class="code" href="types_8h.html#ad7ecf93b77285d9bf039d27fa3f1a588">u32int</a> <a class="code" href="structtss__struct.html#a12c27f19349af341892d7ea0e26a14a8">prev_tss</a>;   <span class="comment">// Предыдущий TSS – если используется аппаратное переключение задач, то это поле нужно создания связного списка.</span></div><div class="line"><a name="l00005"></a><span class="lineno"><a class="line" href="structtss__struct.html#a0b9212ee8723cfa4e5aa5e10d2def521">    5</a></span>&#160;   <a class="code" href="types_8h.html#ad7ecf93b77285d9bf039d27fa3f1a588">u32int</a> <a class="code" href="structtss__struct.html#a0b9212ee8723cfa4e5aa5e10d2def521">esp0</a>;       <span class="comment">// Указатель стека, загружаемый при переходе в режим ядра.</span></div><div class="line"><a name="l00006"></a><span class="lineno"><a class="line" href="structtss__struct.html#ac8ec99f04c253a802696e9de1d65fc73">    6</a></span>&#160;   <a class="code" href="types_8h.html#ad7ecf93b77285d9bf039d27fa3f1a588">u32int</a> <a class="code" href="structtss__struct.html#ac8ec99f04c253a802696e9de1d65fc73">ss0</a>;        <span class="comment">// Сегмент стека, загружаемый при переходе в режим ядра.</span></div><div class="line"><a name="l00007"></a><span class="lineno"><a class="line" href="structtss__struct.html#a2de558eb178341d306bc3dfce9cb4314">    7</a></span>&#160;   <a class="code" href="types_8h.html#ad7ecf93b77285d9bf039d27fa3f1a588">u32int</a> <a class="code" href="structtss__struct.html#a2de558eb178341d306bc3dfce9cb4314">esp1</a>;       <span class="comment">// Не используется ...</span></div><div class="line"><a name="l00008"></a><span class="lineno"><a class="line" href="structtss__struct.html#a20eeafbc7a15674d5687134b7a89fbd5">    8</a></span>&#160;   <a class="code" href="types_8h.html#ad7ecf93b77285d9bf039d27fa3f1a588">u32int</a> <a class="code" href="structtss__struct.html#a20eeafbc7a15674d5687134b7a89fbd5">ss1</a>;</div><div class="line"><a name="l00009"></a><span class="lineno"><a class="line" href="structtss__struct.html#affccc8a796ae396d59be5d9b69c0d89d">    9</a></span>&#160;   <a class="code" href="types_8h.html#ad7ecf93b77285d9bf039d27fa3f1a588">u32int</a> <a class="code" href="structtss__struct.html#affccc8a796ae396d59be5d9b69c0d89d">esp2</a>;</div><div class="line"><a name="l00010"></a><span class="lineno"><a class="line" href="structtss__struct.html#af2173f17b035a858eb1058648b1b065b">   10</a></span>&#160;   <a class="code" href="types_8h.html#ad7ecf93b77285d9bf039d27fa3f1a588">u32int</a> <a class="code" href="structtss__struct.html#af2173f17b035a858eb1058648b1b065b">ss2</a>;</div><div class="line"><a name="l00011"></a><span class="lineno"><a class="line" href="structtss__struct.html#a6befde0a5b2d557cd1255fb205af6a91">   11</a></span>&#160;   <a class="code" href="types_8h.html#ad7ecf93b77285d9bf039d27fa3f1a588">u32int</a> <a class="code" href="structtss__struct.html#a6befde0a5b2d557cd1255fb205af6a91">cr3</a>;</div><div class="line"><a name="l00012"></a><span class="lineno"><a class="line" href="structtss__struct.html#a592d32566afd17beec3695804ca589d3">   12</a></span>&#160;   <a class="code" href="types_8h.html#ad7ecf93b77285d9bf039d27fa3f1a588">u32int</a> <a class="code" href="structtss__struct.html#a592d32566afd17beec3695804ca589d3">eip</a>;</div><div class="line"><a name="l00013"></a><span class="lineno"><a class="line" href="structtss__struct.html#a3f216c4310911580aa6f0c7eeb5206f5">   13</a></span>&#160;   <a class="code" href="types_8h.html#ad7ecf93b77285d9bf039d27fa3f1a588">u32int</a> <a class="code" href="structtss__struct.html#a3f216c4310911580aa6f0c7eeb5206f5">eflags</a>;</div><div class="line"><a name="l00014"></a><span class="lineno"><a class="line" href="structtss__struct.html#af01a8001dc0eb78a792f2629df643337">   14</a></span>&#160;   <a class="code" href="types_8h.html#ad7ecf93b77285d9bf039d27fa3f1a588">u32int</a> <a class="code" href="structtss__struct.html#af01a8001dc0eb78a792f2629df643337">eax</a>;</div><div class="line"><a name="l00015"></a><span class="lineno"><a class="line" href="structtss__struct.html#a7daa7e5ba81815a2302b5e17d8788ef2">   15</a></span>&#160;   <a class="code" href="types_8h.html#ad7ecf93b77285d9bf039d27fa3f1a588">u32int</a> <a class="code" href="structtss__struct.html#a7daa7e5ba81815a2302b5e17d8788ef2">ecx</a>;</div><div class="line"><a name="l00016"></a><span class="lineno"><a class="line" href="structtss__struct.html#ad2f7672f3b4d3044c13a17a1ea51789d">   16</a></span>&#160;   <a class="code" href="types_8h.html#ad7ecf93b77285d9bf039d27fa3f1a588">u32int</a> <a class="code" href="structtss__struct.html#ad2f7672f3b4d3044c13a17a1ea51789d">edx</a>;</div><div class="line"><a name="l00017"></a><span class="lineno"><a class="line" href="structtss__struct.html#a1651672e9c21ff08619a8ebd91d8b3db">   17</a></span>&#160;   <a class="code" href="types_8h.html#ad7ecf93b77285d9bf039d27fa3f1a588">u32int</a> <a class="code" href="structtss__struct.html#a1651672e9c21ff08619a8ebd91d8b3db">ebx</a>;</div><div class="line"><a name="l00018"></a><span class="lineno"><a class="line" href="structtss__struct.html#a0a44eb8c14a685de6d0f9ef3ca2945e2">   18</a></span>&#160;   <a class="code" href="types_8h.html#ad7ecf93b77285d9bf039d27fa3f1a588">u32int</a> <a class="code" href="structtss__struct.html#a0a44eb8c14a685de6d0f9ef3ca2945e2">esp</a>;</div><div class="line"><a name="l00019"></a><span class="lineno"><a class="line" href="structtss__struct.html#a7c7372f704e61f3a17847edcc116ca10">   19</a></span>&#160;   <a class="code" href="types_8h.html#ad7ecf93b77285d9bf039d27fa3f1a588">u32int</a> <a class="code" href="structtss__struct.html#a7c7372f704e61f3a17847edcc116ca10">ebp</a>;</div><div class="line"><a name="l00020"></a><span class="lineno"><a class="line" href="structtss__struct.html#a30d6d88e2347de48c0fd218b35354a20">   20</a></span>&#160;   <a class="code" href="types_8h.html#ad7ecf93b77285d9bf039d27fa3f1a588">u32int</a> <a class="code" href="structtss__struct.html#a30d6d88e2347de48c0fd218b35354a20">esi</a>;</div><div class="line"><a name="l00021"></a><span class="lineno"><a class="line" href="structtss__struct.html#a523d2e9f219832bade4800fad6aa0a48">   21</a></span>&#160;   <a class="code" href="types_8h.html#ad7ecf93b77285d9bf039d27fa3f1a588">u32int</a> <a class="code" href="structtss__struct.html#a523d2e9f219832bade4800fad6aa0a48">edi</a>;</div><div class="line"><a name="l00022"></a><span class="lineno"><a class="line" href="structtss__struct.html#a5f14c17ab064c073bba65fe4df3301dc">   22</a></span>&#160;   <a class="code" href="types_8h.html#ad7ecf93b77285d9bf039d27fa3f1a588">u32int</a> <a class="code" href="structtss__struct.html#a5f14c17ab064c073bba65fe4df3301dc">es</a>;         <span class="comment">// Значение, загружаемое в ES при переходе в режим ядра.</span></div><div class="line"><a name="l00023"></a><span class="lineno"><a class="line" href="structtss__struct.html#ad24c90937b8db730a111db17efe7848d">   23</a></span>&#160;   <a class="code" href="types_8h.html#ad7ecf93b77285d9bf039d27fa3f1a588">u32int</a> <a class="code" href="structtss__struct.html#ad24c90937b8db730a111db17efe7848d">cs</a>;         <span class="comment">// Значение, загружаемое в  CS при переходе в режим ядра</span></div><div class="line"><a name="l00024"></a><span class="lineno"><a class="line" href="structtss__struct.html#ab787d6ebfb08f8f32797a9851729f813">   24</a></span>&#160;   <a class="code" href="types_8h.html#ad7ecf93b77285d9bf039d27fa3f1a588">u32int</a> <a class="code" href="structtss__struct.html#ab787d6ebfb08f8f32797a9851729f813">ss</a>;         <span class="comment">// Значение, загружаемое в  SS при переходе в режим ядра</span></div><div class="line"><a name="l00025"></a><span class="lineno"><a class="line" href="structtss__struct.html#a850521872bf48ad16dc4e7fd4ce2f3b1">   25</a></span>&#160;   <a class="code" href="types_8h.html#ad7ecf93b77285d9bf039d27fa3f1a588">u32int</a> <a class="code" href="structtss__struct.html#a850521872bf48ad16dc4e7fd4ce2f3b1">ds</a>;         <span class="comment">// Значение, загружаемое в  DS при переходе в режим ядра</span></div><div class="line"><a name="l00026"></a><span class="lineno"><a class="line" href="structtss__struct.html#a26b1e33ea53f005d1524d5bffd8ca52e">   26</a></span>&#160;   <a class="code" href="types_8h.html#ad7ecf93b77285d9bf039d27fa3f1a588">u32int</a> <a class="code" href="structtss__struct.html#a26b1e33ea53f005d1524d5bffd8ca52e">fs</a>;         <span class="comment">// Значение, загружаемое в  FS при переходе в режим ядра</span></div><div class="line"><a name="l00027"></a><span class="lineno"><a class="line" href="structtss__struct.html#ae6453a120fdc570ecceee7483949bec9">   27</a></span>&#160;   <a class="code" href="types_8h.html#ad7ecf93b77285d9bf039d27fa3f1a588">u32int</a> <a class="code" href="structtss__struct.html#ae6453a120fdc570ecceee7483949bec9">gs</a>;         <span class="comment">// Значение, загружаемое в  GS при переходе в режим ядра</span></div><div class="line"><a name="l00028"></a><span class="lineno"><a class="line" href="structtss__struct.html#a67e37acd1a39cd15bb2f082081d3b674">   28</a></span>&#160;   <a class="code" href="types_8h.html#ad7ecf93b77285d9bf039d27fa3f1a588">u32int</a> <a class="code" href="structtss__struct.html#a67e37acd1a39cd15bb2f082081d3b674">ldt</a>;        <span class="comment">// Не используется ...</span></div><div class="line"><a name="l00029"></a><span class="lineno"><a class="line" href="structtss__struct.html#adf1eb6e3bc2f7053e3d4b2cbb0e6d94f">   29</a></span>&#160;   <a class="code" href="types_8h.html#a863d9497073aad2b991aeab2211d87af">u16int</a> <a class="code" href="structtss__struct.html#adf1eb6e3bc2f7053e3d4b2cbb0e6d94f">trap</a>;</div><div class="line"><a name="l00030"></a><span class="lineno"><a class="line" href="structtss__struct.html#a6a8108b347805bf55751f29e719c1b9b">   30</a></span>&#160;   <a class="code" href="types_8h.html#a863d9497073aad2b991aeab2211d87af">u16int</a> <a class="code" href="structtss__struct.html#a6a8108b347805bf55751f29e719c1b9b">iomap_base</a>;</div><div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;}  </div><div class="ttc" id="structtss__struct_html_a2de558eb178341d306bc3dfce9cb4314"><div class="ttname"><a href="structtss__struct.html#a2de558eb178341d306bc3dfce9cb4314">tss_struct::esp1</a></div><div class="ttdeci">u32int esp1</div><div class="ttdef"><b>Definition:</b> tss.h:7</div></div>
+<div class="ttc" id="structtss__struct_html_a6a8108b347805bf55751f29e719c1b9b"><div class="ttname"><a href="structtss__struct.html#a6a8108b347805bf55751f29e719c1b9b">tss_struct::iomap_base</a></div><div class="ttdeci">u16int iomap_base</div><div class="ttdef"><b>Definition:</b> tss.h:30</div></div>
+<div class="ttc" id="structtss__struct_html_affccc8a796ae396d59be5d9b69c0d89d"><div class="ttname"><a href="structtss__struct.html#affccc8a796ae396d59be5d9b69c0d89d">tss_struct::esp2</a></div><div class="ttdeci">u32int esp2</div><div class="ttdef"><b>Definition:</b> tss.h:9</div></div>
+<div class="ttc" id="structtss__struct_html_a0b9212ee8723cfa4e5aa5e10d2def521"><div class="ttname"><a href="structtss__struct.html#a0b9212ee8723cfa4e5aa5e10d2def521">tss_struct::esp0</a></div><div class="ttdeci">u32int esp0</div><div class="ttdef"><b>Definition:</b> tss.h:5</div></div>
+<div class="ttc" id="structtss__struct_html_a30d6d88e2347de48c0fd218b35354a20"><div class="ttname"><a href="structtss__struct.html#a30d6d88e2347de48c0fd218b35354a20">tss_struct::esi</a></div><div class="ttdeci">u32int esi</div><div class="ttdef"><b>Definition:</b> tss.h:20</div></div>
+<div class="ttc" id="structtss__struct_html_a523d2e9f219832bade4800fad6aa0a48"><div class="ttname"><a href="structtss__struct.html#a523d2e9f219832bade4800fad6aa0a48">tss_struct::edi</a></div><div class="ttdeci">u32int edi</div><div class="ttdef"><b>Definition:</b> tss.h:21</div></div>
+<div class="ttc" id="structtss__struct_html_a67e37acd1a39cd15bb2f082081d3b674"><div class="ttname"><a href="structtss__struct.html#a67e37acd1a39cd15bb2f082081d3b674">tss_struct::ldt</a></div><div class="ttdeci">u32int ldt</div><div class="ttdef"><b>Definition:</b> tss.h:28</div></div>
+<div class="ttc" id="structtss__struct_html_a5f14c17ab064c073bba65fe4df3301dc"><div class="ttname"><a href="structtss__struct.html#a5f14c17ab064c073bba65fe4df3301dc">tss_struct::es</a></div><div class="ttdeci">u32int es</div><div class="ttdef"><b>Definition:</b> tss.h:22</div></div>
+<div class="ttc" id="structtss__struct_html_a7daa7e5ba81815a2302b5e17d8788ef2"><div class="ttname"><a href="structtss__struct.html#a7daa7e5ba81815a2302b5e17d8788ef2">tss_struct::ecx</a></div><div class="ttdeci">u32int ecx</div><div class="ttdef"><b>Definition:</b> tss.h:15</div></div>
+<div class="ttc" id="types_8h_html_a863d9497073aad2b991aeab2211d87af"><div class="ttname"><a href="types_8h.html#a863d9497073aad2b991aeab2211d87af">u16int</a></div><div class="ttdeci">unsigned short u16int</div><div class="ttdef"><b>Definition:</b> types.h:4</div></div>
+<div class="ttc" id="structtss__struct_html_a850521872bf48ad16dc4e7fd4ce2f3b1"><div class="ttname"><a href="structtss__struct.html#a850521872bf48ad16dc4e7fd4ce2f3b1">tss_struct::ds</a></div><div class="ttdeci">u32int ds</div><div class="ttdef"><b>Definition:</b> tss.h:25</div></div>
+<div class="ttc" id="structtss__struct_html_a0a44eb8c14a685de6d0f9ef3ca2945e2"><div class="ttname"><a href="structtss__struct.html#a0a44eb8c14a685de6d0f9ef3ca2945e2">tss_struct::esp</a></div><div class="ttdeci">u32int esp</div><div class="ttdef"><b>Definition:</b> tss.h:18</div></div>
+<div class="ttc" id="structtss__struct_html_ad2f7672f3b4d3044c13a17a1ea51789d"><div class="ttname"><a href="structtss__struct.html#ad2f7672f3b4d3044c13a17a1ea51789d">tss_struct::edx</a></div><div class="ttdeci">u32int edx</div><div class="ttdef"><b>Definition:</b> tss.h:16</div></div>
+<div class="ttc" id="structtss__struct_html_a592d32566afd17beec3695804ca589d3"><div class="ttname"><a href="structtss__struct.html#a592d32566afd17beec3695804ca589d3">tss_struct::eip</a></div><div class="ttdeci">u32int eip</div><div class="ttdef"><b>Definition:</b> tss.h:12</div></div>
+<div class="ttc" id="structtss__struct_html_ae6453a120fdc570ecceee7483949bec9"><div class="ttname"><a href="structtss__struct.html#ae6453a120fdc570ecceee7483949bec9">tss_struct::gs</a></div><div class="ttdeci">u32int gs</div><div class="ttdef"><b>Definition:</b> tss.h:27</div></div>
+<div class="ttc" id="structtss__struct_html_adf1eb6e3bc2f7053e3d4b2cbb0e6d94f"><div class="ttname"><a href="structtss__struct.html#adf1eb6e3bc2f7053e3d4b2cbb0e6d94f">tss_struct::trap</a></div><div class="ttdeci">u16int trap</div><div class="ttdef"><b>Definition:</b> tss.h:29</div></div>
+<div class="ttc" id="structtss__struct_html_af2173f17b035a858eb1058648b1b065b"><div class="ttname"><a href="structtss__struct.html#af2173f17b035a858eb1058648b1b065b">tss_struct::ss2</a></div><div class="ttdeci">u32int ss2</div><div class="ttdef"><b>Definition:</b> tss.h:10</div></div>
+<div class="ttc" id="structtss__struct_html_a12c27f19349af341892d7ea0e26a14a8"><div class="ttname"><a href="structtss__struct.html#a12c27f19349af341892d7ea0e26a14a8">tss_struct::prev_tss</a></div><div class="ttdeci">u32int prev_tss</div><div class="ttdef"><b>Definition:</b> tss.h:4</div></div>
+<div class="ttc" id="structtss__struct_html_a3f216c4310911580aa6f0c7eeb5206f5"><div class="ttname"><a href="structtss__struct.html#a3f216c4310911580aa6f0c7eeb5206f5">tss_struct::eflags</a></div><div class="ttdeci">u32int eflags</div><div class="ttdef"><b>Definition:</b> tss.h:13</div></div>
+<div class="ttc" id="structtss__struct_html_a20eeafbc7a15674d5687134b7a89fbd5"><div class="ttname"><a href="structtss__struct.html#a20eeafbc7a15674d5687134b7a89fbd5">tss_struct::ss1</a></div><div class="ttdeci">u32int ss1</div><div class="ttdef"><b>Definition:</b> tss.h:8</div></div>
+<div class="ttc" id="structtss__struct_html_a1651672e9c21ff08619a8ebd91d8b3db"><div class="ttname"><a href="structtss__struct.html#a1651672e9c21ff08619a8ebd91d8b3db">tss_struct::ebx</a></div><div class="ttdeci">u32int ebx</div><div class="ttdef"><b>Definition:</b> tss.h:17</div></div>
+<div class="ttc" id="structtss__struct_html_ab787d6ebfb08f8f32797a9851729f813"><div class="ttname"><a href="structtss__struct.html#ab787d6ebfb08f8f32797a9851729f813">tss_struct::ss</a></div><div class="ttdeci">u32int ss</div><div class="ttdef"><b>Definition:</b> tss.h:24</div></div>
+<div class="ttc" id="types_8h_html_ad7ecf93b77285d9bf039d27fa3f1a588"><div class="ttname"><a href="types_8h.html#ad7ecf93b77285d9bf039d27fa3f1a588">u32int</a></div><div class="ttdeci">unsigned int u32int</div><div class="ttdef"><b>Definition:</b> types.h:2</div></div>
+<div class="ttc" id="structtss__struct_html_a26b1e33ea53f005d1524d5bffd8ca52e"><div class="ttname"><a href="structtss__struct.html#a26b1e33ea53f005d1524d5bffd8ca52e">tss_struct::fs</a></div><div class="ttdeci">u32int fs</div><div class="ttdef"><b>Definition:</b> tss.h:26</div></div>
+<div class="ttc" id="structtss__struct_html_af01a8001dc0eb78a792f2629df643337"><div class="ttname"><a href="structtss__struct.html#af01a8001dc0eb78a792f2629df643337">tss_struct::eax</a></div><div class="ttdeci">u32int eax</div><div class="ttdef"><b>Definition:</b> tss.h:14</div></div>
+<div class="ttc" id="structtss__struct_html_ad24c90937b8db730a111db17efe7848d"><div class="ttname"><a href="structtss__struct.html#ad24c90937b8db730a111db17efe7848d">tss_struct::cs</a></div><div class="ttdeci">u32int cs</div><div class="ttdef"><b>Definition:</b> tss.h:23</div></div>
+<div class="ttc" id="structtss__struct_html_a7c7372f704e61f3a17847edcc116ca10"><div class="ttname"><a href="structtss__struct.html#a7c7372f704e61f3a17847edcc116ca10">tss_struct::ebp</a></div><div class="ttdeci">u32int ebp</div><div class="ttdef"><b>Definition:</b> tss.h:19</div></div>
+<div class="ttc" id="structtss__struct_html_a6befde0a5b2d557cd1255fb205af6a91"><div class="ttname"><a href="structtss__struct.html#a6befde0a5b2d557cd1255fb205af6a91">tss_struct::cr3</a></div><div class="ttdeci">u32int cr3</div><div class="ttdef"><b>Definition:</b> tss.h:11</div></div>
+<div class="ttc" id="structtss__struct_html_ac8ec99f04c253a802696e9de1d65fc73"><div class="ttname"><a href="structtss__struct.html#ac8ec99f04c253a802696e9de1d65fc73">tss_struct::ss0</a></div><div class="ttdeci">u32int ss0</div><div class="ttdef"><b>Definition:</b> tss.h:6</div></div>
+<div class="ttc" id="structtss__struct_html"><div class="ttname"><a href="structtss__struct.html">tss_struct</a></div><div class="ttdef"><b>Definition:</b> tss.h:2</div></div>
+</div><!-- fragment --></div><!-- contents -->
+<!-- start footer part -->
+<hr class="footer"/><address class="footer"><small>
+Создано системой &#160;<a href="http://www.doxygen.org/index.html">
+<img class="footer" src="doxygen.png" alt="doxygen"/>
+</a> 1.8.11
+</small></address>
+</body>
+</html>

@@ -1,5 +1,6 @@
-<map id="libc.h" name="libc.h">
-<area shape="rect" id="node2" href="$console_8c.html" title="Работа с консолью " alt="" coords="5,80,84,107"/>
-<area shape="rect" id="node3" href="$isr_8c.html" title="isr.c" alt="" coords="108,80,155,107"/>
-<area shape="rect" id="node4" href="$main_8c.html" title="Главный модуль ядра " alt="" coords="179,80,241,107"/>
+<map id="include/portable/libc.h" name="include/portable/libc.h">
+<area shape="rect" id="node2" href="$console_8c.html" title="Работа с консолью " alt="" coords="5,80,133,107"/>
+<area shape="rect" id="node3" href="$libc_8c.html" title="Реализация функций стандартной библиотеки " alt="" coords="158,80,261,107"/>
+<area shape="rect" id="node4" href="$main_8c.html" title="Главный модуль ядра " alt="" coords="285,80,395,107"/>
+<area shape="rect" id="node5" href="$isr_8c.html" title="x86/isr.c" alt="" coords="420,80,492,107"/>
 </map>

@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.11"/>
-<title>OS-PI: Файл irq.c</title>
+<title>OS-PI: Файл x86/irq.c</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -80,6 +80,10 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
 </iframe>
 </div>
 
+<div id="nav-path" class="navpath">
+  <ul>
+<li class="navelem"><a class="el" href="dir_70ef696279286f8491369e3b59714092.html">x86</a></li>  </ul>
+</div>
 </div><!-- top -->
 <div class="header">
   <div class="summary">
@@ -91,23 +95,24 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
 
 <p>Контроллер прерываний  
 <a href="#details">Подробнее...</a></p>
-<div class="textblock"><code>#include &quot;<a class="el" href="types_8h_source.html">types.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="irq_8h_source.html">irq.h</a>&quot;</code><br />
+<div class="textblock"><code>#include &lt;<a class="el" href="x86_8h_source.html">x86/x86.h</a>&gt;</code><br />
+<code>#include &lt;<a class="el" href="irq_8h_source.html">x86/irq.h</a>&gt;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Граф включаемых заголовочных файлов для irq.c:</div>
 <div class="dyncontent">
-<div class="center"><img src="irq_8c__incl.png" border="0" usemap="#irq_8c" alt=""/></div>
-<map name="irq_8c" id="irq_8c">
-<area shape="rect" id="node2" href="types_8h.html" title="types.h" alt="" coords="5,80,71,107"/>
-<area shape="rect" id="node3" href="irq_8h.html" title="irq.h" alt="" coords="95,80,141,107"/>
+<div class="center"><img src="irq_8c__incl.png" border="0" usemap="#x86_2irq_8c" alt=""/></div>
+<map name="x86_2irq_8c" id="x86_2irq_8c">
+<area shape="rect" id="node2" href="x86_8h.html" title="x86/x86.h" alt="" coords="23,80,102,107"/>
+<area shape="rect" id="node4" href="irq_8h.html" title="x86/irq.h" alt="" coords="127,80,199,107"/>
+<area shape="rect" id="node3" href="types_8h.html" title="portable/types.h" alt="" coords="5,155,120,181"/>
 </map>
 </div>
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Функции</h2></td></tr>
-<tr class="memitem:ac3ff77aaf3544920de54b959587195f7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="irq_8c.html#ac3ff77aaf3544920de54b959587195f7">init_interrupts</a> (int offset1, int offset2)</td></tr>
-<tr class="memdesc:ac3ff77aaf3544920de54b959587195f7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Инициализирует контроллер прерываний  <a href="#ac3ff77aaf3544920de54b959587195f7">Подробнее...</a><br /></td></tr>
-<tr class="separator:ac3ff77aaf3544920de54b959587195f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adb6fc3a8ed060fac06eebf72ebda6cb0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="irq_8c.html#adb6fc3a8ed060fac06eebf72ebda6cb0">init_pic</a> (int offset1, int offset2)</td></tr>
+<tr class="memdesc:adb6fc3a8ed060fac06eebf72ebda6cb0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Инициализирует контроллер прерываний  <a href="#adb6fc3a8ed060fac06eebf72ebda6cb0">Подробнее...</a><br /></td></tr>
+<tr class="separator:adb6fc3a8ed060fac06eebf72ebda6cb0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a04d6dabf7d99ebf12d8bc314bfddcb77"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="irq_8c.html#a04d6dabf7d99ebf12d8bc314bfddcb77">end_of_interrupt</a> (unsigned char irq)</td></tr>
 <tr class="memdesc:a04d6dabf7d99ebf12d8bc314bfddcb77"><td class="mdescLeft">&#160;</td><td class="mdescRight">Вызывается после исполнения обработчика прерывания  <a href="#a04d6dabf7d99ebf12d8bc314bfddcb77">Подробнее...</a><br /></td></tr>
 <tr class="separator:a04d6dabf7d99ebf12d8bc314bfddcb77"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -143,12 +148,12 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
 
 </div>
 </div>
-<a class="anchor" id="ac3ff77aaf3544920de54b959587195f7"></a>
+<a class="anchor" id="adb6fc3a8ed060fac06eebf72ebda6cb0"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void init_interrupts </td>
+          <td class="memname">void init_pic </td>
           <td>(</td>
           <td class="paramtype">int&#160;</td>
           <td class="paramname"><em>offset1</em>, </td>

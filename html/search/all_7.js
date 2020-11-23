@@ -14,5 +14,6 @@ var searchData=
   ['getargs',['getArgs',['../dd_8c.html#a5bea6123c57fed255234a443954d0e59',1,'dd.c']]],
   ['gran',['gran',['../structgdt__entry__struct.html#af45598a8db670566210fb39611eb01e8',1,'gdt_entry_struct::gran()'],['../gdt_8h.html#adc59a36b084b52f4c708428f3df66e6e',1,'gran():&#160;gdt.h']]],
   ['gran_5fdisable',['GRAN_DISABLE',['../gdt_8h.html#a155b96a011b06e88ba02da0434b061ef',1,'gdt.h']]],
-  ['gran_5fenable',['GRAN_ENABLE',['../gdt_8h.html#ab2d9f85eb1735236db36865e27d3c277',1,'gdt.h']]]
+  ['gran_5fenable',['GRAN_ENABLE',['../gdt_8h.html#ab2d9f85eb1735236db36865e27d3c277',1,'gdt.h']]],
+  ['gs',['gs',['../structtss__struct.html#ae6453a120fdc570ecceee7483949bec9',1,'tss_struct']]]
 ];

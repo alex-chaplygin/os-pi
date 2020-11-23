@@ -1,13 +1,13 @@
-<map id="types.h" name="types.h">
-<area shape="rect" id="node2" href="$gdt_8h.html" title="Header&#45;файл для инициализации в gdt.c. " alt="" coords="5,80,56,107"/>
-<area shape="rect" id="node5" href="$idt_8h.html" title="idt.h" alt="" coords="227,80,274,107"/>
-<area shape="rect" id="node7" href="$timer_8c.html" title="Инициализация программируемого интервального таймера " alt="" coords="197,155,259,181"/>
-<area shape="rect" id="node8" href="$x86_8h.html" title="x86.h" alt="" coords="298,80,353,107"/>
-<area shape="rect" id="node9" href="$mouse_8c.html" title="mouse.c" alt="" coords="355,155,427,181"/>
-<area shape="rect" id="node10" href="$irq_8c.html" title="Контроллер прерываний " alt="" coords="429,80,475,107"/>
-<area shape="rect" id="node11" href="$keyboard_8c.html" title="Инициализация клавиатуры " alt="" coords="499,80,586,107"/>
-<area shape="rect" id="node12" href="$mouse_8h.html" title="mouse.h" alt="" coords="80,80,152,107"/>
-<area shape="rect" id="node3" href="$gdt_8c.html" title="Инициализация GDT. " alt="" coords="5,155,56,181"/>
-<area shape="rect" id="node4" href="$main_8c.html" title="Главный модуль ядра " alt="" coords="85,155,147,181"/>
-<area shape="rect" id="node6" href="$idt_8c.html" title="Установка таблицы IDT &#45; дескриптеров прерываний " alt="" coords="283,155,330,181"/>
+<map id="include/portable/types.h" name="include/portable/types.h">
+<area shape="rect" id="node2" href="$gdt_8h.html" title="Header&#45;файл для инициализации в gdt.c. " alt="" coords="5,80,127,107"/>
+<area shape="rect" id="node5" href="$idt_8h.html" title="include/x86/idt.h" alt="" coords="317,80,434,107"/>
+<area shape="rect" id="node7" href="$timer_8c.html" title="Инициализация программируемого интервального таймера " alt="" coords="412,155,499,181"/>
+<area shape="rect" id="node8" href="$mouse_8h.html" title="include/x86/mouse.h" alt="" coords="151,80,293,107"/>
+<area shape="rect" id="node9" href="$x86_8h.html" title="include/x86/x86.h" alt="" coords="509,80,633,107"/>
+<area shape="rect" id="node11" href="$keyboard_8c.html" title="Инициализация клавиатуры " alt="" coords="741,155,852,181"/>
+<area shape="rect" id="node3" href="$main_8c.html" title="Главный модуль ядра " alt="" coords="167,155,277,181"/>
+<area shape="rect" id="node4" href="$gdt_8c.html" title="Инициализация GDT. " alt="" coords="28,155,104,181"/>
+<area shape="rect" id="node6" href="$idt_8c.html" title="Установка таблицы IDT &#45; дескриптеров прерываний " alt="" coords="315,155,387,181"/>
+<area shape="rect" id="node10" href="$irq_8c.html" title="Контроллер прерываний " alt="" coords="645,155,717,181"/>
+<area shape="rect" id="node12" href="$mouse_8c.html" title="x86/mouse.c" alt="" coords="523,155,620,181"/>
 </map>

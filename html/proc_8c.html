@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.11"/>
-<title>OS-PI: Файл proc.c</title>
+<title>OS-PI: Файл portable/proc.c</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -80,33 +80,31 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
 </iframe>
 </div>
 
+<div id="nav-path" class="navpath">
+  <ul>
+<li class="navelem"><a class="el" href="dir_9351dc27d5d245e4d0777b9ea98f52d2.html">portable</a></li>  </ul>
+</div>
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#define-members">Макросы</a> &#124;
 <a href="#func-members">Функции</a> &#124;
 <a href="#var-members">Переменные</a>  </div>
   <div class="headertitle">
 <div class="title">Файл proc.c</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><code>#include &quot;<a class="el" href="proc_8h_source.html">proc.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="limits_8h_source.html">limits.h</a>&quot;</code><br />
+<div class="textblock"><code>#include &lt;<a class="el" href="proc_8h_source.html">portable/proc.h</a>&gt;</code><br />
+<code>#include &lt;<a class="el" href="limits_8h_source.html">portable/limits.h</a>&gt;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Граф включаемых заголовочных файлов для proc.c:</div>
 <div class="dyncontent">
-<div class="center"><img src="proc_8c__incl.png" border="0" usemap="#proc_8c" alt=""/></div>
-<map name="proc_8c" id="proc_8c">
-<area shape="rect" id="node2" href="proc_8h.html" title="proc.h" alt="" coords="5,80,64,107"/>
-<area shape="rect" id="node3" href="limits_8h.html" title="limits.h" alt="" coords="88,80,152,107"/>
+<div class="center"><img src="proc_8c__incl.png" border="0" usemap="#portable_2proc_8c" alt=""/></div>
+<map name="portable_2proc_8c" id="portable_2proc_8c">
+<area shape="rect" id="node2" href="proc_8h.html" title="portable/proc.h" alt="" coords="5,80,113,107"/>
+<area shape="rect" id="node3" href="limits_8h.html" title="portable/limits.h" alt="" coords="138,80,253,107"/>
 </map>
 </div>
 </div><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
-Макросы</h2></td></tr>
-<tr class="memitem:a2ac2ebb57daf1d65d690add93280b1a5"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="proc_8c.html#a2ac2ebb57daf1d65d690add93280b1a5">MAX_PROC_AMOUNT</a>&#160;&#160;&#160;256</td></tr>
-<tr class="separator:a2ac2ebb57daf1d65d690add93280b1a5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Функции</h2></td></tr>
 <tr class="memitem:afe33640edf7390a319c1842b226f80b9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="proc_8c.html#afe33640edf7390a319c1842b226f80b9">initProcesses</a> ()</td></tr>
@@ -120,22 +118,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
 Переменные</h2></td></tr>
-<tr class="memitem:a94810dfbd8e5f91d8469e40564998469"><td class="memItemLeft" align="right" valign="top">struct <a class="el" href="structproc.html">proc</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="proc_8c.html#a94810dfbd8e5f91d8469e40564998469">processes</a> [<a class="el" href="proc_8c.html#a2ac2ebb57daf1d65d690add93280b1a5">MAX_PROC_AMOUNT</a>]</td></tr>
+<tr class="memitem:a94810dfbd8e5f91d8469e40564998469"><td class="memItemLeft" align="right" valign="top">struct <a class="el" href="structproc.html">proc</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="proc_8c.html#a94810dfbd8e5f91d8469e40564998469">processes</a> [MAX_PROC_AMOUNT]</td></tr>
 <tr class="separator:a94810dfbd8e5f91d8469e40564998469"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Макросы</h2>
-<a class="anchor" id="a2ac2ebb57daf1d65d690add93280b1a5"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define MAX_PROC_AMOUNT&#160;&#160;&#160;256</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
 <h2 class="groupheader">Функции</h2>
 <a class="anchor" id="a2734b5b6ed0b387da20ece8222ed7775"></a>
 <div class="memitem">
@@ -222,7 +207,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">struct <a class="el" href="structproc.html">proc</a> processes[<a class="el" href="proc_8c.html#a2ac2ebb57daf1d65d690add93280b1a5">MAX_PROC_AMOUNT</a>]</td>
+          <td class="memname">struct <a class="el" href="structproc.html">proc</a> processes[MAX_PROC_AMOUNT]</td>
         </tr>
       </table>
 </div><div class="memdoc">

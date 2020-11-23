@@ -1,7 +1,7 @@
 var searchData=
 [
   ['sbyte',['sbyte',['../types_8h.html#ae1e823357de7a263f2ed95e66b14e66c',1,'types.h']]],
-  ['scrollconsole',['scrollConsole',['../console_8c.html#a76c6902f85817f6510a40da8af440b36',1,'scrollConsole(int n):&#160;console.c'],['../console_8h.html#a76c6902f85817f6510a40da8af440b36',1,'scrollConsole(int n):&#160;console.c']]],
+  ['scrollconsole',['scrollConsole',['../console_8h.html#a76c6902f85817f6510a40da8af440b36',1,'scrollConsole(int n):&#160;console.c'],['../console_8c.html#a76c6902f85817f6510a40da8af440b36',1,'scrollConsole(int n):&#160;console.c']]],
   ['seg_5fcode_5fex',['SEG_CODE_EX',['../gdt_8h.html#ac1a9ddcb90ee8a654ee037aef4acac7e',1,'gdt.h']]],
   ['seg_5fcode_5fexa',['SEG_CODE_EXA',['../gdt_8h.html#af1b224f4d44b35993a9a0d706cdbceea',1,'gdt.h']]],
   ['seg_5fcode_5fexc',['SEG_CODE_EXC',['../gdt_8h.html#aa5e7300613b4de3d0e2304fb08696c87',1,'gdt.h']]],
@@ -19,6 +19,10 @@ var searchData=
   ['seg_5fdata_5frdwrexpd',['SEG_DATA_RDWREXPD',['../gdt_8h.html#a0f0a75f05f9c8280d73ffd9f561d3379',1,'gdt.h']]],
   ['seg_5fdata_5frdwrexpda',['SEG_DATA_RDWREXPDA',['../gdt_8h.html#a5ce09e9e47f301f118d2ea819452b892',1,'gdt.h']]],
   ['selector',['selector',['../structidtGateDescriptor.html#a2c137ec567230f7b626d00eeaba2a811',1,'idtGateDescriptor']]],
+  ['ss',['ss',['../structtss__struct.html#ab787d6ebfb08f8f32797a9851729f813',1,'tss_struct']]],
+  ['ss0',['ss0',['../structtss__struct.html#ac8ec99f04c253a802696e9de1d65fc73',1,'tss_struct']]],
+  ['ss1',['ss1',['../structtss__struct.html#a20eeafbc7a15674d5687134b7a89fbd5',1,'tss_struct']]],
+  ['ss2',['ss2',['../structtss__struct.html#af2173f17b035a858eb1058648b1b065b',1,'tss_struct']]],
   ['stackptr',['stackPtr',['../structproc.html#a6ee38800b859a281309ba1a15a08a630',1,'proc']]],
   ['start_5faddress',['START_ADDRESS',['../mem_8h.html#ad0db2fa7d0c61fadd68de06d7ea2489d',1,'mem.h']]],
   ['state',['state',['../structproc.html#a8a8d2b911aa1db402a5a4bded523c91d',1,'proc']]],
@@ -26,7 +30,7 @@ var searchData=
   ['status_5frunning',['STATUS_RUNNING',['../proc_8h.html#a799b04d03f49612e3e636b56c3972b80',1,'proc.h']]],
   ['status_5fsleeping',['STATUS_SLEEPING',['../proc_8h.html#a7c9fb30a6492edebea310ff2a09ba215',1,'proc.h']]],
   ['status_5fstopping',['STATUS_STOPPING',['../proc_8h.html#a984c0082323689fee6ea8bba1ba14585',1,'proc.h']]],
-  ['sys_5fcall',['sys_call',['../syscall_8c.html#a2229d15c4758f12a0570a0327fe4e9eb',1,'sys_call(int num, int param1, int param2, int param3):&#160;syscall.c'],['../syscall_8h.html#a2229d15c4758f12a0570a0327fe4e9eb',1,'sys_call(int num, int param1, int param2, int param3):&#160;syscall.c']]],
+  ['sys_5fcall',['sys_call',['../syscall_8h.html#a2229d15c4758f12a0570a0327fe4e9eb',1,'sys_call(int num, int param1, int param2, int param3):&#160;syscall.c'],['../syscall_8c.html#a2229d15c4758f12a0570a0327fe4e9eb',1,'sys_call(int num, int param1, int param2, int param3):&#160;syscall.c']]],
   ['sys_5fcall1',['sys_call1',['../syscall_8c.html#a232349af22d269c546bbd939f3a6e3ad',1,'syscall.c']]],
   ['sys_5fcall2',['sys_call2',['../syscall_8c.html#a46dde3bc2d2c2e5011146921632f8562',1,'syscall.c']]],
   ['sys_5fcall3',['sys_call3',['../syscall_8c.html#af05359fd124da35dd39ec1b4cfe7f064',1,'syscall.c']]],

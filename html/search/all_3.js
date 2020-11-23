@@ -10,10 +10,12 @@ var searchData=
   ['codeptr',['codePtr',['../structproc.html#aabd88e6132ca72e95bbfb4d0a6af7cbe',1,'proc']]],
   ['console_2ec',['console.c',['../console_8c.html',1,'']]],
   ['console_2eh',['console.h',['../console_8h.html',1,'']]],
-  ['console_5fclear',['console_clear',['../console_8c.html#a54a293959bd682e2c2ec170f9a50011f',1,'console_clear():&#160;console.c'],['../console_8h.html#a54a293959bd682e2c2ec170f9a50011f',1,'console_clear():&#160;console.c']]],
+  ['console_5fclear',['console_clear',['../console_8h.html#a54a293959bd682e2c2ec170f9a50011f',1,'console_clear():&#160;console.c'],['../console_8c.html#a54a293959bd682e2c2ec170f9a50011f',1,'console_clear():&#160;console.c']]],
   ['console_5fcols',['CONSOLE_COLS',['../console_8h.html#a49e428f77f59742929dafea7443b7c2d',1,'console.h']]],
   ['console_5frows',['CONSOLE_ROWS',['../console_8h.html#ad3d90dd005277d631df532b2f3c7f8b9',1,'console.h']]],
-  ['create_5fdescriptor',['create_descriptor',['../gdt_8c.html#acfe6b847b49de662b158f2cf748aee1f',1,'create_descriptor(uint32_t num, uint32_t base, uint32_t limit, uint8_t access, byte gran):&#160;gdt.c'],['../gdt_8h.html#a6a742fce72fc0bd4d59c9fe635454f6d',1,'create_descriptor(uint32_t, uint32_t, uint32_t, uint8_t, byte):&#160;gdt.c']]],
+  ['cr3',['cr3',['../structtss__struct.html#a6befde0a5b2d557cd1255fb205af6a91',1,'tss_struct']]],
+  ['create_5fdescriptor',['create_descriptor',['../gdt_8h.html#a6a742fce72fc0bd4d59c9fe635454f6d',1,'create_descriptor(uint32_t, uint32_t, uint32_t, uint8_t, byte):&#160;gdt.c'],['../gdt_8c.html#acfe6b847b49de662b158f2cf748aee1f',1,'create_descriptor(uint32_t num, uint32_t base, uint32_t limit, uint8_t access, byte gran):&#160;gdt.c']]],
   ['create_5fvirtual_5fdisk',['create_virtual_disk',['../fs_8c.html#ad4143cec53d520d6eddc1f95bd201138',1,'fs.c']]],
-  ['createproc',['createProc',['../proc_8c.html#a2734b5b6ed0b387da20ece8222ed7775',1,'createProc(unsigned char *codePtr, unsigned char *dataPtr, unsigned char *stackPtr):&#160;proc.c'],['../proc_8h.html#a2734b5b6ed0b387da20ece8222ed7775',1,'createProc(unsigned char *codePtr, unsigned char *dataPtr, unsigned char *stackPtr):&#160;proc.c']]]
+  ['createproc',['createProc',['../proc_8h.html#a2734b5b6ed0b387da20ece8222ed7775',1,'createProc(unsigned char *codePtr, unsigned char *dataPtr, unsigned char *stackPtr):&#160;proc.c'],['../proc_8c.html#a2734b5b6ed0b387da20ece8222ed7775',1,'createProc(unsigned char *codePtr, unsigned char *dataPtr, unsigned char *stackPtr):&#160;proc.c']]],
+  ['cs',['cs',['../structtss__struct.html#ad24c90937b8db730a111db17efe7848d',1,'tss_struct']]]
 ];

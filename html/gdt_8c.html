@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.11"/>
-<title>OS-PI: Файл gdt.c</title>
+<title>OS-PI: Файл x86/gdt.c</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -80,6 +80,10 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
 </iframe>
 </div>
 
+<div id="nav-path" class="navpath">
+  <ul>
+<li class="navelem"><a class="el" href="dir_70ef696279286f8491369e3b59714092.html">x86</a></li>  </ul>
+</div>
 </div><!-- top -->
 <div class="header">
   <div class="summary">
@@ -92,24 +96,24 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
 
 <p>Инициализация GDT.  
 <a href="#details">Подробнее...</a></p>
-<div class="textblock"><code>#include &quot;<a class="el" href="gdt_8h_source.html">gdt.h</a>&quot;</code><br />
+<div class="textblock"><code>#include &lt;<a class="el" href="gdt_8h_source.html">x86/gdt.h</a>&gt;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Граф включаемых заголовочных файлов для gdt.c:</div>
 <div class="dyncontent">
-<div class="center"><img src="gdt_8c__incl.png" border="0" usemap="#gdt_8c" alt=""/></div>
-<map name="gdt_8c" id="gdt_8c">
-<area shape="rect" id="node2" href="gdt_8h.html" title="Header&#45;файл для инициализации в gdt.c. " alt="" coords="13,80,63,107"/>
-<area shape="rect" id="node3" href="types_8h.html" title="types.h" alt="" coords="5,155,71,181"/>
+<div class="center"><img src="gdt_8c__incl.png" border="0" usemap="#x86_2gdt_8c" alt=""/></div>
+<map name="x86_2gdt_8c" id="x86_2gdt_8c">
+<area shape="rect" id="node2" href="gdt_8h.html" title="Header&#45;файл для инициализации в gdt.c. " alt="" coords="25,80,101,107"/>
+<area shape="rect" id="node3" href="types_8h.html" title="portable/types.h" alt="" coords="5,155,120,181"/>
 </map>
 </div>
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Функции</h2></td></tr>
-<tr class="memitem:acfe6b847b49de662b158f2cf748aee1f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gdt_8c.html#acfe6b847b49de662b158f2cf748aee1f">create_descriptor</a> (<a class="el" href="types_8h.html#a435d1572bf3f880d55459d9805097f62">uint32_t</a> num, <a class="el" href="types_8h.html#a435d1572bf3f880d55459d9805097f62">uint32_t</a> <a class="el" href="gdt_8h.html#ab5763c2b18c825c8b8fba44b2e60ddc1">base</a>, <a class="el" href="types_8h.html#a435d1572bf3f880d55459d9805097f62">uint32_t</a> <a class="el" href="gdt_8h.html#a68fd3b4f6c14a331ca9b226cbf122e13">limit</a>, <a class="el" href="types_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> <a class="el" href="gdt_8h.html#a7a3205f563ba31a30efd817ea54561fd">access</a>, <a class="el" href="fs_8c.html#a0c8186d9b9b7880309c27230bbb5e69d">byte</a> <a class="el" href="gdt_8h.html#adc59a36b084b52f4c708428f3df66e6e">gran</a>)</td></tr>
+<tr class="memitem:acfe6b847b49de662b158f2cf748aee1f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gdt_8c.html#acfe6b847b49de662b158f2cf748aee1f">create_descriptor</a> (<a class="el" href="types_8h.html#a435d1572bf3f880d55459d9805097f62">uint32_t</a> num, <a class="el" href="types_8h.html#a435d1572bf3f880d55459d9805097f62">uint32_t</a> <a class="el" href="gdt_8h.html#ab5763c2b18c825c8b8fba44b2e60ddc1">base</a>, <a class="el" href="types_8h.html#a435d1572bf3f880d55459d9805097f62">uint32_t</a> <a class="el" href="gdt_8h.html#a68fd3b4f6c14a331ca9b226cbf122e13">limit</a>, <a class="el" href="types_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> <a class="el" href="gdt_8h.html#a7a3205f563ba31a30efd817ea54561fd">access</a>, <a class="el" href="types_8h.html#a0c8186d9b9b7880309c27230bbb5e69d">byte</a> <a class="el" href="gdt_8h.html#adc59a36b084b52f4c708428f3df66e6e">gran</a>)</td></tr>
 <tr class="separator:acfe6b847b49de662b158f2cf748aee1f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a86bb50044169930202cc403376ef40c3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gdt_8c.html#a86bb50044169930202cc403376ef40c3">init_gdt</a> ()</td></tr>
-<tr class="memdesc:a86bb50044169930202cc403376ef40c3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Инициализация GDT.  <a href="#a86bb50044169930202cc403376ef40c3">Подробнее...</a><br /></td></tr>
-<tr class="separator:a86bb50044169930202cc403376ef40c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad0bbdbb6c098b4227028e3f2a0f13770"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gdt_8c.html#ad0bbdbb6c098b4227028e3f2a0f13770">init_memory</a> ()</td></tr>
+<tr class="memdesc:ad0bbdbb6c098b4227028e3f2a0f13770"><td class="mdescLeft">&#160;</td><td class="mdescRight">Инициализация GDT.  <a href="#ad0bbdbb6c098b4227028e3f2a0f13770">Подробнее...</a><br /></td></tr>
+<tr class="separator:ad0bbdbb6c098b4227028e3f2a0f13770"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
 Переменные</h2></td></tr>
@@ -156,7 +160,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="fs_8c.html#a0c8186d9b9b7880309c27230bbb5e69d">byte</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="types_8h.html#a0c8186d9b9b7880309c27230bbb5e69d">byte</a>&#160;</td>
           <td class="paramname"><em>gran</em>&#160;</td>
         </tr>
         <tr>
@@ -179,12 +183,12 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
 
 </div>
 </div>
-<a class="anchor" id="a86bb50044169930202cc403376ef40c3"></a>
+<a class="anchor" id="ad0bbdbb6c098b4227028e3f2a0f13770"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void init_gdt </td>
+          <td class="memname">void init_memory </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>

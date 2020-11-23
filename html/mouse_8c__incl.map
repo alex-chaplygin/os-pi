@@ -1,4 +1,4 @@
-<map id="mouse.c" name="mouse.c">
-<area shape="rect" id="node2" href="$types_8h.html" title="types.h" alt="" coords="9,155,74,181"/>
-<area shape="rect" id="node3" href="$x86_8h.html" title="x86.h" alt="" coords="47,80,102,107"/>
+<map id="x86/mouse.c" name="x86/mouse.c">
+<area shape="rect" id="node2" href="$x86_8h.html" title="x86/x86.h" alt="" coords="23,80,102,107"/>
+<area shape="rect" id="node3" href="$types_8h.html" title="portable/types.h" alt="" coords="5,155,120,181"/>
 </map>

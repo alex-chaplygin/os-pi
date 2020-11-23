@@ -1,3 +1,4 @@
-<map id="syscall.h" name="syscall.h">
-<area shape="rect" id="node2" href="$dd_8c.html" title="bin/dd.c" alt="" coords="9,80,77,107"/>
+<map id="include/portable/syscall.h" name="include/portable/syscall.h">
+<area shape="rect" id="node2" href="$dd_8c.html" title="bin/dd.c" alt="" coords="5,80,73,107"/>
+<area shape="rect" id="node3" href="$syscall_8c.html" title="Таблица системных вызовов " alt="" coords="97,80,221,107"/>
 </map>
