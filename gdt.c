@@ -29,13 +29,8 @@ int num_segments = GDT_SIZE;
  */
 int add_descriptor(uint32_t num,uint32_t base, uint32_t limit, uint8_t access, byte gran)
 {
-    gdt_entries[num].base_low = (base & 0xFFFF);                       // set base bits 15:0
-    gdt_entries[num].base_middle = (base >> 16) & 0xFF;         // set base bits 23:16
-    gdt_entries[num].base_high =  (base >> 24) & 0xFF;         // set base bits 31:24
-    gdt_entries[num].limit_low = limit  & 0xFFFF;               // set limit bits 15:0
-    gdt_entries[num].gran = (limit >> 16) & 0x0F;
-    gdt_entries[num].gran |= gran & 0xF0;
-    gdt_entries[num].access = access | 0x90; 
+    create_descriptor(num, base, limit, access, gran);
+	gdt_ptr.limit = sizeof(gdt_entry_t)*5 - 1;
     load_gdt((uint32_t)&gdt_ptr);
     return num;
 }
@@ -47,13 +42,9 @@ int add_descriptor(uint32_t num,uint32_t base, uint32_t limit, uint8_t access, b
  */
 void remove_descriptor(int num)
 {
-    gdt_entries[num].base_low = 0x0;                     
-    gdt_entries[num].base_middle = 0x0;      
-    gdt_entries[num].base_high =  0x0;      
-    gdt_entries[num].limit_low = 0x0;            
-    gdt_entries[num].gran = 0x0;
-    gdt_entries[num].gran = 0x0;
-    gdt_entries[num].access = 0x0; 
+    create_descriptor(num, 0, 0, 0, 0);
+	gdt_entries[num].access = 0;
+	gdt_ptr.limit = sizeof(gdt_entry_t)*5 - 1;
     load_gdt((uint32_t)&gdt_ptr);
 }
 
@@ -66,7 +57,7 @@ void remove_descriptor(int num)
  * @param access Флаг доступа к сегменту
  * @param gran Гранулярность
  */
-void create_descriptor(uint32_t num,uint32_t base, uint32_t limit, uint8_t access, byte gran)
+void create_descriptor(uint32_t num, uint32_t base, uint32_t limit, uint8_t access, byte gran)
 { 
     gdt_entries[num].base_low = (base & 0xFFFF);                       // set base bits 15:0
     gdt_entries[num].base_middle = (base >> 16) & 0xFF;         // set base bits 23:16
