@@ -25,5 +25,5 @@ int deleteProc(unsigned int pid);
 // возвращает pid созданного процесса
 int createProc(unsigned char* codePtr, unsigned char* dataPtr, unsigned char* stackPtr);
 
-
+void sheduler();
 
