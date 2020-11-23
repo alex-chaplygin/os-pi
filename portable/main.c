@@ -12,9 +12,9 @@
 #include <portable/libc.h>
 #include <portable/mem.h>
 #include <x86/idt.h>
-#include <x86/timer.h>
+#include <portable/timer.h>
 #include <x86/irq.h>
-#include <x86/keyboard.h>
+#include <portable/keyboard.h>
 #include <x86/mouse.h>
 #include <x86/gdt.h>
 
@@ -27,8 +27,7 @@ extern void test_syscall();
 void kmain(void)
 {
   init_memory();
-  init_interrupts(0x20, 0x28);
-  init_interrupt_handlers();
+  init_interrupts();
   
   init_timer(10);
   console_clear();
