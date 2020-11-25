@@ -28,7 +28,6 @@ void kmain(void)
 {
   init_memory();
   init_interrupts();
-  
   init_timer(10);
   console_clear();
   //  init_keyboard();

@@ -54,12 +54,13 @@ struct gdt_ptr_struct {
 typedef struct gdt_ptr_struct gdt_ptr_t;
 
 /** 
- * Создаёт дескриптор/запись GDT
+ * Создание дескриптора сегмента
  * 
- * @param num Номер записи
- * @param base База
- * @param limit Селектор
- * @param flag Доступ
+ * @param uint32_t Селектор сегмента
+ * @param uint32_t Базовый адрес сегмента
+ * @param uint32_t Предельный адрес сегмента
+ * @param uint8_t Флаг доступа к сегменту
+ * @param byte Гранулярность
  */
 void create_descriptor(uint32_t, uint32_t, uint32_t, uint8_t, byte);
 
@@ -68,4 +69,27 @@ void create_descriptor(uint32_t, uint32_t, uint32_t, uint8_t, byte);
  * 
  */
 void init_memory();
+
+/** 
+ * добавляет сегмент в GDT под очередным номером и перезагружает GDT
+ * 
+ * @param uint32_t Селектор сегмента
+ * @param uint32_t Базовый адрес сегмента
+ * @param uint32_t Предельный адрес сегмента
+ * @param uint8_t Флаг доступа к сегменту
+ * @param byte Гранулярность
+ * 
+ * @return Селектор сегмента
+ */
+int add_descriptor(uint32_t, uint32_t, uint8_t, byte);
+
+/** 
+ * удаляет сегмент в GDT и перезагружает GDT
+ * 
+ * @param int Селектор сегмента
+ */
+void remove_descriptor(int);
+
 extern void load_gdt(u32int);
+/// количество сегментов в GDT
+extern int num_segments;

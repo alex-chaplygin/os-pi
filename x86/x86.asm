@@ -33,7 +33,6 @@ global save_regs, restore_regs
 global read_port, write_port	
 global a_timer
 global a_interrupt_handler
-
 extern kmain, exception_handler, sys_call, timer_event,end_of_interrupt		;this is defined in the c file
 extern interrupt_handler	
 
