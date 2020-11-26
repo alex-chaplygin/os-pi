@@ -102,3 +102,40 @@ char* intToStr(int n)
     //free(c);
     return c;
 }
+
+/** 
+ * 
+ * 
+ * @param s Строка с hex-числом
+ * 
+ * @return hex-число
+ */
+int str_to_hex(char* s)
+{
+    char hexdigitschar[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
+
+    int hexdigitsint[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+
+    int number = 0, digit = 0;
+
+    int tmp;
+
+    for (int i = 0; s[i] != '\0'; i++)
+        digit++;
+
+    for (int i = 0; s[i] != '\0'; i++)
+        for (int j = 0; j < 16; j++)
+            if (s[i] == hexdigitschar[j])
+            {
+                tmp = 1;
+                for (int k = 0; k < digit; k++)
+                    if (k != digit - 1)
+                        tmp *= 16;
+
+                number += hexdigitsint[j] * tmp;
+                digit--;
+                break;
+            }
+
+    return number;
+}
