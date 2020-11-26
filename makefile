@@ -9,7 +9,7 @@ $(SUBDIRS):
 .PHONY:	/bin/kernel $(SUBDIRS)
 
 run:
-	qemu-system-i386 -kernel bin/kernel -m 4M
+	qemu-system-i386 -kernel bin/kernel
 
 debug:
 	qemu-system-i386 -kernel bin/kernel -s -S

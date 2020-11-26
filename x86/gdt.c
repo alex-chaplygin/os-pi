@@ -94,5 +94,5 @@ void init_memory()
     create_descriptor(4, 0, 0xFFFFFFFF, SEG_DATA_RDWR | DPL(3), GRAN_ENABLE);
 
     load_gdt((uint32_t)&gdt_ptr);
-    //mem_init();
+    mem_init();
 }
