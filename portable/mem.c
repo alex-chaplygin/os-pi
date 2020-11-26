@@ -1,6 +1,6 @@
-#include "mem.h"
-#include "console.h"
-#include "libc.h"
+#include "portable/mem.h"
+#include "portable/console.h"
+#include "portable/libc.h"
 /**
  * @file   mem.c
  * @author yri066 <yri066@ubuntu>
@@ -219,7 +219,7 @@ void test_mem(int num_test)
 	    free(a);
             _print_mem();
 	  kprint("2 block\n");
-	  char* a = malloc(100);
+	  char* a1 = malloc(100);
 	  char* a2 = malloc(200);
             _print_mem();
 	    kprint("free\n");
