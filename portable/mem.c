@@ -119,7 +119,6 @@ void *malloc(int size)
     
     if(temp == -1)//если нет ни одного подходящего сегмента
     {
-        kprint("No free memory");
         return 0;
     }
     else//возвращается оставшийся сегмент большего размера
