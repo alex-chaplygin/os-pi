@@ -5,6 +5,9 @@
 
 #define HARD_DISK 0
 
+#define ERROR_NODEVICE -1 /**< нет устройства с таким именем */
+#define ERROR_NOMETHOD -2 /**< пустой указатель на метод */
+
 /// Структура для блочного устройства
 struct block_device {
   /// инициализация устройства
