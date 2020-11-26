@@ -27,8 +27,8 @@ extern void test_syscall();
 void kmain(void)
 {
   init_memory();
-  init_interrupts();
-  init_timer(10);
+  // init_interrupts();
+  // init_timer(10);
   console_clear();
   //  init_keyboard();
   //kprint(intToStr(get_phys_mem_size()));
@@ -54,5 +54,6 @@ void kmain(void)
     kprint("No mouse\n");
   }
   kprint("Result a=%i and x=%d and y=%s and str=%x",19,7,"Result str",26);
+  kprint("\n %x", str_to_hex("1ff"));
    while(1);
  }
