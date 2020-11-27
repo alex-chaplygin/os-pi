@@ -322,9 +322,9 @@ void test_mem(int num_test)
             char* c5 = (char *)malloc(10 * sizeof(char));
             free(c1);
             free(c2);
-            free(c3);
-            free(c4);
-            free(c5);
+	    //            free(c3);
+	    //            free(c4);
+	    //            free(c5);
             _print_mem();
             break;
         }

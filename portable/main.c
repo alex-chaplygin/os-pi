@@ -42,8 +42,7 @@ void kmain(void)
   //  kprint("\n");
   // }
   
-  kprint(int_to_str_hex(255));
-  kprint("\n");
+  test_mem(8);
   
   //test_syscall();
   
