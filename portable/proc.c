@@ -1,17 +1,18 @@
 #include <portable/proc.h>
 #include <portable/limits.h>
 
-
 struct proc processes[MAX_PROC_AMOUNT];
+struct proc *current_proc;
 
 void initProcesses(){
     for (int i = 0; i < MAX_PROC_AMOUNT; i++)
     {
         processes[i].pid = -1;
-        processes[i].state = STATUS_INIT;
+        processes[i].state = STATUS_READY;
         processes[i].codePtr = 0;
         processes[i].dataPtr = 0;
         processes[i].stackPtr = 0;
+	processes[i].buffer = 0;
     } 
 }
 
@@ -44,7 +45,7 @@ int createProc(unsigned char* codePtr, unsigned char* dataPtr, unsigned char* st
 
 
     processes[freeSlot].pid = freeSlot;
-    processes[freeSlot].state = STATUS_RUNNING;
+    processes[freeSlot].state = STATUS_READY;
     processes[freeSlot].codePtr = codePtr;
     processes[freeSlot].dataPtr = dataPtr;
     processes[freeSlot].stackPtr = stackPtr;
@@ -66,5 +67,21 @@ int deleteProc(unsigned int pid){
  */
 void sheduler()
 {
+  for(int i = 0; i < MAX_PROC_AMOUNT; i++)
+    {
+      *current_proc = processes[i];
+      if(current_proc->state == STATUS_READY)
+	if(i != 0)
+	  {
+	    current_proc->state = STATUS_RUNNING;
+	    processes[i - 1].state = STATUS_READY;
+	    break;
+	  }
+	else
+	  {
+	    current_proc->state = STATUS_RUNNING;
+	    break;
+	  }
+    }
 }
 

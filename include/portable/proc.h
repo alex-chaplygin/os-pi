@@ -1,4 +1,4 @@
-#define STATUS_INIT 0
+#define STATUS_READY 0
 #define STATUS_RUNNING 1
 #define STATUS_SLEEPING 2
 #define STATUS_STOPPING 3
@@ -10,6 +10,7 @@ struct proc {
     unsigned char*  codePtr;
     unsigned char*  dataPtr;
     unsigned char*  stackPtr;
+    int buffer;
 };
 
 // инициализирует хранилище процессов
