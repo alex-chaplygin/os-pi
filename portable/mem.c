@@ -143,13 +143,11 @@ void free(void *addr)
         {
             
             mem[i].freedom = 0;
-            if(i == segment_count - 1 && segment_count > 1)//если удаляется последний используемый сегмент, уменьщается кол-во сегментов
-            {
-                segment_count--;
-            }
+            
             
             if(i != 0 && i != MAX_SEGMENTS - 1)//проверяет на пустоту крайние ячейки
             {
+                
                 if((int*)mem[1+i].freedom == 0)//соединяет текущий и следующий сегмент
                 {
                     mem[i].mem_size += mem[i+1].mem_size;
@@ -158,6 +156,11 @@ void free(void *addr)
                     {
                         segment_count--;
                     }
+                }
+                
+                if(i == segment_count - 1 && segment_count > 1)//если удаляется последний используемый сегмент, уменьщается кол-во сегментов
+                {
+                    segment_count--;
                 }
                 
                 int temp = i;
@@ -189,13 +192,28 @@ void free(void *addr)
 			
             if(i == MAX_SEGMENTS - 1 && (int*)mem[i-1].freedom == 0)//проверяет на пустоту предыдущую ячейку
             {
+                
                 if(i == segment_count - 1 && segment_count > 1)//если удаляется последний используемый сегмент, уменьщается кол-во сегментов
                 {
                     segment_count--;
                 }
-                
                 mem[i-1].mem_size += mem[i].mem_size;
                 mem[i].mem_size = 0;
+                
+                int temp = i;
+                
+                while(temp > 0 && (int*)mem[temp-1].freedom == 0)//соединяет последний сегмент c предыдущими сегментами
+                {
+                    
+                    if(temp == segment_count - 1 && segment_count > 1)//если удаляется последний используемый сегмент, уменьщается кол-во сегментов
+                    {
+                        segment_count--;
+                    }
+                    mem[temp-1].mem_size += mem[temp].mem_size;
+                    mem[temp].mem_size = 0;
+                    temp--;
+                }
+                
             }
             break;
         }
@@ -394,6 +412,37 @@ void test_mem(int num_test)
             free(c2);
             char* c3 = (char *)malloc(15 * sizeof(char));
             char* c4 = (char *)malloc(10 * sizeof(char));
+            _print_mem();
+            break;
+        }
+        case 16:{
+            /*for(int i = 0; i < MAX_SEGMENTS - 4; i++)
+            {
+                char* c = (char *)malloc(1551 * sizeof(char));
+            }
+            char* c1 = (char *)malloc(10 * sizeof(char));
+            char* c2 = (char *)malloc(10 * sizeof(char));
+            char* c3 = (char *)malloc(15 * sizeof(char));
+            char* c4 = (char *)malloc(10 * sizeof(char));
+            free(c1);
+            free(c2);
+            free(c3);
+            free(c4);*/
+            int students[1024];
+            for(int i = 0; i < 1024; i++)//Заполнить все сегменты памяти
+            {
+                students[i] = (int)malloc(sizeof(int));
+            }
+            _print_mem();
+            kprint("free\n");
+            for(int i = 3; i < 1024; i++)//Освободить все сегменты памяти кроме первых 3
+            {
+                free((int *)students[i]);
+            }
+            _print_mem();
+            kprint("add 2 blocks\n");
+            char* a1 = malloc(100);
+            char* a2 = malloc(200);
             _print_mem();
             break;
         }
