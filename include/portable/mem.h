@@ -5,3 +5,4 @@
 void mem_init(); 
 void *malloc(int size);
 void free(void *addr);
+void test_mem(int num_test);
