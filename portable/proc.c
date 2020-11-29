@@ -12,7 +12,7 @@ void initProcesses(){
         processes[i].codePtr = 0;
         processes[i].dataPtr = 0;
         processes[i].stackPtr = 0;
-	processes[i].buffer = 0;
+	processes[i].buffer[BUFFER_SIZE] = 0;
     } 
 }
 
@@ -69,16 +69,17 @@ void sheduler()
 {
   for(int i = 0; i < MAX_PROC_AMOUNT; i++)
     {
-      *current_proc = processes[i];
-      if(current_proc->state == STATUS_READY)
+      if(processes[i].state == STATUS_READY)
 	if(i != 0)
 	  {
+	    *current_proc = processes[i];
 	    current_proc->state = STATUS_RUNNING;
 	    processes[i - 1].state = STATUS_READY;
 	    break;
 	  }
 	else
 	  {
+	    *current_proc = processes[i];
 	    current_proc->state = STATUS_RUNNING;
 	    break;
 	  }
