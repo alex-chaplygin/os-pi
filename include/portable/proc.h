@@ -1,19 +1,22 @@
 #include <portable/types.h>
 
-#define STATUS_READY 0
-#define STATUS_RUNNING 1
-#define STATUS_SLEEPING 2
-#define STATUS_STOPPING 3
-#define BUFFER_SIZE 64
+#define STATUS_READY 0		/**< состояние "процесс готов" */
+#define STATUS_RUNNING 1	/**< состояние "процесс запущен" */
+#define STATUS_SLEEPING 2	/**< состояние "процесс заморожен" */
+#define STATUS_STOPPING 3	/**< состояние "процесс остановлен" */
+#define BUFFER_SIZE 64		/**< размер буфера регистров процесса */
 
-//pid, состояние, адрес кода, адрес данных, адрес стека.
+/** 
+ * структура процесса
+ * pid - айди процесса, state - состояние, codePtr - адрес кода, dataPtr - адрес данных, stackPtr - адрес стека
+ */
 struct proc {
     int pid;
     int state;
     unsigned char*  codePtr;
     unsigned char*  dataPtr;
     unsigned char*  stackPtr;
-    byte buffer[BUFFER_SIZE];
+    byte regs[BUFFER_SIZE];
 };
 
 // инициализирует хранилище процессов
