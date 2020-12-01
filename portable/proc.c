@@ -1,8 +1,8 @@
 #include <portable/proc.h>
 #include <portable/limits.h>
 
-struct proc processes[MAX_PROC_AMOUNT];
-struct proc *current_proc = 0;
+struct proc processes[MAX_PROC_AMOUNT];	/**< Массив процессов. */
+struct proc *current_proc = 0;	/**< Указатель на текущий процесс. */
 
 /** 
  * @brief Инициализация процессов. Устанавливает процессам состояние STATUS_READY.
@@ -99,16 +99,22 @@ void sheduler()
       if(processes[i].state == STATUS_READY)
 	if(current_proc != 0)
 	  {
-	    current_proc->state = STATUS_READY;
-	    current_proc = &processes[i];
-	    current_proc->state = STATUS_RUNNING;
-	    break;
+	    if(processes[i].pid != -1)
+	      {
+		current_proc->state = STATUS_READY;
+		current_proc = &processes[i];
+		current_proc->state = STATUS_RUNNING;
+		break;
+	      }
 	  }
 	else
 	  {
-	    current_proc = &processes[i];
-	    current_proc->state = STATUS_RUNNING;
-	    break;
+	    if(processes[i].pid != -1)
+	      {
+		current_proc = &processes[i];
+		current_proc->state = STATUS_RUNNING;
+		break;
+	      }
 	  }
     }
 }
