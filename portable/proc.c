@@ -1,5 +1,6 @@
 #include <portable/proc.h>
 #include <portable/limits.h>
+#include <portable/console.h>
 
 struct proc processes[MAX_PROC_AMOUNT];	/**< Массив процессов. */
 struct proc *current_proc = 0;	/**< Указатель на текущий процесс. */
@@ -18,7 +19,10 @@ void initProcesses(){
         processes[i].stackPtr = 0;
 	for(int j = 0; j < BUFFER_SIZE; j++)
 	  processes[i].regs[j] = 0;
-    } 
+    }
+
+    int pid1 = createProc(0, 0, 0);
+    int pid2 = createProc(0, 0, 0);
 }
 
 /** 
@@ -104,6 +108,7 @@ void sheduler()
 		current_proc->state = STATUS_READY;
 		current_proc = &processes[i];
 		current_proc->state = STATUS_RUNNING;
+		kprint("pid = %d, status = %d\n", current_proc->pid, current_proc->state);
 		break;
 	      }
 	  }
@@ -113,6 +118,7 @@ void sheduler()
 	      {
 		current_proc = &processes[i];
 		current_proc->state = STATUS_RUNNING;
+		kprint("pid = %d, status = %d\n", current_proc->pid, current_proc->state);
 		break;
 	      }
 	  }
