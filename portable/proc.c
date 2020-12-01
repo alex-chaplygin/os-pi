@@ -2,8 +2,12 @@
 #include <portable/limits.h>
 
 struct proc processes[MAX_PROC_AMOUNT];
-struct proc *current_proc;
+struct proc *current_proc = 0;
 
+/** 
+ * @brief Инициализация процессов. Устанавливает процессам состояние STATUS_READY.
+ * 
+ */
 void initProcesses(){
     for (int i = 0; i < MAX_PROC_AMOUNT; i++)
     {
@@ -12,10 +16,18 @@ void initProcesses(){
         processes[i].codePtr = 0;
         processes[i].dataPtr = 0;
         processes[i].stackPtr = 0;
-	processes[i].regs[BUFFER_SIZE] = 0;
+	for(int j = 0; j < BUFFER_SIZE; j++)
+	  processes[i].regs[j] = 0;
     } 
 }
 
+/** 
+ * @brief Функция проверки свободен ли айди процесса.
+ * 
+ * @param pid Проверяемый айди процесса.
+ * 
+ * @return -1 если проверяемый айди неверный, 1 если проверяемый айди свободен, 0 если занят.
+ */
 int isFree(unsigned int pid){
     if (pid < 0 || pid > MAX_PROC_AMOUNT){
         return -1;
@@ -28,7 +40,15 @@ int isFree(unsigned int pid){
     }
 }
 
-// возвращает pid
+/** 
+ * @brief Функция создния процесса.
+ * 
+ * @param codePtr адрес кода.
+ * @param dataPtr адрес данных.
+ * @param stackPtr адрес стека.
+ * 
+ * @return возвращает айди созданного процесса.
+ */
 int createProc(unsigned char* codePtr, unsigned char* dataPtr, unsigned char* stackPtr){
     int freeSlot = -1;
     
@@ -52,6 +72,13 @@ int createProc(unsigned char* codePtr, unsigned char* dataPtr, unsigned char* st
     
 }
 
+/** 
+ * @brief Функция удаления существующего процесса.
+ * 
+ * @param pid айди процесса.
+ * 
+ * @return -1 если pid неверный, 0 если pid освобожден.
+ */
 int deleteProc(unsigned int pid){
     if(pid < 0 || pid > MAX_PROC_AMOUNT){
         return -1;
@@ -62,19 +89,19 @@ int deleteProc(unsigned int pid){
 }
 
 /** 
- * Планировщик задач.
- * Переключает контекст на новый процесс при необходимости.
+ * @brief Планировщик задач. Переключает контекст на новый процесс при необходимости.
+ * 
  */
 void sheduler()
 {
   for(int i = 0; i < MAX_PROC_AMOUNT; i++)
     {
       if(processes[i].state == STATUS_READY)
-	if(i != 0)
+	if(current_proc != 0)
 	  {
+	    current_proc->state = STATUS_READY;
 	    current_proc = &processes[i];
 	    current_proc->state = STATUS_RUNNING;
-	    processes[i - 1].state = STATUS_READY;
 	    break;
 	  }
 	else
