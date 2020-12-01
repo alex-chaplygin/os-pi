@@ -42,8 +42,12 @@ void kmain(void)
   //  kprint("\n");
   // }
   
-  kprint(int_to_str_hex(255));
-  kprint("\n");
+  //for(int i =1; i<10;i++)
+  //test_mem(i);
+  for(int i = 16; i<=22;i++)
+  {
+    test_mem(i);
+  }
   
   //test_syscall();
   

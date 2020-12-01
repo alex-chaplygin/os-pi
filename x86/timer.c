@@ -44,6 +44,6 @@ void init_timer(int frequency)
  * 
  */
 void timer_event(){
-  kprint("1");
+  //  kprint("1");
 }
 
