@@ -6,17 +6,14 @@
 #define STATUS_STOPPING 3	/**< состояние "процесс остановлен" */
 #define BUFFER_SIZE 64		/**< размер буфера регистров процесса */
 
-/** 
- * структура процесса
- * pid - айди процесса, state - состояние, codePtr - адрес кода, dataPtr - адрес данных, stackPtr - адрес стека
- */
+/// структура процесса
 struct proc {
-    int pid;
-    int state;
-    unsigned char*  codePtr;
-    unsigned char*  dataPtr;
-    unsigned char*  stackPtr;
-    byte regs[BUFFER_SIZE];
+    int pid;			/**< айди процесса */
+    int state;			/**< состояние */
+    unsigned char*  codePtr;	/**< адрес кода */
+    unsigned char*  dataPtr;	/**< адрес данных */
+    unsigned char*  stackPtr;	/**< адрес стека */
+    byte regs[BUFFER_SIZE];	/**< буфер регистров */
 };
 
 // инициализирует хранилище процессов
