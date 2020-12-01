@@ -42,7 +42,12 @@ void kmain(void)
   //  kprint("\n");
   // }
   
-  test_mem(8);
+  //for(int i =1; i<10;i++)
+  //test_mem(i);
+  for(int i = 16; i<=22;i++)
+  {
+    test_mem(i);
+  }
   
   //test_syscall();
   
