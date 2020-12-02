@@ -4,6 +4,7 @@
 
 struct proc processes[MAX_PROC_AMOUNT];	/**< Массив процессов. */
 struct proc *current_proc = 0;	/**< Указатель на текущий процесс. */
+int current_proc_numb = 0;	/**< Номер текущего процесса */
 
 /** 
  * @brief Инициализация процессов. Устанавливает процессам состояние STATUS_READY.
@@ -23,6 +24,8 @@ void initProcesses(){
 
     int pid1 = createProc(0, 0, 0);
     int pid2 = createProc(0, 0, 0);
+    int pid3 = createProc(0, 0, 0);
+    int pid4 = createProc(0, 0, 0);
 }
 
 /** 
@@ -98,7 +101,7 @@ int deleteProc(unsigned int pid){
  */
 void sheduler()
 {
-  for(int i = 0; i < MAX_PROC_AMOUNT; i++)
+  for(int i = current_proc_numb; i < MAX_PROC_AMOUNT; i++)
     {
       if(processes[i].state == STATUS_READY)
 	if(current_proc != 0)
@@ -108,6 +111,7 @@ void sheduler()
 		current_proc->state = STATUS_READY;
 		current_proc = &processes[i];
 		current_proc->state = STATUS_RUNNING;
+		current_proc_numb = i;
 		kprint("pid = %d, status = %d\n", current_proc->pid, current_proc->state);
 		break;
 	      }
@@ -122,6 +126,11 @@ void sheduler()
 		break;
 	      }
 	  }
+      if(i == MAX_PROC_AMOUNT - 1)
+	{
+	  current_proc_numb = 0;
+	  i = current_proc_numb - 1;
+	}
     }
 }
 
