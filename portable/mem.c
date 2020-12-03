@@ -169,12 +169,6 @@ void _left_offset(int num)
 
 void _right_offset(int num, int size)
 {
-    if(segment_count + 1 == MAX_SEGMENTS && (int)mem[segment_count].freedom == 1)
-    {
-        remaining_memory.mem_size = mem[segment_count].mem_size - size;
-        remaining_memory.address = mem[segment_count].address + size;
-    }
-    
     for(int i = segment_count; i > num + 1; i--)
     {
         mem[i].freedom = mem[i-1].freedom;
