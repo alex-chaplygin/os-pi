@@ -12,6 +12,7 @@
 #include <x86/idt.h>
 #include <x86/irq.h>
 #include <x86/x86.h>
+#include <portable/proc.h>
 
 /** 
  * инициализация таймера с заданной частотой
@@ -44,6 +45,6 @@ void init_timer(int frequency)
  * 
  */
 void timer_event(){
-  //  kprint("1");
+  sheduler();
 }
 

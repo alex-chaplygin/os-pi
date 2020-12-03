@@ -17,6 +17,7 @@
 #include <portable/keyboard.h>
 #include <x86/mouse.h>
 #include <x86/gdt.h>
+#include <portable/proc.h>
 
 extern void test_syscall();
 
@@ -27,8 +28,9 @@ extern void test_syscall();
 void kmain(void)
 {
   init_memory();
-  // init_interrupts();
-  // init_timer(10);
+  init_interrupts();
+  initProcesses();
+  init_timer(10);
   console_clear();
   //  init_keyboard();
   //kprint(intToStr(get_phys_mem_size()));
