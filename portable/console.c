@@ -11,9 +11,13 @@
 
 #include <portable/console.h>
 #include <portable/libc.h>
+#include <portable/types.h>
 
 char *videoptr = (char*)0xb8000;
 int printPtr = 0;
+byte buffer[SCREEN_BUFFER_SIZE] = {0};
+int current_screen_pos = 0;
+int current_screen_numb = 0;
 
 /**
  * @brief Печатает символ в консоль
@@ -38,6 +42,9 @@ void putchar(char c){
       printPtr = (CONSOLE_ROWS-1) * CONSOLE_COLS * 2;
     }
     videoptr[printPtr++] = c;
+    current_screen_numb = SCREEN_NUMBER - 1;
+    current_screen_pos = printPtr + CONSOLE_ROWS * CONSOLE_COLS * 2 * current_screen_numb;
+    buffer[current_screen_pos] = c;
     //printPtr++;
     videoptr[printPtr++] = 0x07;
   }
@@ -46,6 +53,34 @@ void putchar(char c){
   
   //   str++;
   // }
+}
+
+void copy_to_screen()
+{
+  current_screen_pos = current_screen_numb * CONSOLE_ROWS * CONSOLE_COLS * 2;
+  memcpy(videoptr, buffer[current_screen_pos], CONSOLE_ROWS * CONSOLE_COLS * 2);
+}
+
+void screen_up()
+{
+  if(current_screen_numb == SCREEN_NUMBER - 1)
+    return;
+  else
+    {
+      current_screen_numb++;
+      copy_to_screen();
+    }
+}
+
+void screen_down()
+{
+  if(current_screen_numb == 0)
+    return;
+  else
+    {
+      current_screen_numb--;
+      copy_to_screen();
+    }
 }
 
 /**
