@@ -27,10 +27,10 @@ extern void test_syscall();
  */
 void kmain(void)
 {
-  init_memory();
-  init_interrupts();
-  initProcesses();
-  init_timer(10);
+  //  init_memory();
+  // init_interrupts();
+  // initProcesses();
+  // init_timer(10);
   console_clear();
   //  init_keyboard();
   //kprint(intToStr(get_phys_mem_size()));
@@ -46,10 +46,10 @@ void kmain(void)
   
   //for(int i =1; i<10;i++)
   //test_mem(i);
-  for(int i = 16; i<=22;i++)
-  {
-    test_mem(i);
-  }
+  // for(int i = 16; i<=22;i++)
+  // {
+  //   test_mem(i);
+  // }
   
   //test_syscall();
   
@@ -60,6 +60,7 @@ void kmain(void)
     kprint("No mouse\n");
   }
   kprint("Result a=%i and x=%d and y=%s and str=%x",19,7,"Result str",26);
-  kprint("\n %x", str_to_hex("1ff"));
+  kprint("\n %x", str_hex_to_int("1ff"));
+  kprint("\n %s", int_to_str_hex(228));
    while(1);
  }
