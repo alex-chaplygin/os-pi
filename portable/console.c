@@ -90,14 +90,14 @@ void kprint(char *str,...){
       
     if(symbol=='%' && next_symbol=='i'){
       int *param = (int *)&str;
-      char *param_int = intToStr(*(param + u));      
+      char *param_int = int_to_str(*(param + u));      
       kprint(param_int);
       i++;
       u++;
     }
     else if(symbol=='%' && next_symbol=='d'){
       int *param = (int *)&str;
-      char *param_int = intToStr(*(param + u));      
+      char *param_int = int_to_str(*(param + u));      
       kprint(param_int);
       i++;
       u++;
