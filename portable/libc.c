@@ -26,13 +26,13 @@ void memcpy(unsigned char* destptr, unsigned char* srcptr, int num ){
 
 /**
  * @brief Переводит положительное 
-// целое число в шестнадцатиричную строку типа 0 = 0x0
+// целое число в шестнадцатиричную строку типа 15 = f
  * 
- * @param num Положительное целое число от 0 до 2147483647
+ * @param num Положительное беззнаковое целое число от 0 до 4294967295
  * @return char* Указатель на первый символ строки
  */
-char * int_to_str_hex(int num) {
-    if ((num < 0) || (num > 2147483647)) return 0; // Проверка на исключение
+char * int_to_str_hex(unsigned int num) {
+    if ((num < 0) || (num > 4294967295)) return 0; // Проверка на исключение
 
     int numLength = 1;
     int numLengthBuffer = num;
@@ -42,11 +42,9 @@ char * int_to_str_hex(int num) {
     }
     
     char * outbuf = malloc(numLength); // Выделение памяти для возвращаемого значения
-    outbuf[0] = '0'; // Добавление HEX префикса C
-    outbuf[1] = 'x';
     int base = 16; // Возвращаемая система счисления
     int i = 12;
-    int j = 2;
+    int j = 0;
 
     do {
         outbuf[i] = "0123456789abcdef" [num % base];
@@ -68,24 +66,49 @@ char * int_to_str_hex(int num) {
  * @param n Входное число
  * @return char* Указатель на первый символ строки
  */
-char* intToStr(int n)
+char* int_to_str(int n)
 {
     char* c;
-    c = (char *)malloc(10 * sizeof(char)); 
+    int negative = 0;//идентификация отрицательного числа
+
+    if (n < 0)
+    {
+        c = (char*)malloc(11 * sizeof(char));
+        negative = 1;
+    }
+    else
+        c = (char*)malloc(10 * sizeof(char));
+
     for (int i = 0; i < 11; i++)
     {
         c[i] = 0;
     }
-    
-    int v = 0; //количество цифр в числе n
+
+    int v = 0;//количество цифр в числе n
     //разбиваем на отдельные символы число n
+
+    if (n < 0)
+    {
+        n = n * (-1);
+    }
+
     while (n > 9)
     {
         c[v++] = (n % 10) + '0';
         n = n / 10;
     }
-    c[v++] = n + '0';
-    c[v] = '\0';
+
+    if (negative == 1)
+    {
+        c[v++] = n + '0';
+        c[v++] = '-';
+        c[v] = '\0';
+    }
+    else
+    {
+        c[v++] = n + '0';
+        c[v] = '\0';
+    }
     char t;
     //инвертируем массив символов
     for (int i = 0; i < v / 2; i++)
@@ -98,19 +121,19 @@ char* intToStr(int n)
 
     //while (c[v] != '\0')
      //   printf("%c", c[v++]);
-    
+
     //free(c);
     return c;
 }
 
 /** 
- * @brief Переводит шестнадцатиричное число в строке в целое число 
+ * @brief Переводит шестнадцатиричное число в строке в целое беззнаковое число 
  * 
  * @param s Строка с hex-числом
  * 
  * @return hex-число
  */
-int str_to_hex(char* s)
+unsigned int str_hex_to_int(char* s)
 {
     char hexdigitschar[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
 
