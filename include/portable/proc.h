@@ -10,11 +10,15 @@
 struct proc {
     int pid;			/**< айди процесса */
     int state;			/**< состояние */
-    unsigned char*  codePtr;	/**< адрес кода */
+    void (*codePtr)();	        /**< адрес кода */
     unsigned char*  dataPtr;	/**< адрес данных */
     unsigned char*  stackPtr;	/**< адрес стека */
     byte regs[BUFFER_SIZE];	/**< буфер регистров */
 };
+
+void printProc1();
+
+void printProc2();
 
 // инициализирует хранилище процессов
 void initProcesses();
@@ -27,7 +31,7 @@ int deleteProc(unsigned int pid);
 
 // создаёт процесс
 // возвращает pid созданного процесса
-int createProc(unsigned char* codePtr, unsigned char* dataPtr, unsigned char* stackPtr);
+int createProc(void (*codePtr)(), unsigned char* dataPtr);
 
 void sheduler();
 
