@@ -1,3 +1,4 @@
+
 /**
  * @file   device.c
  * @author alex <alex@alex-Inspiron-N5040>
@@ -34,6 +35,17 @@ void init_devices()
  */
 int read_block_device(int device, void *buf, int count)
 {
+  int i = 0;
+  while(i<NUM_BLOCK_DEVICES){
+    if(*(block_devices->read + i)==0){
+      i++;
+      if(i==NUM_BLOCK_DEVICES){return ERROR_NOMETHOD;}
+    }
+    else{
+      init_devices();
+      return 0;
+    }
+  }
 }
 
 /** 
@@ -47,6 +59,17 @@ int read_block_device(int device, void *buf, int count)
  */
 int write_block_device(int device, void *buf, int count)
 {
+  int i = 0;
+  while(i<NUM_BLOCK_DEVICES){
+    if(*(block_devices->write + i)==0){
+      i++;
+     if(i==NUM_BLOCK_DEVICES){return ERROR_NOMETHOD;}
+    }
+    else{
+      init_devices();
+      return 0;
+    }
+  }
 }
 
 /** 
@@ -59,6 +82,17 @@ int write_block_device(int device, void *buf, int count)
  */
 int seek_block_device(int device, int pos)
 {
+  int i = 0;
+  while(i<NUM_BLOCK_DEVICES){
+    if(*(block_devices->seek + i)==0){
+      i++;
+      if(i==NUM_BLOCK_DEVICES){return ERROR_NOMETHOD;}
+    }
+    else{
+      init_devices();
+      return 0;
+    }
+  }
 }
 
 /** 
@@ -71,6 +105,17 @@ int seek_block_device(int device, int pos)
  */
 int read_sym_device(int device, byte *b)
 {
+  int i = 0;
+  while(i<NUM_SYMBOLIC_DEVICES){
+    if(*(symbolic_devices->read + i)==0){
+      i++;
+      if(i==NUM_BLOCK_DEVICES){return ERROR_NOMETHOD;}
+    }
+    else{
+      init_devices();
+      return 0;
+    }
+  }
 }
 
 /** 
@@ -83,4 +128,15 @@ int read_sym_device(int device, byte *b)
  */
 int write_sym_device(int device, byte b)
 {
+  int i = 0;
+  while(i<NUM_SYMBOLIC_DEVICES){
+    if(*(symbolic_devices->write + i)==0){
+      i++;
+      if(i==NUM_BLOCK_DEVICES){return ERROR_NOMETHOD;}
+    }
+    else{
+      init_devices();
+      return 0;
+    }
+  }
 }
