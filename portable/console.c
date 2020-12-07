@@ -15,9 +15,48 @@
 
 char *videoptr = (char*)0xb8000;
 int printPtr = 0;
-byte buffer[SCREEN_BUFFER_SIZE] = {0};
-int current_screen_pos = 0;
-int current_screen_numb = 0;
+byte buffer[BUFFER_SIZE] = {0};	/**< Буфер экранов */
+int current_screen_pos = 0;	/**< Текущая позиция на экране */
+
+/** 
+ * @brief Копирует экран из буфера в видеопамять
+ * 
+ */
+void copy_to_screen()
+{
+  byte *bufferptr = &buffer[current_screen_pos];
+  memcpy(videoptr, bufferptr, CONSOLE_ROWS * CONSOLE_COLS * 2);
+}
+
+/** 
+ * @brief Переключает экран на следующий
+ * 
+ */
+void screen_up()
+{
+  if(current_screen_pos + SHIFT > BUFFER_SIZE)
+    return;
+  else
+    {
+      current_screen_pos += SHIFT;
+      copy_to_screen();
+    }
+}
+
+/** 
+ * @brief Переключает экран на предыдущий
+ * 
+ */
+void screen_down()
+{
+  if(current_screen_pos - SHIFT < 0)
+    return;
+  else
+    {
+      current_screen_pos -= SHIFT;
+      copy_to_screen();
+    }
+}
 
 /**
  * @brief Печатает символ в консоль
@@ -38,13 +77,11 @@ void putchar(char c){
   } else {
     if (printPtr/2 >= CONSOLE_ROWS * CONSOLE_COLS){
       //printPtr = 0;
-      scrollConsole(1);
+      screen_down();
       printPtr = (CONSOLE_ROWS-1) * CONSOLE_COLS * 2;
     }
     videoptr[printPtr++] = c;
-    current_screen_numb = SCREEN_NUMBER - 1;
-    current_screen_pos = printPtr + CONSOLE_ROWS * CONSOLE_COLS * 2 * current_screen_numb;
-    buffer[current_screen_pos] = c;
+    buffer[current_screen_pos + printPtr] = c;
     //printPtr++;
     videoptr[printPtr++] = 0x07;
   }
@@ -55,33 +92,7 @@ void putchar(char c){
   // }
 }
 
-void copy_to_screen()
-{
-  current_screen_pos = current_screen_numb * CONSOLE_ROWS * CONSOLE_COLS * 2;
-  memcpy(videoptr, buffer[current_screen_pos], CONSOLE_ROWS * CONSOLE_COLS * 2);
-}
 
-void screen_up()
-{
-  if(current_screen_numb == SCREEN_NUMBER - 1)
-    return;
-  else
-    {
-      current_screen_numb++;
-      copy_to_screen();
-    }
-}
-
-void screen_down()
-{
-  if(current_screen_numb == 0)
-    return;
-  else
-    {
-      current_screen_numb--;
-      copy_to_screen();
-    }
-}
 
 /**
  * @brief Очищает консоль
