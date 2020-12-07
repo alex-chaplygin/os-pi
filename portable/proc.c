@@ -1,10 +1,23 @@
 #include <portable/proc.h>
 #include <portable/limits.h>
 #include <portable/console.h>
+#include <x86/x86.h>
 
 struct proc processes[MAX_PROC_AMOUNT];	/**< Массив процессов. */
 struct proc *current_proc = 0;	/**< Указатель на текущий процесс. */
 int current_proc_numb = 0;	/**< Номер текущего процесса */
+
+void printProc1()
+{
+  while(1)
+    kprint("Process 1\n");
+}
+
+void printProc2()
+{
+  while(1)
+    kprint("Process 2\n");
+}
 
 /** 
  * @brief Инициализация процессов. Устанавливает процессам состояние STATUS_READY.
@@ -17,15 +30,16 @@ void initProcesses(){
         processes[i].state = STATUS_READY;
         processes[i].codePtr = 0;
         processes[i].dataPtr = 0;
-        processes[i].stackPtr = 0;
+
 	for(int j = 0; j < BUFFER_SIZE; j++)
 	  processes[i].regs[j] = 0;
     }
 
-    int pid1 = createProc(0, 0, 0);
-    int pid2 = createProc(0, 0, 0);
-    int pid3 = createProc(0, 0, 0);
-    int pid4 = createProc(0, 0, 0);
+    void (*message1) () = &printProc1;
+    void (*message2) () = &printProc2;
+
+    int pid1 = createProc(message1, 0);
+    int pid2 = createProc(message2, 0);
 }
 
 /** 
@@ -56,7 +70,7 @@ int isFree(unsigned int pid){
  * 
  * @return возвращает айди созданного процесса.
  */
-int createProc(unsigned char* codePtr, unsigned char* dataPtr, unsigned char* stackPtr){
+int createProc(void (*codePtr)(), unsigned char* dataPtr){
     int freeSlot = -1;
     
     for (int i = 0; i < MAX_PROC_AMOUNT; i++)
@@ -75,8 +89,7 @@ int createProc(unsigned char* codePtr, unsigned char* dataPtr, unsigned char* st
     processes[freeSlot].state = STATUS_READY;
     processes[freeSlot].codePtr = codePtr;
     processes[freeSlot].dataPtr = dataPtr;
-    processes[freeSlot].stackPtr = stackPtr;
-    
+    processes[freeSlot].stackPtr = (unsigned char*)malloc(1024 * sizeof(unsigned char));
 }
 
 /** 
@@ -111,8 +124,8 @@ void sheduler()
 		current_proc->state = STATUS_READY;
 		current_proc = &processes[i];
 		current_proc->state = STATUS_RUNNING;
+		restore_regs(current_proc->regs);
 		current_proc_numb = i;
-		kprint("pid = %d, status = %d\n", current_proc->pid, current_proc->state);
 		break;
 	      }
 	  }
@@ -122,7 +135,7 @@ void sheduler()
 	      {
 		current_proc = &processes[i];
 		current_proc->state = STATUS_RUNNING;
-		kprint("pid = %d, status = %d\n", current_proc->pid, current_proc->state);
+		restore_regs(current_proc->regs);
 		break;
 	      }
 	  }
