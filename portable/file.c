@@ -1,10 +1,4 @@
-void sys_call(int num, int param1, int param2, int param3);
-
-#define ERROR_NOFILE -1		/**< файл не найден */
-#define ERROR_MAXFILE -2	/**< достигнут максимум файлов */
-#define ERROR_ACCESS_DENIED -3	/**< доступ запрещен */
-#define ERROR_INVALID_PARAMETERS -4 /**< неверные параметры */
-#define ERROR_IO -5		/**< ошибка ввода-вывода, аппаратная ошибка */
+#include <portable/syscall.h>
 
 /** 
  * Открытие файла
@@ -13,7 +7,10 @@ void sys_call(int num, int param1, int param2, int param3);
  * 
  * @return идентификатор файла, меньше нуля если ошибка
  */
-int open(char *name);
+int open(char *name)
+{
+  return 0;
+}
 
 /** 
  * Создание файла
@@ -22,7 +19,10 @@ int open(char *name);
  * 
  * @return идентификатор файла, меньше нуля если ошибка
  */
-int create(char *name);
+int create(char *name)
+{
+  return 0;
+}
 
 /** 
  * Закрытие файла
@@ -31,7 +31,10 @@ int create(char *name);
  * 
  * @return 0 - успешно, меньше нуля если ошибка
  */
-int close(int id);
+int close(int id)
+{
+  return 0;
+}
 
 /** 
  * Перемещение позиции в файле
@@ -41,18 +44,10 @@ int close(int id);
  * 
  * @return если offset равен 0, то текущая позиция в файле, иначе 0 - успех, меньше нуля если ошибка
  */
-int seek(int id, int offset);
-
-#define ATTR_REGULAR    1		/**< обычный файл */
-#define ATTR_DIRECTORY 2	/**< директория */
-#define ATTR_DEVICE        3	/**< файл устройство */
-
-/// информация о файле
-struct file_info {
-  int length;			/**< длина файла */
-  int attrib:2;			/**< атрибуты файла */
-  int device_num:8;		/**< номер устройства */
-};
+int seek(int id, int offset)
+{
+  return 0;
+}
 
 /** 
  * Получить информацию о файле
@@ -62,7 +57,10 @@ struct file_info {
  * 
  * @return 0 - успешно, меньше нуля если ошибка
  */
-int fstat(int id, struct file_info *info);
+int fstat(int id, struct file_info *info)
+{
+  return 0;
+}
 
 /** 
  * Установка атрибутов файла
@@ -72,7 +70,10 @@ int fstat(int id, struct file_info *info);
  * 
  * @return 0 - успешно, меньше нуля если ошибка
  */
-int set_attr(int id, int attr);
+int set_attr(int id, int attr)
+{
+  return 0;
+}
 
 /** 
  * Чтение из файла
@@ -83,7 +84,10 @@ int set_attr(int id, int attr);
  * 
  * @return число прочитанных байт, меньше нуля если ошибка
  */
-int read(int id, void *buf, int size);
+int read(int id, void *buf, int size)
+{
+  return 0;
+}
 
 /** 
  * Запись в файл
@@ -94,35 +98,7 @@ int read(int id, void *buf, int size);
  * 
  * @return число записанных байт, меньше нуля если ошибка
  */
-int write(int id, void *buf, int size);
-
-/** 
- * Создание дочернего процесса, копии родительского
- * 
- * 
- * @return для родительского процесса возвращается идентификатор дочернего процесса, -1 - для дочернего
- */
-int fork();
-
-/** 
- * Заменяет текущий процесс на новый
- * 
- * @param name имя исполняемого файла
- * 
- * @return 0 - успешно, меньше нуля если ошибка
- */
-int exec(char *name);
-
-/** 
- * Завершает текущий процесс
- * 
- * @param code код возврата
- */
-void exit(int code);
-
-/** 
- * Ждет завершения процесса
- * 
- * @param id идентификатор процесса
- */
-void wait(int id);
+int write(int id, void *buf, int size)
+{
+  return 0;
+}
