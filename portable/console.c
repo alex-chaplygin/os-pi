@@ -29,31 +29,31 @@ void copy_to_screen()
 }
 
 /** 
- * @brief Переключает экран на следующий
- * 
- */
-void screen_up()
-{
-  if(current_screen_pos + SHIFT > BUFFER_SIZE)
-    return;
-  else
-    {
-      current_screen_pos += SHIFT;
-      copy_to_screen();
-    }
-}
-
-/** 
  * @brief Переключает экран на предыдущий
  * 
  */
-void screen_down()
+void screen_up()
 {
   if(current_screen_pos - SHIFT < 0)
     return;
   else
     {
       current_screen_pos -= SHIFT;
+      copy_to_screen();
+    }
+}
+
+/** 
+ * @brief Переключает экран на следующий
+ * 
+ */
+void screen_down()
+{
+  if(current_screen_pos + SHIFT > BUFFER_SIZE)
+    return;
+  else
+    {
+      current_screen_pos += SHIFT;
       copy_to_screen();
     }
 }
