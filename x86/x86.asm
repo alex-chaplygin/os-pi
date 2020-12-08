@@ -125,6 +125,7 @@ a_timer:
 	push 0
         call end_of_interrupt
         add esp, 4
+	call save_regs
 	iret
 	
 test_syscall:
