@@ -11,9 +11,52 @@
 
 #include <portable/console.h>
 #include <portable/libc.h>
+#include <portable/types.h>
 
 char *videoptr = (char*)0xb8000;
 int printPtr = 0;
+byte buffer[BUFFER_SIZE] = {0};	/**< Буфер экранов */
+int current_screen_pos = 0;	/**< Текущая позиция на экране */
+
+/** 
+ * @brief Копирует экран из буфера в видеопамять
+ * 
+ */
+void copy_to_screen()
+{
+  byte *bufferptr = &buffer[current_screen_pos];
+  memcpy(videoptr, bufferptr, CONSOLE_ROWS * CONSOLE_COLS * 2);
+}
+
+/** 
+ * @brief Переключает экран на предыдущий
+ * 
+ */
+void screen_up()
+{
+  if(current_screen_pos - SHIFT < 0)
+    return;
+  else
+    {
+      current_screen_pos -= SHIFT;
+      copy_to_screen();
+    }
+}
+
+/** 
+ * @brief Переключает экран на следующий
+ * 
+ */
+void screen_down()
+{
+  if(current_screen_pos + SHIFT > BUFFER_SIZE)
+    return;
+  else
+    {
+      current_screen_pos += SHIFT;
+      copy_to_screen();
+    }
+}
 
 /**
  * @brief Печатает символ в консоль
@@ -34,10 +77,11 @@ void putchar(char c){
   } else {
     if (printPtr/2 >= CONSOLE_ROWS * CONSOLE_COLS){
       //printPtr = 0;
-      scrollConsole(1);
+      screen_down();
       printPtr = (CONSOLE_ROWS-1) * CONSOLE_COLS * 2;
     }
     videoptr[printPtr++] = c;
+    buffer[current_screen_pos + printPtr] = c;
     //printPtr++;
     videoptr[printPtr++] = 0x07;
   }
@@ -47,6 +91,8 @@ void putchar(char c){
   //   str++;
   // }
 }
+
+
 
 /**
  * @brief Очищает консоль
