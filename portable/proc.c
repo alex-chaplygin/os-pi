@@ -122,7 +122,7 @@ void sheduler()
 		current_proc->state = STATUS_READY;
 		current_proc = &processes[i];
 		current_proc->state = STATUS_RUNNING;
-		restore_regs(current_proc->regs[0]);
+		restore_regs((int)current_proc->regs);
 		current_proc_numb = i;
 		break;
 	      }
@@ -133,7 +133,7 @@ void sheduler()
 	      {
 		current_proc = &processes[i];
 		current_proc->state = STATUS_RUNNING;
-		restore_regs(current_proc->regs[0]);
+		restore_regs((int)current_proc->regs);
 		break;
 	      }
 	  }
