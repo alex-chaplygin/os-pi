@@ -30,16 +30,14 @@ void initProcesses(){
         processes[i].state = STATUS_READY;
         processes[i].codePtr = 0;
         processes[i].dataPtr = 0;
+	processes[i].stackPtr = 0;
 
 	for(int j = 0; j < BUFFER_SIZE; j++)
 	  processes[i].regs[j] = 0;
     }
 
-    void (*message1) () = &printProc1;
-    void (*message2) () = &printProc2;
-
-    int pid1 = createProc(message1, 0);
-    int pid2 = createProc(message2, 0);
+    int pid1 = createProc(printProc1, 0);
+    int pid2 = createProc(printProc2, 0);
 }
 
 /** 
@@ -70,7 +68,7 @@ int isFree(unsigned int pid){
  * 
  * @return возвращает айди созданного процесса.
  */
-int createProc(void (*codePtr)(), unsigned char* dataPtr){
+int createProc(void* codePtr, void* dataPtr){
     int freeSlot = -1;
     
     for (int i = 0; i < MAX_PROC_AMOUNT; i++)
@@ -89,7 +87,7 @@ int createProc(void (*codePtr)(), unsigned char* dataPtr){
     processes[freeSlot].state = STATUS_READY;
     processes[freeSlot].codePtr = codePtr;
     processes[freeSlot].dataPtr = dataPtr;
-    processes[freeSlot].stackPtr = (unsigned char*)malloc(1024 * sizeof(unsigned char));
+    processes[freeSlot].stackPtr = (void*)malloc(STACK_SIZE);
 }
 
 /** 
@@ -124,7 +122,7 @@ void sheduler()
 		current_proc->state = STATUS_READY;
 		current_proc = &processes[i];
 		current_proc->state = STATUS_RUNNING;
-		restore_regs(current_proc->regs);
+		restore_regs(current_proc->regs[0]);
 		current_proc_numb = i;
 		break;
 	      }
@@ -135,7 +133,7 @@ void sheduler()
 	      {
 		current_proc = &processes[i];
 		current_proc->state = STATUS_RUNNING;
-		restore_regs(current_proc->regs);
+		restore_regs(current_proc->regs[0]);
 		break;
 	      }
 	  }
