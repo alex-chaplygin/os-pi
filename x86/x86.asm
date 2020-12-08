@@ -34,7 +34,8 @@ global read_port, write_port
 global a_timer
 global a_interrupt_handler
 extern kmain, exception_handler, sys_call, timer_event,end_of_interrupt		;this is defined in the c file
-extern interrupt_handler	
+extern interrupt_handler
+extern current_proc	
 
 start:
 	cli 				;block interrupts
@@ -57,25 +58,21 @@ load_gdt:
 
 	;; сохранение регистров
 save_regs:
-	pushf
+	mov [current_proc + 20], esp ; сохраняем указатель стека процесса regs[0]
+	mov esp, current_proc
+	add esp, 24 + 63 * 4		; &regs[63] с этого адреса начинаются сохраненные регистры
+	push eax
 	push ebx
-	mov ebx, [esp + 12]
-	mov [ebx + 0], eax
-	mov [ebx + 4], ecx
-	mov [ebx + 8], edx
-	mov [ebx + 12], ebp
-	mov [ebx + 16], esi
-	mov [ebx + 20], edi
-	mov ax, ds
-	mov [ebx + 24], ax
-	mov ax, es
-	mov [ebx + 26], ax
-	mov eax, [esp + 4]
-	mov [ebx + 28], eax
-	popf
-	mov edx, ebx
-	pop ebx
-	mov [edx + 32], ebx
+	push ecx
+	push edx
+	push esi
+	push edi
+	mov ebx, [current_proc + 20] ; в ebx значение esp
+	mov eax, [ebx + 4]	     ;CS
+	push eax
+	mov eax, [ebx + 8]	     ;IP
+	push eax
+	mov esp, stack_space	; устанавливаем стек ядра
 	ret
 
 	;; восстановление регистров
@@ -121,11 +118,11 @@ a_syscall:
 	iret
 
 a_timer:
+	call save_regs
 	call timer_event
 	push 0
         call end_of_interrupt
         add esp, 4
-	call save_regs
 	iret
 	
 test_syscall:
