@@ -5,15 +5,18 @@
 #define STATUS_SLEEPING 2	/**< состояние "процесс заморожен" */
 #define STATUS_STOPPING 3	/**< состояние "процесс остановлен" */
 #define BUFFER_SIZE 64		/**< размер буфера регистров процесса */
+#define STACK_SIZE 1024		/**< размер стека в байтах */
 
 /// структура процесса
 struct proc {
     int pid;			/**< айди процесса */
     int state;			/**< состояние */
-    unsigned char*  codePtr;	/**< адрес кода */
-    unsigned char*  dataPtr;	/**< адрес данных */
-    unsigned char*  stackPtr;	/**< адрес стека */
-    byte regs[BUFFER_SIZE];	/**< буфер регистров */
+    void* codePtr;	        /**< адрес кода */
+    void* dataPtr;	        /**< адрес данных */
+    void* stackPtr;	        /**< адрес стека */
+  void *program_counter;		/**< счетчик команд */
+  void *stack_pointer;		/**< указатель стека */
+    int regs[BUFFER_SIZE];	/**< буфер регистров */
 };
 
 // инициализирует хранилище процессов
@@ -27,7 +30,7 @@ int deleteProc(unsigned int pid);
 
 // создаёт процесс
 // возвращает pid созданного процесса
-int createProc(unsigned char* codePtr, unsigned char* dataPtr, unsigned char* stackPtr);
+int createProc(void* codePtr, void* dataPtr);
 
 void sheduler();
 
