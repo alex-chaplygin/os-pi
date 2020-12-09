@@ -28,24 +28,14 @@ extern void test_syscall();
 void kmain(void)
 {
   init_memory();
-  init_interrupts();
-  initProcesses();
   init_timer(10);
+  initProcesses();
   console_clear();
+  init_interrupts();
   //  init_keyboard();
   //kprint(intToStr(get_phys_mem_size()));
   // int a = 1 / 0;
-  //kprint("qwerty\n");
-  //kprint("ASDFGHJK\n");
-  //kprint("Azxcvbn\n");
-
-  //  for (int i = 0; i < 60; i++){
-  //  kprint(intToStr(i));
-  //  kprint("\n");
-  // }
-  
-  //for(int i =1; i<10;i++)
-  //test_mem(i);
+ 
   for(int i = 16; i<=22;i++)
   {
     test_mem(i);
@@ -58,8 +48,8 @@ void kmain(void)
     kprint("Mouse detected\n");
   } else {
     kprint("No mouse\n");
-  }
+  } 
   kprint("Result a=%i and x=%d and y=%s and str=%x",19,7,"Result str",26);
   kprint("\n %x", str_to_hex("1ff"));
-   while(1);
+  while(1); // процесс ядра
  }
