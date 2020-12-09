@@ -22,6 +22,27 @@ struct symbolic_device symbolic_devices[NUM_SYMBOLIC_DEVICES] = {0, 0, 0};
  */
 void init_devices()
 {
+  int i=0, a=0;
+  while(i<NUM_BLOCK_DEVICES){
+    if(block_devices[i].init==0){
+      //return ERROR_NODEVICE;
+      i++;
+    }
+    else{
+      block_devices[i].init();
+      i++;
+    } 
+  }
+  while(a<NUM_SYMBOLIC_DEVICES){
+    if(symbolic_devices[a].init==0){
+      //return ERROR_NODEVICE;
+      a++;
+    }
+    else{
+      symbolic_devices[a].init();
+      a++;
+    } 
+  }
 }
 
 /** 
@@ -35,17 +56,13 @@ void init_devices()
  */
 int read_block_device(int device, void *buf, int count)
 {
-  int i = 0;
-  while(i<NUM_BLOCK_DEVICES){
-    if(block_devices[i].read==0){
-      i++;
-      if(i==NUM_BLOCK_DEVICES){return ERROR_NOMETHOD;}
+    if(block_devices[device].read==0){
+      return ERROR_NOMETHOD;
     }
     else{
-      block_devices[i].read(buf,count);
+      block_devices[device].read(buf,count);
       return 0;
     }
-  }
 }
 
 /** 
@@ -59,17 +76,13 @@ int read_block_device(int device, void *buf, int count)
  */
 int write_block_device(int device, void *buf, int count)
 {
-  int i = 0;
-  while(i<NUM_BLOCK_DEVICES){
-    if(block_devices[i].write==0){
-      i++;
-     if(i==NUM_BLOCK_DEVICES){return ERROR_NOMETHOD;}
+    if(block_devices[device].write==0){
+      return ERROR_NOMETHOD;
     }
     else{
-      block_devices[i].write(buf,count);
+      block_devices[device].write(buf,count);
       return 0;
     }
-  }
 }
 
 /** 
@@ -82,17 +95,13 @@ int write_block_device(int device, void *buf, int count)
  */
 int seek_block_device(int device, int pos)
 {
-  int i = 0;
-  while(i<NUM_BLOCK_DEVICES){
-    if(block_devices[i].seek==0){
-      i++;
-      if(i==NUM_BLOCK_DEVICES){return ERROR_NOMETHOD;}
+    if(block_devices[device].seek==0){
+      return ERROR_NOMETHOD;
     }
     else{
-      block_devices[i].seek(pos);
+      block_devices[device].seek(pos);
       return 0;
     }
-  }
 }
 
 /** 
@@ -105,17 +114,13 @@ int seek_block_device(int device, int pos)
  */
 int read_sym_device(int device, byte *b)
 {
-  int i = 0;
-  while(i<NUM_SYMBOLIC_DEVICES){
-    if(symbolic_devices[i].read==0){
-      i++;
-      if(i==NUM_SYMBOLIC_DEVICES){return ERROR_NOMETHOD;}
+    if(symbolic_devices[device].read==0){
+      return ERROR_NOMETHOD;
     }
     else{
-      symbolic_devices[i].read(b);
+      symbolic_devices[device].read(b);
       return 0;
     }
-  }
 }
 
 /** 
@@ -128,15 +133,11 @@ int read_sym_device(int device, byte *b)
  */
 int write_sym_device(int device, byte b)
 {
-  int i = 0;
-  while(i<NUM_SYMBOLIC_DEVICES){
-    if(symbolic_devices[i].write==0){
-      i++;
-      if(i==NUM_SYMBOLIC_DEVICES){return ERROR_NOMETHOD;}
+    if(symbolic_devices[device].write==0){
+      return ERROR_NOMETHOD;
     }
     else{
-      symbolic_devices[i].write(b);
+      symbolic_devices[device].write(b);
       return 0;
     }
-  }
 }
