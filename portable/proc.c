@@ -9,14 +9,13 @@ int current_proc_numb = 0;	/**< Номер текущего процесса */
 
 void printProc1()
 {
-  while(1)
-    kprint("Process 1\n");
-}
-
-void printProc2()
-{
-  while(1)
-    kprint("Process 2\n");
+  ushort *video = (ushort *)0xb8000;
+  int i = 0;
+  while(1) {
+    i++;
+    if (i % 10000) *video = 0xffaa;
+    else *video = 0;
+  }
 }
 
 /** 
@@ -32,12 +31,15 @@ void initProcesses(){
         processes[i].dataPtr = 0;
 	processes[i].stackPtr = 0;
 
-	for(int j = 0; j < BUFFER_SIZE; j++)
+	for(int j = 0; j < BUFFER_SIZE; j++) {
 	  processes[i].regs[j] = 0;
+	}
     }
-
-    int pid1 = createProc(printProc1, 0);
-    int pid2 = createProc(printProc2, 0);
+    processes[0].pid = 0; // процесс ядра
+    processes[0].state = STATUS_RUNNING;
+    current_proc = processes;
+    current_proc_numb = 1;
+    //int pid1 = createProc(printProc1, 0);
 }
 
 /** 
@@ -64,7 +66,6 @@ int isFree(unsigned int pid){
  * 
  * @param codePtr адрес кода.
  * @param dataPtr адрес данных.
- * @param stackPtr адрес стека.
  * 
  * @return возвращает айди созданного процесса.
  */
@@ -82,12 +83,15 @@ int createProc(void* codePtr, void* dataPtr){
     if(freeSlot == -1)
         return -1;
 
-
+    byte *new_stack = (void*)malloc(STACK_SIZE);
     processes[freeSlot].pid = freeSlot;
-    processes[freeSlot].state = STATUS_READY;
     processes[freeSlot].codePtr = codePtr;
     processes[freeSlot].dataPtr = dataPtr;
-    processes[freeSlot].stackPtr = (void*)malloc(STACK_SIZE);
+    processes[freeSlot].stackPtr = new_stack;
+    processes[freeSlot].program_counter = codePtr;
+    processes[freeSlot].stack_pointer = new_stack + STACK_SIZE;
+    processes[freeSlot].state = STATUS_READY;
+    return freeSlot;
 }
 
 /** 
@@ -112,7 +116,17 @@ int deleteProc(unsigned int pid){
  */
 void sheduler()
 {
-  for(int i = current_proc_numb; i < MAX_PROC_AMOUNT; i++)
+  kprint("k");
+  current_proc++;
+  while (current_proc->pid == -1) {
+    if (current_proc >= processes + MAX_PROC_AMOUNT - 1) {
+      current_proc = processes;
+      break;
+    }
+    current_proc++;
+  }
+  restore_regs();
+  /*  for(int i = current_proc_numb; i < MAX_PROC_AMOUNT; i++)
     {
       if(processes[i].state == STATUS_READY)
 	if(current_proc != 0)
@@ -122,8 +136,8 @@ void sheduler()
 		current_proc->state = STATUS_READY;
 		current_proc = &processes[i];
 		current_proc->state = STATUS_RUNNING;
-		restore_regs((int)current_proc->regs);
 		current_proc_numb = i;
+		restore_regs(); // нет возврата отсюда
 		break;
 	      }
 	  }
@@ -133,7 +147,7 @@ void sheduler()
 	      {
 		current_proc = &processes[i];
 		current_proc->state = STATUS_RUNNING;
-		restore_regs((int)current_proc->regs);
+		restore_regs(); // нет возврата отсюда
 		break;
 	      }
 	  }
@@ -141,7 +155,7 @@ void sheduler()
 	{
 	  current_proc_numb = 0;
 	  i = current_proc_numb - 1;
-	}
-    }
+	  }
+	  }*/
 }
 
