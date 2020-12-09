@@ -14,7 +14,9 @@ struct proc {
     void* codePtr;	        /**< адрес кода */
     void* dataPtr;	        /**< адрес данных */
     void* stackPtr;	        /**< адрес стека */
-    byte regs[BUFFER_SIZE];	/**< буфер регистров */
+  void *program_counter;		/**< счетчик команд */
+  void *stack_pointer;		/**< указатель стека */
+    int regs[BUFFER_SIZE];	/**< буфер регистров */
 };
 
 // инициализирует хранилище процессов
