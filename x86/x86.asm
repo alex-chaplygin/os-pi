@@ -34,9 +34,11 @@ global read_port, write_port
 global a_timer
 global a_interrupt_handler
 global disable_interrupts, enable_interrupts
+global a_keyboard_interrupt
 extern kmain, exception_handler, sys_call, timer_event,end_of_interrupt		;this is defined in the c file
 extern interrupt_handler
-extern current_proc	
+extern current_proc
+extern keyboard_interrupt	
 
 start:
 	cli 				;block interrupts
@@ -165,6 +167,10 @@ a_interrupt_handler:
 	;; подтверждение контроллеру прерываний
 	call end_of_interrupt
 	iret
+
+a_keyboard_interrupt:
+	call keyboard_interrupt
+	iretd
 
 %macro exception 1
         cli
