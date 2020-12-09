@@ -13,7 +13,24 @@ void printProc1()
   int i = 0;
   while(1) {
     i++;
-    if (i % 10000) *video = 0xffaa;
+    if (i > 5) {
+      *video = 0xffaa;
+      i = 0;
+    }
+    else *video = 0;
+  }
+}
+
+void printProc2()
+{
+  ushort *video = (ushort *)0xb8020;
+  int i = 0;
+  while(1) {
+    i++;
+    if (i > 5) {
+      *video = 0xaaaa;
+      i = 0;
+    }
     else *video = 0;
   }
 }
@@ -39,7 +56,8 @@ void initProcesses(){
     processes[0].state = STATUS_RUNNING;
     current_proc = processes;
     current_proc_numb = 1;
-    //int pid1 = createProc(printProc1, 0);
+    int pid1 = createProc(printProc1, 0);
+    int pid2 = createProc(printProc2, 0);
 }
 
 /** 
@@ -91,6 +109,8 @@ int createProc(void* codePtr, void* dataPtr){
     processes[freeSlot].program_counter = codePtr;
     processes[freeSlot].stack_pointer = new_stack + STACK_SIZE;
     processes[freeSlot].state = STATUS_READY;
+    processes[freeSlot].regs[54] = 0x8; // CS
+    processes[freeSlot].regs[55] = 0x200; // EFLAGS
     return freeSlot;
 }
 
@@ -158,7 +178,6 @@ void wait(int id)
  */
 void sheduler()
 {
-  kprint("k");
   current_proc++;
   while (current_proc->pid == -1) {
     if (current_proc >= processes + MAX_PROC_AMOUNT - 1) {

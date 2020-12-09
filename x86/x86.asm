@@ -66,23 +66,17 @@ load_gdt:
 save_regs:
 	;; состояние стека:
 	;; [адрес возврата в обрабочик]
-	;; [CS процесса]
 	;; [IP процесса]
+	;; [CS процесса]
+	;; флаги
 	;; -> стек процесса
 	mov [return_esp], esp ; сохраняем указатель стека
 	mov esp, [current_proc]
 	add esp, 28 + 64 * 4		; &regs[63] с этого адреса начинаются сохраненные регистры
-	push eax
-	push ebx
-	push ecx
-	push edx
-	push esi
-	push edi
-	push ebp	
-	pushf
-	mov eax, cr0
-	push eax
+	pusha				; сохранение регистров EAX, ECX, EDX, EBX, ESP, EBP, ESI, EDI
 	mov ebx, [return_esp] ; в ebx значение esp
+	mov eax, [ebx + 12]	     ;EFLAGS
+	push eax		     ; сохраняем флаги
 	mov eax, [ebx + 8]	     ;CS
 	push eax		     ; сохраняем CS
 	mov eax, [ebx + 4]	     ;IP
@@ -90,7 +84,7 @@ save_regs:
 	add esp, 24		;current_proc->program_counter + 4
 	push eax		; созраняем IP
 	mov eax, ebx
-	add eax, 12	; указатель стека процесса
+	add eax, 16	; указатель стека процесса
 	add esp, 8	; esp = current_proc->stack_pointer + 4
 	push eax	; сохраняем esp
 	mov esp, [return_esp]	; устанавливаем стек ядра (возврат в обработчик прерывания)
@@ -106,27 +100,15 @@ restore_regs:
 	add esp, 28 + 64 * 4
 	sub esp, 10 * 4		; восстанавливаем в обратном порядке
 	pop dword [proc_cs]	; CS
-	pop eax			; CR0
-	mov cr0, eax
-	pop dword [proc_flags]	;EFLAGS
-	mov eax, 0x200
-	or [proc_flags], eax	; устанавливаем флаг прерываний
-	pop ebp
-	pop edi
-	pop esi
-	pop edx
-	pop ecx
-	pop ebx
-	pop eax
+	pop dword [proc_flags]	; EFLAGS
+	popa			; восстанавливаем все регистры
 	mov esp, [proc_stack]
 				; установили сохраненное значение стека
 	push dword [proc_flags]
 	push dword [proc_cs]
 	push dword [proc_ip]
 	iretd
-	;; sti
-	;; jmp [proc_ip]		; переключаем контекст
-	;; ret
+				; переключаем контекст
 
 disable_interrupts:
 	cli
@@ -158,10 +140,10 @@ a_syscall:
 
 a_timer:
 	call save_regs
-	call timer_event
 	push 0
         call end_of_interrupt
         add esp, 4
+	call timer_event
 	iret
 	
 test_syscall:

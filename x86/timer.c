@@ -14,6 +14,8 @@
 #include <x86/x86.h>
 #include <portable/proc.h>
 
+int timer_counter = 0;
+
 /** 
  * инициализация таймера с заданной частотой
  * 
@@ -40,11 +42,18 @@ void init_timer(int frequency)
   write_port(0x40, high);
 }
 
+extern int printPtr;
 /**
  * @brief Обработчик срабатывания таймера
  * 
  */
 void timer_event(){
+  timer_counter++;
   sheduler();
+  if (timer_counter == 4) {
+    timer_counter = 0;
+  }
+  printPtr = 0;
+  kprint("counter = %d                   ", timer_counter);
 }
 
