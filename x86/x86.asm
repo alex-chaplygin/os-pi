@@ -33,6 +33,7 @@ global save_regs, restore_regs
 global read_port, write_port	
 global a_timer
 global a_interrupt_handler
+global disable_interrupts, enable_interrupts
 extern kmain, exception_handler, sys_call, timer_event,end_of_interrupt		;this is defined in the c file
 extern interrupt_handler
 extern current_proc	
@@ -48,7 +49,7 @@ start:
 load_idt:
         mov edx, [esp + 4]
 	lidt [edx]
-        sti
+	sti
         ret
 
 load_gdt:
@@ -56,45 +57,83 @@ load_gdt:
 	lgdt [edx]		
         ret
 
+	return_esp dd 0
+	proc_ip dd 0
+	proc_cs dd 0
+	proc_stack dd 0
+	proc_flags dd 0
 	;; сохранение регистров
 save_regs:
-	mov [current_proc + 20], esp ; сохраняем указатель стека процесса regs[0]
-	mov esp, current_proc
-	add esp, 24 + 63 * 4		; &regs[63] с этого адреса начинаются сохраненные регистры
+	;; состояние стека:
+	;; [адрес возврата в обрабочик]
+	;; [CS процесса]
+	;; [IP процесса]
+	;; -> стек процесса
+	mov [return_esp], esp ; сохраняем указатель стека
+	mov esp, [current_proc]
+	add esp, 28 + 64 * 4		; &regs[63] с этого адреса начинаются сохраненные регистры
 	push eax
 	push ebx
 	push ecx
 	push edx
 	push esi
 	push edi
-	mov ebx, [current_proc + 20] ; в ebx значение esp
-	mov eax, [ebx + 4]	     ;CS
+	push ebp	
+	pushf
+	mov eax, cr0
 	push eax
-	mov eax, [ebx + 8]	     ;IP
-	push eax
-	mov esp, stack_space	; устанавливаем стек ядра
+	mov ebx, [return_esp] ; в ebx значение esp
+	mov eax, [ebx + 8]	     ;CS
+	push eax		     ; сохраняем CS
+	mov eax, [ebx + 4]	     ;IP
+	mov esp, [current_proc]
+	add esp, 24		;current_proc->program_counter + 4
+	push eax		; созраняем IP
+	mov eax, ebx
+	add eax, 12	; указатель стека процесса
+	add esp, 8	; esp = current_proc->stack_pointer + 4
+	push eax	; сохраняем esp
+	mov esp, [return_esp]	; устанавливаем стек ядра (возврат в обработчик прерывания)
 	ret
 
 	;; восстановление регистров
 restore_regs:
-	mov ebx, [esp + 4]
-	mov eax, [ebx + 0]
-	mov ecx, [ebx + 4]
-	mov edx, [ebx + 8]
-	mov ebp, [ebx + 12]
-	mov esi, [ebx + 16]
-	mov edi, [ebx + 20]
-	push eax
-	mov ax, [ebx + 24]
-	mov ds, ax
-	mov ax, [ebx + 26]
-	mov es, ax
-	mov eax, [ebx + 28]
-	pop eax
-	push edx
-	mov edx, ebx
-	mov ebx, [edx + 32]
+	mov esp, [current_proc]
+	add esp, 20		; current_proc->program_counter 
+	pop dword [proc_ip]
+	pop dword [proc_stack]			; здесь указатель стека current_proc->stack_pointer
+	mov esp, [current_proc]
+	add esp, 28 + 64 * 4
+	sub esp, 10 * 4		; восстанавливаем в обратном порядке
+	pop dword [proc_cs]	; CS
+	pop eax			; CR0
+	mov cr0, eax
+	pop dword [proc_flags]	;EFLAGS
+	mov eax, 0x200
+	or [proc_flags], eax	; устанавливаем флаг прерываний
+	pop ebp
+	pop edi
+	pop esi
 	pop edx
+	pop ecx
+	pop ebx
+	pop eax
+	mov esp, [proc_stack]
+				; установили сохраненное значение стека
+	push dword [proc_flags]
+	push dword [proc_cs]
+	push dword [proc_ip]
+	iretd
+	;; sti
+	;; jmp [proc_ip]		; переключаем контекст
+	;; ret
+
+disable_interrupts:
+	cli
+	ret
+
+enable_interrupts:
+	sti
 	ret
 
 read_port:
