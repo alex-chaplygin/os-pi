@@ -65,9 +65,6 @@ void screen_down()
  * @param с переданный символ
  */
 void putchar(char c){
-    
-  // while (*str != '\0'){
-
   int currRow = printPtr / 2 / CONSOLE_COLS;
 
   if (c == '\n'){
@@ -76,20 +73,14 @@ void putchar(char c){
             
   } else {
     if (printPtr/2 >= CONSOLE_ROWS * CONSOLE_COLS){
-      //printPtr = 0;
       screen_down();
       printPtr = (CONSOLE_ROWS-1) * CONSOLE_COLS * 2;
     }
-    videoptr[printPtr++] = c;
-    buffer[current_screen_pos + printPtr] = c;
-    //printPtr++;
+    videoptr[printPtr] = c;
+    buffer[current_screen_pos + printPtr++] = c;
+    buffer[current_screen_pos + printPtr] = 0x7;
     videoptr[printPtr++] = 0x07;
   }
-        
-  //videoptr++;
-  
-  //   str++;
-  // }
 }
 
 
