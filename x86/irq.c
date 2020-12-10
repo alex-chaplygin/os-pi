@@ -54,3 +54,10 @@ void end_of_interrupt(unsigned char irq)
  
 	write_port(PIC1_COMMAND,PIC_EOI);
 }
+
+void enable_irq(byte irq)
+{
+  byte mask = read_port(PIC1_DATA);
+  mask &= ~(1 << irq);
+  write_port(PIC1_DATA, mask);
+}
