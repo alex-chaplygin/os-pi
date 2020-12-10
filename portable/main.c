@@ -32,7 +32,7 @@ void kmain(void)
   initProcesses();
   console_clear();
   init_interrupts();
-    init_keyboard();
+  init_keyboard();
   //kprint(intToStr(get_phys_mem_size()));
   // int a = 1 / 0;
  

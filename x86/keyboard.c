@@ -31,14 +31,15 @@ void init_keyboard() {
   // Записать дескриптор клавиатуры в IDT.
   idtSetDescriptor(0x21, (uint)a_keyboard_interrupt, kernel_code, INTERRUPT_GATE | DPL0);
   // Включить линию IRQ клавиатуры.
-  write_port(0x21, 0xFD);
+  //  write_port(0x21, 0xFD);
+  enable_irq(1);
 }
 
 void keyboard_interrupt() {
   uchar status;
   char key_code;
 
-  write_port(0x20, 0x20);
+  //write_port(0x20, 0x20);
 
   status = read_port(0x64);
 
