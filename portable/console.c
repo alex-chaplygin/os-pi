@@ -15,6 +15,8 @@
 
 char *videoptr = (char*)0xb8000;
 int printPtr = 0;
+int print_page = 0;
+int current_page = 0;
 byte buffer[BUFFER_SIZE] = {0};	/**< Буфер экранов */
 int current_screen_pos = 0;	/**< Текущая позиция на экране */
 
@@ -39,6 +41,7 @@ void screen_up()
   else
     {
       current_screen_pos -= SHIFT;
+      current_page--;
       copy_to_screen();
     }
 }
@@ -54,6 +57,7 @@ void screen_down()
   else
     {
       current_screen_pos += SHIFT;
+      current_page++;
       copy_to_screen();
     }
 }
@@ -73,13 +77,30 @@ void putchar(char c){
             
   } else {
     if (printPtr/2 >= CONSOLE_ROWS * CONSOLE_COLS){
-      screen_down();
-      printPtr = (CONSOLE_ROWS-1) * CONSOLE_COLS * 2;
+      if (current_page == print_page) {
+        screen_down();
+      }
+      
+      print_page++;
+      printPtr = (CONSOLE_ROWS+1) * CONSOLE_COLS;
     }
-    videoptr[printPtr] = c;
-    buffer[current_screen_pos + printPtr++] = c;
-    buffer[current_screen_pos + printPtr] = 0x7;
-    videoptr[printPtr++] = 0x07;
+
+    if (print_page == current_page) {
+      videoptr[printPtr] = c;
+    } else if (current_page - print_page == 1) {
+      videoptr[printPtr - SHIFT] = c;
+    }
+
+    buffer[print_page * SHIFT + printPtr++] = c;
+    buffer[print_page * SHIFT + printPtr] = 0x7;
+    
+    if (print_page == current_page) {
+      videoptr[printPtr] = 0x07;
+    } else if (current_page - print_page == 1) {
+      videoptr[printPtr - SHIFT] = 0x07;
+    }
+
+    printPtr++;
   }
 }
 
