@@ -160,15 +160,18 @@ test_syscall:
 a_interrupt_handler:
 	;; сохранить регистры текущего процесса
 	;; установить стек ядра
+	;; подтверждение контроллеру прерываний
+	call end_of_interrupt
 	push eax		; номер прерывания
 	;; вызов обработчика прерывания
 	call interrupt_handler
 	add esp, 4
-	;; подтверждение контроллеру прерываний
-	call end_of_interrupt
 	iret
 
 a_keyboard_interrupt:
+	push 0
+        call end_of_interrupt
+        add esp, 4
 	call keyboard_interrupt
 	iretd
 
