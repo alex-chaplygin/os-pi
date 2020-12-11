@@ -8,7 +8,7 @@
  * 
  */
 
-#include <portable/console.h>
+#include <x86/console.h>
 #include <portable/libc.h>
 #include <portable/mem.h>
 #include <x86/idt.h>

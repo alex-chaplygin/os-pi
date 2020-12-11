@@ -1,4 +1,4 @@
-#include <portable/console.h>
+#include <x86/console.h>
 #include <portable/libc.h>
 
 char *table[] = {

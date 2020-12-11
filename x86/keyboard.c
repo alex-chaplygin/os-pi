@@ -9,7 +9,7 @@
  * 
  */
 #include <x86/x86.h>
-#include <portable/console.h>
+#include <portable/libc.h>
 #include <portable/types.h>
 #include <x86/idt.h>
 #include <portable/keyboard.h>

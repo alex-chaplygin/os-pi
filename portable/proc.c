@@ -1,6 +1,6 @@
 #include <portable/proc.h>
 #include <portable/limits.h>
-#include <portable/console.h>
+#include <x86/console.h>
 #include <x86/x86.h>
 
 struct proc processes[MAX_PROC_AMOUNT];	/**< Массив процессов. */

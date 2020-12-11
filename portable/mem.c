@@ -1,5 +1,6 @@
 #include "portable/mem.h"
-#include "portable/console.h"
+#include "x86/console.h"
+#include "portable/libc.h"
 //#include "printIntNotMalloc.h"
 /**
  * @file   mem.c

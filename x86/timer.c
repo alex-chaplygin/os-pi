@@ -7,7 +7,7 @@
  * 
  * 
  */
-#include <portable/console.h>
+#include <portable/libc.h>
 #include <portable/types.h>
 #include <x86/idt.h>
 #include <x86/irq.h>

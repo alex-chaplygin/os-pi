@@ -9,7 +9,7 @@
  */
 
 #include <portable/syscall.h>
-#include <portable/console.h>
+#include <portable/libc.h>
 
 /// Тип функции для системного вызова
 typedef void (* syscall_f)(int, int, int);

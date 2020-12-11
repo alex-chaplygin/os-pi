@@ -162,3 +162,54 @@ unsigned int str_hex_to_int(char* s)
 
     return number;
 }
+
+/**
+ * @brief Посимвольный анализ строки для печати типа printf - вывод значения многих переменных
+ * %i - вывод целого числа
+ * %d - вывод десятичного числа
+ * %x - вывод шестнадцатеричного числа
+ * %s - вывод строки 
+ * @param *str указатель на строку
+ *
+ */
+void kprint(char *str,...){
+  int i=0,u=1;
+    
+  for(i=0; str[i]!='\0'; i++){
+    char symbol=str[i];
+    char next_symbol=str[i+1];
+      
+    if(symbol=='%' && next_symbol=='i'){
+      int *param = (int *)&str;
+      char *param_int = int_to_str(*(param + u));      
+      kprint(param_int);
+      i++;
+      u++;
+    }
+    else if(symbol=='%' && next_symbol=='d'){
+      int *param = (int *)&str;
+      char *param_int = int_to_str(*(param + u));      
+      kprint(param_int);
+      i++;
+      u++;
+    }
+    else if(symbol=='%' && next_symbol=='x'){
+      int *param = (int *)&str;
+      char *param_int = int_to_str_hex(*(param + u));
+      kprint(param_int);
+      i++;
+      u++;
+    }
+    else if(symbol=='%' && next_symbol=='s'){
+      char* *param = (char* *)&str;
+      kprint(*(param + u));
+      i++;
+      u++;
+    }
+    else{
+      putchar(symbol);
+    }
+	
+  }
+}
+

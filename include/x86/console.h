@@ -15,8 +15,6 @@ void screen_down();
 
 void putchar(char c);
 
-void kprint(char *str, ...);
-
 void console_clear();
 
 
