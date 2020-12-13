@@ -18,6 +18,7 @@
 #include <x86/mouse.h>
 #include <x86/gdt.h>
 #include <portable/proc.h>
+#include <x86/cmos.h>
 
 extern void test_syscall();
 
@@ -27,18 +28,18 @@ extern void test_syscall();
  */
 void kmain(void)
 {
-  init_memory();
-  init_timer(10);
-  initProcesses();
+   init_memory();
+   init_timer(10);
+   initProcesses();
   console_clear();
-  init_interrupts();
-  init_keyboard();
+   init_interrupts();
+   init_keyboard();
   //kprint(intToStr(get_phys_mem_size()));
   // int a = 1 / 0;
  
   for(int i = 16; i<=22;i++)
   {
-    test_mem(i);
+   test_mem(i);
   }
   
   //test_syscall();
@@ -52,5 +53,6 @@ void kmain(void)
   kprint("Result a=%i and x=%d and y=%s and str=%x",19,7,"Result str",26);
   kprint("\n %x", str_hex_to_int("1ff"));
   kprint("\n %s", int_to_str_hex(228));
+  //kprint("\n %d", (int)cmos_read(0x07));
   while(1); // процесс ядра
  }
