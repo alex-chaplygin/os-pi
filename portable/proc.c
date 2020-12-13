@@ -178,7 +178,11 @@ void wait(int id)
  */
 void sheduler()
 {
+  current_proc->state=STATUS_READY;
   current_proc++;
+  for(;current_proc->state!=STATUS_READY;){current_proc++;}
+  current_proc->state=STATUS_RUNNING;
+  
   while (current_proc->pid == -1) {
     if (current_proc >= processes + MAX_PROC_AMOUNT - 1) {
       current_proc = processes;
