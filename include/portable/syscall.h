@@ -118,11 +118,11 @@ int exec(char *name);
  * 
  * @param code код возврата
  */
-void exit(int code);
+int exit(int code);
 
 /** 
  * Ждет завершения процесса
  * 
  * @param id идентификатор процесса
  */
-void wait(int id);
+int wait(int id);
