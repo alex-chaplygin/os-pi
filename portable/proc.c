@@ -159,8 +159,9 @@ int exec(char *name)
  * 
  * @param code код возврата
  */
-void exit(int code)
+int exit(int code)
 {
+  return 0;
 }
 
 /** 
@@ -168,8 +169,9 @@ void exit(int code)
  * 
  * @param id идентификатор процесса
  */
-void wait(int id)
+int wait(int id)
 {
+  return 0;
 }
 
 /** 
