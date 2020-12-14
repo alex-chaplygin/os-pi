@@ -54,10 +54,14 @@ void initProcesses(){
     }
     processes[0].pid = 0; // процесс ядра
     processes[0].state = STATUS_RUNNING;
+    processes[1].state = STATUS_SLEEPING;
     current_proc = processes;
     current_proc_numb = 1;
     int pid1 = createProc(printProc1, 0);
     int pid2 = createProc(printProc2, 0);
+
+   
+    
 }
 
 /** 
