@@ -9,14 +9,17 @@
 
 /// структура процесса
 struct proc {
-    int pid;			/**< айди процесса */
-    int state;			/**< состояние */
-    void* codePtr;	        /**< адрес кода */
-    void* dataPtr;	        /**< адрес данных */
-    void* stackPtr;	        /**< адрес стека */
+  int pid;			/**< номер процесса */
+  int parent_id;		/**<  номер родительского процесса*/
+  int state;			/**< состояние */
+  void* codePtr;	        /**< адрес кода */
+  int code_size;		/**< размер сегмента кода */
+  void* dataPtr;	        /**< адрес данных */
+  int data_size;		/**< размер сегмента данных */
+  void* stackPtr;	        /**< адрес стека */
   void *program_counter;		/**< счетчик команд */
   void *stack_pointer;		/**< указатель стека */
-    int regs[BUFFER_SIZE];	/**< буфер регистров */
+  int regs[BUFFER_SIZE];	/**< буфер регистров */
 };
 
 // инициализирует хранилище процессов
@@ -30,7 +33,7 @@ int deleteProc(unsigned int pid);
 
 // создаёт процесс
 // возвращает pid созданного процесса
-int createProc(void* codePtr, void* dataPtr);
+int createProc(void* codePtr, int code_size, void* dataPtr, int data_size);
 
 void sheduler();
 
