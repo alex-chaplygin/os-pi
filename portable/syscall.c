@@ -54,28 +54,16 @@ void sys_call(int num, int param1, int param2, int param3)
 {
     kprint("\nSys call ");
     kprint(" ");
-    if(num == 0)
+    if(num == 0 || num == 1 || num == 9)
       (syscall0_f)sys_call_table[num].func(param1, param2, param3);
-    if(num == 1)
-      (syscall0_f)sys_call_table[num].func(param1, param2, param3);
-    if(num == 2)
+    if(num == 2 || num == 10 || num == 11)
       (syscall1_f)sys_call_table[num].func(param1, param2, param3);
-    if(num == 3)
+    if(num == 3 || num == 5)
       (syscall2_f)sys_call_table[num].func(param1, param2, param3);
     if(num == 4)
       (syscall3_f)sys_call_table[num].func(param1, param2, param3);
-    if(num == 5)
-      (syscall2_f)sys_call_table[num].func(param1, param2, param3);
-    if(num == 6)
-      (syscall4_f)sys_call_table[num].func(param1, param2, param3);
-    if(num == 7)
+    if(num == 6 || num == 7)
       (syscall4_f)sys_call_table[num].func(param1, param2, param3);
     if(num == 8)
       (syscall5_f)sys_call_table[num].func(param1, param2, param3);
-    if(num == 9)
-      (syscall0_f)sys_call_table[num].func(param1, param2, param3);
-    if(num == 10)
-      (syscall1_f)sys_call_table[num].func(param1, param2, param3);
-    if(num == 11)
-      (syscall1_f)sys_call_table[num].func(param1, param2, param3);
  } 
