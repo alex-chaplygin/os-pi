@@ -54,5 +54,6 @@ void kmain(void)
   kprint("\n %x", str_hex_to_int("1ff"));
   kprint("\n %s", int_to_str_hex(228));
   //kprint("\n %d", (int)cmos_read(0x07));
+  // запуск процесса init
   while(1); // процесс ядра
  }
