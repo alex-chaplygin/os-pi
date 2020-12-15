@@ -18,6 +18,7 @@ void printProc1()
       i = 0;
     }
     else *video = 0;
+    //if (test_syscall(0, "proc1 ", 6) < 0) *video = 0x1111;
   }
 }
 
@@ -43,6 +44,7 @@ void initProcesses(){
     for (int i = 0; i < MAX_PROC_AMOUNT; i++)
     {
         processes[i].pid = -1;
+        processes[i].parent_id = -1;
         processes[i].state = STATUS_READY;
         processes[i].codePtr = 0;
         processes[i].dataPtr = 0;
@@ -56,8 +58,8 @@ void initProcesses(){
     processes[0].state = STATUS_RUNNING;
     current_proc = processes;
     current_proc_numb = 1;
-    int pid1 = createProc(printProc1, 0);
-    int pid2 = createProc(printProc2, 0);
+    int pid1 = createProc(printProc1, 1024, 0, 0);
+    int pid2 = createProc(printProc2, 1024, 0, 0);
 }
 
 /** 
@@ -85,9 +87,9 @@ int isFree(unsigned int pid){
  * @param codePtr адрес кода.
  * @param dataPtr адрес данных.
  * 
- * @return возвращает айди созданного процесса.
+ * @return возвращает номер созданного процесса или -1, если нет места для процесса
  */
-int createProc(void* codePtr, void* dataPtr){
+int createProc(void* codePtr, int code_size, void* dataPtr, int data_size){
     int freeSlot = -1;
     
     for (int i = 0; i < MAX_PROC_AMOUNT; i++)
@@ -105,6 +107,8 @@ int createProc(void* codePtr, void* dataPtr){
     processes[freeSlot].pid = freeSlot;
     processes[freeSlot].codePtr = codePtr;
     processes[freeSlot].dataPtr = dataPtr;
+    processes[freeSlot].code_size = code_size;
+    processes[freeSlot].data_size = data_size;
     processes[freeSlot].stackPtr = new_stack;
     processes[freeSlot].program_counter = codePtr;
     processes[freeSlot].stack_pointer = new_stack + STACK_SIZE;
@@ -139,7 +143,11 @@ int deleteProc(unsigned int pid){
  */
 int fork()
 {
-  return 0;
+  // создание нового элемента в таблице процессов
+  // установка номера родительского процесса
+  // копирование памяти для кода и данных
+  // сохранить значение -1 в регистр eax дочернего процесса regs[REGS_SIZE - 1]
+  return 0; // возврат номера дочернего процесса или ERROR_MAXPROC
 }
 
 /** 
@@ -151,7 +159,16 @@ int fork()
  */
 int exec(char *name)
 {
-  return 0;
+  // чтение исполняемого файла
+  // разбор файла ELF
+  // создание сегмента кода и сегмента данных
+  // заполнение сегмента BSS нулями.
+  // установка указателя стека
+  // установка счетчика команд (CS:IP)
+  // установка флагов
+  // установить eax 0 - успешный запуск процесса
+  // восстановление регистров
+  return 0; // 0 - успешный запуск, ERROR_NOFILE - файл не найден, ERROR_INVALID_PARAMETERS если name == 0
 }
 
 /** 
