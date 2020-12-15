@@ -1,10 +1,11 @@
-void sys_call(int num, int param1, int param2, int param3);
+int sys_call(int num, int param1, int param2, int param3);
 
 #define ERROR_NOFILE -1		/**< файл не найден */
 #define ERROR_MAXFILE -2	/**< достигнут максимум файлов */
 #define ERROR_ACCESS_DENIED -3	/**< доступ запрещен */
 #define ERROR_INVALID_PARAMETERS -4 /**< неверные параметры */
 #define ERROR_IO -5		/**< ошибка ввода-вывода, аппаратная ошибка */
+#define ERROR_MAXPROC -6	/**< достигнут максимум процессов */
 
 /** 
  * Открытие файла
