@@ -64,6 +64,20 @@ load_gdt:
 	proc_cs dd 0
 	proc_stack dd 0
 	proc_flags dd 0
+
+struc proc 
+pid:	resd 1;/**< номер процесса */
+parent_id:	resd 1;/**<  номер родительского процесса*/
+state:	resd 1;/**< состояние */
+codePtr:	 resd 1;	        /**< адрес кода */
+code_size:	resd 1;		/**< размер сегмента кода */
+dataPtr:	resd 1;	        /**< адрес данных */
+data_size:	 resd 1;		/**< размер сегмента данных */
+stackPtr:	resd 1;	        /**< адрес стека */
+program_counter:	resd 1;		/**< счетчик команд */
+stack_pointer:	resd 1;		/**< указатель стека */
+regs:	resd 64;	/**< буфер регистров */
+endstruc	
 	;; сохранение регистров
 save_regs:
 	;; состояние стека:
@@ -74,7 +88,7 @@ save_regs:
 	;; -> стек процесса
 	mov [return_esp], esp ; сохраняем указатель стека
 	mov esp, [current_proc]
-	add esp, 28 + 64 * 4		; &regs[63] с этого адреса начинаются сохраненные регистры
+	add esp, regs + 64 * 4		; &regs[63] с этого адреса начинаются сохраненные регистры
 	pusha				; сохранение регистров EAX, ECX, EDX, EBX, ESP, EBP, ESI, EDI
 	mov ebx, [return_esp] ; в ebx значение esp
 	mov eax, [ebx + 12]	     ;EFLAGS
@@ -83,11 +97,12 @@ save_regs:
 	push eax		     ; сохраняем CS
 	mov eax, [ebx + 4]	     ;IP
 	mov esp, [current_proc]
-	add esp, 24		;current_proc->program_counter + 4
+	add esp, program_counter + 4		;current_proc->program_counter + 4
 	push eax		; созраняем IP
 	mov eax, ebx
 	add eax, 16	; указатель стека процесса
-	add esp, 8	; esp = current_proc->stack_pointer + 4
+	mov esp, [current_proc]
+	add esp, stack_pointer + 4	; esp = current_proc->stack_pointer + 4
 	push eax	; сохраняем esp
 	mov esp, [return_esp]	; устанавливаем стек ядра (возврат в обработчик прерывания)
 	ret
@@ -95,11 +110,13 @@ save_regs:
 	;; восстановление регистров
 restore_regs:
 	mov esp, [current_proc]
-	add esp, 20		; current_proc->program_counter 
+	add esp, program_counter		; current_proc->program_counter 
 	pop dword [proc_ip]
+	mov esp, [current_proc]
+	add esp, stack_pointer
 	pop dword [proc_stack]			; здесь указатель стека current_proc->stack_pointer
 	mov esp, [current_proc]
-	add esp, 28 + 64 * 4
+	add esp, regs + 64 * 4
 	sub esp, 10 * 4		; восстанавливаем в обратном порядке
 	pop dword [proc_cs]	; CS
 	pop dword [proc_flags]	; EFLAGS
@@ -132,6 +149,7 @@ write_port:
 	ret
 	
 a_syscall:
+	;; сохранение регистров
 	push edx
 	push ecx
 	push ebx
@@ -149,11 +167,11 @@ a_timer:
 	iret
 	
 test_syscall:
-    mov eax, 0 ; syscall num
-    mov ebx, 11 ; param 1
-    mov ecx, 12 ; param 2
-    mov edx, 13 ; param 3
-    int 0x80
+	mov eax, 7 ; syscall num
+	mov ebx, [esp + 4] ; param 1
+	mov ecx, [esp + 8] ; param 2
+	mov edx, [esp + 12] ; param 3
+	int 0x80
 	ret
 
 	;; обработчик прерывания
