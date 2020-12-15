@@ -25,3 +25,9 @@ byte cmos_read(int num_reg);
  * @param val Значение для записи
  */
 void cmos_write(int num_reg, byte val);
+
+/** 
+ * @brief Печатает текущее время в формате чч:мм:сс
+ * 
+ */
+void print_time();
