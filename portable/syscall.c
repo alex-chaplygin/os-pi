@@ -12,24 +12,24 @@
 #include <portable/libc.h>
 
 /// Тип функции для системного вызова
-typedef void (* syscall_f)(int, int, int);
+typedef int (* syscall_f)(int, int, int);
 
-void sys_call1(int p1, int p2, int p3)
+int sys_call1(int p1, int p2, int p3)
 {
   kprint("sys_call1");
 }
 
-void sys_call2(int p1, int p2, int p3)
+int sys_call2(int p1, int p2, int p3)
 {
   kprint("sys_call2");
 }
 
-void sys_call3(int p1, int p2, int p3)
+int sys_call3(int p1, int p2, int p3)
 {
   kprint("sys_call3");
 }
 
-void sys_call4(int p1, int p2, int p3)
+int sys_call4(int p1, int p2, int p3)
 {
   kprint("sys_call4");
 }
@@ -50,9 +50,10 @@ syscall_f sys_call_table[] = {
  * @param param2 Параметр 2
  * @param param3 Параметр 3
  */
-void sys_call(int num, int param1, int param2, int param3)
+int sys_call(int num, int param1, int param2, int param3)
 {
     kprint("\nSys call ");
     kprint(" ");
-    sys_call_table[num](param1, param2, param3);
+    int res = sys_call_table[num](param1, param2, param3);
+    return res;
  } 
