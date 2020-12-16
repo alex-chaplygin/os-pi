@@ -54,6 +54,17 @@ void print_time()
     printPtr = 120;
     print_page = 0;
     current_page = 0;
+    byte seconds = cmos_read(CMOS_SECONDS);
+    byte minutes = cmos_read(CMOS_MINUTES);
+    byte hours = cmos_read(CMOS_HOURS);
+    if(!(cmos_read(0x0B) & 0x04))
+      {
+	seconds = (seconds & 0x0F) + ((seconds / 16) * 10);
+	minutes = (minutes & 0x0F) + ((minutes / 16) * 10);
+	hours = ((hours & 0x0F) + (((hours & 0x70) / 16) * 10)) | (hours & 0x80);
+      }
+    if(!(cmos_read(0x0B) & 0x02) && (hours & 0x80))
+      hours = ((hours & 0x7F) + 12) % 24;
     kprint("%d:%d:%d", (int)cmos_read(CMOS_HOURS), (int)cmos_read(CMOS_MINUTES), (int)cmos_read(CMOS_SECONDS));
     printPtr = ptr;
     print_page = pp;
