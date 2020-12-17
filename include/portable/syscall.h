@@ -1,4 +1,4 @@
-void sys_call(int num, int param1, int param2, int param3);
+int sys_call(int num, int param1, int param2, int param3);
 
 #define ERROR_NOFILE -1		/**< файл не найден */
 #define ERROR_MAXFILE -2	/**< достигнут максимум файлов */
