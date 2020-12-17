@@ -47,17 +47,24 @@ struct syscall sys_call_table[] = {
  * @param param1 Параметр 1 
  * @param param2 Параметр 2
  * @param param3 Параметр 3
+ * 
+ * @return значение вызванной функции из таблицы адресов системных вызовов
  */
-void sys_call(int num, int param1, int param2, int param3)
+int sys_call(int num, int param1, int param2, int param3)
 {
     kprint("\nSys call ");
     kprint(" ");
-    if(sys_call_table[num].param_num == 0)
-      ((syscall3_f)sys_call_table[num].func)();
-    if(sys_call_table[num].param_num == 1)
-      ((syscall0_f)sys_call_table[num].func)(param1);
-    if(sys_call_table[num].param_num == 2)
-      ((syscall1_f)sys_call_table[num].func)(param1, param2);
-    if(sys_call_table[num].param_num == 3)
-      ((syscall2_f)sys_call_table[num].func)(param1, (void*)param2, param3);
+    if(num < 0 || num > sizeof(sys_call_table) / sizeof(struct syscall))
+      	return ERROR_INVALID_PARAMETERS;
+    else
+      {
+	if(sys_call_table[num].param_num == 0)
+	  return ((syscall3_f)sys_call_table[num].func)();
+	if(sys_call_table[num].param_num == 1)
+	  return ((syscall0_f)sys_call_table[num].func)(param1);
+	if(sys_call_table[num].param_num == 2)
+	  return ((syscall1_f)sys_call_table[num].func)(param1, param2);
+	if(sys_call_table[num].param_num == 3)
+	  return ((syscall2_f)sys_call_table[num].func)(param1, (void*)param2, param3);
+      }
  } 
