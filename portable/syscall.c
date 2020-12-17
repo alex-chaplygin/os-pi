@@ -13,21 +13,19 @@
 
 /// Тип функции для системного вызова
 typedef int (* syscall_f)(int, int, int);
-typedef int (* syscall0_f)(char*);
-typedef int (* syscall1_f)(int);
-typedef int (* syscall2_f)(int, int);
-typedef int (* syscall3_f)(int, struct file_info);
-typedef int (* syscall4_f)(int, void*, int);
-typedef int (* syscall5_f)(void);
+typedef int (* syscall0_f)(int);
+typedef int (* syscall1_f)(int, int);
+typedef int (* syscall2_f)(int, void*, int);
+typedef int (* syscall3_f)(void);
 
 /// Структура таблицы адресов системных вызовов
-struct sys_calls {
-  int param_num;
-  syscall_f func;
+struct syscall {
+  int param_num;		/**< кол-во параметров функции системного вызова */
+  syscall_f func;		/**< функция системного вызова */
 };
 
 /// Таблица адресов системных вызовов
-struct sys_calls sys_call_table[] = {
+struct syscall sys_call_table[] = {
 	 1, (syscall_f)open,
 	 1, (syscall_f)create,
 	 1, (syscall_f)close,
@@ -54,16 +52,12 @@ void sys_call(int num, int param1, int param2, int param3)
 {
     kprint("\nSys call ");
     kprint(" ");
-    if(num == 0 || num == 1 || num == 9)
-      (syscall0_f)sys_call_table[num].func(param1, param2, param3);
-    if(num == 2 || num == 10 || num == 11)
-      (syscall1_f)sys_call_table[num].func(param1, param2, param3);
-    if(num == 3 || num == 5)
-      (syscall2_f)sys_call_table[num].func(param1, param2, param3);
-    if(num == 4)
-      (syscall3_f)sys_call_table[num].func(param1, param2, param3);
-    if(num == 6 || num == 7)
-      (syscall4_f)sys_call_table[num].func(param1, param2, param3);
-    if(num == 8)
-      (syscall5_f)sys_call_table[num].func(param1, param2, param3);
+    if(sys_call_table[num].param_num == 0)
+      ((syscall3_f)sys_call_table[num].func)();
+    if(sys_call_table[num].param_num == 1)
+      ((syscall0_f)sys_call_table[num].func)(param1);
+    if(sys_call_table[num].param_num == 2)
+      ((syscall1_f)sys_call_table[num].func)(param1, param2);
+    if(sys_call_table[num].param_num == 3)
+      ((syscall2_f)sys_call_table[num].func)(param1, (void*)param2, param3);
  } 
