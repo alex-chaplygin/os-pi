@@ -60,6 +60,7 @@ void initProcesses(){
     current_proc_numb = 1;
     int pid1 = createProc(printProc1, 1024, 0, 0);
     int pid2 = createProc(printProc2, 1024, 0, 0);
+    processes[1].state = STATUS_SLEEPING;   
 }
 
 /** 
@@ -195,7 +196,12 @@ void wait(int id)
  */
 void sheduler()
 {
-  current_proc++;
+  current_proc->state=STATUS_READY;
+  
+  for (current_proc++; current_proc->state != STATUS_READY;  current_proc++) ;
+
+  current_proc->state=STATUS_RUNNING;
+  
   while (current_proc->pid == -1) {
     if (current_proc >= processes + MAX_PROC_AMOUNT - 1) {
       current_proc = processes;
@@ -204,36 +210,5 @@ void sheduler()
     current_proc++;
   }
   restore_regs();
-  /*  for(int i = current_proc_numb; i < MAX_PROC_AMOUNT; i++)
-    {
-      if(processes[i].state == STATUS_READY)
-	if(current_proc != 0)
-	  {
-	    if(processes[i].pid != -1)
-	      {
-		current_proc->state = STATUS_READY;
-		current_proc = &processes[i];
-		current_proc->state = STATUS_RUNNING;
-		current_proc_numb = i;
-		restore_regs(); // нет возврата отсюда
-		break;
-	      }
-	  }
-	else
-	  {
-	    if(processes[i].pid != -1)
-	      {
-		current_proc = &processes[i];
-		current_proc->state = STATUS_RUNNING;
-		restore_regs(); // нет возврата отсюда
-		break;
-	      }
-	  }
-      if(i == MAX_PROC_AMOUNT - 1)
-	{
-	  current_proc_numb = 0;
-	  i = current_proc_numb - 1;
-	  }
-	  }*/
 }
 

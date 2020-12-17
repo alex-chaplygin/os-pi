@@ -1,10 +1,12 @@
 bits 32
-section .text
+	section .multiboot_header
+header_start:	
         ;multiboot spec
         align 4
         dd 0x1BADB002              ;magic
         dd 0x00                    ;flags
         dd - (0x1BADB002 + 0x00)   ;checksum. m+f+c should be zero
+section .text
 
 global start, kernel_code, load_idt, load_gdt
 global a_isrZeroDivisionException

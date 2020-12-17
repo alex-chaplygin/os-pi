@@ -1,4 +1,4 @@
-OBJS=cmos.o console.o x86.o idt.o isr.o irq.o timer.o keyboard.o mouse.o gdt.o mem_check.o
+OBJS=x86.o idt.o isr.o irq.o timer.o keyboard.o mouse.o gdt.o mem_check.o console.o cmos.o
 CFLAGS=-g -m32 -nostdlib -nodefaultlibs -Wno-builtin-declaration-mismatch -I../include
 
 all: $(OBJS)
