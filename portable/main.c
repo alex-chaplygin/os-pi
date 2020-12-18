@@ -33,7 +33,7 @@ void kmain(void)
   initProcesses();
   console_clear();
   init_interrupts();
-  init_keyboard();
+  //init_keyboard();
   //kprint(intToStr(get_phys_mem_size()));
   // int a = 1 / 0;
  
@@ -42,7 +42,7 @@ void kmain(void)
   // test_mem(i);
   // }
   
-  //test_syscall();
+  test_syscall();
   
 
   // if (mouse_check() == 0xAA) {
@@ -51,8 +51,8 @@ void kmain(void)
   // kprint("No mouse\n");
   // } 
   // запуск процесса init
-  while(1) {
+  /*while(1) {
     print_time();
-  }
+  }*/
 	    // процесс ядра
 }
