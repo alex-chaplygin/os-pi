@@ -2,6 +2,7 @@
 #include <portable/limits.h>
 #include <x86/console.h>
 #include <x86/x86.h>
+#include <x86/gdt.h>
 
 struct proc processes[MAX_PROC_AMOUNT];	/**< Массив процессов. */
 struct proc *current_proc = 0;	/**< Указатель на текущий процесс. */
@@ -9,6 +10,7 @@ int current_proc_numb = 0;	/**< Номер текущего процесса */
 
 void printProc1()
 {
+  write_port(0x64, 0xD4);
   ushort *video = (ushort *)0xb8000;
   int i = 0;
   int j = 0;
@@ -117,8 +119,8 @@ int createProc(void* codePtr, int code_size, void* dataPtr, int data_size){
     processes[freeSlot].program_counter = codePtr;
     processes[freeSlot].stack_pointer = new_stack + STACK_SIZE;
     processes[freeSlot].state = STATUS_READY;
-    processes[freeSlot].regs[54] = 0x8; // CS
-    processes[freeSlot].regs[55] = 0x200; // EFLAGS
+    processes[freeSlot].regs[54] = __USER_CS; // CS
+    processes[freeSlot].regs[55] = PROC_LFAGS; // EFLAGS
     return freeSlot;
 }
 
