@@ -34,6 +34,12 @@
  
 #define GDT_SIZE 5
 
+#define GDT_ENTRY_KERNEL_CS 0
+#define GDT_ENTRY_DEFAULT_USER_CS 0x3
+#define USER_RPL 0x3
+#define __KERNEL_CS (GDT_ENTRY_KERNEL_CS << 3)
+#define __USER_CS ((GDT_ENTRY_DEFAULT_USER_CS << 3) | USER_RPL)
+
 /// Эта структура содержит значения для одной записи GDT
 struct gdt_entry_struct {
     u16int limit_low;		/**< Младшие 16 бит смещения */
