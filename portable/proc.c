@@ -9,6 +9,7 @@ int current_proc_numb = 0;	/**< Номер текущего процесса */
 
 void printProc1()
 {
+  int child_number=fork();
   ushort *video = (ushort *)0xb8000;
   int i = 0;
   while(1) {
@@ -50,7 +51,7 @@ void initProcesses(){
         processes[i].dataPtr = 0;
 	processes[i].stackPtr = 0;
 
-	for(int j = 0; j < BUFFER_SIZE; j++) {
+	for(int j = 0; j < REGS_SIZE; j++) {
 	  processes[i].regs[j] = 0;
 	}
     }
@@ -60,6 +61,7 @@ void initProcesses(){
     current_proc_numb = 1;
     int pid1 = createProc(printProc1, 1024, 0, 0);
     int pid2 = createProc(printProc2, 1024, 0, 0);
+    
     processes[1].state = STATUS_SLEEPING;   
 }
 
@@ -145,10 +147,18 @@ int deleteProc(unsigned int pid){
 int fork()
 {
   // создание нового элемента в таблице процессов
+  int newproc=createProc(0, 0, 0, 0);
   // установка номера родительского процесса
+  int number_parent=current_proc->pid;
   // копирование памяти для кода и данных
+  processes[newproc].parent_id = number_parent;
+  processes[newproc].codePtr = current_proc->codePtr;
+  processes[newproc].code_size = current_proc->code_size;
+  processes[newproc].dataPtr = current_proc->dataPtr;
+  processes[newproc].data_size = current_proc->data_size;
   // сохранить значение -1 в регистр eax дочернего процесса regs[REGS_SIZE - 1]
-  return 0; // возврат номера дочернего процесса или ERROR_MAXPROC
+  processes[newproc].regs[REGS_SIZE-1];
+  return newproc; // возврат номера дочернего процесса или ERROR_MAXPROC
 }
 
 /** 
