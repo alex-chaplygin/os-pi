@@ -147,17 +147,18 @@ int deleteProc(unsigned int pid){
 int fork()
 {
   // создание нового элемента в таблице процессов
-  int newproc=createProc(0, 0, 0, 0);
+  int newproc=createProc(0, current_proc->code_size, 0, current_proc->data_size);
+  if(newproc==-1){
+    return -1;//ERROR_MAXPROC
+  }
   // установка номера родительского процесса
   int number_parent=current_proc->pid;
   // копирование памяти для кода и данных
+  memcpy(processes[newproc].codePtr, current_proc->codePtr, current_proc->code_size);
+  memcpy(processes[newproc].dataPtr, current_proc->dataPtr, current_proc->data_size);
   processes[newproc].parent_id = number_parent;
-  processes[newproc].codePtr = current_proc->codePtr;
-  processes[newproc].code_size = current_proc->code_size;
-  processes[newproc].dataPtr = current_proc->dataPtr;
-  processes[newproc].data_size = current_proc->data_size;
   // сохранить значение -1 в регистр eax дочернего процесса regs[REGS_SIZE - 1]
-  processes[newproc].regs[REGS_SIZE-1];
+  processes[newproc].regs[REGS_SIZE-1] = -1;
   return newproc; // возврат номера дочернего процесса или ERROR_MAXPROC
 }
 
