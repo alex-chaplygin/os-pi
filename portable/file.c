@@ -1,7 +1,6 @@
 #include <portable/syscall.h>
 #include <portable/file.h>
 
-void _left_offset(int num);
 
 /** 
  * Запись в таблице файлов
@@ -93,7 +92,15 @@ int close(int id)
     return -1;
   }
   
-  _left_offset(id);
+  file_table[id].dev = -1;
+  file_table[id].pos = 0;
+  file_table[id].start_block = 0;
+  file_table[id].size = 0;
+
+  if(id = file_count -1)
+  {
+    file_count--;
+  }
 
   return 0;
 }
@@ -163,30 +170,4 @@ int read(int id, void *buf, int size)
 int write(int id, void *buf, int size)
 {
   return 0;
-}
-
-/** 
- * При закрытии файла, в таблице открытых файлов смещает все записи влево
- * 
- * @param num идентификатор закрываемого файла
- */
-void _left_offset(int num)
-{
-  for(int i = num; i < file_count - 1; i++)
-  {
-    file_table[i].dev = file_table[i+1].dev;
-    file_table[i].pos = file_table[i+1].pos;
-    file_table[i].start_block = file_table[i+1].start_block;
-    file_table[i].size = file_table[i+1].size;
-  }
-  
-  int i = file_count-1;
-
-  file_table[i].dev = -1;
-  file_table[i].pos = 0;
-  file_table[i].start_block = 0;
-  file_table[i].size = 0;
-
-  file_count--;
-
 }
