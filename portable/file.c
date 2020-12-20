@@ -13,7 +13,6 @@ void _left_offset(int num);
  */
 struct file_entry
 {
-    char *name; 
     int dev;
     int pos;
     int start_block;
@@ -34,8 +33,6 @@ void init_files()
 {
   for (int i = 0; i < NUM_FILES; i++) 
   {
-    //file_table[i].name = (char*)malloc(12);
-    file_table[i].name = "";
     file_table[i].dev = -1;
     file_table[i].pos = 0;
     file_table[i].start_block = 0;
@@ -177,7 +174,6 @@ void _left_offset(int num)
 {
   for(int i = num; i < file_count - 1; i++)
   {
-    file_table[i].name = file_table[i+1].name;
     file_table[i].dev = file_table[i+1].dev;
     file_table[i].pos = file_table[i+1].pos;
     file_table[i].start_block = file_table[i+1].start_block;
@@ -186,7 +182,6 @@ void _left_offset(int num)
   
   int i = file_count-1;
 
-  file_table[i].name = "";
   file_table[i].dev = -1;
   file_table[i].pos = 0;
   file_table[i].start_block = 0;
