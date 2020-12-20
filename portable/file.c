@@ -48,7 +48,7 @@ void init_files()
  */
 int open(char *name)
 {
-  for(int i = 0; i <= NUM_FILES; i++)//поиск первой пустой записи
+  for(int i = 0; i < NUM_FILES; i++)//поиск первой пустой записи
   {
     if(file_table[i].dev == -1)
     {
