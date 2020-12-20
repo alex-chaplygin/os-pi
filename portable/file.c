@@ -22,7 +22,7 @@ struct file_entry
 struct file_entry file_table[NUM_FILES];
 
 ///текущее количество открытых файлов
-int file_count = 0;
+//int file_count = 0;
 
 /** 
  * init_files() инициализирует таблицу файлов
@@ -48,17 +48,11 @@ void init_files()
  */
 int open(char *name)
 {
-  if(file_count>=NUM_FILES)
-  {
-    return -1;
-  }
-
-  for(int i = 0; i <= file_count; i++)//поиск первой пустой записи
+  for(int i = 0; i <= NUM_FILES; i++)//поиск первой пустой записи
   {
     if(file_table[i].dev == -1)
     {
       file_table[i].dev = 1;
-      file_count++;
       return i;
     }
   }
@@ -96,11 +90,6 @@ int close(int id)
   file_table[id].pos = 0;
   file_table[id].start_block = 0;
   file_table[id].size = 0;
-
-  if(id = file_count -1)
-  {
-    file_count--;
-  }
 
   return 0;
 }
