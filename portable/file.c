@@ -1,6 +1,8 @@
 #include <portable/syscall.h>
 #include <portable/file.h>
 
+void _left_offset(int num);
+
 /** 
  * Запись в таблице файлов
  * dev - номер устройства (-1 - свободный слот)
@@ -11,6 +13,7 @@
  */
 struct file_entry
 {
+    char *name; 
     int dev;
     int pos;
     int start_block;
@@ -20,13 +23,24 @@ struct file_entry
 ///таблица открытых файлов
 struct file_entry file_table[NUM_FILES];
 
+///текущее количество открытых файлов
+int file_count = 0;
+
 /** 
  * init_files() инициализирует таблицу файлов
  * 
  */
 int init_files()
 {
-    
+  for (int i = 0; i < NUM_FILES; i++) 
+  {
+    //file_table[i].name = (char*)malloc(12);
+    file_table[i].name = "";
+    file_table[i].dev = -1;
+    file_table[i].pos = 0;
+    file_table[i].start_block = 0;
+    file_table[i].size = 0;
+  }
 }
 
 /** 
@@ -38,7 +52,22 @@ int init_files()
  */
 int open(char *name)
 {
-  return 0;
+  if(file_count>=NUM_FILES)
+  {
+    return -1;
+  }
+
+  for(int i = 0; i <= file_count; i++)//поиск первой пустой записи
+  {
+    if(file_table[i].dev == -1)
+    {
+      file_table[i].dev = 1;
+      file_count++;
+      return i;
+    }
+  }
+
+  return -1;//если ошибка
 }
 
 /** 
@@ -62,6 +91,13 @@ int create(char *name)
  */
 int close(int id)
 {
+  if(id < 0 || id >= NUM_FILES)
+  {
+    return -1;
+  }
+  
+  _left_offset(id);
+
   return 0;
 }
 
@@ -130,4 +166,32 @@ int read(int id, void *buf, int size)
 int write(int id, void *buf, int size)
 {
   return 0;
+}
+
+/** 
+ * При закрытии файла, в таблице открытых файлов смещает все записи влево
+ * 
+ * @param num идентификатор закрываемого файла
+ */
+void _left_offset(int num)
+{
+  for(int i = num; i < file_count - 1; i++)
+  {
+    file_table[i].name = file_table[i+1].name;
+    file_table[i].dev = file_table[i+1].dev;
+    file_table[i].pos = file_table[i+1].pos;
+    file_table[i].start_block = file_table[i+1].start_block;
+    file_table[i].size = file_table[i+1].size;
+  }
+  
+  int i = file_count-1;
+
+  file_table[i].name = "";
+  file_table[i].dev = -1;
+  file_table[i].pos = 0;
+  file_table[i].start_block = 0;
+  file_table[i].size = 0;
+
+  file_count--;
+
 }
