@@ -30,7 +30,7 @@ int file_count = 0;
  * init_files() инициализирует таблицу файлов
  * 
  */
-int init_files()
+void init_files()
 {
   for (int i = 0; i < NUM_FILES; i++) 
   {
