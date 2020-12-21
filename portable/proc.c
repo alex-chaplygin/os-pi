@@ -120,7 +120,7 @@ int createProc(void* codePtr, int code_size, void* dataPtr, int data_size){
     processes[freeSlot].stack_pointer = new_stack + STACK_SIZE;
     processes[freeSlot].state = STATUS_READY;
     processes[freeSlot].regs[54] = __USER_CS; // CS
-    processes[freeSlot].regs[55] = PROC_LFAGS; // EFLAGS
+    processes[freeSlot].regs[55] = PROC_FLAGS; // EFLAGS
     return freeSlot;
 }
 

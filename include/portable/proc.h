@@ -6,7 +6,7 @@
 #define STATUS_STOPPING 3	/**< состояние "процесс остановлен" */
 #define BUFFER_SIZE 64		/**< размер буфера регистров процесса */
 #define STACK_SIZE 1024		/**< размер стека в байтах */
-#define PROC_LFAGS 0x200
+#define PROC_FLAGS 0x200
 
 /// структура процесса (если меняется, то нужно менять в x86.asm)
 struct proc {
