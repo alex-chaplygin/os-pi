@@ -12,6 +12,7 @@
 #include <x86/console.h>
 #include <portable/libc.h>
 #include <portable/types.h>
+#include <x86/x86.h>
 
 char *videoptr = (char*)0xb8000;
 int printPtr = 0;
@@ -99,6 +100,7 @@ void putchar(char c){
     } else if (current_page - print_page == 1) {
       videoptr[printPtr - SHIFT] = 0x07;
     }
+    move_cursor(printPtr);
 
     printPtr++;
   }
@@ -129,6 +131,41 @@ void scrollConsole(int n){
     
 }
 
+/** 
+ * @brief Функция включения указателя
+ * 
+ * @param start Начальная строка
+ * @param end Конечная строка
+ */
+void enable_cursor(byte start, byte end)
+{
+  write_port(0x3D4, 0x0A);
+  write_port(0x3D5, (read_port(0x3D5) & 0xC0) | start);
 
+  write_port(0x3D4, 0x0B);
+  write_port(0x3D5, (read_port(0x3D5) & 0xE0) | end);
+}
 
+/** 
+ * @brief Функция выключения курсора
+ * 
+ */
+void disable_cursor()
+{
+  write_port(0x3D4, 0x0A);
+  write_port(0x3D5, 0x20);
+}
+
+/** 
+ * @brief Функция перемещения курсора
+ * 
+ * @param pos Позиция, в которую курсор передвигается
+ */
+void move_cursor(int pos)
+{
+  write_port(0x3D4, 0x0F);
+  write_port(0x3D5, (byte) (pos & 0xFF));
+  write_port(0x3D4, 0x0E);
+  write_port(0x3D5, (byte) ((pos >> 8) & 0xFF));
+}
 
