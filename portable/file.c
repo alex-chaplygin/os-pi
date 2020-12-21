@@ -1,4 +1,6 @@
 #include <portable/syscall.h>
+#include <portable/device.h>
+#include <portable/types.h>
 
 /** 
  * Открытие файла
@@ -100,6 +102,9 @@ int read(int id, void *buf, int size)
  */
 int write(int id, void *buf, int size)
 {
-  kprint(buf);
-  return 0;
+  byte *bufByte = (byte*)buf;
+  for(int i = 0; i < size; i++)
+    {
+      return write_sym_device(SYMDEVICE_CONSOLE, *(bufByte+i*sizeof(byte)));
+    }
 }
