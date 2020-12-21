@@ -75,7 +75,9 @@ void putchar(char c){
   if (c == '\n'){
     int nextRow = CONSOLE_COLS * (currRow + 1);
     printPtr = nextRow * 2;
-            
+    move_cursor(printPtr >> 1);
+    videoptr[printPtr] = ' ';
+    videoptr[printPtr + 1] = 0x07;            
   } else {
     if (printPtr/2 >= CONSOLE_ROWS * CONSOLE_COLS){
       if (current_page == print_page) {
@@ -100,9 +102,10 @@ void putchar(char c){
     } else if (current_page - print_page == 1) {
       videoptr[printPtr - SHIFT] = 0x07;
     }
-    move_cursor(printPtr);
-
     printPtr++;
+    move_cursor(printPtr >> 1);
+    videoptr[printPtr] = ' ';
+    videoptr[printPtr + 1] = 0x07;
   }
 }
 

@@ -53,7 +53,6 @@ void kmain(void)
   // запуск процесса init
   while(1) {
     print_time();
-    enable_cursor(0, 12);
   }
 	    // процесс ядра
 }
