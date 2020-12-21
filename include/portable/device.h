@@ -5,6 +5,8 @@
 
 #define HARD_DISK 0
 
+#define SYMDEVICE_CONSOLE 1	/**< символьное устройство консоль */
+
 #define ERROR_NODEVICE -1 /**< нет устройства с таким именем */
 #define ERROR_NOMETHOD -2 /**< пустой указатель на метод */
 
