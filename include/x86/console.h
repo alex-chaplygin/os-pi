@@ -1,3 +1,5 @@
+#include <portable/types.h>
+
 #define CONSOLE_ROWS 25		/**< Количество строк на экране */
 #define CONSOLE_COLS 80		/**< Количество столбцов на экране */
 #define SCREEN_NUMBER 10	/**< Количество экранов */
@@ -16,5 +18,26 @@ void screen_down();
 void putchar(char c);
 
 void console_clear();
+
+/** 
+ * @brief Функция включения указателя
+ * 
+ * @param start Начальная строка
+ * @param end Конечная строка
+ */
+void enable_cursor(byte start, byte end);
+
+/** 
+ * @brief Функция выключения курсора
+ * 
+ */
+void disable_cursor();
+
+/** 
+ * @brief Функция перемещения курсора
+ * 
+ * @param pos Позиция, в которую курсор передвигается
+ */
+void move_cursor(int pos);
 
 
