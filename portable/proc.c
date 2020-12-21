@@ -161,7 +161,15 @@ int fork()
   // копирование памяти для кода и данных
   memcpy(processes[newproc].codePtr, current_proc->codePtr, current_proc->code_size);
   memcpy(processes[newproc].dataPtr, current_proc->dataPtr, current_proc->data_size);
+
+  processes[newproc].program_counter = current_proc->program_counter;
+  processes[newproc].stack_pointer = current_proc->stack_pointer;
+  processes[newproc].state = current_proc->state;
   processes[newproc].parent_id = number_parent;
+
+  for(int j = 0; j < REGS_SIZE-1; j++) {
+    processes[newproc].regs[j] = processes[number_parent].regs[j];
+  }
   // сохранить значение -1 в регистр eax дочернего процесса regs[REGS_SIZE - 1]
   processes[newproc].regs[REGS_SIZE-1] = -1;
   return newproc; // возврат номера дочернего процесса или ERROR_MAXPROC
