@@ -1,3 +1,13 @@
+/**
+ * @file   tss.h
+ * @author Дмитрий <senior@seniorPC>
+ * @date   Mon Dec 21 18:43:56 2020
+ * 
+ * @brief  
+ * 
+ * 
+ */
+
 // Структура, описывающая сегмент состояния задачи Task State Segment.
 struct tss_struct
 {
@@ -28,4 +38,18 @@ struct tss_struct
    u32int ldt;        // Не используется ...
    u16int trap;
    u16int iomap_base;
-}  
+} __attribute__((packed));
+
+typedef struct tss_struct tss_entry_t;
+  
+/** 
+ * Инициализация TSS
+ * 
+ * @param s32int Селектор сегмента
+ * @param u16int Сегмент стека, загружаемый при переходе в режим ядра.
+ * @param u32int Указатель стека, загружаемый при переходе в режим ядра.
+ */
+static void init_tss(s32int,u16int,u32int);
+
+/// Доступ к ассемблерной функции для загрузки TSS
+extern void load_tss();
