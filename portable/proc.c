@@ -147,10 +147,10 @@ int deleteProc(unsigned int pid){
  */
 int fork()
 {
-  byte *code_size=(void*)malloc(current_proc->code_size);
-  byte *data_size=(void*)malloc(current_proc->data_size);
+  int *code_size=malloc(current_proc->code_size);
+  int *data_size=malloc(current_proc->data_size);
   // создание нового элемента в таблице процессов
-  int newproc=createProc(0,code_size,0,data_size);
+  int newproc=createProc(0,0,0,0);
   if(newproc==-1){
     return ERROR_MAXPROC;
   }
