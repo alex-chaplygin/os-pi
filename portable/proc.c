@@ -150,7 +150,7 @@ int fork()
   int *code_size=malloc(current_proc->code_size);
   int *data_size=malloc(current_proc->data_size);
   // создание нового элемента в таблице процессов
-  int newproc=createProc(0,0,0,0);
+  int newproc=createProc(0,code_size,0,data_size);
   if(newproc==-1){
     return ERROR_MAXPROC;
   }
