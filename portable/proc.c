@@ -10,8 +10,10 @@ int current_proc_numb = 0;	/**< Номер текущего процесса */
 
 void printProc1()
 {
+  static int pos = 0;
   int child_number=fork();
-  ushort *video = (ushort *)0xb8000;
+  pos++;
+  ushort *video = (ushort *)0xb8000 + pos;
   int i = 0;
   while(1) {
     i++;
@@ -63,7 +65,7 @@ void initProcesses(){
     int pid1 = createProc(printProc1, 1024, 0, 0);
     int pid2 = createProc(printProc2, 1024, 0, 0);
     
-    processes[1].state = STATUS_SLEEPING;   
+    //processes[1].state = STATUS_SLEEPING;   
 }
 
 /** 
