@@ -75,7 +75,7 @@ void create_descriptor(uint32_t num, uint32_t base, uint32_t limit, uint8_t acce
     gdt_entries[num].limit_low = limit  & 0xFFFF;               // set limit bits 15:0
     gdt_entries[num].gran = (limit >> 16) & 0x0F;
     gdt_entries[num].gran |= gran & 0xF0;
-    gdt_entries[num].access = access | 0x90;  
+    gdt_entries[num].access = !access ? 0 : access | 0x90;  
 }
 
 /** 

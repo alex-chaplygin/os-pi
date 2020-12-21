@@ -62,8 +62,8 @@ load_gdt:
         ret
 
 	return_esp dd 0
-	proc_ip dd 0
 	proc_cs dd 0
+	proc_ip dd 0
 	proc_stack dd 0
 	proc_flags dd 0
 
@@ -92,6 +92,10 @@ save_regs:
 	mov esp, [current_proc]
 	add esp, regs + 64 * 4		; &regs[63] с этого адреса начинаются сохраненные регистры
 	pusha				; сохранение регистров EAX, ECX, EDX, EBX, ESP, EBP, ESI, EDI
+	push ds
+	push es
+	push fs
+	push gs
 	mov ebx, [return_esp] ; в ebx значение esp
 	mov eax, [ebx + 12]	     ;EFLAGS
 	push eax		     ; сохраняем флаги
@@ -119,13 +123,27 @@ restore_regs:
 	pop dword [proc_stack]			; здесь указатель стека current_proc->stack_pointer
 	mov esp, [current_proc]
 	add esp, regs + 64 * 4
-	sub esp, 10 * 4		; восстанавливаем в обратном порядке
+	sub esp, 14 * 4		; восстанавливаем в обратном порядке
 	pop dword [proc_cs]	; CS
 	pop dword [proc_flags]	; EFLAGS
+	pop gs
+	pop fs
+	pop es
+	pop ds
 	popa			; восстанавливаем все регистры
 	mov esp, [proc_stack]
 				; установили сохраненное значение стека
+	;; push ds
+	;; push esp
 	push dword [proc_flags]
+;; 	cmp dword [proc_cs], 0x8
+;; 	je switch
+;; 	jmp 0x18:switch
+;; switch:	
+;; 	popf
+;; 	jmp 0x18:s8
+;; s8:	
+;; 	jmp dword [proc_ip]
 	push dword [proc_cs]
 	push dword [proc_ip]
 	iretd
