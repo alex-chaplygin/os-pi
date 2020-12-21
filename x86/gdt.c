@@ -9,12 +9,17 @@
  */
 
 #include <x86/gdt.h>
- /// Указатель на местонахождение GDT
+
+#include <x86/tss.h>
+
+/// Указатель на местонахождение GDT
 gdt_ptr_t gdt_ptr;
 /// Указатель на записи GDT
 gdt_entry_t gdt_entries[GDT_SIZE];
 /// количество сегментов в GDT
 int num_segments = GDT_SIZE;
+/// Переменная записи TSS структуры
+tss_entry_t tss_entry;
 
 /** 
  * добавляет сегмент в GDT под очередным номером и перезагружает GDT
@@ -74,6 +79,34 @@ void create_descriptor(uint32_t num, uint32_t base, uint32_t limit, uint8_t acce
 }
 
 /** 
+ * Инициализация TSS
+ * 
+ * @param num Селектор сегмента в GDT для TSS
+ * @param ss0 Сегмент стека, загружаемый при переходе в режим ядра
+ * @param esp0 Указатель стека, загружаемый при переходе в режим ядра
+ */
+static void init_tss(s32int num, u16int ss0, u32int esp0) {
+  /// База и предельное значение записи в таблице GDT
+  u32int base = (u32int) & tss_entry;
+  u32int limit = base + sizeof(tss_entry);
+
+  /// Добавление в таблицу GDT адрес дескриптора этого TSS
+  create_descriptor(num, base, limit, SEG_CODE_EXRD | DPL(0), GRAN_DISABLE);
+
+  tss_entry.ss0 = ss0; // Сегмент стека ядра.
+  tss_entry.esp0 = esp0; // Указатель стека ядра.
+
+  // Заносятся в таблицу TSS записи cs, ss, ds, es, fs и gs. В них указывается, какие сегменты
+  // должны быть загружены в случае,  когда процессор переключается в режим ядра. Поэтому
+  // они являются обычными сегментами кода/данных ядра - 0x08 и 0x10 соответственно,
+  // но в последних двух битах будут указаны значения 0x0b и 0x13. Значения этих битов указывают,
+  // что уровень запрашиваемых привилегий RPL (requested privilege level) равен 3; это означает, что
+  // этот сегмент TSS  можно использовать для переключения в режим ядра из кольца 3.
+  tss_entry.cs = 0x0b;
+  tss_entry.ss = tss_entry.ds = tss_entry.es = tss_entry.fs = tss_entry.gs = 0x13;
+}
+
+/** 
  * @brief  Инициализация GDT
  * 
  */
@@ -86,7 +119,9 @@ void init_memory() {
   create_descriptor(2, 0, 0xFFFFFFFF, SEG_DATA_RDWR | DPL(0), GRAN_ENABLE);
   create_descriptor(3, 0, 0xFFFFFFFF, SEG_CODE_EXRD | DPL(3), GRAN_ENABLE);
   create_descriptor(4, 0, 0xFFFFFFFF, SEG_DATA_RDWR | DPL(3), GRAN_ENABLE);
+  init_tss(5, 0x10, 0x0);
 
-  load_gdt((uint32_t) & gdt_ptr);
+  load_gdt((uint32_t) & gdt_ptr); /**< Ассемблерная функция загрузки GDT */
+  /* load_tss(); /// Ассемблерная функция загрузки TSS */
   mem_init();
 }
