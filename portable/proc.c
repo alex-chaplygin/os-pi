@@ -1,5 +1,6 @@
 #include <portable/proc.h>
 #include <portable/limits.h>
+#include <portable/syscall.h>
 #include <x86/console.h>
 #include <x86/x86.h>
 
@@ -146,10 +147,12 @@ int deleteProc(unsigned int pid){
  */
 int fork()
 {
+  byte *code_size=(void*)malloc(current_proc->code_size);
+  byte *data_size=(void*)malloc(current_proc->data_size);
   // создание нового элемента в таблице процессов
-  int newproc=createProc(0, current_proc->code_size, 0, current_proc->data_size);
+  int newproc=createProc(0,code_size,0,data_size);
   if(newproc==-1){
-    return -1;//ERROR_MAXPROC
+    return ERROR_MAXPROC;
   }
   // установка номера родительского процесса
   int number_parent=current_proc->pid;
