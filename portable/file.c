@@ -158,5 +158,6 @@ int read(int id, void *buf, int size)
  */
 int write(int id, void *buf, int size)
 {
+  kprint(buf);
   return 0;
 }
