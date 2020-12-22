@@ -71,6 +71,7 @@ struc proc
 pid:	resd 1;/**< номер процесса */
 parent_id:	resd 1;/**<  номер родительского процесса*/
 state:	resd 1;/**< состояние */
+sleep_param: resd 1; /**< причина сна */
 codePtr:	 resd 1;	        /**< адрес кода */
 code_size:	resd 1;		/**< размер сегмента кода */
 dataPtr:	resd 1;	        /**< адрес данных */
