@@ -117,6 +117,7 @@ int createProc(void* codePtr, int code_size, void* dataPtr, int data_size){
     processes[freeSlot].program_counter = codePtr;
     processes[freeSlot].stack_pointer = new_stack + STACK_SIZE;
     processes[freeSlot].state = STATUS_READY;
+    processes[freeSlot].sleep_param = SLEEP_NONE;
     for (int i = 0; i < 64; i++) processes[freeSlot].regs[i] = 0x10;//0x23; // USER DATA 
     processes[freeSlot].regs[50] = 0x8;//0x1B; // CS
     processes[freeSlot].regs[51] = 0x200; // EFLAGS
@@ -218,3 +219,17 @@ void sheduler()
   restore_regs();
 }
 
+void sleep(int sleep_param) {
+  current_proc->state = STATUS_SLEEPING;
+  current_proc->sleep_param = sleep_param;
+
+  sheduler();
+}
+
+void wakeup(int sleep_param) {
+  for (int i = 0; i < MAX_PROC_AMOUNT; i++) {
+    if (processes[i].state == STATUS_SLEEPING && processes[i].sleep_param == sleep_param) {
+      processes[i].state = STATUS_READY;
+    }
+  }
+}
