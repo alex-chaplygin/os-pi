@@ -33,6 +33,17 @@
 #define SEG_CODE_EXRDCA    0x0F // Execute/Read, conforming, accessed
  
 #define GDT_SIZE 5
+#define KERNEL_CODE 1
+#define KERNEL_DATA 2
+#define USER_CODE 3
+#define USER_DATA 4
+#define TSS 5
+#define SELECTOR(i, p) (((i) << 3) | (p))
+#define KERNEL_CS SELECTOR(KERNEL_CODE, 0)
+#define KERNEL_DS SELECTOR(KERNEL_DATA, 0)
+#define USER_CS SELECTOR(USER_CODE, 3)
+#define USER_DS SELECTOR(USER_DATA, 0)
+#define TSS_CS SELECTOR(TSS, 0)
 
 /// Эта структура содержит значения для одной записи GDT
 struct gdt_entry_struct {

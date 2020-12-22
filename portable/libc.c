@@ -9,6 +9,7 @@
  */
 
 #include <portable/libc.h>
+#include <portable/types.h>
 
 /**
  * @brief Копирует блок памяти
@@ -22,6 +23,12 @@ void memcpy(unsigned char* destptr, unsigned char* srcptr, int num ){
     {
         destptr[i] = srcptr[i];
     }    
+}
+
+void memset(byte *buf, byte val, int size)
+{
+  for (int i = 0; i < size; i++)
+    *buf++ = val;
 }
 
 /**

@@ -37,3 +37,4 @@ int createProc(void* codePtr, int code_size, void* dataPtr, int data_size);
 
 void sheduler();
 
+extern struct proc *current_proc;

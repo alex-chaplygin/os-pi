@@ -117,8 +117,8 @@ int createProc(void* codePtr, int code_size, void* dataPtr, int data_size){
     processes[freeSlot].program_counter = codePtr;
     processes[freeSlot].stack_pointer = new_stack + STACK_SIZE;
     processes[freeSlot].state = STATUS_READY;
-    for (int i = 0; i < 64; i++) processes[freeSlot].regs[i] = 0x10;//0x23; // USER DATA 
-    processes[freeSlot].regs[50] = 0x8;//0x1B; // CS
+    for (int i = 0; i < 64; i++) processes[freeSlot].regs[i] = 0x23; // USER DATA 
+    processes[freeSlot].regs[50] = 0x1B; // CS
     processes[freeSlot].regs[51] = 0x200; // EFLAGS
     return freeSlot;
 }
@@ -215,6 +215,6 @@ void sheduler()
     }
     current_proc++;
   }
-  restore_regs();
+  //  restore_regs();
+  //  proc_switch();
 }
-
