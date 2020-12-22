@@ -7,11 +7,16 @@
 #define BUFFER_SIZE 64		/**< размер буфера регистров процесса */
 #define STACK_SIZE 1024		/**< размер стека в байтах */
 
+// Различные причины, по которым процесс может погрузиться в сон.
+#define SLEEP_NONE 0       /*применяется, если процесс не в состоянии сна*/
+#define SLEEP_KEYBOARD 0x1 /*применяется, если процесс ожидает сигнала от клавиатуры*/
+
 /// структура процесса (если меняется, то нужно менять в x86.asm)
 struct proc {
   int pid;			/**< номер процесса */
   int parent_id;		/**<  номер родительского процесса*/
   int state;			/**< состояние */
+  int sleep_param; /**< причина сна */
   void* codePtr;	        /**< адрес кода */
   int code_size;		/**< размер сегмента кода */
   void* dataPtr;	        /**< адрес данных */
@@ -34,6 +39,7 @@ int deleteProc(unsigned int pid);
 // создаёт процесс
 // возвращает pid созданного процесса
 int createProc(void* codePtr, int code_size, void* dataPtr, int data_size);
-
 void sheduler();
+void sleep(int sleep_param);
+void wakeup(int sleep_param);
 
