@@ -13,6 +13,8 @@
 #include <portable/types.h>
 #include <x86/idt.h>
 #include <portable/keyboard.h>
+#include <portable/proc.h>
+
 /** 
  * проверка подключения клавиатуры
  * 
@@ -77,6 +79,12 @@ byte keyboard_buffer[MAX_KEYBUFFER];
  * 
  */
 int keybuffer_pos = 0;
+/**
+ * @brief Позиция чтения буфера клавиатуры.
+ * При достижении конца буфера сбрасывается в 0.
+ * 
+ */
+int keybuffer_read_pos = 0;
 
 /**
  * @brief Инициализирует клавиатуру, проверяя
@@ -87,6 +95,7 @@ int keybuffer_pos = 0;
  * 
  */
 void init_keyboard() {
+  clear_buffer(keyboard_buffer, 0, MAX_KEYBUFFER);
   uchar data; 
   write_port(0x64, 0xAA);
   data = read_port(0x60);
@@ -118,6 +127,28 @@ char key_map(int scan_code) {
 }
 
 /**
+ * @brief Считывает символ из буфера клавиатуры.
+ * Блокирует вызов и погружает текущий процесс в сон,
+ * если буфер пуст.
+ * 
+ * @param c адрес, по которому необходимо записать считанный символ.
+ * @return int - текущая позиция чтения буфера клавиатуры.
+ */
+int read_char(char* c) {
+  // Если буфер скан-кодов пуст.
+  if (keyboard_buffer[keybuffer_read_pos] == '\0') {
+    // Погрузить текущий процесс в сон.
+    sleep(SLEEP_KEYBOARD);
+    // Блокировать вызов, пока в буфер не поступит значение.
+    while (keyboard_buffer[keybuffer_read_pos] == '\0') {}
+  }
+
+  *c = key_map(keyboard_buffer[keybuffer_read_pos++]);
+
+  return keybuffer_read_pos;
+}
+
+/**
  * @brief Обрабатывает нажатие клавиши
  * и записывает её скан-код в буфер.
  * 
@@ -135,9 +166,12 @@ void keyboard_interrupt() {
 
     if (key_code >= 0) {
       keyboard_buffer[keybuffer_pos++] = key_code;
+      wakeup(SLEEP_KEYBOARD);
 
       if (keybuffer_pos > MAX_KEYBUFFER) {
         keybuffer_pos = 0;
+        // При заполнении буфера очистить его до позиции чтения.
+        clear_buffer(keyboard_buffer, 0, keybuffer_read_pos);
       }
 
       if (key_code == PAGE_UP_CODE) {
