@@ -93,3 +93,23 @@ void print_time()
     current_page = cp;
     enable_interrupts();
 }
+
+/** 
+ * @brief Получает размер памяти из cmos
+ * 
+ * 
+ * @return Размер памяти
+ */
+uint memory_size()
+{
+  uint total;
+  byte lowmem, highmem;
+
+  write_port(0x70, CMOS_LOWMEM);
+  lowmem = read_port(0x71);
+  write_port(0x70, CMOS_HIGHMEM);
+  highmem = read_port(0x71);
+
+  total = lowmem | highmem << 8;
+  return total;
+}
