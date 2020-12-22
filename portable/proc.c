@@ -11,14 +11,17 @@ void printProc1()
 {
   ushort *video = (ushort *)0xb8000;
   int i = 0;
+  int j = 0;
   while(1) {
     i++;
+    j++;
     if (i > 5) {
       *video = 0xffaa;
       i = 0;
     }
     else *video = 0;
-    //if (test_syscall(0, "proc1 ", 6) < 0) *video = 0x1111;
+    //if (j % 100000 == 0)
+      //    if (test_syscall(0, "1 ", 6) < 0) *video = 0x1111;
   }
 }
 
@@ -60,7 +63,7 @@ void initProcesses(){
     current_proc_numb = 1;
     int pid1 = createProc(printProc1, 1024, 0, 0);
     int pid2 = createProc(printProc2, 1024, 0, 0);
-    processes[1].state = STATUS_SLEEPING;   
+    //processes[1].state = STATUS_SLEEPING;   
 }
 
 /** 
@@ -114,8 +117,9 @@ int createProc(void* codePtr, int code_size, void* dataPtr, int data_size){
     processes[freeSlot].program_counter = codePtr;
     processes[freeSlot].stack_pointer = new_stack + STACK_SIZE;
     processes[freeSlot].state = STATUS_READY;
-    processes[freeSlot].regs[54] = 0x8; // CS
-    processes[freeSlot].regs[55] = 0x200; // EFLAGS
+    for (int i = 0; i < 64; i++) processes[freeSlot].regs[i] = 0x10;//0x23; // USER DATA 
+    processes[freeSlot].regs[50] = 0x8;//0x1B; // CS
+    processes[freeSlot].regs[51] = 0x200; // EFLAGS
     return freeSlot;
 }
 
@@ -177,8 +181,9 @@ int exec(char *name)
  * 
  * @param code код возврата
  */
-void exit(int code)
+int exit(int code)
 {
+  return 0;
 }
 
 /** 
@@ -186,8 +191,9 @@ void exit(int code)
  * 
  * @param id идентификатор процесса
  */
-void wait(int id)
+int wait(int id)
 {
+  return 0;
 }
 
 /** 

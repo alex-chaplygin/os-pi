@@ -41,6 +41,7 @@ void cmos_write(int num_reg, byte val)
 extern int printPtr;
 extern int print_page;
 extern int current_page;
+
 /** 
  * @brief Печатает текущее время в формате чч:мм:сс
  * 
@@ -54,7 +55,39 @@ void print_time()
     printPtr = 120;
     print_page = 0;
     current_page = 0;
-    kprint("%d:%d:%d", (int)cmos_read(CMOS_HOURS), (int)cmos_read(CMOS_MINUTES), (int)cmos_read(CMOS_SECONDS));
+    byte seconds = cmos_read(CMOS_SECONDS);
+    byte minutes = cmos_read(CMOS_MINUTES);
+    byte hours = cmos_read(CMOS_HOURS);
+    if(!(cmos_read(0x0b) & 0x04))
+      {
+	seconds = (seconds & 0x0f) + ((seconds / 16) * 10);
+	minutes = (minutes & 0x0f) + ((minutes / 16) * 10);
+	hours = ((hours & 0x0f) + (((hours & 0x70) / 16) * 10)) | (hours & 0x80);
+      }
+    if(!(cmos_read(0x0b) & 0x02) && (hours & 0x80))
+      hours = ((hours & 0x7f) + 12) % 24;
+    if((int)hours < 10)
+      if((int)minutes < 10)
+	if((int)seconds < 10)
+	  kprint("0%d:0%d:0%d", (int)hours, (int)minutes, (int)seconds);
+	else
+	  kprint("0%d:0%d:%d", (int)hours, (int)minutes, (int)seconds);
+      else
+        if((int)seconds < 10)
+	  kprint("0%d:%d:0%d", (int)hours, (int)minutes, (int)seconds);
+	else
+	  kprint("0%d:%d:%d", (int)hours, (int)minutes, (int)seconds);
+    else
+      if((int)minutes < 10)
+	if((int)seconds < 10)
+	  kprint("%d:0%d:0%d", (int)hours, (int)minutes, (int)seconds);
+	else
+	  kprint("%d:0%d:%d", (int)hours, (int)minutes, (int)seconds);
+      else
+        if((int)seconds < 10)
+	  kprint("%d:%d:0%d", (int)hours, (int)minutes, (int)seconds);
+	else
+	  kprint("%d:%d:%d", (int)hours, (int)minutes, (int)seconds);
     printPtr = ptr;
     print_page = pp;
     current_page = cp;
