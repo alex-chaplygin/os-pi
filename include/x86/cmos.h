@@ -6,6 +6,8 @@
 #define CMOS_MONTH 0x08		/**< Номер регистра месяца 1-12 */
 #define CMOS_YEAR 0x09		/**< Номер регистра года 0-99 */
 #define CMOS_CENTURY 0x32	/**< Номер регистра века 19-21 */
+#define CMOS_LOWMEM 0x30	/**< Номер регистра нижнего регистра байт памяти */
+#define CMOS_HIGHMEM 0x31	/**< Номер регистра верхнего регистра байт памяти */
 
 #include <portable/types.h>
 
@@ -31,3 +33,11 @@ void cmos_write(int num_reg, byte val);
  * 
  */
 void print_time();
+
+/** 
+ * @brief Получает размер памяти из cmos
+ * 
+ * 
+ * @return Размер памяти
+ */
+uint memory_size();
