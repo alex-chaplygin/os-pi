@@ -126,6 +126,19 @@ char* int_to_str(int n)
     return c;
 }
 
+/**
+ * @brief Заполняет нулями указанную область памяти.
+ * 
+ * @param buffer указатель на область памяти для очистки.
+ * @param offset смещение.
+ * @param count количество байтов, которые необходимо установить в 0.
+ */
+void clear_buffer(byte* buffer, int offset, int count) {
+    for (int i = 0; i < count; i++) {
+        buffer[offset + i] = 0;
+    }
+}
+
 /** 
  * @brief Переводит шестнадцатиричное число в строке в целое беззнаковое число 
  * 
