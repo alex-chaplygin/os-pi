@@ -15,7 +15,7 @@ void printProc1()
   int j = 0;
   char c = '!';
   while(1) {
-    //read_char(&c);
+    read_char(&c);
     i++;
     j++;
     if (i > 5) {
