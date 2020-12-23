@@ -5,5 +5,6 @@
 #define ENTER_CODE 0x1C
 
 void init_keyboard();
+int read_char(char* c);
 void keyboard_interrupt();
 char key_map(int scan_code);
