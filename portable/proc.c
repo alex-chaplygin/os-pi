@@ -224,7 +224,9 @@ int wait(int id)
  */
 void sheduler()
 {
-  //current_proc->state=STATUS_READY;
+  if (current_proc->state != STATUS_SLEEPING) {
+    current_proc->state = STATUS_READY;
+  }
   
   for (current_proc++; current_proc->state != STATUS_READY;  current_proc++) ;
 
