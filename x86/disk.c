@@ -5,7 +5,7 @@ byte* disk_read_block(byte *buffer, int block_num)
 {
     byte bufData[BUFFER_SIZE];
     byte block[BUFFER_SIZE] = "11text.txt";
-    byte path[BUFFER_SIZE] = "/text.txt";
+    byte path[BUFFER_SIZE] = "text.txt";
     byte file[BUFFER_SIZE] = "Temporary content of text.txt file";
 
     if(block_num == 0)
