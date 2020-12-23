@@ -10,10 +10,7 @@ int current_proc_numb = 0;	/**< Номер текущего процесса */
 
 void printProc1()
 {
-  static int pos = 0;
-  int child_number=fork();
-  pos++;
-  ushort *video = (ushort *)0xb8000 + pos;
+  ushort *video = (ushort *)0xb8000;
   int i = 0;
   while(1) {
     i++;
