@@ -4,7 +4,7 @@
 #define STATUS_RUNNING 1	/**< состояние "процесс запущен" */
 #define STATUS_SLEEPING 2	/**< состояние "процесс заморожен" */
 #define STATUS_STOPPING 3	/**< состояние "процесс остановлен" */
-#define BUFFER_SIZE 64		/**< размер буфера регистров процесса */
+#define REGS_SIZE 64		/**< размер буфера регистров процесса */
 #define STACK_SIZE 1024		/**< размер стека в байтах */
 
 /// структура процесса (если меняется, то нужно менять в x86.asm)
@@ -19,7 +19,7 @@ struct proc {
   void* stackPtr;	        /**< адрес стека */
   void *program_counter;		/**< счетчик команд */
   void *stack_pointer;		/**< указатель стека */
-  int regs[BUFFER_SIZE];	/**< буфер регистров */
+  int regs[REGS_SIZE];	/**< буфер регистров */
 };
 
 // инициализирует хранилище процессов

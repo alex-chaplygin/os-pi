@@ -1,5 +1,6 @@
 #include <portable/proc.h>
 #include <portable/limits.h>
+#include <portable/syscall.h>
 #include <x86/console.h>
 #include <x86/x86.h>
 
@@ -53,7 +54,7 @@ void initProcesses(){
         processes[i].dataPtr = 0;
 	processes[i].stackPtr = 0;
 
-	for(int j = 0; j < BUFFER_SIZE; j++) {
+	for(int j = 0; j < REGS_SIZE; j++) {
 	  processes[i].regs[j] = 0;
 	}
     }
@@ -63,7 +64,6 @@ void initProcesses(){
     current_proc_numb = 1;
     int pid1 = createProc(printProc1, 1024, 0, 0);
     int pid2 = createProc(printProc2, 1024, 0, 0);
-    //processes[1].state = STATUS_SLEEPING;   
 }
 
 /** 
@@ -148,11 +148,30 @@ int deleteProc(unsigned int pid){
  */
 int fork()
 {
+  byte *code=(void*)malloc(current_proc->code_size);
+  byte *data=(void*)malloc(current_proc->data_size);
   // создание нового элемента в таблице процессов
+  int newproc=createProc(code,current_proc->code_size,data,current_proc->data_size);
+  if(newproc==-1){
+    return ERROR_MAXPROC;
+  }
   // установка номера родительского процесса
+  int number_parent=current_proc->pid;
   // копирование памяти для кода и данных
+  memcpy(processes[newproc].codePtr, current_proc->codePtr, current_proc->code_size);
+  memcpy(processes[newproc].dataPtr, current_proc->dataPtr, current_proc->data_size);
+
+  processes[newproc].program_counter = current_proc->program_counter;
+  processes[newproc].stack_pointer = current_proc->stack_pointer;
+  processes[newproc].state = current_proc->state;
+  processes[newproc].parent_id = number_parent;
+
+  for(int j = 0; j < REGS_SIZE-1; j++) {
+    processes[newproc].regs[j] = processes[number_parent].regs[j];
+  }
   // сохранить значение -1 в регистр eax дочернего процесса regs[REGS_SIZE - 1]
-  return 0; // возврат номера дочернего процесса или ERROR_MAXPROC
+  processes[newproc].regs[REGS_SIZE-1] = -1;
+  return newproc; // возврат номера дочернего процесса или ERROR_MAXPROC
 }
 
 /** 
