@@ -12,11 +12,13 @@ void printProc1()
   ushort *video = (ushort *)0xb8000;
   int i = 0;
   int j = 0;
+  char c = '!';
   while(1) {
+    //read_char(&c);
     i++;
     j++;
     if (i > 5) {
-      *video = 0xffaa;
+      *video = 0x0f00 + c;
       i = 0;
     }
     else *video = 0;
