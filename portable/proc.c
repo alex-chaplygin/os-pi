@@ -224,7 +224,7 @@ int wait(int id)
  */
 void sheduler()
 {
-  current_proc->state=STATUS_READY;
+  //current_proc->state=STATUS_READY;
   
   for (current_proc++; current_proc->state != STATUS_READY;  current_proc++) ;
 
@@ -251,6 +251,7 @@ void wakeup(int sleep_param) {
   for (int i = 0; i < MAX_PROC_AMOUNT; i++) {
     if (processes[i].state == STATUS_SLEEPING && processes[i].sleep_param == sleep_param) {
       processes[i].state = STATUS_READY;
+      processes[i].sleep_param = SLEEP_NONE;
     }
   }
 }
