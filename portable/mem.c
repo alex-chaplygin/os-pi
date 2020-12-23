@@ -55,7 +55,7 @@ void mem_init()
     for (int i = 1; i < MAX_SEGMENTS; i++) {
         mem[i].freedom = 0;
         mem[i].address = 0;
-        mem[i].mem_size = memory_size();
+        mem[i].mem_size = 0;
     }
     
     remaining_memory.freedom = 0;
