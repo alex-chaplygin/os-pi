@@ -52,6 +52,7 @@ void initProcesses(){
         processes[i].pid = -1;
         processes[i].parent_id = -1;
         processes[i].state = STATUS_READY;
+        processes[i].sleep_param = SLEEP_NONE;
         processes[i].codePtr = 0;
         processes[i].dataPtr = 0;
 	processes[i].stackPtr = 0;
