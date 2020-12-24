@@ -19,7 +19,7 @@ void disk_read_block(byte *buffer, int block_num)
     {
         for(int j = 0; j<BLOCK_SIZE;j++)
         {
-            bufData[i][j] = 0x0;
+            bufData[i][j] = 0x00;
         }
     }
 
@@ -61,7 +61,7 @@ void disk_read_block(byte *buffer, int block_num)
             buffer[i] = bufData[0][i];
         }
 
-        return buffer;
+        return;
     }
     if(block_num == 1)//каталок
     {
@@ -70,7 +70,7 @@ void disk_read_block(byte *buffer, int block_num)
             buffer[i] = bufData[1][i];
         }
         
-        return buffer;
+        return;
     }
     if(block_num == 11)//содержимое файлаs
     {
@@ -79,7 +79,7 @@ void disk_read_block(byte *buffer, int block_num)
             buffer[i] = bufData[11][i];
         }
         
-        return buffer;
+        return;
     }
 
     for(int i =0; i < BLOCK_SIZE; i++)
@@ -87,5 +87,5 @@ void disk_read_block(byte *buffer, int block_num)
         buffer[i] = 0;
     }
     
-    return buffer;
+    return;
 }
