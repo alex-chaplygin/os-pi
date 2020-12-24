@@ -1,5 +1,4 @@
 #include <x86/disk.h>
-#include <portable/types.h>
 
 /** 
  * Возвращает данные с тестового жесткого диска
