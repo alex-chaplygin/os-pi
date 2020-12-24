@@ -8,9 +8,9 @@
  */
 void disk_read_block(byte *buffer, int block_num)
 {
-    byte super_blok[] = {0x71,0x71,0x04,0x00,0x00,0x01,0x02};
-    byte first_blok[] = "file.txt";
-    byte eleventh_blok[] = "Temporary content of file.txt file";
+    byte super_blok[] = {0x71,0x71,0x04,0x00,0x00,0x01,0x02,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
+    byte first_blok[] = {0x66,0x69,0x6C,0x65,0x2E,0x74,0x78,0x74,0x00,0x00,0x00,0x00,0x00,0x0B,0x00,0x01};
+    byte eleventh_blok[] = {0x54,0x65,0x6D,0x70,0x6F,0x72,0x61,0x72,0x79,0x20,0x63,0x6F,0x6E,0x74,0x65,0x6E,0x74,0x20,0x6F,0x66,0x20,0x66,0x69,0x6C,0x65,0x2E,0x74,0x78,0x74,0x20,0x66,0x69,0x6C,0x65};
     
     byte bufData[BLOCK_COUNT][BLOCK_SIZE];
 
@@ -24,20 +24,32 @@ void disk_read_block(byte *buffer, int block_num)
     }
 
     //Заполнение суперблока
-    for(int i =0; i < 9; i++)
+    for(int i =0; i < 512; i++)
     {
+        if(super_blok[i] == '\0')
+        {
+            break;
+        }
         bufData[0][i] = super_blok[i];
     }
     
     //Заполнение 1 блока
-    for(int i =0; i < 8; i++)
+    for(int i =0; i < 512; i++)
     {
+        if(first_blok[i] == '\0')
+        {
+            break;
+        }
         bufData[1][i] = first_blok[i];
     }
 
     //Заполнение 11 блока
-    for(int i =0; i < 34; i++)
+    for(int i =0; i < 512; i++)
     {
+        if(eleventh_blok[i] == '\0')
+        {
+            break;
+        }
         bufData[11][i] = eleventh_blok[i];
     }
 
