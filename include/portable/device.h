@@ -1,7 +1,7 @@
 #include "types.h"
 
 #define NUM_BLOCK_DEVICES 1	/**< число блочных устройств */
-#define NUM_SYMBOLIC_DEVICES 1	/**< число символьных устройств */
+#define NUM_SYMBOLIC_DEVICES 2	/**< число символьных устройств */
 
 #define HARD_DISK 0
 
