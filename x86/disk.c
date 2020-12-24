@@ -24,32 +24,20 @@ void disk_read_block(byte *buffer, int block_num)
     }
 
     //Заполнение суперблока
-    for(int i =0; i < 512; i++)
+    for(int i =0; i < sizeof(super_blok); i++)
     {
-        if(super_blok[i] == '\0')
-        {
-            break;
-        }
         bufData[0][i] = super_blok[i];
     }
     
     //Заполнение 1 блока
-    for(int i =0; i < 512; i++)
+    for(int i =0; i < sizeof(first_blok); i++)
     {
-        if(first_blok[i] == '\0')
-        {
-            break;
-        }
         bufData[1][i] = first_blok[i];
     }
 
     //Заполнение 11 блока
-    for(int i =0; i < 512; i++)
+    for(int i =0; i < sizeof(eleventh_blok); i++)
     {
-        if(eleventh_blok[i] == '\0')
-        {
-            break;
-        }
         bufData[11][i] = eleventh_blok[i];
     }
 
