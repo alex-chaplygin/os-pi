@@ -12,10 +12,10 @@ void disk_read_block(byte *buffer, int block_num)
     byte first_blok[] = "file.txt";
     byte eleventh_blok[] = "Temporary content of file.txt file";
     
-    byte bufData[BUFFER_SIZE][BLOCK_SIZE];
+    byte bufData[BLOCK_COUNT][BLOCK_SIZE];
 
     //Инициализация диска
-    for(int i =0; i < BUFFER_SIZE; i++)
+    for(int i =0; i < BLOCK_COUNT; i++)
     {
         for(int j = 0; j<BLOCK_SIZE;j++)
         {
