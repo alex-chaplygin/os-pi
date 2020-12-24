@@ -1,4 +1,3 @@
-
 /**
  * @file   device.c
  * @author alex <alex@alex-Inspiron-N5040>
@@ -15,7 +14,7 @@
 struct block_device block_devices[NUM_BLOCK_DEVICES] = {0, 0, 0, 0};
 
 /// таблица символьных устройств
-struct symbolic_device symbolic_devices[NUM_SYMBOLIC_DEVICES] = {console_clear, 0, putchar};
+struct symbolic_device symbolic_devices[NUM_SYMBOLIC_DEVICES];
 
 /** 
  * Инициализация всех блочных и символьных устройств (вызов методов инициализации)
@@ -23,6 +22,8 @@ struct symbolic_device symbolic_devices[NUM_SYMBOLIC_DEVICES] = {console_clear, 
  */
 void init_devices()
 {
+  symbolic_devices[SYMDEVICE_CONSOLE].init = console_clear;
+  symbolic_devices[SYMDEVICE_CONSOLE].write = putchar;
   int i=0, a=0;
   while(i<NUM_BLOCK_DEVICES){
     if(block_devices[i].init==0){
