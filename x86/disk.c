@@ -70,7 +70,7 @@ int disk_read_block(byte *buffer, int block_num)
 }
 
 ///Сравнивает строки, если равны, возвращает 0 и -1 если не равны
-int _str_cmp(char *first, byte *next)
+int _compare(char *first, char *next)
 {
     while (*first || *next)
     {
@@ -107,7 +107,7 @@ int find_file(char *name, byte *buffer)
                 temp[x] = block[j + x];
             }
 
-            if (_str_cmp(name, temp) < 0)
+            if (_compare(name, temp) < 0)
                 continue;
 
             for (char y = FILE_NAME_SIZE; y < FILE_RECORD_SIZE; y++)
