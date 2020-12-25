@@ -1,4 +1,3 @@
-
 /**
  * @file   device.c
  * @author alex <alex@alex-Inspiron-N5040>
@@ -9,12 +8,13 @@
  * 
  */
 #include <portable/device.h>
+#include <x86/console.h>
 
 /// таблица блочных устройств
 struct block_device block_devices[NUM_BLOCK_DEVICES] = {0, 0, 0, 0};
 
 /// таблица символьных устройств
-struct symbolic_device symbolic_devices[NUM_SYMBOLIC_DEVICES] = {0, 0, 0};
+struct symbolic_device symbolic_devices[NUM_SYMBOLIC_DEVICES] = {0, 0, 0, console_clear, 0, putchar};
 
 /** 
  * Инициализация всех блочных и символьных устройств (вызов методов инициализации)

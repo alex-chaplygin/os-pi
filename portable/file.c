@@ -1,6 +1,7 @@
 #include <portable/syscall.h>
 #include <portable/file.h>
-
+#include <portable/device.h>
+#include <portable/types.h>
 
 /** 
  * Запись в таблице файлов
@@ -158,6 +159,12 @@ int read(int id, void *buf, int size)
  */
 int write(int id, void *buf, int size)
 {
-  kprint(buf);
-  return 0;
+  byte *bufByte = (byte*)buf;
+  int writenCount = 0;
+  for(int i = 0; i < size; i++)
+    {
+      if(write_sym_device(SYMDEVICE_CONSOLE, *(bufByte+i*sizeof(byte))) == 0)
+	writenCount++;
+    }
+  return writenCount;
 }

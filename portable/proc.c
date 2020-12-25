@@ -23,8 +23,8 @@ void printProc1()
       i = 0;
     }
     else *video = 0;
-    //if (j % 100000 == 0)
-      //    if (test_syscall(0, "1 ", 6) < 0) *video = 0x1111;
+    if (j % 100000 == 0)
+    if (test_syscall(0, "123 ", 4) < 0) *video = 0x1111;
   }
 }
 

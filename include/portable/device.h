@@ -1,9 +1,11 @@
 #include "types.h"
 
 #define NUM_BLOCK_DEVICES 1	/**< число блочных устройств */
-#define NUM_SYMBOLIC_DEVICES 1	/**< число символьных устройств */
+#define NUM_SYMBOLIC_DEVICES 2	/**< число символьных устройств */
 
 #define HARD_DISK 0
+
+#define SYMDEVICE_CONSOLE 1	/**< символьное устройство консоль */
 
 #define ERROR_NODEVICE -1 /**< нет устройства с таким именем */
 #define ERROR_NOMETHOD -2 /**< пустой указатель на метод */
