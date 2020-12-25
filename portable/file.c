@@ -103,8 +103,11 @@ int read(int id, void *buf, int size)
 int write(int id, void *buf, int size)
 {
   byte *bufByte = (byte*)buf;
+  int writenCount = 0;
   for(int i = 0; i < size; i++)
     {
-      return write_sym_device(SYMDEVICE_CONSOLE, *(bufByte+i*sizeof(byte)));
+      if(write_sym_device(SYMDEVICE_CONSOLE, *(bufByte+i*sizeof(byte))) == 0)
+	writenCount++;
     }
+  return writenCount;
 }
