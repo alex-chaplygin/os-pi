@@ -3,6 +3,7 @@
 #include <portable/syscall.h>
 #include <x86/console.h>
 #include <x86/x86.h>
+#include <portable/libc.h>
 
 struct proc processes[MAX_PROC_AMOUNT];	/**< Массив процессов. */
 struct proc *current_proc = 0;	/**< Указатель на текущий процесс. */
@@ -243,10 +244,15 @@ void sheduler()
   restore_regs();
 }
 
-void sleep(int sleep_param) {
+void sleep(int sleep_param, void* continue_ptr) {
   current_proc->state = STATUS_SLEEPING;
   current_proc->sleep_param = sleep_param;
 
+  if (continue_ptr != NULL) {
+    current_proc->program_counter = continue_ptr;
+  }
+
+  save_regs();
   sheduler();
 }
 
