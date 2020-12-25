@@ -138,9 +138,11 @@ int read_char(char* c) {
   // Если буфер скан-кодов пуст.
   if (keyboard_buffer[keybuffer_read_pos] == '\0') {
     // Погрузить текущий процесс в сон.
-    sleep(SLEEP_KEYBOARD);
+    sleep(SLEEP_KEYBOARD, &&jump);
     // Блокировать вызов, пока в буфер не поступит значение.
-    while (keyboard_buffer[keybuffer_read_pos] == '\0') {}
+    while (keyboard_buffer[keybuffer_read_pos] == '\0') {
+      jump:;
+    }
   }
 
   *c = key_map(keyboard_buffer[keybuffer_read_pos++]);
