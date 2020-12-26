@@ -2,6 +2,7 @@
 #include <portable/file.h>
 #include <portable/device.h>
 #include <portable/types.h>
+#include <x86/disk.h>
 
 /** 
  * Запись в таблице файлов
@@ -145,7 +146,13 @@ int set_attr(int id, int attr)
  */
 int read(int id, void *buf, int size)
 {
-  return 0;
+  byte *bufByte = (byte*)buf;
+  int readenCount = 0;
+  
+  if(disk_read_block(*bufByte, 0) == 0)
+    readenCount++;
+  
+  return readenCount;
 }
 
 /** 
