@@ -49,7 +49,8 @@ void init_disk()
 }
 
 /** 
- * Возвращает данные с тестового жесткого диска
+ * @brief Возвращает данные с тестового жесткого диска
+ * 
  * @param buffer - буфер (размер 512), в который будут записаны данные
  * @param block_num - номер блока диска, с которого будут считываться данные
  * @return int - 0, если всё успешно, и -1, если возникла ошибка.
@@ -67,55 +68,4 @@ int disk_read_block(byte *buffer, int block_num)
     }
 
     return 0;
-}
-
-///Сравнивает строки, если равны, возвращает 0 и -1 если не равны
-int _compare(char *first, char *next)
-{
-    while (*first || *next)
-    {
-        if (*first != *next && (*first != '\0' || *next != '\0'))
-            return -1;
-        *first++;
-        *next++;
-    }
-    return 0;
-}
-
-/** 
- * Производит поиск файла в каталоге
- * @param name - имя файла, который требуется найти
- * @param buffer - буфер (размер 4), в который будет записано расположение и размер файла
- * @return int - 0, если всё успешно, и -1, если файл не найден.
- */
-int find_file(char *name, byte *buffer)
-{
-    byte block[BLOCK_SIZE];
-
-    for (char i = 1; i <= CATALOG_SIZE; i++)
-    {
-        if (disk_read_block(block, i) < 0)
-        {
-            return -1;
-        }
-        for (int j = 0; j < BLOCK_SIZE; j += 16)
-        {
-            byte temp[8];
-
-            for (int x = 0; x < FILE_NAME_SIZE; x++)
-            {
-                temp[x] = block[j + x];
-            }
-
-            if (_compare(name, temp) < 0)
-                continue;
-
-            for (char y = FILE_NAME_SIZE; y < FILE_RECORD_SIZE; y++)
-            {
-                buffer[y - FILE_NAME_SIZE] = block[j + y];
-            }
-            return 0;
-        }
-    }
-    return -1;
 }
