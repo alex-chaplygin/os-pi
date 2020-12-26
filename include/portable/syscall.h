@@ -7,6 +7,19 @@ int sys_call(int num, int param1, int param2, int param3);
 #define ERROR_IO -5		/**< ошибка ввода-вывода, аппаратная ошибка */
 #define ERROR_MAXPROC -6	/**< достигнут максимум процессов */
 
+#define OPEN 1
+#define CREATE 2
+#define CLOSE 3
+#define SEEK 4
+#define FSTAT 5
+#define SET_ATTR 6
+#define READ 7
+#define WRITE 8
+#define FORK 9
+#define EXEC 10
+#define EXIT 11
+#define WAIT 12
+
 /** 
  * Открытие файла
  * 
