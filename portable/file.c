@@ -4,6 +4,8 @@
 #include <portable/types.h>
 #include <x86/disk.h>
 
+int find_file(char *name, byte *buffer);
+
 /** 
  * Запись в таблице файлов
  * dev - номер устройства (-1 - свободный слот)
@@ -184,4 +186,43 @@ int write(int id, void *buf, int size)
       writenCount++;
   }
   return writenCount;
+}
+
+/** 
+ * @brief Производит поиск файла в каталоге
+ * 
+ * @param name - имя файла, который требуется найти
+ * @param buffer - буфер (размер 4), в который будет записано расположение и размер файла
+ * @return int - 0, если всё успешно, и -1, если файл не найден.
+ */
+int find_file(char *name, byte *buffer)
+{
+    byte block[BLOCK_SIZE];
+
+    for (char i = 1; i <= CATALOG_SIZE; i++)
+    {
+        if (disk_read_block(block, i) < 0)
+        {
+            return -1;
+        }
+        for (int j = 0; j < BLOCK_SIZE; j += 16)
+        {
+            byte temp[8];
+
+            for (int x = 0; x < FILE_NAME_SIZE; x++)
+            {
+                temp[x] = block[j + x];
+            }
+
+            if (str_compare(name, temp) < 0)
+                continue;
+
+            for (char y = FILE_NAME_SIZE; y < FILE_RECORD_SIZE; y++)
+            {
+                buffer[y - FILE_NAME_SIZE] = block[j + y];
+            }
+            return 0;
+        }
+    }
+    return -1;
 }
