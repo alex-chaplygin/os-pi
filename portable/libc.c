@@ -226,3 +226,21 @@ void kprint(char *str,...){
   }
 }
 
+/**
+ * @brief Сравнивает строки
+ * @param str_one первая строка
+ * @param str_two вторая строка
+ * @return если строки равны, возвращает 0 и -1 если не равны
+ * 
+ */
+int str_compare(char *str_one, char *str_two)
+{
+    while (*str_one || *str_two)
+    {
+        if (*str_one != *str_two && (*str_one != '\0' || *str_two != '\0'))
+            return -1;
+        *str_one++;
+        *str_two++;
+    }
+    return 0;
+}
