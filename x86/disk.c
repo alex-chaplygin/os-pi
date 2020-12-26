@@ -71,3 +71,8 @@ int disk_read_block(byte *buffer, int block_num)
 
     return 0;
 }
+
+int disk_write_block()
+{
+  return -1;
+}
