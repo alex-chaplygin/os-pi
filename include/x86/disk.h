@@ -8,4 +8,3 @@ typedef unsigned char byte;
 
 void init_disk();
 int disk_read_block(byte *buffer, int block_num);
-int find_file(char *name, byte *buffer);
