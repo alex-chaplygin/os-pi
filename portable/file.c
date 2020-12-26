@@ -3,6 +3,7 @@
 #include <portable/device.h>
 #include <portable/types.h>
 #include <x86/disk.h>
+#include <portable/libc.h>
 
 int find_file(char *name, byte *buffer);
 
