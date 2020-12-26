@@ -15,6 +15,7 @@ void printProc1()
   int j = 0;
   char c = '!';
   while(1) {
+    syscall_read(0, current_proc->dataPtr, 10);
     //read_char(&c);
     i++;
     j++;
@@ -24,7 +25,7 @@ void printProc1()
     }
     else *video = 0;
     if (j % 100000 == 0)
-    if (test_syscall(0, "123 ", 4) < 0) *video = 0x1111;
+    if (syscall_write(0, current_proc->dataPtr, 10) < 0) *video = 0x1111;
   }
 }
 
