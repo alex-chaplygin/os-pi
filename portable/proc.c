@@ -26,6 +26,8 @@ void printProc1()
     if (j % 100000 == 0)
     if (test_syscall(0, "123 ", 4) < 0) *video = 0x1111;
   }
+
+  test_syscall(fork());
 }
 
 void printProc2()
