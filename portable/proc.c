@@ -184,12 +184,16 @@ int exec(char *name)
  */
 int exit(int code)
 {
+  for(int i = 0; i < MAX_PROC_AMOUNT; i++)
+    if(processes[i].parent_id == current_proc->pid)
+      deleteProc(processes[i].pid);
+  
   if(current_proc->parent_id == -1)
     return deleteProc(current_proc->pid);
   else
     {
       current_proc->state = STATUS_STOPPING;
-      current_proc->regs[NUM_REGS - 1] = code;
+      current_proc->regs[REGS_SIZE - 1] = code;
       return 0;
     }
 }
