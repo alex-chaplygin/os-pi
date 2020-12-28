@@ -50,11 +50,11 @@ void init_files()
  */
 int open(char *name)
 {
-  if (sizeof(name) == 0 || sizeof(name) > FILE_NAME_SIZE)
+  if (name[0] == 0x00 || sizeof(name) > FILE_NAME_SIZE + 1)
   {
-    return ERROR_INVALID_PARAMETERS; //если имя файла не задано
+    return ERROR_INVALID_PARAMETERS; //если имя файла не задано или превышает лимит длины
   }
-
+  
   byte buffer[FILE_RECORD_SIZE - FILE_NAME_SIZE];
 
   if (find_file(name, buffer) < 0)
