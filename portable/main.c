@@ -34,8 +34,8 @@ void kmain(void)
   console_clear();
   init_interrupts();
   init_keyboard();
-  init_files();
   init_disk();
+  init_files();
   kprint("open file %i\n", open("file.txt"));
   //kprint(intToStr(get_phys_mem_size()));
   // int a = 1 / 0;
