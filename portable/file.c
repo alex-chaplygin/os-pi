@@ -5,23 +5,7 @@
 #include <x86/disk.h>
 #include <portable/libc.h>
 
-int find_file(char *name, byte *buffer);
 
-/** 
- * Запись в таблице файлов
- * dev - номер устройства (-1 - свободный слот)
- * pos - позиция в файле (в байтах)
- * start_block - первый блок файла
- * size - размер файла (в блоках)
- * @return 
- */
-struct file_entry
-{
-  int dev;
-  int pos;
-  int start_block;
-  int size;
-};
 
 ///таблица открытых файлов
 struct file_entry file_table[NUM_FILES];
