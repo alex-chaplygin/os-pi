@@ -14,8 +14,8 @@ void printProc1()
   int i = 0;
   int j = 0;
   char c = '!';
+  syscall_read(0, current_proc->dataPtr, 10);
   while(1) {
-    syscall_read(0, current_proc->dataPtr, 10);
     //read_char(&c);
     i++;
     j++;
@@ -65,7 +65,8 @@ void initProcesses(){
     processes[0].state = STATUS_RUNNING;
     current_proc = processes;
     current_proc_numb = 1;
-    int pid1 = createProc(printProc1, 1024, 0, 0);
+    byte* dataPtr = (byte*)malloc(10);
+    int pid1 = createProc(printProc1, 1024, dataPtr, 10);
     int pid2 = createProc(printProc2, 1024, 0, 0);
 }
 
