@@ -244,16 +244,16 @@ void sheduler()
   restore_regs();
 }
 
-void sleep(int sleep_param, void* continue_ptr) {
+void sleep(int sleep_param) {
+  save_regs();
+
+  current_proc->stack_pointer -= 0x10;
   current_proc->state = STATUS_SLEEPING;
   current_proc->sleep_param = sleep_param;
+  current_proc->program_counter = &&restore;
 
-  if (continue_ptr != NULL) {
-    current_proc->program_counter = continue_ptr;
-  }
-
-  save_regs();
   sheduler();
+  restore:;
 }
 
 void wakeup(int sleep_param) {

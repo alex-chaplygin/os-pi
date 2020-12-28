@@ -40,6 +40,6 @@ int deleteProc(unsigned int pid);
 // возвращает pid созданного процесса
 int createProc(void* codePtr, int code_size, void* dataPtr, int data_size);
 void sheduler();
-void sleep(int sleep_param, void* continue_ptr);
+void sleep(int sleep_param);
 void wakeup(int sleep_param);
 
