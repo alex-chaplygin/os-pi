@@ -146,11 +146,14 @@ int set_attr(int id, int attr)
  */
 int read(int id, void *buf, int size)
 {
-  byte *bufByte = (byte*)buf;
+  byte *bufByte = (byte*)malloc(BLOCK_SIZE);
   int readenCount = 0;
   
-  if(disk_read_block(*bufByte, 0) == 0)
-    readenCount++;
+  if(disk_read_block(bufByte, 0) == 0)
+    {
+      memcpy(buf, bufByte, size);
+      readenCount = size;
+    }
   
   return readenCount;
 }
