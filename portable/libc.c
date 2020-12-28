@@ -13,8 +13,8 @@
 /**
  * @brief Копирует блок памяти
  * 
- * @param destptr Адрес откуда
- * @param srcptr Адрес куда
+ * @param destptr Адрес куда
+ * @param srcptr Адрес откуда
  * @param num Количество копируемых байт
  */
 void memcpy(unsigned char* destptr, unsigned char* srcptr, int num ){
