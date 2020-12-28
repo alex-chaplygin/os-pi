@@ -1,4 +1,7 @@
 #define NUM_FILES 320
+#define FILE_TABLE_IS_FULL -1
+#define FILE_NOT_FOUND -2
+#define INVALID_NAME -3
 
 void init_files();
 int open(char *name);
