@@ -189,10 +189,6 @@ a_timer:
 	
 test_syscall:
 	mov eax, 7 ; syscall num
-	mov ebx, [esp + 4] ; param 1
-	mov ecx, [esp + 8] ; param 2
-	mov edx, [esp + 12] ; param 3
-	int 0x80
 	ret
 
 	;; обработчик прерывания
