@@ -57,7 +57,7 @@ void init_disk()
 int disk_read_block(byte *buffer, int block_num)
 {
     
-    init_disk();
+  //init_disk();
 
     if(block_num < 0 || block_num >= BLOCK_COUNT)
     {
