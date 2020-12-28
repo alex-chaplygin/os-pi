@@ -2,6 +2,10 @@
 #include <portable/file.h>
 #include <portable/device.h>
 #include <portable/types.h>
+#include <x86/disk.h>
+#include <portable/libc.h>
+
+int find_file(char *name, byte *buffer);
 
 /** 
  * Запись в таблице файлов
@@ -13,17 +17,14 @@
  */
 struct file_entry
 {
-    int dev;
-    int pos;
-    int start_block;
-    int size;
+  int dev;
+  int pos;
+  int start_block;
+  int size;
 };
 
 ///таблица открытых файлов
 struct file_entry file_table[NUM_FILES];
-
-///текущее количество открытых файлов
-//int file_count = 0;
 
 /** 
  * init_files() инициализирует таблицу файлов
@@ -31,7 +32,7 @@ struct file_entry file_table[NUM_FILES];
  */
 void init_files()
 {
-  for (int i = 0; i < NUM_FILES; i++) 
+  for (int i = 0; i < NUM_FILES; i++)
   {
     file_table[i].dev = -1;
     file_table[i].pos = 0;
@@ -45,20 +46,39 @@ void init_files()
  * 
  * @param name имя файла
  * 
- * @return идентификатор файла, меньше нуля если ошибка
+ * @return идентификатор файла, -1, если возникла ошибка
  */
 int open(char *name)
 {
-  for(int i = 0; i < NUM_FILES; i++)//поиск первой пустой записи
+  if (name[0] == 0x00 || sizeof(name) > FILE_NAME_SIZE + 1)
   {
-    if(file_table[i].dev == -1)
+    return ERROR_INVALID_PARAMETERS; //если имя файла не задано или превышает лимит длины
+  }
+  
+  byte buffer[FILE_RECORD_SIZE - FILE_NAME_SIZE];
+
+  if (find_file(name, buffer) < 0)
+  {
+    return ERROR_NOFILE; //если файл не найден
+  }
+
+  int start_block_file = buffer[0] * 256 + buffer[1]; //первый блок файла
+  int size_file = buffer[2] * 256 + buffer[3];        //размер файла (в блоках)
+  int position_file = start_block_file * BLOCK_SIZE;  //позиция на диске (в байтах)
+
+  for (int i = 0; i < NUM_FILES; i++) //поиск первой пустой записи
+  {
+    if (file_table[i].dev == -1)
     {
-      file_table[i].dev = 1;
+      file_table[i].dev = SYMDEVICE_CONSOLE;
+      file_table[i].pos = position_file;
+      file_table[i].start_block = start_block_file;
+      file_table[i].size = size_file;
       return i;
     }
   }
 
-  return -1;//если ошибка
+  return ERROR_MAXFILE; //если нет свободного блока
 }
 
 /** 
@@ -82,11 +102,11 @@ int create(char *name)
  */
 int close(int id)
 {
-  if(id < 0 || id >= NUM_FILES)
+  if (id < 0 || id >= NUM_FILES)
   {
     return -1;
   }
-  
+
   file_table[id].dev = -1;
   file_table[id].pos = 0;
   file_table[id].start_block = 0;
@@ -159,12 +179,51 @@ int read(int id, void *buf, int size)
  */
 int write(int id, void *buf, int size)
 {
-  byte *bufByte = (byte*)buf;
+  byte *bufByte = (byte *)buf;
   int writenCount = 0;
-  for(int i = 0; i < size; i++)
-    {
-      if(write_sym_device(SYMDEVICE_CONSOLE, *(bufByte+i*sizeof(byte))) == 0)
-	writenCount++;
-    }
+  for (int i = 0; i < size; i++)
+  {
+    if (write_sym_device(SYMDEVICE_CONSOLE, *(bufByte + i * sizeof(byte))) == 0)
+      writenCount++;
+  }
   return writenCount;
+}
+
+/** 
+ * @brief Производит поиск файла в каталоге
+ * 
+ * @param name - имя файла, который требуется найти
+ * @param buffer - буфер (размер 4), в который будет записано расположение и размер файла
+ * @return int - 0, если всё успешно, и -1, если файл не найден.
+ */
+int find_file(char *name, byte *buffer)
+{
+    byte block[BLOCK_SIZE];
+
+    for (char i = 1; i <= CATALOG_SIZE; i++)
+    {
+        if (disk_read_block(block, i) < 0)
+        {
+            return -1;
+        }
+        for (int j = 0; j < BLOCK_SIZE; j += 16)
+        {
+            byte temp[8];
+
+            for (int x = 0; x < FILE_NAME_SIZE; x++)
+            {
+                temp[x] = block[j + x];
+            }
+
+            if (str_compare(name, temp) < 0)
+                continue;
+
+            for (char y = FILE_NAME_SIZE; y < FILE_RECORD_SIZE; y++)
+            {
+                buffer[y - FILE_NAME_SIZE] = block[j + y];
+            }
+            return 0;
+        }
+    }
+    return -1;
 }
