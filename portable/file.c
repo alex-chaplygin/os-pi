@@ -50,16 +50,16 @@ void init_files()
  */
 int open(char *name)
 {
-  if (sizeof(name) == 0)
+  if (sizeof(name) == 0 || sizeof(name) > FILE_NAME_SIZE)
   {
-    return -1; //если имя файла не задано
+    return INVALID_NAME; //если имя файла не задано
   }
 
   byte buffer[FILE_RECORD_SIZE - FILE_NAME_SIZE];
 
   if (find_file(name, buffer) < 0)
   {
-    return -1; //если файл не найден
+    return FILE_NOT_FOUND; //если файл не найден
   }
 
   int start_block_file = buffer[0] * 256 + buffer[1]; //первый блок файла
@@ -78,7 +78,7 @@ int open(char *name)
     }
   }
 
-  return -1; //если нет свободного блока
+  return FILE_TABLE_IS_FULL; //если нет свободного блока
 }
 
 /** 
