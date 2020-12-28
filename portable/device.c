@@ -12,7 +12,7 @@
 #include <x86/disk.h>
 
 /// таблица блочных устройств
-struct block_device block_devices[NUM_BLOCK_DEVICES] = {init_disk, disk_read_block, disk_write_block, 0};
+struct block_device block_devices[NUM_BLOCK_DEVICES] = {0, 0, 0, 0, init_disk, disk_read_block, disk_write_block, 0};
 
 /// таблица символьных устройств
 struct symbolic_device symbolic_devices[NUM_SYMBOLIC_DEVICES] = {0, 0, 0, console_clear, 0, putchar};
