@@ -247,7 +247,7 @@ void sheduler()
 void sleep(int sleep_param) {
   save_regs();
 
-  current_proc->stack_pointer -= 0x10;
+  //current_proc->stack_pointer -= 0x10;
   current_proc->state = STATUS_SLEEPING;
   current_proc->sleep_param = sleep_param;
   current_proc->program_counter = &&restore;
