@@ -86,7 +86,7 @@ int set_attr(int id, int attr)
  */
 int read(int id, void *buf, int size)
 {
-  return 0;
+  return read_char(buf);
 }
 
 /** 
