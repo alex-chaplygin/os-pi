@@ -16,14 +16,14 @@ void printProc1()
   int j = 0;
   char c = '!';
   while(1) {
-    read_char(&c);
+    syscall_read(0, &c, 1);
     i++;
     j++;
-    if (i > 5) {
+    // if (i > 5) {
       *video = 0x0f00 + c;
       i = 0;
-    }
-    else *video = 0;
+      //}
+      //else *video = 0;
     //if (j % 100000 == 0)
       //    if (test_syscall(0, "1 ", 6) < 0) *video = 0x1111;
   }
@@ -245,15 +245,16 @@ void sheduler()
 }
 
 void sleep(int sleep_param) {
-  save_regs();
+  int a;
 
-  //current_proc->stack_pointer -= 0x10;
+  current_proc->stack_pointer = get_sp();
   current_proc->state = STATUS_SLEEPING;
   current_proc->sleep_param = sleep_param;
   current_proc->program_counter = &&restore;
 
   sheduler();
-  restore:;
+ restore:
+  a = 1;
 }
 
 void wakeup(int sleep_param) {
