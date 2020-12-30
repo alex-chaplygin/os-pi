@@ -13,8 +13,11 @@ void printProc1()
   ushort *video = (ushort *)0xb8000;
   int i = 0;
   int j = 0;
+  char data[10];
   char c = '!';
-  syscall_read(0, current_proc->dataPtr, 10);
+  syscall_read(0, data, 10);
+  for (int i = 0; i < 10; i++)  kprint("%x ", data[i]);
+  kprint("\n");
   while(1) {
     //read_char(&c);
     i++;
@@ -24,8 +27,8 @@ void printProc1()
       i = 0;
     }
     else *video = 0;
-    if (j % 100000 == 0)
-    if (syscall_write(0, current_proc->dataPtr, 10) < 0) *video = 0x1111;
+    //if (j % 100000 == 0)
+      //if (syscall_write(0, current_proc->dataPtr, 10) < 0) *video = 0x1111;
   }
 }
 
