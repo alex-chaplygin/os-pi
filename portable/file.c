@@ -1,7 +1,6 @@
 #include <portable/syscall.h>
 #include <portable/file.h>
 #include <portable/device.h>
-#include <portable/types.h>
 #include <x86/disk.h>
 #include <portable/libc.h>
 
@@ -45,8 +44,8 @@ int open(char *name)
     return ERROR_NOFILE; //если файл не найден
   }
 
-  int start_block_file = buffer[0] * 256 + buffer[1]; //первый блок файла
-  int size_file = buffer[2] * 256 + buffer[3];        //размер файла (в блоках)
+  int start_block_file = buffer[0] + buffer[1] * 256; //первый блок файла
+  int size_file = buffer[2] + buffer[3] * 256;        //размер файла (в блоках)
   int position_file = start_block_file * BLOCK_SIZE;  //позиция на диске (в байтах)
 
   for (int i = 0; i < NUM_FILES; i++) //поиск первой пустой записи
@@ -87,7 +86,7 @@ int close(int id)
 {
   if (id < 0 || id >= NUM_FILES)
   {
-    return -1;
+    return ERROR_INVALID_PARAMETERS;
   }
 
   file_table[id].dev = -1;
