@@ -19,6 +19,7 @@
 #include <x86/gdt.h>
 #include <portable/proc.h>
 #include <x86/cmos.h>
+#include <portable/device.h>
 
 extern void test_syscall();
 
@@ -30,6 +31,7 @@ void kmain(void)
 {
   init_memory();
   init_timer(10);
+  init_devices();
   initProcesses();
   console_clear();
   init_interrupts();
@@ -54,7 +56,7 @@ void kmain(void)
   // kprint("No mouse\n");
   // } 
   // запуск процесса init
-  kprint("mem = %d", memory_size());
+  kprint("mem = %d\n", memory_size());
   while(1) {
     print_time();
   }

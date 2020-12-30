@@ -6,7 +6,6 @@
 #include <portable/libc.h>
 
 
-
 ///таблица открытых файлов
 struct file_entry file_table[NUM_FILES];
 
@@ -149,7 +148,16 @@ int set_attr(int id, int attr)
  */
 int read(int id, void *buf, int size)
 {
-  return read_char(buf);
+  byte *bufByte = (byte*)malloc(BLOCK_SIZE);
+  int readenCount = 0;
+  if (id == 1) return read_char(buf);
+  if(disk_read_block(bufByte, 0) == 0)
+    {
+      memcpy(buf, bufByte, size);
+      readenCount = size;
+    }
+  
+  return readenCount;
 }
 
 /** 

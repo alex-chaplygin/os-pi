@@ -57,7 +57,7 @@ void init_disk()
  */
 int disk_read_block(byte *buffer, int block_num)
 {
-    if (block_num < 0 || block_num >= BLOCK_COUNT)
+    if(block_num < 0 || block_num >= BLOCK_COUNT)
     {
         return -1;
     }
@@ -80,4 +80,5 @@ int disk_read_block(byte *buffer, int block_num)
  */
 int disk_write_block(byte *buffer, int block_num)
 {
+  return -1;
 }

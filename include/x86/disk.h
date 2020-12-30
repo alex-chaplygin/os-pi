@@ -5,3 +5,4 @@
 
 void init_disk();
 int disk_read_block(byte *buffer, int block_num);
+int disk_write_block(byte *buffer, int block_num);

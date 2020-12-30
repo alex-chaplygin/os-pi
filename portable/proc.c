@@ -14,9 +14,13 @@ void printProc1()
   ushort *video = (ushort *)0xb8000;
   int i = 0;
   int j = 0;
+  char data[10];
   char c = '!';
+  syscall_read(0, data, 10);
+  for (int i = 0; i < 10; i++)  kprint("%x ", data[i]);
+  kprint("\n");
   while(1) {
-    syscall_read(0, &c, 1);
+    syscall_read(1, &c, 1);
     i++;
     j++;
     *video = 0x0f00 + c;
@@ -63,7 +67,8 @@ void initProcesses(){
     processes[0].state = STATUS_RUNNING;
     current_proc = processes;
     current_proc_numb = 1;
-    int pid1 = createProc(printProc1, 1024, 0, 0);
+    byte* dataPtr = (byte*)malloc(10);
+    int pid1 = createProc(printProc1, 1024, dataPtr, 10);
     int pid2 = createProc(printProc2, 1024, 0, 0);
     //processes[1].state = STATUS_SLEEPING;   
 }

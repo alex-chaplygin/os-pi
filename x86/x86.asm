@@ -30,7 +30,7 @@ global a_isrAlignmentCheckException
 global a_isrMachineCheckException
 global a_isrNonExistent
 global a_syscall
-global test_syscall
+global syscall_write, syscall_read
 global save_regs, restore_regs
 global read_port, write_port	
 global a_timer
@@ -198,7 +198,7 @@ a_timer:
 	call timer_event
 	iret
 	
-test_syscall:
+syscall_write:
 	mov eax, 7 ; syscall num
 	mov ebx, [esp + 4] ; param 1
 	mov ecx, [esp + 8] ; param 2
