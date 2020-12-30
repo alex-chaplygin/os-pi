@@ -31,6 +31,7 @@ global a_isrMachineCheckException
 global a_isrNonExistent
 global a_syscall
 global test_syscall
+global syscall_fork
 global save_regs, restore_regs
 global read_port, write_port	
 global a_timer
@@ -187,14 +188,18 @@ a_timer:
 	call timer_event
 	iret
 	
-FORK:	resd 1 ; /**номер вызова*/	
+FORK equ 7  ; /**номер вызова*/
+syscall_fork:
+	mov eax,FORK
+	int 0x80
+	ret
+	
 test_syscall:
-	mov eax, FORK ; syscall num
-;;	mov eax, 7 ; syscall num
-;;	mov ebx, [esp + 4] ; param 1
-;;	mov ecx, [esp + 8] ; param 2
-;;	mov edx, [esp + 12] ; param 3
-;;	int 0x80
+	mov eax, 7 ; syscall num
+	mov ebx, [esp + 4] ; param 1
+	mov ecx, [esp + 8] ; param 2
+	mov edx, [esp + 12] ; param 3
+	int 0x80
 	ret
 
 	;; обработчик прерывания
