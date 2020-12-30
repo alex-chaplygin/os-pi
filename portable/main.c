@@ -51,9 +51,9 @@ void kmain(void)
   // kprint("No mouse\n");
   // } 
   // запуск процесса init
-  /*kprint("mem = %d", memory_size());
+  kprint("mem = %d", memory_size());
   while(1) {
     print_time();
-  }*/
+  }
 	    // процесс ядра
 }
