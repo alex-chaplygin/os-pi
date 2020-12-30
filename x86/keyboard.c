@@ -135,13 +135,9 @@ char key_map(int scan_code) {
  * @return int - текущая позиция чтения буфера клавиатуры.
  */
 int read_char(char* c) {
-  // Если буфер скан-кодов пуст.
-  if (keyboard_buffer[keybuffer_read_pos] == '\0') {
-    // Погрузить текущий процесс в сон.
+  // Спать, пока в буфер не поступит скан-код клавиши.
+  while (keyboard_buffer[keybuffer_read_pos] == 0)
     sleep(SLEEP_KEYBOARD);
-    // Блокировать вызов, пока в буфер не поступит значение.
-    //while (keyboard_buffer[keybuffer_read_pos] == '\0') {}
-  }
 
   *c = key_map(keyboard_buffer[keybuffer_read_pos++]);
 

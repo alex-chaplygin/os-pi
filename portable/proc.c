@@ -3,6 +3,7 @@
 #include <portable/syscall.h>
 #include <x86/console.h>
 #include <x86/x86.h>
+#include <portable/libc.h>
 
 struct proc processes[MAX_PROC_AMOUNT];	/**< Массив процессов. */
 struct proc *current_proc = 0;	/**< Указатель на текущий процесс. */
@@ -15,16 +16,13 @@ void printProc1()
   int j = 0;
   char c = '!';
   while(1) {
-    //read_char(&c);
+    syscall_read(0, &c, 1);
     i++;
     j++;
-    if (i > 5) {
-      *video = 0x0f00 + c;
-      i = 0;
-    }
-    else *video = 0;
-    if (j % 100000 == 0)
-    if (test_syscall(0, "123 ", 4) < 0) *video = 0x1111;
+    *video = 0x0f00 + c;
+    i = 0;
+    //if (j % 100000 == 0)
+      //    if (test_syscall(0, "1 ", 6) < 0) *video = 0x1111;
   }
 }
 
@@ -52,6 +50,7 @@ void initProcesses(){
         processes[i].pid = -1;
         processes[i].parent_id = -1;
         processes[i].state = STATUS_READY;
+        processes[i].sleep_param = SLEEP_NONE;
         processes[i].codePtr = 0;
         processes[i].dataPtr = 0;
 	processes[i].stackPtr = 0;
@@ -239,7 +238,9 @@ int wait(int id)
  */
 void sheduler()
 {
-  current_proc->state=STATUS_READY;
+  if (current_proc->state != STATUS_SLEEPING) {
+    current_proc->state = STATUS_READY;
+  }
   
   for (current_proc++; current_proc->state != STATUS_READY;  current_proc++) ;
 
@@ -256,16 +257,23 @@ void sheduler()
 }
 
 void sleep(int sleep_param) {
+  int a;
+
+  current_proc->stack_pointer = get_sp();
   current_proc->state = STATUS_SLEEPING;
   current_proc->sleep_param = sleep_param;
+  current_proc->program_counter = &&restore;
 
   sheduler();
+ restore:
+  a = 1;
 }
 
 void wakeup(int sleep_param) {
   for (int i = 0; i < MAX_PROC_AMOUNT; i++) {
     if (processes[i].state == STATUS_SLEEPING && processes[i].sleep_param == sleep_param) {
       processes[i].state = STATUS_READY;
+      processes[i].sleep_param = SLEEP_NONE;
     }
   }
 }

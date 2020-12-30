@@ -1,5 +1,7 @@
 #include <portable/types.h>
 
+#define NULL 0
+
 void memcpy( unsigned char* destptr, unsigned char*  srcptr, int num );
 char *int_to_str(int n);
 char *int_to_str_hex(unsigned int num);

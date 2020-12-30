@@ -37,6 +37,8 @@ global a_timer
 global a_interrupt_handler
 global disable_interrupts, enable_interrupts
 global a_keyboard_interrupt
+global get_sp
+global syscall_read	
 extern kmain, exception_handler, sys_call, timer_event,end_of_interrupt		;this is defined in the c file
 extern interrupt_handler
 extern current_proc
@@ -61,6 +63,11 @@ load_gdt:
 	lgdt [edx]		
         ret
 
+get_sp:
+	mov eax, esp
+	add eax, 4
+	ret
+	
 	return_esp dd 0
 	proc_cs dd 0
 	proc_ip dd 0
@@ -170,7 +177,11 @@ write_port:
 	ret
 	
 a_syscall:
-	;; сохранение регистров
+	call save_regs;; сохранение регистров
+	mov esi, [current_proc]
+	add esi, regs +64 * 4 - 4 * 4	;EAX, ECX, EDX, EBX
+	mov eax, [esi + 12]
+	mov ebx, [esi]
 	push edx
 	push ecx
 	push ebx
@@ -195,6 +206,14 @@ test_syscall:
 	int 0x80
 	ret
 
+syscall_read:
+	mov eax, 6 ; read
+	mov ebx, [esp + 4] ; param 1
+	mov ecx, [esp + 8] ; param 2
+	mov edx, [esp + 12] ; param 3
+	int 0x80
+	ret
+	
 	;; обработчик прерывания
 a_interrupt_handler:
 	;; сохранить регистры текущего процесса
