@@ -16,18 +16,23 @@ void printProc1()
   int j = 0;
   char data[10];
   char c = '!';
-  syscall_read(0, data, 10);
-  for (int i = 0; i < 10; i++)  kprint("%x ", data[i]);
+  //syscall_read(0, data, 10);
+  //for (int i = 0; i < 10; i++)  kprint("%x ", data[i]);
   kprint("\n");
-  while(1) {
+  kprint("pid1 = %d", processes[2].pid);
+  kprint("pid2 = %d", processes[1].pid);
+  int res = exit(0);
+  kprint("pid1 = %d", processes[2].pid);
+  kprint("pid2 = %d", processes[1].pid);
+  /*while(1) {
     syscall_read(1, &c, 1);
     i++;
     j++;
     *video = 0x0f00 + c;
     i = 0;
     //if (j % 100000 == 0)
-      //    if (test_syscall(0, "1 ", 6) < 0) *video = 0x1111;
-  }
+    //    if (test_syscall(0, "1 ", 6) < 0) *video = 0x1111;
+    }*/
 }
 
 void printProc2()
@@ -68,8 +73,9 @@ void initProcesses(){
     current_proc = processes;
     current_proc_numb = 1;
     byte* dataPtr = (byte*)malloc(10);
-    int pid1 = createProc(printProc1, 1024, dataPtr, 10);
     int pid2 = createProc(printProc2, 1024, 0, 0);
+    processes[pid2].parent_id = 2;
+    int pid1 = createProc(printProc1, 1024, dataPtr, 10);
     //processes[1].state = STATUS_SLEEPING;   
 }
 
