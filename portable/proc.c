@@ -16,15 +16,10 @@ void printProc1()
   int j = 0;
   char data[10];
   char c = '!';
-  //syscall_read(0, data, 10);
+  syscall_read(0, data, 10);
+  syscall_exit(0, 0, 0);
   //for (int i = 0; i < 10; i++)  kprint("%x ", data[i]);
-  kprint("\n");
-  kprint("pid1 = %d", processes[2].pid);
-  kprint("pid2 = %d", processes[1].pid);
-  int res = exit(0);
-  kprint("pid1 = %d", processes[2].pid);
-  kprint("pid2 = %d", processes[1].pid);
-  /*while(1) {
+  while(1) {
     syscall_read(1, &c, 1);
     i++;
     j++;
@@ -32,7 +27,7 @@ void printProc1()
     i = 0;
     //if (j % 100000 == 0)
     //    if (test_syscall(0, "1 ", 6) < 0) *video = 0x1111;
-    }*/
+    }
 }
 
 void printProc2()
