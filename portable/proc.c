@@ -159,7 +159,7 @@ int fork()
   byte *code=(void*)malloc(current_proc->code_size);
   byte *data=(void*)malloc(current_proc->data_size);
   // создание нового элемента в таблице процессов
-  int newproc=createProc(code,current_proc->code_size,data,current_proc->data_size);
+  int newproc=createProc(*code,current_proc->code_size,*data,current_proc->data_size);
   if(newproc==-1){
     return ERROR_MAXPROC;
   }
@@ -171,7 +171,7 @@ int fork()
 
   processes[newproc].program_counter = current_proc->program_counter;
   processes[newproc].stack_pointer = current_proc->stack_pointer;
-  processes[newproc].state = current_proc->state;
+  processes[newproc].state = STATUS_READY;
   processes[newproc].parent_id = number_parent;
 
   for(int j = 0; j < REGS_SIZE-1; j++) {
