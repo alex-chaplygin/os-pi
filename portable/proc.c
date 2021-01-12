@@ -14,6 +14,7 @@ void printProc1()
   int i = 0;
   int j = 0;
   char c = '!';
+  if(syscall_fork()>0) *video = 0x1111 ;
   while(1) {
     //read_char(&c);
     i++;
@@ -27,7 +28,7 @@ void printProc1()
        if (test_syscall(0, "123 ", 4) < 0) *video = 0x1111;
   }
   
-   syscall_fork(fork());
+  
 }
 
 void printProc2()
