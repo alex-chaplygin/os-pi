@@ -179,6 +179,15 @@ int fork()
   }
   // сохранить значение -1 в регистр eax дочернего процесса regs[REGS_SIZE - 1]
   processes[newproc].regs[REGS_SIZE-1] = -1;
+
+  int a;
+  current_proc->stack_pointer=get_sp();
+  current_proc->state=STATUS_READY;
+  current_proc->program_counter=&&restore;
+  sheduler();
+ restore:
+  a=1;
+  
   return newproc; // возврат номера дочернего процесса или ERROR_MAXPROC
 }
 
