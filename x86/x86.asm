@@ -188,7 +188,7 @@ a_timer:
 	call timer_event
 	iret
 	
-FORK equ 7  ; /**номер вызова*/
+FORK equ 8  ; /**номер вызова*/
 syscall_fork:
 	mov eax,FORK
 	int 0x80
