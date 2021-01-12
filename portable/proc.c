@@ -8,15 +8,17 @@ struct proc processes[MAX_PROC_AMOUNT];	/**< Массив процессов. */
 struct proc *current_proc = 0;	/**< Указатель на текущий процесс. */
 int current_proc_numb = 0;	/**< Номер текущего процесса */
 
+int syscall_fork();
+
 void printProc1()
 {
   ushort *video = (ushort *)0xb8000;
   int i = 0;
   int j = 0;
   char c = '!';
-  if(syscall_fork()>0) *video = 0x1111 ;
+  if(syscall_fork() < 0) *(video + 2) = 0x1111 ;
   while(1) {
-    //read_char(&c);
+    read_char(&c);
     i++;
     j++;
     if (i > 5) {
@@ -24,8 +26,8 @@ void printProc1()
       i = 0;
     }
     else *video = 0;
-    if (j % 100000 == 0)
-       if (test_syscall(0, "123 ", 4) < 0) *video = 0x1111;
+    //if (j % 100000 == 0)
+    //  if (test_syscall(0, "123 ", 4) < 0) *video = 0x1111;
   }
   
   
