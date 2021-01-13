@@ -153,7 +153,7 @@ int deleteProc(unsigned int pid){
  * 
  * 
  * @return для родительского процесса возвращается идентификатор дочернего процесса, -1 - для дочернего
- */
+  */
 int fork()
 {
   byte *code=(void*)malloc(current_proc->code_size);
@@ -181,8 +181,6 @@ int fork()
   processes[newproc].regs[REGS_SIZE-1] = -1;
 
   int a;
-  current_proc->stack_pointer=get_sp();
-  current_proc->state=STATUS_READY;
   current_proc->program_counter=&&restore;
   sheduler();
  restore:
