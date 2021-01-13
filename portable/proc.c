@@ -182,7 +182,6 @@ int fork()
 
   int a;
   current_proc->program_counter=&&restore;
-  sheduler();
  restore:
   a=1;
   
