@@ -17,7 +17,7 @@ void printProc1()
   char data[10];
   char c = '!';
   syscall_read(0, data, 10);
-  syscall_exit(0, 0, 0);
+  syscall_exit(0);
   //for (int i = 0; i < 10; i++)  kprint("%x ", data[i]);
   while(1) {
     syscall_read(1, &c, 1);
