@@ -180,12 +180,14 @@ int fork()
   // сохранить значение -1 в регистр eax дочернего процесса regs[REGS_SIZE - 1]
   processes[newproc].regs[REGS_SIZE-1] = -1;
 
+  return newproc; // возврат номера дочернего процесса или ERROR_MAXPROC
+  
   int a;
-  current_proc->program_counter=&&restore;
+  processes[newproc].program_counter=&&restore;
  restore:
   a=1;
-  
-  return newproc; // возврат номера дочернего процесса или ERROR_MAXPROC
+
+  return -1;  
 }
 
 /** 
