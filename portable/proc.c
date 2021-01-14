@@ -170,10 +170,8 @@ int fork()
   memcpy(processes[newproc].dataPtr, current_proc->dataPtr, current_proc->data_size);
    
   int a;
-  processes[newproc].program_counter=&&restore;
- restore:
-  a=1;
-  
+  processes[newproc].program_counter=&&child_return;
+
   processes[newproc].stack_pointer = current_proc->stack_pointer;
   processes[newproc].state = STATUS_READY;
   processes[newproc].parent_id = number_parent;
@@ -185,6 +183,8 @@ int fork()
   processes[newproc].regs[REGS_SIZE-1] = -1;
 
   return newproc; // возврат номера дочернего процесса или ERROR_MAXPROC
+ child_return:
+  a=1;
   return -1;  
 }
 
