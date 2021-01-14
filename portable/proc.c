@@ -69,7 +69,7 @@ void initProcesses(){
     current_proc_numb = 1;
     byte* dataPtr = (byte*)malloc(10);
     int pid2 = createProc(printProc2, 1024, 0, 0);
-    processes[pid2].parent_id = 2;
+    //    processes[pid2].parent_id = 2;
     int pid1 = createProc(printProc1, 1024, dataPtr, 10);
     //processes[1].state = STATUS_SLEEPING;   
 }
@@ -223,8 +223,9 @@ int exit(int code)
     {
       current_proc->state = STATUS_STOPPING;
       current_proc->regs[REGS_SIZE - 1] = code;
-      return 0;
     }
+  sheduler();
+  return 0;
 }
 
 /** 
