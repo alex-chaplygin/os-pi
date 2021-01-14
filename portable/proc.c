@@ -168,8 +168,12 @@ int fork()
   // копирование памяти для кода и данных
   memcpy(processes[newproc].codePtr, current_proc->codePtr, current_proc->code_size);
   memcpy(processes[newproc].dataPtr, current_proc->dataPtr, current_proc->data_size);
-
-  processes[newproc].program_counter = current_proc->program_counter;
+   
+  int a;
+  processes[newproc].program_counter=&&restore;
+ restore:
+  a=1;
+  
   processes[newproc].stack_pointer = current_proc->stack_pointer;
   processes[newproc].state = STATUS_READY;
   processes[newproc].parent_id = number_parent;
@@ -181,12 +185,6 @@ int fork()
   processes[newproc].regs[REGS_SIZE-1] = -1;
 
   return newproc; // возврат номера дочернего процесса или ERROR_MAXPROC
-  
-  int a;
-  processes[newproc].program_counter=&&restore;
- restore:
-  a=1;
-
   return -1;  
 }
 
