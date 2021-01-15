@@ -54,11 +54,8 @@ int open(char *name)
     {
       file_table[i].dev = SYMDEVICE_CONSOLE;
       file_table[i].pos = position_file;
-      kprint("pos = %i\n", file_table[i].pos);
       file_table[i].start_block = start_block_file;
-      kprint("start = %i\n", file_table[i].start_block);
       file_table[i].size = size_file;
-      kprint("size = %i\n", file_table[i].size);
       return i;
     }
   }
@@ -151,11 +148,11 @@ int set_attr(int id, int attr)
 int read(int id, void *buf, int size)
 {
   if(size <= 0 || size > BLOCK_SIZE*file_table[id].size)
-    return -1;
+    return ERROR_INVALID_PARAMETERS;
   if(id < 0 || id > NUM_FILES)
-    return -1;
+    return ERROR_INVALID_PARAMETERS;
   if(buf == 0)
-    return -1;
+    return ERROR_INVALID_PARAMETERS;
   if(BLOCK_SIZE*file_table[id].size - (file_table[id].pos - file_table[id].start_block*BLOCK_SIZE) == 0)
     return 0;
   if(size > BLOCK_SIZE*file_table[id].size - (file_table[id].pos - file_table[id].start_block*BLOCK_SIZE))
