@@ -20,6 +20,7 @@ void init_files()
     file_table[i].pos = 0;
     file_table[i].start_block = 0;
     file_table[i].size = 0;
+    file_table[i].attr = 0;
   }
 }
 
@@ -56,11 +57,31 @@ int open(char *name)
       file_table[i].pos = position_file;
       file_table[i].start_block = start_block_file;
       file_table[i].size = size_file;
+      file_table[i].attr = ATTR_REGULAR;
       return i;
     }
   }
 
   return ERROR_MAXFILE; //если нет свободного блока
+}
+
+/**
+ * @brief Проверяет, открыт ли файл по данному дескриптору.
+ * 
+ * @param id числовой дескриптор файла.
+ * @return int 1, если файл открыт, 0, если закрыт,
+ * и значение меньше 0 в случае ошибки (неверный дескриптор).
+ */
+int isopen(int id) {
+  if (id < 0 || id >= NUM_FILES) {
+    return ERROR_INVALID_PARAMETERS;
+  }
+
+  if (file_table[id].dev != -1) {
+    return 1;
+  }
+
+  return 0;
 }
 
 /** 
@@ -93,6 +114,7 @@ int close(int id)
   file_table[id].pos = 0;
   file_table[id].start_block = 0;
   file_table[id].size = 0;
+  file_table[id].attr = 0;
 
   return 0;
 }
@@ -133,7 +155,28 @@ int fstat(int id, struct file_info *info)
  */
 int set_attr(int id, int attr)
 {
+  if (id < 0 || id >= NUM_FILES || isopen(id) <= 0) {
+    return ERROR_INVALID_PARAMETERS;
+  }
+
+  file_table[id].attr = attr;
+
   return 0;
+}
+
+/**
+ * @brief Получение атрибутов файла.
+ * 
+ * @param id дескриптор открытого файла.
+ * @return int отрицательное значение в случае
+ * ошибки и атрибуты файла в случае успеха.
+ */
+int get_attr(int id) {
+  if (id < 0 || id >= NUM_FILES || isopen(id) <= 0) {
+    return ERROR_INVALID_PARAMETERS;
+  }
+
+  return file_table[id].attr;
 }
 
 /** 
