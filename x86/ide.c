@@ -189,6 +189,7 @@ void ide_initialize(unsigned int BAR0, unsigned int BAR1, unsigned int BAR2, uns
 
 
 void init_ide(){
+  kprint("Init IDE\n");
     ide_initialize(0x1F0, 0x3F6, 0x170, 0x376, 0x000);
 }
 

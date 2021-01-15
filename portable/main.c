@@ -32,35 +32,16 @@ extern void test_syscall();
  */
 void kmain(void)
 {
-  init_memory();
-  init_timer(10);
-  init_devices();
-  initProcesses();
   console_clear();
+  init_memory();
+  init_devices();
+  init_timer(10);
+  initProcesses();
   init_interrupts();
   init_keyboard();
-  init_ide();
-  init_disk();
   init_files();
-  kprint("open file %i\n", open("file.txt"));
-  //kprint(intToStr(get_phys_mem_size()));
-  // int a = 1 / 0;
- 
-  // for(int i = 16; i<=22;i++)
-  // {
-  // test_mem(i);
-  // }
-  
-  //test_syscall();
-  
-
-  // if (mouse_check() == 0xAA) {
-  //kprint("Mouse detected\n");
-  //} else {
-  // kprint("No mouse\n");
-  // } 
   // запуск процесса init
-  kprint("mem = %d\n", memory_size());
+  //kprint("mem = %d\n", memory_size());
   while(1) {
     print_time();
   }

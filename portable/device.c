@@ -10,9 +10,10 @@
 #include <portable/device.h>
 #include <x86/console.h>
 #include <x86/disk.h>
+#include <x86/ide.h>
 
 /// таблица блочных устройств
-struct block_device block_devices[NUM_BLOCK_DEVICES] = {0, 0, 0, 0, init_disk, disk_read_block, disk_write_block, 0};
+struct block_device block_devices[NUM_BLOCK_DEVICES] = {0, 0, 0, 0, init_ide, disk_read_block, disk_write_block, 0};
 
 /// таблица символьных устройств
 struct symbolic_device symbolic_devices[NUM_SYMBOLIC_DEVICES] = {0, 0, 0, console_clear, 0, putchar};
@@ -24,6 +25,7 @@ struct symbolic_device symbolic_devices[NUM_SYMBOLIC_DEVICES] = {0, 0, 0, consol
 void init_devices()
 {
   int i=0, a=0;
+  kprint("Init devices\n");
   while(i<NUM_BLOCK_DEVICES){
     if(block_devices[i].init==0){
       //return ERROR_NODEVICE;
