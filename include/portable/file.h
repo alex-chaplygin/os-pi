@@ -30,6 +30,7 @@ struct disk_file_entry
  * pos - позиция в файле (в байтах)
  * start_block - первый блок файла
  * size - размер файла (в блоках)
+ * attr - атрибуты файла
  * @return 
  */
 /// Запись в таблице файлов 
@@ -39,8 +40,11 @@ struct file_entry
   int pos;
   int start_block;
   int size;
+  int attr;
 };
 
+int set_attr(int id, int attr);
+int get_attr(int id);
 int open(char *name);
 int close(int id);
 int create(char *name);
