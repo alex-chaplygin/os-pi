@@ -160,9 +160,9 @@ int read(int id, void *buf, int size)
   byte *bufByte = (byte*)malloc(BLOCK_SIZE);
   int readenCount = 0;
   if (id == 1) return read_char(buf);
-  if(disk_read_block(buf, file_table[id].pos/BLOCK_SIZE) == 0)
+  if(disk_read_block(bufByte, file_table[id].pos/BLOCK_SIZE) == 0)
     {
-      memcpy(buf, bufByte, size);
+      memcpy(buf, &bufByte[file_table[id].pos-((int)(file_table[id].pos/BLOCK_SIZE))*BLOCK_SIZE], size);
       readenCount = size;
       file_table[id].pos += size;
     }
