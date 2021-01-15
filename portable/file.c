@@ -125,7 +125,7 @@ int seek(int id, int offset)
 
 int fstat(int id, struct file_info *info)
 {
-  if(id<0||id>NUM_FILES ){
+  if(id<0||id>NUM_FILES-1){
     return ERROR_INVALID_PARAMETERS;
   }
   else if(file_table[id].dev<0){
@@ -135,10 +135,10 @@ int fstat(int id, struct file_info *info)
     return ERROR_INVALID_PARAMETERS;
   }
   else{    
-    info->length =  file_table[id].size;
-    info->attrib =  file_table[id].attrib;
-    info->device_num = file_table[id].dev;
-   
+    info[0].length =  file_table[id].size;
+    info[0].attrib =  file_table[id].attrib;
+    info[0].device_num = file_table[id].dev;
+
     return 0;
   }
 }
