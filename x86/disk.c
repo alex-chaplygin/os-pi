@@ -80,5 +80,15 @@ int disk_read_block(byte *buffer, int block_num)
  */
 int disk_write_block(byte *buffer, int block_num)
 {
-  return -1;
+  if(block_num < 0 || block_num >= BLOCK_COUNT)
+    {
+        return -1;
+    }
+
+  for(int i = 0; i < BLOCK_SIZE; i++)
+    {
+      disk_data[block_num][i] = buffer[i];
+    }
+
+  return 0;
 }
