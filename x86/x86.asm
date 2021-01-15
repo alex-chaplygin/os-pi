@@ -30,7 +30,7 @@ global a_isrAlignmentCheckException
 global a_isrMachineCheckException
 global a_isrNonExistent
 global a_syscall
-global syscall_write, syscall_read, syscall_exit
+global syscall_write, syscall_read, syscall_exit, syscall_create
 global save_regs, restore_regs
 global read_port, write_port	
 global a_timer
@@ -216,6 +216,12 @@ syscall_read:
 
 syscall_exit
 	mov eax, 10 ; exit
+	mov ebx, [esp + 4] ; param 1
+	int 0x80
+	ret
+
+syscall_create:
+	mov eax, 1 ; create
 	mov ebx, [esp + 4] ; param 1
 	int 0x80
 	ret
