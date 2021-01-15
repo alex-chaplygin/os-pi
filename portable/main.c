@@ -23,6 +23,22 @@
 
 extern void test_syscall();
 
+void syscallCreateTest(void)
+{
+  kprint("Test #1: expected = 1, obtained = %i\n", sys_call(1, "abc.txt", 0, 0));
+  kprint("Test #2: expected = -4, obtained = %i\n", sys_call(1, 0, 0, 0));
+  sys_call(1, "2", 0, 0);
+  sys_call(1, "3", 0, 0);
+  sys_call(1, "4", 0, 0);
+  sys_call(1, "5", 0, 0);
+  sys_call(1, "6", 0, 0);
+  sys_call(1, "7", 0, 0);
+  sys_call(1, "8", 0, 0);
+  sys_call(1, "9", 0, 0);
+  sys_call(1, "10", 0, 0);
+  kprint("Test #3: expected = -2, obtained = %i\n", sys_call(1, "abcd.txt", 0, 0));
+}
+
 /** 
  * Точка входа в ядро
  * 
@@ -38,9 +54,8 @@ void kmain(void)
   init_keyboard();
   init_disk();
   init_files();
-  kprint("open file %i\n", open("file.txt"));
-  create("abc.txt");
-  kprint("open file %i\n", open("abc.txt"));
+  kprint("open file file.txt %i\n", open("file.txt"));
+  syscallCreateTest();
   //kprint(intToStr(get_phys_mem_size()));
   // int a = 1 / 0;
  
