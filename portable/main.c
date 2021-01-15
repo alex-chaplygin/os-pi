@@ -60,7 +60,16 @@ void kmain(void)
   // kprint("No mouse\n");
   // } 
   // запуск процесса init
+  test_set_attr(descriptor);
 
+  kprint("mem = %d\n", memory_size());
+  while(1) {
+    print_time();
+  }
+	    // процесс ядра
+}
+
+void test_set_attr(int descriptor) {
   /*
   Входные условия: id файла меньше 0.
   Правильный класс эквивалентности: ошибка ERROR_INVALID_PARAMETERS.
@@ -111,11 +120,4 @@ void kmain(void)
   close(descriptor);
   descriptor = open("file.txt");
   kprint("After closing and reopening the file: %d\n", get_attr(descriptor));
-
-
-  kprint("mem = %d\n", memory_size());
-  while(1) {
-    print_time();
-  }
-	    // процесс ядра
 }
