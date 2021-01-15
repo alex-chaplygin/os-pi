@@ -4,10 +4,13 @@
 #include <x86/console.h>
 #include <x86/x86.h>
 #include <portable/libc.h>
+#include <portable/keyboard.h>
 
 struct proc processes[MAX_PROC_AMOUNT];	/**< Массив процессов. */
 struct proc *current_proc = 0;	/**< Указатель на текущий процесс. */
 int current_proc_numb = 0;	/**< Номер текущего процесса */
+//test
+int proc1;
 
 void printProc1()
 {
@@ -44,6 +47,17 @@ void printProc2()
   }
 }
 
+void childProc()
+{
+  sleep(SLEEP_KEYBOARD);
+  exit(0);
+}
+
+void parentProc()
+{
+  wait(proc1);
+}
+
 /** 
  * @brief Инициализация процессов. Устанавливает процессам состояние STATUS_READY.
  * 
@@ -71,6 +85,9 @@ void initProcesses(){
     int pid2 = createProc(printProc2, 1024, 0, 0);
     //    processes[pid2].parent_id = 2;
     int pid1 = createProc(printProc1, 1024, dataPtr, 10);
+    proc1 = createProc(childProc, 1024, 0, 0);
+    int proc2 = createProc(parentProc, 1024, 0, 0);
+    processes[proc1].parent_id = proc2;
     //processes[1].state = STATUS_SLEEPING;   
 }
 
@@ -224,6 +241,7 @@ int exit(int code)
       current_proc->state = STATUS_STOPPING;
       current_proc->regs[REGS_SIZE - 1] = code;
     }
+  wakeup(SLEEP_WAIT);
   sheduler();
   return 0;
 }
@@ -235,7 +253,28 @@ int exit(int code)
  */
 int wait(int id)
 {
-  
+    int error = 1;
+    int process_index = -1;
+  for (int i = 0; i < MAX_PROC_AMOUNT; i++)
+    {
+      if(processes[i].pid == id)
+	{
+	  error = 0;
+	  process_index = i;
+	  break;
+	}
+    }
+
+  if(error == 1)
+    return ERROR_INVALID_PARAMETERS;
+
+  current_proc->state = STATUS_SLEEPING;
+  current_proc->sleep_param = SLEEP_WAIT;
+  if (processes[process_index].state != STATUS_STOPPING)
+  {
+    sleep(current_proc->sleep_param);
+  }
+  wakeup(SLEEP_WAIT);
   return 0;
 }
 

@@ -57,8 +57,8 @@ void kmain(void)
   // } 
   // запуск процесса init
   kprint("mem = %d\n", memory_size());
-  while(1) {
-    print_time();
-  }
+   while(1) {
+   print_time();
+   }
 	    // процесс ядра
 }
