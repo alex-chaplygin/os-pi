@@ -22,6 +22,7 @@
 #include <portable/device.h>
 #include <portable/file.h>
 #include <portable/syscall.h>
+#include <x86/disk.h>
 
 extern void test_syscall();
 
@@ -94,9 +95,22 @@ void kmain(void)
   kprint("Test #4, expected: 0, actual: %d\n", res);
   kprint("Expected attributes: 3, actual attributes: %d\n", get_attr(descriptor));
 
+  byte buffer[BLOCK_SIZE];
+  disk_read_block(buffer, 1);
+
+  for (int i = 0; i < FILE_RECORD_SIZE; i++) {
+    kprint("0x%x ", buffer[i]);
+  }
+
+  kprint("\n");
+
   res = sys_call(5, descriptor, ATTR_DIRECTORY, 0);
   kprint("Test #5, expected: 0, actual: %d\n", res);
   kprint("Expected attributes: 2, actual attributes: %d\n", get_attr(descriptor));
+
+  close(descriptor);
+  descriptor = open("file.txt");
+  kprint("After closing and reopening the file: %d\n", get_attr(descriptor));
 
 
   kprint("mem = %d\n", memory_size());

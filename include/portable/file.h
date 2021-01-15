@@ -53,6 +53,6 @@ int close(int id);
 int create(char *name);
 int read(int id, void *buf, int size);
 int write(int id, void *buf, int size);
-int find_file(char *name, byte *buffer, int* file_entry_block, int* file_entry_pos);
+int find_file(char *name, byte *buffer, int* file_entry_block, int* file_entry_pos, byte* file_attr);
 int write_file_attributes_to_disk(int file_entry_block, int file_entry_pos, byte attr);
 void init_files();

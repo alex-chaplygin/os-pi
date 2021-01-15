@@ -42,8 +42,9 @@ int open(char *name)
   byte buffer[FILE_RECORD_SIZE - FILE_NAME_SIZE];
   int file_entry_block = 0;
   int file_entry_pos = 0;
+  byte file_attr = 0;
 
-  if (find_file(name, buffer, &file_entry_block, &file_entry_pos) < 0)
+  if (find_file(name, buffer, &file_entry_block, &file_entry_pos, &file_attr) < 0)
   {
     return ERROR_NOFILE; //если файл не найден
   }
@@ -62,7 +63,7 @@ int open(char *name)
       file_table[i].pos = position_file;
       file_table[i].start_block = start_block_file;
       file_table[i].size = size_file;
-      file_table[i].attr = ATTR_REGULAR;
+      file_table[i].attr = file_attr;
       return i;
     }
   }
@@ -239,7 +240,7 @@ int write(int id, void *buf, int size)
  * @param buffer - буфер (размер 4), в который будет записано расположение и размер файла
  * @return int - 0, если всё успешно, и -1, если файл не найден.
  */
-int find_file(char *name, byte *buffer, int* file_entry_block, int* file_entry_pos)
+int find_file(char *name, byte *buffer, int* file_entry_block, int* file_entry_pos, byte* file_attr)
 {
     byte block[BLOCK_SIZE];
     int file_block = 0;
@@ -274,6 +275,10 @@ int find_file(char *name, byte *buffer, int* file_entry_block, int* file_entry_p
 
             if (file_entry_pos != 0) {
               *file_entry_pos = j;
+            }
+
+            if (file_attr != 0) {
+              *file_attr = block[j + FILE_NAME_SIZE];
             }
 
             return 0;
