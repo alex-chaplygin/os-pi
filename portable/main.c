@@ -41,27 +41,9 @@ void kmain(void)
   init_keyboard();
   init_disk();
   init_files();
-  int descriptor = open("file.txt");
-  kprint("open file %i\n", descriptor);
-  //kprint(intToStr(get_phys_mem_size()));
-  // int a = 1 / 0;
- 
-  // for(int i = 16; i<=22;i++)
-  // {
-  // test_mem(i);
-  // }
-  
-  //test_syscall();
-  
+  test_set_attr();
 
-  // if (mouse_check() == 0xAA) {
-  //kprint("Mouse detected\n");
-  //} else {
-  // kprint("No mouse\n");
-  // } 
   // запуск процесса init
-  test_set_attr(descriptor);
-
   kprint("mem = %d\n", memory_size());
   while(1) {
     print_time();
@@ -69,7 +51,7 @@ void kmain(void)
 	    // процесс ядра
 }
 
-void test_set_attr(int descriptor) {
+void test_set_attr() {
   /*
   Входные условия: id файла меньше 0.
   Правильный класс эквивалентности: ошибка ERROR_INVALID_PARAMETERS.
@@ -91,6 +73,8 @@ void test_set_attr(int descriptor) {
   Правильный класс эквивалентности: возвращается 0, файлу присваиваются новые атрибуты.
   Неправильный класс эквивалентности: ошибка ERROR_INVALID_PARAMETERS.
   */
+  int descriptor = open("file.txt");
+  kprint("open file %i\n", descriptor);
   int res = set_attr(-88, ATTR_REGULAR);
   kprint("Test #1, expected: -4, actual: %d\n", res);
 
