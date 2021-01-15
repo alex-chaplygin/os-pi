@@ -54,8 +54,11 @@ int open(char *name)
     {
       file_table[i].dev = SYMDEVICE_CONSOLE;
       file_table[i].pos = position_file;
+      kprint("pos = %i\n", file_table[i].pos);
       file_table[i].start_block = start_block_file;
+      kprint("start = %i\n", file_table[i].start_block);
       file_table[i].size = size_file;
+      kprint("size = %i\n", file_table[i].size);
       return i;
     }
   }
@@ -147,14 +150,23 @@ int set_attr(int id, int attr)
  */
 int read(int id, void *buf, int size)
 {
+  if(size <= 0)
+    return -1;
+  if(id < 0 || id > NUM_FILES)
+    return -1;
+  if(size > BLOCK_SIZE - (file_table[id].pos - file_table[id].start_block*BLOCK_SIZE))
+    return 0;
   byte *bufByte = (byte*)malloc(BLOCK_SIZE);
   int readenCount = 0;
   if (id == 1) return read_char(buf);
-  if(disk_read_block(bufByte, 0) == 0)
+  if(disk_read_block(buf, file_table[id].start_block, file_table[id].pos - file_table[id].start_block*BLOCK_SIZE) == 0)
     {
       memcpy(buf, bufByte, size);
       readenCount = size;
+      file_table[id].pos += size;
     }
+  else
+    return -1;
   
   return readenCount;
 }
@@ -193,7 +205,7 @@ int find_file(char *name, byte *buffer)
 
     for (char i = 1; i <= CATALOG_SIZE; i++)
     {
-        if (disk_read_block(block, i) < 0)
+      if (disk_read_block(block, i, 0) < 0)
         {
             return -1;
         }
