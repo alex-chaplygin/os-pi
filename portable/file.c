@@ -150,12 +150,14 @@ int set_attr(int id, int attr)
  */
 int read(int id, void *buf, int size)
 {
-  if(size <= 0)
+  if(size <= 0 || size > BLOCK_SIZE)
     return -1;
   if(id < 0 || id > NUM_FILES)
     return -1;
-  if(size > BLOCK_SIZE - (file_table[id].pos - file_table[id].start_block*BLOCK_SIZE))
+  if(BLOCK_SIZE - (file_table[id].pos - file_table[id].start_block*BLOCK_SIZE) == 0)
     return 0;
+  if(size > BLOCK_SIZE - (file_table[id].pos - file_table[id].start_block*BLOCK_SIZE))
+    size = BLOCK_SIZE - (file_table[id].pos - file_table[id].start_block*BLOCK_SIZE);
   byte *bufByte = (byte*)malloc(BLOCK_SIZE);
   int readenCount = 0;
   if (id == 1) return read_char(buf);
