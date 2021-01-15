@@ -91,7 +91,7 @@ syscall_exec:
 	int SYS_CALL
 	ret
 
-syscall_exit
+syscall_exit:
 	mov eax, SYS_EXIT ; syscall num
 	mov ebx, [esp + 4] ; param 1
 	int SYS_CALL
