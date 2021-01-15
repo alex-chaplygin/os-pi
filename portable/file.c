@@ -154,6 +154,8 @@ int read(int id, void *buf, int size)
     return -1;
   if(id < 0 || id > NUM_FILES)
     return -1;
+  if(buf == 0)
+    return -1;
   if(BLOCK_SIZE - (file_table[id].pos - file_table[id].start_block*BLOCK_SIZE) == 0)
     return 0;
   if(size > BLOCK_SIZE - (file_table[id].pos - file_table[id].start_block*BLOCK_SIZE))
