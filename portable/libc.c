@@ -196,6 +196,7 @@ void kprint(char *str,...){
       int *param = (int *)&str;
       char *param_int = int_to_str(*(param + u));      
       kprint(param_int);
+      free(param_int);
       i++;
       u++;
     }
@@ -203,6 +204,7 @@ void kprint(char *str,...){
       int *param = (int *)&str;
       char *param_int = int_to_str(*(param + u));      
       kprint(param_int);
+      free(param_int);
       i++;
       u++;
     }
@@ -210,6 +212,7 @@ void kprint(char *str,...){
       int *param = (int *)&str;
       char *param_int = int_to_str_hex(*(param + u));
       kprint(param_int);
+      free(param_int);
       i++;
       u++;
     }
