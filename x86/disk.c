@@ -1,4 +1,5 @@
 #include <x86/disk.h>
+//#include <x86/ide.h>
 
 ///массив сегментов диска
 byte disk_data[BLOCK_COUNT][BLOCK_SIZE];
@@ -9,6 +10,8 @@ byte disk_data[BLOCK_COUNT][BLOCK_SIZE];
  */
 void init_disk()
 {
+
+    
     //Инициализация диска
     for (int i = 0; i < BLOCK_COUNT; i++)
     {

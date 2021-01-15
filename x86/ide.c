@@ -8,8 +8,6 @@
  * @copyright Copyright (c) 2021
  * 
  */
-
-
 #include <portable/types.h>
 #include <x86/x86.h>
 #include <portable/libc.h>
@@ -19,14 +17,8 @@ unsigned char ide_buf[2048] = {0};
 ide_device ide_devices[4];
 IDEChannelRegisters channels[2];
 
-int ide_status = -1;
 
 
-/**
- * @brief задержка для правильной работы алгоритма чтения
- * 
- * @param ms 
- */
 static void __delay(int ms)
 {
 	int i;
@@ -34,7 +26,7 @@ static void __delay(int ms)
 }
 
 /**
- * @brief Запись в  шину pci
+ * @brief ЗАпись в шину pci
  * 
  * @param channel 
  * @param reg 
@@ -54,7 +46,6 @@ void ide_write(unsigned char channel, unsigned char reg, unsigned char data) {
 	if (reg > 0x07 && reg < 0x0C)
 		ide_write(channel, ATA_REG_CONTROL, channels[channel].nIEN);
 }
-
 
 /**
  * @brief Чтение из шины pci
@@ -88,9 +79,6 @@ unsigned char ide_read(unsigned char channel, unsigned char reg) {
  */
 void ide_initialize(unsigned int BAR0, unsigned int BAR1, unsigned int BAR2, unsigned int BAR3, unsigned int BAR4)
 {
-
-
-
 	int i, j, k, count = 0;
 
 	// 1- Detect I/O Ports which interface IDE Controller:
@@ -103,31 +91,18 @@ void ide_initialize(unsigned int BAR0, unsigned int BAR1, unsigned int BAR2, uns
 	// 2- Disable IRQs:
 	ide_write(ATA_PRIMARY  , ATA_REG_CONTROL, 2);
 	ide_write(ATA_SECONDARY, ATA_REG_CONTROL, 2);
-	
+
 	int ide_init_result = read_port(0xCFC) >> 16;
+	if (ide_init_result == 0xFFFF){
+		kprint("No IDE controller found");
+		return;
+	}
+
 	//kprint("ide intit %i", ide_init_result);
-
-	if (ide_init_result == 0xFFF){
-		kprint ("found ide controller");
-		ide_status = 0;
-	} else {
-		kprint("not found ide controller");
-	}
-	
-
-}
-
-unsigned char err = 0, type = IDE_ATA, status;
-
-void detect_disks(){
-	if (ide_status != 0){
-		return; // не нашли контроллер 
-	}
-
-    int i, j, k, count = 0;
-
-	for (i = 0; i < 2; i++){
-		for (j = 0; j < 2; j++) {
+	// 3- Detect ATA-ATAPI Devices:
+	for (i = 0; i < 2; i++)
+		for (j = 0; j < 1; j++) {
+			//j = 1;
 
 			unsigned char err = 0, type = IDE_ATA, status;
 			ide_devices[count].Reserved = 0; // Assuming that no drive here.
@@ -137,19 +112,20 @@ void detect_disks(){
 			__delay(1); // Wait 1ms for drive select to work.
 			// (II) Send ATA Identify Command:
 			ide_write(i, ATA_REG_COMMAND, ATA_CMD_IDENTIFY);
-			__delay(1); 
+			__delay(1); // This function should be implemented in your OS. which waits for 1 ms.
+			// it is based on System Timer Device Driver.
 
 			// (III) Polling:
 			if (ide_read(i, ATA_REG_STATUS) == 0) {
-                //kprint("No device found");
-				continue;
+				//continue;
 			} // If Status = 0, No Device.
-			//kprint("--Get device %d\n",i);
+			// printk("--Get device %d\n",i);
 			while(1) {
 				status = ide_read(i, ATA_REG_STATUS);
 				if ((status & ATA_SR_ERR)) {err = 1; break;} // If Err, Device is not ATA.
 				if (!(status & ATA_SR_BSY) && (status & ATA_SR_DRQ)) break; // Everything is right.
 			}
+
 			// (IV) Probe for ATAPI Devices:
 			if (err != 0) {
 				unsigned char cl = ide_read(i, ATA_REG_LBA1);
@@ -159,15 +135,18 @@ void detect_disks(){
 					type = IDE_ATAPI;
 				else if (cl == 0x69 && ch == 0x96)
 					type = IDE_ATAPI;
-				else
-					continue; // Unknown Type (may not be a device).
+				//else
+				//	continue; // Unknown Type (may not be a device).
 
 				ide_write(i, ATA_REG_COMMAND, ATA_CMD_IDENTIFY_PACKET);
 				__delay(1);
 			}
 
+			// (V) Read Identification Space of the Device:
+			//ide_read_buffer(i, ATA_REG_DATA, (unsigned int) ide_buf, 128);
+
 			// (VI) Read Device Parameters:
-			ide_devices[count].Reserved     = 0;
+			ide_devices[count].Reserved     = 1;
 			ide_devices[count].Type         = type;
 			ide_devices[count].Channel      = i;
 			ide_devices[count].Drive        = j;
@@ -179,10 +158,12 @@ void detect_disks(){
 			if (ide_devices[count].CommandSets & (1 << 26))
 			{
 				// Device uses 48-Bit Addressing:
+				//printk("Device %d use 48-Bit Addressing\n", count);
 				ide_devices[count].Size   = *((unsigned int *)(ide_buf + ATA_IDENT_MAX_LBA_EXT));
 			}
 			else{
-
+				// Device uses CHS or 28-bit Addressing:
+				//printk("Device %d use CHS Addressing\n", count);
 				ide_devices[count].Size   = *((unsigned int *)(ide_buf + ATA_IDENT_MAX_LBA));
 			}
 
@@ -194,18 +175,18 @@ void detect_disks(){
 
 			count++;
 		}
-    }
+		
 
 	// 4- Print Summary:
-	for (i = 0; i < 4; i++){
+	for (i = 0; i < 4; i++)
 		if (ide_devices[i].Reserved == 1) {
 			kprint(" Slot %d found %s Drive %dMB - %s\n", i,
 					(const char *[]){"ATA", "ATAPI"}[ide_devices[i].Type],         /* Type */
 					ide_devices[i].Size / 2048 ,               /* Size */
 					ide_devices[i].Model);
 		}
-    }
 }
+
 
 void init_ide(){
     ide_initialize(0x1F0, 0x3F6, 0x170, 0x376, 0x000);
