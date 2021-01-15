@@ -39,6 +39,8 @@ void kmain(void)
   init_disk();
   init_files();
   kprint("open file %i\n", open("file.txt"));
+  create("abc.txt");
+  kprint("open file %i\n", open("abc.txt"));
   //kprint(intToStr(get_phys_mem_size()));
   // int a = 1 / 0;
  
