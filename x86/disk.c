@@ -1,5 +1,7 @@
 #include <x86/disk.h>
-//#include <x86/ide.h>
+#include <x86/ide.h>
+#include <x86/console.h>
+#include <portable/libc.h>
 
 ///массив сегментов диска
 byte disk_data[BLOCK_COUNT][BLOCK_SIZE];
@@ -58,7 +60,7 @@ void init_disk()
  * @param block_num номер блока диска, с которого будут считываться данные
  * @return int 0, если всё успешно, и -1, если возникла ошибка.
  */
-int disk_read_block(byte *buffer, int block_num)
+/*int disk_read_block(byte *buffer, int block_num)
 {
     if(block_num < 0 || block_num >= BLOCK_COUNT)
     {
@@ -71,6 +73,27 @@ int disk_read_block(byte *buffer, int block_num)
     }
 
     return 0;
+}*/
+int disk_read_block(byte *buffer, int block_num)
+{
+	byte result = ide_ata_access(0, 0, 0, 1, (unsigned char)buffer, block_num);
+	//kprint("test read\n");
+
+	for (int i = 0; i < 255; i+=2){
+		char t = buffer[i];
+		buffer[i] = buffer[i+1];
+		buffer[i+1] = t;
+	}
+
+    return 0;
+
+	/*for (int i = 0; i < 512; i++)
+	{
+		
+			kprint(buffer[i]);
+		
+	}*/
+    return result;
 }
 
 /** 

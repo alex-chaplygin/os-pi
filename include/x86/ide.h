@@ -109,5 +109,7 @@ typedef struct IDEChannelRegisters {
 
 void init_ide();
 void detect_disks();
+unsigned char ide_ata_access(unsigned char direction, unsigned char drive, unsigned int lba, 
+		unsigned char numsects, unsigned char selector, unsigned int edi);
 
 #endif    

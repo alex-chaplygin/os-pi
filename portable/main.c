@@ -26,6 +26,21 @@
 
 extern void test_syscall();
 
+void testHDD(){
+
+  byte* ptr = 0x00;
+  int result = disk_read_block(ptr, 0);
+  if (result == 0){
+    
+    for (int i = 0; i < 512; i++)
+    {
+      
+        kprint((char*)ptr[i]);
+      
+    }
+  }
+}
+
 /** 
  * Точка входа в ядро
  * 
@@ -40,6 +55,7 @@ void kmain(void)
   init_interrupts();
   init_keyboard();
   init_files();
+  testHDD();
   // запуск процесса init
   //kprint("mem = %d\n", memory_size());
   while(1) {
