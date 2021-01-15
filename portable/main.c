@@ -20,6 +20,7 @@
 #include <portable/proc.h>
 #include <x86/cmos.h>
 #include <portable/device.h>
+#include <portable/syscall.h>
 
 extern void test_syscall();
 
@@ -57,6 +58,17 @@ void kmain(void)
   // } 
   // запуск процесса init
   kprint("mem = %d\n", memory_size());
+  
+  struct file_info info[1];
+  info[0].length = 0;
+  info[0].attrib = 0;
+  info[0].device_num = 0;
+  //Тестирование работы функции с параметрами соотвествующими спецификации
+  kprint("fstat %i\n",fstat(0,info));
+  //Тестирование работы функции с не существующим идентификатором файла
+  kprint("fstat %i\n",fstat(1,info));
+  //Тестирование работы функции с нулевым значением указателя структуры
+  kprint("fstat %i\n",fstat(0,0));
   while(1) {
     print_time();
   }
