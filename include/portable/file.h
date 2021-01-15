@@ -39,6 +39,7 @@ struct file_entry
   int pos;
   int start_block;
   int size;
+  int attrib;
 };
 
 int open(char *name);
