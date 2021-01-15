@@ -57,22 +57,26 @@ void kmain(void)
   // kprint("No mouse\n");
   // } 
   // запуск процесса init
+  int id_file=open("file.txt");
+  test_fstat(id_file);
+  
   kprint("mem = %d\n", memory_size());
   
-  struct file_info info[1];
-  info[0].length = 0;
-  info[0].attrib = 0;
-  info[0].device_num = 0;
-  //Тестирование работы функции с параметрами соотвествующими спецификации
-  kprint("fstat %i\n",fstat(0,info));
-  //Тестирование работы функции с не существующим идентификатором файла
-  kprint("fstat %i\n",fstat(1,info));
-  //Тестирование работы функции с не существующим идентификатором файла
-  kprint("fstat %i\n",fstat(-2,info));
-  //Тестирование работы функции с нулевым значением указателя структуры
-  kprint("fstat %i\n",fstat(0,0));
   while(1) {
     print_time();
   }
 	    // процесс ядра
+}
+
+void test_fstat(int id){
+  struct file_info info[1];
+  //Тестирование работы функции с параметрами соотвествующими спецификации
+  kprint("fstat %i\n",fstat(id,&info));
+  kprint("%i %d %i \n",info[0].length,info[0].attrib,info[0].device_num);
+  //Тестирование работы функции с не существующим идентификатором файла
+  kprint("fstat %i\n",fstat(5,&info));
+  //Тестирование работы функции с не существующим идентификатором файла
+  kprint("fstat %i\n",fstat(-1,&info));
+  //Тестирование работы функции с нулевым значением указателя структуры
+  kprint("fstat %i\n",fstat(0,0));
 }
