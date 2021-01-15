@@ -38,6 +38,7 @@ global a_timer
 global a_interrupt_handler
 global disable_interrupts, enable_interrupts
 global a_keyboard_interrupt
+global get_sp
 extern kmain, exception_handler, sys_call, timer_event,end_of_interrupt		;this is defined in the c file
 extern interrupt_handler
 extern current_proc
@@ -61,6 +62,11 @@ load_gdt:
 	mov edx, [esp + 4]
 	lgdt [edx]		
         ret
+
+get_sp:
+	mov eax, esp
+	add eax, 4
+	ret
 
 	return_esp dd 0
 	proc_cs dd 0
