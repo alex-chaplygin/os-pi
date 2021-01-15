@@ -3,6 +3,7 @@
 #include <portable/device.h>
 #include <x86/disk.h>
 #include <portable/libc.h>
+#include <portable/mem.h>
 
 
 ///таблица открытых файлов
@@ -39,8 +40,10 @@ int open(char *name)
   }
   
   byte buffer[FILE_RECORD_SIZE - FILE_NAME_SIZE];
+  int file_entry_block = 0;
+  int file_entry_pos = 0;
 
-  if (find_file(name, buffer) < 0)
+  if (find_file(name, buffer, &file_entry_block, &file_entry_pos) < 0)
   {
     return ERROR_NOFILE; //если файл не найден
   }
@@ -53,6 +56,8 @@ int open(char *name)
   {
     if (file_table[i].dev == -1)
     {
+      file_table[i].file_entry_block = file_entry_block;
+      file_table[i].file_entry_pos = file_entry_pos;
       file_table[i].dev = SYMDEVICE_CONSOLE;
       file_table[i].pos = position_file;
       file_table[i].start_block = start_block_file;
@@ -160,6 +165,10 @@ int set_attr(int id, int attr)
   }
 
   file_table[id].attr = attr;
+  
+  if (write_file_attributes_to_disk(file_table[id].file_entry_block, file_table[id].file_entry_pos, (byte)attr) < 0) {
+    return ERROR_IO;
+  }
 
   return 0;
 }
@@ -230,9 +239,11 @@ int write(int id, void *buf, int size)
  * @param buffer - буфер (размер 4), в который будет записано расположение и размер файла
  * @return int - 0, если всё успешно, и -1, если файл не найден.
  */
-int find_file(char *name, byte *buffer)
+int find_file(char *name, byte *buffer, int* file_entry_block, int* file_entry_pos)
 {
     byte block[BLOCK_SIZE];
+    int file_block = 0;
+    int file_pos = 0;
 
     for (char i = 1; i <= CATALOG_SIZE; i++)
     {
@@ -256,8 +267,33 @@ int find_file(char *name, byte *buffer)
             {
                 buffer[y - FILE_NAME_SIZE] = block[j + y];
             }
+
+            if (file_entry_block != 0) {
+              *file_entry_block = i;
+            }
+
+            if (file_entry_pos != 0) {
+              *file_entry_pos = j;
+            }
+
             return 0;
         }
     }
     return -1;
+}
+
+int write_file_attributes_to_disk(int file_entry_block, int file_entry_pos, byte attr) {
+  byte block[BLOCK_SIZE];
+
+  if (disk_read_block(block, file_entry_block) < 0) {
+            return -1;
+    }
+
+  block[file_entry_pos + FILE_NAME_SIZE] = attr;
+
+  if (disk_write_block(block, file_entry_block) < 0) {
+    return -1;
+  }
+
+  return 0;
 }

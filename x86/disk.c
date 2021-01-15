@@ -1,4 +1,5 @@
 #include <x86/disk.h>
+#include <portable/libc.h>
 
 ///массив сегментов диска
 byte disk_data[BLOCK_COUNT][BLOCK_SIZE];
@@ -80,5 +81,11 @@ int disk_read_block(byte *buffer, int block_num)
  */
 int disk_write_block(byte *buffer, int block_num)
 {
-  return -1;
+  if (block_num < 0 || block_num > BLOCK_COUNT) {
+      return -1;
+  }
+
+  memcpy(disk_data[block_num], buffer, BLOCK_SIZE);
+
+  return 0;
 }

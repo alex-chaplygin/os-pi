@@ -5,7 +5,7 @@
 #define CATALOG_SIZE 10		/**< размер каталога */
 #define DATA_START 11		/**< блок начала данных */
 #define FILE_RECORD_SIZE 16
-#define FILE_NAME_SIZE 12	/**< максимальный размер имени файла */
+#define FILE_NAME_SIZE 11	/**< максимальный размер имени файла */
 
 /// блок описания файловой системы
 struct superblock
@@ -20,6 +20,7 @@ struct superblock
 struct disk_file_entry
 {
   char file_name[FILE_NAME_SIZE]; /**< имя файла */
+  byte attr;
   ushort first_block;		/**< номер первого блока файла */
   ushort block_count;		/**< количество блоков у файла */
 };
@@ -36,6 +37,8 @@ struct disk_file_entry
 /// Запись в таблице файлов 
 struct file_entry
 {
+  int file_entry_block;
+  int file_entry_pos;
   int dev;
   int pos;
   int start_block;
@@ -50,5 +53,6 @@ int close(int id);
 int create(char *name);
 int read(int id, void *buf, int size);
 int write(int id, void *buf, int size);
-int find_file(char *name, byte *buffer);
+int find_file(char *name, byte *buffer, int* file_entry_block, int* file_entry_pos);
+int write_file_attributes_to_disk(int file_entry_block, int file_entry_pos, byte attr);
 void init_files();

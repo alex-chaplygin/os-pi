@@ -92,7 +92,7 @@ void kmain(void)
 
   res = set_attr(descriptor, ATTR_DEVICE);
   kprint("Test #4, expected: 0, actual: %d\n", res);
-  kprint("Expected attributes: 1, actual attributes: %d\n", get_attr(descriptor));
+  kprint("Expected attributes: 3, actual attributes: %d\n", get_attr(descriptor));
 
   res = sys_call(5, descriptor, ATTR_DIRECTORY, 0);
   kprint("Test #5, expected: 0, actual: %d\n", res);
