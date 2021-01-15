@@ -38,7 +38,15 @@ void kmain(void)
   init_keyboard();
   init_disk();
   init_files();
-  kprint("open file %i\n", open("file.txt"));
+  int fileId = open("file.txt");
+  kprint("open file %i\n", fileId);
+  int data[512];
+  int i = 0;
+  while(read(fileId, &data[i], 1) > 0)
+    {
+      kprint("data[%i] = %x, ", i, data[i]);
+      i++;
+    }
   //kprint(intToStr(get_phys_mem_size()));
   // int a = 1 / 0;
  
