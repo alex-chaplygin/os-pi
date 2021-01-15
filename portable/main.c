@@ -69,10 +69,10 @@ void kmain(void)
 }
 
 void test_fstat(int id){
-  struct file_info info[1];
+  struct file_info info;
   //Тестирование работы функции с параметрами соотвествующими спецификации
   kprint("fstat %i\n",fstat(id,&info));
-  kprint("%i %d %i \n",info[0].length,info[0].attrib,info[0].device_num);
+  kprint("%i %d %i \n",info.length,info.attrib,info.device_num);
   //Тестирование работы функции с не существующим идентификатором файла
   kprint("fstat %i\n",fstat(5,&info));
   //Тестирование работы функции с не существующим идентификатором файла
