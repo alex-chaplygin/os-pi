@@ -1,0 +1,502 @@
+
+include/portable/device.h,454
+#define NUM_BLOCK_DEVICES 3,20
+#define NUM_SYMBOLIC_DEVICES 4,101
+#define HARD_DISK 6,192
+#define SYMDEVICE_CONSOLE 8,213
+#define ERROR_NODEVICE 10,307
+#define ERROR_NOMETHOD 11,396
+struct block_device 14,547
+  void (*init)init16,623
+  int (*read)read18,689
+  int (*write)write20,780
+  int (*seek)seek22,878
+struct symbolic_device{symbolic_device26,986
+  void (*init)init28,1064
+  int (*read)read30,1138
+  int (*write)write32,1216
+
+include/portable/file.h,23
+#define NUM_FILES 1,0
+
+include/portable/keyboard.h,108
+#define MAX_KEYBUFFER 1,0
+#define PAGE_UP_CODE 3,27
+#define PAGE_DOWN_CODE 4,53
+#define ENTER_CODE 5,81
+
+include/portable/mem.h,77
+#define MAX_SEGMENTS 1,0
+#define START_ADDRESS 2,27
+#define MEM_SIZE 3,58
+
+include/portable/proc.h,586
+#define STATUS_READY 3,29
+#define STATUS_RUNNING 4,108
+#define STATUS_SLEEPING 5,192
+#define STATUS_STOPPING 6,281
+#define REGS_SIZE 7,372
+#define STACK_SIZE 8,464
+#define SLEEP_NONE 11,656
+#define SLEEP_KEYBOARD 12,769
+struct proc 15,1014
+  int pid;16,1028
+  int parent_id;17,1077
+  int state;18,1158
+  int sleep_param;19,1200
+  void* codePtr;20,1249
+  int code_size;21,1302
+  void* dataPtr;22,1367
+  int data_size;23,1424
+  void* stackPtr;24,1493
+  void *program_counter;program_counter25,1549
+  void *stack_pointer;stack_pointer26,1611
+  int regs[regs27,1673
+
+include/portable/syscall.h,650
+#define ERROR_NOFILE 3,60
+#define ERROR_MAXFILE 4,120
+#define ERROR_ACCESS_DENIED 5,202
+#define ERROR_INVALID_PARAMETERS 6,271
+#define ERROR_IO 7,351
+#define ERROR_MAXPROC 8,452
+#define OPEN 10,541
+#define CREATE 11,556
+#define CLOSE 12,573
+#define SEEK 13,589
+#define FSTAT 14,604
+#define SET_ATTR 15,620
+#define READ 16,639
+#define WRITE 17,654
+#define FORK 18,670
+#define EXEC 19,685
+#define EXIT 20,700
+#define WAIT 21,716
+#define ATTR_REGULAR 60,1724
+#define ATTR_DIRECTORY 61,1783
+#define ATTR_DEVICE 62,1837
+struct file_info 65,1944
+  int length;66,1963
+  int attrib:attrib67,2009
+  int device_num:device_num68,2063
+
+include/portable/types.h,595
+typedef unsigned int uint,2,25
+typedef unsigned int uint, u32int,2,25
+typedef unsigned int uint, u32int, uint32_t;2,25
+typedef unsigned short ushort,4,97
+typedef unsigned short ushort, u16int,4,97
+typedef unsigned short ushort, u16int, uint16_t;4,97
+typedef unsigned char uchar;6,173
+typedef unsigned long ulong;8,229
+typedef unsigned char byte;10,284
+typedef signed char sbyte;12,337
+typedef unsigned int dword;14,390
+typedef unsigned char u8int,15,418
+typedef unsigned char u8int, uint8_t;15,418
+typedef unsigned long u64int,16,456
+typedef unsigned long u64int, uint64_t;16,456
+
+include/x86/cmos.h,266
+#define CMOS_SECONDS 1,0
+#define CMOS_MINUTES 2,81
+#define CMOS_HOURS 3,160
+#define CMOS_WEEKDAY 4,336
+#define CMOS_DAY 5,425
+#define CMOS_MONTH 6,512
+#define CMOS_YEAR 7,592
+#define CMOS_CENTURY 8,667
+#define CMOS_LOWMEM 9,745
+#define CMOS_HIGHMEM 10,861
+
+include/x86/console.h,132
+#define CONSOLE_ROWS 3,29
+#define CONSOLE_COLS 4,112
+#define SCREEN_NUMBER 5,201
+#define BUFFER_SIZE 6,270
+#define SHIFT 7,366
+
+include/x86/disk.h,83
+#define BLOCK_SIZE 1,0
+#define BLOCK_COUNT 2,23
+typedef unsigned char byte;3,47
+
+include/x86/gdt.h,986
+#define DPL(14,355
+#define GRAN_ENABLE 15,431
+#define GRAN_DISABLE 16,456
+#define SEG_DATA_RD 18,483
+#define SEG_DATA_RDA 19,528
+#define SEG_DATA_RDWR 20,583
+#define SEG_DATA_RDWRA 21,629
+#define SEG_DATA_RDEXPD 22,685
+#define SEG_DATA_RDEXPDA 23,743
+#define SEG_DATA_RDWREXPD 24,811
+#define SEG_DATA_RDWREXPDA 25,870
+#define SEG_CODE_EX 26,939
+#define SEG_CODE_EXA 27,987
+#define SEG_CODE_EXRD 28,1045
+#define SEG_CODE_EXRDA 29,1093
+#define SEG_CODE_EXC 30,1151
+#define SEG_CODE_EXCA 31,1211
+#define SEG_CODE_EXRDC 32,1281
+#define SEG_CODE_EXRDCA 33,1341
+#define GDT_SIZE 35,1413
+struct gdt_entry_struct 38,1532
+    u16int limit_low;39,1558
+    u16int base_low;40,1631
+    u8int  base_middle;41,1695
+    byte  access;42,1776
+  byte gran;43,1863
+    u8int  base_high;44,1913
+typedef struct gdt_entry_struct gdt_entry_t;47,2050
+struct gdt_ptr_struct 49,2096
+    u16int limit;50,2120
+    u32int base;51,2208
+typedef struct gdt_ptr_struct gdt_ptr_t;54,2363
+
+include/x86/idt.h,536
+#define IDT_SIZE 3,29
+#define DPL0 5,58
+#define DPL1 6,73
+#define DPL2 7,95
+#define DPL3 8,117
+#define CALL_GATE_286 10,152
+#define TASK_GATE_286 11,178
+#define INTERRUPT_GATE_286 12,204
+#define TRAP_GATE_286 13,235
+#define CALL_GATE 14,261
+#define TASK_GATE 15,283
+#define INTERRUPT_GATE 16,305
+#define TRAP_GATE 17,332
+typedef struct idtGateDescriptor 22,432
+    ushort lowOffset;23,467
+    ushort selector;24,489
+    uchar zero;25,510
+    uchar type;26,526
+    ushort highOffset;27,542
+} idtGateDescriptor;28,565
+
+include/x86/irq.h,444
+#define ICW1_ICW4	1,0
+#define ICW1_SINGLE	2,48
+#define ICW1_INTERVAL4	3,102
+#define ICW1_LEVEL	4,165
+#define ICW1_INIT	5,224
+#define ICW4_8086	7,283
+#define ICW4_AUTO	8,338
+#define ICW4_BUF_SLAVE	9,386
+#define ICW4_BUF_MASTER	10,441
+#define ICW4_SFNM	11,498
+#define PIC1	14,558
+#define PIC2	15,615
+#define PIC1_COMMAND	16,671
+#define PIC1_DATA	17,697
+#define PIC2_COMMAND	18,724
+#define PIC2_DATA	19,750
+#define PIC_EOI	21,778
+
+include/x86/tss.h,633
+struct tss_struct2,113
+   u32int prev_tss;4,133
+   u32int esp0;5,359
+   u32int ss0;6,486
+   u32int esp1;7,609
+   u32int ss1;8,668
+   u32int esp2;9,683
+   u32int ss2;10,699
+   u32int cr3;11,714
+   u32int eip;12,729
+   u32int eflags;13,744
+   u32int eax;14,762
+   u32int ecx;15,777
+   u32int edx;16,792
+   u32int ebx;17,807
+   u32int esp;18,822
+   u32int ebp;19,837
+   u32int esi;20,852
+   u32int edi;21,867
+   u32int es;22,882
+   u32int cs;23,1002
+   u32int ss;24,1122
+   u32int ds;25,1242
+   u32int fs;26,1362
+   u32int gs;27,1482
+   u32int ldt;28,1602
+   u16int trap;29,1661
+   u16int iomap_base;30,1677
+
+portable/device.c,302
+struct block_device block_devices[block_devices14,308
+struct symbolic_device symbolic_devices[symbolic_devices17,437
+void init_devices(23,705
+int read_block_device(57,1476
+int write_block_device(77,2057
+int seek_block_device(96,2608
+int read_sym_device(115,3123
+int write_sym_device(134,3651
+
+portable/file.c,344
+struct file_entry14,417
+    int dev;16,437
+    int pos;17,450
+    int start_block;18,463
+    int size;19,484
+struct file_entry file_table[file_table23,550
+void init_files(32,770
+int open(50,1133
+int create(71,1556
+int close(83,1770
+int seek(106,2346
+int fstat(119,2669
+int set_attr(132,2966
+int read(146,3366
+int write(160,3751
+
+portable/libc.c,164
+void memcpy(20,425
+char * int_to_str_hex(34,930
+char* int_to_str(69,2101
+void clear_buffer(136,3531
+unsigned int str_hex_to_int(149,3895
+void kprint(188,5066
+
+portable/main.c,19
+void kmain(29,518
+
+portable/mem.c,397
+struct memory27,659
+    unsigned int freedom;29,675
+    unsigned int address;30,701
+    unsigned int mem_size;31,727
+struct memory mem[mem35,793
+int segment_count 38,910
+struct memory remaining_memory;41,1020
+void mem_init(47,1141
+void *malloc(malloc71,1677
+void _left_offset(153,5248
+void _right_offset(174,5783
+void free(196,6365
+void test_mem(278,9558
+void _print_mem(631,22768
+
+portable/proc.c,403
+struct proc processes[processes7,133
+struct proc *current_proc current_proc8,214
+int current_proc_numb 9,308
+void printProc1(13,410
+void printProc2(37,809
+void initProcesses(55,1137
+int isFree(84,2080
+int createProc(104,2572
+int deleteProc(142,3829
+int fork(158,4273
+int exec(200,5993
+int exit(219,6776
+int wait(229,6932
+void sheduler(238,7130
+void sleep(257,7549
+void wakeup(264,7681
+
+portable/syscall.c,316
+typedef int (* syscall_f)15,297
+typedef int (* syscall0_f)16,339
+typedef int (* syscall1_f)17,372
+typedef int (* syscall2_f)18,410
+typedef int (* syscall3_f)19,455
+struct syscall 22,577
+  int param_num;23,594
+  syscall_f func;24,702
+struct syscall sys_call_table[sys_call_table28,850
+int sys_call(53,1690
+
+x86/cmos.c,99
+byte cmos_read(23,459
+void cmos_write(35,741
+void print_time(49,1027
+uint memory_size(103,2682
+
+x86/console.c,402
+char *videoptr videoptr17,294
+int printPtr 18,327
+int print_page 19,345
+int current_page 20,365
+byte buffer[buffer21,387
+int current_screen_pos 22,453
+void copy_to_screen(28,633
+void screen_up(38,856
+void screen_down(54,1108
+void putchar(72,1464
+void console_clear(118,2559
+void scrollConsole(132,2870
+void enable_cursor(143,3157
+void disable_cursor(156,3442
+void move_cursor(167,3687
+
+x86/disk.c,83
+byte disk_data[disk_data4,69
+void init_disk(10,218
+int disk_read_block(57,2001
+
+x86/gdt.c,218
+gdt_ptr_t    gdt_ptr;13,244
+gdt_entry_t    gdt_entries[gdt_entries15,311
+int num_segments 17,400
+int add_descriptor(30,886
+void remove_descriptor(53,1588
+void create_descriptor(70,2119
+void init_memory(85,2781
+
+x86/idt.c,94
+idtGateDescriptor idt[idt16,363
+void init_interrupts(23,584
+void idtSetDescriptor(69,3297
+
+x86/irq.c,78
+void init_pic(20,554
+void end_of_interrupt(50,1735
+void enable_irq(58,1868
+
+x86/isr.c,76
+char *table[table4,53
+void panic(37,1317
+void interrupt_handler(59,1661
+
+x86/keyboard.c,253
+byte keyboard_map[keyboard_map30,629
+byte keyboard_buffer[keyboard_buffer75,1822
+int keybuffer_pos 81,1996
+int keybuffer_read_pos 87,2190
+void init_keyboard(97,2528
+char key_map(121,3292
+int read_char(137,3855
+void keyboard_interrupt(156,4479
+
+x86/mouse.c,120
+void mouse_wait(3,22
+void mouse_write(21,365
+byte mouse_read(32,636
+byte mouse_check(39,747
+void mouse_init(47,861
+
+x86/timer.c,76
+int timer_counter 17,370
+void init_timer(24,524
+void timer_event(50,1259
+
+x86/mem_check.asm,226
+global 1,0
+map_entries 3,29
+physical_memory_size 4,93
+mem_check:mem_check6,121
+.e820lp:.e820lp22,393
+.jmpin:.jmpin29,508
+.notext:.notext35,608
+.skipent:.skipent42,727
+.e820f:.e820f45,771
+.failed:.failed49,812
+
+x86/x86.asm,2903
+bits 1,0
+header_start:header_start3,35
+section 9,241
+global 11,256
+global 12,302
+global 13,336
+global 14,363
+global 15,405
+global 16,437
+global 17,479
+global 18,512
+global 19,547
+global 20,582
+global 21,615
+global 22,662
+global 23,690
+global 24,729
+global 25,761
+global 26,805
+global 27,836
+global 28,874
+global 29,912
+global 30,948
+global 31,982
+global 32,1006
+global 33,1023
+global 34,1043
+global 35,1063
+global 36,1094
+global 37,1124
+global 38,1139
+global 39,1166
+global 40,1211
+extern 41,1239
+extern 42,1343
+extern 43,1368
+extern 44,1388
+start:start46,1416
+load_idt:load_idt54,1557
+load_gdt:load_gdt60,1624
+struc 71,1761
+pid:pid72,1773
+parent_id:parent_id73,1821
+state:state74,1902
+sleep_param:sleep_param75,1943
+codePtr:codePtr76,1994
+code_size:code_size77,2048
+dataPtr:dataPtr78,2115
+data_size:data_size79,2172
+stackPtr:stackPtr80,2244
+program_counter:program_counter81,2300
+stack_pointer:stack_pointer82,2362
+regs:regs83,2424
+endstruc	84,2477
+save_regs:save_regs86,2531
+restore_regs:restore_regs119,3837
+disable_interrupts:disable_interrupts154,4775
+enable_interrupts:enable_interrupts158,4806
+read_port:read_port162,4836
+write_port:write_port167,4884
+a_syscall:a_syscall173,4972
+a_timer:a_timer183,5102
+FORK 191,5210
+syscall_fork:syscall_fork192,5253
+test_syscall:test_syscall197,5298
+a_interrupt_handler:a_interrupt_handler206,5491
+a_keyboard_interrupt:a_keyboard_interrupt217,5874
+a_isrZeroDivisionException:a_isrZeroDivisionException233,6110
+a_isrDebugException:a_isrDebugException234,6150
+a_isrNonMaskableInterruptException:a_isrNonMaskableInterruptException235,6183
+a_isrBreakpointException:a_isrBreakpointException236,6231
+a_isrIntoDetectedOverflowException:a_isrIntoDetectedOverflowException237,6269
+a_isrOutOfBoundsException:a_isrOutOfBoundsException238,6317
+a_isrInvalidOpcodeException:a_isrInvalidOpcodeException239,6356
+a_isrNoCoprocessorException:a_isrNoCoprocessorException240,6397
+a_isrDoubleFaultException:a_isrDoubleFaultException241,6438
+a_isrCoprocessorSegmentOverrunException:a_isrCoprocessorSegmentOverrunException242,6477
+a_isrBadTSSException:a_isrBadTSSException243,6530
+a_isrSegmentNotPresentException:a_isrSegmentNotPresentException244,6565
+a_isrStackFaultException:a_isrStackFaultException245,6611
+a_isrGeneralProtectionFaultException:a_isrGeneralProtectionFaultException246,6650
+a_isrPageFaultException:a_isrPageFaultException247,6701
+a_isrUnknownInterruptException:a_isrUnknownInterruptException248,6739
+a_isrCoprocessorFaultException:a_isrCoprocessorFaultException249,6784
+a_isrAlignmentCheckException:a_isrAlignmentCheckException250,6829
+a_isrMachineCheckException:a_isrMachineCheckException251,6872
+a_isrNonExistent:a_isrNonExistent252,6913
+kernel_code 254,6946
+section 256,6964
+resb 257,6977
+stack_space:stack_space258,7002
+
+include/x86/x86.h,0
+
+include/x86/mouse.h,0
+
+include/x86/isr.h,0
+
+include/portable/timer.h,0
+
+include/portable/limits.h,0
+
+include/portable/libc.h,0
