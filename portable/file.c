@@ -74,15 +74,20 @@ int create(char *name)
 {
   int id = 0;
   int spaceIsAviable = 0;
-  for (int i = 0; i < NUM_FILES; i++) //поиск первой пустой записи
-  {
-    if (file_table[i].dev == -1)
+  byte block[BLOCK_SIZE];
+  for (char i = 1; i <= CATALOG_SIZE; i++)
     {
-      id = i;
-      spaceIsAviable = 1;
-      break;
+        if (disk_read_block(block, i) < 0)
+	  {
+            return -1;
+	  }
+	if(block[0] == 0)
+	  {
+	    id = i-1;
+	    spaceIsAviable = 1;
+	    break;
+	  }
     }
-  }
   if(spaceIsAviable == 0)
     return ERROR_MAXFILE;
   else
