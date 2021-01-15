@@ -41,13 +41,13 @@ void kmain(void)
   int data[512];
   int fileId = open("file.txt");
   kprint("open file %i\n", fileId);
-  kprint("Test #1: expected = -4, obtained = %i\n", sys_call(6, fileId, data, -1));
-  kprint("Test #2: expected = -4, obtained = %i\n", sys_call(6, fileId, data, 513));
-  kprint("Test #3: expected = -4, obtained = %i\n", sys_call(6, -1, data, 1));
-  kprint("Test #4: expected = -4, obtained = %i\n", sys_call(6, 330, data, 1));
-  kprint("Test #5: expected = -4, obtained = %i\n", sys_call(6, fileId, 0, 1));
-  kprint("Test #6: expected = 512, obtained = %i\n", sys_call(6, fileId, data, 512));
-  kprint("Test #7: expected = 0, obtained = %i\n", sys_call(6, fileId, data, 1));
+  kprint("Test #1: expected = -4, obtained = %i\n,", sys_call(6, fileId, data, -1));
+  kprint("Test #2: expected = -4, obtained = %i\n,", sys_call(6, fileId, data, 513));
+  kprint("Test #3: expected = -4, obtained = %i\n,", sys_call(6, -1, data, 1));
+  kprint("Test #4: expected = -4, obtained = %i\n,", sys_call(6, 330, data, 1));
+  kprint("Test #5: expected = -4, obtained = %i\n,", sys_call(6, fileId, 0, 1));
+  kprint("Test #6: expected = 512, obtained = %i\n,", sys_call(6, fileId, data, 512));
+  kprint("Test #7: expected = 0, obtained = %i.", sys_call(6, fileId, data, 1));
   //int i = 0;
   //while(sys_call(6, fileId, &data[i], 1) > 0)
   //{
