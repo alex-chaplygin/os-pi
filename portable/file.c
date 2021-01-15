@@ -72,7 +72,24 @@ int open(char *name)
  */
 int create(char *name)
 {
-  return 0;
+  int id = 0;
+  int spaceIsAviable = 0;
+  for (int i = 0; i < NUM_FILES; i++) //поиск первой пустой записи
+  {
+    if (file_table[i].dev == -1)
+    {
+      id = i;
+      spaceIsAviable = 1;
+      break;
+    }
+  }
+  if(spaceIsAviable == 0)
+    return ERROR_MAXFILE;
+  else
+    {
+      disk_write_block(name, id);
+      return id;
+    }
 }
 
 /** 
