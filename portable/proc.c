@@ -49,13 +49,18 @@ void printProc2()
 
 void childProc()
 {
-  sleep(SLEEP_KEYBOARD);
+  char c;
+  kprint("Child proc\n");
+  syscall_read(1, &c, 1);
   exit(0);
 }
 
 void parentProc()
 {
+  kprint("Parent proc\n");
   wait(proc1);
+  kprint("Child exited\n");
+  while (1) ;
 }
 
 /** 
@@ -81,10 +86,10 @@ void initProcesses(){
     processes[0].state = STATUS_RUNNING;
     current_proc = processes;
     current_proc_numb = 1;
-    byte* dataPtr = (byte*)malloc(10);
-    int pid2 = createProc(printProc2, 1024, 0, 0);
+    //byte* dataPtr = (byte*)malloc(10);
+    //    int pid2 = createProc(printProc2, 1024, 0, 0);
     //    processes[pid2].parent_id = 2;
-    int pid1 = createProc(printProc1, 1024, dataPtr, 10);
+    // int pid1 = createProc(printProc1, 1024, dataPtr, 10);
     proc1 = createProc(childProc, 1024, 0, 0);
     int proc2 = createProc(parentProc, 1024, 0, 0);
     processes[proc1].parent_id = proc2;
