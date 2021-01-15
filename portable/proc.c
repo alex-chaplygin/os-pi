@@ -16,7 +16,8 @@ void printProc1()
   int i = 0;
   int j = 0;
   char c = '!';
-  if(syscall_fork() < 0) *(video + 2) = 0x1111 ;
+  if(syscall_fork() < 0) while(1) *(video + 2) = 0x1111 ;
+  else
   while(1) {
     read_char(&c);
     i++;
@@ -156,23 +157,23 @@ int deleteProc(unsigned int pid){
   */
 int fork()
 {
+  int a = 1;
   byte *code=(void*)malloc(current_proc->code_size);
   byte *data=(void*)malloc(current_proc->data_size);
   // создание нового элемента в таблице процессов
-  int newproc=createProc(*code,current_proc->code_size,*data,current_proc->data_size);
+  int newproc=createProc(code,current_proc->code_size,data,current_proc->data_size);
   if(newproc==-1){
     return ERROR_MAXPROC;
   }
   // установка номера родительского процесса
   int number_parent=current_proc->pid;
-  // копирование памяти для кода и данных
+  // копирование памяти для кода и данных и стека
   memcpy(processes[newproc].codePtr, current_proc->codePtr, current_proc->code_size);
   memcpy(processes[newproc].dataPtr, current_proc->dataPtr, current_proc->data_size);
+  memcpy(processes[newproc].stackPtr, current_proc->stackPtr, STACK_SIZE);
    
-  int a;
   processes[newproc].program_counter=&&child_return;
-
-  processes[newproc].stack_pointer = current_proc->stack_pointer;
+  processes[newproc].stack_pointer = (void *)get_sp() - current_proc->stackPtr + processes[newproc].stackPtr;
   processes[newproc].state = STATUS_READY;
   processes[newproc].parent_id = number_parent;
 
@@ -182,10 +183,11 @@ int fork()
   // сохранить значение -1 в регистр eax дочернего процесса regs[REGS_SIZE - 1]
   processes[newproc].regs[REGS_SIZE-1] = -1;
 
-  return newproc; // возврат номера дочернего процесса или ERROR_MAXPROC
+  if (a)
+    return newproc; // возврат номера дочернего процесса или ERROR_MAXPROC
+  else
  child_return:
-  a=1;
-  return -1;  
+    return -1;  
 }
 
 /** 
@@ -235,7 +237,8 @@ int wait(int id)
  */
 void sheduler()
 {
-  current_proc->state=STATUS_READY;
+  if (current_proc->state != STATUS_SLEEPING)
+    current_proc->state = STATUS_READY;
   
   for (current_proc++; current_proc->state != STATUS_READY;  current_proc++) ;
 
@@ -252,10 +255,16 @@ void sheduler()
 }
 
 void sleep(int sleep_param) {
+  int a;
+
+  current_proc->stack_pointer = get_sp();
   current_proc->state = STATUS_SLEEPING;
   current_proc->sleep_param = sleep_param;
+  current_proc->program_counter = &&restore;
 
   sheduler();
+ restore:
+  a = 1;
 }
 
 void wakeup(int sleep_param) {
