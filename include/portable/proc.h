@@ -9,6 +9,7 @@
 
 // Различные причины, по которым процесс может погрузиться в сон.
 #define SLEEP_NONE 0       /*применяется, если процесс не в состоянии сна*/
+#define SLEEP_WAIT 2       /*применяется, если причина сна "ожидание процесса"*/
 #define SLEEP_KEYBOARD 0x1 /*применяется, если процесс ожидает сигнала от клавиатуры*/
 
 /// структура процесса (если меняется, то нужно менять в x86.asm)
@@ -42,4 +43,5 @@ int createProc(void* codePtr, int code_size, void* dataPtr, int data_size);
 void sheduler();
 void sleep(int sleep_param);
 void wakeup(int sleep_param);
+int wait(int id);
 
