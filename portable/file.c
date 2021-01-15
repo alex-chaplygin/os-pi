@@ -72,8 +72,11 @@ int open(char *name)
  */
 int create(char *name)
 {
+  if(name == 0)
+    return ERROR_INVALID_PARAMETERS;
   int id = 0;
   int spaceIsAviable = 0;
+  int blockNum = -1;
   byte block[BLOCK_SIZE];
   for (char i = 1; i <= CATALOG_SIZE; i++)
     {
@@ -83,6 +86,7 @@ int create(char *name)
 	  }
 	if(block[0] == 0)
 	  {
+	    blockNum = i;
 	    id = i-1;
 	    spaceIsAviable = 1;
 	    break;
@@ -92,7 +96,11 @@ int create(char *name)
     return ERROR_MAXFILE;
   else
     {
-      disk_write_block(name, id);
+      struct disk_file_entry *file = (struct disk_file_entry *)block;
+      memcpy(file->file_name, name, FILE_NAME_SIZE);
+      file->first_block = blockNum;
+      file->block_count = 0;
+      disk_write_block(file, id);
       return id;
     }
 }
@@ -221,7 +229,7 @@ int find_file(char *name, byte *buffer)
         }
         for (int j = 0; j < BLOCK_SIZE; j += 16)
         {
-            byte temp[8];
+            byte temp[12];
 
             for (int x = 0; x < FILE_NAME_SIZE; x++)
             {
