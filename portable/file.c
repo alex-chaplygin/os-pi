@@ -163,7 +163,7 @@ int read(int id, void *buf, int size)
   byte *bufByte = (byte*)malloc(BLOCK_SIZE);
   int readenCount = 0;
   if (id == 1) return read_char(buf);
-  if(disk_read_block(buf, file_table[id].pos/BLOCK_SIZE)
+  if(disk_read_block(buf, file_table[id].pos/BLOCK_SIZE) == 0)
     {
       memcpy(buf, bufByte, size);
       readenCount = size;
@@ -209,7 +209,7 @@ int find_file(char *name, byte *buffer)
 
     for (char i = 1; i <= CATALOG_SIZE; i++)
     {
-      if (disk_read_block(block, i, 0) < 0)
+      if (disk_read_block(block, i) < 0)
         {
             return -1;
         }
