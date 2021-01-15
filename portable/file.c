@@ -20,6 +20,8 @@ void init_files()
     file_table[i].pos = 0;
     file_table[i].start_block = 0;
     file_table[i].size = 0;
+    file_table[i].attrib = 0;
+    
   }
 }
 
@@ -56,6 +58,7 @@ int open(char *name)
       file_table[i].pos = position_file;
       file_table[i].start_block = start_block_file;
       file_table[i].size = size_file;
+      file_table[i].attrib = ATTR_REGULAR;
       return i;
     }
   }
@@ -93,6 +96,7 @@ int close(int id)
   file_table[id].pos = 0;
   file_table[id].start_block = 0;
   file_table[id].size = 0;
+  file_table[id].attrib = 0;
 
   return 0;
 }
@@ -118,9 +122,22 @@ int seek(int id, int offset)
  * 
  * @return 0 - успешно, меньше нуля если ошибка
  */
+
 int fstat(int id, struct file_info *info)
 {
-  return 0;
+  if(file_table[id].dev<0){
+    return ERROR_NOFILE;
+  }
+  else if(!info){
+    return ERROR_INVALID_PARAMETERS;
+  }
+  else{    
+    info->length =  file_table[id].size;
+    info->attrib =  file_table[id].attrib;
+    info->device_num = file_table[id].dev;
+   
+    return 0;
+  }
 }
 
 /** 
