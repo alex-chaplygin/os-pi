@@ -118,7 +118,6 @@ void kmain(void)
   console_clear();
   init_interrupts();
   init_keyboard();
-  init_disk();
   init_files();
   
   test_set_attr();

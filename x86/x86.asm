@@ -30,8 +30,6 @@ global a_isrAlignmentCheckException
 global a_isrMachineCheckException
 global a_isrNonExistent
 global a_syscall
-global syscall_write, syscall_read, syscall_exit
-global syscall_fork
 global save_regs, restore_regs
 global read_port, write_port	
 global a_timer
@@ -199,36 +197,9 @@ a_timer:
 	call timer_event
 	iret
 	
-FORK equ 8  ; /**номер вызова*/
-syscall_fork:
-	mov eax,FORK
-	int 0x80
-	ret
-	
-syscall_write:
-	mov eax, 7 ; syscall num
-	mov ebx, [esp + 4] ; param 1
-	mov ecx, [esp + 8] ; param 2
-	mov edx, [esp + 12] ; param 3
-	int 0x80
-	ret
-
-syscall_read:
-	mov eax, 6 ; read
-	mov ebx, [esp + 4] ; param 1
-	mov ecx, [esp + 8] ; param 2
-	mov edx, [esp + 12] ; param 3
-	int 0x80
-	ret
-
-syscall_exit
-	mov eax, 10 ; exit
-	mov ebx, [esp + 4] ; param 1
-	int 0x80
-	ret
-	
 	;; обработчик прерывания
 a_interrupt_handler:
+	call save_regs
 	;; сохранить регистры текущего процесса
 	;; установить стек ядра
 	;; подтверждение контроллеру прерываний
