@@ -283,7 +283,7 @@ int find_file(char *name, byte *buffer, int* file_entry_block, int* file_entry_p
         }
         for (int j = 0; j < BLOCK_SIZE; j += 16)
         {
-            byte temp[8];
+            byte temp[FILE_NAME_SIZE];
 
             for (int x = 0; x < FILE_NAME_SIZE; x++)
             {
