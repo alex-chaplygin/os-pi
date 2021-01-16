@@ -28,12 +28,12 @@ void syscallReadTest(void)
   int data[512];
   int fileId = open("file.txt");
   int i = 0;
-  while(sys_call(6, fileId, &data[i], 1) > 0)
+  byte b;
+  while(sys_call(6, fileId, &b, 1) > 0)
     {
-      kprint("data[%i] = %x, ", i, data[i]);
-      i++;
+      kprint("%x ", b);
     }
-  kprint("open file %i\n", fileId);
+  kprint("\nopen file %i\n", fileId);
   kprint("Test #1: expected = -4, obtained = %i,\n", sys_call(6, fileId, data, -1));
   kprint("Test #2: expected = -4, obtained = %i,\n", sys_call(6, fileId, data, 513));
   kprint("Test #3: expected = -4, obtained = %i,\n", sys_call(6, -1, data, 1));
