@@ -63,7 +63,7 @@ int open(char *name)
       file_table[i].pos = 0;
       file_table[i].start_block = start_block_file;
       file_table[i].size = size_file;
-      file_table[i].attr = file_attr;
+      file_table[i].attr = ATTR_REGULAR;
       return i;
     }
   }
@@ -148,10 +148,26 @@ int seek(int id, int offset)
  */
 int fstat(int id, struct file_info *info)
 {
-  return 0;
+  if(id<0||id>NUM_FILES-1){
+    return ERROR_INVALID_PARAMETERS;
+  }
+  else if(file_table[id].dev<0){
+    return ERROR_NOFILE;
+  }
+  else if(!info){
+    return ERROR_INVALID_PARAMETERS;
+  }
+  else{    
+    info->length =  file_table[id].size;
+    info->attrib =  file_table[id].attr;
+    info->device_num = file_table[id].dev;
+
+    return 0;
+  }
 }
 
 /** 
+
  * Установка атрибутов файла
  * 
  * @param id идентификатор файла

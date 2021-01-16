@@ -24,7 +24,6 @@
 #include <portable/syscall.h>
 #include <x86/disk.h>
 
-extern void test_syscall();
 
 void syscallReadTest(void)
 {
@@ -105,6 +104,22 @@ void test_set_attr() {
   close(descriptor);
 }
 
+void test_fstat()
+{
+  struct file_info info;
+  int id = open("file.txt");
+  //Тестирование работы функции с параметрами соотвествующими спецификации
+  kprint("fstat %i\n",fstat(id,&info));
+  kprint("%i %d %i \n",info.length,info.attrib,info.device_num);
+  //Тестирование работы функции с не существующим идентификатором файла
+  kprint("fstat %i\n",fstat(5,&info));
+  //Тестирование работы функции с не существующим идентификатором файла
+  kprint("fstat %i\n",fstat(-1,&info));
+  //Тестирование работы функции с нулевым значением указателя структуры
+  kprint("fstat %i\n",fstat(0,0));
+  close(id);
+}
+
 /** 
  * Точка входа в ядро
  * 
@@ -122,10 +137,12 @@ void kmain(void)
   
   test_set_attr();
   syscallReadTest();
+  test_fstat();
   
-  // запуск процесса init
   kprint("mem = %d\n", memory_size());
+  // запуск процесса init    
   while(1) {
     print_time();
   }	    // процесс ядра
 }
+
