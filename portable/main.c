@@ -120,17 +120,26 @@ void test_fstat()
   close(id);
 }
 
+void testHDD()
+{
+  byte ptr[512];
+  byte result = ide_ata_access(0, 0, 0, 1, 0, (unsigned int)ptr);
+  if (result == 0)
+    for (int i = 0; i < 512; i++)
+      kprint("%x ", ptr[i]);
+}
+
 /** 
  * Точка входа в ядро
  * 
  */
 void kmain(void)
 {
-  init_memory();
-  init_timer(10);
-  init_devices();
-  initProcesses();
   console_clear();
+  init_memory();
+  init_devices();
+  init_timer(10);
+  initProcesses();
   init_interrupts();
   init_keyboard();
   init_files();
@@ -138,6 +147,7 @@ void kmain(void)
   test_set_attr();
   syscallReadTest();
   test_fstat();
+  testHDD();
   
   kprint("mem = %d\n", memory_size());
   // запуск процесса init    
