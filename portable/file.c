@@ -60,7 +60,7 @@ int open(char *name)
       file_table[i].file_entry_block = file_entry_block;
       file_table[i].file_entry_pos = file_entry_pos;
       file_table[i].dev = SYMDEVICE_CONSOLE;
-      file_table[i].pos = position_file;
+      file_table[i].pos = 0;
       file_table[i].start_block = start_block_file;
       file_table[i].size = size_file;
       file_table[i].attr = file_attr;
@@ -200,14 +200,27 @@ int get_attr(int id) {
  */
 int read(int id, void *buf, int size)
 {
+  if(size <= 0 || size > BLOCK_SIZE*file_table[id].size)
+    return ERROR_INVALID_PARAMETERS;
+  if(id < 0 || id > NUM_FILES)
+    return ERROR_INVALID_PARAMETERS;
+  if(buf == 0)
+    return ERROR_INVALID_PARAMETERS;
+  if(BLOCK_SIZE*file_table[id].size - (file_table[id].pos - file_table[id].start_block*BLOCK_SIZE) == 0)
+    return 0;
+  if(size > BLOCK_SIZE*file_table[id].size - (file_table[id].pos - file_table[id].start_block*BLOCK_SIZE))
+    size = BLOCK_SIZE*file_table[id].size - (file_table[id].pos - file_table[id].start_block*BLOCK_SIZE);
   byte *bufByte = (byte*)malloc(BLOCK_SIZE);
   int readenCount = 0;
   if (id == 1) return read_char(buf);
-  if(disk_read_block(bufByte, 0) == 0)
+  if(disk_read_block(bufByte, file_table[id].pos/BLOCK_SIZE) == 0)
     {
-      memcpy(buf, bufByte, size);
+      memcpy(buf, &bufByte[file_table[id].pos-((int)(file_table[id].pos/BLOCK_SIZE))*BLOCK_SIZE], size);
       readenCount = size;
+      file_table[id].pos += size;
     }
+  else
+    return -1;
   
   return readenCount;
 }
@@ -248,7 +261,7 @@ int find_file(char *name, byte *buffer, int* file_entry_block, int* file_entry_p
 
     for (char i = 1; i <= CATALOG_SIZE; i++)
     {
-        if (disk_read_block(block, i) < 0)
+      if (disk_read_block(block, i) < 0)
         {
             return -1;
         }

@@ -54,6 +54,7 @@ void init_disk()
  * 
  * @param buffer буфер (размер 512), в который будут записаны данные
  * @param block_num номер блока диска, с которого будут считываться данные
+ * @param pos позиция, с которой начинаем читать
  * @return int 0, если всё успешно, и -1, если возникла ошибка.
  */
 int disk_read_block(byte *buffer, int block_num)
