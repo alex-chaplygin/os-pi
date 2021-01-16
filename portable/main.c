@@ -28,14 +28,14 @@ extern void test_syscall();
 
 void testHDD(){
 
-  byte* ptr = 0x00;
-  int result = disk_read_block(ptr, 0);
+  byte ptr[512];
+  int result = disk_read_block(ptr, 1);
   if (result == 0){
     
     for (int i = 0; i < 512; i++)
     {
       
-        kprint((char*)ptr[i]);
+      kprint("%x ", ptr[i]);
       
     }
   }

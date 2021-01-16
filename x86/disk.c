@@ -76,16 +76,16 @@ void init_disk()
 }*/
 int disk_read_block(byte *buffer, int block_num)
 {
-	byte result = ide_ata_access(0, 0, 0, 1, (unsigned char)buffer, block_num);
+  byte result = ide_ata_access(0, 0, 0, 1, block_num, (unsigned int)buffer);
 	//kprint("test read\n");
-
+  /*
 	for (int i = 0; i < 255; i+=2){
 		char t = buffer[i];
 		buffer[i] = buffer[i+1];
 		buffer[i+1] = t;
 	}
-
-    return 0;
+  */
+  //return 0;
 
 	/*for (int i = 0; i < 512; i++)
 	{
