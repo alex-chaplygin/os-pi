@@ -1,158 +1,0 @@
-
-portable/device.c,302
-struct block_device block_devices[block_devices14,308
-struct symbolic_device symbolic_devices[symbolic_devices17,437
-void init_devices(23,705
-int read_block_device(57,1476
-int write_block_device(77,2057
-int seek_block_device(96,2608
-int read_sym_device(115,3123
-int write_sym_device(134,3651
-
-portable/file.c,344
-struct file_entry14,417
-    int dev;16,437
-    int pos;17,450
-    int start_block;18,463
-    int size;19,484
-struct file_entry file_table[file_table23,550
-void init_files(32,770
-int open(50,1133
-int create(71,1556
-int close(83,1770
-int seek(106,2346
-int fstat(119,2669
-int set_attr(132,2966
-int read(146,3366
-int write(160,3751
-
-portable/libc.c,164
-void memcpy(20,425
-char * int_to_str_hex(34,930
-char* int_to_str(69,2101
-void clear_buffer(136,3531
-unsigned int str_hex_to_int(149,3895
-void kprint(188,5066
-
-portable/main.c,19
-void kmain(29,518
-
-portable/mem.c,397
-struct memory27,659
-    unsigned int freedom;29,675
-    unsigned int address;30,701
-    unsigned int mem_size;31,727
-struct memory mem[mem35,793
-int segment_count 38,910
-struct memory remaining_memory;41,1020
-void mem_init(47,1141
-void *malloc(malloc71,1677
-void _left_offset(151,5198
-void _right_offset(172,5733
-void free(194,6315
-void test_mem(276,9508
-void _print_mem(629,22718
-
-portable/proc.c,403
-struct proc processes[processes7,133
-struct proc *current_proc current_proc8,214
-int current_proc_numb 9,308
-void printProc1(13,410
-void printProc2(35,814
-void initProcesses(53,1142
-int isFree(82,2085
-int createProc(102,2577
-int deleteProc(140,3834
-int fork(156,4277
-int exec(191,5824
-int exit(210,6607
-int wait(220,6763
-void sheduler(229,6961
-void sleep(247,7330
-void wakeup(254,7462
-
-portable/syscall.c,316
-typedef int (* syscall_f)15,297
-typedef int (* syscall0_f)16,339
-typedef int (* syscall1_f)17,372
-typedef int (* syscall2_f)18,410
-typedef int (* syscall3_f)19,455
-struct syscall 22,577
-  int param_num;23,594
-  syscall_f func;24,702
-struct syscall sys_call_table[sys_call_table28,850
-int sys_call(53,1690
-
-x86/cmos.c,99
-byte cmos_read(23,459
-void cmos_write(35,741
-void print_time(49,1027
-uint memory_size(103,2682
-
-x86/console.c,402
-char *videoptr videoptr17,294
-int printPtr 18,327
-int print_page 19,345
-int current_page 20,365
-byte buffer[buffer21,387
-int current_screen_pos 22,453
-void copy_to_screen(28,633
-void screen_up(38,856
-void screen_down(54,1108
-void putchar(72,1464
-void console_clear(118,2559
-void scrollConsole(132,2870
-void enable_cursor(143,3157
-void disable_cursor(156,3442
-void move_cursor(167,3687
-
-x86/disk.c,83
-byte disk_data[disk_data4,69
-void init_disk(10,218
-int disk_read_block(57,2001
-
-x86/gdt.c,218
-gdt_ptr_t    gdt_ptr;13,244
-gdt_entry_t    gdt_entries[gdt_entries15,311
-int num_segments 17,400
-int add_descriptor(30,886
-void remove_descriptor(53,1588
-void create_descriptor(70,2119
-void init_memory(85,2781
-
-x86/idt.c,94
-idtGateDescriptor idt[idt16,363
-void init_interrupts(23,584
-void idtSetDescriptor(69,3297
-
-x86/irq.c,78
-void init_pic(20,554
-void end_of_interrupt(50,1735
-void enable_irq(58,1868
-
-x86/isr.c,76
-char *table[table4,53
-void panic(37,1317
-void interrupt_handler(59,1661
-
-x86/keyboard.c,253
-byte keyboard_map[keyboard_map30,629
-byte keyboard_buffer[keyboard_buffer75,1822
-int keybuffer_pos 81,1996
-int keybuffer_read_pos 87,2190
-void init_keyboard(97,2528
-char key_map(121,3292
-int read_char(137,3855
-void keyboard_interrupt(156,4479
-
-x86/mouse.c,120
-void mouse_wait(3,22
-void mouse_write(21,365
-byte mouse_read(32,636
-byte mouse_check(39,747
-void mouse_init(47,861
-
-x86/timer.c,76
-int timer_counter 17,370
-void init_timer(24,524
-void timer_event(50,1259

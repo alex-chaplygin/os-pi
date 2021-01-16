@@ -9,6 +9,8 @@ struct proc processes[MAX_PROC_AMOUNT];	/**< Массив процессов. */
 struct proc *current_proc = 0;	/**< Указатель на текущий процесс. */
 int current_proc_numb = 0;	/**< Номер текущего процесса */
 
+int syscall_fork();
+
 void printProc1()
 {
   ushort *video = (ushort *)0xb8000;
@@ -16,17 +18,13 @@ void printProc1()
   int j = 0;
   char data[10];
   char c = '!';
-  syscall_read(0, data, 10);
-  syscall_exit(0);
-  //for (int i = 0; i < 10; i++)  kprint("%x ", data[i]);
   while(1) {
-    syscall_read(1, &c, 1);
+    //    syscall_read(1, &c, 1);
+    read_char(&c);
     i++;
     j++;
     *video = 0x0f00 + c;
     i = 0;
-    //if (j % 100000 == 0)
-    //    if (test_syscall(0, "1 ", 6) < 0) *video = 0x1111;
     }
 }
 
@@ -154,9 +152,10 @@ int deleteProc(unsigned int pid){
  * 
  * 
  * @return для родительского процесса возвращается идентификатор дочернего процесса, -1 - для дочернего
- */
+  */
 int fork()
 {
+  int a = 1;
   byte *code=(void*)malloc(current_proc->code_size);
   byte *data=(void*)malloc(current_proc->data_size);
   // создание нового элемента в таблице процессов
@@ -166,13 +165,14 @@ int fork()
   }
   // установка номера родительского процесса
   int number_parent=current_proc->pid;
-  // копирование памяти для кода и данных
+  // копирование памяти для кода и данных и стека
   memcpy(processes[newproc].codePtr, current_proc->codePtr, current_proc->code_size);
   memcpy(processes[newproc].dataPtr, current_proc->dataPtr, current_proc->data_size);
-
-  processes[newproc].program_counter = current_proc->program_counter;
-  processes[newproc].stack_pointer = current_proc->stack_pointer;
-  processes[newproc].state = current_proc->state;
+  memcpy(processes[newproc].stackPtr, current_proc->stackPtr, STACK_SIZE);
+   
+  processes[newproc].program_counter=&&child_return;
+  processes[newproc].stack_pointer = (void *)get_sp() - current_proc->stackPtr + processes[newproc].stackPtr;
+  processes[newproc].state = STATUS_READY;
   processes[newproc].parent_id = number_parent;
 
   for(int j = 0; j < REGS_SIZE-1; j++) {
@@ -180,7 +180,12 @@ int fork()
   }
   // сохранить значение -1 в регистр eax дочернего процесса regs[REGS_SIZE - 1]
   processes[newproc].regs[REGS_SIZE-1] = -1;
-  return newproc; // возврат номера дочернего процесса или ERROR_MAXPROC
+
+  if (a)
+    return newproc; // возврат номера дочернего процесса или ERROR_MAXPROC
+  else
+ child_return:
+    return -1;  
 }
 
 /** 
@@ -245,9 +250,8 @@ int wait(int id)
  */
 void sheduler()
 {
-  if (current_proc->state != STATUS_SLEEPING) {
+  if (current_proc->state != STATUS_SLEEPING)
     current_proc->state = STATUS_READY;
-  }
   
   for (current_proc++; current_proc->state != STATUS_READY;  current_proc++) ;
 
@@ -263,6 +267,11 @@ void sheduler()
   restore_regs();
 }
 
+/** 
+ * Переводит текущий процесс в состояние сна
+ * 
+ * @param sleep_param условие пробуждения процесса
+ */
 void sleep(int sleep_param) {
   int a;
 
@@ -276,6 +285,11 @@ void sleep(int sleep_param) {
   a = 1;
 }
 
+/** 
+ * Пробуждает все процессы с заданным условием пробуждения
+ * 
+ * @param sleep_param условие пробуждения
+ */
 void wakeup(int sleep_param) {
   for (int i = 0; i < MAX_PROC_AMOUNT; i++) {
     if (processes[i].state == STATUS_SLEEPING && processes[i].sleep_param == sleep_param) {

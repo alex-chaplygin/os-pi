@@ -31,6 +31,7 @@ global a_isrMachineCheckException
 global a_isrNonExistent
 global a_syscall
 global syscall_write, syscall_read, syscall_exit
+global syscall_fork
 global save_regs, restore_regs
 global read_port, write_port	
 global a_timer
@@ -38,7 +39,6 @@ global a_interrupt_handler
 global disable_interrupts, enable_interrupts
 global a_keyboard_interrupt
 global get_sp
-global syscall_read	
 extern kmain, exception_handler, sys_call, timer_event,end_of_interrupt		;this is defined in the c file
 extern interrupt_handler
 extern current_proc
@@ -67,6 +67,7 @@ get_sp:
 	mov eax, esp
 	add eax, 4
 	ret
+
 	
 	return_esp dd 0
 	proc_cs dd 0
@@ -197,6 +198,12 @@ a_timer:
         add esp, 4
 	call timer_event
 	iret
+	
+FORK equ 8  ; /**номер вызова*/
+syscall_fork:
+	mov eax,FORK
+	int 0x80
+	ret
 	
 syscall_write:
 	mov eax, 7 ; syscall num
