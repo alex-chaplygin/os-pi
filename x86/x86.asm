@@ -166,7 +166,7 @@ enable_interrupts:
 
 read_port:
 	mov edx, [esp + 4]
-	in al, dx
+	in eax, dx
 	ret
 
 write_port:
