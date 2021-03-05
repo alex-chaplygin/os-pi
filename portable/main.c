@@ -138,6 +138,7 @@ void kmain(void)
   console_clear();
   init_memory();
   init_devices();
+  init_pci();
   init_timer(10);
   initProcesses();
   init_interrupts();
