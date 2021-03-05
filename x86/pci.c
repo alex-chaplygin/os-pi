@@ -181,15 +181,15 @@ int ReadPCIDevHeader(u32int bus, u32int dev, u32int func, PCIDevHeader *p_pciDev
  */
 void PrintPCIDevHeader(u32int bus, u32int dev, u32int func, PCIDevHeader *p_pciDevice)
 {
-	// kprint("Class Code: %x\n", p_pciDevice->option.classCode);
-	if(p_pciDevice->option.classCode==0x0c && p_pciDevice->option.subClassCode==0x03)
+  //kprint("Class Code: %x\n", p_pciDevice->option.classCode);
+	//  	if(p_pciDevice->option.classCode==0x0c && p_pciDevice->option.subClassCode==0x03)
 	{
 		char *prog_name = GetPCIDevProgName(p_pciDevice->option.progIF);
 		if (prog_name)
 			kprint("Description=%s\n", prog_name);    
 			
 		kprint(
-			"Bus:Dev:Func=0x%02x:%02x:%02x vID=0x%04x dID=0x%04x ClCode=0x%02x SbClCode=0x%02x PIF=0x%02x", 
+			"Bus:Dev:Func=0x%x:%x:%x vID=0x%x dID=0x%x ClCode=0x%x SbClCode=0x%x PIF=0x%x\n", 
 			bus, dev, func, p_pciDevice->option.vendorID, p_pciDevice->option.deviceID,
 			p_pciDevice->option.classCode, p_pciDevice->option.subClassCode, p_pciDevice->option.progIF
 		);
