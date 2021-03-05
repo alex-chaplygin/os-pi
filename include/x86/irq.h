@@ -24,3 +24,4 @@
 void init_pic(int offset1, int offset2);
 void end_of_interrupt(unsigned char irq);
 void enable_irq(unsigned char irq);
+void disable_irq(byte irq);

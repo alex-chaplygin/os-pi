@@ -48,16 +48,43 @@ void init_pic(int offset1, int offset2)
  * @param irq номер обрабатываемого прерывания (0-16) 
  */
 void end_of_interrupt(unsigned char irq)
-{
-	if(irq >= 8)
-		write_port(PIC2_COMMAND,PIC_EOI);
- 
-	write_port(PIC1_COMMAND,PIC_EOI);
+{  
+  if (irq >= 8)
+    write_port(PIC2_COMMAND,PIC_EOI);
+  
+  write_port(PIC1_COMMAND,PIC_EOI);
 }
 
+/** 
+ * Включает линию обработки прерываний
+ * 
+ * @param irq номер линии
+ */
 void enable_irq(byte irq)
 {
-  byte mask = read_port(PIC1_DATA);
+  if (irq >= 8)
+    int port = PIC2_DATA;
+  else 
+    int port = PIC1_DATA;
+  
+  byte mask = read_port(port);
   mask &= ~(1 << irq);
-  write_port(PIC1_DATA, mask);
+  write_port(port, mask);
+}
+
+/** 
+ * Запрещение линии прерывания
+ * 
+ * @param irq номер линии 
+ */
+void disable_irq(byte irq)
+{
+  if (irq >= 8)
+    int port = PIC2_DATA;
+  else 
+    int port = PIC1_DATA;
+
+  byte mask = read_port(port);
+  mask | = (1 << irq);
+  write_port(port, mask);
 }
