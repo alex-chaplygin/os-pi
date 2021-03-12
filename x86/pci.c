@@ -10,6 +10,7 @@
  */
 
 #include <x86/pci.h>
+#include <x86/io.h>
 
 typedef struct 
 {
@@ -44,18 +45,18 @@ static PCIClassName g_PCIClassNames[] =
     { 0x11, "signal processing controller"},
     { 0xFF, "proprietary device"}
 };
-
+/*
 typedef struct 
 {
     u32int prog_code;
     char name[32];
 } PCIProgName;
-
+*/
 
 /**
  * @brief Описание контроллера устройства
  * 
- */
+ *//*
 static PCIProgName g_PCIProgNames[] = 
 {
     { 0x00, "USB universall host"},
@@ -63,7 +64,7 @@ static PCIProgName g_PCIProgNames[] =
     { 0x20, "USB2 host controller"},
     { 0x80, "USB"},
     { 0xFE, "USB not host controller"}
-};
+    };*/
 
 typedef union
 {
@@ -100,9 +101,8 @@ void ReadConfig32(u32int bus, u32int dev, u32int func, u32int reg, u32int *data)
     addr.dev_num =  dev;
     addr.bus_num =  bus;		
 
-    write_port(PCI_CONFIG_PORT, addr.val);
-    data = (u32int*) read_port(PCI_DATA_PORT);
-    // kprint("Data: %x\n", data);
+    out32(PCI_CONFIG_PORT, addr.val);
+    in32(PCI_DATA_PORT, data);
     return;
 }
 
@@ -128,7 +128,7 @@ char *GetPCIDevClassName(u32int class_code)
  * 
  * @param progIF Код
  * @return Название контроллера
- */
+ *//*
 char *GetPCIDevProgName(u8int progIF)
 {
     int i;
@@ -139,7 +139,7 @@ char *GetPCIDevProgName(u8int progIF)
     }
     return 0;
 }
-
+   */
 
 /**
  * @brief Чтение информации об устройстве
@@ -155,20 +155,15 @@ int ReadPCIDevHeader(u32int bus, u32int dev, u32int func, PCIDevHeader *p_pciDev
     int i;
     
     if (p_pciDevice == 0)
-        return 1;
-    
-	ulong len = sizeof(p_pciDevice->header)/sizeof(p_pciDevice->header[0]);
+        return 1;    
 
-    for (i = 0; i < len; i++)
-        ReadConfig32(bus, dev, func, i, &p_pciDevice->header[i]);
-        
-	//Данные значения обозначают, что устройства не существует - возвращаем 1
-    if (p_pciDevice->option.vendorID == 0x0000 || 
-        p_pciDevice->option.vendorID == 0xffff ||
-        p_pciDevice->option.deviceID == 0xffff)
-        return 1;
-        
-    return 0;
+	for (i = 0; i < sizeof(p_pciDevice->header)/sizeof(p_pciDevice->header[0]); i++)
+		ReadConfig32(bus, dev, func, i, &p_pciDevice->header[i]);
+	if (p_pciDevice->option.vendorID == 0x0000 || 
+		p_pciDevice->option.vendorID == 0xffff ||
+		p_pciDevice->option.deviceID == 0xffff)
+		return 1;
+	return 0;
 }
 
 /**
@@ -181,19 +176,13 @@ int ReadPCIDevHeader(u32int bus, u32int dev, u32int func, PCIDevHeader *p_pciDev
  */
 void PrintPCIDevHeader(u32int bus, u32int dev, u32int func, PCIDevHeader *p_pciDevice)
 {
-  //kprint("Class Code: %x\n", p_pciDevice->option.classCode);
-	//  	if(p_pciDevice->option.classCode==0x0c && p_pciDevice->option.subClassCode==0x03)
-	{
-		char *prog_name = GetPCIDevProgName(p_pciDevice->option.progIF);
-		if (prog_name)
-			kprint("Description=%s\n", prog_name);    
-			
-		kprint(
-			"Bus:Dev:Func=0x%x:%x:%x vID=0x%x dID=0x%x ClCode=0x%x SbClCode=0x%x PIF=0x%x\n", 
-			bus, dev, func, p_pciDevice->option.vendorID, p_pciDevice->option.deviceID,
-			p_pciDevice->option.classCode, p_pciDevice->option.subClassCode, p_pciDevice->option.progIF
-		);
-	}   
+  char *class_name;
+  kprint("bus=0x%x dev=0x%x func=0x%x venID=0x%x devID=0x%x",
+	 bus, dev, func, p_pciDevice->option.vendorID, p_pciDevice->option.deviceID);
+  class_name = GetPCIDevClassName(p_pciDevice->option.classCode);
+  if (class_name)
+    kprint(" class_name=%s", class_name);
+  kprint("\n");
 }
 
 
@@ -206,8 +195,7 @@ void init_pci()
 	int bus;
 	int dev;
 	
-	console_clear();
-	kprint("Scanning PCI Devices...\n");
+	//	kprint("Scanning PCI Devices...\n");
 	
 	for (bus = 0; bus < PCI_MAX_BUSES; bus++)
 		for (dev = 0; dev < PCI_MAX_DEVICES; dev++)
@@ -217,7 +205,7 @@ void init_pci()
 			
 			if (ReadPCIDevHeader(bus, dev, func, &pci_device))
 			{
-				kprint("ERROR READING DEVICE AT: %i %i %i", bus, dev, func);	
+			  //kprint("ERROR READING DEVICE AT: %i %i %i", bus, dev, func);	
 				continue;
 			}
 			
@@ -234,5 +222,5 @@ void init_pci()
 			}
 		}
 
-	kprint("PCI scan done");
+	//kprint("PCI scan done");
 }

@@ -48,7 +48,7 @@ void panic(){
  */
 void exception_handler(int num){
   kprint(table[num]);
-  panic();
+  //  panic();
 }
 
 /** 

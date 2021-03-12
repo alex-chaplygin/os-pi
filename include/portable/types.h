@@ -1,13 +1,11 @@
 // uint is unsigned int.
-typedef unsigned int uint, u32int, uint32_t;
+typedef unsigned int uint, u32int, uint32_t,u32;
 // ushort is unsigned int.
-typedef unsigned short ushort, u16int, uint16_t;
+typedef unsigned short ushort, u16int, uint16_t,u16;
 // uchar is unsigned char.
-typedef unsigned char uchar;
+typedef unsigned char uchar, byte, u8;
 // ulong is unsigned long.
 typedef unsigned long ulong;
-// byte is unsigned char.
-typedef unsigned char byte;
 // sbyte is signed char.
 typedef signed char sbyte;
 // dword is unsigned int.
