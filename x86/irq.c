@@ -62,10 +62,11 @@ void end_of_interrupt(unsigned char irq)
  */
 void enable_irq(byte irq)
 {
+  int port;
   if (irq >= 8)
-    int port = PIC2_DATA;
+    port = PIC2_DATA;
   else 
-    int port = PIC1_DATA;
+    port = PIC1_DATA;
   
   byte mask = read_port(port);
   mask &= ~(1 << irq);
@@ -79,12 +80,13 @@ void enable_irq(byte irq)
  */
 void disable_irq(byte irq)
 {
+  int port;
   if (irq >= 8)
-    int port = PIC2_DATA;
+    port = PIC2_DATA;
   else 
-    int port = PIC1_DATA;
+    port = PIC1_DATA;
 
   byte mask = read_port(port);
-  mask | = (1 << irq);
+  mask |= (1 << irq);
   write_port(port, mask);
 }
