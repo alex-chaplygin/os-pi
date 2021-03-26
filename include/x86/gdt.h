@@ -53,6 +53,26 @@ struct gdt_ptr_struct {
 /// Указатель на структуру
 typedef struct gdt_ptr_struct gdt_ptr_t;
 
+/// Структура записи GDT, использующая битовые поля
+struct  gdt_entry_bits {
+  	unsigned int limit_low: 16;
+	unsigned int base_low: 24;
+	unsigned int accessed: 1;
+	unsigned int read_write: 1; // флаг чтения для кода и записи для данных
+	unsigned int conforming: 1; // conforming for code, expand down for data
+	unsigned int code: 1; // 1 для кода, 0 для данных
+	unsigned int code_data_segment: 1; // должна быть 1 для всего кроме TSS и LDT
+	unsigned int DPL: 2; // уровень прав
+	unsigned int present: 1;
+	unsigned int limit_high: 4;
+	unsigned int available: 1; // используется для ПО; бесполезно для аппаратного обеспечения
+	unsigned int long_mode: 1;
+	unsigned int big: 1; // 32-битные коды операций для кода, стек unsigned int для данных
+	unsigned int gran: 1; // 1 используется для 4KB адресации страниц, 0 для байтовой адресации
+	unsigned int base_high: 8;
+} __attribute__((packed));
+typedef struct gdt_entry_bits gdt_entry_b;
+
 /** 
  * Создание дескриптора сегмента
  * 
