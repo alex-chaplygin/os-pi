@@ -15,6 +15,8 @@ gdt_ptr_t    gdt_ptr;
 gdt_entry_t    gdt_entries[GDT_SIZE];
 /// количество сегментов в GDT
 int num_segments = GDT_SIZE;
+/// один null сегмент, два сегмента 0 кольца, два сегмента 3 кольца, TSS сегмент
+static gdt_entry_b gdt[6];
 
 /** 
  * добавляет сегмент в GDT под очередным номером и перезагружает GDT
@@ -92,6 +94,34 @@ void init_memory()
     create_descriptor(2, 0, 0xFFFFFFFF, SEG_DATA_RDWR | DPL(0), GRAN_ENABLE); 
     create_descriptor(3, 0, 0xFFFFFFFF, SEG_CODE_EXRD | DPL(3), GRAN_ENABLE);
     create_descriptor(4, 0, 0xFFFFFFFF, SEG_DATA_RDWR | DPL(3), GRAN_ENABLE);
+
+    gdt_entry_b *ring3_code;
+gdt_entry_b *ring3_data;
+ring3_code = &gdt[3];
+ring3_data = &gdt[4];
+ring3_code = &gdt[3];
+ring3_data = &gdt[4];
+ring3_code->limit_low = 0xFFFF;
+ring3_code->base_low = 0;
+ring3_code->accessed = 0;
+ring3_code->read_write = 1; // так как это сегмент кода, то должен быть доступ для чтения
+ring3_code->conforming = 0; // не важно для кольца 3
+ring3_code->code = 1;
+ring3_code->code_data_segment = 1;
+ring3_code->DPL = 3; // кольцо 3/уровень прав
+ring3_code->present = 1;
+ring3_code->limit_high = 0xF;
+ring3_code->available = 1;
+ring3_code->long_mode = 0;
+ring3_code->big = 1; // 32 бита
+ring3_code->gran = 1; // 4КБ адресация
+ring3_code->base_high = 0;
+*ring3_data = *ring3_code; // содержимое одинаково
+ring3_data->code = 0; // индетификатор данных, а не кода
+ 
+/* install_tss(&gdt[5]); // TSS segment will be the fifth  */
+ 
+/* flush_tss(); */
 
     load_gdt((uint32_t)&gdt_ptr);
     mem_init();
