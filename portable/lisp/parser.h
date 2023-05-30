@@ -1,1 +1,1 @@
-void parse();
+list_t *parse();

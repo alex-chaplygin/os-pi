@@ -13,28 +13,33 @@ void error(char *str)
     exit(1);
 }
 
-void parse_list()
+// Обработка списка без левой скобки
+list_t *parse_list()
 {
+    list_t *list = NULL;
+    
     if (cur_token->type != LPAREN)
         error("expected (");
     cur_token = get_token();
     while (cur_token->type != END && cur_token->type != RPAREN) {
-        if (cur_token->type == NUMBER) 
-            list_add(cur_token->type, cur_token->value);
-        else if (cur_token->type == ATOM)
-            list_add(cur_token->type, cur_token->str);
+        if (cur_token->type == T_NUMBER) 
+            list_add(&list, NUMBER, &cur_token->value);
+        else if (cur_token->type == T_ATOM)
+            list_add(&list, ATOM, cur_token->str);
         else if  (cur_token->type == LPAREN)
-            parse_list();
+            list_add(&list, LIST, parse_list());
         else if (cur_token->type == INVALID)
             error("expected number or atom");
         cur_token = get_token();
     }
     if (cur_token->type != RPAREN)
         error("expected )");
+    return list;
 }
 
-void parse()
+// Обработка выражения
+list_t *parse()
 {
     cur_token = get_token(); // считывается левая скобка
-    parse_list();
+    return parse_list();
 }
