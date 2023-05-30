@@ -1,20 +1,8 @@
+#include "list.h" 
+#include <stdio.h>
+#include <stddef.h>
 #define MAX_NUM 100
-#define MAX_STR 50
 
-
-
-typedef struct list_s
-{
-    type_t type; // тип элемента списка
-    union {
-        int value; // если элемент число, то его значение
-        char atom[MAX_STR]; // если элемент атом, то строка атома
-        struct list_s *list;
-    } u;
-    struct list_s *next;
-} list_t;
-
-list_t *head = NULL;//глобальный список
 int count = 0; // счетчик чисел в массиве
 list_t list_heap[MAX_NUM];
 
@@ -31,13 +19,23 @@ void str_copy (char *str1, char *str2)
     *str2 = 0;
 }
 
-void list_add(type_t type, void *data)
+/** 
+ * Добавление элемента в список
+ * 
+ * @param type тип элемента
+ * @param data указатель на данные
+ */
+void list_add(list_t **head, type_t type, void *data)
 {
     list_t *new = alloc();
     new->type = type;
     if (type == NUMBER)
-        new->value = data;
+        new->u.value = *(int *)data;
     else if (type == ATOM)
+        // заполнить поле строки
+        str_copy((char *)data, new->u.atom);
+    else if (type == LIST)
+        new->u.list = (list_t *)data;
     new->next = NULL;
     if (*head == NULL)
         *head = new;
@@ -48,6 +46,17 @@ void list_add(type_t type, void *data)
         last->next = new;
     }
 }
-void print_list(){
-    
+
+void print_list(list_t *head)
+{
+    printf("(");
+    for (list_t *cur = head; cur != NULL; cur = cur->next) {
+        if (cur->type == NUMBER)
+            printf("%d ", cur->u.value); // выводим содержимое массива в кавычках и разделяем запятой
+        else if (cur->type == ATOM)
+            printf("%s ", cur->u.atom);
+        else if (cur->type == LIST)
+            print_list(cur->u.list);
+    }
+    printf(") ");
 }
