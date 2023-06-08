@@ -1,4 +1,4 @@
-SRC=inter.o parser.o lexer.o list.o
+SRC=inter.o parser.o lexer.o list.o atom.o
 
 all: /tmp/inter
 

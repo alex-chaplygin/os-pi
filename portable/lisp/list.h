@@ -1,3 +1,5 @@
+#include "atom.h"
+
 #define MAX_STR 50
 
 typedef enum {
@@ -11,7 +13,7 @@ typedef struct list_s
     type_t type; // тип элемента списка
     union {
         int value; // если элемент число, то его значение
-        char atom[MAX_STR]; // если элемент атом, то строка атома
+        atom_t *atom; // если элемент атом, то указатель на атом
         struct list_s *list; // Если элемент список то указатель на список
     } u;
     struct list_s *next;// указатель на следующий элемент
