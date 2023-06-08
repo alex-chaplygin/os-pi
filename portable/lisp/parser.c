@@ -13,6 +13,20 @@ void error(char *str)
     exit(1);
 }
 
+// преобразует строку в верхний регистр
+char *strupr(char *str)
+{
+    char *ptr = str;
+    
+    while (*ptr != '\0') {
+        if (*ptr >= 'a' && *ptr <= 'z') {
+            *ptr = *ptr - 'a' + 'A';
+        }
+        ptr++;
+    }    
+    return str;
+}
+
 // Обработка списка без левой скобки
 list_t *parse_list()
 {
@@ -25,7 +39,7 @@ list_t *parse_list()
         if (cur_token->type == T_NUMBER) 
             list_add(&list, NUMBER, &cur_token->value);
         else if (cur_token->type == T_ATOM)
-            list_add(&list, ATOM, cur_token->str);
+	  list_add(&list, ATOM, strupr(cur_token->str));
         else if  (cur_token->type == LPAREN)
             list_add(&list, LIST, parse_list());
         else if (cur_token->type == INVALID)

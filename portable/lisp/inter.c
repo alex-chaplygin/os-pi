@@ -8,6 +8,6 @@ int main()
 {
     list_t *head = parse();
     print_list(head);
-    print_table(); 
+    //    print_table(); 
     return 0;
 }
