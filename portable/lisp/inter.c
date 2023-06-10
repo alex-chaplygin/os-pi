@@ -6,8 +6,7 @@ void print_table();
 
 int main()
 {
-    list_t *head = parse();
-    print_list(head);
-    //    print_table(); 
+    element_t *head = parse();
+    print_elem(head);
     return 0;
 }
