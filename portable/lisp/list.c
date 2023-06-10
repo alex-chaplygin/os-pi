@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stddef.h>
+#include <stdlib.h>
 #include "list.h" 
 
 #define MAX_NUM 100
@@ -20,7 +21,7 @@ list_t *alloc()
  */
 void list_add(list_t **head, type_t type, void *data)
 {
-    list_t *new = alloc();
+    element_t *new = malloc(sizeof(element_t));
     new->type = type;
     if (type == NUMBER)
         new->u.value = *(int *)data;
@@ -29,27 +30,30 @@ void list_add(list_t **head, type_t type, void *data)
         new->u.atom = find_atom((char *)data);
     else if (type == LIST)
         new->u.list = (list_t *)data;
-    new->next = NULL;
+    list_t *new2 = alloc();
+    new2->elem = new;
+    new2->next = NULL;
     if (*head == NULL)
-        *head = new;
+        *head = new2;
     else {
         list_t *last = *head;
         while (last->next != NULL)
             last = last->next;
-        last->next = new;
+        last->next = new2;
     }
 }
 
-void print_list(list_t *head)
+void print_elem(element_t *el)
 {
-    printf("(");
-    for (list_t *cur = head; cur != NULL; cur = cur->next) {
-        if (cur->type == NUMBER)
-            printf("%d ", cur->u.value); // выводим содержимое массива в кавычках и разделяем запятой
-        else if (cur->type == ATOM)
-            printf("%s ", cur->u.atom->str);
-        else if (cur->type == LIST)
-            print_list(cur->u.list);
+    if (el->type == NUMBER)
+        printf("%d ", el->u.value); // выводим содержимое массива в кавычках и разделяем запятой
+    else if (el->type == ATOM)
+        printf("%s ", el->u.atom->str);
+    else if (el->type == LIST)
+    {
+        printf("(");
+        for (list_t *cur = el->u.list; cur != NULL; cur = cur->next) 
+            print_elem(cur->elem);
+        printf(") ");
     }
-    printf(") ");
 }
