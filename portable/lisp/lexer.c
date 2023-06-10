@@ -1,10 +1,11 @@
 #include <stdio.h>
 #include "lexer.h"
 
-char cur_symbol;
+char cur_symbol; // текущий символ
 int flag = 0; // если true, не считывать символ
 token_t token;
 
+// читать один символ
 void get_cur_char()
 {
     if (flag)
@@ -13,11 +14,13 @@ void get_cur_char()
         cur_symbol = getchar();
 }
 
+// вернуть последн\. символ назад 
 void unget_cur_char() 
 {
     flag = 1;
 }
 
+// пропускать пробелы
 void skip_white_space()
 {
     while (cur_symbol == ' ')
@@ -25,16 +28,19 @@ void skip_white_space()
     unget_cur_char();
 }
 
+// проверка символа на цыфру
 int is_digit(char c)
 {
     return c >= '0' && c <= '9';
 }
 
+// проверка символа на букву
 int is_alpha(char c)
 {
     return c >= 'a' && c <= 'z' || c>= 'A' && c <= 'Z';
 }
 
+// считать число
 int get_num()
 {
     get_cur_char();
@@ -48,6 +54,7 @@ int get_num()
     return cur_num;
 }
 
+//прочесть атом
 void get_atom(char *cur_str)
 {
     get_cur_char();
@@ -61,6 +68,7 @@ void get_atom(char *cur_str)
     cur_str[c] = 0;
 }
 
+// '(3 4) 'a
 token_t *get_token()
 {
     get_cur_char();
@@ -76,6 +84,9 @@ token_t *get_token()
             break;
         case '\n':
             token.type = END;
+            break;
+        case '\'':
+            token.type = QUOTE;
             break;
         default:
             if (is_digit(cur_symbol)) {

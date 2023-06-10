@@ -5,7 +5,8 @@ typedef enum {
     T_ATOM, // строка +a4s6d7fd23
     LPAREN, //левая скобка (
     RPAREN, // правая скобка )
-    END, // конец строки 
+    END, // конец строки
+    QUOTE, // символ '
     INVALID // неизвестный объект
 } tokentype_t; //тип ликсемы 
 
