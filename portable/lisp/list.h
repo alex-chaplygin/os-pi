@@ -12,20 +12,20 @@ struct list_s;
 
 typedef struct
 {
-    type_t type; // тип элемента
+    type_t type; // тип объекта
     union {
-        int value; // если элемент число, то его значение
-        atom_t *atom; // если элемент атом, то указатель на атом
-        struct list_s *list; // Если элемент список то указатель на список
+        int value; // если объект число, то его значение
+        atom_t *atom; // если объект атом, то указатель на атом
+        struct list_s *list; // Если объект список то указатель на список
     } u;
-} element_t;
+} object_t; // Структура объекта
 
 typedef struct list_s
 {
-    element_t *elem; // элемент списка
+    object_t *elem; // элемент списка
     struct list_s *next;// указатель на следующий элемент
-} list_t;
+} list_t; // Структура списка
 
-void list_add(list_t **head, type_t type, void *data);
-void print_elem(element_t *head);
-list_t *alloc();
+void list_add(list_t **head, object_t *obj);
+void print_elem(object_t *head);
+object_t *object_new(type_t type, void *data);

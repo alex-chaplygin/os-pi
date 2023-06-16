@@ -3,25 +3,13 @@
 #include <stdlib.h>
 #include "list.h" 
 
-#define MAX_NUM 100
-
-int count = 0; // счетчик чисел в массиве
-list_t list_heap[MAX_NUM];
-
-list_t *alloc()
+//создать объект
+// type - тип объекта
+// data - указатель на данные
+// Возвращает указатель на созданный объект
+object_t *object_new(type_t type, void *data)
 {
-    return &list_heap[count++];
-}
-
-/** 
- * Добавление элемента в список
- * 
- * @param type тип элемента
- * @param data указатель на данные
- */
-void list_add(list_t **head, type_t type, void *data)
-{
-    element_t *new = malloc(sizeof(element_t));
+    object_t *new = malloc(sizeof(object_t));
     new->type = type;
     if (type == NUMBER)
         new->u.value = *(int *)data;
@@ -30,8 +18,19 @@ void list_add(list_t **head, type_t type, void *data)
         new->u.atom = find_atom((char *)data);
     else if (type == LIST)
         new->u.list = (list_t *)data;
-    list_t *new2 = alloc();
-    new2->elem = new;
+    return new;
+}
+
+/** 
+ * Добавление элемента в список
+ * 
+ * @param head указатель на список
+ * @param obj указатель на объект
+ */
+void list_add(list_t **head, object_t *obj)
+{
+    list_t *new2 = malloc(sizeof(list_t));
+    new2->elem = obj;
     new2->next = NULL;
     if (*head == NULL)
         *head = new2;
@@ -43,7 +42,7 @@ void list_add(list_t **head, type_t type, void *data)
     }
 }
 
-void print_elem(element_t *el)
+void print_elem(object_t *el)
 {
     if (el->type == NUMBER)
         printf("%d ", el->u.value); // выводим содержимое массива в кавычках и разделяем запятой
