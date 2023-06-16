@@ -1,1 +1,2 @@
-element_t *parse();
+object_t *parse();
+void error(char *str);

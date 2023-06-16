@@ -26,7 +26,24 @@ char *strupr(char *str)
     }    
     return str;
 }
+object_t *parse();
 
+// Обработка кавычки
+// 'a -> (quote a)
+// '(4 5 6) -> (quote (4 5 6))
+list_t *parse_quote()
+{
+    list_t *list = NULL;
+    object_t *o = parse();
+    if (o->type == NUMBER)
+        error("quote Number\n");
+    else 
+    {
+        list_add(&list, object_new(ATOM, "QUOTE"));
+        list_add(&list, o);
+    }
+    return list;
+}
 // Обработка списка без левой скобки
 list_t *parse_list()
 {
@@ -37,11 +54,13 @@ list_t *parse_list()
     cur_token = get_token();
     while (cur_token->type != END && cur_token->type != RPAREN) {
         if (cur_token->type == T_NUMBER) 
-            list_add(&list, NUMBER, &cur_token->value);
+            list_add(&list, object_new(NUMBER, &cur_token->value));
         else if (cur_token->type == T_ATOM)
-	        list_add(&list, ATOM, strupr(cur_token->str));
+	        list_add(&list, object_new(ATOM, strupr(cur_token->str)));
         else if  (cur_token->type == LPAREN)
-            list_add(&list, LIST, parse_list());
+            list_add(&list, object_new(LIST, parse_list()));
+        else if (cur_token->type == QUOTE)
+            list_add(&list, object_new(LIST, parse_quote()));
         else if (cur_token->type == INVALID)
             error("expected number or atom");
         cur_token = get_token();
@@ -51,28 +70,22 @@ list_t *parse_list()
     return list;
 }
 
+
+
 // Обработка выражения 
 // (1 2)
 // 12
 // ABC
-element_t *parse()
+object_t *parse()
 {   
-    element_t *el = malloc(sizeof(element_t)); // создаем новый элемент
+    object_t *el; // создаем новый элемент
     cur_token = get_token(); // считывается левая скобка
     if (cur_token->type == T_NUMBER) // считывается число
-    {
-        el->type = NUMBER;
-        el->u.value = cur_token->value;
-    }
+        return object_new(NUMBER, &cur_token->value);
     else if (cur_token->type == T_ATOM)//считывается атом
-     {
-        el->type = ATOM;
-        el->u.atom = find_atom(strupr(cur_token->str));
-    }
+        return object_new(ATOM, find_atom(strupr(cur_token->str)));
     else if (cur_token->type == LPAREN)
-    {
-        el->type = LIST;
-        el->u.list = parse_list();
-    }
-    return el;
+        return object_new(LIST, parse_list());
+    else if (cur_token->type == QUOTE)
+        return object_new(LIST, parse_quote());
 }
