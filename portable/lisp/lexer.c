@@ -86,6 +86,7 @@ token_t *get_token()
             token.type = END;
             break;
         case '\'':
+            get_cur_char();
             token.type = QUOTE;
             break;
         default:
