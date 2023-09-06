@@ -3,23 +3,32 @@
 #include <stdlib.h>
 #include "list.h" 
 
+#define MAX_OBJECTS 50
+
+int last_object = 0;
+object_t objects[MAX_OBJECTS];
+
 //создать объект
 // type - тип объекта
 // data - указатель на данные
 // Возвращает указатель на созданный объект
 object_t *object_new(type_t type, void *data)
 {
-    object_t *new = malloc(sizeof(object_t));
+    object_t *new = &objects[last_object++];
+    if (last_object == MAX_OBJECTS)
+        return NULL;
     new->type = type;
     if (type == NUMBER)
         new->u.value = *(int *)data;
     else if (type == ATOM)
         // заполнить поле строки
         new->u.atom = find_atom((char *)data);
-    else if (type == LIST)
-        new->u.list = (list_t *)data;
+    else if (type == PAIR)
+        new->u.pair = (pair_t *)data;   
     return new;
 }
+
+
 
 /** 
  * Добавление элемента в список
@@ -27,15 +36,15 @@ object_t *object_new(type_t type, void *data)
  * @param head указатель на список
  * @param obj указатель на объект
  */
-void list_add(list_t **head, object_t *obj)
+void list_add(pair_t **head, object_t *obj)
 {
-    list_t *new2 = malloc(sizeof(list_t));
+    pair_t *new2 = malloc(sizeof(pair_t));
     new2->elem = obj;
     new2->next = NULL;
     if (*head == NULL)
         *head = new2;
     else {
-        list_t *last = *head;
+        pair_t *last = *head;
         while (last->next != NULL)
             last = last->next;
         last->next = new2;
@@ -51,7 +60,7 @@ void print_elem(object_t *el)
     else if (el->type == LIST)
     {
         printf("(");
-        for (list_t *cur = el->u.list; cur != NULL; cur = cur->next) 
+        for (pair_t *cur = el->u.list; cur != NULL; cur = cur->next) 
             print_elem(cur->elem);
         printf(") ");
     }
