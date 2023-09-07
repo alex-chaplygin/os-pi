@@ -55,7 +55,7 @@ int get_num()
 }
 
 //прочесть атом
-void get_atom(char *cur_str)
+void get_symbol(char *cur_str)
 {
     get_cur_char();
     int c = 0;
@@ -94,8 +94,8 @@ token_t *get_token()
                 token.type = T_NUMBER;
                 token.value = get_num();
             } else if (is_alpha(cur_symbol)) {
-               token.type =  T_ATOM;
-               get_atom(token.str);
+               token.type =  T_SYMBOL;
+               get_symbol(token.str);
             } else {
                 get_cur_char();
                 token.type = INVALID;
