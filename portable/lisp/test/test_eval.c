@@ -146,6 +146,7 @@ void test_car()
     object_t* res = CAR(&lst);
     ASSERT(res->u.value, 5);
 }
+
 void test_cons()
 {
     printf("test_cons: ");
@@ -155,10 +156,7 @@ void test_cons()
     num1.type = NUMBER;
     num1.u.value = 1;
     num2.type = NUMBER;
-    num2.u.value = 2;
-
-    
-
+    num2.u.value = 2;    
     //object_t* res = CONS()
 }
 

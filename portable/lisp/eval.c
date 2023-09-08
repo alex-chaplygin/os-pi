@@ -77,13 +77,13 @@ object_t *eval_eq(object_t *list)
  */
 object_t *CONS(object_t *list)
 {			
-    if (list->type != PAIR)
+  /*    if (list->type != PAIR)
         error("Not list in cons\n");
     object_t *p1 = FIRST(list);
     object_t *p2 = SECOND(list);
     if (p2->type != PAIR)
         error("second parameter not list");
-    return new_pair(p1, p2);
+	return new_pair(p1, p2);*/
 }
       
 //Вычисление выражения
