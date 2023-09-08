@@ -14,8 +14,14 @@
 object_t *t;
 object_t *nil;
 
-// возвращает первый элемент списка
-// list - список параметров
+
+/** 
+ * возвращает первый элемент списка
+ * 
+ * @param list - список параметров
+ * 
+ * @return указатель на значиение первого элемента списка
+ */
 object_t *CAR(object_t *list)
 {
     if (list->type != PAIR)
@@ -23,8 +29,14 @@ object_t *CAR(object_t *list)
     return list->u.pair->left;
 }
 
-// возвращает список без первого элемента
-// list - объект типа список
+
+/** 
+ * возвращает список без первого элемента
+ * 
+ * @param list - объект типа список
+ * 
+ * @return указатель на второй элемент списка
+ */
 object_t *CDR(object_t *list)
 {
     if (list->type != PAIR)
@@ -34,6 +46,13 @@ object_t *CDR(object_t *list)
 
 // (eq 'a 'a) -> T
 // (eq 'a 'b) -> ()
+/** 
+ * возвращает t если значения первых двух элементов списка это один и тот же символ а иначе возвращает nil
+ *
+ * @param list - список параметров
+ *
+ * @return t или nil
+ */
 object_t *eval_eq(object_t *list)
 {
     object_t *p1 = FIRST(list);
@@ -48,13 +67,24 @@ object_t *eval_eq(object_t *list)
         return nil;
 }
 
-//Конструирование объекта ожидает, что аргумент o2 - список, возвращает список который содержит o1, и продолжается с элементами o2.
-//#define CONS(o1, o2) ({			\
-  /* if(o2->type == LIST) */
-
-  /* else */
-  /*   return */
-
+//
+/** 
+ * Конструирование объекта ожидает, что 2 параметр - список
+ *
+ * @param list - список параметров
+ *
+ * @return список который содержит 1 параметр, и продолжается с элементами 2 параметра.
+ */
+object_t *CONS(object_t *list)
+{			
+    if (list->type != PAIR)
+        error("Not list in cons\n");
+    object_t *p1 = FIRST(list);
+    object_t *p2 = SECOND(list);
+    if (p2->type != PAIR)
+        error("second parameter not list");
+    return new_pair(p1, p2);
+}
       
 //Вычисление выражения
 //Если выражение число, возвращаем его же
