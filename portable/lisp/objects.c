@@ -3,24 +3,29 @@
 #include <stdlib.h>
 #include "list.h" 
 
+/// Всего объектов
 #define MAX_OBJECTS 50
+/// Всего пар
 #define MAX_PAIRS 50
 
-// Индекс последнего объекта массива
+/// Индекс последнего объекта массива
 int last_object = 0;
-// Массив или хранилище объектов
+/// Массив или хранилище объектов
 object_t objects[MAX_OBJECTS];
 
-
-// Индекс последней пары
+/// Индекс последней пары
 int last_pair = 0;
-// Массив или хранилище пар
+/// Массив или хранилище пар
 object_t pairs[MAX_PAIRS];
 
-//создать объект
-// type - тип объекта
-// data - указатель на данные
-// Возвращает указатель на созданный объект
+/** 
+ * Создание нового объекта из пула объектов
+ *
+ * @param type тип объекта
+ * @param data указатель на данные
+ *
+ * @return указатель на созданный объект
+ */
 object_t *object_new(type_t type, void *data)
 {
     object_t *new = &objects[last_object++];
@@ -37,10 +42,8 @@ object_t *object_new(type_t type, void *data)
     return new;
 }
 
-
-
 /** 
- * Создание нового обекта пары
+ * Создание нового объекта пары
  * 
  * @param left левый объект
  * @param right правый объект

@@ -60,8 +60,7 @@ symbol_t *find_symbol(char *str)
             last = last->next;
         last->next = new;
         return new;
-    }
-    
+    }    
     return el;
 }
 

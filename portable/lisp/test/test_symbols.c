@@ -29,8 +29,6 @@ void test_find_same_symbol()
    ASSERT(i, k)
 }
 
-
-
 int main()
 {
   test_str_copy();

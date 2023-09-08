@@ -10,7 +10,12 @@ void skip_white_space();
 int get_num();
 extern char cur_symbol;
 
-//Функция пзаписи строки в файл
+/** 
+ * Функция перенаправления стандартного ввода в файл.
+ * Запиывает строку в файл
+ *
+ * @param string строка, содержащая данные
+ */
 void write_file(char *string)
 {
     char filename[] = "/tmp/temp.txt";
