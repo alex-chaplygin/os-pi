@@ -89,3 +89,6 @@ Bind Ctrl+C to Copy:
 Bind Ctrl+V to Paste:
 
 (global-set-key (kbd "C-v") 'yank)
+
+(global-set-key (kbd "C-s") 'save-buffer)
+(global-set-key (kbd "C-z") 'undo)
