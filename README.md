@@ -63,7 +63,15 @@ git push origin iss<номер>
 
 ## Настройка Emacs
 
-(global-set-key [f5] 'compile)
+(global-set-key [f5] 'user-save-and-make-all)
+(global-set-key (kbd "<f5>") 'user-save-and-make-all)
+
+(defun user-save-and-make-all ()
+  "save and call compile as make all"
+  (interactive)
+  (save-buffer)
+  (compile "make all")
+  (message "make all executed!"))
 
 (global-set-key [f1] 'doxymacs-insert-file-comment)
 
