@@ -4,10 +4,11 @@
 
 #define MAX_STR 50
 
+/// перечисление типов объектов
 typedef enum {
-    NUMBER,
-    SYMBOL,
-    PAIR
+  NUMBER, /// целое число
+  SYMBOL, ///символ
+  PAIR    ///пара
 } type_t;
 
 struct pair_s;
@@ -31,4 +32,5 @@ typedef struct pair_s
 
 void print_elem(object_t *head);
 object_t *object_new(type_t type, void *data);
+object_t *new_pair(object_t *left, object_t *right);
 #endif

@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "list.h" 
+#include "objects.h" 
 
 /// Всего объектов
 #define MAX_OBJECTS 50
@@ -16,7 +16,7 @@ object_t objects[MAX_OBJECTS];
 /// Индекс последней пары
 int last_pair = 0;
 /// Массив или хранилище пар
-object_t pairs[MAX_PAIRS];
+pair_t pairs[MAX_PAIRS];
 
 /** 
  * Создание нового объекта из пула объектов
@@ -34,9 +34,9 @@ object_t *object_new(type_t type, void *data)
     new->type = type;
     if (type == NUMBER)
         new->u.value = *(int *)data;
-    else if (type == ATOM)
+    else if (type == SYMBOL)
         // заполнить поле строки
-        new->u.atom = find_atom((char *)data);
+      new->u.symbol = find_symbol((char *)data);
     else if (type == PAIR)
         new->u.pair = (pair_t *)data;   
     return new;
