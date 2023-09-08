@@ -1,9 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "atom.h"
+#include "symbols.h"
+
 #define HASH_SIZE 1000
 
-atom_t hash_table[HASH_SIZE];
+symbol_t hash_table[HASH_SIZE];
 
 //хэш функция строки 
 unsigned int hash(char *str)
@@ -38,23 +39,23 @@ int compare_str(char *str1, char *str2)
 //функция ищет атом в хеш -таблице
 //если не найдена, то добавляет в таблицу
 //str - строка атома
-//возвращает указатель на структуру атома
-atom_t *find_atom(char *str) 
+//возвращает указатель на структуру символаи
+symbol_t *find_symbol(char *str) 
 {
     int i = hash(str) % HASH_SIZE;
-    atom_t *el = &hash_table[i];
+    symbol_t *el = &hash_table[i];
     if (*el->str == 0)
         str_copy(str, el->str);
     else
     {
-        for (atom_t *cur = el; cur != 0; cur = cur->next)
+        for (symbol_t *cur = el; cur != 0; cur = cur->next)
             if (compare_str(cur->str, str))
                 return cur;
                 
-        atom_t *new = malloc(sizeof(atom_t));
+        symbol_t *new = malloc(sizeof(symbol_t));
         new->next = 0;
         str_copy(str, new->str);
-        atom_t *last = el;
+        symbol_t *last = el;
         while (last->next != 0)
             last = last->next;
         last->next = new;
@@ -69,7 +70,7 @@ void print_table()
     for(int i = 0; i < HASH_SIZE; i++)
     {
         printf("%d ", i);
-        for (atom_t *cur = hash_table + i; cur != 0; cur = cur->next) 
+        for (symbol_t *cur = hash_table + i; cur != 0; cur = cur->next) 
             printf("%s->", cur->str);
         printf("\n");
     }

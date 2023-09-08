@@ -1,6 +1,8 @@
 #include <stdio.h>
-#include "list.h"
+#include "symbols.h"
 #include "test.h"
+
+extern object_t *t;
 
 void print_elem(object_t *head){}
 
@@ -8,42 +10,107 @@ object_t *object_new(type_t type, void *data){
     return NULL;
 }
 
-atom_t *find_atom(char *str){
-    return NULL;
-}
 
 object_t *CAR(object_t *list);
 object_t *CDR(object_t *list);
-object_t *eval_eq(object_t *p1, object_t *p2);
-object_t *eval(object_t *obj);
+object_t *eval_eq(object_t *list);
 
-void test_eq()
+void error(char *str)
 {
-    object_t v1, v2;
-    v1.type = ATOM;
-    v2.type = ATOM;
-    
-    struct atom_s a1, a2;
-    
-    v1.u.atom = &a1;
-    v2.u.atom = &a2;
-
-    ASSERT(eval_eq(&v1, &v2), NULL);
+  printf("%s", str);
 }
 
-void test_eval()
+void test_eq_num()
 {
-    object_t num;
-    num.type = NUMBER;
-    num.u.value = 6;
+    printf("test_eq_num: ");
+    object_t num1, num2;
+    pair_t p1, p2;
+    object_t ob1, ob2;
     
-    ASSERT(eval(&num)->u.value, 6);
+    num1.type = NUMBER;
+    num1.u.value = 6;
+    num2.type = NUMBER;
+    num2.u.value = 15;
+
+    p2.right = NULL;
+    p2.left = &num2;
+
+    ob2.type = PAIR;
+    ob2.u.pair = &p2;
     
+    p1.right = &ob2;
+    p1.left = &num1;
+
+    ob1.type = PAIR;
+    ob1.u.pair = &p1;
     
+    ASSERT(eval_eq(&ob1), NULL);
+}
+
+//символы не равны
+void test_eq_sym()
+{
+    printf("test_eq_sym: ");
+    object_t num1, num2;
+    pair_t p1, p2;
+    object_t ob1, ob2;
+    symbol_t s1, s2;
+        
+    num1.type = SYMBOL;
+    num1.u.symbol = &s1;
+    num2.type = SYMBOL;
+    num2.u.symbol = &s2;
+
+    p2.right = NULL;
+    p2.left = &num2;
+
+    ob2.type = PAIR;
+    ob2.u.pair = &p2;
+    
+    p1.right = &ob2;
+    p1.left = &num1;
+
+    ob1.type = PAIR;
+    ob1.u.pair = &p1;
+    
+    ASSERT(eval_eq(&ob1), NULL);
+}
+
+//символы равны
+void test_eq_sym_eq()
+{
+    printf("test_eq_sym_eq: ");
+    object_t num1, num2, obj_t;
+    pair_t p1, p2;
+    object_t ob1, ob2;
+    symbol_t s1;
+
+    t = &obj_t;
+    
+    num1.type = SYMBOL;
+    num1.u.symbol = &s1;
+    num2.type = SYMBOL;
+    num2.u.symbol = &s1;
+
+    p2.right = NULL;
+    p2.left = &num2;
+
+    ob2.type = PAIR;
+    ob2.u.pair = &p2;
+    
+    p1.right = &ob2;
+    p1.left = &num1;
+
+    ob1.type = PAIR;
+    ob1.u.pair = &p1;
+    
+    ASSERT(eval_eq(&ob1), t);
 }
 
 void test_cdr()
 {
+    printf("test_cdr: ");
+  
     object_t num;
     num.type = NUMBER;
     num.u.value = 5;
@@ -62,6 +129,8 @@ void test_cdr()
 
 void test_car()
 {
+    printf("test_car: ");
+  
     object_t num;
     num.type = NUMBER;
     num.u.value = 5;
@@ -82,8 +151,8 @@ int main()
 {
     test_car();
     test_cdr();
-    test_eq();
-    test_eval();
-    
+    test_eq_num();
+    test_eq_sym();
+    test_eq_sym_eq();
     return 0;
 }

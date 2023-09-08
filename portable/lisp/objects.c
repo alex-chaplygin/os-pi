@@ -4,9 +4,18 @@
 #include "list.h" 
 
 #define MAX_OBJECTS 50
+#define MAX_PAIRS 50
 
+// Индекс последнего объекта массива
 int last_object = 0;
+// Массив или хранилище объектов
 object_t objects[MAX_OBJECTS];
+
+
+// Индекс последней пары
+int last_pair = 0;
+// Массив или хранилище пар
+object_t pairs[MAX_PAIRS];
 
 //создать объект
 // type - тип объекта
@@ -31,37 +40,19 @@ object_t *object_new(type_t type, void *data)
 
 
 /** 
- * Добавление элемента в список
+ * Создание нового обекта пары
  * 
- * @param head указатель на список
- * @param obj указатель на объект
+ * @param left левый объект
+ * @param right правый объект
+ * 
+ * @return указатель на объект пары
  */
-void list_add(pair_t **head, object_t *obj)
+object_t *new_pair(object_t *left, object_t *right)
 {
-    pair_t *new2 = malloc(sizeof(pair_t));
-    new2->elem = obj;
-    new2->next = NULL;
-    if (*head == NULL)
-        *head = new2;
-    else {
-        pair_t *last = *head;
-        while (last->next != NULL)
-            last = last->next;
-        last->next = new2;
-    }
-}
-
-void print_elem(object_t *el)
-{
-    if (el->type == NUMBER)
-        printf("%d ", el->u.value); // выводим содержимое массива в кавычках и разделяем запятой
-    else if (el->type == ATOM)
-        printf("%s ", el->u.atom->str);
-    else if (el->type == LIST)
-    {
-        printf("(");
-        for (pair_t *cur = el->u.list; cur != NULL; cur = cur->next) 
-            print_elem(cur->elem);
-        printf(") ");
-    }
+  pair_t *pair = &pairs[last_pair++];
+  if (last_pair == MAX_PAIRS)
+    return NULL;
+  pair->left = left;
+  pair->right = right;  
+  return object_new(PAIR, pair);
 }

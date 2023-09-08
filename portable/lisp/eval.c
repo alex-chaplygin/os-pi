@@ -1,49 +1,61 @@
-#include "list.h"
+#include <stdio.h>
+#include "objects.h"
 #include "parser.h"
 
+// Первый элемент списка
+#define FIRST(o) o->u.pair->left
+
 // Второй элемент списка
-#define CDAR(o) o->u.list->next->elem
+#define SECOND(o) o->u.pair->right->u.pair->left
 
 // Третий элемент списка
-#define CDDAR(o) o->u.list->next->next->elem
+#define THIRD(o) o->u.pair->right->u.pair->right->u.pair->left
 
-atom_t *car;
-atom_t *cdr;
-atom_t *quote;
-atom_t *eq;
 object_t *t;
 object_t *nil;
 
 // возвращает первый элемент списка
-// list - объект типа список
+// list - список параметров
 object_t *CAR(object_t *list)
 {
-    if (list->type != LIST)
+    if (list->type != PAIR)
         error("Not list in car\n");
-    return list->u.list->elem;
+    return list->u.pair->left;
 }
 
 // возвращает список без первого элемента
 // list - объект типа список
 object_t *CDR(object_t *list)
 {
-    if (list->type != LIST)
+    if (list->type != PAIR)
         error("Not list in cdr\n");
-    return object_new(LIST, list->u.list->next);
+    return object_new(PAIR, list->u.pair->right);
 }
 
 // (eq 'a 'a) -> T
 // (eq 'a 'b) -> ()
-object_t *eval_eq(object_t *p1, object_t *p2)
+object_t *eval_eq(object_t *list)
 {
-    if (p1->type != ATOM || p2->type != ATOM)
-        error("not atom in eq\n");
-    if (p1->u.atom == p2->u.atom)
+    object_t *p1 = FIRST(list);
+    object_t *p2 = SECOND(list);
+    // printf("p1=%d\n",p1->type);
+    //printf("p2=%d\n",p2->type);
+    if (p1->type != SYMBOL || p2->type != SYMBOL)
+        error("not symbol in eq\n");
+    if (p1->u.symbol == p2->u.symbol)
         return t;
     else
         return nil;
 }
 
+//Конструирование объекта ожидает, что аргумент o2 - список, возвращает список который содержит o1, и продолжается с элементами o2.
+//#define CONS(o1, o2) ({			\
+  /* if(o2->type == LIST) */
+
+  /* else */
+  /*   return */
+
+      
 //Вычисление выражения
 //Если выражение число, возвращаем его же
 //Если выражение атом, то выдаем ошибку
@@ -55,7 +67,7 @@ object_t *eval_eq(object_t *p1, object_t *p2)
 // (cdr '(1 2 3)) -> (2 3)
 //obj - входное выражение
 //возвращает вычисленный объект
-object_t *eval(object_t *obj)
+/*object_t *eval(object_t *obj)
 {
     if (obj->type == NUMBER)
         return obj;
@@ -71,15 +83,16 @@ object_t *eval(object_t *obj)
         return CDR(eval(CDAR(obj)));    
     else 
         error("Unknown func\n");
-}
+	}*/
 
 //инициализация примитивов
-void init_eval()
+ /*void init_eval()
 {
+  register_symbol("CAR", CAR);
     car = find_atom("CAR");
     cdr = find_atom("CDR");
     quote = find_atom("QUOTE");
     eq = find_atom("EQ");
     t = object_new(ATOM, "T");
-    nil = object_new(LIST, 0);
-}
+    nil = object_new(PAIR, 0);
+    }*/
