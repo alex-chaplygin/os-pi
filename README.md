@@ -78,3 +78,14 @@ git push origin iss<номер>
 (global-set-key [f2] 'doxymacs-insert-function-comment)
 
 (global-set-key [f3] 'doxymacs-insert-member-comment)
+
+
+(global-set-key (kbd "C-c") 'undefined)
+
+Bind Ctrl+C to Copy:
+
+(global-set-key (kbd "C-c") 'kill-ring-save)
+
+Bind Ctrl+V to Paste:
+
+(global-set-key (kbd "C-v") 'yank)
