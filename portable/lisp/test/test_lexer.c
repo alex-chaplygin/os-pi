@@ -51,6 +51,16 @@ void test_skip_white_space()
   ASSERT(cur_symbol, 'b');
 }
 
+//Тест должен пропустить пробелы, переводы строк и прочитать один символ.
+void test_skip_new_line()
+{
+    printf("test_skip_new_line");
+    write_file("       \n   \n\n   \nb");
+    skip_white_space();
+    get_cur_char();
+    ASSERT(cur_symbol, 'b')
+}
+
 //Тест должен прочитать число.
 void test_get_num()
 {
@@ -65,6 +75,7 @@ int main()
 {
   test_get_cur_char();
   test_skip_white_space();
+  test_skip_new_line();
   test_get_num();
   return 0;
 }

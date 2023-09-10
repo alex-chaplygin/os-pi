@@ -20,10 +20,12 @@ void unget_cur_char()
     flag = 1;
 }
 
-// пропускать пробелы
+/** 
+ * Пропустить пустоты: пробелы, переводы строк
+ */
 void skip_white_space()
 {
-    while (cur_symbol == ' ')
+    while (cur_symbol == ' ' || cur_symbol == '\n')
         get_cur_char();
     unget_cur_char();
 }
