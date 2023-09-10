@@ -12,7 +12,7 @@ extern char cur_symbol;
 
 /** 
  * Функция перенаправления стандартного ввода в файл.
- * Запиывает строку в файл
+ * Записывает строку в файл
  *
  * @param string строка, содержащая данные
  */
@@ -29,7 +29,10 @@ void write_file(char *string)
     open(filename, O_RDONLY);
 }
 
-//Тест должен прочитать символ два раза, вернуть символ и прочитать ещё один символ.
+/** 
+ * Тест должен прочитать символ два раза, вернуть символ и прочитать ещё один 
+ * символ
+ */
 void test_get_cur_char()
 {
   printf("test_get_cur_char: ");
@@ -41,7 +44,9 @@ void test_get_cur_char()
   ASSERT(cur_symbol, 'b');
 }
 
-//Тест должен пропустить пробелs и прочитать один символ.
+/** 
+ * Тест должен пропустить пробелs и прочитать один символ. 
+ */
 void test_skip_white_space()
 {
   printf("test_skip_white_space: ");
@@ -51,7 +56,9 @@ void test_skip_white_space()
   ASSERT(cur_symbol, 'b');
 }
 
-//Тест должен пропустить пробелы, переводы строк и прочитать один символ.
+/** 
+ * Тест должен пропустить пробелы, переводы строк и прочитать один символ. 
+ */
 void test_skip_new_line()
 {
     printf("test_skip_new_line");
@@ -61,7 +68,9 @@ void test_skip_new_line()
     ASSERT(cur_symbol, 'b')
 }
 
-//Тест должен прочитать число.
+/** 
+ * Тест должен прочитать число. 
+ */
 void test_get_num()
 {
   printf("test_get_num: ");
@@ -69,7 +78,6 @@ void test_get_num()
   int curnum = get_num();
   ASSERT(curnum, 1234);
 }
-
 
 int main()
 {
