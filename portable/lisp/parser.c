@@ -54,13 +54,11 @@ object_t *parse();
 object_t *parse_list()
 {
   int val;
-  cur_token = get_token();
+  token_t *cur_token = get_token();
   if (cur_token->type == RPAREN)
     return NULL;
-  if (cur_token->type == T_NUMBER) {
-    val = cur_token->value;
-    return new_pair(object_new(NUMBER, &val), parse_list());
-  }
+  if (cur_token->type == T_NUMBER)
+    return new_pair(object_new(NUMBER, &cur_token->value), parse_list());
     /*    else if (cur_token->type == T_ATOM)
       list_add(&list, object_new(ATOM, strupr(cur_token->str)));
     else if  (cur_token->type == LPAREN)

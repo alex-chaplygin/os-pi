@@ -1,4 +1,4 @@
-CFLAGS=-I. -I../ -fprofile-arcs -ftest-coverage
+CFLAGS=-I. -I../ -fprofile-arcs -ftest-coverage -g
 LDFLAGS="-lgcov"
 
 all: /tmp/test_lexer /tmp/test_eval /tmp/test_symbols /tmp/test_objects /tmp/test_parser
