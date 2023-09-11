@@ -88,6 +88,26 @@ void test_is_alpha()
     ASSERT(is_alpha('a'), 1);
 }
 
+/** 
+ * Тест должен прочесть символ
+ */
+void test_get_symbol()
+{
+    //Строка-источник
+    const char* src = "Hello  ";
+    
+    //Ожидаемое значение
+    const char* expect = "Hello";
+    
+    //Буфер
+    char str[20];
+    
+    printf("test_get_symbol: ");
+    write_file(src);
+    get_symbol(&str);
+    ASSERT(strcmp(str, expect), 0);
+}
+
 int main()
 {
     test_get_cur_char();
@@ -95,5 +115,6 @@ int main()
     test_skip_new_line();
     test_get_num();
     test_is_alpha();
+    test_get_symbol();
     return 0;
 }
