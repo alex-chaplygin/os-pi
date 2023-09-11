@@ -1,7 +1,8 @@
 CFLAGS=-I. -I../ -fprofile-arcs -ftest-coverage -g
 LDFLAGS="-lgcov"
+TESTS=/tmp/test_lexer /tmp/test_eval /tmp/test_symbols /tmp/test_objects /tmp/test_parser
 
-all: /tmp/test_lexer /tmp/test_eval /tmp/test_symbols /tmp/test_objects /tmp/test_parser
+all: $(TESTS)
 
 /tmp/test_lexer: test_lexer.c ../lexer.c
 	gcc $(CFLAGS) $(LDFLAGS) -o $@ $^
@@ -13,3 +14,6 @@ all: /tmp/test_lexer /tmp/test_eval /tmp/test_symbols /tmp/test_objects /tmp/tes
 	gcc $(CFLAGS) $(LDFLAGS) -o $@ $^
 /tmp/test_parser: test_parser.c ../parser.c ../objects.c
 	gcc $(CFLAGS) $(LDFLAGS) -o $@ $^
+
+test: $(TESTS)
+	for test in $(TESTS); do bash -c $$test ; done
