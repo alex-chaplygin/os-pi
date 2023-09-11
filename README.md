@@ -73,22 +73,33 @@ git push origin iss<номер>
   (compile "make all")
   (message "make all executed!"))
 
+(defun do-tests()
+  (compile "make test")
+
+(require 'doxymacs)
+
 (global-set-key [f1] 'doxymacs-insert-file-comment)
 
 (global-set-key [f2] 'doxymacs-insert-function-comment)
 
 (global-set-key [f3] 'doxymacs-insert-member-comment)
 
-
-(global-set-key (kbd "C-c") 'undefined)
-
-Bind Ctrl+C to Copy:
-
-(global-set-key (kbd "C-c") 'kill-ring-save)
-
-Bind Ctrl+V to Paste:
+(global-set-key [f4] 'do-tests)
 
 (global-set-key (kbd "C-v") 'yank)
 
+(define-key input-decode-map (kbd "C-c") (kbd "M-w"))
+
+(add-to-list 'term-bind-key-alist '("C-v" . term-paste))
+
 (global-set-key (kbd "C-s") 'save-buffer)
+
 (global-set-key (kbd "C-z") 'undo)
+
+(global-set-key (kbd "C-f") 'find-file)
+
+(global-set-key (kbd "C-w") 'other-window)
+
+(global-set-key (kbd "C-e") 'eval-region)
+
+(setq-default c-basic-offset 4)
