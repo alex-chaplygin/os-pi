@@ -122,6 +122,18 @@ void test_get_symbol()
     ASSERT(strcmp(str, expect), 0);
 }
 
+/** 
+ * Проверка получения токена - пустой файл
+ */
+void test_get_token_empty()
+{
+    printf("test_get_token_empty: ");
+    write_file("");
+    tokentype_t c = get_token()->type;
+    ASSERT(c, END);
+    
+}
+
 int main()
 {
     test_get_cur_char();
@@ -131,5 +143,6 @@ int main()
     test_is_digit();
     test_is_alpha();
     test_get_symbol();
+    test_get_token_empty();
     return 0;
 }

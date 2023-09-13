@@ -84,7 +84,7 @@ token_t *get_token()
             get_cur_char();
             token.type = RPAREN;
             break;
-        case '\n':
+        case EOF:
             token.type = END;
             break;
         case '\'':
