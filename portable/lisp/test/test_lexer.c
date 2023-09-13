@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 #include <fcntl.h>
 #include "test.h"
 #include "lexer.h"
@@ -9,6 +10,9 @@ void get_cur_char();
 void unget_cur_char();
 void skip_white_space();
 int get_num();
+int is_alpha(char);
+int is_digit(char);
+void get_symbol(char *cur_str);
 extern char cur_symbol;
 
 /** 
@@ -80,6 +84,15 @@ void test_get_num()
 }
 
 /** 
+ * Тест должен проверять что символ это цифра
+ */
+void test_is_digit()
+{
+    ASSERT(is_digit('9'), 1);
+    ASSERT(is_digit('Q'), 0);
+}
+
+/** 
  * Тест должен проверять что символ это буква
  */
 void test_is_alpha()
@@ -94,17 +107,18 @@ void test_is_alpha()
 void test_get_symbol()
 {
     //Строка-источник
-    const char* src = "Hello  ";
+    char src[] = "Hello  ";
     
     //Ожидаемое значение
-    const char* expect = "Hello";
+    char expect[] = "Hello";
     
     //Буфер
     char str[20];
     
     printf("test_get_symbol: ");
     write_file(src);
-    get_symbol(&str);
+    get_symbol(str);
+    printf("res = '%s' exp = '%s'", str, expect);
     ASSERT(strcmp(str, expect), 0);
 }
 
@@ -114,6 +128,7 @@ int main()
     test_skip_white_space();
     test_skip_new_line();
     test_get_num();
+    test_is_digit();
     test_is_alpha();
     test_get_symbol();
     return 0;
