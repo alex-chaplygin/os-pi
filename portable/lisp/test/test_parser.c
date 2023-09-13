@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include "test.h"
 #include "objects.h"
 #include "lexer.h"
@@ -13,11 +14,21 @@ token_t tokens[] = {
 };
 int count = 0;
 
+char *strupr (char *str);
 object_t *parse_list();
 symbol_t *find_symbol(char *str)
 {
     return NULL;
 } 
+
+void test_strupr ()
+{
+    char str_in[] = "a1a a!aa bb r4n\n";
+    char str_ref[] = "A1A A!AA BB R4N\n";
+    printf("test_strupr: ");
+    strupr (str_in);
+    ASSERT (strcmp (str_in, str_ref), 0);
+}
 
 /** 
  * Возвращать лексемы в следующей последовательности: 45 65 )
@@ -33,6 +44,7 @@ token_t *get_token()
  */
 void test_parse_list()
 {
+    printf("test_parse_list: ");
     cur_token = &token; 
     object_t *o = parse_list();
     ASSERT(o->type, PAIR);
@@ -45,6 +57,7 @@ void test_parse_list()
 
 int main()
 {
+    test_strupr();
     test_parse_list();
     return 0;
 }
