@@ -36,10 +36,14 @@ int compare_str(char *str1, char *str2)
     return *str1 == *str2;
 }
 
-//функция ищет атом в хеш -таблице
-//если не найдена, то добавляет в таблицу
-//str - строка атома
-//возвращает указатель на структуру символаи
+
+/** 
+ * функция ищет атом в хеш -таблице
+ * если не найдена, то добавляет в таблицу
+ * str - строка атома
+ 
+ * @return  указатель на структуру символа
+ */
 symbol_t *find_symbol(char *str) 
 {
     int i = hash(str) % HASH_SIZE;
@@ -62,6 +66,17 @@ symbol_t *find_symbol(char *str)
         return new;
     }    
     return el;
+}
+
+/**
+ * устанавливает функцию для символа примитива
+ * @param name имя примитива функции
+ * @param func_ptr указатель на функцию 
+ */
+void register_func(char *name, func_t func_ptr)
+{
+    symbol_t *s = find_symbol(name);
+    s->func = func_ptr;
 }
 
 void print_table() 

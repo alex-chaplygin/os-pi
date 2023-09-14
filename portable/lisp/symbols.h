@@ -6,6 +6,8 @@
 
 struct object_s;
 
+typedef  struct object_s *(*func_t)(struct object_s *);
+
 //структура символа
 typedef struct symbol_s
 {
@@ -15,8 +17,11 @@ typedef struct symbol_s
   struct symbol_s *next;
   // указатель на объект - значение символа 
   struct object_s *value;
+  //указатель на функцию для примитивов
+  func_t func;
 } symbol_t;
 
 symbol_t *find_symbol(char *str);
+void register_func(char *name, func_t func_ptr);
 #endif
 
