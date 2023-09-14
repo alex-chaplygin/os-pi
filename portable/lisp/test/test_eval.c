@@ -11,13 +11,23 @@ object_t *object_new(type_t type, void *data){
 }
 
 
-object_t *CAR(object_t *list);
-object_t *CDR(object_t *list);
-object_t *eval_eq(object_t *list);
+object_t *car(object_t *list);
+object_t *cdr(object_t *list);
+object_t *eq(object_t *list);
+object_t *quote(object_t *list);
 
 void error(char *str)
 {
   printf("%s", str);
+}
+
+symbol_t *find_symbol(char *str)
+{
+    return NULL;
+}
+
+void register_func(char *name, func_t func_ptr)
+{
 }
 
 void test_eq_num()
@@ -44,7 +54,7 @@ void test_eq_num()
     ob1.type = PAIR;
     ob1.u.pair = &p1;
     
-    ASSERT(eval_eq(&ob1), NULL);
+    ASSERT(eq(&ob1), NULL);
 }
 
 //символы не равны
@@ -73,7 +83,7 @@ void test_eq_sym()
     ob1.type = PAIR;
     ob1.u.pair = &p1;
     
-    ASSERT(eval_eq(&ob1), NULL);
+    ASSERT(eq(&ob1), NULL);
 }
 
 //символы равны
@@ -104,7 +114,7 @@ void test_eq_sym_eq()
     ob1.type = PAIR;
     ob1.u.pair = &p1;
     
-    ASSERT(eval_eq(&ob1), t);
+    ASSERT(eq(&ob1), t);
 }
 
 void test_cdr()
@@ -123,7 +133,7 @@ void test_cdr()
     lst.type = PAIR;
     lst.u.pair = &node;
     
-    object_t* res = CDR(&lst);
+    object_t* res = cdr(&lst);
     ASSERT(res, NULL);
 }
 
@@ -143,7 +153,7 @@ void test_car()
     lst.type = PAIR;
     lst.u.pair = &node;
     
-    object_t* res = CAR(&lst);
+    object_t* res = car(&lst);
     ASSERT(res->u.value, 5);
 }
 
@@ -160,6 +170,31 @@ void test_cons()
     //object_t* res = CONS()
 }
 
+/**
+ * Создать объект список (5)
+ * Вызвать функцию quote
+ * Проверить результат =  5 
+ */
+void test_quote()
+{
+    printf("test_quote: ");
+    object_t num;
+    num.type = NUMBER;
+    num.u.value = 5;
+    
+    struct pair_s node;
+    node.left = &num;
+    node.right = NULL;
+    
+    object_t lst;
+    lst.type = PAIR;
+    lst.u.pair = &node;
+
+    object_t *o = quote(&lst);
+    ASSERT(o->type, NUMBER);
+    ASSERT(o->u.value, 5); 
+}
+
 int main()
 {
     test_car();
@@ -167,5 +202,6 @@ int main()
     test_eq_num();
     test_eq_sym();
     test_eq_sym_eq();
+    test_quote();
     return 0;
 }
