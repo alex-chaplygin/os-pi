@@ -68,6 +68,21 @@ object_t *eq(object_t *list)
 }
 
 /** 
+ * если аргумент атом, то возвращает T, иначе NIL
+ *
+ * @param list - список параметров
+ *
+ * @return t или nil
+ */
+object_t *atom(object_t *obj)
+{
+    if(obj->type != PAIR)
+        return t;
+    else
+        return NULL;
+}
+
+/** 
  * возвращает свой аргумент без вычисления
  *
  * @param list - список параметров (1 параметр)
