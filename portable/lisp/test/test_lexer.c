@@ -29,8 +29,7 @@ void write_file(char *string)
 	fputs(string, fp);
 	fclose(fp);
     }
-    close(0);
-    open(filename, O_RDONLY);
+    freopen(filename, "r", stdin);
 }
 
 /** 
@@ -117,6 +116,7 @@ void test_get_symbol()
     
     printf("test_get_symbol: ");
     write_file(src);
+    get_cur_char();
     get_symbol(str);
     printf("res = '%s' exp = '%s'", str, expect);
     ASSERT(strcmp(str, expect), 0);
@@ -128,9 +128,21 @@ void test_get_symbol()
 void test_get_token_empty()
 {
     printf("test_get_token_empty: ");
-    write_file("");
+    write_file(" ");
     tokentype_t c = get_token()->type;
-    ASSERT(c, END);
+    ASSERT(c, END);    
+}
+
+/** 
+ * Проверка получения токена - левая скобка
+ */
+void test_get_token_lparen()
+{
+    printf("test_get_token_lparen: ");
+    write_file("(");
+    get_cur_char();
+    tokentype_t c = get_token()->type;
+    ASSERT(c, LPAREN);
     
 }
 
@@ -144,5 +156,6 @@ int main()
     test_is_alpha();
     test_get_symbol();
     test_get_token_empty();
+    test_get_token_lparen();
     return 0;
 }
