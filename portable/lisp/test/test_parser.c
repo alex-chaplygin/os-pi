@@ -7,17 +7,50 @@
 extern token_t *cur_token; // текущий токен
 token_t token = {LPAREN, 0, ""};
 
-token_t tokens[] = {
-    {T_NUMBER, 45, ""},
+token_t numbers_tokens[] = {
+    {T_NUMBER, 45},
     {T_NUMBER, 65},
     {RPAREN}
 };
 int count = 0;
 
+token_t symbols_tokens[] = {
+    {T_SYMBOL, 0, "A"},
+    {T_SYMBOL, 0, "B"},
+    {RPAREN}
+};
+
+//"1 (2))"
+token_t list_tokens[] = {
+    {T_NUMBER, 1},
+    {LPAREN},
+    {T_NUMBER, 2},
+    {RPAREN},
+    {RPAREN}
+};
+
+token_t quote_tokens[] = {
+    {QUOTE},
+    {T_SYMBOL, 0, "A"}
+};
+
+token_t *tokens;
+
+symbol_t symbols[] = {
+    {"A"},
+    {"B"},
+    {"QUOTE"}
+};
+
 char *strupr (char *str);
 object_t *parse_list();
+object_t *parse();
+
 symbol_t *find_symbol(char *str)
 {
+    for (int i = 0; i < sizeof(symbols) / sizeof(symbol_t); i++)
+	if (strcmp(symbols[i].str, str) == 0)
+	    return &symbols[i];
     return NULL;
 } 
 
@@ -42,10 +75,12 @@ token_t *get_token()
 /** 
  * Создать список из 2 элементов (чисел) и проверить корректность создания пар
  */
-void test_parse_list()
+void test_parse_list_numbers()
 {
-    printf("test_parse_list: ");
-    cur_token = &token; 
+    printf("test_parse_list_numbers: ");
+    count = 0;
+    cur_token = &token;
+    tokens = numbers_tokens;
     object_t *o = parse_list();
     ASSERT(o->type, PAIR);
     ASSERT(o->u.pair->right->type, PAIR);
@@ -55,9 +90,72 @@ void test_parse_list()
     ASSERT(o->u.pair->right->u.pair->right, NULL);
 }
 
+
+/** 
+ * Создать список из 2 элементов (символов) и проверить корректность создания пар
+ */
+void test_parse_list_symbols()
+{
+    printf("test_parse_list_symbols: ");
+    count = 0;
+    cur_token = &token;
+    tokens = symbols_tokens;
+    object_t *o = parse_list();
+    ASSERT(o->type, PAIR);
+    ASSERT(o->u.pair->right->type, PAIR);
+    ASSERT(o->u.pair->left->type, SYMBOL);
+    ASSERT(strcmp(o->u.pair->left->u.symbol->str, "A"), 0);
+    ASSERT(strcmp(o->u.pair->right->u.pair->left->u.symbol->str, "B"), 0);
+    ASSERT(o->u.pair->right->u.pair->right, NULL);
+}
+
+
+/** 
+ * Создать список "1 (2))" и проверить корректность создания пар
+ */
+void test_parse_list_list()
+{
+    printf("test_parse_list_list: ");
+    count = 0;
+    cur_token = &token;
+    tokens = list_tokens;
+    object_t *o = parse_list();
+    ASSERT(o->type, PAIR);
+    ASSERT(o->u.pair->right->type, PAIR);
+    ASSERT(o->u.pair->left->type, NUMBER);
+    ASSERT(o->u.pair->left->u.value, 1);
+    ASSERT(o->u.pair->right->u.pair->left->type, PAIR);
+    ASSERT(o->u.pair->right->u.pair->left->u.pair->left->u.value, 2);
+    ASSERT(o->u.pair->right->u.pair->left->u.pair->right, NULL);
+    ASSERT(o->u.pair->right->u.pair->right, NULL);
+}
+
+
+/** 
+ * Создать "'a" и проверить корректность создания пар
+ * (quote a)
+ */
+void test_parse_quote()
+{
+    printf("test_parse_quote: ");
+    count = 0;
+    cur_token = &token;
+    tokens = quote_tokens;
+    object_t *o = parse();
+    ASSERT(o->type, PAIR);
+    ASSERT(o->u.pair->right->type, PAIR);
+    ASSERT(o->u.pair->left->type, SYMBOL);
+    ASSERT(strcmp(o->u.pair->left->u.symbol->str, "QUOTE"), 0);
+    ASSERT(strcmp(o->u.pair->right->u.pair->left->u.symbol->str, "A"), 0);
+    ASSERT(o->u.pair->right->u.pair->right, NULL);
+}
+
 int main()
 {
     test_strupr();
-    test_parse_list();
+    test_parse_list_numbers();
+    test_parse_list_symbols();
+    test_parse_list_list();
+    test_parse_quote();
     return 0;
 }
