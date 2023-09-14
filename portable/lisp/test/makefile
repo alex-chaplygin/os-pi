@@ -1,4 +1,4 @@
-CFLAGS=-I. -I../ -fprofile-arcs -ftest-coverage -g
+CFLAGS=-I. -I../ -fprofile-arcs -ftest-coverage -g -Wno-pointer-to-int-cast
 LDFLAGS="-lgcov"
 TESTS=/tmp/test_lexer /tmp/test_eval /tmp/test_symbols /tmp/test_objects /tmp/test_parser
 
