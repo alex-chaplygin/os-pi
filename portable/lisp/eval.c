@@ -1,19 +1,11 @@
 #include <stdio.h>
 #include "objects.h"
 #include "parser.h"
-
-// Первый элемент списка
-#define FIRST(o) o->u.pair->left
-
-// Второй элемент списка
-#define SECOND(o) o->u.pair->right->u.pair->left
-
-// Третий элемент списка
-#define THIRD(o) o->u.pair->right->u.pair->right->u.pair->left
+#include "eval.h"
 
 object_t *t;
 object_t *nil;
-
+symbol_t *quote_sym;
 
 /** 
  * возвращает первый элемент списка
@@ -24,6 +16,10 @@ object_t *nil;
  */
 object_t *car(object_t *list)
 {
+    printf("car: ");
+    print_obj(list);
+    printf("\n");
+    printf("car: %d\n", FIRST(list)->type);
     if (list->type != PAIR)
         error("Not list in car\n");
     return list->u.pair->left;
@@ -91,6 +87,9 @@ object_t *atom(object_t *obj)
  */
 object_t *quote(object_t *list)
 {
+    printf("quote: ");
+    print_obj(list);
+    printf("\n");
     return FIRST(list);
 }
 
@@ -104,13 +103,28 @@ object_t *quote(object_t *list)
  */
 object_t *cons(object_t *list)
 {			
-  /*    if (list->type != PAIR)
-        error("Not list in cons\n");
-    object_t *p1 = FIRST(list);
-    object_t *p2 = SECOND(list);
-    if (p2->type != PAIR)
-        error("second parameter not list");
-	return new_pair(p1, p2);*/
+  if (list->type != PAIR)
+     error("Not list in cons\n");
+  object_t *p1 = FIRST(list);
+  object_t *p2 = SECOND(list);
+  if (p2->type != PAIR)
+      error("second parameter not list");
+  return new_pair(p1, p2);
+    
+}
+
+/**
+ * Рекурсивно вычисляет список аргументов, создаёт новый список
+ * @param args список аргументов
+ * @return возвращает список вычисленных аргументов
+ */
+object_t *eval_args(object_t *args)
+{
+    if (args == NULL)
+	return NULL;
+    printf("eval_args: %d\n", FIRST(args)->type);
+    object_t *f = FIRST(args);
+    return new_pair(eval(f), eval_args(TAIL(args))); 
 }
 
 /**
@@ -128,13 +142,22 @@ object_t *cons(object_t *list)
  */
 object_t *eval(object_t *obj)
 {
+    printf("eval: ");
+    print_obj(obj);
+    printf("\n");
+    
     if (obj->type == NUMBER)
         return obj;
     else if (obj->type == SYMBOL)
         error("Unknown SYMBOL \n");
     else if (obj->type == PAIR) {
-      symbol_t *s = find_symbol(obj->u.symbol->str);
-      return s->func(obj->u.pair->right);
+	symbol_t *s = find_symbol(FIRST(obj)->u.symbol->str);
+	object_t *args;
+	if (s == quote_sym)
+	    args = SECOND(obj);
+	else
+	    args = eval_args(TAIL(obj));
+	return s->func(args);
     }
     else 
         error("Unknown func\n");
@@ -146,6 +169,9 @@ void init_eval()
   register_func("CAR", car);
   register_func("CDR", cdr);    
   register_func("EQ", eq);
+  register_func("QUOTE", quote);
+  register_func("CONS", cons);
   t = object_new(SYMBOL, "T");
+  quote_sym = find_symbol("QUOTE");
   nil = NULL;
 }
