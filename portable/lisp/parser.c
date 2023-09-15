@@ -52,19 +52,22 @@ object_t *parse_quote()
  * @return указатель на объект списка
  */
 object_t *parse_list()
-    {
-      int val;
-      token_t *cur_token = get_token();
-      if (cur_token->type == RPAREN)
+{
+    int val;
+    token_t *cur_token = get_token();
+    if (cur_token->type == RPAREN)
 	return NULL;
-      if (cur_token->type == T_NUMBER)
+    if (cur_token->type == T_NUMBER)
 	return new_pair(object_new(NUMBER, &cur_token->value), parse_list());
-      else if (cur_token->type == T_SYMBOL)
+    else if (cur_token->type == T_SYMBOL)
 	return new_pair(object_new(SYMBOL, cur_token->str), parse_list());
-      else if (cur_token->type == LPAREN){
+    else if (cur_token->type == LPAREN){
 	object_t *list = parse_list();
 	return new_pair(list, parse_list());
-      }
+    } else if (cur_token->type == QUOTE){
+	object_t *q = parse_quote();
+	return new_pair(q, parse_list());
+    }
       /* 
     else if  (cur_token->type == LPAREN)
       list_add(&list, object_new(LIST, parse_list()));
