@@ -122,7 +122,6 @@ object_t *eval_args(object_t *args)
 {
     if (args == NULL)
 	return NULL;
-    printf("eval_args: %d\n", FIRST(args)->type);
     object_t *f = FIRST(args);
     return new_pair(eval(f), eval_args(TAIL(args))); 
 }
