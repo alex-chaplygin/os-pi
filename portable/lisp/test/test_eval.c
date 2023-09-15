@@ -4,13 +4,16 @@
 
 extern object_t *t;
 
-void print_elem(object_t *head){}
+void print_obj(object_t *head){}
 
 object_t *object_new(type_t type, void *data){
     return NULL;
 }
 
-
+object_t *new_pair(object_t *left, object_t *right)
+{
+    return NULL;
+}
 object_t *car(object_t *list);
 object_t *cdr(object_t *list);
 object_t *eq(object_t *list);
