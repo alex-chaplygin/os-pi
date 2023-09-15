@@ -31,7 +31,8 @@ token_t list_tokens[] = {
 
 token_t quote_tokens[] = {
     {QUOTE},
-    {T_SYMBOL, 0, "A"}
+    {T_SYMBOL, 0, "A"},
+    {RPAREN}
 };
 
 token_t *tokens;
@@ -150,12 +151,33 @@ void test_parse_quote()
     ASSERT(o->u.pair->right->u.pair->right, NULL);
 }
 
+/** 
+ * Создать "'a)" и проверить корректность создания пар
+ * ((quote a))
+ */
+void test_parse_list_quote()
+{
+    printf("test_parse_list_quote: ");
+    count = 0;
+    cur_token = &token;
+    tokens = quote_tokens;
+    object_t *o = parse_list();
+    ASSERT(o->type, PAIR);
+    ASSERT(o->u.pair->right, NULL);
+    ASSERT(o->u.pair->left->type, PAIR);
+    ASSERT(strcmp(o->u.pair->left->u.pair->left->u.symbol->str, "QUOTE"), 0);
+    ASSERT(strcmp(o->u.pair->left->u.pair->right->u.pair->left->u.symbol->str, "A"), 0);
+    ASSERT(o->u.pair->left->u.pair->right->u.pair->right, NULL);
+}
+
 int main()
 {
+    printf("------------test_parser------------\n");
     test_strupr();
     test_parse_list_numbers();
     test_parse_list_symbols();
     test_parse_list_list();
     test_parse_quote();
+    test_parse_list_quote();
     return 0;
 }
