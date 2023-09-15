@@ -30,7 +30,7 @@ typedef struct pair_s
     object_t *right; // элемент 2
 } pair_t;
 
-void print_elem(object_t *head);
 object_t *object_new(type_t type, void *data);
 object_t *new_pair(object_t *left, object_t *right);
+void print_obj(object_t *obj);
 #endif

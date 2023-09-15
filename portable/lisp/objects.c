@@ -59,3 +59,34 @@ object_t *new_pair(object_t *left, object_t *right)
   pair->right = right;  
   return object_new(PAIR, pair);
 }
+
+
+/**
+ * Печать списка пар
+ */
+void print_list(object_t *obj)
+{
+    if (obj == NULL)
+	return;
+    print_obj(obj->u.pair->left);
+    printf(" ");
+    print_list(obj->u.pair->right);
+}
+    
+/**
+ * Печать объекта
+ */
+void print_obj(object_t *obj)
+{
+    if (obj == NULL)
+	return;
+    else if (obj->type == NUMBER)
+	printf("%d", obj->u.value);
+    else if (obj->type == SYMBOL)
+	printf("%s", obj->u.symbol->str);
+    else if (obj->type == PAIR) {
+	printf("(");
+	print_list(obj);
+	printf(")");
+    }	
+}
