@@ -103,14 +103,22 @@ object_t *quote(object_t *list)
  */
 object_t *cons(object_t *list)
 {			
-  if (list->type != PAIR)
-     error("Not list in cons\n");
-  object_t *p1 = FIRST(list);
-  object_t *p2 = SECOND(list);
-  if (p2->type != PAIR)
-      error("second parameter not list");
-  return new_pair(p1, p2);
-    
+    printf("cons: ");
+    print_obj(list);
+    printf("\n");
+    if (list->type != PAIR)
+	error("Not list in cons\n");
+    object_t *p1 = FIRST(list);
+    printf("p1: ");
+    print_obj(p1);
+    printf("\n");
+    object_t *p2 = SECOND(list);
+    printf("p2: ");
+    print_obj(p2);
+    printf("\n");
+    if (p2->type != PAIR)
+	error("second parameter not list");
+    return new_pair(p1, p2);
 }
 
 /**
