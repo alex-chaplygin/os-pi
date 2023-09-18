@@ -14,6 +14,7 @@ int is_alpha(char);
 int is_digit(char);
 void get_symbol(char *cur_str);
 extern char cur_symbol;
+extern int flag;
 
 /** 
  * Функция перенаправления стандартного ввода в файл.
@@ -122,28 +123,16 @@ void test_get_symbol()
     ASSERT(strcmp(str, expect), 0);
 }
 
-/** 
- * Проверка получения токена - пустой файл
+/**
+ * Проверка получения токена типа exp.
  */
-void test_get_token_empty()
+void test_get_token(const char* name_test, char* str, tokentype_t exp) 
 {
-    printf("test_get_token_empty: ");
-    write_file(" ");
-    tokentype_t c = get_token()->type;
-    ASSERT(c, END);    
-}
-
-/** 
- * Проверка получения токена - левая скобка
- */
-void test_get_token_lparen()
-{
-    printf("test_get_token_lparen: ");
-    write_file("(");
-    get_cur_char();
-    tokentype_t c = get_token()->type;
-    ASSERT(c, LPAREN);
-    
+    printf("test_get_token_%s : ", name_test); // вывод имени теста
+    write_file(str); // запись в файл
+    tokentype_t res = get_token()->type; // получение типа токена
+    flag = 0; // считать символ (если true, не считывать символ)
+    ASSERT(res, exp);
 }
 
 int main()
@@ -155,7 +144,11 @@ int main()
     test_is_digit();
     test_is_alpha();
     test_get_symbol();
-    test_get_token_empty();
-    test_get_token_lparen();
+    test_get_token("empty", " ", END);
+    test_get_token("lparen", "(", LPAREN);
+    test_get_token("rparen", ")", RPAREN);
+    test_get_token("tnumber", "42", T_NUMBER);
+    test_get_token("quote", "\'", QUOTE);
+    test_get_token("invalid", "=", INVALID);
     return 0;
 }
