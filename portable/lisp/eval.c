@@ -122,6 +122,24 @@ object_t *cons(object_t *list)
 }
 
 /**
+ * Обработка условия
+ * Возвращаем список объектов из выражения, оцененных  eval
+ * @param obj входное выражение
+ * @return возвращает вычисленный объект
+*/
+object_t *cond(object_t *obj)
+{
+    if (obj == NULL)
+        error("NULL in COND");
+    object_t *pair = FIRST(obj);
+    object_t *p = FIRST(pair);
+    if (eval(p) == t)
+        return eval(SECOND(pair));
+    else
+        return cond(TAIL(obj));
+}
+
+/**
  * Рекурсивно вычисляет список аргументов, создаёт новый список
  * @param args список аргументов
  * @return возвращает список вычисленных аргументов
@@ -155,6 +173,8 @@ object_t *eval(object_t *obj)
     
     if (obj->type == NUMBER)
         return obj;
+    else if (obj == t)
+        return t;
     else if (obj->type == SYMBOL)
         error("Unknown SYMBOL \n");
     else if (obj->type == PAIR) {
@@ -178,6 +198,7 @@ void init_eval()
   register_func("EQ", eq);
   register_func("QUOTE", quote);
   register_func("CONS", cons);
+  register_func("COND", cond);
   t = object_new(SYMBOL, "T");
   quote_sym = find_symbol("QUOTE");
   nil = NULL;

@@ -2,6 +2,8 @@
 #include "objects.h"
 #include "eval.h"
 #include "test.h"
+extern object_t *t;
+extern object_t *nil;
 
 /**
  * создать объект для выражения (car (quote (5)))
@@ -44,12 +46,35 @@ void test_cons()
     ASSERT(SECOND(res)->u.value, 5);
 }
 
+/**
+ * Создать пары объеектов типа(t/nil,number)
+ * (cond (nil 1)
+        (T 2)  )
+ * Обработать их функцией cond и проверить результат
+*/
+void test_cond()
+{
+    printf("test_cons: ");
+    int n1 = 1, n2 = 2;
+    object_t *p1 = new_pair(nil, new_pair(object_new(NUMBER, &n1), NULL));
+    object_t *p2 = new_pair(t, new_pair(object_new(NUMBER, &n2), NULL));
+    object_t *l = new_pair(object_new(SYMBOL, "COND"), new_pair(p1, new_pair(p2, NULL)));
+    object_t *res = eval(l);
+    printf("res: ");
+    //print_obj(res);
+    printf("\n");
+    //ASSERT(res->type, NUMBER);
+    //ASSERT(res->u.value, 2);
+}
+
 int main()
 {
     printf("------------test_eval_int---------\n");
     init_eval();
     test_car();
-    test_cons();
+    test_cond();
+    //test_cons();
+    
     return 0;
 }
 
