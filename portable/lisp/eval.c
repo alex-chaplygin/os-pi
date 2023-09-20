@@ -3,8 +3,11 @@
 #include "parser.h"
 #include "eval.h"
 
+/// объект истина
 object_t *t;
+/// объект пусто
 object_t *nil;
+/// символ "QUOTE"
 symbol_t *quote_sym;
 
 /** 
@@ -16,13 +19,10 @@ symbol_t *quote_sym;
  */
 object_t *car(object_t *list)
 {
-    printf("car: ");
-    print_obj(list);
-    printf("\n");
-    printf("car: %d\n", FIRST(list)->type);
-    if (list->type != PAIR)
+    object_t *arg = FIRST(list);
+    if (arg->type != PAIR)
         error("Not list in car\n");
-    return list->u.pair->left;
+    return FIRST(arg);
 }
 
 
@@ -35,9 +35,10 @@ object_t *car(object_t *list)
  */
 object_t *cdr(object_t *list)
 {
-    if (list->type != PAIR)
+    object_t *arg = FIRST(list);
+    if (arg->type != PAIR)
         error("Not list in cdr\n");
-    return object_new(PAIR, list->u.pair->right);
+    return TAIL(arg);
 }
 
 // (eq 'a 'a) -> T
@@ -53,8 +54,6 @@ object_t *eq(object_t *list)
 {
     object_t *p1 = FIRST(list);
     object_t *p2 = SECOND(list);
-    // printf("p1=%d\n",p1->type);
-    //printf("p2=%d\n",p2->type);
     if (p1->type != SYMBOL || p2->type != SYMBOL)
         error("not symbol in eq\n");
     if (p1->u.symbol == p2->u.symbol)
@@ -75,7 +74,7 @@ object_t *atom(object_t *obj)
     if(obj->type != PAIR)
         return t;
     else
-        return NULL;
+        return nil;
 }
 
 /** 
@@ -87,9 +86,6 @@ object_t *atom(object_t *obj)
  */
 object_t *quote(object_t *list)
 {
-    printf("quote: ");
-    print_obj(list);
-    printf("\n");
     return FIRST(list);
 }
 
@@ -103,19 +99,10 @@ object_t *quote(object_t *list)
  */
 object_t *cons(object_t *list)
 {			
-    printf("cons: ");
-    print_obj(list);
-    printf("\n");
     if (list->type != PAIR)
 	error("Not list in cons\n");
     object_t *p1 = FIRST(list);
-    printf("p1: ");
-    print_obj(p1);
-    printf("\n");
     object_t *p2 = SECOND(list);
-    printf("p2: ");
-    print_obj(p2);
-    printf("\n");
     if (p2->type != PAIR)
 	error("second parameter not list");
     return new_pair(p1, p2);
@@ -167,10 +154,6 @@ object_t *eval_args(object_t *args)
  */
 object_t *eval(object_t *obj)
 {
-    printf("eval: ");
-    print_obj(obj);
-    printf("\n");
-    
     if (obj->type == NUMBER)
         return obj;
     else if (obj == t)
@@ -181,7 +164,7 @@ object_t *eval(object_t *obj)
 	symbol_t *s = find_symbol(FIRST(obj)->u.symbol->str);
 	object_t *args;
 	if (s == quote_sym)
-	    args = SECOND(obj);
+	    args = TAIL(obj);
 	else
 	    args = eval_args(TAIL(obj));
 	return s->func(args);
@@ -190,7 +173,9 @@ object_t *eval(object_t *obj)
         error("Unknown func\n");
 }
 
-//инициализация примитивов
+/** 
+ * инициализация примитивов 
+ */
 void init_eval()
 {
   register_func("CAR", car);

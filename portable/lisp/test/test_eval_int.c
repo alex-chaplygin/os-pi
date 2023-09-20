@@ -61,10 +61,10 @@ void test_cond()
     object_t *l = new_pair(object_new(SYMBOL, "COND"), new_pair(p1, new_pair(p2, NULL)));
     object_t *res = eval(l);
     printf("res: ");
-    //print_obj(res);
+    print_obj(res);
     printf("\n");
-    //ASSERT(res->type, NUMBER);
-    //ASSERT(res->u.value, 2);
+    ASSERT(res->type, NUMBER);
+    ASSERT(res->u.value, 2);
 }
 
 int main()
@@ -72,8 +72,8 @@ int main()
     printf("------------test_eval_int---------\n");
     init_eval();
     test_car();
+    test_cons();
     test_cond();
-    //test_cons();
     
     return 0;
 }
