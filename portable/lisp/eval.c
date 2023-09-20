@@ -9,6 +9,7 @@ object_t *t;
 object_t *nil;
 /// символ "QUOTE"
 symbol_t *quote_sym;
+symbol_t *lambda_sym;
 
 /** 
  * возвращает первый элемент списка
@@ -126,6 +127,52 @@ object_t *cond(object_t *obj)
         return cond(TAIL(obj));
 }
 
+/** 
+ * Проверка списка на то, что все элементы типа type
+ *
+ * @param list - список, type - тип
+ *
+ * @return 0 или 1
+ */
+int is_arr_ells_of_type(object_t *list, type_t type){
+    if(list->u.pair->left->type != type)
+        return 0;
+    
+    if(list->u.pair->right == NULL)
+        return 1;
+    
+    return is_arr_ells_of_type(list->u.pair->right, type);
+}
+
+/** 
+ * Проверка объекта на то, что он является корректной lambda-функцией
+ *
+ * @param list - список параметров
+ *
+ * @return 0 или 1
+ */
+int is_lambda(object_t *list){
+    if(!(FIRST(list) != NULL && list->u.pair->right != NULL &&
+        SECOND(list) != NULL &&
+        FIRST(list)->type == PAIR && SECOND(list)->type == PAIR))
+      {
+        error("Invalid lambda declaration. Example: (lambda (p1 ... pn) e)\n");
+        return 0;
+      }
+
+    object_t *args = FIRST(list);
+    object_t *temp_el = args;
+
+    int ress = is_arr_ells_of_type(temp_el, SYMBOL);
+
+    if(ress == 0){
+        error("Not symbol in lambda attrs\n");
+        return 0;
+    }
+
+    return 1;
+}
+
 /**
  * Рекурсивно вычисляет список аргументов, создаёт новый список
  * @param args список аргументов
@@ -163,7 +210,7 @@ object_t *eval(object_t *obj)
     else if (obj->type == PAIR) {
 	symbol_t *s = find_symbol(FIRST(obj)->u.symbol->str);
 	object_t *args;
-	if (s == quote_sym)
+	if (s == quote_sym || s == lambda_sym)
 	    args = TAIL(obj);
 	else
 	    args = eval_args(TAIL(obj));
@@ -186,5 +233,6 @@ void init_eval()
   register_func("COND", cond);
   t = object_new(SYMBOL, "T");
   quote_sym = find_symbol("QUOTE");
+  lambda_sym = find_symbol("LAMBDA");
   nil = NULL;
 }

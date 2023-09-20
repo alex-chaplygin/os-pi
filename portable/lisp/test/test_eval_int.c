@@ -5,6 +5,11 @@
 extern object_t *t;
 extern object_t *nil;
 
+void error(char *str)
+{
+  printf("%s", str);
+}
+
 /**
  * создать объект для выражения (car (quote (5)))
  * вычислить объект 
@@ -67,12 +72,57 @@ void test_cond()
     ASSERT(res->u.value, 2);
 }
 
+/**
+ * Создать объект для выражения (lambda (a, b) (atom (car (a, b))))
+ * Вызвать функцию is_lambda
+ * Проверить результат = 1
+ */
+void test_is_lambda()
+{
+    printf("test_is_lambda: ");
+    object_t *p1 = object_new(SYMBOL, "a");
+    object_t *p2 = object_new(SYMBOL, "b");
+    object_t *params = new_pair(p1, new_pair(p2, NULL));
+
+    object_t *q = new_pair(object_new(SYMBOL, "ATOM"),
+        new_pair(object_new(SYMBOL, "CAR"), new_pair(params, NULL)));
+    
+    object_t *list = new_pair(params, new_pair(q, NULL));
+
+    int i = is_lambda(list);
+    ASSERT(i, 1);
+}
+
+/**
+ * Создать объект для некорректного выражения (lambda (a, 5) (atom (car (a, 5))))
+ * Вызвать функцию is_lambda
+ * Проверить результат = 0
+ */
+void test_is_lambda_not_symbol()
+{
+    printf("test_is_lambda_not_symbol: ");
+    int num = 5;
+    object_t *p1 = object_new(SYMBOL, "a");
+    object_t *p2 = object_new(NUMBER, &num);
+    object_t *params = new_pair(p1, new_pair(p2, NULL));
+
+    object_t *q = new_pair(object_new(SYMBOL, "ATOM"),
+        new_pair(object_new(SYMBOL, "CAR"), new_pair(params, NULL)));
+    
+    object_t *list = new_pair(params, new_pair(q, NULL));
+
+    int i = is_lambda(list);
+    ASSERT(i, 0);
+}
+
 int main()
 {
     printf("------------test_eval_int---------\n");
     init_eval();
     test_car();
     test_cons();
+    test_is_lambda();
+    test_is_lambda_not_symbol();
     test_cond();
     
     return 0;
