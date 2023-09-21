@@ -46,13 +46,21 @@ int is_alpha(char c)
 int get_num()
 {
     get_cur_char();
+    int fl = 0;
     int cur_num = 0;
-    while (is_digit(cur_symbol))
+    if (cur_symbol == '-')
+    {
+        fl = 1;
+        get_cur_char();
+    }
+    while (is_digit(cur_symbol)) 
     {
         cur_num = cur_num * 10 + cur_symbol - '0';
         get_cur_char();
     }
     unget_cur_char();
+    if (fl == 1)
+        cur_num *= -1;
     return cur_num;
 }
 

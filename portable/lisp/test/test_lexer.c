@@ -75,12 +75,15 @@ void test_skip_new_line()
 /** 
  * Тест должен прочитать число. 
  */
-void test_get_num()
+void test_get_num(char* src, int expect)
 {
     printf("test_get_num: ");
-    write_file("1234");
+    write_file(src);
+    get_cur_char();
+    if (cur_symbol != -1)
+        unget_cur_char();
     int curnum = get_num();
-    ASSERT(curnum, 1234);
+    ASSERT(curnum, expect);
 }
 
 /** 
@@ -104,14 +107,8 @@ void test_is_alpha()
 /** 
  * Тест должен прочесть символ
  */
-void test_get_symbol()
+void test_get_symbol(char* src, const char* expect)
 {
-    //Строка-источник
-    char src[] = "Hello  ";
-    
-    //Ожидаемое значение
-    char expect[] = "Hello";
-    
     //Буфер
     char str[20];
     
@@ -140,10 +137,11 @@ int main()
     test_get_cur_char();
     test_skip_white_space();
     test_skip_new_line();
-    test_get_num();
+    test_get_num("1234", 1234);
+    test_get_num("-5    ", -5);
     test_is_digit();
     test_is_alpha();
-    test_get_symbol();
+    test_get_symbol("Hello 12", "Hello");
     test_get_token("empty", " ", END);
     test_get_token("lparen", "(", LPAREN);
     test_get_token("rparen", ")", RPAREN);
