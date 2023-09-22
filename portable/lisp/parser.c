@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "lexer.h"
 #include "objects.h"
+#include "parser.h"
 
 token_t *cur_token; // текущий токен
 
