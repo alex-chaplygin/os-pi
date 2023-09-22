@@ -42,7 +42,44 @@ int is_alpha(char c)
     return c >= 'a' && c <= 'z' || c>= 'A' && c <= 'Z';
 }
 
+
+
+
 // считать число
+
+/** 
+ * на входе строка FFAA
+ *
+ * @return преобразованное число AB
+ */
+int hex_num()
+{ 
+  get_cur_char();
+  printf("cur=%c\n", cur_symbol);
+  int cur_num =  0;
+  while (is_digit(cur_symbol) || cur_symbol >= 'a' && cur_symbol <= 'f' || cur_symbol>= 'A' && cur_symbol <= 'F' ) 
+  {
+    if(is_digit(cur_symbol))
+      {
+      cur_num = cur_num * 16 + cur_symbol - '0';
+      get_cur_char();
+      }
+    else
+      {
+      cur_num = cur_num * 16 + cur_symbol - 'A'+ 10; 
+      get_cur_char();
+      }
+  }
+  unget_cur_char();
+  return cur_num;
+}
+
+
+
+/** 
+ * Функция считывает числа из строки и преобразует в число  десятичной и шестнадцатиричной СС
+ * 10 - десятичной, 0xFFAA - шестнадцатиричное 
+ */
 int get_num()
 {
     get_cur_char();
@@ -62,7 +99,10 @@ int get_num()
     if (fl == 1)
         cur_num *= -1;
     return cur_num;
+    
 }
+
+
 
 //прочесть атом
 void get_symbol(char *cur_str)
