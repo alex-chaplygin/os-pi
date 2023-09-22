@@ -56,6 +56,8 @@ object_t *parse_list()
 {
     int val;
     token_t *cur_token = get_token();
+    printf("parselist: ");
+    print_token(cur_token);
     if (cur_token->type == RPAREN)
 	return NULL;
     if (cur_token->type == T_NUMBER)
@@ -83,9 +85,11 @@ object_t *parse()
 {   
     object_t *el; // создаем новый элемент
     cur_token = get_token(); // считывается левая скобка
+    printf("parse: ");
+    print_token(cur_token);
     if (cur_token->type == T_NUMBER) // считывается число
 	return object_new(NUMBER, &cur_token->value);
-    else if (cur_token->type == T_SYMBOL)//считывается атом
+    else if (cur_token->type == T_SYMBOL)//считывается символ
 	return object_new(SYMBOL, find_symbol(strupr(cur_token->str)));
     else if (cur_token->type == LPAREN)
 	return parse_list();
