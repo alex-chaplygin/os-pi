@@ -55,7 +55,6 @@ int is_alpha(char c)
 int hex_num()
 { 
   get_cur_char();
-  printf("cur=%c\n", cur_symbol);
   int cur_num =  0;
   while (is_digit(cur_symbol) || cur_symbol >= 'a' && cur_symbol <= 'f' || cur_symbol>= 'A' && cur_symbol <= 'F' ) 
   {
@@ -85,8 +84,11 @@ int get_num()
     get_cur_char();
     int fl = 0;
     int cur_num = 0;
-    if (cur_symbol == '-')
-    {
+    if (cur_symbol == '0') {
+	get_cur_char();
+	if (cur_symbol == 'x')
+	    return hex_num();
+    } else if (cur_symbol == '-') {
         fl = 1;
         get_cur_char();
     }
@@ -99,7 +101,6 @@ int get_num()
     if (fl == 1)
         cur_num *= -1;
     return cur_num;
-    
 }
 
 
