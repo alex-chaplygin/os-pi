@@ -128,7 +128,7 @@ object_t *cons(object_t *list)
  * @param obj входное выражение
  * @return возвращает вычисленный объект
 */
-object_t *cond(object_t *obj)
+object_t *cond(object_t *obj, object_t *env)
 {
     if (obj == NULL){
         error("NULL in COND");
@@ -136,12 +136,10 @@ object_t *cond(object_t *obj)
     }
     object_t *pair = FIRST(obj);
     object_t *p = FIRST(pair);
-    printf("p = ");
-    PRINT(p);
-    if (eval(p) == t)
-        return eval(SECOND(pair));
+    if (eval(p, env) == t)
+        return eval(SECOND(pair), env);
     else
-        return cond(TAIL(obj));
+        return cond(TAIL(obj), env);
 }
 
 /** 
@@ -175,16 +173,16 @@ int is_lambda(object_t *list)
     object_t *lambda = FIRST(list);
     if (lambda->type != SYMBOL || lambda->u.symbol != lambda_sym){
 	error("Invalid lambda symbol\n");
-	return ERROR;
+	return (int)ERROR;
     }
     if (list->u.pair->right == NULL){
 	error("No params in lambda\n");
-	return ERROR;
+	return (int)ERROR;
     }
     object_t *params = SECOND(list);
     if (params->type != PAIR){
 	error("Invalid params in lambda\n");
-	return ERROR;
+	return (int)ERROR;
     }
     if (!check_params(params)){
         error("Not symbol in lambda attrs\n");
@@ -235,19 +233,34 @@ int find_in_env(object_t *env, object_t *sym, object_t **res)
 	return 1;
     } else
 	return find_in_env(TAIL(env), sym, res);
-}    
+}
+
+/**
+ * Вычислить lambda функцию с заданными аргументами 
+ * 
+ * @param lambda - функция (lambda (x) x)
+ * @param args - список значений аргументов (1)
+ * @param env окружение
+ * @return вычисленное значение функции
+ */
+object_t *eval_func(object_t *lambda, object_t *args, object_t *env)
+{
+    object_t *new_env = make_env(SECOND(lambda), args);
+    return eval(THIRD(lambda), new_env);
+}
     
 /**
  * Рекурсивно вычисляет список аргументов, создаёт новый список
  * @param args список аргументов
+ * @param env окружение
  * @return возвращает список вычисленных аргументов
  */
-object_t *eval_args(object_t *args)
+object_t *eval_args(object_t *args, object_t *env)
 {
     if (args == NULL)
 	return NULL;
     object_t *f = FIRST(args);
-    return new_pair(eval(f), eval_args(TAIL(args))); 
+    return new_pair(eval(f, env), eval_args(TAIL(args), env)); 
 }
 
 /**
@@ -261,12 +274,11 @@ object_t *eval_args(object_t *args)
  *  (car '(1 2 3)) -> 1
  *  (cdr '(1 2 3)) -> (2 3)
  * @param obj входное выражение
+ * @param env окружение
  * @return возвращает вычисленный объект
  */
-object_t *eval(object_t *obj)
+object_t *eval(object_t *obj, object_t *env)
 {
-    printf("eval :");
-    PRINT(obj);
     if (obj == nil)
 	return nil;
     else if (obj->type == NUMBER)
@@ -274,16 +286,26 @@ object_t *eval(object_t *obj)
     else if (obj == t)
         return t;
     else if (obj->type == SYMBOL){
-        error("Unknown SYMBOL \n");
-	return ERROR;
+	object_t *res;
+	if (find_in_env(env, obj, &res))
+	    return res;
+	else {
+	    error("Unknown SYMBOL \n");
+	    return ERROR;
+	}
     }
     else if (obj->type == PAIR) {
-	symbol_t *s = find_symbol(FIRST(obj)->u.symbol->str);
+	object_t *first = FIRST(obj);
+	if (first->type == PAIR && is_lambda(first))
+	    return eval_func(first, eval_args(TAIL(obj), env), env);
+	symbol_t *s = find_symbol(first->u.symbol->str);
 	object_t *args;
-	if (s == quote_sym || s == cond_sym)
+	if (s == cond_sym)
+	    return cond(TAIL(obj), env);
+	if (s == quote_sym)
 	    args = TAIL(obj);
 	else
-	    args = eval_args(TAIL(obj));
+	    args = eval_args(TAIL(obj), env);
 	return s->func(args);
     }
     else{ 
@@ -302,7 +324,6 @@ void init_eval()
   register_func("EQ", eq);
   register_func("QUOTE", quote);
   register_func("CONS", cons);
-  register_func("COND", cond);
   t = object_new(SYMBOL, "T");
   quote_sym = find_symbol("QUOTE");
   lambda_sym = find_symbol("LAMBDA");
