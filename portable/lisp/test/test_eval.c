@@ -149,8 +149,12 @@ void test_car()
     num.type = NUMBER;
     num.u.value = 5;
     
+    object_t pair;
+    pair.type = PAIR;
+    pair.u.pair = &(struct pair_s){&num};
+    
     struct pair_s node;
-    node.left = &num;
+    node.left = &pair;
     node.right = NULL;
     
     object_t lst;
