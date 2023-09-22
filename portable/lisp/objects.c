@@ -2,11 +2,12 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include "objects.h" 
+#include "parser.h"
 
 /// Всего объектов
-#define MAX_OBJECTS 50
+#define MAX_OBJECTS 100
 /// Всего пар
-#define MAX_PAIRS 50
+#define MAX_PAIRS 100
 
 /// Индекс последнего объекта массива
 int last_object = 0;
@@ -29,8 +30,10 @@ pair_t pairs[MAX_PAIRS];
 object_t *object_new(type_t type, void *data)
 {
     object_t *new = &objects[last_object++];
-    if (last_object == MAX_OBJECTS)
-        return NULL;
+    if (last_object == MAX_OBJECTS) {
+        error("Error: out of memory: objects");
+	return ERROR;
+    }
     new->type = type;
     if (type == NUMBER)
         new->u.value = *(int *)data;
@@ -53,8 +56,10 @@ object_t *object_new(type_t type, void *data)
 object_t *new_pair(object_t *left, object_t *right)
 {
   pair_t *pair = &pairs[last_pair++];
-  if (last_pair == MAX_PAIRS)
-    return NULL;
+  if (last_pair == MAX_PAIRS) {
+    error("Error: out of memory: pairs");
+    return ERROR;
+  }
   pair->left = left;
   pair->right = right;  
   return object_new(PAIR, pair);
