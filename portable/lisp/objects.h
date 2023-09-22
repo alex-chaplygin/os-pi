@@ -3,6 +3,7 @@
 #include "symbols.h"
 
 #define MAX_STR 50
+#define PRINT(o) print_obj(o); printf("\n");
 
 /// перечисление типов объектов
 typedef enum {
