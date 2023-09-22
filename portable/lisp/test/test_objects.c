@@ -25,7 +25,7 @@ void test_object_new()
 }
 
 /** 
- * Создать две парыи проверить массив пар 
+ * Создать две пары и проверить массив пар 
  */
 void test_new_pair()
 {
@@ -42,8 +42,26 @@ void test_new_pair()
   ASSERT(pairs[1].right, &o4);
 }
 
+/** 
+ * Проверка правильной печати объекта (1 2)
+ */
+void test_print_obj()
+{
+  object_t *ob;
+  
+  printf("test_print_obj: ");
+  
+  int num1 = 1;
+  int num2 = 2;
+  
+  ob = new_pair(object_new(NUMBER, &num1), new_pair(object_new(NUMBER, &num2), NULL));
+  print_obj(ob);
+  printf("\n");
+}
+
 void main()
 {
   test_object_new();
   test_new_pair();
+  test_print_obj();
 }
