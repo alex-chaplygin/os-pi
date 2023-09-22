@@ -17,3 +17,4 @@ typedef struct {
 } token_t; // ликсема
 
 token_t *get_token();
+void print_token(token_t *token);

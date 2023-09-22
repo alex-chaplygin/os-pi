@@ -42,11 +42,6 @@ int is_alpha(char c)
     return c >= 'a' && c <= 'z' || c>= 'A' && c <= 'Z';
 }
 
-
-
-
-// считать число
-
 /** 
  * на входе строка FFAA
  *
@@ -154,3 +149,36 @@ token_t *get_token()
     }
     return &token;
 }
+
+/** 
+ * Печать лексемы для отладки
+ *
+ * @param token указатель на лексему
+ */
+void print_token(token_t *token)
+{
+    switch (token->type) {
+    case T_NUMBER:
+	printf("NUM %d\n", token->value);
+	break;
+    case T_SYMBOL:
+	printf("SYM %s\n", token->str);
+	break;
+    case LPAREN:
+	printf("LPAREN\n");
+	break;
+    case RPAREN:
+	printf("RPAREN\n");
+	break;
+    case END:
+	printf("END\n");
+	break;
+    case QUOTE:
+	printf("QUOTE\n");
+	break;
+    case INVALID:
+	printf("INVALID\n");
+	break;
+    }
+}
+   
