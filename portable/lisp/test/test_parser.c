@@ -47,6 +47,10 @@ char *strupr (char *str);
 object_t *parse_list();
 object_t *parse();
 
+void print_token(token_t *token)
+{
+}
+
 symbol_t *find_symbol(char *str)
 {
     for (int i = 0; i < sizeof(symbols) / sizeof(symbol_t); i++)
