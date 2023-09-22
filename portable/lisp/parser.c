@@ -10,7 +10,6 @@ token_t *cur_token; // текущий токен
 void error(char *str)
 {
     printf("%s\n", str);
-    exit(1);
 }
 
 // преобразует строку в верхний регистр
@@ -39,9 +38,10 @@ object_t *parse_quote()
 {
     object_t *o = parse();
     object_t *p = new_pair(o, NULL);
-    if (o->type == NUMBER)
+    if (o->type == NUMBER){
 	error("quote Number\n");
-    else
+	return ERROR;
+    } else
 	return new_pair(object_new(SYMBOL, "QUOTE"), p);
 }
 
@@ -68,16 +68,6 @@ object_t *parse_list()
 	object_t *q = parse_quote();
 	return new_pair(q, parse_list());
     }
-      /* 
-    else if  (cur_token->type == LPAREN)
-      list_add(&list, object_new(LIST, parse_list()));
-    else if (cur_token->type == QUOTE)
-      list_add(&list, object_new(LIST, parse_quote()));
-    else if (cur_token->type == INVALID)
-      error("expected number or atom");
-        cur_token = get_token();
-    if (cur_token->type != RPAREN)
-    error("expected )");*/
 }
 
 
