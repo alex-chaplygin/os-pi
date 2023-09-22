@@ -7,6 +7,7 @@ extern object_t *nil;
 
 object_t * make_env(object_t *args, object_t *values);
 int find_in_env(object_t *env, object_t *sym, object_t **res);
+int is_lambda(object_t *list);
 
 void error(char *str)
 {
@@ -27,7 +28,7 @@ void test_car()
 			   new_pair(l, NULL));
     object_t *o = new_pair(object_new(SYMBOL, "CAR"),
 			   new_pair(q, NULL));
-    object_t *res = eval(o);
+    object_t *res = eval(o, NULL);
     ASSERT(res->type, NUMBER);
     ASSERT(res->u.value, 5);
 }
@@ -48,7 +49,7 @@ void test_cons()
 			    new_pair(object_new(SYMBOL, "A"), NULL));
     object_t *o = new_pair(object_new(SYMBOL, "CONS"),
 			    new_pair(qa, new_pair(q, NULL)));
-    object_t *res = eval(o);
+    object_t *res = eval(o, NULL);
     ASSERT(FIRST(res)->type, SYMBOL);
     ASSERT(SECOND(res)->type, NUMBER);
     ASSERT(SECOND(res)->u.value, 5);
@@ -68,7 +69,7 @@ void test_cond()
     object_t *p1 = new_pair(nil, new_pair(object_new(NUMBER, &n1), NULL));
     object_t *p2 = new_pair(t, new_pair(object_new(NUMBER, &n2), NULL));
     object_t *l = new_pair(object_new(SYMBOL, "COND"), new_pair(p1, new_pair(p2, NULL)));
-    object_t *res = eval(l);
+    object_t *res = eval(l, NULL);
     ASSERT(res->type, NUMBER);
     ASSERT(res->u.value, 2);
 }
