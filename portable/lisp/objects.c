@@ -74,6 +74,8 @@ void print_list(object_t *obj)
     if (obj == NULL)
 	return;
     print_obj(obj->u.pair->left);
+    if (obj->u.pair->right == NULL)
+	return;
     printf(" ");
     print_list(obj->u.pair->right);
 }
