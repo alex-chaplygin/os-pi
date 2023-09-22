@@ -16,6 +16,8 @@ void get_symbol(char *cur_str);
 extern char cur_symbol;
 extern int flag;
 
+FILE *oldstdin;
+
 /** 
  * Функция перенаправления стандартного ввода в файл.
  * Записывает строку в файл
@@ -30,6 +32,7 @@ void write_file(char *string)
 	fputs(string, fp);
 	fclose(fp);
     }
+    oldstdin = stdin;
     freopen(filename, "r", stdin);
 }
 
@@ -79,9 +82,10 @@ void test_get_num(char* src, int expect)
 {
     printf("test_get_num: ");
     write_file(src);
-    get_cur_char();
-    if (cur_symbol != -1)
-        unget_cur_char();
+    fclose(stdin);
+    stdin = oldstdin;
+    write_file(src);
+    flag = 0;
     int curnum = get_num();
     ASSERT(curnum, expect);
 }
@@ -139,6 +143,8 @@ int main()
     test_skip_new_line();
     test_get_num("1234", 1234);
     test_get_num("-5    ", -5);
+    test_get_num("0xF", 15);
+    test_get_num("0x1A23", 0x1A23);
     test_is_digit();
     test_is_alpha();
     test_get_symbol("Hello 12", "Hello");
