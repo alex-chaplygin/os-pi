@@ -23,6 +23,7 @@ typedef struct object_s
         struct symbol_s *symbol; // указатель на символ
         struct pair_s *pair; // Если объект пара из 2-х объектов (левый и правый) то указатель на пару
     } u;
+    struct object_s *next; // указатель на следующий свободный объект
 } object_t; // Структура объекта
 
 typedef struct pair_s
@@ -34,4 +35,5 @@ typedef struct pair_s
 object_t *object_new(type_t type, void *data);
 object_t *new_pair(object_t *left, object_t *right);
 void print_obj(object_t *obj);
+void free_object(object_t *obj);
 #endif

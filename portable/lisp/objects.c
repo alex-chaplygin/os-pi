@@ -13,6 +13,8 @@
 int last_object = 0;
 /// Массив или хранилище объектов
 object_t objects[MAX_OBJECTS];
+/// Указывает на начало списка свободных объектов 
+object_t *free_objs = NULL;
 
 /// Индекс последней пары
 int last_pair = 0;
@@ -29,11 +31,18 @@ pair_t pairs[MAX_PAIRS];
  */
 object_t *object_new(type_t type, void *data)
 {
-    object_t *new = &objects[last_object++];
+    object_t *new;
     if (last_object == MAX_OBJECTS) {
-        error("Error: out of memory: objects");
-	return ERROR;
+        if (free_objs == NULL) {
+            error("Error: out of memory: objects");
+	        return ERROR;
+        }
+        new = free_objs;
+        free_objs = free_objs->next;
+        new->next = NULL;
     }
+    else
+        new = &objects[last_object++];
     new->type = type;
     if (type == NUMBER)
         new->u.value = *(int *)data;
@@ -43,6 +52,22 @@ object_t *object_new(type_t type, void *data)
     else if (type == PAIR)
         new->u.pair = (pair_t *)data;   
     return new;
+}
+
+/** 
+ * Освобождение памяти объекта
+ * 
+ * @param obj объект для освобождения
+ */
+void free_object(object_t *obj)
+{
+    if (obj == NULL) {
+    	error("Error: null pointer: obj");
+    	return ERROR;
+    }
+    if (free_objs != NULL)
+        obj->next = free_objs;
+    free_objs = obj;
 }
 
 /** 

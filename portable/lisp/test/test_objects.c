@@ -4,6 +4,8 @@
 
 extern object_t objects[];
 extern pair_t pairs[];
+extern object_t *free_objs;
+extern int last_object;
 
 symbol_t *find_symbol(char *str)
 {
@@ -59,9 +61,33 @@ void test_print_obj()
   printf("\n");
 }
 
+/**
+ * Проверка корректности функции освобождения
+ *  объектов и их дальнейшего переиспользования
+ */
+void test_free(){
+  printf("test_free_object: ");
+  int last_num = last_object;
+  for (int i = last_object; 100 > i; i++)
+    object_new(NUMBER, &i);
+  object_t *o1 = &objects[0];
+  object_t *o2 = &objects[5];
+  free_object(o1);
+  free_object(o2);
+  ASSERT(free_objs, o2);
+  ASSERT(free_objs->next, o1);
+  ASSERT(free_objs->next->next, NULL);
+  object_t *r_o1 = object_new(SYMBOL, "1");
+  object_t *r_o2 = object_new(SYMBOL, "2");
+  ASSERT(o2, r_o1);
+  ASSERT(o1, r_o2);
+  ASSERT(free_objs, NULL);
+}
+
 void main()
 {
   test_object_new();
   test_new_pair();
   test_print_obj();
+  test_free();
 }
