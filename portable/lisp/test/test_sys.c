@@ -75,6 +75,6 @@ void main()
     init_eval();
     printf("--------------SYSTEM TEST---------------------\n");
     //test("'a", "A");
-    test("((lambda (x) x) 1)", "1");
+    test("((lambda (x y) (cons x y)) 1 '(2))", "1");
 }
 
