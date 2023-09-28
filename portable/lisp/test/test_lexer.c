@@ -138,6 +138,7 @@ void test_get_token(const char* name_test, char* str, tokentype_t exp)
 
 int main()
 {
+    printf("-------------test_lexer---------------\n");
     test_get_cur_char();
     test_skip_white_space();
     test_skip_new_line();
@@ -148,6 +149,7 @@ int main()
     test_is_digit();
     test_is_alpha();
     test_get_symbol("Hello 12", "Hello");
+    test_get_symbol("* 1 2", "*");
     test_get_token("empty", " ", END);
     test_get_token("lparen", "(", LPAREN);
     test_get_token("rparen", ")", RPAREN);
