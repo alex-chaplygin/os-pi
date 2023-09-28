@@ -1,11 +1,16 @@
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 #include "objects.h"
 #include "eval.h"
 #include "test.h"
 #include "parser.h"
+#include "arith.h"
+
+void get_cur_char();
 
 FILE *old_stdin;
+FILE *old_stdout;
 
 /** 
  * Функция перенаправления стандартного ввода в файл.
@@ -34,6 +39,7 @@ void write_in_file(char *string)
 void redirect_out_file()
 {
     char filename[] = "/tmp/out.txt";
+    old_stdout = stdout;
     freopen(filename, "w", stdout);
 }
 /** 
@@ -44,6 +50,7 @@ void redirect_out_file()
  */
 void test(char *in_str, char *out_str)
 {
+    printf("test: %s\t", in_str);
     write_in_file(in_str);
     //redirect_out_file();
     object_t *o = parse();
@@ -54,28 +61,40 @@ void test(char *in_str, char *out_str)
     PRINT(res);
     //print_obj(res);
     //fclose(stdout);
-    //stdout = fdopen(0, "w");
-    /*char filename[] = "/tmp/out.txt";
+    //stdout = old_stdout;//fdopen(STDOUT_FILENO, "w");
+    
+    //printf("!!!!!!!!!\n");
+    /*    char filename[] = "/tmp/out.txt";
     FILE *fp = fopen(filename, "r");
     char str[100];
     fgets(str, 100, fp);
     fclose(fp);
     printf("str=%s\n", str);
+    
     if (strcmp(str, out_str))
 	printf("fail\t%s\n\t%s\n\t%s\n", in_str, str, out_str);
     else
-    printf("OK\t%s\n\t%s\n", in_str, str);*/
+	printf("OK\t%s\n\t%s\n", in_str, str);
+    */
     fclose(stdin);
-    stdin = fdopen(1, "r");
-    //    stdin = old_stdin;	
+    stdin = old_stdin;//fdopen(STDIN_FILENO, "r");
+    get_cur_char();
 }
 
 int main()
 {
     init_eval();
+    init_arith();
     printf("--------------SYSTEM TEST---------------------\n");
-    //test("'a", "A");
-    test("((lambda (x y) (cons x y)) 1 '(2))", "1");
+    test("'a", "A");
+    test("'()", "()");
+    test("(quote())","()");
+    test("((lambda (x y) (cons x y)) 1 '(2))", "(1 2)");
+    test("(defun null (x) (eq x (quote())))", "NULL");
+    test("(null 'a)","()");
+    test("(null (quote ()))","T");
+    test("(null '())","T");
+    test("(+ 1 2 3 4)","10");
     return 0;
 }
 

@@ -371,7 +371,6 @@ void init_eval()
   register_func("QUOTE", quote);
   register_func("CONS", cons);
   register_func("DEFUN", defun);
-  register_func("+", add);
   t = object_new(SYMBOL, "T");
   quote_sym = find_symbol("QUOTE");
   lambda_sym = find_symbol("LAMBDA");
