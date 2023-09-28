@@ -38,13 +38,17 @@ object_t *parse();
  */
 object_t *parse_quote()
 {
+    printf("parse_quote: ");
     object_t *o = parse();
+    printf("quote: ");
+    PRINT(o);
     object_t *p = new_pair(o, NULL);
-    if (o->type == NUMBER){
+    
+    if (o != NULL && o->type == NUMBER) {
 	error("quote Number\n");
 	return ERROR;
-    } else
-	return new_pair(object_new(SYMBOL, "QUOTE"), p);
+    }
+    return new_pair(object_new(SYMBOL, "QUOTE"), p);
 }
 
 /** 
