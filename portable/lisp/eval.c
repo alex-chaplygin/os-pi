@@ -2,6 +2,7 @@
 #include "objects.h"
 #include "parser.h"
 #include "eval.h"
+#include "arith.h"
 
 /// объект истина
 object_t *t;
@@ -13,6 +14,8 @@ symbol_t *quote_sym;
 symbol_t *lambda_sym;
 /// символ "COND"
 symbol_t *cond_sym;
+/// символ "DEFUN"
+symbol_t *defun_sym; 
 
 /** 
  * возвращает первый элемент списка
@@ -60,13 +63,19 @@ object_t *cdr(object_t *list)
  */
 object_t *eq(object_t *list)
 {
+    //printf("eq: ");
+    //PRINT(list);
     object_t *p1 = FIRST(list);
     object_t *p2 = SECOND(list);
-    if (p1->type != SYMBOL || p2->type != SYMBOL){
+    //printf("p1: ");
+    //PRINT(p1);
+    //printf("p2: ");
+    //PRINT(p2);
+    if (p1 != NULL && p1->type != SYMBOL || p2 != NULL && p2->type != SYMBOL){
         error("not symbol in eq\n");
 	return ERROR;
     }
-    if (p1->u.symbol == p2->u.symbol)
+    if (p1 == NULL && p2 == NULL || p1 != NULL && p2 != NULL && p1->u.symbol == p2->u.symbol)
         return t;
     else
         return nil;
@@ -141,6 +150,21 @@ object_t *cond(object_t *obj, object_t *env)
     else
         return cond(TAIL(obj), env);
 }
+
+/** 
+ * Создаёт новую функцию
+ *
+ * @param obj (имя_функции список_аргументов тело_функции)
+ *
+ * @return символ имени новой функции
+ */
+object_t *defun(object_t *obj)
+{
+    symbol_t *name = find_symbol(FIRST(obj)->u.symbol->str);
+    name->value = new_pair(object_new(SYMBOL, "LAMBDA"), TAIL(obj));
+    return object_new(SYMBOL, name->str);
+}
+
 
 /** 
  * Проверка списка на то, что все элементы типа type
@@ -264,6 +288,21 @@ object_t *eval_args(object_t *args, object_t *env)
 }
 
 /**
+ * Проверка на специальную форму
+ * @param s - имя функции
+ * @return 1 - специальная форма, а 0 - нет
+ */
+
+int is_special_form(symbol_t *s)
+{
+    if (s == quote_sym)
+	return 1;
+    else if (s == defun_sym)
+	return 1;
+    return 0;
+}
+
+/**
  * Вычисление выражения
  * Если выражение число, возвращаем его же
  * Если выражение атом, то выдаем ошибку
@@ -279,13 +318,15 @@ object_t *eval_args(object_t *args, object_t *env)
  */
 object_t *eval(object_t *obj, object_t *env)
 {
+    printf("eval: ");
+    PRINT(obj);
     if (obj == nil)
 	return nil;
     else if (obj->type == NUMBER)
         return obj;
     else if (obj == t)
         return t;
-    else if (obj->type == SYMBOL){
+    else if (obj->type == SYMBOL) {
 	object_t *res;
 	if (find_in_env(env, obj, &res))
 	    return res;
@@ -293,8 +334,7 @@ object_t *eval(object_t *obj, object_t *env)
 	    error("Unknown SYMBOL \n");
 	    return ERROR;
 	}
-    }
-    else if (obj->type == PAIR) {
+    } else if (obj->type == PAIR) {
 	object_t *first = FIRST(obj);
 	if (first->type == PAIR && is_lambda(first))
 	    return eval_func(first, eval_args(TAIL(obj), env), env);
@@ -302,14 +342,20 @@ object_t *eval(object_t *obj, object_t *env)
 	object_t *args;
 	if (s == cond_sym)
 	    return cond(TAIL(obj), env);
-	if (s == quote_sym)
+	if (is_special_form(s))
 	    args = TAIL(obj);
 	else
 	    args = eval_args(TAIL(obj), env);
-	return s->func(args);
-    }
-    else{ 
-        error("Unknown func\n");
+	if (s->value != NULL)
+	    return eval_func(s->value, args, env);
+	else if (s->func != NULL)
+	    return s->func(args);
+	else {
+	    error("Unknown func\n");
+	    return ERROR;
+	}
+    } else { 
+        error("Unknown object_type\n");
 	return ERROR;
     }
 }
@@ -324,9 +370,12 @@ void init_eval()
   register_func("EQ", eq);
   register_func("QUOTE", quote);
   register_func("CONS", cons);
+  register_func("DEFUN", defun);
+  register_func("+", add);
   t = object_new(SYMBOL, "T");
   quote_sym = find_symbol("QUOTE");
   lambda_sym = find_symbol("LAMBDA");
   cond_sym = find_symbol("COND");
+  defun_sym = find_symbol("DEFUN");
   nil = NULL;
 }
