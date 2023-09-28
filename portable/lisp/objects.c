@@ -63,10 +63,9 @@ void free_object(object_t *obj)
 {
     if (obj == NULL) {
     	error("Error: null pointer: obj");
-    	return ERROR;
+    	return;
     }
-    if (free_objs != NULL)
-        obj->next = free_objs;
+    obj->next = free_objs;
     free_objs = obj;
 }
 
