@@ -5,7 +5,7 @@
 #include "parser.h"
 
 /// Всего объектов
-#define MAX_OBJECTS 100
+#define MAX_OBJECTS 200
 /// Всего пар
 #define MAX_PAIRS 100
 
