@@ -2,6 +2,7 @@
 #include "objects.h"
 #include "eval.h"
 #include "test.h"
+
 extern object_t *t;
 extern object_t *nil;
 
@@ -168,6 +169,29 @@ void test_find_in_env()
   ASSERT(res->u.value, 2);
 }
 
+/**
+ * Создать функцию (defun null (x) (eq x '()))
+ * Проверить значение символа null
+ */
+void test_defun()
+{
+    printf("test_defun: ");
+    object_t *body = new_pair(object_new(SYMBOL, "EQ"),
+			      new_pair(object_new(SYMBOL, "X"),
+				       new_pair(NULL, NULL)));
+    object_t *args = new_pair(object_new(SYMBOL, "X"), NULL);
+    object_t *func = new_pair(object_new(SYMBOL, "DEFUN"),
+			      new_pair(object_new(SYMBOL, "NULL"),
+				       new_pair(args,
+						new_pair(body, NULL))));
+    object_t *res = eval(func, NULL);
+    ASSERT(res->type, SYMBOL);
+    symbol_t *null = find_symbol("NULL");
+    ASSERT(res->u.symbol, null);
+    ASSERT(null->value->type, PAIR);
+    ASSERT(null->value->u.pair->left->u.symbol, find_symbol("LAMBDA"));
+}
+
 int main()
 {
     printf("------------test_eval_int---------\n");
@@ -179,6 +203,7 @@ int main()
     test_cond();
     test_make_env();
     test_find_in_env();
+    test_defun();
     return 0;
 }
 
