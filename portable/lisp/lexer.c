@@ -21,16 +21,24 @@ void unget_cur_char()
 }
 
 /** 
+ * Проверка символа на пустоту
+ */ 
+int is_whitespace(char c)
+{
+    return c == ' ' || c == '\n' || c == '\r' || c == '\t'; 
+}
+
+/** 
  * Пропустить пустоты: пробелы, переводы строк
  */
 void skip_white_space()
 {
-    while (cur_symbol == ' ' || cur_symbol == '\n')
+    while (is_whitespace(cur_symbol))
         get_cur_char();
     unget_cur_char();
 }
 
-// проверка символа на цыфру
+// проверка символа на цифру
 int is_digit(char c)
 {
     return c >= '0' && c <= '9';
@@ -40,6 +48,18 @@ int is_digit(char c)
 int is_alpha(char c)
 {
     return c >= 'a' && c <= 'z' || c>= 'A' && c <= 'Z';
+}
+
+/** 
+ * Проверка символа на разрешенный символ
+ */ 
+int is_symbol(char c)
+{
+    char str[] = "+-*/=";
+    for (int i = 0; i < sizeof(str); i++)
+	if (str[i] == c)
+	    return 1;
+    return 0;
 }
 
 /** 
@@ -105,7 +125,7 @@ void get_symbol(char *cur_str)
 {
     get_cur_char();
     int c = 0;
-    while (is_alpha(cur_symbol) || is_digit(cur_symbol))
+    while (is_alpha(cur_symbol) || is_digit(cur_symbol) || is_symbol(cur_symbol))
     {
         cur_str[c++] = cur_symbol;
         get_cur_char();
@@ -139,12 +159,9 @@ token_t *get_token()
             if (is_digit(cur_symbol)) {
                 token.type = T_NUMBER;
                 token.value = get_num();
-            } else if (is_alpha(cur_symbol)) {
+            } else {
                token.type =  T_SYMBOL;
                get_symbol(token.str);
-            } else {
-                get_cur_char();
-                token.type = INVALID;
             }
     }
     return &token;
