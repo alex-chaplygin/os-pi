@@ -70,11 +70,12 @@ void test(char *in_str, char *out_str)
     //    stdin = old_stdin;	
 }
 
-void main()
+int main()
 {
     init_eval();
     printf("--------------SYSTEM TEST---------------------\n");
     //test("'a", "A");
     test("((lambda (x y) (cons x y)) 1 '(2))", "1");
+    return 0;
 }
 
