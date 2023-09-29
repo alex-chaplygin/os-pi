@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include "objects.h"
 #include "symbols.h"
 #include "test.h"
 #include "parser.h"
