@@ -3,6 +3,7 @@
 #include <string.h>
 #include "lexer.h"
 #include "objects.h"
+#include "symbols.h"
 #include "parser.h"
 
 token_t *cur_token; // текущий токен
@@ -27,6 +28,7 @@ char *strupr(char *str)
     }    
     return str;
 }
+
 object_t *parse();
 
 /**
@@ -62,22 +64,38 @@ object_t *parse_list()
     int val;
     char str[MAX_STR];
     token_t *cur_tok = get_token();
-    //printf("parselist: ");
-    //print_token(cur_tok);
+    printf("parselist: ");
+    print_token(cur_tok);
+    if (cur_tok->type == END) {
+	error("expected )\n");
+	return ERROR;
+    }
     if (cur_tok->type == RPAREN)
 	return NULL;
     if (cur_tok->type == T_NUMBER) {
         val = cur_tok->value;
-	    return new_pair(object_new(NUMBER, &val), parse_list());
+	object_t *tail = parse_list();
+	if (tail == ERROR)
+	    return ERROR;
+	return new_pair(object_new(NUMBER, &val), tail);
     } else if (cur_tok->type == T_SYMBOL) {
         strcpy(str, cur_tok->str);
-	    return new_pair(object_new(SYMBOL, strupr(str)), parse_list());
-    } else if (cur_tok->type == LPAREN){
+	object_t *tail = parse_list();
+	if (tail == ERROR)
+	    return ERROR;
+	return new_pair(object_new(SYMBOL, strupr(str)), tail);
+    } else if (cur_tok->type == LPAREN) {
 	object_t *list = parse_list();
-	return new_pair(list, parse_list());
-    } else if (cur_tok->type == QUOTE){
+	object_t *tail = parse_list();
+	if (tail == ERROR)
+	    return ERROR;
+	return new_pair(list, tail);
+    } else if (cur_tok->type == QUOTE) {
 	object_t *q = parse_quote();
-	return new_pair(q, parse_list());
+	object_t *tail = parse_list();
+	if (tail == ERROR)
+	    return ERROR;
+	return new_pair(q, tail);
     }
 }
 
