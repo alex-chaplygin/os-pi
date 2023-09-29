@@ -1,13 +1,17 @@
 #include <stdio.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <string.h>
 #include "objects.h" 
 #include "parser.h"
+#include "symbols.h"
 
 /// Всего объектов
 #define MAX_OBJECTS 200
 /// Всего пар
 #define MAX_PAIRS 100
+/// Всего символов
+#define MAX_SYMBOLS 100
 
 /// Индекс последнего объекта массива
 int last_object = 0;
@@ -20,6 +24,13 @@ object_t *free_objs = NULL;
 int last_pair = 0;
 /// Массив или хранилище пар
 pair_t pairs[MAX_PAIRS];
+/// Список свободных пар
+pair_t *free_pairs = NULL;
+
+/// Индекс последнего символа
+int last_symbol = 0;
+/// Хранилище символов
+symbol_t symbols[MAX_SYMBOLS];
 
 /** 
  * Создание нового объекта из пула объектов
@@ -62,7 +73,7 @@ object_t *object_new(type_t type, void *data)
 void free_object(object_t *obj)
 {
     if (obj == NULL) {
-    	error("Error: null pointer: obj");
+    	error("free_object: null pointer: obj");
     	return;
     }
     obj->next = free_objs;
@@ -89,6 +100,42 @@ object_t *new_pair(object_t *left, object_t *right)
   return object_new(PAIR, pair);
 }
 
+/** 
+ * Освобождение памяти для пары
+ * 
+ * @param obj объект для освобождения
+ */
+void free_pair(pair_t *p)
+{
+    if (p == NULL) {
+    	error("free_pair: null pointer: obj");
+    	return;
+    }
+    p->next = free_pairs;
+    free_pairs = p;
+}
+
+/** 
+ * Создание нового объекта символа
+ * 
+ * @param str имя символа
+ * 
+ * @return указатель на объект символа
+ */
+symbol_t *new_symbol(char *str)
+{
+  symbol_t *symbol = &symbols[last_symbol++];
+  if (last_symbol == MAX_SYMBOLS) {
+    error("Error: out of memory: symbols");
+    return (symbol_t*)ERROR;
+  }
+  strcpy(symbol->str, str);
+  symbol->next = NULL;
+  symbol->value = NULL;
+  symbol->func = NULL;
+  return symbol;
+}
+
 
 /**
  * Печать списка пар
@@ -110,7 +157,7 @@ void print_list(object_t *obj)
 void print_obj(object_t *obj)
 {
     if (obj == NULL)
-	return;
+	printf("NIL");
     else if (obj->type == NUMBER)
 	printf("%d", obj->u.value);
     else if (obj->type == SYMBOL)

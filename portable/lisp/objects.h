@@ -1,6 +1,5 @@
-#ifndef SYMBOLS
-#define SYMBOLS
-#include "symbols.h"
+#ifndef OBJECTS
+#define OBJECTS
 
 #define MAX_STR 50
 #define PRINT(o) print_obj(o); printf("\n");
@@ -26,14 +25,34 @@ typedef struct object_s
     struct object_s *next; // указатель на следующий свободный объект
 } object_t; // Структура объекта
 
+/// Структура пары
 typedef struct pair_s
 {
-    object_t *left; // элемент 1
-    object_t *right; // элемент 2
+    object_t *left; // левый элемент
+    object_t *right; // правый элемент
+    struct pair_s *next; // указатель на следующую свободную пару
 } pair_t;
+
+typedef  object_t *(*func_t)(object_t *);
+
+//структура символа
+typedef struct symbol_s
+{
+  //имя символа
+  char str[MAX_STR];
+  //указатель на следующий символ в цепочке хеш таблице
+  struct symbol_s *next;
+  // указатель на объект - значение символа 
+  object_t *value;
+  //указатель на функцию для примитивов
+  func_t func;
+} symbol_t;
+
 
 object_t *object_new(type_t type, void *data);
 object_t *new_pair(object_t *left, object_t *right);
+struct symbol_s *new_symbol(char *str);
 void print_obj(object_t *obj);
 void free_object(object_t *obj);
+void free_pair(pair_t *p);
 #endif
