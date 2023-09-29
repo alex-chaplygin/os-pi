@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "objects.h"
 #include "symbols.h"
 
 #define HASH_SIZE 1000
@@ -56,9 +57,7 @@ symbol_t *find_symbol(char *str)
             if (compare_str(cur->str, str))
                 return cur;
                 
-        symbol_t *new = malloc(sizeof(symbol_t));
-        new->next = 0;
-        str_copy(str, new->str);
+        symbol_t *new = new_symbol(str);
         symbol_t *last = el;
         while (last->next != 0)
             last = last->next;
