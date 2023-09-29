@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "objects.h"
+#include "symbols.h"
 #include "parser.h"
 #include "eval.h"
 #include "arith.h"
@@ -260,6 +261,19 @@ int find_in_env(object_t *env, object_t *sym, object_t **res)
 }
 
 /**
+ * Объединить два списка
+ * 
+ * @param l1 - первый список
+ * @param l2 - второй список
+ */
+void append_env(object_t *l1, object_t *l2)
+{
+    while (l1->u.pair->right != NULL)
+	l1 = l1->u.pair->right;
+    l1->u.pair->right = l2;
+}
+
+/**
  * Вычислить lambda функцию с заданными аргументами 
  * 
  * @param lambda - функция (lambda (x) x)
@@ -270,6 +284,7 @@ int find_in_env(object_t *env, object_t *sym, object_t **res)
 object_t *eval_func(object_t *lambda, object_t *args, object_t *env)
 {
     object_t *new_env = make_env(SECOND(lambda), args);
+    append_env(new_env, env);
     return eval(THIRD(lambda), new_env);
 }
     
@@ -318,7 +333,7 @@ int is_special_form(symbol_t *s)
  */
 object_t *eval(object_t *obj, object_t *env)
 {
-    //    printf("eval: ");
+    //printf("eval: ");
     //PRINT(obj);
     if (obj == nil)
 	return nil;
