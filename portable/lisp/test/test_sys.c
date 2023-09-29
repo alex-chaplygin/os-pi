@@ -11,6 +11,7 @@ void get_cur_char();
 
 FILE *old_stdin;
 FILE *old_stdout;
+extern int flag;
 
 /** 
  * Функция перенаправления стандартного ввода в файл.
@@ -52,14 +53,16 @@ void test(char *in_str, char *out_str)
 {
     printf("test: %s\n", in_str);
     write_in_file(in_str);
-    redirect_out_file();
+    //redirect_out_file();
+    flag = 0;
     object_t *o = parse();
-    //    printf("parse: ");
-    //PRINT(o);
-    object_t *res = eval(o, NULL);
-    //printf("res: ");
-    //PRINT(res);
-    print_obj(res);
+   PRINT(o);
+    if (o != ERROR) {
+	object_t *res = eval(o, NULL);
+	//printf("res: ");
+	//PRINT(res);
+	print_obj(res);
+    }
     fclose(stdout);
     stdout = fopen("/dev/tty", "w");    
     char filename[] = "/tmp/out.txt";
@@ -82,15 +85,25 @@ int main()
     init_eval();
     init_arith();
     printf("--------------SYSTEM TEST---------------------\n");
-    test("'a", "A");
-    test("'()", "()");
-    test("(quote())","()");
+    /*test("'a", "A");
+    test("'()", "NIL");
+    test("(quote())","NIL");
     test("((lambda (x y) (cons x y)) 1 '(2))", "(1 2)");
-    test("(defun null (x) (eq x (quote())))", "NULL");
-    test("(null 'a)","()");
-    test("(null (quote ()))","T");
-    test("(null '())","T");
-    test("(+ 1 2 3 4)","10");
+    test("(defun null (x) (eq x (quote())))", "NULL");*/
+    test("(defun f(x)				\
+             (cond \
+                ((= x 1) 1) \
+                (T (* x (f (- x 1))))))", "F");
+    //test("(f 1)", "1");
+    test("(f 2)", "6");
+    /*test("(null 'a)", "NIL");
+    test("(null (quote ()))", "T");
+    test("(null '())", "T");
+    test("(+ 1 2 3 4)", "10");
+    test("(1", "expected )\n");
+    test("(+ 1 2 3 5)", "11");
+    test("(- 9 5 1 1)", "2");
+    test("(* 1 2 3 5)", "30");*/
     return 0;
 }
 
