@@ -136,9 +136,35 @@ void test_get_token(const char* name_test, char* str, tokentype_t exp)
     ASSERT(res, exp);
 }
 
+void test_print_token(token_t *token, const char *expected_output)
+{
+    printf("test_print_token: ");
+    
+    int outdes = dup(1);
+    FILE *file = freopen("test.txt", "w", stdout);
+    print_token(token);
+    fclose(file);
+
+    stdout = fdopen(outdes, "w");
+
+    FILE *output_file = fopen("test.txt", "r");
+    char output_buffer[20];
+    fgets(output_buffer, sizeof(output_buffer), output_file);
+    fclose(output_file);
+
+    ASSERT(strcmp(output_buffer, expected_output), 0);
+}
+
 int main()
 {
     printf("-------------test_lexer---------------\n");
+
+    token_t token;
+    token.type = T_NUMBER;
+    token.value = 42;
+
+    test_print_token(&token, "NUM 42\n");    
+
     test_get_cur_char();
     test_skip_white_space();
     test_skip_new_line();
