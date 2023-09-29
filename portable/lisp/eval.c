@@ -318,8 +318,8 @@ int is_special_form(symbol_t *s)
  */
 object_t *eval(object_t *obj, object_t *env)
 {
-    printf("eval: ");
-    PRINT(obj);
+    //    printf("eval: ");
+    //PRINT(obj);
     if (obj == nil)
 	return nil;
     else if (obj->type == NUMBER)

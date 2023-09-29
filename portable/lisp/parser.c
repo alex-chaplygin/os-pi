@@ -38,10 +38,10 @@ object_t *parse();
  */
 object_t *parse_quote()
 {
-    printf("parse_quote: ");
+    //printf("parse_quote: ");
     object_t *o = parse();
-    printf("quote: ");
-    PRINT(o);
+    //printf("quote: ");
+    //PRINT(o);
     object_t *p = new_pair(o, NULL);
     
     if (o != NULL && o->type == NUMBER) {
@@ -62,8 +62,8 @@ object_t *parse_list()
     int val;
     char str[MAX_STR];
     token_t *cur_tok = get_token();
-    printf("parselist: ");
-    print_token(cur_tok);
+    //printf("parselist: ");
+    //print_token(cur_tok);
     if (cur_tok->type == RPAREN)
 	return NULL;
     if (cur_tok->type == T_NUMBER) {
@@ -93,8 +93,8 @@ object_t *parse()
 {   
     object_t *el; // создаем новый элемент
     token_t *cur_token = get_token(); // считывается левая скобка
-    printf("parse: ");
-    print_token(cur_token);
+    //printf("parse: ");
+    //print_token(cur_token);
     if (cur_token->type == T_NUMBER) // считывается число
 	return object_new(NUMBER, &cur_token->value);
     else if (cur_token->type == T_SYMBOL)//считывается символ
