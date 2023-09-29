@@ -50,32 +50,28 @@ void redirect_out_file()
  */
 void test(char *in_str, char *out_str)
 {
-    printf("test: %s\t", in_str);
+    printf("test: %s\n", in_str);
     write_in_file(in_str);
-    //redirect_out_file();
+    redirect_out_file();
     object_t *o = parse();
-    printf("parse: ");
-    PRINT(o);
+    //    printf("parse: ");
+    //PRINT(o);
     object_t *res = eval(o, NULL);
-    printf("res: ");
-    PRINT(res);
-    //print_obj(res);
-    //fclose(stdout);
-    //stdout = old_stdout;//fdopen(STDOUT_FILENO, "w");
-    
-    //printf("!!!!!!!!!\n");
-    /*    char filename[] = "/tmp/out.txt";
+    //printf("res: ");
+    //PRINT(res);
+    print_obj(res);
+    fclose(stdout);
+    stdout = fopen("/dev/tty", "w");    
+    char filename[] = "/tmp/out.txt";
     FILE *fp = fopen(filename, "r");
     char str[100];
     fgets(str, 100, fp);
     fclose(fp);
-    printf("str=%s\n", str);
     
     if (strcmp(str, out_str))
-	printf("fail\t%s\n\t%s\n\t%s\n", in_str, str, out_str);
+	printf("fail\t'%s' != '%s'\n", str, out_str);
     else
-	printf("OK\t%s\n\t%s\n", in_str, str);
-    */
+	printf("OK\t%s\n", str);
     fclose(stdin);
     stdin = old_stdin;//fdopen(STDIN_FILENO, "r");
     get_cur_char();
