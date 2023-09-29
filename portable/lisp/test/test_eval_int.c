@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "objects.h"
+#include "symbols.h"
 #include "eval.h"
 #include "test.h"
 
@@ -9,6 +10,7 @@ extern object_t *nil;
 object_t * make_env(object_t *args, object_t *values);
 int find_in_env(object_t *env, object_t *sym, object_t **res);
 int is_lambda(object_t *list);
+void append_env(object_t *l1, object_t *l2);
 
 void error(char *str)
 {
@@ -192,6 +194,22 @@ void test_defun()
     ASSERT(null->value->u.pair->left->u.symbol, find_symbol("LAMBDA"));
 }
 
+/**
+ * Объединить два списка (1) (2)
+ * Проверить список
+ */
+void test_append()
+{
+    int num1 = 1;
+    int num2 = 2;
+    printf("test_append: ");
+    object_t *l1 = new_pair(object_new(NUMBER, &num1), NULL);
+    object_t *l2 = new_pair(object_new(NUMBER, &num2), NULL);
+    append_env(l1, l2);
+    ASSERT(l1->u.pair->left->u.value, 1);
+    ASSERT(l1->u.pair->right->u.pair->left->u.value, 2);
+}
+
 int main()
 {
     printf("------------test_eval_int---------\n");
@@ -204,6 +222,7 @@ int main()
     test_make_env();
     test_find_in_env();
     test_defun();
+    test_append();
     return 0;
 }
 
