@@ -3,6 +3,7 @@
 #include "test.h"
 #include "objects.h"
 #include "lexer.h"
+#include "parser.h"
 
 extern token_t *cur_token; // текущий токен
 token_t token = {LPAREN, 0, ""};
@@ -35,6 +36,15 @@ token_t quote_tokens[] = {
     {RPAREN}
 };
 
+token_t no_rparen_tokens[] = {
+    {LPAREN},
+    {T_NUMBER, 1},
+    {LPAREN},
+    {T_NUMBER, 2},
+    {RPAREN},
+    {END}
+};
+
 token_t *tokens;
 
 symbol_t symbols[] = {
@@ -49,6 +59,29 @@ object_t *parse();
 
 void print_token(token_t *token)
 {
+    switch (token->type) {
+    case T_NUMBER:
+	printf("NUM %d\n", token->value);
+	break;
+    case T_SYMBOL:
+	printf("SYM %s\n", token->str);
+	break;
+    case LPAREN:
+	printf("LPAREN\n");
+	break;
+    case RPAREN:
+	printf("RPAREN\n");
+	break;
+    case END:
+	printf("END\n");
+	break;
+    case QUOTE:
+	printf("QUOTE\n");
+	break;
+    case INVALID:
+	printf("INVALID\n");
+	break;
+    }
 }
 
 symbol_t *find_symbol(char *str)
@@ -174,6 +207,19 @@ void test_parse_list_quote()
     ASSERT(o->u.pair->left->u.pair->right->u.pair->right, NULL);
 }
 
+/** 
+ * Создать "(1(2)" и проверить ошибку при создании пар
+ */
+void test_parse_no_rparen()
+{
+    printf("test_parse_no_rparen: ");
+    count = 0;
+    cur_token = &token;
+    tokens = no_rparen_tokens;
+    object_t *o = parse();
+    ASSERT(o, ERROR);
+}
+
 int main()
 {
     printf("------------test_parser------------\n");
@@ -183,5 +229,6 @@ int main()
     test_parse_list_list();
     test_parse_quote();
     test_parse_list_quote();
+    test_parse_no_rparen();
     return 0;
 }
