@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <unistd.h>
+#include <string.h>
 #include "test.h"
 #include "objects.h"
 
@@ -47,25 +49,31 @@ void test_new_pair()
 /** 
  * Проверка правильной печати объекта (1 2)
  */
-void test_print_obj()
+void test_print_obj(object_t *obj, const char *expected_output)
 {
-    object_t *ob;
-  
     printf("test_print_obj: ");
-  
-    int num1 = 1;
-    int num2 = 2;
-  
-    ob = new_pair(object_new(NUMBER, &num1), new_pair(object_new(NUMBER, &num2), NULL));
-    print_obj(ob);
-    printf("\n");
+    
+    int outdes = dup(1);
+    FILE *file = freopen("/tmp/test.txt", "w", stdout);
+    print_obj(obj);
+    fclose(file);
+
+    stdout = fdopen(outdes, "w");
+    
+    FILE *output_file = fopen("/tmp/test.txt", "r");
+    char output_buffer[20];
+    fgets(output_buffer, sizeof(output_buffer), output_file);
+    fclose(output_file);
+
+    ASSERT(strcmp(output_buffer, expected_output), 0);
 }
 
 /**
  * Проверка корректности функции освобождения
  *  объектов и их дальнейшего переиспользования
  */
-void test_free(){
+void test_free()
+{
     printf("test_free_object: ");
     int last_num = last_object;
     for (int i = last_object; 100 > i; i++)
@@ -89,6 +97,7 @@ void main()
     printf("--------------test objects---------------------\n");
     test_object_new();
     test_new_pair();
-    test_print_obj();
+    int i = 10;
+    test_print_obj(object_new(NUMBER, &i), "10");
     test_free();
 }
