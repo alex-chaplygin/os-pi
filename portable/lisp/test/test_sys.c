@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include "lexer.h"
 #include "objects.h"
 #include "eval.h"
 #include "test.h"
@@ -11,7 +12,7 @@ void get_cur_char();
 
 FILE *old_stdin;
 FILE *old_stdout;
-extern int flag;
+extern token_t token;
 
 /** 
  * Функция перенаправления стандартного ввода в файл.
@@ -54,9 +55,8 @@ void test(char *in_str, char *out_str)
     printf("test: %s\n", in_str);
     write_in_file(in_str);
     //redirect_out_file();
-    flag = 0;
     object_t *o = parse();
-   PRINT(o);
+    //PRINT(o);
     if (o != ERROR) {
 	object_t *res = eval(o, NULL);
 	//printf("res: ");
@@ -84,12 +84,22 @@ int main()
 {
     init_eval();
     init_arith();
+    do {
+	object_t *o = parse();
+        //printf("parse: "); PRINT(o);
+	if (o != ERROR) {
+	    object_t *res = eval(o, NULL);
+	    //printf("res: "); PRINT(res);
+	    print_obj(res);
+	}
+    } while (token.type != END);
+    /*
     printf("--------------SYSTEM TEST---------------------\n");
-    /*test("'a", "A");
+    test("'a", "A");
     test("'()", "NIL");
     test("(quote())","NIL");
     test("((lambda (x y) (cons x y)) 1 '(2))", "(1 2)");
-    test("(defun null (x) (eq x (quote())))", "NULL");*/
+    test("(defun null (x) (eq x (quote())))", "NULL");
     test("(defun f(x)				\
              (cond \
                 ((= x 1) 1) \

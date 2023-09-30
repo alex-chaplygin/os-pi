@@ -1,6 +1,6 @@
 CFLAGS=-I. -I../ -fprofile-arcs -ftest-coverage -g -Wno-pointer-to-int-cast
 LDFLAGS="-lgcov"
-TESTS=/tmp/test_lexer /tmp/test_eval /tmp/test_symbols /tmp/test_objects /tmp/test_parser /tmp/test_eval_int /tmp/test_sys
+TESTS=/tmp/test_lexer /tmp/test_eval /tmp/test_symbols /tmp/test_objects /tmp/test_parser /tmp/test_eval_int
 
 all: $(TESTS)
 
@@ -19,5 +19,6 @@ all: $(TESTS)
 /tmp/test_sys: test_sys.c ../eval.c ../symbols.c ../objects.c ../parser.c ../lexer.c ../arith.c
 	gcc $(CFLAGS) $(LDFLAGS) -o $@ $^
 
-test: $(TESTS)
+test: $(TESTS) /tmp/test_sys
 	for test in $(TESTS); do bash -c $$test ; done
+	sh sys_all

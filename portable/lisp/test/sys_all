@@ -1,0 +1,17 @@
+echo "------------SYSTEM TEST-------------------"
+sh sys_test "'a" "A"
+sh sys_test "'()" "NIL"
+sh sys_test "(quote())" "NIL"
+sh sys_test "((lambda (x y) (cons x y)) 1 '(2))" "(1 2)"
+sh sys_test "(defun null (x) (eq x (quote())))\
+(null 'a) (null (quote ())) (null '())" "NULLNILTT"
+sh sys_test "(defun f(x)\
+         (cond \
+            ((= x 1) 1) \
+            (T (* x (f (- x 1))))))\
+         (f 3)" "F6"
+sh sys_test "(+ 1 2 3 4)" "10"
+sh sys_test "(1" "expected )\n\n"
+sh sys_test "(+ 1 2 3 5)" "11"
+sh sys_test "(- 9 5 1 1)" "2"
+sh sys_test "(* 1 2 3 5)" "30"
