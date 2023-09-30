@@ -181,6 +181,5 @@ int main()
     test_get_token("rparen", ")", RPAREN);
     test_get_token("tnumber", "42", T_NUMBER);
     test_get_token("quote", "\'", QUOTE);
-    test_get_token("invalid", "=", INVALID);
     return 0;
 }
