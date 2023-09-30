@@ -141,13 +141,13 @@ void test_print_token(token_t *token, const char *expected_output)
     printf("test_print_token: ");
     
     int outdes = dup(1);
-    FILE *file = freopen("test.txt", "w", stdout);
+    FILE *file = freopen("/tmp/test.txt", "w", stdout);
     print_token(token);
     fclose(file);
 
     stdout = fdopen(outdes, "w");
 
-    FILE *output_file = fopen("test.txt", "r");
+    FILE *output_file = fopen("/tmp/test.txt", "r");
     char output_buffer[20];
     fgets(output_buffer, sizeof(output_buffer), output_file);
     fclose(output_file);
