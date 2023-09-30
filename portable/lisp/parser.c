@@ -64,8 +64,8 @@ object_t *parse_list()
     int val;
     char str[MAX_STR];
     token_t *cur_tok = get_token();
-    printf("parselist: ");
-    print_token(cur_tok);
+    //printf("parselist: ");
+    //print_token(cur_tok);
     if (cur_tok->type == END) {
 	error("expected )\n");
 	return ERROR;
@@ -121,4 +121,6 @@ object_t *parse()
 	return parse_list();
     else if (cur_token->type == QUOTE)
 	return parse_quote();
+    else if (cur_token->type == END)
+	return ERROR;
 }
