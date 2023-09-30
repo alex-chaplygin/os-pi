@@ -76,7 +76,7 @@ void test_free()
 {
     printf("test_free_object: ");
     int last_num = last_object;
-    for (int i = last_object; 100 > i; i++)
+    for (int i = last_object; 200 > i; i++)
 	object_new(NUMBER, &i);
     object_t *o1 = &objects[0];
     object_t *o2 = &objects[5];

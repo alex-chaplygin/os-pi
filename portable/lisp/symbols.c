@@ -5,7 +5,7 @@
 
 #define HASH_SIZE 1000
 
-symbol_t hash_table[HASH_SIZE];
+symbol_t *hash_table[HASH_SIZE];
 
 //хэш функция строки 
 unsigned int hash(char *str)
@@ -48,9 +48,11 @@ int compare_str(char *str1, char *str2)
 symbol_t *find_symbol(char *str) 
 {
     int i = hash(str) % HASH_SIZE;
-    symbol_t *el = &hash_table[i];
-    if (*el->str == 0)
-        str_copy(str, el->str);
+    symbol_t *el = hash_table[i];
+    if (*el->str == 0){
+        symbol_t *new = new_symbol(str);
+        hash_table[i] = new;
+    }
     else
     {
         for (symbol_t *cur = el; cur != 0; cur = cur->next)

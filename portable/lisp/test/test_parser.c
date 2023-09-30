@@ -47,7 +47,7 @@ token_t no_rparen_tokens[] = {
 
 token_t *tokens;
 
-symbol_t symbols[] = {
+symbol_t test_symbols[] = {
     {"A"},
     {"B"},
     {"QUOTE"}
@@ -86,9 +86,9 @@ void print_token(token_t *token)
 
 symbol_t *find_symbol(char *str)
 {
-    for (int i = 0; i < sizeof(symbols) / sizeof(symbol_t); i++)
-	if (strcmp(symbols[i].str, str) == 0)
-	    return &symbols[i];
+    for (int i = 0; i < sizeof(test_symbols) / sizeof(symbol_t); i++)
+	if (strcmp(test_symbols[i].str, str) == 0)
+	    return &test_symbols[i];
     return NULL;
 } 
 
