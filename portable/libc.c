@@ -9,6 +9,9 @@
  */
 
 #include <portable/libc.h>
+#include <x86/console.h>
+
+char outbuf[50]; // память для возвращаемого значения
 
 /**
  * @brief Копирует блок памяти
@@ -41,7 +44,6 @@ char * int_to_str_hex(unsigned int num) {
         numLengthBuffer /= 10;
     }
     
-    char * outbuf = malloc(numLength); // Выделение памяти для возвращаемого значения
     int base = 16; // Возвращаемая система счисления
     int i = 12;
     int j = 0;
@@ -68,21 +70,14 @@ char * int_to_str_hex(unsigned int num) {
  */
 char* int_to_str(int n)
 {
-    char* c;
+    char* c = outbuf;
     int negative = 0;//идентификация отрицательного числа
 
     if (n < 0)
-    {
-        c = (char*)malloc(11 * sizeof(char));
         negative = 1;
-    }
-    else
-        c = (char*)malloc(10 * sizeof(char));
 
     for (int i = 0; i < 11; i++)
-    {
         c[i] = 0;
-    }
 
     int v = 0;//количество цифр в числе n
     //разбиваем на отдельные символы число n
@@ -185,7 +180,8 @@ unsigned int str_hex_to_int(char* s)
  * @param *str указатель на строку
  *
  */
-void kprint(char *str,...){
+void printf(char *str,...)
+{
   int i=0,u=1;
     
   for(i=0; str[i]!='\0'; i++){
@@ -195,30 +191,27 @@ void kprint(char *str,...){
     if(symbol=='%' && next_symbol=='i'){
       int *param = (int *)&str;
       char *param_int = int_to_str(*(param + u));      
-      kprint(param_int);
-      free(param_int);
+      printf(param_int);
       i++;
       u++;
     }
     else if(symbol=='%' && next_symbol=='d'){
       int *param = (int *)&str;
       char *param_int = int_to_str(*(param + u));      
-      kprint(param_int);
-      free(param_int);
+      printf(param_int);
       i++;
       u++;
     }
     else if(symbol=='%' && next_symbol=='x'){
       int *param = (int *)&str;
       char *param_int = int_to_str_hex(*(param + u));
-      kprint(param_int);
-      free(param_int);
+      printf(param_int);
       i++;
       u++;
     }
     else if(symbol=='%' && next_symbol=='s'){
       char* *param = (char* *)&str;
-      kprint(*(param + u));
+      printf(*(param + u));
       i++;
       u++;
     }
@@ -229,6 +222,11 @@ void kprint(char *str,...){
   }
 }
 
+void puts(char *str)
+{
+    printf("%s", str);
+}
+
 /**
  * @brief Сравнивает строки
  * @param str_one первая строка
@@ -236,14 +234,22 @@ void kprint(char *str,...){
  * @return если строки равны, возвращает 0 и -1 если не равны
  * 
  */
-int str_compare(char *str_one, char *str_two)
+int strcmp(char *str1, char *str2)
 {
-    while (*str_one || *str_two)
+    while (*str1 && *str2)
     {
-        if (*str_one != *str_two && (*str_one != '\0' || *str_two != '\0'))
-            return -1;
-        *str_one++;
-        *str_two++;
+        if (*str1++ != *str2++)
+	    return 1;
     }
-    return 0;
+    
+    return *str1 != *str2;
+}
+
+// копирование строки str1 в строку str2
+void strcpy (char *str1, char *str2)
+{
+    //int i = 0; //"abc" ['a', 'b', 'c', 0]
+    while (*str2)
+        *str1++ = *str2++;
+    *str1 = 0;
 }

@@ -1,4 +1,4 @@
-OBJS=main.o libc.o proc.o syscall.o mem.o device.o file.o
-CFLAGS=-g -m32 -nostdlib -nodefaultlibs -Wno-builtin-declaration-mismatch -I../include
+OBJS=main.o libc.o
+CFLAGS=-g -m32 -nostdlib -nodefaultlibs -Wno-builtin-declaration-mismatch -I../include -I./lisp
 
 all: $(OBJS)

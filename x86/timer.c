@@ -49,11 +49,11 @@ extern int printPtr;
  */
 void timer_event(){
   timer_counter++;
-  sheduler();
+  //sheduler();
   if (timer_counter == 4) {
     timer_counter = 0;
   }
   printPtr = 0;
-  kprint("counter = %d                   ", timer_counter);
+  printf("counter = %d                   ", timer_counter);
 }
 

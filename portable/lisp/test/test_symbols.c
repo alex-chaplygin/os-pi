@@ -14,15 +14,6 @@ symbol_t *new_symbol(char *str)
     return &s;
 }
 
-void test_str_copy()
-{
-    char a[] = "fdfd";
-    char b[] = "sdadas";
-    printf("test_str_copy");
-    str_copy(a, b);
-    ASSERT(1, compare_str("fdfd", a));
-}
-
 void test_compare_str(char *str, char *str2, int res)
 {
     printf("test_compare_str: ");
@@ -57,7 +48,6 @@ void test_register_func()
 int main()
 {
     printf("--------------test symbols---------------------\n");
-    test_str_copy();
     test_compare_str("abc", "abc", 1);
     test_compare_str("abc", "abc1", 0);
     test_find_same_symbol();

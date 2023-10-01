@@ -1,6 +1,7 @@
-SRC=inter.o parser.o lexer.o list.o atom.o eval.o
+SRC=parser.o lexer.o objects.o symbols.o eval.o arith.o
+CFLAGS=-g -m32 -nostdlib -nodefaultlibs -Wno-builtin-declaration-mismatch -I../include
 
-all: /tmp/inter
+all: $(SRC)
 
 /tmp/inter: $(SRC)
 	gcc $^ -o $@

@@ -21,7 +21,7 @@ void init_pic(int offset1, int offset2)
 {
 	unsigned char a1, a2;
  
-	a1 = ~1; // разрешаем только IRQ0 (таймер), все остальное запрещаем
+	a1 = ~0; // все запрещаем
 	a2 = read_port(PIC2_DATA);
  
 	write_port(PIC1_COMMAND, ICW1_INIT | ICW1_ICW4);  // starts the initialization sequence (in cascade mode)

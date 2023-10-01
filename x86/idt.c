@@ -49,8 +49,8 @@ void init_interrupts() {
         idtSetDescriptor(i, (uint)a_isrNonExistent, kernel_code, INTERRUPT_GATE | DPL0);
     }
 
-    idtSetDescriptor(0x20, (uint)a_timer, kernel_code, INTERRUPT_GATE | DPL0);
-    idtSetDescriptor(0x80, (uint)a_syscall, kernel_code, INTERRUPT_GATE | DPL3);
+    //idtSetDescriptor(0x20, (uint)a_timer, kernel_code, INTERRUPT_GATE | DPL0);
+    //idtSetDescriptor(0x80, (uint)a_syscall, kernel_code, INTERRUPT_GATE | DPL3);
     
     idt_ptr[0] = (sizeof (idtGateDescriptor) * IDT_SIZE) + (((ulong)idt & 0xffff) << 16);
     idt_ptr[1] = (ulong)idt >> 16 ;

@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "objects.h"
 #include "symbols.h"
 
@@ -15,15 +16,6 @@ unsigned int hash(char *str)
     while (*str)
         res = (res * 846431 + *str++)%257659;
     return res;
-}
-
-// копирование строки str1 в строку str2
-void str_copy (char *str1, char *str2)
-{
-    //int i = 0; //"abc" ['a', 'b', 'c', 0]
-    while (*str1)
-        *str2++ = *str1++;
-    *str2 = 0;
 }
 
 int compare_str(char *str1, char *str2)

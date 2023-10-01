@@ -35,7 +35,7 @@ char *table[] = {
  * 
  */
 void panic(){
-  kprint("\nPanic\n");
+  printf("\nPanic\n");
   while(1){
     
   }
@@ -47,7 +47,7 @@ void panic(){
  * @param num Номер исключения
  */
 void exception_handler(int num){
-  kprint(table[num]);
+  printf(table[num]);
   //  panic();
 }
 

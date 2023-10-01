@@ -89,71 +89,11 @@ regs:	resd 64;	/**< буфер регистров */
 endstruc	
 	;; сохранение регистров
 save_regs:
-	;; состояние стека:
-	;; [адрес возврата в обрабочик]
-	;; [IP процесса]
-	;; [CS процесса]
-	;; флаги
-	;; -> стек процесса
-	mov [return_esp], esp ; сохраняем указатель стека
-	mov esp, [current_proc]
-	add esp, regs + 64 * 4		; &regs[63] с этого адреса начинаются сохраненные регистры
-	pusha				; сохранение регистров EAX, ECX, EDX, EBX, ESP, EBP, ESI, EDI
-	push ds
-	push es
-	push fs
-	push gs
-	mov ebx, [return_esp] ; в ebx значение esp
-	mov eax, [ebx + 12]	     ;EFLAGS
-	push eax		     ; сохраняем флаги
-	mov eax, [ebx + 8]	     ;CS
-	push eax		     ; сохраняем CS
-	mov eax, [ebx + 4]	     ;IP
-	mov esp, [current_proc]
-	add esp, program_counter + 4		;current_proc->program_counter + 4
-	push eax		; созраняем IP
-	mov eax, ebx
-	add eax, 16	; указатель стека процесса
-	mov esp, [current_proc]
-	add esp, stack_pointer + 4	; esp = current_proc->stack_pointer + 4
-	push eax	; сохраняем esp
-	mov esp, [return_esp]	; устанавливаем стек ядра (возврат в обработчик прерывания)
 	ret
 
 	;; восстановление регистров
 restore_regs:
-	mov esp, [current_proc]
-	add esp, program_counter		; current_proc->program_counter 
-	pop dword [proc_ip]
-	mov esp, [current_proc]
-	add esp, stack_pointer
-	pop dword [proc_stack]			; здесь указатель стека current_proc->stack_pointer
-	mov esp, [current_proc]
-	add esp, regs + 64 * 4
-	sub esp, 14 * 4		; восстанавливаем в обратном порядке
-	pop dword [proc_cs]	; CS
-	pop dword [proc_flags]	; EFLAGS
-	pop gs
-	pop fs
-	pop es
-	pop ds
-	popa			; восстанавливаем все регистры
-	mov esp, [proc_stack]
-				; установили сохраненное значение стека
-	;; push ds
-	;; push esp
-	push dword [proc_flags]
-;; 	cmp dword [proc_cs], 0x8
-;; 	je switch
-;; 	jmp 0x18:switch
-;; switch:	
-;; 	popf
-;; 	jmp 0x18:s8
-;; s8:	
-;; 	jmp dword [proc_ip]
-	push dword [proc_cs]
-	push dword [proc_ip]
-	iretd
+	ret
 				; переключаем контекст
 
 disable_interrupts:
@@ -176,30 +116,16 @@ write_port:
 	ret
 	
 a_syscall:
-	call save_regs;; сохранение регистров
-	mov esi, [current_proc]
-	add esi, regs +64 * 4 - 4 * 4	;EAX, ECX, EDX, EBX
-	mov eax, [esi + 12]
-	mov ebx, [esi]
-	push edx
-	push ecx
-	push ebx
-	push eax
-	call sys_call
-	add esp, 16
 	iret
 
 a_timer:
-	call save_regs
 	push 0
         call end_of_interrupt
         add esp, 4
-	call timer_event
 	iret
 	
 	;; обработчик прерывания
 a_interrupt_handler:
-	call save_regs
 	;; сохранить регистры текущего процесса
 	;; установить стек ядра
 	;; подтверждение контроллеру прерываний

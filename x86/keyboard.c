@@ -12,9 +12,14 @@
 #include <portable/libc.h>
 #include <portable/types.h>
 #include <x86/idt.h>
+#include <x86/irq.h>
+#include <x86/console.h>
 #include <portable/keyboard.h>
 #include <portable/proc.h>
 
+/// нажата ли клавиша shift
+int lshiftpress = 0;
+char cur_key = 0;
 /** 
  * проверка подключения клавиатуры
  * 
@@ -67,6 +72,45 @@ byte keyboard_map[128] =
     0,	/* All other keys are undefined */
 };
 
+byte shift_map[128] =
+{
+0,  0, '!', '"', '£', '$', '%', '^', '&', '*',   /* 9 */
+  '(', ')', '_', '+', '\b', '\t',
+  'Q', 'W', 'E', 'R',
+  'T', 'Y', 'U', 'I', 'O', 'P', '{', '}', '\n',      /* Enter key */
+    0,         /* 29   - Control */
+  'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ';',   /* 39 */
+'|', '¬',   42,      /* Left shift */
+'\\', 'Z', 'X', 'C', 'V', 'B', 'N',         /* 49 */
+  'M', '<', '>', '?',   0,               /* Right shift */
+  0,
+    0,   /* Alt */
+  ' ',   /* Space bar */
+    58,   /* Caps lock */
+    0,   /* 59 - F1 key ... > */
+    0,   0,   0,   0,   0,   0,   0,   0,
+    0,   /* < ... F10 */
+    0,   /* 69 - Num lock*/
+    0,   /* Scroll Lock */
+    0,   /* Home key */
+    0,   /* Up Arrow */
+    0,   /* Page Up */
+  '-',
+    0,   /* Left Arrow */
+    0,
+    0,   /* Right Arrow */
+  '+',
+    0,   /* 79 - End key*/
+    0,   /* Down Arrow */
+    0,   /* Page Down */
+    0,   /* Insert Key */
+    0,   /* Delete Key */
+    0,   0,   0,
+    0,   /* F11 Key */
+    0,   /* F12 Key */
+    0,   /* All other keys are undefined */
+};
+
 /**
  * @brief Буфер клавиатуры, в который записываются
  * скан-коды нажатых клавиш.
@@ -94,20 +138,20 @@ int keybuffer_read_pos = 0;
  *
  * 
  */
-void init_keyboard() {
+void init_keyboard()
+{
   clear_buffer(keyboard_buffer, 0, MAX_KEYBUFFER);
   uchar data; 
   write_port(0x64, 0xAA);
   data = read_port(0x60);
   if (data == 0x55)
-    kprint("Кeyboard is enabled\n");
+    printf("Кeyboard is enabled\n");
   else
-    kprint("No keyboard\n");
+    printf("No keyboard\n");
 
   // Записать дескриптор клавиатуры в IDT.
   idtSetDescriptor(0x21, (uint)a_keyboard_interrupt, kernel_code, INTERRUPT_GATE | DPL0);
   // Включить линию IRQ клавиатуры.
-  //  write_port(0x21, 0xFD);
   enable_irq(1);
 }
 
@@ -118,12 +162,14 @@ void init_keyboard() {
  * @param scan_code скан-код нажатой клавиши.
  * @return char - печатный символ.
  */
-char key_map(int scan_code) {
-  if (scan_code > 127 || scan_code < 0) {
-    return 0;
-  }
-
-  return keyboard_map[scan_code];
+char key_map(int scan_code)
+{
+    if (scan_code > 127 || scan_code < 0)
+	return 0;
+    if (lshiftpress)
+	return shift_map[scan_code];
+    else
+	return keyboard_map[scan_code];
 }
 
 /**
@@ -134,14 +180,20 @@ char key_map(int scan_code) {
  * @param c адрес, по которому необходимо записать считанный символ.
  * @return int - текущая позиция чтения буфера клавиатуры.
  */
-int read_char(char* c) {
-  // Спать, пока в буфер не поступит скан-код клавиши.
-  while (keyboard_buffer[keybuffer_read_pos] == 0)
-    sleep(SLEEP_KEYBOARD);
-
-  *c = key_map(keyboard_buffer[keybuffer_read_pos++]);
-
-  return keybuffer_read_pos;
+char getchar()
+{
+    char cur_char;
+    //printf("getchar %x\n", cur_key);
+    // Ждать, пока в буфер не поступит скан-код клавиши.
+    while (cur_key == 0)
+	;
+    disable_interrupts();
+    cur_char = cur_key;//keyboard_buffer[keybuffer_read_pos++];
+    if (keybuffer_read_pos >= MAX_KEYBUFFER)
+	keybuffer_read_pos = 0;
+    cur_key = 0;
+    enable_interrupts();
+    return cur_char;
 }
 
 /**
@@ -149,21 +201,25 @@ int read_char(char* c) {
  * и записывает её скан-код в буфер.
  * 
  */
-void keyboard_interrupt() {
+void keyboard_interrupt()
+{
   uchar status;
   char key_code;
-
-  //write_port(0x20, 0x20);
 
   status = read_port(0x64);
 
   if (status & 0x01) {
     key_code = read_port(0x60);
-
-    if (key_code >= 0) {
-      keyboard_buffer[keybuffer_pos++] = key_code;
-      wakeup(SLEEP_KEYBOARD);
-
+    //printf("key int = %x cur_key=%d\n", key_code, cur_key);
+    if (key_code & 0x80) {
+	if ((key_code & 0x7F) == 42)
+	    lshiftpress = 0;
+    } else {
+	if (key_code == 42)
+	    lshiftpress = 1;
+    if (key_code >= 0 && key_code != 42) {
+	keyboard_buffer[keybuffer_pos++] = key_map(key_code);
+    
       if (keybuffer_pos > MAX_KEYBUFFER) {
         keybuffer_pos = 0;
         // При заполнении буфера очистить его до позиции чтения.
@@ -182,15 +238,16 @@ void keyboard_interrupt() {
 
       char symbol = key_map(key_code);
 
-      if (key_code == ENTER_CODE) {
+      if (key_code == ENTER_CODE)
         symbol = '\n';
-      }
-
+      
+      cur_key = symbol;
+      
       if (symbol != '\0') {
         char str[2] = {symbol, '\0'};
-
-        kprint(str);
+        printf(str);
       }
+    }
     }
   }
 }

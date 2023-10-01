@@ -1,7 +1,9 @@
 SUBDIRS=x86 portable
 
+all: bin/kernel
+
 bin/kernel: $(SUBDIRS)
-	ld -m elf_i386 -T link.ld -o bin/kernel x86/*.o portable/*.o
+	ld -m elf_i386 -T link.ld -o bin/kernel x86/*.o portable/*.o portable/lisp/*.o
 
 $(SUBDIRS):
 	$(MAKE) -C $@
@@ -9,7 +11,7 @@ $(SUBDIRS):
 .PHONY:	/bin/kernel $(SUBDIRS)
 
 run:
-	qemu-system-i386 -kernel bin/kernel -drive file=test.img,if=ide
+	qemu-system-i386 -kernel bin/kernel
 
 debug:
 	qemu-system-i386 -kernel bin/kernel -s -S
