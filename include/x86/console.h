@@ -40,4 +40,4 @@ void disable_cursor();
  */
 void move_cursor(int pos);
 
-
+void backspace();

@@ -240,6 +240,8 @@ void keyboard_interrupt()
 
       if (key_code == ENTER_CODE)
         symbol = '\n';
+      else if (key_code == BACKSPACE_CODE)
+        symbol = '\b';
       
       cur_key = symbol;
       

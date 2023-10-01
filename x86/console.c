@@ -63,6 +63,12 @@ void screen_down()
     }
 }
 
+void backspace()
+{
+      videoptr[--printPtr] = 0;
+      videoptr[--printPtr] = ' ';
+}
+
 /**
  * @brief Печатает символ в консоль
  * обрабатывает перевод строки
@@ -72,7 +78,9 @@ void screen_down()
 void putchar(char c){
   int currRow = printPtr / 2 / CONSOLE_COLS;
 
-  if (c == '\n'){
+  if (c == '\b')
+      backspace();
+  else if (c == '\n') {
     int nextRow = CONSOLE_COLS * (currRow + 1);
     printPtr = nextRow * 2;
     move_cursor(printPtr >> 1);

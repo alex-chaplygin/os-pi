@@ -46,9 +46,9 @@ void kmain(void)
 	object_t *o = parse();
 	//printf("parse: ");
 	//print_obj(o);
-	//printf("\n");
 	if (o != ERROR) {
 	    object_t *res = eval(o, NULL);
+	    printf("\n");
 	    print_obj(res);
 	    printf("\n");
 	}      
