@@ -87,7 +87,7 @@ void print_table()
     {
         symbol_t *cur;
         printf("%d ", i);
-        for (cur = hash_table + i; cur->next != 0; cur = cur->next) 
+        for (cur = hash_table[i]; cur->next != 0; cur = cur->next) 
             printf("%s->", cur->str);
         printf("%s->", cur->str);    
         printf("\n");
