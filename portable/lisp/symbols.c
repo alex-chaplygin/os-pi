@@ -49,9 +49,10 @@ symbol_t *find_symbol(char *str)
 {
     int i = hash(str) % HASH_SIZE;
     symbol_t *el = hash_table[i];
-    if (*el->str == 0){
+    if (el == NULL ){
         symbol_t *new = new_symbol(str);
         hash_table[i] = new;
+        el = new;
     }
     else
     {
@@ -84,9 +85,11 @@ void print_table()
 {
     for(int i = 0; i < HASH_SIZE; i++)
     {
+        symbol_t *cur;
         printf("%d ", i);
-        for (symbol_t *cur = hash_table + i; cur != 0; cur = cur->next) 
+        for (cur = hash_table + i; cur->next != 0; cur = cur->next) 
             printf("%s->", cur->str);
+        printf("%s->", cur->str);    
         printf("\n");
     }
 }

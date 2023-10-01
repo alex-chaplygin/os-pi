@@ -46,8 +46,10 @@ object_t *test(object_t *list)
  */
 void test_register_func()
 {
+    s.next = NULL;
     printf("test_register_func: ");
     register_func("TEST", test);
+    strcpy(find_symbol("TEST")->str,"TEST");
     ASSERT(find_symbol("TEST")->func, test); 
 }
 
