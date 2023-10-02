@@ -171,6 +171,8 @@ int main()
     test_get_num("1234", 1234);
     test_get_num("-5    ", -5);
     test_get_num("0xF", 15);
+    test_get_num("0xa", 10);
+    test_get_num("0xff", 255);
     test_get_num("0x1A23", 0x1A23);
     test_is_digit();
     test_is_alpha();
