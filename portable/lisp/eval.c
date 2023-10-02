@@ -17,6 +17,10 @@ symbol_t *lambda_sym;
 symbol_t *cond_sym;
 /// символ "DEFUN"
 symbol_t *defun_sym; 
+/// символ "T"
+symbol_t *t_sym;
+/// символ "NIL"
+symbol_t *nil_sym;
 
 /** 
  * возвращает первый элемент списка
@@ -333,13 +337,11 @@ int is_special_form(symbol_t *s)
  */
 object_t *eval(object_t *obj, object_t *env)
 {
-    //printf("eval: ");
-    //PRINT(obj);
-    if (obj == nil)
-	return nil;
+    if (obj == nil || nil_sym == obj->u.symbol)
+	    return nil;
     else if (obj->type == NUMBER)
         return obj;
-    else if (obj == t)
+    else if (t_sym == obj->u.symbol)
         return t;
     else if (obj->type == SYMBOL) {
 	object_t *res;
@@ -387,9 +389,11 @@ void init_eval()
   register_func("CONS", cons);
   register_func("DEFUN", defun);
   t = object_new(SYMBOL, "T");
+  nil = NULL;
   quote_sym = find_symbol("QUOTE");
   lambda_sym = find_symbol("LAMBDA");
   cond_sym = find_symbol("COND");
   defun_sym = find_symbol("DEFUN");
-  nil = NULL;
+  t_sym = t->u.symbol;
+  nil_sym = find_symbol("NIL");
 }
