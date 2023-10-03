@@ -29,6 +29,26 @@ int compare_str(char *str1, char *str2)
     return *str1 == *str2;
 }
 
+/** 
+ * функция ищет атом в хеш -таблице
+ * если не найден, то возвращает NULL
+ * @param str - строка атома
+ 
+ * @return  указатель на структуру символа
+ */
+symbol_t *find_symbol_get(char *str)
+{
+    int i = hash(str) % HASH_SIZE;
+    symbol_t *el = hash_table[i];
+    if(el == NULL)
+        return NULL;
+
+    for (symbol_t *cur = el; cur != 0; cur = cur->next)
+            if (compare_str(cur->str, str))
+                return cur;
+    
+    return NULL;
+}
 
 /** 
  * функция ищет атом в хеш -таблице

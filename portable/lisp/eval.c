@@ -322,6 +322,24 @@ int is_special_form(symbol_t *s)
 }
 
 /**
+ * Возвращает объект, соответствующий значению символа
+ * @param obj - символьный объект
+ * @return объект, соответствующий obj
+ */
+object_t *eval_symbol(object_t *obj, object_t *env)
+{
+    object_t *res;
+    if (find_in_env(env, obj, &res))
+	    return res;
+    else if (nil_sym == obj->u.symbol)
+	    return nil;
+    else if (t_sym == obj->u.symbol)
+        return t;
+	else
+        return ERROR;
+}
+
+/**
  * Вычисление выражения
  * Если выражение число, возвращаем его же
  * Если выражение атом, то выдаем ошибку
@@ -337,20 +355,15 @@ int is_special_form(symbol_t *s)
  */
 object_t *eval(object_t *obj, object_t *env)
 {
-    if (obj == nil || nil_sym == obj->u.symbol)
-	    return nil;
+    if (obj == NULL)
+        return NULL;
     else if (obj->type == NUMBER)
         return obj;
-    else if (t_sym == obj->u.symbol)
-        return t;
     else if (obj->type == SYMBOL) {
-	object_t *res;
-	if (find_in_env(env, obj, &res))
-	    return res;
-	else {
-	    error("Unknown SYMBOL \n");
-	    return ERROR;
-	}
+        object_t *symbol = eval_symbol(obj, env);
+        if (symbol == ERROR)
+	        error("Unknown SYMBOL \n");
+        return symbol;
     } else if (obj->type == PAIR) {
 	object_t *first = FIRST(obj);
 	if (first->type == PAIR && is_lambda(first))

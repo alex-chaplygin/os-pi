@@ -9,11 +9,6 @@ int compare_str(char *str1, char *str2);
 
 symbol_t s;
 
-symbol_t *new_symbol(char *str)
-{
-    return &s;
-}
-
 void test_compare_str(char *str, char *str2, int res)
 {
     printf("test_compare_str: ");
@@ -26,6 +21,21 @@ void test_find_same_symbol()
     symbol_t *k = find_symbol("f");
     printf("test_find_same_symbol: ");
     ASSERT(i, k);
+}
+
+/**
+ * Создать символ "f" с помощью find_symbol
+ * Получить символ "f" из таблицы с помощью find_symbol_get
+ * Проверить что созданный и полученный символы совпадают
+ */
+void test_find_symbol_get()
+{
+    printf("test_find_symbol_get: ");
+    symbol_t *s1 = find_symbol_get("f");
+    ASSERT(s1, NULL);
+    symbol_t *s2 = find_symbol("f");
+    symbol_t *s3 = find_symbol_get("f");
+    ASSERT(s2, s3);
 }
 
 object_t *test(object_t *list)
@@ -51,5 +61,6 @@ int main()
     test_compare_str("abc", "abc", 1);
     test_compare_str("abc", "abc1", 0);
     test_find_same_symbol();
+    test_find_symbol_get();
     test_register_func();
 }
