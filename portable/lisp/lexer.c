@@ -1,9 +1,22 @@
+/**
+ * @file   lexer.c
+ * @author alex <alex@alex-home>
+ * @date   Tue Oct  3 18:12:08 2023
+ * 
+ * @brief  Модуль лексического разбора
+ */
+
 #include <stdio.h>
 #include "lexer.h"
 
-char cur_symbol; // текущий символ
-int flag = 0; // если true, не считывать символ
+/// текущий символ
+char cur_symbol;
+/// если true, не считывать символ
+int flag = 0;
+/// текущий токен
 token_t token;
+/// Если 1, то значит была ошибка при лексическом разборе
+int token_error;
 
 // читать один символ
 void get_cur_char()
@@ -107,10 +120,15 @@ int get_num()
         fl = 1;
         get_cur_char();
     }
-    while (is_digit(cur_symbol)) 
+    while (is_alpha(cur_symbol) || is_digit(cur_symbol) || is_symbol(cur_symbol)) 
     {
-        cur_num = cur_num * 10 + cur_symbol - '0';
-        get_cur_char();
+	if (is_digit(cur_symbol)) {
+	    cur_num = cur_num * 10 + cur_symbol - '0';
+	    get_cur_char();
+	} else {
+	    token_error = 1;
+	    return 0;
+	}
     }
     unget_cur_char();
     if (fl == 1)
@@ -137,6 +155,7 @@ void get_symbol(char *cur_str)
 // '(3 4) 'a
 token_t *get_token()
 {
+    token_error  = 0;
     get_cur_char();
     skip_white_space();
     switch (cur_symbol) {
