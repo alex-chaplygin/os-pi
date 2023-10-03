@@ -12,6 +12,7 @@ void skip_white_space();
 int get_num();
 int is_alpha(char);
 int is_digit(char);
+int is_symbol(char c);
 void get_symbol(char *cur_str);
 extern char cur_symbol;
 extern int flag;
@@ -109,6 +110,16 @@ void test_is_alpha()
 }
 
 /** 
+ * Тест должен проверять что символ это разрешенный символ или нет
+ */
+
+void test_is_symbol(char ch, int ch_i)
+{
+    printf("test_is_symbol: ");
+    ASSERT(is_symbol(ch), ch_i);
+}
+
+/** 
  * Тест должен прочесть символ
  */
 void test_get_symbol(char* src, const char* expect)
@@ -176,6 +187,8 @@ int main()
     test_get_num("0x1A23", 0x1A23);
     test_is_digit();
     test_is_alpha();
+    test_is_symbol('+', 1);
+    test_is_symbol(';', 0);
     test_get_symbol("Hello 12", "Hello");
     test_get_symbol("* 1 2", "*");
     test_get_token("empty", " ", END);
