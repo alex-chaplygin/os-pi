@@ -45,11 +45,23 @@ token_t no_rparen_tokens[] = {
     {END}
 };
 
+token_t token_list[] = {
+    {T_SYMBOL, 0,  "x"},
+    {LPAREN},
+    {T_SYMBOL, 0, "y"},
+    {RPAREN},
+    {T_SYMBOL, 0, "z"},
+    {RPAREN}
+};
+
 token_t *tokens;
 
 symbol_t test_symbols[] = {
     {"A"},
     {"B"},
+    {"X"},
+    {"Y"},
+    {"Z"},
     {"QUOTE"}
 };
 
@@ -220,6 +232,29 @@ void test_parse_no_rparen()
     ASSERT(o, ERROR);
 }
 
+/** 
+ * Создать список "(x (y) z)" и проверить корректность создания пар
+ */
+void test_parse_inner_list()
+{
+    printf("test_parse_inner_list:\n");
+    count = 0;
+    cur_token = &token;
+    tokens = token_list;
+    object_t *o = parse_list();
+    ASSERT(o->type, PAIR);
+    ASSERT(o->u.pair->left->type, SYMBOL);
+    ASSERT(strcmp(o->u.pair->left->u.symbol->str, "X"), 0);
+    ASSERT(o->u.pair->right->type, PAIR);
+    ASSERT(o->u.pair->right->u.pair->left->type, PAIR);
+    ASSERT(strcmp(o->u.pair->right->u.pair->left->u.pair->left->u.symbol->str, "Y"), 0);
+    ASSERT(o->u.pair->right->u.pair->left->u.pair->right, NULL);
+    ASSERT(o->u.pair->right->u.pair->right->type, PAIR);
+    ASSERT(o->u.pair->right->u.pair->right->u.pair->left->type, SYMBOL);
+    ASSERT(strcmp(o->u.pair->right->u.pair->right->u.pair->left->u.symbol->str, "Z"), 0);
+    ASSERT(o->u.pair->right->u.pair->right->u.pair->right, NULL);
+}
+
 int main()
 {
     printf("------------test_parser------------\n");
@@ -230,5 +265,6 @@ int main()
     test_parse_quote();
     test_parse_list_quote();
     test_parse_no_rparen();
+    test_parse_inner_list();
     return 0;
 }
