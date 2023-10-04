@@ -7,6 +7,7 @@ typedef enum {
     RPAREN, // правая скобка )
     END, // конец строки
     QUOTE, // символ '
+    T_STRING, // строка в кавычках
     INVALID // неизвестный объект
 } tokentype_t; //тип ликсемы 
 

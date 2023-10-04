@@ -152,6 +152,27 @@ void get_symbol(char *cur_str)
     cur_str[c] = 0;
 }
 
+/** 
+ * прочесть строку в двойных кавычках
+ *
+ * @param cur_str куда сохраняется строка
+ */
+void get_string(char *cur_str)
+{
+    int c = 0;
+
+    get_cur_char(); // Пропускаем открывающую кавычку
+    while (cur_symbol != EOF) {
+	if (cur_symbol == '"') {
+	    get_cur_char(); // Пропускаем закрывающую кавычку
+	    break;
+	}
+	cur_str[c++] = cur_symbol;
+	get_cur_char();
+    }
+    cur_str[c] = '\0'; // Завершаем строку
+}
+
 // '(3 4) 'a
 token_t *get_token()
 {
@@ -174,6 +195,11 @@ token_t *get_token()
             get_cur_char();
             token.type = QUOTE;
             break;
+	case '"':
+	    // Используем get_string для чтения строки в двойных кавычках
+	    get_string(token.str); 
+	    token.type = T_STRING;
+	    break;
         default:
             if (is_digit(cur_symbol)) {
                 token.type = T_NUMBER;
