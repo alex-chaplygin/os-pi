@@ -7,6 +7,7 @@
  */
 
 #include <stdio.h>
+#include <ctype.h>
 #include "lexer.h"
 
 /// текущий символ
@@ -76,32 +77,39 @@ int is_symbol(char c)
 }
 
 /** 
+ * Проверка символа на разрешенный символ
+ */ 
+int is_hex_symbol(char c) 
+{
+    return c >= 'a' && c <= 'f' ||
+           c >= 'A' && c <= 'F';
+}
+
+/** 
  * на входе строка FFAA
  *
  * @return преобразованное число AB
  */
 int hex_num()
-{ 
-  get_cur_char();
-  int cur_num =  0;
-  while (is_digit(cur_symbol) || cur_symbol >= 'a' && cur_symbol <= 'f' || cur_symbol>= 'A' && cur_symbol <= 'F' ) 
-  {
-    if(is_digit(cur_symbol))
-      {
-      cur_num = cur_num * 16 + cur_symbol - '0';
-      get_cur_char();
-      }
-    else
-      {
-      cur_num = cur_num * 16 + cur_symbol - 'A'+ 10; 
-      get_cur_char();
-      }
-  }
-  unget_cur_char();
-  return cur_num;
+{
+    int cur_num =  0;
+  
+    do {
+	get_cur_char();
+	if (is_digit(cur_symbol)) {
+	    cur_num = cur_num * 16 + cur_symbol - '0';
+	} else if (is_hex_symbol(cur_symbol)) {
+	    cur_symbol = toupper(cur_symbol);
+	    cur_num = cur_num * 16 + cur_symbol - 'A' + 10;
+	} else {
+	    token_error = 1;
+	    break;
+	}
+    } while (is_digit(cur_symbol) || is_hex_symbol(cur_symbol));
+  
+    unget_cur_char();
+    return cur_num;
 }
-
-
 
 /** 
  * Функция считывает числа из строки и преобразует в число  десятичной и шестнадцатиричной СС

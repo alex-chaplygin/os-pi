@@ -16,6 +16,7 @@ int is_symbol(char c);
 void get_symbol(char *cur_str);
 extern char cur_symbol;
 extern int flag;
+extern int token_error;
 
 FILE *oldstdin;
 
@@ -166,6 +167,18 @@ void test_print_token(token_t *token, const char *expected_output)
     ASSERT(strcmp(output_buffer, expected_output), 0);
 }
 
+/*
+* Проверка получения ошибки, если в значении встречается буква.
+*/
+void test_invalid_num(const char* name_test, char* str, int error) 
+{
+    printf("test_get_num_%s : ", name_test); // вывод имени теста
+    write_file(str); // запись в файл
+    get_token(str);
+    flag = 0; // считать символ (если true, не считывать символ)
+    ASSERT(token_error, error);
+}
+
 int main()
 {
     printf("-------------test_lexer---------------\n");
@@ -196,5 +209,10 @@ int main()
     test_get_token("rparen", ")", RPAREN);
     test_get_token("tnumber", "42", T_NUMBER);
     test_get_token("quote", "\'", QUOTE);
+    test_invalid_num("invalid num", "11D", 1);
+    test_invalid_num("valid num", "11 dd", 0);
+    test_invalid_num("invalid num", "0GG", 1);
+    test_invalid_num("invalid hex", "0xfrf", 1);
+    test_invalid_num("invalid hex", "0xrf", 1);
     return 0;
 }
