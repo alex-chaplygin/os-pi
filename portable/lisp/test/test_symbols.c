@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "test.h"
 #include "objects.h"
@@ -9,18 +10,25 @@ int compare_str(char *str1, char *str2);
 
 symbol_t s;
 
+symbol_t *new_symbol(char *str)
+{
+    symbol_t *symbol = (symbol_t*)malloc(sizeof(symbol_t));
+    memset(symbol, 0, sizeof(symbol_t));
+    strcpy(symbol->str, str);
+    return symbol;
+}
+
 void test_compare_str(char *str, char *str2, int res)
 {
     printf("test_compare_str: ");
     ASSERT(res, compare_str(str, str2));
 }
 
-void test_find_same_symbol()
+void test_find_symbol(char *str, char *expected_symbol)
 {
-    symbol_t *i = find_symbol("f");
-    symbol_t *k = find_symbol("f");
-    printf("test_find_same_symbol: ");
-    ASSERT(i, k);
+    printf("test_find_symbol: ");
+    symbol_t *result = find_symbol(str);
+    ASSERT(strcmp(result->str, expected_symbol), 0);
 }
 
 /**
@@ -60,7 +68,8 @@ int main()
     printf("--------------test symbols---------------------\n");
     test_compare_str("abc", "abc", 1);
     test_compare_str("abc", "abc1", 0);
-    test_find_same_symbol();
+    test_find_symbol("a", "a");
+    test_find_symbol("ab", "ab");
     test_find_symbol_get();
     test_register_func();
 }
