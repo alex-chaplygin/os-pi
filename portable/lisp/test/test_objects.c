@@ -11,6 +11,19 @@ extern int last_object;
 extern int last_pair;
 extern pair_t *free_pairs;
 
+object_t *mobject;
+
+void mark_object(object_t *obj);
+
+void sweep();
+
+void garbage_collect();
+
+void error(char *str)
+{
+    printf("%s\n", str);
+}
+
 symbol_t *find_symbol(char *str)
 {
     return NULL;
@@ -92,6 +105,10 @@ void test_free_object()
     ASSERT(o2, r_o1);
     ASSERT(o1, r_o2);
     ASSERT(free_objs, NULL);
+    last_object = 0;
+    free_objs = NULL;
+    last_pair = 0;
+    free_pairs = NULL;
 }
 
 /**
@@ -109,7 +126,7 @@ void test_free_pair()
         o1.u.value = i;
         o2.type = NUMBER;
         o2.u.value = i-1;
-	    new_pair(&o1, &o2);
+	new_pair(&o1, &o2);
     }
     pair_t *pair1 = &pairs[0];
     pair_t *pair2 = &pairs[1];
@@ -118,6 +135,135 @@ void test_free_pair()
     ASSERT(free_pairs, pair2);
     ASSERT(free_pairs->next, pair1);
     ASSERT(free_pairs->next->next, NULL);
+    last_pair = 0;
+    free_pairs = NULL;
+    last_object = 0;
+    free_objs = NULL;
+}
+
+/**
+ * Создать объект (12 A 5)
+ */
+void test_mark()
+{
+    printf("test_mark :");
+    print_free_objs();
+    int n1 = 12;
+    int n2 = 5;
+    object_t *num1 = object_new(NUMBER, &n1);
+    object_t *sym = object_new(SYMBOL, "A");
+    object_t *num2 = object_new(NUMBER, &n2);
+    object_t *p3 = new_pair(num2, NULL);
+    object_t *p2 = new_pair(sym, p3);
+    mobject = new_pair(num1, p2);
+    mark_object(mobject);
+    ASSERT(mobject->mark, 1);
+    ASSERT(num1->mark, 1);
+    ASSERT(p2->mark, 1);
+    ASSERT(sym->mark, 1);
+    ASSERT(p3->mark, 1);
+    ASSERT(num2->mark, 1);
+}
+
+/**
+ * Используем помеченные объекты с предыдущего теста.
+ * Проверить снятие пометок
+ * Проверить, что помеченные ранее объекты не находятся в списке свободных
+ */
+void test_sweep()
+{
+    printf("test_sweep: ");
+    print_free_objs();
+    object_t *num1 = mobject->u.pair->left;
+    object_t *p2 = mobject->u.pair->right;
+    object_t *sym = p2->u.pair->left;
+    object_t *p3 = p2->u.pair->right;
+    object_t *num2 = p3->u.pair->left;
+    sweep();
+    printf("after_sweep: ");
+    print_free_objs();
+    ASSERT(mobject->mark, 0);
+    ASSERT(num1->mark, 0);
+    ASSERT(p2->mark, 0);
+    ASSERT(sym->mark, 0);
+    ASSERT(p3->mark, 0);
+    ASSERT(num2->mark, 0); 
+    object_t *f = free_objs;
+    while (f != NULL) {
+	//	printf("f type =%d\n", f->type);
+	if (f == mobject || f == num1 || f == p2 || f == sym || f == p3 || f == num2) {
+	    printf("fail_object\n");
+	    return;
+	}
+	f = f->next;
+    }
+    printf("objects: OK\n");
+}
+
+/**
+ * Создать символ A
+ * Присвоить ему значение - объект 52
+ * Проверить, что объект не в списке свободных
+ */
+void test_garbage_collect()
+{
+    printf("test_garbage_collect: ");
+    int num1 = 52;
+    symbol_t *s = new_symbol("A");
+    object_t *obj1 = object_new(NUMBER, &num1);
+    s->value = obj1;
+    garbage_collect();
+
+    object_t *f = free_objs;
+    while (f != NULL) {
+	if (f == obj1) {
+	    printf("fail_object\n");
+	    return;
+	}
+	f = f->next;
+    }
+    printf("OK\n");
+}
+
+/**
+ * Создать символ B
+ * Присвоить ему значение - объект (1 2)
+ * Проверить, что объект не в списке свободных
+ */
+void test_garbage_collect_list()
+{
+    printf("test_garbage_collect_list: ");
+    int num1 = 1;
+    int num2 = 2;
+    symbol_t *s = new_symbol("B");
+    object_t *obj1 = object_new(NUMBER, &num1);
+    object_t *obj2 = object_new(NUMBER, &num2);
+    object_t *p1 = new_pair(obj1, new_pair(obj2, NULL));
+    s->value = p1;
+    printf("before gc: ");
+    print_free_objs();
+    garbage_collect();
+    printf("after gc: ");
+    print_free_objs();
+
+    object_t *f = free_objs;
+    while (f != NULL) {
+	if (f == obj1 || f == obj2) {
+	    printf("fail_object\n");
+	    return;
+	}
+	f = f->next;
+    }
+    printf("objects_OK\n");
+    pair_t *p = free_pairs;
+    while (p != NULL) {
+	if (p == p1->u.pair || p == p1->u.pair->right->u.pair) {
+	    printf("fail_pair\n");
+	    return;
+	}
+	p = p->next;
+    } 
+    printf("pairs: OK\n");
 }
 
 void main()
@@ -126,7 +272,11 @@ void main()
     test_object_new();
     test_new_pair();
     int i = 10;
-    test_print_obj(object_new(NUMBER, &i), "10");
     test_free_object();
     test_free_pair();
+    test_mark();
+    test_sweep();
+    test_garbage_collect();
+    //test_garbage_collect_list();
+    test_print_obj(object_new(NUMBER, &i), "10");
 }

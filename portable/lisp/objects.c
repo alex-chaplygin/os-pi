@@ -39,15 +39,15 @@ object_t *object_new(type_t type, void *data)
     if (last_object == MAX_OBJECTS) {
         if (free_objs == NULL) {
             error("Error: out of memory: objects");
-	        return ERROR;
+	    return ERROR;
         }
         new = free_objs;
         free_objs = free_objs->next;
         new->next = NULL;
-    }
-    else
+    } else
         new = &objects[last_object++];
     new->type = type;
+    new->mark = 0;
     if (type == NUMBER)
         new->u.value = *(int *)data;
     else if (type == SYMBOL)
@@ -69,6 +69,8 @@ void free_object(object_t *obj)
     	error("free_object: null pointer: obj");
     	return;
     }
+    if (obj->next != NULL || obj == free_objs)
+	return;
     obj->next = free_objs;
     free_objs = obj;
 }
@@ -83,14 +85,20 @@ void free_object(object_t *obj)
  */
 object_t *new_pair(object_t *left, object_t *right)
 {
-  pair_t *pair = &pairs[last_pair++];
-  if (last_pair == MAX_PAIRS) {
-    error("Error: out of memory: pairs");
-    return ERROR;
-  }
-  pair->left = left;
-  pair->right = right;  
-  return object_new(PAIR, pair);
+    pair_t *pair;
+    if (last_pair == MAX_PAIRS) {
+	if (free_pair == NULL) {
+	    error("Error: out of memory: pairs");
+	    return ERROR;
+	}
+	pair = free_pairs;
+	free_pairs = free_pairs->next;
+	pair->next = NULL;
+    } else
+	pair = &pairs[last_pair++];        
+    pair->left = left;
+    pair->right = right;  
+    return object_new(PAIR, pair);
 }
 
 /** 
@@ -104,6 +112,8 @@ void free_pair(pair_t *p)
     	error("free_pair: null pointer: obj");
     	return;
     }
+    if (p->next != NULL || p == free_pairs)
+	return;
     p->next = free_pairs;
     free_pairs = p;
 }
@@ -129,6 +139,51 @@ symbol_t *new_symbol(char *str)
   return symbol;
 }
 
+/** 
+ * Пометить объект как используемый
+ * 
+ * @param obj - помечаемый объект
+ */
+void mark_object(object_t *obj)
+{
+    if (obj == NULL)
+	return;
+    obj->mark = 1;
+    if (obj->type == PAIR) {
+	mark_object(obj->u.pair->left);
+	mark_object(obj->u.pair->right);
+    }
+}
+
+/** 
+ * Освобождаем все непомеченные объекты, снимаем пометки
+ */
+void sweep()
+{
+    object_t *obj = objects;
+
+    for (int i = 0; i < last_object; i++) {
+	if (!obj->mark) {
+	    if (obj->type == PAIR)
+		free_pair(obj->u.pair);
+	    free_object(obj);
+	}
+	else
+	    obj->mark = 0;
+	obj++;
+    }
+}
+
+/**
+ * Сборка мусора
+ */
+void garbage_collect()
+{
+    for (int i = 0; i < last_symbol; i++)
+	mark_object(symbols[i].value);
+   
+    sweep();
+}
 
 /**
  * Печать списка пар
@@ -160,4 +215,17 @@ void print_obj(object_t *obj)
 	print_list(obj);
 	printf(")");
     }	
+}
+
+/**
+ * Печать списка свободных объектов
+ */
+void print_free_objs()
+{
+    object_t *f = free_objs;
+    while (f != NULL) {
+        printf("%d->", f - objects);
+	f = f->next;
+    }
+    printf("\n");
 }
