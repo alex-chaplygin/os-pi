@@ -6,13 +6,6 @@
 #include "parser.h"
 #include "symbols.h"
 
-/// Всего объектов
-#define MAX_OBJECTS 200
-/// Всего пар
-#define MAX_PAIRS 100
-/// Всего символов
-#define MAX_SYMBOLS 100
-
 /// Индекс последнего объекта массива
 int last_object = 0;
 /// Массив или хранилище объектов

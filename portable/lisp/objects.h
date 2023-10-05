@@ -1,6 +1,13 @@
 #ifndef OBJECTS
 #define OBJECTS
 
+/// Всего объектов
+#define MAX_OBJECTS 200
+/// Всего пар
+#define MAX_PAIRS 100
+/// Всего символов
+#define MAX_SYMBOLS 100
+
 #define MAX_STR 50
 #define PRINT(o) print_obj(o); printf("\n");
 
