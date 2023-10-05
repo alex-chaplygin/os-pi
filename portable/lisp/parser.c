@@ -44,6 +44,8 @@ object_t *parse_quote()
     object_t *o = parse();
     //printf("quote: ");
     //PRINT(o);
+    if (o == ERROR)
+	return ERROR;
     object_t *p = new_pair(o, NULL);
     
     if (o != NULL && o->type == NUMBER) {
@@ -96,7 +98,8 @@ object_t *parse_list()
 	if (tail == ERROR)
 	    return ERROR;
 	return new_pair(q, tail);
-    }
+    } else if (cur_tok->type == INVALID)
+	return ERROR;
 }
 
 
@@ -122,5 +125,7 @@ object_t *parse()
     else if (cur_token->type == QUOTE)
 	return parse_quote();
     else if (cur_token->type == END)
+	return ERROR;
+    else if (cur_token->type == INVALID)
 	return ERROR;
 }

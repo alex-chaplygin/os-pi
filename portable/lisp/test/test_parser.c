@@ -54,6 +54,22 @@ token_t token_list[] = {
     {RPAREN}
 };
 
+token_t tok_inv[] = 
+{
+    {LPAREN},
+    {T_NUMBER, 1},
+    {T_SYMBOL, 0, "S"},
+    {INVALID},
+    {T_NUMBER, 22},
+    {RPAREN}
+};
+
+token_t tok_inv_quote[] = 
+{
+    {QUOTE},
+    {INVALID}
+};
+
 token_t *tokens;
 
 symbol_t test_symbols[] = {
@@ -255,6 +271,32 @@ void test_parse_inner_list()
     ASSERT(o->u.pair->right->u.pair->right->u.pair->right, NULL);
 }
 
+/** 
+ * Тестируем неверный символ внутри списка
+ */
+void test_parse_invalid()
+{
+    printf("test_parse_invalid: \n");
+    count = 0;
+    tokens = tok_inv;
+    object_t *o = parse();
+    ASSERT(ERROR, o);
+}
+
+/** 
+ * Тестируем неверный символ после кавычки
+ */
+void test_parse_invalid_quote()
+{
+    printf("test_parse_invalid_quote: \n");
+    count = 0;
+    cur_token = &token;
+    tokens = tok_inv_quote;
+    object_t *o = parse();
+    ASSERT(ERROR, o);
+}
+
+
 int main()
 {
     printf("------------test_parser------------\n");
@@ -266,5 +308,7 @@ int main()
     test_parse_list_quote();
     test_parse_no_rparen();
     test_parse_inner_list();
+    test_parse_invalid();
+    test_parse_invalid_quote();
     return 0;
 }
