@@ -253,3 +253,13 @@ void strcpy (char *str1, char *str2)
         *str1++ = *str2++;
     *str1 = 0;
 }
+
+/** 
+ * Перевод символа в верхний регистр
+ */ 
+char toupper(char ch)
+{
+    if (ch >= 'a' && ch <= 'z')
+        return ch - 32;
+    return ch;
+}
