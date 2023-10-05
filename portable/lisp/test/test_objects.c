@@ -8,6 +8,8 @@ extern object_t objects[];
 extern pair_t pairs[];
 extern object_t *free_objs;
 extern int last_object;
+extern int last_pair;
+extern pair_t *free_pairs;
 
 symbol_t *find_symbol(char *str)
 {
@@ -72,11 +74,11 @@ void test_print_obj(object_t *obj, const char *expected_output)
  * Проверка корректности функции освобождения
  *  объектов и их дальнейшего переиспользования
  */
-void test_free()
+void test_free_object()
 {
     printf("test_free_object: ");
     int last_num = last_object;
-    for (int i = last_object; 200 > i; i++)
+    for (int i = last_object; i < MAX_OBJECTS; i++)
 	object_new(NUMBER, &i);
     object_t *o1 = &objects[0];
     object_t *o2 = &objects[5];
@@ -92,6 +94,32 @@ void test_free()
     ASSERT(free_objs, NULL);
 }
 
+/**
+ * Проверка корректности функции освобождения пары
+ *  объектов и их дальнейшего переиспользования
+ */
+void test_free_pair()
+{
+    printf("test_free_pair: ");
+    int last_num = last_pair;
+    for (int i = last_object; i < MAX_PAIRS; i++)
+    {   
+        object_t o1, o2;
+        o1.type = NUMBER;
+        o1.u.value = i;
+        o2.type = NUMBER;
+        o2.u.value = i-1;
+	    new_pair(&o1, &o2);
+    }
+    pair_t *pair1 = &pairs[0];
+    pair_t *pair2 = &pairs[1];
+    free_pair(pair1);
+    free_pair(pair2);
+    ASSERT(free_pairs, pair2);
+    ASSERT(free_pairs->next, pair1);
+    ASSERT(free_pairs->next->next, NULL);
+}
+
 void main()
 {
     printf("--------------test objects---------------------\n");
@@ -99,5 +127,6 @@ void main()
     test_new_pair();
     int i = 10;
     test_print_obj(object_new(NUMBER, &i), "10");
-    test_free();
+    test_free_object();
+    test_free_pair();
 }
