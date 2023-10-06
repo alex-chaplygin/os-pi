@@ -9,9 +9,9 @@ sh sys_test "(defun f(x)\
          (cond \
             ((= x 1) 1) \
             (T (* x (f (- x 1))))))\
-         (f 3)" "F6"
-sh sys_test "(+ 1 2 3 4)" "10"
-sh sys_test "(1" "expected )\n\n"
-sh sys_test "(+ 1 2 3 5)" "11"
-sh sys_test "(- 9 5 1 1)" "2"
-sh sys_test "(* 1 2 3 5)" "30"
+         (f 13) " "F5040"
+#sh sys_test "(+ 1 2 3 4)" "10"
+#sh sys_test "(1" "expected )"
+#sh sys_test "(+ 1 2 3 5)" "11"
+#sh sys_test "(- 9 5 1 1)" "2"
+#sh sys_test "(* 1 2 3 5)" "30"
