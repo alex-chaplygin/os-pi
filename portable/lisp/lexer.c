@@ -249,6 +249,9 @@ void print_token(token_t *token)
     case INVALID:
 	printf("INVALID\n");
 	break;
+    case T_STRING:
+	printf("STRING %s\n", token->str);
+	break;
     }
 }
    
