@@ -16,7 +16,9 @@ symbol_t *lambda_sym;
 /// символ "COND"
 symbol_t *cond_sym;
 /// символ "DEFUN"
-symbol_t *defun_sym; 
+symbol_t *defun_sym;
+/// символ "DEFVAR"
+symbol_t *defvar_sym; 
 /// символ "T"
 symbol_t *t_sym;
 /// символ "NIL"
@@ -170,6 +172,16 @@ object_t *defun(object_t *obj)
     return object_new(SYMBOL, name->str);
 }
 
+/** 
+ * Создаёт новый глобальный символ (defvar имя значение)
+ *
+ * @param params (имя значение)
+ *
+ * @return символ имени новой функции
+ */
+object_t *defvar(object_t *params)
+{
+}    
 
 /** 
  * Проверка списка на то, что все элементы типа type
@@ -300,9 +312,15 @@ object_t *eval_func(object_t *lambda, object_t *args, object_t *env)
  */
 object_t *eval_args(object_t *args, object_t *env)
 {
+    //printf("eval_args: ");
+    //PRINT(args);
+    //printf(" ");
+    //PRINT(env);
     if (args == NULL)
 	return NULL;
     object_t *f = FIRST(args);
+    //printf("f = %x pair = %x\n", f, f->u.pair);
+    //PRINT(f);
     return new_pair(eval(f, env), eval_args(TAIL(args), env)); 
 }
 
@@ -318,6 +336,8 @@ int is_special_form(symbol_t *s)
 	return 1;
     else if (s == defun_sym)
 	return 1;
+    else if (s == defvar_sym)
+	return 1;
     return 0;
 }
 
@@ -329,6 +349,10 @@ int is_special_form(symbol_t *s)
 object_t *eval_symbol(object_t *obj, object_t *env)
 {
     object_t *res;
+    //printf("eval_symbol: ");
+    //PRINT(obj);
+    //printf("env: ");
+    //PRINT(env);
     if (find_in_env(env, obj, &res))
 	    return res;
     else if (nil_sym == obj->u.symbol)
@@ -355,14 +379,20 @@ object_t *eval_symbol(object_t *obj, object_t *env)
  */
 object_t *eval(object_t *obj, object_t *env)
 {
+    //printf("eval: ");
+    //PRINT(obj);
+    //printf("env: ");
+    //PRINT(env);
     if (obj == NULL)
         return NULL;
     else if (obj->type == NUMBER)
-        return obj;
+	return obj;
     else if (obj->type == SYMBOL) {
         object_t *symbol = eval_symbol(obj, env);
-        if (symbol == ERROR)
-	        error("Unknown SYMBOL \n");
+        if (symbol == ERROR) {
+	    error("Unknown SYMBOL \n");
+	    return ERROR;
+	}
         return symbol;
     } else if (obj->type == PAIR) {
 	object_t *first = FIRST(obj);
@@ -401,12 +431,14 @@ void init_eval()
   register_func("QUOTE", quote);
   register_func("CONS", cons);
   register_func("DEFUN", defun);
+  register_func("DEFVAR", defvar);
   t = object_new(SYMBOL, "T");
   nil = NULL;
   quote_sym = find_symbol("QUOTE");
   lambda_sym = find_symbol("LAMBDA");
   cond_sym = find_symbol("COND");
   defun_sym = find_symbol("DEFUN");
+  defvar_sym = find_symbol("DEFVAR");
   t_sym = t->u.symbol;
   nil_sym = find_symbol("NIL");
 }
