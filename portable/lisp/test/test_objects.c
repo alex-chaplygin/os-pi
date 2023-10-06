@@ -240,8 +240,11 @@ void test_garbage_collect_list()
     object_t *obj2 = object_new(NUMBER, &num2);
     object_t *p1 = new_pair(obj1, new_pair(obj2, NULL));
     s->value = p1;
-    printf("before gc: ");
+    printf("before gc: \n");
+    printf("objects: ");
     print_free_objs();
+    printf("\npairs: ");
+    print_free_pairs();
     garbage_collect();
     printf("after gc: ");
     print_free_objs();
@@ -277,6 +280,6 @@ void main()
     test_mark();
     test_sweep();
     test_garbage_collect();
-    //test_garbage_collect_list();
+    test_garbage_collect_list();
     test_print_obj(object_new(NUMBER, &i), "10");
 }
