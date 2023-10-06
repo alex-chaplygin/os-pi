@@ -10,12 +10,12 @@ $(SUBDIRS):
 
 .PHONY:	/bin/kernel $(SUBDIRS)
 
-run:
+run: bin/kernel
 	qemu-system-i386 -kernel bin/kernel
 
 debug:
 	qemu-system-i386 -kernel bin/kernel -s -S
 clean:
-	rm bin/kernel portable/*.o x86/*.o
+	rm bin/kernel portable/*.o portable/lisp/*.o x86/*.o
 tags:
 	etags include/portable/*.h include/x86/*.h portable/*.c x86/*.c
