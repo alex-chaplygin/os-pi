@@ -38,12 +38,16 @@ object_t *object_new(type_t type, void *data)
     object_t *new;
     if (last_object == MAX_OBJECTS) {
         if (free_objs == NULL) {
-            error("Error: out of memory: objects");
-	    return ERROR;
+	    garbage_collect();
+	    if (free_objs == NULL) {
+		error("Error: out of memory: objects");
+		return ERROR;
+	    }
         }
         new = free_objs;
         free_objs = free_objs->next;
         new->next = NULL;
+	new->free = 0;
     } else
         new = &objects[last_object++];
     new->type = type;
@@ -69,9 +73,13 @@ void free_object(object_t *obj)
     	error("free_object: null pointer: obj");
     	return;
     }
-    if (obj->next != NULL || obj == free_objs)
-	return;
+    
+    //printf("free objects: %d %x \n ", obj - objects, obj->next);
+    if (obj->free)
+	 return;
+    //printf("free\n");
     obj->next = free_objs;
+    obj->free = 1;
     free_objs = obj;
 }
 
@@ -87,13 +95,14 @@ object_t *new_pair(object_t *left, object_t *right)
 {
     pair_t *pair;
     if (last_pair == MAX_PAIRS) {
-	if (free_pair == NULL) {
+	if (free_pairs == NULL) {
 	    error("Error: out of memory: pairs");
 	    return ERROR;
 	}
 	pair = free_pairs;
 	free_pairs = free_pairs->next;
 	pair->next = NULL;
+	pair->free = 0;
     } else
 	pair = &pairs[last_pair++];        
     pair->left = left;
@@ -112,10 +121,13 @@ void free_pair(pair_t *p)
     	error("free_pair: null pointer: obj");
     	return;
     }
-    if (p->next != NULL || p == free_pairs)
+
+    //printf("free pair: %d %x \n ", p - pairs, p->next);
+    if (p->free)
 	return;
     p->next = free_pairs;
     free_pairs = p;
+    p->free = 1;
 }
 
 /** 
@@ -179,6 +191,7 @@ void sweep()
  */
 void garbage_collect()
 {
+    printf("garbage\n");
     for (int i = 0; i < last_symbol; i++)
 	mark_object(symbols[i].value);
    
@@ -228,4 +241,25 @@ void print_free_objs()
 	f = f->next;
     }
     printf("\n");
+}
+
+/**
+ * Печать списка свободных пар
+ */
+void print_free_pairs()
+{
+    pair_t *f = free_pairs;
+    while (f != NULL) {
+        printf("%d->", f - pairs);
+	f = f->next;
+    }
+    printf("\n");
+}
+
+object_t *dump_free(object_t *o)
+{
+    printf("free_objs: ");
+    print_free_objs();
+    printf("free_pairs: ");
+    print_free_pairs();
 }

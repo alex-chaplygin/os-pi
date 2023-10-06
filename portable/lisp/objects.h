@@ -4,7 +4,7 @@
 /// Всего объектов
 #define MAX_OBJECTS 200
 /// Всего пар
-#define MAX_PAIRS 100
+#define MAX_PAIRS 200
 /// Всего символов
 #define MAX_SYMBOLS 100
 
@@ -31,6 +31,7 @@ typedef struct object_s
     } u;
     struct object_s *next; // указатель на следующий свободный объект
     int mark; // пометка для сборки мусора
+    int free; // Если 1 - элемент в списке свободных объектов
 } object_t; // Структура объекта
 
 /// Структура пары
@@ -39,6 +40,7 @@ typedef struct pair_s
     object_t *left; // левый элемент
     object_t *right; // правый элемент
     struct pair_s *next; // указатель на следующую свободную пару
+    int free; // Если 1 - пара свободна
 } pair_t;
 
 typedef  object_t *(*func_t)(object_t *);
@@ -60,8 +62,11 @@ typedef struct symbol_s
 object_t *object_new(type_t type, void *data);
 object_t *new_pair(object_t *left, object_t *right);
 struct symbol_s *new_symbol(char *str);
+void garbage_collect();
+object_t *dump_free(object_t *);
 void print_obj(object_t *obj);
 void free_object(object_t *obj);
 void free_pair(pair_t *p);
 void print_free_objs();
+void print_free_pairs();
 #endif
