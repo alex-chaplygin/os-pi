@@ -31,7 +31,7 @@ global a_isrMachineCheckException
 global a_isrNonExistent
 global a_syscall
 global save_regs, restore_regs
-global read_port, write_port	
+global inb, outb, inw, outw
 global a_timer
 global a_interrupt_handler
 global disable_interrupts, enable_interrupts
@@ -104,15 +104,25 @@ enable_interrupts:
 	sti
 	ret
 
-read_port:
+inb:				;чтение байта из порта
 	mov edx, [esp + 4]
 	in al, dx
 	ret
 
-write_port:
+outb:				;запись байта в порт
 	mov   edx, [esp + 4]    
 	mov   al, [esp + 4 + 4]  
 	out   dx, al  
+	ret
+inw:				;чтение слова из порта
+	mov edx, [esp + 4]
+	in ax, dx
+	ret
+
+outw:				;запись слова в порт
+	mov   edx, [esp + 4]    
+	mov   al, [esp + 4 + 4]  
+	out   dx, ax
 	ret
 	
 a_syscall:

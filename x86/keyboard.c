@@ -142,8 +142,8 @@ void init_keyboard()
 {
   clear_buffer(keyboard_buffer, 0, MAX_KEYBUFFER);
   uchar data; 
-  write_port(0x64, 0xAA);
-  data = read_port(0x60);
+  outb(0x64, 0xAA);
+  data = inb(0x60);
   if (data == 0x55)
     printf("Кeyboard is enabled\n");
   else
@@ -206,10 +206,10 @@ void keyboard_interrupt()
   uchar status;
   char key_code;
 
-  status = read_port(0x64);
+  status = inb(0x64);
 
   if (status & 0x01) {
-    key_code = read_port(0x60);
+    key_code = inb(0x60);
     //printf("key int = %x cur_key=%d\n", key_code, cur_key);
     if (key_code & 0x80) {
 	if ((key_code & 0x7F) == 42)

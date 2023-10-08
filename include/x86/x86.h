@@ -1,7 +1,9 @@
 #include <portable/types.h>
 
-extern uint read_port(int num);
-extern void write_port(int num, int data);
+extern uint inb(int num);
+extern void out(int num, int data);
+extern uint inw(int num);
+extern void outw(int num, int data);
 extern void save_regs();
 extern void restore_regs();
 extern void disable_interrupts();

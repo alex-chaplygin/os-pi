@@ -150,11 +150,11 @@ void scrollConsole(int n){
  */
 void enable_cursor(byte start, byte end)
 {
-  write_port(0x3D4, 0x0A);
-  write_port(0x3D5, (read_port(0x3D5) & 0xC0) | start);
+  outb(0x3D4, 0x0A);
+  outb(0x3D5, (inb(0x3D5) & 0xC0) | start);
 
-  write_port(0x3D4, 0x0B);
-  write_port(0x3D5, (read_port(0x3D5) & 0xE0) | end);
+  outb(0x3D4, 0x0B);
+  outb(0x3D5, (inb(0x3D5) & 0xE0) | end);
 }
 
 /** 
@@ -163,8 +163,8 @@ void enable_cursor(byte start, byte end)
  */
 void disable_cursor()
 {
-  write_port(0x3D4, 0x0A);
-  write_port(0x3D5, 0x20);
+  outb(0x3D4, 0x0A);
+  outb(0x3D5, 0x20);
 }
 
 /** 
@@ -174,9 +174,9 @@ void disable_cursor()
  */
 void move_cursor(int pos)
 {
-  write_port(0x3D4, 0x0F);
-  write_port(0x3D5, (byte) (pos & 0xFF));
-  write_port(0x3D4, 0x0E);
-  write_port(0x3D5, (byte) ((pos >> 8) & 0xFF));
+  outb(0x3D4, 0x0F);
+  outb(0x3D5, (byte) (pos & 0xFF));
+  outb(0x3D4, 0x0E);
+  outb(0x3D5, (byte) ((pos >> 8) & 0xFF));
 }
 
