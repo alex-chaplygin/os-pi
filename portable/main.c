@@ -21,7 +21,7 @@
 #include <x86/cmos.h>
 #include <portable/device.h>
 #include <portable/file.h>
-#include <portable/syscall.h>
+#include <portable/syslib.h>
 #include <x86/disk.h>
 #include <objects.h>
 #include <lexer.h>
@@ -67,6 +67,7 @@ void kmain(void)
     init_keyboard();
     init_eval();
     init_arith();
+    init_sys();
     boot_lisp();
     while(1) {
 	printf("> ");

@@ -1,5 +1,7 @@
 #include <portable/types.h> 
 
+void init_sys();
+
 int syscall_open(int fd);
 int syscall_create(int fd);
 int syscall_close(int fd);

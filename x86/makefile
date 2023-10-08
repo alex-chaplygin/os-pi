@@ -1,5 +1,5 @@
-OBJS=x86.o idt.o isr.o irq.o keyboard.o gdt.o console.o
-CFLAGS=-g -m32 -nostdlib -nodefaultlibs -Wno-builtin-declaration-mismatch -I../include
+OBJS=x86.o idt.o isr.o irq.o keyboard.o gdt.o console.o sys.o
+CFLAGS=-g -m32 -nostdlib -nodefaultlibs -Wno-builtin-declaration-mismatch -I../include -I../portable/lisp
 
 all: $(OBJS)
 

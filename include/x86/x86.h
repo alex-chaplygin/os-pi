@@ -1,7 +1,7 @@
 #include <portable/types.h>
 
 extern uint inb(int num);
-extern void out(int num, int data);
+extern void outb(int num, int data);
 extern uint inw(int num);
 extern void outw(int num, int data);
 extern void save_regs();
