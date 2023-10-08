@@ -9,4 +9,7 @@ SECTIONS
    .text : { *(.text) }
    .data : { *(.data) }
    .bss  : { *(.bss)  }
+   .lisp : { _lisp_start = .;
+   	     *(.lisp*)
+	   }
  }
