@@ -121,7 +121,7 @@ inw:				;чтение слова из порта
 
 outw:				;запись слова в порт
 	mov   edx, [esp + 4]    
-	mov   al, [esp + 4 + 4]  
+	mov   ax, [esp + 4 + 4]  
 	out   dx, ax
 	ret
 	
