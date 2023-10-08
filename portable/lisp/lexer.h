@@ -19,3 +19,7 @@ typedef struct {
 
 token_t *get_token();
 void print_token(token_t *token);
+
+extern char *boot_code;
+extern int boot_load;
+extern int flag;

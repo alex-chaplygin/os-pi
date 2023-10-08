@@ -24,10 +24,36 @@
 #include <portable/syscall.h>
 #include <x86/disk.h>
 #include <objects.h>
+#include <lexer.h>
 #include <parser.h>
 #include <eval.h>
 #include <arith.h>
 #include <symbols.h>
+
+/// Адрес начала секции .lisp
+const void *_lisp_start;
+
+/// последний прочитанный токен
+extern token_t token;
+
+/** 
+ * Загрузка начального кода lisp
+ *
+ */
+void boot_lisp()
+{
+    boot_code = (char *)&_lisp_start;
+    printf("boot = %x\n", &_lisp_start);
+    do {
+	object_t *o = parse();
+	if (o != ERROR) {
+	    object_t *res = eval(o, NULL);
+	    PRINT(res);
+	}
+    } while (token.type != END);
+    boot_load = 0;
+    flag = 0;
+}
 
 /** 
  * Точка входа в ядро
@@ -41,6 +67,7 @@ void kmain(void)
     init_keyboard();
     init_eval();
     init_arith();
+    boot_lisp();
     while(1) {
 	printf("> ");
 	object_t *o = parse();
@@ -49,8 +76,7 @@ void kmain(void)
 	if (o != ERROR) {
 	    object_t *res = eval(o, NULL);
 	    printf("\n");
-	    print_obj(res);
-	    printf("\n");
+	    PRINT(res);
 	}      
     }
 }

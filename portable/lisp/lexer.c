@@ -18,14 +18,22 @@ int flag = 0;
 token_t token;
 /// Если 1, то значит была ошибка при лексическом разборе
 int token_error;
+/// Если 1, то загрузка кода из секции .lisp ядра
+int boot_load = 1;
+/// Адрес памяти, откуда загружается lisp при загрузке
+char *boot_code;
 
 // читать один символ
 void get_cur_char()
 {
     if (flag)
         flag = 0;
-    else
-        cur_symbol = getchar();
+    else {
+	if (!boot_load)
+	    cur_symbol = getchar();
+	else
+	    cur_symbol = *boot_code++;
+    }
 }
 
 // вернуть последн\. символ назад 
