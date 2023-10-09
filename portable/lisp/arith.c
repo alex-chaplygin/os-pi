@@ -2,6 +2,7 @@
 #include "objects.h"
 #include "eval.h"
 #include "symbols.h"
+#include "parser.h"
 
 extern object_t *t;
 
@@ -52,7 +53,13 @@ object_t *mul(object_t *list)
     if (list == NULL)
 	return object_new(NUMBER, &num);
     object_t *prod = FIRST(list);
-    num = prod->u.value * mul(TAIL(list))->u.value;
+    if (prod == NULL) {
+	error("mul: Invalid first\n");
+	return ERROR;
+    }
+    object_t *tail = TAIL(list);
+    object_t *res = mul(tail);
+    num = prod->u.value * res->u.value;
     return object_new(NUMBER, &num);
 }
 
