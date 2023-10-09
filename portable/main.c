@@ -42,6 +42,7 @@ extern token_t token;
  */
 void boot_lisp()
 {
+    boot_load = 1;
     boot_code = (char *)&_lisp_start;
     printf("boot = %x\n", &_lisp_start);
     do {
