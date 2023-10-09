@@ -31,7 +31,7 @@ global a_isrMachineCheckException
 global a_isrNonExistent
 global a_syscall
 global save_regs, restore_regs
-global inb, outb, inw, outw
+global inb, outb, inw, outw, indw, outdw
 global a_timer
 global a_interrupt_handler
 global disable_interrupts, enable_interrupts
@@ -123,6 +123,16 @@ outw:				;запись слова в порт
 	mov   edx, [esp + 4]    
 	mov   ax, [esp + 4 + 4]  
 	out   dx, ax
+	ret
+indw:				;чтение двойного слова из порта
+	mov edx, [esp + 4]
+	in eax, dx
+	ret
+
+outdw:				;запись двойного слова в порт
+	mov   edx, [esp + 4]    
+	mov   eax, [esp + 4 + 4]  
+	out   dx, eax
 	ret
 	
 a_syscall:

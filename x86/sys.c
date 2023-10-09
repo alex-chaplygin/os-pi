@@ -83,6 +83,39 @@ object_t *OUTW(object_t *args)
     return NULL;
 }
 
+/**
+ * Чтение двойного слова из порта
+ *
+ * @param args (номер порта)
+ *
+ * @return значение регистра из порта
+ */
+object_t *INDW(object_t *args)
+{
+    if (args == NULL || args->type != PAIR) {
+	error("INDW: port\n");
+	return ERROR;
+    }
+    int val = indw(FIRST(args)->u.value);
+    return object_new(NUMBER, &val);
+}
+
+/** 
+ * Запись двойного слова в порт
+ *
+ * @param args (номер_порта значение)
+ *
+ * @return nil
+ */
+object_t *OUTDW(object_t *args)
+{
+    if (args == NULL || args->type != PAIR || args->u.pair->right == NULL) {
+	error("OUTDW: port val\n");
+	return ERROR;
+    }
+    outdw(FIRST(args)->u.value, SECOND(args)->u.value);
+    return NULL;
+}
 
 /** 
  * Регистрация системных функций
@@ -90,7 +123,9 @@ object_t *OUTW(object_t *args)
 void init_sys()
 {
     register_func("INB", INB);
-    register_func("INW", INW);
     register_func("OUTB", OUTB);
+    register_func("INW", INW);
     register_func("OUTW", OUTW);
+    register_func("INDW", INDW);
+    register_func("OUTDW", OUTDW);
 }

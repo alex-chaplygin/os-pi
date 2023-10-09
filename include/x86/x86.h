@@ -4,6 +4,8 @@ extern uint inb(int num);
 extern void outb(int num, int data);
 extern uint inw(int num);
 extern void outw(int num, int data);
+extern uint indw(int num);
+extern void outdw(int num, int data);
 extern void save_regs();
 extern void restore_regs();
 extern void disable_interrupts();
