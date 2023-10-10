@@ -186,6 +186,48 @@ void sweep()
     }
 }
 
+/** 
+ * Печать подробной информации о объектах и цепях:
+ * @param p_obj - включить вывод об объектах (1)
+ * @param p_pair - включить вывод о цепях (1)
+ * @param p_free - включить вывод о свободных элементах (1)
+ * @param p_free - включить вывод о занятых элементах (1)
+ */
+void print_mem(int p_obj, int p_pair, int p_free, int p_not_free)
+{
+	if (p_obj)
+        printf("-- OBJECTS --");
+    int max = !p_obj ? MAX_OBJECTS : 0;
+	for (int i = MAX_OBJECTS - 1; i >= max; i--)
+	{
+        if (&objects[i] == NULL)
+            printf("\nO_%d-NULL", i);
+		if (p_free && objects[i].free)
+			printf("\nO_%d-Free", i);
+		else if (p_not_free && !objects[i].free) {
+			printf("\nO_%d-N: ", i);
+			print_obj(&objects[i]);
+		}
+	}
+    if (p_pair)
+        printf("\n\n-- PAIRS --");
+    max = !p_pair ? MAX_PAIRS : 0;
+    for (int i = MAX_PAIRS - 1; i >= 0; i--)
+	{
+        if (&pairs[i] == NULL)
+            printf("\nP_%d-NULL", i);
+		if (p_free && pairs[i].free)
+			printf("\nP_%d-Free", i);
+		else if (p_not_free && !pairs[i].free) {
+			printf("\nP_%d-N: ", i);
+            object_t *pair;
+            pair->u.pair = &pairs[i];
+			print_list(pair);
+		}
+	}
+	fflush(stdout);
+}
+
 /**
  * Сборка мусора
  */
