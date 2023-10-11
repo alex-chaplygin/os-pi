@@ -1,4 +1,5 @@
-CFLAGS=-I. -I../ -fprofile-arcs -ftest-coverage -g -Wno-pointer-to-int-cast
+SHELL=bash
+CFLAGS=-I. -I../ --coverage -g -Wno-pointer-to-int-cast
 LDFLAGS="-lgcov"
 TESTS=/tmp/test_lexer /tmp/test_eval /tmp/test_symbols /tmp/test_objects /tmp/test_parser /tmp/test_eval_int
 
@@ -22,3 +23,8 @@ all: $(TESTS)
 test: $(TESTS) /tmp/test_sys
 	for test in $(TESTS); do bash -c $$test ; done
 	sh sys_all
+
+coverage: $(TESTS) /tmp/test_sys
+	lcov -c -i -d ../ -o /tmp/base.info
+	for test in $(TESTS); do rm $$test; make $$test; bash -c $$test ; lcov -c -d ../ -o $$test.info ;	done
+	./make_report

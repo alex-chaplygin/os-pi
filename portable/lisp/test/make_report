@@ -1,0 +1,3 @@
+cd /tmp/
+lcov `for i in test*.info; do echo -n " -a $i"; done` -o total.info
+genhtml total.info
