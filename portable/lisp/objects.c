@@ -37,13 +37,10 @@ object_t *object_new(type_t type, void *data)
 {
     object_t *new;
     if (last_object == MAX_OBJECTS) {
-        if (free_objs == NULL) {
-	    garbage_collect();
 	    if (free_objs == NULL) {
 		error("Error: out of memory: objects");
 		return ERROR;
 	    }
-        }
         new = free_objs;
         free_objs = free_objs->next;
         new->next = NULL;

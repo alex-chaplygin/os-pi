@@ -91,6 +91,8 @@ int main()
 	    object_t *res = eval(o, NULL);
 	    //printf("res: "); PRINT(res);
 	    print_obj(res);
+        printf("\n");
+        garbage_collect();
 	}
     } while (token.type != END);
     /*
