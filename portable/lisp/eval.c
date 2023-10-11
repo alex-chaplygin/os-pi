@@ -182,7 +182,14 @@ object_t *defun(object_t *obj)
 object_t *defvar(object_t *params)
 {
     symbol_t *name = find_symbol(FIRST(params)->u.symbol->str);
-    name->value = eval(SECOND(params), NULL);
+    if (name == NULL) {
+        error("Name not found\n");
+        return ERROR;
+    }
+    if (SECOND(params) == NULL)
+        name->value = NULL;
+    else
+        name->value = eval(SECOND(params), NULL);
     return object_new(SYMBOL, name->str);
 }    
 
