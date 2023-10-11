@@ -1,8 +1,8 @@
-SUBDIRS=x86 portable
+SUBDIRS=portable x86
 
 all: bin/kernel
 
-bin/kernel: $(SUBDIRS) /tmp/lisp
+bin/kernel: $(SUBDIRS)
 	ld -m elf_i386 -T link.ld -o bin/kernel x86/*.o portable/*.o portable/lisp/*.o
 
 $(SUBDIRS):
