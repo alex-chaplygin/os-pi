@@ -40,6 +40,11 @@ symbol_t *find_symbol(char *str)
     return NULL;
 }
 
+symbol_t *find_symbol_get(char *str)
+{
+    return NULL;
+}
+
 void register_func(char *name, func_t func_ptr)
 {
 }
