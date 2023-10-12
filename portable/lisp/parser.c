@@ -102,6 +102,22 @@ object_t *parse_list()
 	return ERROR;
 }
 
+/** 
+ * Обработка массива #(1 2 3)
+ *  
+ * @return объект списка
+ */
+object_t *parse_array()
+{
+    object_t *o = parse();
+    if (o == ERROR)
+	return ERROR;
+    if (o != NULL && o->type != PAIR) {
+	error("invalid array\n");
+	return ERROR;
+    }
+    return o;
+}
 
 /**
  * Читает выражение и строит обьект этого выражения
@@ -124,6 +140,8 @@ object_t *parse()
 	return parse_list();
     else if (cur_token->type == QUOTE)
 	return parse_quote();
+    else if (cur_token->type == SHARP)
+	return parse_array();
     else if (cur_token->type == END)
 	return ERROR;
     else if (cur_token->type == INVALID)
