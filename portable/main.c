@@ -80,6 +80,7 @@ void kmain(void)
 	    printf("\n");
 	    PRINT(res);
 	}      
+	garbage_collect();
     }
 }
 
