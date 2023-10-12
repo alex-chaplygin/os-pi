@@ -190,8 +190,8 @@ void test_defun()
     ASSERT(res->type, SYMBOL);
     symbol_t *null = find_symbol("NULL");
     ASSERT(res->u.symbol, null);
-    ASSERT(null->value->type, PAIR);
-    ASSERT(null->value->u.pair->left->u.symbol, find_symbol("LAMBDA"));
+    ASSERT(null->lambda->type, PAIR);
+    ASSERT(null->lambda->u.pair->left->u.symbol, find_symbol("LAMBDA"));
 }
 
 /**
@@ -210,6 +210,25 @@ void test_append()
     ASSERT(l1->u.pair->right->u.pair->left->u.value, 2);
 }
 
+/**
+ * Создать список (progn 1 2 3)
+ * Проверить результат 3
+ */
+void test_progn()
+{
+    printf("test_progn: \n");
+    int num1 = 1;
+    int num2 = 2;
+    int num3 = 3;
+    object_t *obj = new_pair(object_new(SYMBOL, "PROGN"),
+			     new_pair(object_new(NUMBER, &num1),
+				      new_pair(object_new(NUMBER, &num2),
+					       new_pair(object_new(NUMBER, &num3), NULL))));
+    object_t *res = eval(obj, NULL);
+    ASSERT(res->type, NUMBER);
+    ASSERT(res->u.value, 3);
+}
+
 int main()
 {
     printf("------------test_eval_int---------\n");
@@ -223,6 +242,7 @@ int main()
     test_find_in_env();
     test_defun();
     test_append();
+    test_progn();
     return 0;
 }
 
