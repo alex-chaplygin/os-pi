@@ -52,6 +52,8 @@ object_t *mul(object_t *list)
     int num = 1;
     if (list == NULL)
 	return object_new(NUMBER, &num);
+    else if (list == ERROR)
+	return ERROR;
     object_t *prod = FIRST(list);
     if (prod == NULL) {
 	error("mul: Invalid first\n");
@@ -59,6 +61,8 @@ object_t *mul(object_t *list)
     }
     object_t *tail = TAIL(list);
     object_t *res = mul(tail);
+    if (res == ERROR)
+	return ERROR;
     num = prod->u.value * res->u.value;
     return object_new(NUMBER, &num);
 }
