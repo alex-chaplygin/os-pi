@@ -179,6 +179,20 @@ void test_invalid_num(const char* name_test, char* str, int error)
     ASSERT(token_error, error);
 }
 
+/*
+* Тестирование строки в ""
+*/
+void test_string(char* str, char* exp_str) 
+{
+    printf("test_string :"); // вывод имени теста
+    write_file(str); // запись в файл
+    token_t *tok = get_token();
+    printf("res = '%s' exp = '%s'", tok->str, exp_str);
+    flag = 0; // считать символ (если true, не считывать символ)
+    ASSERT(tok->type, T_STRING);
+    ASSERT(strcmp(tok->str, exp_str), 0);
+}
+
 int main()
 {
     printf("-------------test_lexer---------------\n");
@@ -209,10 +223,12 @@ int main()
     test_get_token("rparen", ")", RPAREN);
     test_get_token("tnumber", "42", T_NUMBER);
     test_get_token("quote", "\'", QUOTE);
+    test_get_token("sharp", "#(1 2 3)", SHARP);
     test_invalid_num("invalid num", "11D", 1);
     test_invalid_num("valid num", "11 dd", 0);
     test_invalid_num("invalid num", "0GG", 1);
     test_invalid_num("invalid hex", "0xfrf", 1);
     test_invalid_num("invalid hex", "0xrf", 1);
+    test_string("\"1 2 3\"", "1 2 3");
     return 0;
 }
