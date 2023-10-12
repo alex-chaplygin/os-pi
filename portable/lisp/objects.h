@@ -7,15 +7,18 @@
 #define MAX_PAIRS 200
 /// Всего символов
 #define MAX_SYMBOLS 100
+/// Всего символов для строк
+#define MAX_CHARS 200
 
 #define MAX_STR 50
 #define PRINT(o) print_obj(o); printf("\n");
 
 /// перечисление типов объектов
 typedef enum {
-  NUMBER, /// целое число
-  SYMBOL, ///символ
-  PAIR    ///пара
+    NUMBER, /// целое число
+    SYMBOL, ///символ
+    PAIR,    ///пара
+    STRING   ///строка
 } type_t;
 
 struct pair_s;
@@ -28,6 +31,7 @@ typedef struct object_s
         int value; // если объект число, то его значение
         struct symbol_s *symbol; // указатель на символ
         struct pair_s *pair; // Если объект пара из 2-х объектов (левый и правый) то указатель на пару
+	char *str; // если объект строка
     } u;
     struct object_s *next; // указатель на следующий свободный объект
     int mark; // пометка для сборки мусора
@@ -37,8 +41,8 @@ typedef struct object_s
 /// Структура пары
 typedef struct pair_s
 {
-    object_t *left; // левый элемент
-    object_t *right; // правый элемент
+    object_t *left; // левый элемент (элемент списка)
+    object_t *right; // правый элемент (следующая пара)
     struct pair_s *next; // указатель на следующую свободную пару
     int free; // Если 1 - пара свободна
 } pair_t;
@@ -48,14 +52,16 @@ typedef  object_t *(*func_t)(object_t *);
 //структура символа
 typedef struct symbol_s
 {
-  //имя символа
-  char str[MAX_STR];
-  //указатель на следующий символ в цепочке хеш таблице
-  struct symbol_s *next;
-  // указатель на объект - значение символа 
-  object_t *value;
-  //указатель на функцию для примитивов
-  func_t func;
+    //имя символа
+    char str[MAX_STR];
+    //указатель на следующий символ в цепочке хеш таблице
+    struct symbol_s *next;
+    // указатель на объект - значение переменной
+    object_t *value;
+    // указатель на объект для функций (lambda выражение)
+    object_t *lambda;
+    //указатель на функцию для примитивов
+    func_t func;
 } symbol_t;
 
 

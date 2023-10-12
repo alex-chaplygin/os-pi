@@ -25,6 +25,11 @@ int last_symbol = 0;
 /// Хранилище символов
 symbol_t symbols[MAX_SYMBOLS];
 
+/// Индекс последнего символа для строк
+int last_char = 0;
+/// Хранилище символов для строк
+char chars[MAX_CHARS];
+
 /** 
  * Создание нового объекта из пула объектов
  *
@@ -136,16 +141,17 @@ void free_pair(pair_t *p)
  */
 symbol_t *new_symbol(char *str)
 {
-  symbol_t *symbol = &symbols[last_symbol++];
-  if (last_symbol == MAX_SYMBOLS) {
-    error("Error: out of memory: symbols");
-    return (symbol_t*)ERROR;
-  }
-  strcpy(symbol->str, str);
-  symbol->next = NULL;
-  symbol->value = NULL;
-  symbol->func = NULL;
-  return symbol;
+    symbol_t *symbol = &symbols[last_symbol++];
+    if (last_symbol == MAX_SYMBOLS) {
+	error("Error: out of memory: symbols");
+	return (symbol_t*)ERROR;
+    }
+    strcpy(symbol->str, str);
+    symbol->next = NULL;
+    symbol->value = NULL;
+    symbol->func = NULL;
+    symbol->lambda = NULL;
+    return symbol;
 }
 
 /** 
@@ -188,7 +194,7 @@ void sweep()
  */
 void garbage_collect()
 {
-    printf("garbage\n");
+    //printf("garbage\n");
     for (int i = 0; i < last_symbol; i++)
 	mark_object(symbols[i].value);
    
