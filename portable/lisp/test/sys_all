@@ -9,7 +9,7 @@ sh sys_test "(defun f(x)\
          (cond \
             ((= x 1) 1) \
             (T (* x (f (- x 1))))))\
-         (f 12) " "F479001600"
+         (f 12) (f 3) (f 12)" "F4790016006479001600"
 sh sys_test "(defun f(x)\
          (cond \
             ((= x 1) 1) \
