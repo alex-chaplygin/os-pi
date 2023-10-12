@@ -169,7 +169,7 @@ void get_symbol(char *cur_str)
 }
 
 /** 
- * прочесть строку в двойных кавычках
+ * прочесть строку в двойных кавычках \"1 2 3\"
  *
  * @param cur_str куда сохраняется строка
  */
@@ -177,8 +177,11 @@ void get_string(char *cur_str)
 {
     int c = 0;
 
-    get_cur_char(); // Пропускаем открывающую кавычку
+    //printf("get_string\n");
+    get_cur_char(); // Считываем открывающую кавычку
+    get_cur_char();
     while (cur_symbol != EOF) {
+	//printf("sym = %c\n", cur_symbol);
 	if (cur_symbol == '"') {
 	    get_cur_char(); // Пропускаем закрывающую кавычку
 	    break;
@@ -215,6 +218,10 @@ token_t *get_token()
 	    // Используем get_string для чтения строки в двойных кавычках
 	    get_string(token.str); 
 	    token.type = T_STRING;
+	    break;
+        case '#':
+	    get_cur_char();
+	    token.type = SHARP;
 	    break;
         default:
             if (is_digit(cur_symbol)) {
@@ -260,6 +267,9 @@ void print_token(token_t *token)
     case T_STRING:
 	printf("STRING %s\n", token->str);
 	break;
+    case SHARP:
+	printf("SHARP\n");
+       
     }
 }
    

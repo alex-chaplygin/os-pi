@@ -8,6 +8,7 @@ typedef enum {
     END, // конец строки
     QUOTE, // символ '
     T_STRING, // строка в кавычках
+    SHARP, // символ #
     INVALID // неизвестный объект
 } tokentype_t; //тип ликсемы 
 
