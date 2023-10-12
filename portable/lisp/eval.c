@@ -168,7 +168,7 @@ object_t *cond(object_t *obj, object_t *env)
 object_t *defun(object_t *obj)
 {
     symbol_t *name = find_symbol(FIRST(obj)->u.symbol->str);
-    name->value = new_pair(object_new(SYMBOL, "LAMBDA"), TAIL(obj));
+    name->lambda = new_pair(object_new(SYMBOL, "LAMBDA"), TAIL(obj));
     return object_new(SYMBOL, name->str);
 }
 
@@ -183,7 +183,7 @@ object_t *defvar(object_t *params)
 {
     symbol_t *name = find_symbol(FIRST(params)->u.symbol->str);
     if (name == NULL) {
-        error("Name not found\n");
+        error("defvar: Name not found\n");
         return ERROR;
     }
     if (SECOND(params) == NULL)
@@ -192,6 +192,27 @@ object_t *defvar(object_t *params)
         name->value = eval(SECOND(params), NULL);
     return object_new(SYMBOL, name->str);
 }    
+
+/**
+ * (progn e1 e2 .. en)
+ * 
+ * Вычисляет все выражения e1 .. en. 
+ *
+ * @param params - список (e1 e2 .. en)
+ *
+ * @return Возвращает результат последнего выражения en
+ */
+object_t *progn(object_t *params)
+{
+    if (params == NULL) {
+	error("progn: params = NULL \n");
+	return ERROR;
+    } else if (params == ERROR)
+	return ERROR;
+    else if (TAIL(params) == NULL)
+	return FIRST(params);
+    return progn(TAIL(params));
+}
 
 /** 
  * Проверка списка на то, что все элементы типа type
@@ -300,9 +321,11 @@ void append_env(object_t *l1, object_t *l2)
 }
 
 /**
- * Вычислить lambda функцию с заданными аргументами 
+ * Вычислить lambda функцию с заданными аргументами.
+ * Подставить PROGN
+ * (e1 ... en) -> (PROGN e1 ... en)
  * 
- * @param lambda - функция (lambda (x) x)
+ * @param lambda - функция (lambda (x) e1 e2)
  * @param args - список значений аргументов (1)
  * @param env окружение
  * @return вычисленное значение функции
@@ -310,8 +333,15 @@ void append_env(object_t *l1, object_t *l2)
 object_t *eval_func(object_t *lambda, object_t *args, object_t *env)
 {
     object_t *new_env = make_env(SECOND(lambda), args);
+    object_t *body;
+    if (TAIL(TAIL(lambda))->u.pair->right == NULL)
+	body = THIRD(lambda);
+    else
+	body = new_pair(object_new(SYMBOL, "PROGN"), TAIL(TAIL(lambda)));
+    if (body == ERROR)
+	return ERROR;
     append_env(new_env, env);
-    return eval(THIRD(lambda), new_env);
+    return eval(body, new_env);
 }
     
 /**
@@ -331,7 +361,13 @@ object_t *eval_args(object_t *args, object_t *env)
     object_t *f = FIRST(args);
     //printf("f = %x pair = %x\n", f, f->u.pair);
     //PRINT(f);
-    return new_pair(eval(f, env), eval_args(TAIL(args), env)); 
+    object_t *arg = eval(f, env);
+    if (arg == ERROR)
+	return ERROR;
+    object_t *tail = eval_args(TAIL(args), env);
+    if (tail == ERROR)
+	return ERROR;
+    return new_pair(arg, tail); 
 }
 
 /**
@@ -359,18 +395,21 @@ int is_special_form(symbol_t *s)
 object_t *eval_symbol(object_t *obj, object_t *env)
 {
     object_t *res;
+    
     //printf("eval_symbol: ");
     //PRINT(obj);
     //printf("env: ");
-    //PRINT(env);
+    //PRINT(env);  
+    
     if (find_in_env(env, obj, &res))
-	    return res;
-    else if (nil_sym == obj->u.symbol)
-	    return nil;
-    else if (t_sym == obj->u.symbol)
-        return t;
-	else
-        return ERROR;
+        return res;
+    else {
+	symbol_t *res_sym = find_symbol_get(obj->u.symbol->str);
+        if (res_sym != NULL)
+           return res_sym->value;
+        else
+           return ERROR;
+    }
 }
 
 /**
@@ -416,8 +455,8 @@ object_t *eval(object_t *obj, object_t *env)
 	    args = TAIL(obj);
 	else
 	    args = eval_args(TAIL(obj), env);
-	if (s->value != NULL)
-	    return eval_func(s->value, args, env);
+	if (s->lambda != NULL)
+	    return eval_func(s->lambda, args, env);
 	else if (s->func != NULL)
 	    return s->func(args);
 	else {
@@ -442,6 +481,7 @@ void init_eval()
   register_func("CONS", cons);
   register_func("DEFUN", defun);
   register_func("DEFVAR", defvar);
+  register_func("PROGN", progn);
   t = object_new(SYMBOL, "T");
   nil = NULL;
   quote_sym = find_symbol("QUOTE");
@@ -450,5 +490,7 @@ void init_eval()
   defun_sym = find_symbol("DEFUN");
   defvar_sym = find_symbol("DEFVAR");
   t_sym = t->u.symbol;
+  t_sym->value = t;
   nil_sym = find_symbol("NIL");
+  nil_sym->value = nil;
 }
