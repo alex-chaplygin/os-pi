@@ -3,6 +3,7 @@
 #include "symbols.h"
 #include "eval.h"
 #include "test.h"
+#include "parser.h"
 
 extern object_t *t;
 extern object_t *nil;
@@ -34,6 +35,23 @@ void test_car()
     object_t *res = eval(o, NULL);
     ASSERT(res->type, NUMBER);
     ASSERT(res->u.value, 5);
+}
+
+/*
+ *создать объект для выражения (car (quote 5))
+ *вычислить объект
+ */
+
+void test_invalid_car()
+{
+    printf("test_invalid_car: ");
+    
+    int e =5;
+    object_t *l = object_new(NUMBER, &e);// 5
+    object_t *q = new_pair(object_new(SYMBOL, "QUOTE"),new_pair(l,NULL));// (quote 5)
+    object_t *o = new_pair(object_new(SYMBOL, "CAR"),new_pair(q,NULL));// (car (quote 5))
+    object_t *res = eval(o, NULL);
+    ASSERT(res, ERROR);
 }
 
 /**
@@ -234,6 +252,7 @@ int main()
     printf("------------test_eval_int---------\n");
     init_eval();
     test_car();
+    test_invalid_car();
     test_cons();
     test_is_lambda();
     //xtest_is_lambda_not_symbol();
