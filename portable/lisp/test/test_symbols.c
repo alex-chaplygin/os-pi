@@ -7,6 +7,7 @@
 
 void str_copy (char *str1, char *str2);
 int compare_str(char *str1, char *str2);
+unsigned int hash(char *str);
 
 symbol_t s;
 
@@ -29,6 +30,19 @@ void test_find_symbol(char *str, char *expected_symbol)
     printf("test_find_symbol: ");
     symbol_t *result = find_symbol(str);
     ASSERT(strcmp(result->str, expected_symbol), 0);
+}
+
+/** 
+ * Тестирование символов с обинаковым хеш значением
+ */
+void test_same_hash()
+{
+    printf("test_same_hash:");
+    char str1[] = "PJ";
+    char str2[] = "452";
+    printf("%d\n", hash(str1));
+    printf("%d\n", hash(str2));
+    ASSERT((find_symbol(str1) != find_symbol(str2)), 1);
 }
 
 /**
@@ -72,4 +86,5 @@ int main()
     test_find_symbol("ab", "ab");
     test_find_symbol_get();
     test_register_func();
+    test_same_hash();
 }
