@@ -64,6 +64,15 @@ token_t tok_inv[] =
     {RPAREN}
 };
 
+token_t tok_array[] = {
+    {SHARP},
+    {LPAREN},
+    {T_NUMBER, 1},
+    {T_NUMBER, 2},
+    {T_NUMBER, 3},
+    {RPAREN}
+};    
+
 token_t tok_inv_quote[] = 
 {
     {QUOTE},
@@ -296,6 +305,20 @@ void test_parse_invalid_quote()
     ASSERT(ERROR, o);
 }
 
+/** 
+ * Тестируем массив #(1 2 3)
+ * На выходе: (1 2 3)
+ */
+void test_parse_array()
+{
+    printf("test_parse_array: \n");
+    count = 0;
+    tokens = tok_array;
+    object_t *o = parse();
+    ASSERT(o->u.pair->left->u.value, 1);
+    ASSERT(o->u.pair->right->u.pair->left->u.value, 2);
+    ASSERT(o->u.pair->right->u.pair->right->u.pair->left->u.value, 3);
+}
 
 int main()
 {
@@ -310,5 +333,6 @@ int main()
     test_parse_inner_list();
     test_parse_invalid();
     test_parse_invalid_quote();
+    test_parse_array();
     return 0;
 }
