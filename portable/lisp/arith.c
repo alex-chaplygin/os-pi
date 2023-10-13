@@ -16,10 +16,21 @@ extern object_t *t;
 object_t *add(object_t *list)
 {
     int num = 0;
-    if (list == NULL)
-	return object_new(NUMBER, &num);
-    object_t *sum = FIRST(list);
-    num = sum->u.value + add(TAIL(list))->u.value;
+    if (list == NULL) {
+	error("add: no arguments\n");
+	return ERROR;
+    }
+    while (list != NULL) {
+	object_t *first = FIRST(list);
+	if (first->type == NUMBER) {  
+	    num += first->u.value;
+	    list = TAIL(list);
+	}
+	else {
+	    error("add: Not number\n");
+	    return ERROR;
+	}
+    }
     return object_new(NUMBER, &num);
 }
 
