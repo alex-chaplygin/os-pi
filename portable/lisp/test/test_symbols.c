@@ -50,13 +50,13 @@ void test_same_hash()
  * Получить символ "f" из таблицы с помощью find_symbol_get
  * Проверить что созданный и полученный символы совпадают
  */
-void test_find_symbol_get()
+void test_check_symbol()
 {
-    printf("test_find_symbol_get: ");
-    symbol_t *s1 = find_symbol_get("f");
+    printf("test_check_symbol: ");
+    symbol_t *s1 = check_symbol("f");
     ASSERT(s1, NULL);
     symbol_t *s2 = find_symbol("f");
-    symbol_t *s3 = find_symbol_get("f");
+    symbol_t *s3 = check_symbol("f");
     ASSERT(s2, s3);
 }
 
@@ -84,7 +84,7 @@ int main()
     test_compare_str("abc", "abc1", 0);
     test_find_symbol("a", "a");
     test_find_symbol("ab", "ab");
-    test_find_symbol_get();
+    test_check_symbol();
     test_register_func();
     test_same_hash();
 }
