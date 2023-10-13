@@ -51,12 +51,26 @@ int is_whitespace(char c)
 }
 
 /** 
- * Пропустить пустоты: пробелы, переводы строк
+ * Пропуск символов до конца строки
+ */
+void skip_comment()
+{
+    while (cur_symbol != '\n')
+	get_cur_char();
+}
+
+/** 
+ * Пропустить пустоты: пробелы, переводы строк, комментарии
+ * "    ; hjhjhjh\n"
+ * ";hfjkdhjkfhd\n"
  */
 void skip_white_space()
 {
-    while (is_whitespace(cur_symbol))
-        get_cur_char();
+    while (is_whitespace(cur_symbol) || cur_symbol == ';') {
+	if (cur_symbol == ';')
+	    skip_comment();
+	get_cur_char();
+    }
     unget_cur_char();
 }
 
