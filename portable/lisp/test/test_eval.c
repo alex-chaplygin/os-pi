@@ -40,7 +40,7 @@ symbol_t *find_symbol(char *str)
     return NULL;
 }
 
-symbol_t *find_symbol_get(char *str)
+symbol_t *check_symbol(char *str)
 {
     return NULL;
 }
