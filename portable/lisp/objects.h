@@ -7,7 +7,7 @@
 #define MAX_PAIRS 200
 /// Всего символов
 #define MAX_SYMBOLS 100
-/// Всего символов для строк
+/// Всего байт для регионов 
 #define MAX_CHARS 200
 
 #define MAX_STR 50
@@ -75,4 +75,6 @@ void free_object(object_t *obj);
 void free_pair(pair_t *p);
 void print_free_objs();
 void print_free_pairs();
+void init_regions();
+void *alloc_region(int size);
 #endif

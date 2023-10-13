@@ -27,8 +27,19 @@ symbol_t symbols[MAX_SYMBOLS];
 
 /// Индекс последнего символа для строк
 int last_char = 0;
-/// Хранилище символов для строк
-char chars[MAX_CHARS];
+/// Хранилище для регионов
+char region_data[MAX_CHARS];
+/// Метка региона
+#define MAGIC 0xABCD1234
+/// создаваемый или свободный регион памяти
+struct region {
+    int magic; /// метка своих регионов
+    int free; /// свободен ли регион
+    struct region *next; /// указатель на следующий регион
+    struct region *prev; /// указатель на предыдущий регион
+    int size; /// размер региона в байтах
+    char data[1]; /// Данные региона
+} *regions;
 
 /** 
  * Создание нового объекта из пула объектов
@@ -43,7 +54,7 @@ object_t *object_new(type_t type, void *data)
     object_t *new;
     if (last_object == MAX_OBJECTS) {
 	    if (free_objs == NULL) {
-		error("Error: out of memory: objects");
+		error("Error: out of memory: objects\n");
 		return ERROR;
 	    }
         new = free_objs;
@@ -304,4 +315,47 @@ void print_mem(int p_obj, int p_pair, int p_free, int p_not_free)
 	    print_list(pair);
 	}
     }
+}
+
+/** 
+ * Инициализация свободного региона
+ */
+void init_regions()
+{
+    regions = (struct region *)region_data;
+    regions->free = 1;
+    regions->next = NULL;
+    regions->prev = NULL;
+    regions->size = MAX_CHARS - sizeof(struct region) + sizeof(char *);
+}
+
+/**
+ * Выделение нового региона
+ * @param size размер выделенного региона в байтах
+ * 
+ * @return указатель на данные выделенного региона
+ */
+void *alloc_region(int size)
+{
+    /// найти первый свободный регион подходящего размера
+    struct region *r = regions;
+    if ((size & 3) != 0)
+	size = ((size >> 2) + 1) << 2;
+    int size2 = size + sizeof(struct region) - sizeof(char *);
+    while (r != NULL) {
+	if (r->free == 1 && r->size >= size2) {
+	    struct region *free_reg = (struct region *)(r->data + size);
+	    free_reg->free = 1;
+	    free_reg->next = r->next;
+	    free_reg->prev = r;
+	    free_reg->size = r->size - size - sizeof(struct region) + sizeof(char *);
+	    r->next = free_reg;
+	    r->size = size;
+	    r->magic = MAGIC;
+	    return r->data;
+	}
+	r = r->next;
+    }
+    error("Alloc region: out of memory\n");
+    return ERROR;
 }
