@@ -332,6 +332,12 @@ void append_env(object_t *l1, object_t *l2)
  */
 object_t *eval_func(object_t *lambda, object_t *args, object_t *env)
 {
+    /*    printf("eval_func: lambda = ");
+    PRINT(lambda);
+    printf("eval_func: args = ");
+    PRINT(args);
+    printf("eval_func: env = ");
+    PRINT(env);*/
     object_t *new_env = make_env(SECOND(lambda), args);
     object_t *body;
     if (TAIL(TAIL(lambda))->u.pair->right == NULL)
@@ -404,7 +410,7 @@ object_t *eval_symbol(object_t *obj, object_t *env)
     if (find_in_env(env, obj, &res))
         return res;
     else {
-	symbol_t *res_sym = find_symbol_get(obj->u.symbol->str);
+	symbol_t *res_sym = check_symbol(obj->u.symbol->str);
         if (res_sym != NULL)
            return res_sym->value;
         else
