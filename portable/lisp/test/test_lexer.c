@@ -221,6 +221,9 @@ int main()
     test_get_token("empty", " ", END);
     test_get_token("lparen", "(", LPAREN);
     test_get_token("rparen", ")", RPAREN);
+    test_get_token("comment", " ; comment\n  42", T_NUMBER);
+    test_get_token("comment2", ";comment\n\n\n;fffff\n  42", T_NUMBER);
+    test_get_token("comment3", ";comment;dsada\n  42", T_NUMBER);
     test_get_token("tnumber", "42", T_NUMBER);
     test_get_token("quote", "\'", QUOTE);
     test_get_token("sharp", "#(1 2 3)", SHARP);
