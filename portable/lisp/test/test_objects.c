@@ -10,6 +10,7 @@ extern object_t *free_objs;
 extern int last_object;
 extern int last_pair;
 extern pair_t *free_pairs;
+extern char region_data[];
 
 object_t *mobject;
 
@@ -283,10 +284,24 @@ void test_garbage_collect_list()
     } 
     printf("pairs: OK\n");
 }
+/**
+ * Выделить 2 региона с размерами 5 и 64
+ * Проверить указатели регионов относительно начала
+ * Проверить указатели данных
+ */
+void test_alloc_region()
+{
+    printf("test_alloc_region: ");
+    char *reg1 = alloc_region(5);
+    char *reg2 = alloc_region(64);
+    ASSERT((reg1 - region_data), 28);
+    ASSERT((reg2 - region_data), 28 + 8 + 28);
+}
 
 void main()
 {
     printf("--------------test objects---------------------\n");
+    init_regions();
     test_object_new();
     test_new_pair();
     int i = 10;
@@ -298,4 +313,5 @@ void main()
     test_garbage_collect();
     test_garbage_collect_list();
     test_print_obj(object_new(NUMBER, &i), "10");
+    test_alloc_region();
 }
