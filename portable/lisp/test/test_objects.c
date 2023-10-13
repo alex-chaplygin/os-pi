@@ -111,6 +111,21 @@ void test_free_object()
     free_pairs = NULL;
 }
 
+/** 
+ * Проверка на получение объекта, равного NULL
+ */
+void test_free_object_null()
+{
+    printf("test_free_object_null: ");
+    int n = 5;
+    object_t *o3 = NULL;
+    object_t *o4 = object_new(NUMBER, &n);    
+    free_object(o4);
+    free_object(o3);    
+    ASSERT(free_objs, o4);
+    free_objs = NULL;
+}
+
 /**
  * Проверка корректности функции освобождения пары
  *  объектов и их дальнейшего переиспользования
@@ -276,6 +291,7 @@ void main()
     test_new_pair();
     int i = 10;
     test_free_object();
+    test_free_object_null();
     test_free_pair();
     test_mark();
     test_sweep();
