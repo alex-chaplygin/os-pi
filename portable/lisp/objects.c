@@ -205,9 +205,11 @@ void sweep()
  */
 void garbage_collect()
 {
-    //printf("garbage\n");
     for (int i = 0; i < last_symbol; i++)
-	mark_object(symbols[i].value);
+    {
+        mark_object(symbols[i].value);
+        mark_object(symbols[i].lambda);
+    }
    
     sweep();
 }
