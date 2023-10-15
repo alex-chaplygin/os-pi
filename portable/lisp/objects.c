@@ -343,18 +343,20 @@ void *alloc_region(int size)
     struct region *r = regions;
     if ((size & 3) != 0)
 	size = ((size >> 2) + 1) << 2;
-    int size2 = size + sizeof(struct region) - sizeof(char *);
+    int offset_markup = sizeof(struct region) - sizeof(char *);
+    printf("\nsize of region-data = %d\n",offset_markup);
+    int size2 = size + offset_markup;
     while (r != NULL) {
 	if (r->free == 1 && r->size >= size2) {
 	    struct region *free_reg = (struct region *)(r->data + size);
 	    free_reg->free = 1;
 	    free_reg->next = r->next;
 	    free_reg->prev = r;
-	    free_reg->size = r->size - size - sizeof(struct region) + sizeof(char *);
+	    free_reg->size = r->size - size2;
 	    r->next = free_reg;
 	    r->size = size;
 	    r->magic = MAGIC;
-	    return r->data;
+	    return free_reg;
 	}
 	r = r->next;
     }
