@@ -9,7 +9,7 @@ all: $(TESTS)
 	gcc $(CFLAGS) $(LDFLAGS) -o $@ $^
 /tmp/test_eval: test_eval.c ../eval.c
 	gcc $(CFLAGS) $(LDFLAGS) -o $@ $^
-/tmp/test_eval_int: test_eval_int.c ../eval.c ../symbols.c ../objects.c
+/tmp/test_eval_int: test_eval_int.c ../eval.c ../symbols.c ../objects.c ../arith.c
 	gcc $(CFLAGS) $(LDFLAGS) -o $@ $^
 /tmp/test_symbols: test_symbols.c ../symbols.c
 	gcc $(CFLAGS) $(LDFLAGS) -o $@ $^
