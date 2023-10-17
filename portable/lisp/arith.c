@@ -43,11 +43,23 @@ object_t *add(object_t *list)
  */
 object_t *sub(object_t *list)
 {
-    int num = 0;
-    if (list == NULL)
-	return object_new(NUMBER, &num);
-    object_t *diff = FIRST(list);
-    num = diff->u.value - add(TAIL(list))->u.value;
+    if (list == NULL) {
+        error("sub: no arguments\n");
+        return ERROR;
+    }
+    object_t *first = FIRST(list);
+    int num = first->u.value;
+    list = TAIL(list);
+    while (list != NULL) {
+        object_t *first = FIRST(list);
+        if (first->type == NUMBER) {
+            num -= first->u.value;
+            list = TAIL(list);
+        } else {
+            error("sub: Not number\n");
+            return ERROR;
+        }
+    }
     return object_new(NUMBER, &num);
 }
 

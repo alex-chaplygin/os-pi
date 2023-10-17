@@ -12,6 +12,8 @@ object_t * make_env(object_t *args, object_t *values);
 int find_in_env(object_t *env, object_t *sym, object_t **res);
 int is_lambda(object_t *list);
 void append_env(object_t *l1, object_t *l2);
+object_t *add(object_t *list);
+object_t *sub(object_t *list);
 
 void error(char *str)
 {
@@ -234,7 +236,7 @@ void test_append()
  */
 void test_progn()
 {
-    printf("test_progn: \n");
+    printf("test_progn: ");
     int num1 = 1;
     int num2 = 2;
     int num3 = 3;
@@ -245,6 +247,40 @@ void test_progn()
     object_t *res = eval(obj, NULL);
     ASSERT(res->type, NUMBER);
     ASSERT(res->u.value, 3);
+}
+
+/**
+ * additional 
+ * 
+ */
+void test_add()
+{
+    printf("test_add: ");
+    int num1 = 1;
+    int num2 = 2;
+    int num3 = 3;
+    object_t *list = new_pair(object_new(NUMBER, &num1),
+                        new_pair(object_new(NUMBER, &num2), 
+                            new_pair(object_new(NUMBER, &num3), NULL)));
+    object_t *res = add(list);
+    ASSERT(res->u.value, 6);
+}
+
+/**
+ * subtract 
+ * 
+ */
+void test_sub()
+{
+    printf("test_sub: ");
+    int num1 = 10;
+    int num2 = 3;
+    int num3 = 2;
+    object_t *list = new_pair(object_new(NUMBER, &num1),
+                        new_pair(object_new(NUMBER, &num2), 
+                            new_pair(object_new(NUMBER, &num3), NULL)));
+    object_t *res = sub(list);
+    ASSERT(res->u.value, 5);
 }
 
 int main()
@@ -262,6 +298,8 @@ int main()
     test_defun();
     test_append();
     test_progn();
+    test_add();
+    test_sub();
     return 0;
 }
 
