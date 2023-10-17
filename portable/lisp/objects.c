@@ -356,7 +356,7 @@ void *alloc_region(int size)
 	    r->next = free_reg;
 	    r->size = size;
 	    r->magic = MAGIC;
-	    return free_reg;
+	    return r->data;
 	}
 	r = r->next;
     }

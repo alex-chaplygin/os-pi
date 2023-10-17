@@ -294,8 +294,8 @@ void test_alloc_region()
     printf("test_alloc_region: ");
     char *reg1 = alloc_region(5);
     char *reg2 = alloc_region(64);
-    ASSERT((reg1 - region_data), 20+8);
-    ASSERT((reg2 - region_data), 20 + 8 + 20 + 64);
+    ASSERT((reg1 - region_data), 20);
+    ASSERT((reg2 - region_data), 20 + 8 + 20);
 }
 
 void main()
