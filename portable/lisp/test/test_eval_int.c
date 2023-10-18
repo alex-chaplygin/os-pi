@@ -14,6 +14,7 @@ int is_lambda(object_t *list);
 void append_env(object_t *l1, object_t *l2);
 object_t *add(object_t *list);
 object_t *sub(object_t *list);
+object_t *cons(object_t *list);
 
 void error(char *str)
 {
@@ -281,6 +282,45 @@ void test_sub()
     ASSERT(res->u.value, 5);
 }
 
+/*
+ *создать объект для выражения (cdr (quote 5))
+ *вычислить объект
+ */
+void test_invalid_cdr()
+{
+    
+    printf("test_invalid_cdr:\n");
+
+    int e =5;
+    object_t *l = object_new(NUMBER, &e);// 5
+    object_t *q = new_pair(object_new(SYMBOL, "QUOTE"),new_pair(l,NULL));// (quote 5)
+    object_t *o = new_pair(object_new(SYMBOL, "CDR"),new_pair(q,NULL));// (cdr (quote 5))
+    object_t *res = eval(o, NULL);
+    ASSERT(res, ERROR);
+}
+
+/*
+*создать объект для выражения (cons (quote a) 5)
+ *создать объект для выражения (cons (5))
+ *вычислить объект
+ */
+void test_invalid_cons()
+{
+    printf("test_invalid_cons:\n");
+
+    int e = 5;
+    int ee = 4;
+    object_t *l = new_pair(object_new(NUMBER, &e), NULL); // 5
+    object_t *q = new_pair(object_new(SYMBOL, "QUOTE"),
+			   new_pair(l, NULL)); // (quote 5)
+    object_t *qa = new_pair(object_new(SYMBOL, "QUOTE"),
+			    new_pair(object_new(SYMBOL, "A"), NULL)); //(quote a) (quote (5)))
+    object_t *o = new_pair(object_new(SYMBOL, "CONS"),
+			   new_pair(qa, new_pair(object_new(NUMBER, &ee), NULL))); //(cons (quote a) 5))
+    object_t *res = eval(o, NULL);
+    ASSERT(res, ERROR);
+}
+
 int main()
 {
     printf("------------test_eval_int---------\n");
@@ -298,6 +338,8 @@ int main()
     test_progn();
     test_add();
     test_sub();
+    test_invalid_cdr();
+    test_invalid_cons();
     return 0;
 }
 
