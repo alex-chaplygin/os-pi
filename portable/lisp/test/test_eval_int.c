@@ -291,7 +291,7 @@ int main()
     test_invalid_car();
     test_cons();
     test_is_lambda();
-    //xtest_is_lambda_not_symbol();
+    test_is_lambda_not_symbol();
     test_cond();
     test_make_env();
     test_find_in_env();
