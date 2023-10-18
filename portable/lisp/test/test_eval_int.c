@@ -250,8 +250,7 @@ void test_progn()
 }
 
 /**
- * additional 
- * 
+ * Тест сложения
  */
 void test_add()
 {
@@ -267,8 +266,7 @@ void test_add()
 }
 
 /**
- * subtract 
- * 
+ * Тест вычитания 
  */
 void test_sub()
 {
