@@ -31,6 +31,8 @@ int last_char = 0;
 char region_data[MAX_CHARS];
 /// Метка региона
 #define MAGIC 0xABCD1234
+
+#pragma pack(4)
 /// создаваемый или свободный регион памяти
 struct region {
     int magic; /// метка своих регионов
@@ -343,22 +345,22 @@ void *alloc_region(int size)
     struct region *r = regions;
     if ((size & 3) != 0)
 	size = ((size >> 2) + 1) << 2;
-    int offset_markup = sizeof(struct region) - sizeof(char *);
-    printf("\nsize of region-data = %d\n",offset_markup);
+    int offset_markup = sizeof(struct region);// - sizeof(char *);
+    //printf("\nsize of region-data = %d size of int = %d\n",offset_markup,sizeof(int));
     int size2 = size + offset_markup;
     while (r != NULL) {
-	if (r->free == 1 && r->size >= size2) {
-	    struct region *free_reg = (struct region *)(r->data + size);
-	    free_reg->free = 1;
-	    free_reg->next = r->next;
-	    free_reg->prev = r;
-	    free_reg->size = r->size - size2;
-	    r->next = free_reg;
-	    r->size = size;
-	    r->magic = MAGIC;
-	    return r->data;
-	}
-	r = r->next;
+        if (r->free == 1 && r->size >= size2) {
+            struct region *free_reg = (struct region *)(r->data + size);
+            free_reg->free = 1;
+            free_reg->next = r->next;
+            free_reg->prev = r;
+            free_reg->size = r->size - size2;
+            r->next = free_reg;
+            r->size = size;
+            r->magic = MAGIC;
+            return r->data;
+        }
+	    r = r->next;
     }
     error("Alloc region: out of memory\n");
     return ERROR;

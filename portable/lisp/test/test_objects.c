@@ -290,12 +290,13 @@ void test_garbage_collect_list()
  * Проверить указатели данных
  */
 void test_alloc_region()
-{
+{   
     printf("test_alloc_region: ");
     char *reg1 = alloc_region(5);
     char *reg2 = alloc_region(64);
-    ASSERT((reg1 - region_data), 20);
-    ASSERT((reg2 - region_data), 20 + 8 + 20);
+    int size = 3 * sizeof(int) + 2* sizeof(int *);
+    ASSERT((reg1 - region_data), size );
+    ASSERT((reg2 - region_data), size + 8 + size);
 }
 
 void main()
