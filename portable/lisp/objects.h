@@ -2,16 +2,27 @@
 #define OBJECTS
 
 /// Всего объектов
-#define MAX_OBJECTS 200
+#define MAX_OBJECTS 300
 /// Всего пар
 #define MAX_PAIRS 200
 /// Всего символов
 #define MAX_SYMBOLS 100
 /// Всего байт для регионов 
-#define MAX_CHARS 200
+#define MAX_CHARS 500
 
 #define MAX_STR 50
 #define PRINT(o) print_obj(o); printf("\n");
+
+#pragma pack(4)
+/// создаваемый или свободный регион памяти
+struct region {
+    int magic; /// метка своих регионов
+    int free; /// свободен ли регион
+    struct region *next; /// указатель на следующий регион
+    struct region *prev; /// указатель на предыдущий регион
+    int size; /// размер региона в байтах
+    char data[1]; /// Данные региона
+};
 
 /// перечисление типов объектов
 typedef enum {
@@ -77,4 +88,5 @@ void print_free_objs();
 void print_free_pairs();
 void init_regions();
 void *alloc_region(int size);
+void free_region(void *data);
 #endif

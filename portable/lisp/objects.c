@@ -31,17 +31,7 @@ int last_char = 0;
 char region_data[MAX_CHARS];
 /// Метка региона
 #define MAGIC 0xABCD1234
-
-#pragma pack(4)
-/// создаваемый или свободный регион памяти
-struct region {
-    int magic; /// метка своих регионов
-    int free; /// свободен ли регион
-    struct region *next; /// указатель на следующий регион
-    struct region *prev; /// указатель на предыдущий регион
-    int size; /// размер региона в байтах
-    char data[1]; /// Данные региона
-} *regions;
+struct region *regions;
 
 /** 
  * Создание нового объекта из пула объектов
@@ -331,6 +321,7 @@ void init_regions()
     regions->next = NULL;
     regions->prev = NULL;
     regions->size = MAX_CHARS - sizeof(struct region) + sizeof(char *);
+    for(int i =0;i < regions->size;i++)regions->data[i] = 0;
 }
 
 /**
@@ -345,7 +336,7 @@ void *alloc_region(int size)
     struct region *r = regions;
     if ((size & 3) != 0)
 	size = ((size >> 2) + 1) << 2;
-    int offset_markup = sizeof(struct region);// - sizeof(char *);
+    int offset_markup = 3*sizeof(int) + 2*sizeof(struct region *);//sizeof(struct region);// - sizeof(char *);
     //printf("\nsize of region-data = %d size of int = %d\n",offset_markup,sizeof(int));
     int size2 = size + offset_markup;
     while (r != NULL) {
@@ -358,10 +349,37 @@ void *alloc_region(int size)
             r->next = free_reg;
             r->size = size;
             r->magic = MAGIC;
+            r->free = 0;
             return r->data;
         }
 	    r = r->next;
     }
     error("Alloc region: out of memory\n");
     return ERROR;
+}
+
+/**
+ * Освобождение памяти региона
+ * @param data адрес данных освобождаемой  области памяти
+ * 
+ */
+void free_region(void *data)
+{
+    struct region *r,*rprev,*rnext;
+    int offset = 3*sizeof(int) + 2*sizeof(struct region *);
+    r = data - offset;
+    rnext = r->next;
+    rprev = r->prev;
+    int size = rnext !=NULL?rnext - (struct region*)data:
+        (void *)(region_data + MAX_CHARS) - data;
+    r->free = 1;
+    r->magic = 0;
+    if(rnext != NULL && rnext->free == 1) {
+        r->size += (offset + size);
+        r->next = rnext->next;
+    }
+    if(rprev != NULL && rprev->free == 1) {
+        rprev->size += (offset + r->size);
+        rprev->next = rnext->free == 0? rnext : rnext->next;
+    } 
 }

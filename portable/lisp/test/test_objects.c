@@ -298,6 +298,29 @@ void test_alloc_region()
     ASSERT((reg1 - region_data), size );
     ASSERT((reg2 - region_data), size + 8 + size);
 }
+/**
+ * Удалить второй регион 
+ * Проверить указатели регионов относительно начала
+ * Проверить указатели данных
+ */
+void test_free_region()
+{   
+    printf("test_free_region: ");
+    char *reg1 = alloc_region(8);
+    char *reg2 = alloc_region(12);
+    char *reg3 = alloc_region(16);
+    free_region(reg2);
+    int offset = 3 * sizeof(int) + 2* sizeof(int *);
+    printf("region offset = %d\n",offset);
+    struct region *r = (struct region*)(reg2-offset);
+    ASSERT(r->magic,0);
+    r=r->prev;
+    ASSERT(r->magic,0xABCD1234);
+    ASSERT((r->next),(reg2-offset));
+    free_region(reg1);
+    r = (struct region*)(reg1-offset);
+    ASSERT((r->next),(reg3-offset));
+}
 
 void main()
 {
@@ -315,4 +338,5 @@ void main()
     test_garbage_collect_list();
     test_print_obj(object_new(NUMBER, &i), "10");
     test_alloc_region();
+    test_free_region();
 }
