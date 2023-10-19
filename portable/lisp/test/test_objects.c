@@ -3,6 +3,7 @@
 #include <string.h>
 #include "test.h"
 #include "objects.h"
+#include "parser.h"
 
 extern object_t objects[];
 extern pair_t pairs[];
@@ -322,13 +323,34 @@ void test_free_region()
     ASSERT((r->next),(reg3-offset));
 }
 
+/**
+ * Проверка на переполнение памяти объектами 
+ */
+void test_objects_new_null()
+{   
+    printf("test_objects_new_null: ");
+    last_pair = 0;
+    free_pairs = NULL;
+    last_object = 0;
+    free_objs = NULL;
+
+    int i;
+    for (i = 0; i < MAX_OBJECTS; i++)
+	object_new(NUMBER, &i);
+	
+    ASSERT(object_new(NUMBER, &i), ERROR);
+    last_pair = 0;
+    free_pairs = NULL;
+    last_object = 0;
+    free_objs = NULL;
+}
+
 void main()
 {
     printf("--------------test objects---------------------\n");
     init_regions();
     test_object_new();
     test_new_pair();
-    int i = 10;
     test_free_object();
     test_free_object_null();
     test_free_pair();
@@ -336,7 +358,9 @@ void main()
     test_sweep();
     test_garbage_collect();
     test_garbage_collect_list();
-    test_print_obj(object_new(NUMBER, &i), "10");
     test_alloc_region();
     test_free_region();
+    test_objects_new_null();
+    int i = 10;
+    test_print_obj(object_new(NUMBER, &i), "10");
 }
