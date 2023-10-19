@@ -407,7 +407,7 @@ object_t *eval_symbol(object_t *obj, object_t *env)
         return res;
     else {
 	symbol_t *res_sym = check_symbol(obj->u.symbol->str);
-        if (res_sym != NULL)
+        if (res_sym != NULL && res_sym->value != NOVALUE)
            return res_sym->value;
         else
            return ERROR;
@@ -436,7 +436,7 @@ object_t *eval(object_t *obj, object_t *env)
     //PRINT(env);
     if (obj == NULL)
         return NULL;
-    else if (obj->type == NUMBER)
+    else if (obj->type == NUMBER || obj->type == STRING)
 	return obj;
     else if (obj->type == SYMBOL) {
         object_t *symbol = eval_symbol(obj, env);
@@ -480,7 +480,7 @@ object_t *setq(object_t *list)
 {
     return NULL;//defvar(list->u.value);
 }
-		
+
 /** 
  * инициализация примитивов 
  */
