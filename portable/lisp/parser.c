@@ -80,6 +80,12 @@ object_t *parse_list()
 	if (tail == ERROR)
 	    return ERROR;
 	return new_pair(object_new(NUMBER, &val), tail);
+    } else if (cur_tok->type == T_STRING) {
+	strcpy(str, cur_tok->str);
+	object_t *tail = parse_list();
+	if (tail == ERROR)
+	    return ERROR;
+	return new_pair(object_new(STRING, str), tail);
     } else if (cur_tok->type == T_SYMBOL) {
         strcpy(str, cur_tok->str);
 	object_t *tail = parse_list();
@@ -142,6 +148,8 @@ object_t *parse()
 	return parse_quote();
     else if (cur_token->type == SHARP)
 	return parse_array();
+    else if (cur_token->type == T_STRING)
+	return object_new(STRING, cur_token->str);
     else if (cur_token->type == END)
 	return ERROR;
     else if (cur_token->type == INVALID)
