@@ -3,9 +3,9 @@ SRC=parser.o lexer.o objects.o symbols.o eval.o arith.o
 CFLAGS=-g -m32 -nostdlib -nodefaultlibs -Wno-builtin-declaration-mismatch -I../include
 LISP=boot/lib.lsp boot/bgr.lsp
 
-all: $(SRC) /tmp/lisp
+all: $(SRC) /tmp/lisp.lsp
 
-/tmp/lisp: $(LISP)
+/tmp/lisp.lsp: $(LISP)
 	cat $^ >$@ ;
 	echo -e -n "\xff" >>$@
 
