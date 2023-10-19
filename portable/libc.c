@@ -246,12 +246,21 @@ int strcmp(char *str1, char *str2)
 }
 
 // копирование строки str1 в строку str2
-void strcpy (char *str1, char *str2)
+void strcpy(char *str1, char *str2)
 {
     //int i = 0; //"abc" ['a', 'b', 'c', 0]
     while (*str2)
         *str1++ = *str2++;
     *str1 = 0;
+}
+
+// длина строки
+int strlen(char *str)
+{
+    int c = 0;
+    while (*str++)
+	c++;
+    return c;
 }
 
 /** 
