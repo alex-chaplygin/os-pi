@@ -72,21 +72,22 @@ object_t *sub(object_t *list)
  */
 object_t *mul(object_t *list)
 {
-    int num = 1;
     if (list == NULL)
-	return object_new(NUMBER, &num);
-    else if (list == ERROR)
-	return ERROR;
-    object_t *prod = FIRST(list);
-    if (prod == NULL) {
-	error("mul: Invalid first\n");
-	return ERROR;
+	error("mul: no arguments\n");
+    object_t *first = FIRST(list);
+    int num = first->u.value;
+    list = TAIL(list);
+    while(list != NULL){
+	object_t *first = FIRST(list);
+	if(first->type == NUMBER){
+	    num *= first->u.value;
+	    list = TAIL(list);
+	}
+	else{
+	    error("mul: Not number\n");
+	    return ERROR;
+	}
     }
-    object_t *tail = TAIL(list);
-    object_t *res = mul(tail);
-    if (res == ERROR)
-	return ERROR;
-    num = prod->u.value * res->u.value;
     return object_new(NUMBER, &num);
 }
 
