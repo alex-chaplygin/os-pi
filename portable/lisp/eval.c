@@ -177,20 +177,16 @@ object_t *defun(object_t *obj)
  *
  * @param params (имя значение)
  *
- * @return символ имени новой функции
+ * @return объект переменной
  */
 object_t *defvar(object_t *params)
 {
     symbol_t *name = find_symbol(FIRST(params)->u.symbol->str);
-    if (name == NULL) {
-        error("defvar: Name not found\n");
-        return ERROR;
-    }
     if (SECOND(params) == NULL)
         name->value = NULL;
     else
         name->value = eval(SECOND(params), NULL);
-    return object_new(SYMBOL, name->str);
+    return FIRST(params);
 }    
 
 /**
@@ -475,6 +471,16 @@ object_t *eval(object_t *obj, object_t *env)
     }
 }
 
+/**
+ * Присвоение значения переменной 
+ * @param param параметры (переменная значение(выражение))
+ * @return возвращает значение переменной
+ */
+object_t *setq(object_t *list)
+{
+    return NULL;//defvar(list->u.value);
+}
+		
 /** 
  * инициализация примитивов 
  */
