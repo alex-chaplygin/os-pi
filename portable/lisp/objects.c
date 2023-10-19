@@ -25,12 +25,16 @@ int last_symbol = 0;
 /// Хранилище символов
 symbol_t symbols[MAX_SYMBOLS];
 
-/// Индекс последнего символа для строк
-int last_char = 0;
+/// Индекс последней строки
+int last_string = 0;
+/// Хранилище строк
+string_t strings[MAX_STRINGS];
+/// Список свободных строк
+string_t *free_strings = NULL;
+
 /// Хранилище для регионов
 char region_data[MAX_CHARS];
-/// Метка региона
-#define MAGIC 0xABCD1234
+/// Список регионов
 struct region *regions;
 
 /** 
@@ -63,7 +67,9 @@ object_t *object_new(type_t type, void *data)
         // заполнить поле строки
       new->u.symbol = find_symbol((char *)data);
     else if (type == PAIR)
-        new->u.pair = (pair_t *)data;   
+        new->u.pair = (pair_t *)data;
+    else if (type == STRING)
+	new->u.str = new_string((char *)data);
     return new;
 }
 
@@ -151,10 +157,32 @@ symbol_t *new_symbol(char *str)
     }
     strcpy(symbol->str, str);
     symbol->next = NULL;
-    symbol->value = NULL;
+    symbol->value = NOVALUE;
     symbol->func = NULL;
     symbol->lambda = NULL;
     return symbol;
+}
+
+/** 
+ * Создание нового объекта строки
+ * 
+ * @param str - строка
+ * 
+ * @return указатель на объект строки
+ */
+string_t *new_string(char *str)
+{
+    string_t *string = &strings[last_string++];
+    if (last_string == MAX_STRINGS) {
+	error("Error: out of memory: srings");
+	return (string_t*)ERROR;
+    }
+    string->length = strlen(str);
+    string->data = alloc_region(string->length + 1);
+    strcpy(string->data, str);
+    string->next = NULL;
+    string->free = 0;
+    return string;
 }
 
 /** 
@@ -164,7 +192,7 @@ symbol_t *new_symbol(char *str)
  */
 void mark_object(object_t *obj)
 {
-    if (obj == NULL)
+    if (obj == NULL || obj == NOVALUE)
 	return;
     obj->mark = 1;
     if (obj->type == PAIR) {
@@ -229,6 +257,8 @@ void print_obj(object_t *obj)
 	printf("NIL");
     else if (obj->type == NUMBER)
 	printf("%d", obj->u.value);
+    else if (obj->type == STRING)
+	printf("\"%s\"", obj->u.str->data);
     else if (obj->type == SYMBOL)
 	printf("%s", obj->u.symbol->str);
     else if (obj->type == PAIR) {
@@ -321,7 +351,7 @@ void init_regions()
     regions->next = NULL;
     regions->prev = NULL;
     regions->size = MAX_CHARS - sizeof(struct region) + sizeof(char *);
-    for(int i =0;i < regions->size;i++)regions->data[i] = 0;
+    //for(int i =0;i < regions->size;i++)regions->data[i] = 0;
 }
 
 /**
@@ -336,8 +366,7 @@ void *alloc_region(int size)
     struct region *r = regions;
     if ((size & 3) != 0)
 	size = ((size >> 2) + 1) << 2;
-    int offset_markup = 3*sizeof(int) + 2*sizeof(struct region *);//sizeof(struct region);// - sizeof(char *);
-    //printf("\nsize of region-data = %d size of int = %d\n",offset_markup,sizeof(int));
+    int offset_markup = 3 * sizeof(int) + 2 * sizeof(struct region *);
     int size2 = size + offset_markup;
     while (r != NULL) {
         if (r->free == 1 && r->size >= size2) {
@@ -365,21 +394,27 @@ void *alloc_region(int size)
  */
 void free_region(void *data)
 {
-    struct region *r,*rprev,*rnext;
-    int offset = 3*sizeof(int) + 2*sizeof(struct region *);
-    r = data - offset;
+    struct region *r, *rprev, *rnext;
+    int offset = 3 * sizeof(int) + 2 * sizeof(struct region *);
+    r = (struct region *)((char *)data - offset);
+    if (r->magic != MAGIC) {
+	error("Free region: no magic\n");
+	return;
+    }
     rnext = r->next;
     rprev = r->prev;
-    int size = rnext !=NULL?rnext - (struct region*)data:
-        (void *)(region_data + MAX_CHARS) - data;
     r->free = 1;
     r->magic = 0;
-    if(rnext != NULL && rnext->free == 1) {
-        r->size += (offset + size);
+    if (rnext != NULL && rnext->free == 1) {
+        r->size += offset + rnext->size;
         r->next = rnext->next;
+	if (r->next != NULL)
+	    r->next->prev = r;
     }
-    if(rprev != NULL && rprev->free == 1) {
-        rprev->size += (offset + r->size);
-        rprev->next = rnext->free == 0? rnext : rnext->next;
+    if (rprev != NULL && rprev->free == 1) {
+        rprev->size += offset + r->size;
+	rprev->next = r->next;
+	if (rprev->next != NULL)
+	    rprev->next->prev = rprev;
     } 
 }
