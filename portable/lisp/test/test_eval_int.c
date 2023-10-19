@@ -4,14 +4,18 @@
 #include "eval.h"
 #include "test.h"
 #include "parser.h"
+#include "string.h"
 
 extern object_t *t;
 extern object_t *nil;
+extern object_t *current_env;
 
 object_t * make_env(object_t *args, object_t *values);
 int find_in_env(object_t *env, object_t *sym, object_t **res);
 int is_lambda(object_t *list);
 void append_env(object_t *l1, object_t *l2);
+object_t *setq(object_t *params);
+object_t *defvar(object_t *params);
 object_t *add(object_t *list);
 object_t *sub(object_t *list);
 object_t *cons(object_t *list);
@@ -219,6 +223,89 @@ void test_defun()
 }
 
 /**
+ * Создать окружение с числовыми переменными X, Y
+ * Вызвать функцию setq для изменения значения Y на 1010
+ * Проверить что значение Y = 1010
+ */
+void test_setq_set_env()
+{
+    printf("test_setq_set_env: ");
+    object_t *env = create_env();
+    object_t *p2 = SECOND(env);
+
+    int num = 1010;
+    
+    object_t *params = new_pair(FIRST(p2), new_pair(object_new(NUMBER, &num), NULL));
+    current_env = env;
+    object_t *setq_res = setq(params);
+    ASSERT(setq_res, SECOND(p2));
+    ASSERT(SECOND(p2)->u.value, num); 
+}
+
+/**
+ * Создать переменную res
+ * Вызвать функцию setq для создания числовой переменной 
+ *  test_var со значением 1010
+ * Проверить что значение test_var = 1010
+ */
+void test_setq_make_env()
+{
+    printf("test_setq_make_env: ");
+    object_t *env = create_env();
+    int num = 1010;
+
+    object_t obj_val;
+    symbol_t s1;
+    s1.value = &obj_val;
+    strcpy(s1.str, "test_var");
+    obj_val.type = SYMBOL;
+    obj_val.u.symbol = &s1;
+
+    object_t *params = new_pair(&obj_val, new_pair(object_new(NUMBER, &num), NULL));
+    current_env = env;
+    object_t *setq_res = setq(params);
+    object_t *res;
+    find_in_env(env, &obj_val, &res);
+    ASSERT(setq_res, res);
+    ASSERT(res->u.value, num);
+}
+
+/**
+ * Создать глобальную числовую переменную test_var
+ * Вызвать функцию setq для изменения значения test_var на 992
+ * Проверить что значение test_var = 992
+ */
+void test_setq_global_set()
+{
+    printf("test_setq_global_set: ");
+    object_t *env = create_env();
+    object_t *p1 = FIRST(env);
+    object_t *p2 = SECOND(env);  
+    int num = 1111;
+    object_t *res;
+
+    object_t obj_val;
+    symbol_t s1;
+    s1.value = &obj_val;
+    strcpy(s1.str, "test_var");
+    obj_val.type = SYMBOL;
+    obj_val.u.symbol = &s1;
+
+    object_t *params = new_pair(&obj_val, new_pair(object_new(NUMBER, &num), NULL));
+    object_t *new_var = defvar(params);
+
+    int num2 = 992;
+    object_t *params2 = new_pair(object_new(SYMBOL, "test_var"),
+        new_pair(object_new(NUMBER, &num2), NULL));
+    object_t *setq_res = setq(params2);
+
+    symbol_t *sym = check_symbol("test_var");
+
+    ASSERT(sym->value, setq_res);
+    ASSERT(sym->value->u.value, num2);
+}
+
+/**
  * Объединить два списка (1) (2)
  * Проверить список
  */
@@ -409,6 +496,9 @@ int main()
     test_make_env();
     test_find_in_env();
     test_defun();
+    test_setq_make_env();
+    test_setq_set_env();
+    test_setq_global_set();
     test_append();
     test_progn();
     test_add();
