@@ -68,6 +68,7 @@ void kmain(void)
     init_keyboard();
     init_eval();
     init_arith();
+    init_regions();
     init_sys();
     boot_lisp();
     while(1) {
