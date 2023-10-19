@@ -15,6 +15,8 @@ void append_env(object_t *l1, object_t *l2);
 object_t *add(object_t *list);
 object_t *sub(object_t *list);
 object_t *cons(object_t *list);
+object_t *mul(object_t *list);
+object_t *num_eq(object_t *list);
 
 void error(char *str)
 {
@@ -321,6 +323,64 @@ void test_invalid_cons()
     ASSERT(res, ERROR);
 }
 
+/**
+ * Тест вычитания - проверка на NULL.
+ */
+void test_sub_null()
+{
+    printf("test_sub_null: ");
+    object_t *list = NULL;
+    object_t *res = sub(list);
+    ASSERT(res, ERROR);
+}
+
+/**
+ * Тест вычитания передача значения не число
+ */
+void test_sub_no_number()
+{
+    printf("test_sub_no_number: ");
+
+    int num = 2;
+    object_t *list = new_pair(object_new(NUMBER, &num),
+			      new_pair(new_pair(NULL, NULL), NULL));
+    object_t *res = sub(list);
+    ASSERT(res, ERROR);
+}
+
+/**
+ * Тест умножения.
+ */
+void test_mul()
+{
+    printf ("test_mul:");
+    int num1 = 1;
+    int num2 = 2;
+    int num3 = 3;
+
+    object_t *list = new_pair(object_new(NUMBER, &num1),
+			      new_pair(object_new(NUMBER, &num2),
+				       new_pair(object_new(NUMBER, &num3), NULL)));
+    
+    object_t *res = mul(list);
+    ASSERT(res->u.value, 6); 
+}
+
+/**
+ * Тест сравнения чисел
+ */
+void test_num_eq(int num1, int num2, object_t *token)
+{
+
+    printf ("test_num_eq:");
+
+    object_t *list = new_pair(object_new(NUMBER, &num1),
+			      new_pair(object_new(NUMBER, &num2), NULL));
+    
+    object_t *res = num_eq(list);
+    ASSERT(res, token);   
+}
+
 int main()
 {
     printf("------------test_eval_int---------\n");
@@ -340,6 +400,11 @@ int main()
     test_sub();
     test_invalid_cdr();
     test_invalid_cons();
+    test_sub_null();
+    test_sub_no_number();
+    test_mul();
+    test_num_eq(1, 2, nil);
+    test_num_eq(10, 10, t);
     return 0;
 }
 
