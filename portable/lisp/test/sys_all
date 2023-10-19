@@ -15,18 +15,22 @@ sh sys_test "(defun f(x)\
             ((= x 1) 1) \
             (T (* x (f (- x 1))))))\
          (f 11) (f 11) (f 11) (f 10) (f 11)" "F399168003991680039916800362880039916800"
+sh sys_test "(+ 1 2 3 4)" "10"
+sh sys_test "(1" "expected )"
+sh sys_test "(+ 1 2 3 5)" "11"
+sh sys_test "(- 9 5 1 1)" "2"
+sh sys_test "(* 1 2 3 5)" "30"
+sh sys_test "(progn (+ 2 3) (* 3 4))" "12"
+sh sys_test "(defun test (x) (+ x 10) (* x 20)) (test 5)" "100"
+sh sys_test "(defvar a 10)(A)A" "10"
+sh sys_test "(defvar a 10) A" "10"
+sh sys_test "T NIL" "10"
+sh sys_test "(defvar +bgr-index+ 0x1ce) \
+(defvar +bgr-data+ 0x1cf) +BGR-INDEX+ +BGR-DATA+ X ABC" "+BGR-INDEX+ +BGR-DATA+"
+sh sys_test "\"a b c d\""
 sh sys_test "(defun f(x)\
+             \"factorial f(x)\"\
          (cond \
             ((= x 1) 1) \
             (T (* x (f (- x 1))))))\
          (f 12) (f 10)" "F479001600"
-# sh sys_test "(+ 1 2 3 4)" "10"
-#sh sys_test "(1" "expected )"
-#sh sys_test "(+ 1 2 3 5)" "11"
-#sh sys_test "(- 9 5 1 1)" "2"
-#sh sys_test "(* 1 2 3 5)" "30"
-#sh sys_test "(progn (+ 2 3) (* 3 4))" "12"
-#sh sys_test "(defun test (x) (+ x 10) (* x 20)) (test 5)" "100"
-#sh sys_test "(defvar a 10)(A)A" "10"
-#sh sys_test "(defvar a 10) A" "10"
-#sh sys_test "T NIL" "10"
