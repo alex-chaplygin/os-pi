@@ -9,9 +9,16 @@
 #define MAX_SYMBOLS 100
 /// Всего байт для регионов 
 #define MAX_CHARS 500
+/// Всего строк
+#define MAX_STRINGS 100
 
 #define MAX_STR 50
 #define PRINT(o) print_obj(o); printf("\n");
+
+/// Отсутствие значения у переменных
+#define NOVALUE ((void *)1)
+/// Метка региона
+#define MAGIC 0xABCD1234
 
 #pragma pack(4)
 /// создаваемый или свободный регион памяти
@@ -34,6 +41,7 @@ typedef enum {
 
 struct pair_s;
 struct symbol_s;
+struct string_s;
 
 typedef struct object_s
 {
@@ -42,7 +50,7 @@ typedef struct object_s
         int value; // если объект число, то его значение
         struct symbol_s *symbol; // указатель на символ
         struct pair_s *pair; // Если объект пара из 2-х объектов (левый и правый) то указатель на пару
-	char *str; // если объект строка
+	struct string_s *str; // если объект строка
     } u;
     struct object_s *next; // указатель на следующий свободный объект
     int mark; // пометка для сборки мусора
@@ -57,6 +65,15 @@ typedef struct pair_s
     struct pair_s *next; // указатель на следующую свободную пару
     int free; // Если 1 - пара свободна
 } pair_t;
+
+/// Структура строки
+typedef struct string_s
+{
+    char *data; //данные строки
+    int length; //длина строки
+    struct string_s *next; //указатель на следующую свободную строку
+    int free; // Если 1 - строка свободна
+} string_t; //структура строки
 
 typedef  object_t *(*func_t)(object_t *);
 
@@ -89,4 +106,5 @@ void print_free_pairs();
 void init_regions();
 void *alloc_region(int size);
 void free_region(void *data);
+string_t *new_string(char *str);
 #endif
