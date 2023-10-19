@@ -295,14 +295,18 @@ void test_alloc_region()
     printf("test_alloc_region: ");
     char *reg1 = alloc_region(5);
     char *reg2 = alloc_region(64);
-    int size = 3 * sizeof(int) + 2* sizeof(int *);
-    ASSERT((reg1 - region_data), size );
+    int size = 3 * sizeof(int) + 2 * sizeof(int *);
+    ASSERT((reg1 - region_data), size);
     ASSERT((reg2 - region_data), size + 8 + size);
+    //    free_region(reg1);
+    //free_region(reg2);
 }
+
 /**
- * Удалить второй регион 
- * Проверить указатели регионов относительно начала
- * Проверить указатели данных
+ * Создать 3 региона
+ * Удалить второй и первый регион 
+ * Проверить объединённый регион
+ * Освободить третий регион
  */
 void test_free_region()
 {   
@@ -310,17 +314,20 @@ void test_free_region()
     char *reg1 = alloc_region(8);
     char *reg2 = alloc_region(12);
     char *reg3 = alloc_region(16);
+    char *reg4 = alloc_region(10);
+    int offset = 3 * sizeof(int) + 2 * sizeof(int *);
+    struct region *r1 = (struct region *)(reg1 - offset);
+    struct region *r2 = (struct region *)(reg2 - offset);
+    struct region *r3 = (struct region *)(reg3 - offset);
     free_region(reg2);
-    int offset = 3 * sizeof(int) + 2* sizeof(int *);
-    printf("region offset = %d\n",offset);
-    struct region *r = (struct region*)(reg2-offset);
-    ASSERT(r->magic,0);
-    r=r->prev;
-    ASSERT(r->magic,0xABCD1234);
-    ASSERT((r->next),(reg2-offset));
+    ASSERT(r1->next, r2);
+    ASSERT(r2->prev, r1);
     free_region(reg1);
-    r = (struct region*)(reg1-offset);
-    ASSERT((r->next),(reg3-offset));
+    ASSERT(r1->next, r3);
+    ASSERT(r3->prev, r1);
+    ASSERT(r1->size, 20 + offset);
+    free_region(reg3);
+    ASSERT(r1->size, 36 + 2 * offset);
 }
 
 /**
@@ -345,6 +352,18 @@ void test_objects_new_null()
     free_objs = NULL;
 }
 
+/**
+ * Создать новую строку
+ * Проверить длину строи и данные
+ */
+void test_new_string()
+{
+    printf("test_new_string: ");
+    string_t *s = new_string("abc");
+    ASSERT(s->length, 3);
+    ASSERT(strcmp(s->data, "abc"), 0);
+}
+
 void main()
 {
     printf("--------------test objects---------------------\n");
@@ -360,6 +379,7 @@ void main()
     test_garbage_collect_list();
     test_alloc_region();
     test_free_region();
+    test_new_string();
     test_objects_new_null();
     int i = 10;
     test_print_obj(object_new(NUMBER, &i), "10");
