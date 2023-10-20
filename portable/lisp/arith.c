@@ -146,4 +146,5 @@ void init_arith()
     register_func("-", sub);
     register_func("*", mul);
     register_func("=", num_eq);
+    register_func("/", int_div);
 }
