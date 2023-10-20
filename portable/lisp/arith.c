@@ -91,6 +91,35 @@ object_t *mul(object_t *list)
     return object_new(NUMBER, &num);
 }
 
+/**
+ * Деление (/ 8 2)
+ * 
+ * @param list - список чисел (8 2)
+ *
+ * @return результат от деления
+ */
+
+object_t *int_div(object_t *list)
+{
+    if (list == NULL) {
+        error("div: no arguments\n");
+        return ERROR;
+    }
+    if (SECOND(list) == NULL) {
+        error("div: no divisor\n");
+        return ERROR;
+    }
+    object_t *first = FIRST(list);
+    object_t *second = SECOND(list);
+    if (second->u.value != 0) {
+        int num = first->u.value / second->u.value;
+        return object_new(NUMBER, &num);
+    } else {
+        error("div: divisor = 0 \n");
+        return ERROR;
+    }
+}
+
 /** 
  * Сравнение числовых аргументов (= 1 2)
  *
