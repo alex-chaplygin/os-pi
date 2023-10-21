@@ -10,6 +10,7 @@ extern pair_t pairs[];
 extern object_t *free_objs;
 extern int last_object;
 extern int last_pair;
+extern int last_symbol;
 extern pair_t *free_pairs;
 extern char region_data[];
 
@@ -85,6 +86,19 @@ void test_print_obj(object_t *obj, const char *expected_output)
     ASSERT(strcmp(output_buffer, expected_output), 0);
 }
 
+/** 
+ * Сброс памяти в начальное состояние
+ *
+ */
+void reset_mem()
+{
+    last_symbol = 0;
+    last_object = 0;
+    free_objs = NULL;
+    last_pair = 0;
+    free_pairs = NULL;
+}
+
 /**
  * Проверка корректности функции освобождения
  *  объектов и их дальнейшего переиспользования
@@ -92,6 +106,7 @@ void test_print_obj(object_t *obj, const char *expected_output)
 void test_free_object()
 {
     printf("test_free_object: ");
+    reset_mem();
     int last_num = last_object;
     for (int i = last_object; i < MAX_OBJECTS; i++)
 	object_new(NUMBER, &i);
@@ -107,10 +122,6 @@ void test_free_object()
     ASSERT(o2, r_o1);
     ASSERT(o1, r_o2);
     ASSERT(free_objs, NULL);
-    last_object = 0;
-    free_objs = NULL;
-    last_pair = 0;
-    free_pairs = NULL;
 }
 
 /** 
@@ -119,13 +130,13 @@ void test_free_object()
 void test_free_object_null()
 {
     printf("test_free_object_null: ");
+    reset_mem();
     int n = 5;
     object_t *o3 = NULL;
     object_t *o4 = object_new(NUMBER, &n);    
     free_object(o4);
     free_object(o3);    
     ASSERT(free_objs, o4);
-    free_objs = NULL;
 }
 
 /**
@@ -135,6 +146,7 @@ void test_free_object_null()
 void test_free_pair()
 {
     printf("test_free_pair: ");
+    reset_mem();
     int last_num = last_pair;
     for (int i = last_object; i < MAX_PAIRS; i++)
     {   
@@ -152,10 +164,6 @@ void test_free_pair()
     ASSERT(free_pairs, pair2);
     ASSERT(free_pairs->next, pair1);
     ASSERT(free_pairs->next->next, NULL);
-    last_pair = 0;
-    free_pairs = NULL;
-    last_object = 0;
-    free_objs = NULL;
 }
 
 /**
@@ -164,6 +172,7 @@ void test_free_pair()
 void test_mark()
 {
     printf("test_mark :");
+    reset_mem();
     print_free_objs();
     int n1 = 12;
     int n2 = 5;
@@ -336,20 +345,32 @@ void test_free_region()
 void test_objects_new_null()
 {   
     printf("test_objects_new_null: ");
-    last_pair = 0;
-    free_pairs = NULL;
-    last_object = 0;
-    free_objs = NULL;
-
+    reset_mem();
     int i;
     for (i = 0; i < MAX_OBJECTS; i++)
 	object_new(NUMBER, &i);
 	
     ASSERT(object_new(NUMBER, &i), ERROR);
-    last_pair = 0;
-    free_pairs = NULL;
-    last_object = 0;
-    free_objs = NULL;
+}
+
+/** 
+ * Тест на переполение памяти пар
+ */
+void test_pairs_overflow()
+{
+    reset_mem();
+    symbol_t *symbs[MAX_SYMBOLS];
+    printf("test_pairs_overflow: ");
+    for (int i = 0; i < MAX_SYMBOLS; i++) {
+        char str[4];
+        snprintf(str, sizeof(str), "a%d", i);
+        symbs[i] = new_symbol(str);
+	symbs[i]->value = new_pair(NULL, NULL);
+    }
+    for (int i = last_pair; i < MAX_PAIRS; i++)
+	new_pair(NULL, NULL);
+    object_t *pair = new_pair(NULL, NULL);
+    ASSERT(pair, ERROR);
 }
 
 /**
@@ -381,6 +402,7 @@ void main()
     test_free_region();
     test_new_string();
     test_objects_new_null();
+    test_pairs_overflow();
     int i = 10;
     test_print_obj(object_new(NUMBER, &i), "10");
 }

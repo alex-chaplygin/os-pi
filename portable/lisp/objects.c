@@ -150,11 +150,11 @@ void free_pair(pair_t *p)
  */
 symbol_t *new_symbol(char *str)
 {
-    symbol_t *symbol = &symbols[last_symbol++];
     if (last_symbol == MAX_SYMBOLS) {
 	error("Error: out of memory: symbols");
 	return (symbol_t*)ERROR;
     }
+    symbol_t *symbol = &symbols[last_symbol++];
     strcpy(symbol->str, str);
     symbol->next = NULL;
     symbol->value = NOVALUE;
