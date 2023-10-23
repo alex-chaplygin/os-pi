@@ -226,6 +226,8 @@ int main()
     test_get_token("comment3", ";comment;dsada\n  42", T_NUMBER);
     test_get_token("tnumber", "42", T_NUMBER);
     test_get_token("quote", "\'", QUOTE);
+    test_get_token("backquote", "`", BACKQUOTE);
+    test_get_token("comma", ",", COMMA);
     test_get_token("sharp", "#(1 2 3)", SHARP);
     test_get_token("symbol", "abc", T_SYMBOL);
     test_invalid_num("invalid num", "11D", 1);

@@ -213,38 +213,46 @@ token_t *get_token()
     get_cur_char();
     skip_white_space();
     switch (cur_symbol) {
-        case '(':
-            get_cur_char();
-            token.type = LPAREN;
-            break;
-        case ')':
-            get_cur_char();
-            token.type = RPAREN;
-            break;
-        case EOF:
-            token.type = END;
-            break;
-        case '\'':
-            get_cur_char();
-            token.type = QUOTE;
-            break;
-	case '"':
-	    // Используем get_string для чтения строки в двойных кавычках
-	    get_string(token.str); 
-	    token.type = T_STRING;
-	    break;
-        case '#':
-	    get_cur_char();
-	    token.type = SHARP;
-	    break;
-        default:
-            if (is_digit(cur_symbol)) {
-                token.type = T_NUMBER;
-                token.value = get_num();
-            } else {
-               token.type =  T_SYMBOL;
-               get_symbol(token.str);
-            }
+    case '(':
+	get_cur_char();
+	token.type = LPAREN;
+	break;
+    case ')':
+	get_cur_char();
+	token.type = RPAREN;
+	break;
+    case EOF:
+	token.type = END;
+	break;
+    case '\'':
+	get_cur_char();
+	token.type = QUOTE;
+	break;
+    case '`':
+	get_cur_char();
+	token.type = BACKQUOTE;
+	break;    
+    case ',':
+	get_cur_char();
+	token.type = COMMA;
+	break;  
+    case '"':
+	// Используем get_string для чтения строки в двойных кавычках
+	get_string(token.str); 
+	token.type = T_STRING;
+	break;
+    case '#':
+	get_cur_char();
+	token.type = SHARP;
+	break;
+    default:
+	if (is_digit(cur_symbol)) {
+	    token.type = T_NUMBER;
+	    token.value = get_num();
+	} else {
+	    token.type =  T_SYMBOL;
+	    get_symbol(token.str);
+	}
     }
     return &token;
 }
@@ -274,6 +282,12 @@ void print_token(token_t *token)
 	break;
     case QUOTE:
 	printf("QUOTE\n");
+	break;
+    case BACKQUOTE:
+	printf("BACKQUOTE\n");
+	break;
+    case COMMA:
+	printf("COMMA\n");
 	break;
     case INVALID:
 	printf("INVALID\n");

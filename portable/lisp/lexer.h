@@ -7,6 +7,8 @@ typedef enum {
     RPAREN, // правая скобка )
     END, // конец строки
     QUOTE, // символ '
+    BACKQUOTE, // символ `
+    COMMA, // символ ,
     T_STRING, // строка в кавычках
     SHARP, // символ #
     INVALID // неизвестный объект
