@@ -19,6 +19,8 @@ symbol_t *cond_sym;
 symbol_t *defun_sym;
 /// символ "DEFVAR"
 symbol_t *defvar_sym; 
+/// символ "SETQ"
+symbol_t *setq_sym; 
 /// символ "T"
 symbol_t *t_sym;
 /// символ "NIL"
@@ -388,6 +390,8 @@ int is_special_form(symbol_t *s)
 	return 1;
     else if (s == defvar_sym)
 	return 1;
+    else if (s == setq_sym)
+        return 1;
     return 0;
 }
 
@@ -502,7 +506,7 @@ object_t *setq(object_t *params)
         return obj;
     }
     else {
-        *sym->value = *obj;
+        sym->value = obj;
         return sym->value;
     }
 }
@@ -528,6 +532,7 @@ void init_eval()
   cond_sym = find_symbol("COND");
   defun_sym = find_symbol("DEFUN");
   defvar_sym = find_symbol("DEFVAR");
+  setq_sym = find_symbol("SETQ");
   t_sym = t->u.symbol;
   t_sym->value = t;
   nil_sym = find_symbol("NIL");
