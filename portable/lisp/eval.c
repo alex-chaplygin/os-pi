@@ -472,6 +472,7 @@ object_t *eval(object_t *obj, object_t *env)
         error("Unknown object_type\n");
 	return ERROR;
     }
+    current_env = env;
 }
 
 /**
@@ -519,6 +520,7 @@ void init_eval()
   register_func("DEFUN", defun);
   register_func("DEFVAR", defvar);
   register_func("PROGN", progn);
+  register_func("SETQ", setq);
   t = object_new(SYMBOL, "T");
   nil = NULL;
   quote_sym = find_symbol("QUOTE");

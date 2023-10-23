@@ -34,3 +34,4 @@ sh sys_test "(defun f(x)\
             ((= x 1) 1) \
             (T (* x (f (- x 1))))))\
          (f 12) (f 10)" "F479001600"
+sh sys_test "(setq test 200) test" "200"
