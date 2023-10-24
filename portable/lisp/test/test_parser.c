@@ -36,6 +36,12 @@ token_t quote_tokens[] = {
     {RPAREN}
 };
 
+token_t backquote_tokens[] = {
+    {BACKQUOTE},
+    {T_SYMBOL, 0, "A"},
+    {RPAREN}
+};
+
 token_t no_rparen_tokens[] = {
     {LPAREN},
     {T_NUMBER, 1},
@@ -87,7 +93,8 @@ symbol_t test_symbols[] = {
     {"X"},
     {"Y"},
     {"Z"},
-    {"QUOTE"}
+    {"QUOTE"},
+    {"BACKQUOTE"},
 };
 
 char *strupr (char *str);
@@ -210,17 +217,17 @@ void test_parse_list_list()
  * Создать "'a" и проверить корректность создания пар
  * (quote a)
  */
-void test_parse_quote()
+void test_parse_quote(token_t *toks, char* sym)
 {
-    printf("test_parse_quote: ");
+    printf("test_parse_quote: %s ", sym);
     count = 0;
     cur_token = &token;
-    tokens = quote_tokens;
+    tokens = toks;
     object_t *o = parse();
     ASSERT(o->type, PAIR);
     ASSERT(o->u.pair->right->type, PAIR);
     ASSERT(o->u.pair->left->type, SYMBOL);
-    ASSERT(strcmp(o->u.pair->left->u.symbol->str, "QUOTE"), 0);
+    ASSERT(strcmp(o->u.pair->left->u.symbol->str, sym), 0);
     ASSERT(strcmp(o->u.pair->right->u.pair->left->u.symbol->str, "A"), 0);
     ASSERT(o->u.pair->right->u.pair->right, NULL);
 }
@@ -327,7 +334,8 @@ int main()
     test_parse_list_numbers();
     test_parse_list_symbols();
     test_parse_list_list();
-    test_parse_quote();
+    test_parse_quote(quote_tokens, "QUOTE");
+    test_parse_quote(backquote_tokens, "BACKQUOTE");
     test_parse_list_quote();
     test_parse_no_rparen();
     test_parse_inner_list();

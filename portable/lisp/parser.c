@@ -12,7 +12,7 @@ token_t *cur_token; // текущий токен
 // str - сообщение об ошибке
 void error(char *str)
 {
-    printf("%s\n", str);
+    printf("%s", str);
 }
 
 // преобразует строку в верхний регистр
@@ -30,15 +30,17 @@ char *strupr(char *str)
 }
 
 object_t *parse();
+object_t *parse_list();
 
 /**
  *  Обработка кавычки
  *  'a -> (quote a)
  * '(4 5 6) -> (quote (4 5 6))
  *
+ * @param quote_sym символ функции цитирования
  * @return указатель на список с quote
  */
-object_t *parse_quote()
+object_t *parse_quote(char *quote_sym)
 {
     //printf("parse_quote: ");
     object_t *o = parse();
@@ -49,10 +51,28 @@ object_t *parse_quote()
     object_t *p = new_pair(o, NULL);
     
     if (o != NULL && o->type == NUMBER) {
-	error("quote Number\n");
+	error(quote_sym);
+	error(" Number\n");
 	return ERROR;
     }
-    return new_pair(object_new(SYMBOL, "QUOTE"), p);
+    return new_pair(object_new(SYMBOL, quote_sym), p);
+}
+
+object_t *parse_element(type_t type, void *data, tokentype_t t_type)
+{
+    object_t *obj;
+    if (t_type == QUOTE)
+	obj = parse_quote("QUOTE");
+    else if (t_type == BACKQUOTE)
+	obj = parse_quote("BACKQUOTE");
+    else if (t_type == LPAREN)
+	obj = parse_list();
+    else
+	obj = object_new(type, data);
+    object_t *tail = parse_list();
+    if (tail == ERROR)
+	return ERROR;
+    return new_pair(obj, tail);
 }
 
 /** 
@@ -76,35 +96,16 @@ object_t *parse_list()
 	return NULL;
     if (cur_tok->type == T_NUMBER) {
         val = cur_tok->value;
-	object_t *tail = parse_list();
-	if (tail == ERROR)
-	    return ERROR;
-	return new_pair(object_new(NUMBER, &val), tail);
+	return parse_element(NUMBER, &val, cur_tok->type);
     } else if (cur_tok->type == T_STRING) {
 	strcpy(str, cur_tok->str);
-	object_t *tail = parse_list();
-	if (tail == ERROR)
-	    return ERROR;
-	return new_pair(object_new(STRING, str), tail);
+	return parse_element(STRING, str, cur_tok->type);
     } else if (cur_tok->type == T_SYMBOL) {
         strcpy(str, cur_tok->str);
-	object_t *tail = parse_list();
-	if (tail == ERROR)
-	    return ERROR;
-	return new_pair(object_new(SYMBOL, strupr(str)), tail);
-    } else if (cur_tok->type == LPAREN) {
-	object_t *list = parse_list();
-	object_t *tail = parse_list();
-	if (tail == ERROR)
-	    return ERROR;
-	return new_pair(list, tail);
-    } else if (cur_tok->type == QUOTE) {
-	object_t *q = parse_quote();
-	object_t *tail = parse_list();
-	if (tail == ERROR)
-	    return ERROR;
-	return new_pair(q, tail);
-    } else if (cur_tok->type == INVALID)
+	return parse_element(SYMBOL, strupr(str), cur_tok->type);
+    } else if (cur_tok->type == LPAREN || cur_tok->type == QUOTE || cur_tok->type == BACKQUOTE)
+	return parse_element(SYMBOL, NULL, cur_tok->type); 
+    else if (cur_tok->type == INVALID)
 	return ERROR;
 }
 
@@ -145,7 +146,9 @@ object_t *parse()
     else if (cur_token->type == LPAREN)
 	return parse_list();
     else if (cur_token->type == QUOTE)
-	return parse_quote();
+	return parse_quote("QUOTE");
+    else if (cur_token->type == BACKQUOTE)
+	return parse_quote("BACKQUOTE");
     else if (cur_token->type == SHARP)
 	return parse_array();
     else if (cur_token->type == T_STRING)
