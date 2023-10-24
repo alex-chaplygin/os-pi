@@ -236,5 +236,7 @@ int main()
     test_invalid_num("invalid hex", "0xfrf", 1);
     test_invalid_num("invalid hex", "0xrf", 1);
     test_string("\"1 2 3\"", "1 2 3");
+    test_string("\"a b\\n\"", "a b\n");
+    test_string("\"a b\\n\\n\"", "a b\n\n");
     return 0;
 }

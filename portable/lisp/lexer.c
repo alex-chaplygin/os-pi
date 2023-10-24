@@ -199,6 +199,10 @@ void get_string(char *cur_str)
 	if (cur_symbol == '"') {
 	    get_cur_char(); // Пропускаем закрывающую кавычку
 	    break;
+	} else if (cur_symbol == '\\') {
+	    get_cur_char();
+	    if (cur_symbol == 'n')
+		cur_symbol = '\n';
 	}
 	cur_str[c++] = cur_symbol;
 	get_cur_char();
