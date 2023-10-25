@@ -8,11 +8,11 @@
 /// Всего символов
 #define MAX_SYMBOLS 100
 /// Всего байт для регионов 
-#define MAX_CHARS 500
+#define MAX_CHARS 1500
 /// Всего строк
 #define MAX_STRINGS 100
 
-#define MAX_STR 50
+#define MAX_STR 500
 #define PRINT(o) print_obj(o); printf("\n");
 
 /// Отсутствие значения у переменных

@@ -1,4 +1,4 @@
-#define MAX_STR 50
+#define MAX_STR 500
 
 typedef enum {
     T_NUMBER, //число

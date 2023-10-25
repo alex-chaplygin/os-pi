@@ -35,3 +35,22 @@ sh sys_test "(defun f(x)\
             (T (* x (f (- x 1))))))\
          (f 12) (f 10)" "F479001600"
 sh sys_test "(setq test 200) test" "200"
+sh sys_test "(defun bgr-out (reg data)\
+  \"Запись регистра видео\"\
+  (+ 0 reg)\
+  (+ 1 data))\
+\
+(defun bgr-set-res (width height depth)\
+  \"Установка разрешения экрана\"\
+  (bgr-out 3 0)\
+  (bgr-out 4 width)\
+  (bgr-out 1 height)\
+  (bgr-out 5 depth)\
+  (bgr-out 3 1))\
+\
+(bgr-set-res 320 200 8)\
+\
+(defun graph-send-buffer (a) nil)\
+\
+(graph-send-buffer \"1234567890q\" )" ""
+sh sys_test "(defvar str  \"1234567890111111qwertyu\\nuiop111\\n1111111111111111\\nqqqqqqqqqqqqqqqqqqqq\\nqqqqqqqqqqqqqqqqqqqqq\"   )" ""
