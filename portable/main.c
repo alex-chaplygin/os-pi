@@ -50,6 +50,7 @@ void boot_lisp()
 	if (o != ERROR) {
 	    object_t *res = eval(o, NULL);
 	    PRINT(res);
+        garbage_collect();
 	}
     } while (token.type != END);
     boot_load = 0;
@@ -70,6 +71,7 @@ void kmain(void)
     init_arith();
     init_regions();
     init_sys();
+    graph_init();
     boot_lisp();
     while(1) {
 	printf("> ");
