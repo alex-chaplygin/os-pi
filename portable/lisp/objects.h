@@ -88,6 +88,8 @@ typedef struct symbol_s
     object_t *value;
     // указатель на объект для функций (lambda выражение)
     object_t *lambda;
+    // указатель на объект для макроса
+    object_t *macro;
     //указатель на функцию для примитивов
     func_t func;
 } symbol_t;

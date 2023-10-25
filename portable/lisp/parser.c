@@ -65,6 +65,8 @@ object_t *parse_element(type_t type, void *data, tokentype_t t_type)
 	obj = parse_quote("QUOTE");
     else if (t_type == BACKQUOTE)
 	obj = parse_quote("BACKQUOTE");
+    else if (t_type == COMMA)
+	obj = parse_quote("COMMA");
     else if (t_type == LPAREN)
 	obj = parse_list();
     else
@@ -103,7 +105,8 @@ object_t *parse_list()
     } else if (cur_tok->type == T_SYMBOL) {
         strcpy(str, cur_tok->str);
 	return parse_element(SYMBOL, strupr(str), cur_tok->type);
-    } else if (cur_tok->type == LPAREN || cur_tok->type == QUOTE || cur_tok->type == BACKQUOTE)
+    } else if (cur_tok->type == LPAREN || cur_tok->type == QUOTE
+        || cur_tok->type == BACKQUOTE || cur_tok->type == COMMA)
 	return parse_element(SYMBOL, NULL, cur_tok->type); 
     else if (cur_tok->type == INVALID)
 	return ERROR;
@@ -149,6 +152,8 @@ object_t *parse()
 	return parse_quote("QUOTE");
     else if (cur_token->type == BACKQUOTE)
 	return parse_quote("BACKQUOTE");
+    else if (cur_token->type == COMMA)
+	return parse_quote("COMMA");
     else if (cur_token->type == SHARP)
 	return parse_array();
     else if (cur_token->type == T_STRING)

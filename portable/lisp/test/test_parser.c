@@ -42,6 +42,14 @@ token_t backquote_tokens[] = {
     {RPAREN}
 };
 
+token_t comma_tokens[] = {
+    {BACKQUOTE},
+    {COMMA},
+    {T_SYMBOL, 0, "A"},
+    {RPAREN},
+    {END}
+};
+
 token_t no_rparen_tokens[] = {
     {LPAREN},
     {T_NUMBER, 1},
@@ -95,6 +103,7 @@ symbol_t test_symbols[] = {
     {"Z"},
     {"QUOTE"},
     {"BACKQUOTE"},
+    {"COMMA"}
 };
 
 char *strupr (char *str);
@@ -327,6 +336,23 @@ void test_parse_array()
     ASSERT(o->u.pair->right->u.pair->right->u.pair->left->u.value, 3);
 }
 
+/**
+ * Тестируем список (`(,x)))
+*/
+void test_parse_backquote_comma()
+{
+    printf("test_parse_backquote_comma: \n");
+    count = 0;
+    cur_token = &token;
+    tokens = comma_tokens;
+    object_t *o = parse_list();
+    o = o->u.pair->left;
+    ASSERT(strcmp(o->u.pair->left->u.symbol->str, "BACKQUOTE"), 0);
+    o = o->u.pair->right->u.pair->left;
+    ASSERT(strcmp(o->u.pair->left->u.symbol->str, "COMMA"), 0);
+    ASSERT(strcmp(o->u.pair->right->u.pair->left->u.symbol->str, "A"), 0);
+}
+
 int main()
 {
     printf("------------test_parser------------\n");
@@ -336,11 +362,13 @@ int main()
     test_parse_list_list();
     test_parse_quote(quote_tokens, "QUOTE");
     test_parse_quote(backquote_tokens, "BACKQUOTE");
+    test_parse_quote(comma_tokens, "COMMA");
     test_parse_list_quote();
     test_parse_no_rparen();
     test_parse_inner_list();
     test_parse_invalid();
     test_parse_invalid_quote();
     test_parse_array();
+    test_parse_backquote_comma();
     return 0;
 }

@@ -17,6 +17,8 @@ symbol_t *lambda_sym;
 symbol_t *cond_sym;
 /// символ "DEFUN"
 symbol_t *defun_sym;
+/// символ "DEFMACRO"
+symbol_t *defmacro_sym;
 /// символ "DEFVAR"
 symbol_t *defvar_sym; 
 /// символ "SETQ"
@@ -173,6 +175,20 @@ object_t *defun(object_t *obj)
 {
     symbol_t *name = find_symbol(FIRST(obj)->u.symbol->str);
     name->lambda = new_pair(object_new(SYMBOL, "LAMBDA"), TAIL(obj));
+    return object_new(SYMBOL, name->str);
+}
+
+/** 
+ * Создаёт новый макрос
+ *
+ * @param obj (имя_макроса список_аргументов тело_макроса)
+ *
+ * @return символ имени нового макроса
+ */
+object_t *defmacro(object_t *obj)
+{
+    symbol_t *name = find_symbol(FIRST(obj)->u.symbol->str);
+    name->macro = new_pair(object_new(SYMBOL, "LAMBDA"), TAIL(obj));
     return object_new(SYMBOL, name->str);
 }
 
@@ -388,6 +404,8 @@ int is_special_form(symbol_t *s)
 	return 1;
     else if (s == defun_sym)
 	return 1;
+    else if (s == defmacro_sym)
+        return 1;
     else if (s == defvar_sym)
 	return 1;
     else if (s == setq_sym)
@@ -522,6 +540,7 @@ void init_eval()
   register_func("QUOTE", quote);
   register_func("CONS", cons);
   register_func("DEFUN", defun);
+  register_func("DEFMACRO", defmacro);
   register_func("DEFVAR", defvar);
   register_func("PROGN", progn);
   register_func("SETQ", setq);
@@ -531,6 +550,7 @@ void init_eval()
   lambda_sym = find_symbol("LAMBDA");
   cond_sym = find_symbol("COND");
   defun_sym = find_symbol("DEFUN");
+  defmacro_sym = find_symbol("DEFMACRO");
   defvar_sym = find_symbol("DEFVAR");
   setq_sym = find_symbol("SETQ");
   t_sym = t->u.symbol;

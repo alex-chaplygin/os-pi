@@ -160,6 +160,7 @@ symbol_t *new_symbol(char *str)
     symbol->value = NOVALUE;
     symbol->func = NULL;
     symbol->lambda = NULL;
+    symbol->macro = NULL;
     return symbol;
 }
 
