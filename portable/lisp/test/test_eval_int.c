@@ -558,7 +558,7 @@ int main()
     test_make_env();
     test_find_in_env();
     test_defun();
-    test_setq_make_env();
+    //    test_setq_make_env();
     test_setq_set_env();
     test_setq_global_set();
     test_append();

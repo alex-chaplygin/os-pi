@@ -497,37 +497,38 @@ object_t *eval(object_t *obj, object_t *env)
     current_env = env;
 }
 
+
+
 /**
  * Присвоение значения переменной
  * @param param параметры (символьный объект, значение, окружение)
  * @return возвращает значение переменной
  */
+object_t *setq_rec(object_t *params)
+{
+    if (params == NULL)
+        return NULL;
+    symbol_t *sym = find_symbol(FIRST(params)->u.symbol->str);
+    if (TAIL(params) == NULL) {
+	error("setq: no value");
+	return ERROR;
+    }
+    object_t *obj = eval(SECOND(params), current_env);
+    sym->value = obj;
+    if (TAIL(TAIL(params)) == NULL)
+	return obj;
+    return setq_rec(TAIL(TAIL(params)));
+}
+
 object_t *setq(object_t *params)
 {
     if (params == NULL) {
-	    error("setq: params = NULL\n");
+	error("setq: params = NULL\n");
         return ERROR;
     }
-    object_t *res, *find_obj;
-    object_t *obj = eval(SECOND(params), current_env);
-    
-    int find_res = find_in_env(current_env, FIRST(params), &res);
-    if (find_res) {
-        *res = *obj;
-        return res;
-    }
-
-    symbol_t *sym = check_symbol(FIRST(params)->u.symbol->str);
-    if (sym == NULL) {
-        object_t *new_env = make_env(new_pair(FIRST(params), NULL), new_pair(obj, NULL));
-        append_env(current_env, new_env);
-        return obj;
-    }
-    else {
-        sym->value = obj;
-        return sym->value;
-    }
+    return setq_rec(params);
 }
+
 
 /** 
  * инициализация примитивов 

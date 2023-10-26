@@ -54,3 +54,6 @@ sh sys_test "(defun bgr-out (reg data)\
 \
 (graph-send-buffer \"1234567890q\" )" ""
 sh sys_test "(defvar str  \"1234567890111111qwertyu\\nuiop111\\n1111111111111111\\nqqqqqqqqqqqqqqqqqqqq\\nqqqqqqqqqqqqqqqqqqqqq\\nwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww\") str" ""
+sh sys_test "(setq a 1 b 2 c 3)a b c" "1 2 3"
+sh sys_test "(setq a 1 b)" "1"
+sh sys_test "(setq_rec a 1 b)" "1"
