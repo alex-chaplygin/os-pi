@@ -11,6 +11,8 @@ object_t *t;
 object_t *nil;
 /// символ "QUOTE"
 symbol_t *quote_sym;
+/// символ "BACKQUOTE"
+symbol_t *backquote_sym;
 /// символ "LAMBDA"
 symbol_t *lambda_sym;
 /// символ "COND"
@@ -121,7 +123,25 @@ object_t *quote(object_t *list)
     return FIRST(list);
 }
 
-//
+/**
+ * возвращает аргумент с вычислением
+ * b = 7 `(a ,b c) -> (a 7 c)
+ * b = (1 2) `(a ,b c) -> (a (1 2) c)
+ * b = (1 2) `(a ,b c) -> (list 'a '(1 2) 'c)
+ * b = (1 2) `(a (,b) c) -> (a ((1 2)) c)
+ * b = (1 2) `(a ,@b c) -> (a 1 2 c)
+ *
+ * @param list - список параметров (1 парамет)
+ *
+ * @return аргумент
+ */
+object_t *backquote(object_t *list)
+{
+    if (list == NULL)
+	return NULL;
+    return backquote(TAIL(list));
+}
+
 /** 
  * Конструирование объекта ожидает, что 2 параметр - список
  *
@@ -348,12 +368,6 @@ void append_env(object_t *l1, object_t *l2)
  */
 object_t *eval_func(object_t *lambda, object_t *args, object_t *env)
 {
-    /*    printf("eval_func: lambda = ");
-    PRINT(lambda);
-    printf("eval_func: args = ");
-    PRINT(args);
-    printf("eval_func: env = ");
-    PRINT(env);*/
     object_t *new_env = make_env(SECOND(lambda), args);
     object_t *body;
     if (TAIL(TAIL(lambda))->u.pair->right == NULL)
@@ -397,20 +411,10 @@ object_t *eval_args(object_t *args, object_t *env)
  * @param s - имя функции
  * @return 1 - специальная форма, а 0 - нет
  */
-
 int is_special_form(symbol_t *s)
 {
-    if (s == quote_sym)
-	return 1;
-    else if (s == defun_sym)
-	return 1;
-    else if (s == defmacro_sym)
-        return 1;
-    else if (s == defvar_sym)
-	return 1;
-    else if (s == setq_sym)
-        return 1;
-    return 0;
+    return s == quote_sym || s == defun_sym || s == defmacro_sym ||
+	s == defvar_sym || s == setq_sym || s == backquote_sym;
 }
 
 /**
@@ -532,27 +536,29 @@ object_t *setq(object_t *params)
  */
 void init_eval()
 {
-  register_func("CAR", car);
-  register_func("CDR", cdr);    
-  register_func("EQ", eq);
-  register_func("QUOTE", quote);
-  register_func("CONS", cons);
-  register_func("DEFUN", defun);
-  register_func("DEFMACRO", defmacro);
-  register_func("DEFVAR", defvar);
-  register_func("PROGN", progn);
-  register_func("SETQ", setq);
-  t = object_new(SYMBOL, "T");
-  nil = NULL;
-  quote_sym = find_symbol("QUOTE");
-  lambda_sym = find_symbol("LAMBDA");
-  cond_sym = find_symbol("COND");
-  defun_sym = find_symbol("DEFUN");
-  defmacro_sym = find_symbol("DEFMACRO");
-  defvar_sym = find_symbol("DEFVAR");
-  setq_sym = find_symbol("SETQ");
-  t_sym = t->u.symbol;
-  t_sym->value = t;
-  nil_sym = find_symbol("NIL");
-  nil_sym->value = nil;
+    register_func("CAR", car);
+    register_func("CDR", cdr);    
+    register_func("EQ", eq);
+    register_func("QUOTE", quote);
+    register_func("BACKQUOTE",backquote);
+    register_func("CONS", cons);
+    register_func("DEFUN", defun);
+    register_func("DEFMACRO", defmacro);
+    register_func("DEFVAR", defvar);
+    register_func("PROGN", progn);
+    register_func("SETQ", setq);
+    t = object_new(SYMBOL, "T");
+    nil = NULL;
+    quote_sym = find_symbol("QUOTE");
+    backquote_sym = find_symbol("BACKQUOTE");
+    lambda_sym = find_symbol("LAMBDA");
+    cond_sym = find_symbol("COND");
+    defun_sym = find_symbol("DEFUN");
+    defmacro_sym = find_symbol("DEFMACRO");
+    defvar_sym = find_symbol("DEFVAR");
+    setq_sym = find_symbol("SETQ");
+    t_sym = t->u.symbol;
+    t_sym->value = t;
+    nil_sym = find_symbol("NIL");
+    nil_sym->value = nil;
 }
