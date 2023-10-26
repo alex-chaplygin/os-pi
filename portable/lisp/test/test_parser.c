@@ -51,6 +51,7 @@ token_t comma_tokens[] = {
 
 token_t back_comma_tokens[] = {
     {BACKQUOTE},
+    {LPAREN},
     {COMMA},
     {T_SYMBOL, 0, "A"},
     {RPAREN},
@@ -346,7 +347,7 @@ void test_parse_array()
 }
 
 /**
- * Тестируем список (`(,x)))
+ * Тестируем `(,a)
 */
 void test_parse_backquote_comma()
 {
