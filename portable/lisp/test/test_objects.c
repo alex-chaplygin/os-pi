@@ -385,6 +385,31 @@ void test_new_string()
     ASSERT(strcmp(s->data, "abc"), 0);
 }
 
+/**
+ * Переполнить память пар
+ * Вызвать сборщик мусора
+ * Создать ещё 1 пару
+ */
+void test_free_pair_max_memory()
+{
+    printf("test_free_pair_max_memory: ");
+    reset_mem();
+    for (int i = last_pair; i < MAX_PAIRS; i++)
+	new_pair(NULL, NULL);
+    garbage_collect();
+    object_t *pair = new_pair(NULL, NULL);
+    ASSERT(pair, pair);
+}
+
+/**
+ * Освободить пустую пару
+ */
+void test_free_pair_empty()
+{
+    printf("test_free_pair_empty: ");
+    free_pair(NULL);    
+}
+
 void main()
 {
     printf("--------------test objects---------------------\n");
@@ -403,6 +428,8 @@ void main()
     test_new_string();
     test_objects_new_null();
     test_pairs_overflow();
+    test_free_pair_max_memory();
+    test_free_pair_empty();
     int i = 10;
     test_print_obj(object_new(NUMBER, &i), "10");
 }
