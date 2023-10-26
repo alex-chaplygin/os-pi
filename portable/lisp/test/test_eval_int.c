@@ -483,6 +483,31 @@ void test_div()
     ASSERT(res->u.value, 4);
 }
 
+/**
+ * Тест сложения - проверка на NULL.
+ */
+void test_add_null()
+{
+    printf("test_add_null: ");
+    object_t *list = NULL;
+    object_t *res = add(list);
+    ASSERT(res, ERROR);
+}
+
+/**
+ * Тест сложения передача значения не число
+ */
+void test_add_no_number()
+{
+    printf("test_add_no_number: ");
+
+    int num = 2;
+    object_t *list = new_pair(object_new(NUMBER, &num),
+			      new_pair(new_pair(NULL, NULL), NULL));
+    object_t *res = add(list);
+    ASSERT(res, ERROR);
+}
+
 int main()
 {
     printf("------------test_eval_int---------\n");
@@ -511,6 +536,8 @@ int main()
     test_div();
     test_num_eq(1, 2, nil);
     test_num_eq(10, 10, t);
+    test_add_null();
+    test_add_no_number();    
     return 0;
 }
 
