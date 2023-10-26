@@ -43,6 +43,13 @@ token_t backquote_tokens[] = {
 };
 
 token_t comma_tokens[] = {
+    {COMMA},
+    {T_SYMBOL, 0, "A"},
+    {RPAREN},
+    {END}
+};
+
+token_t back_comma_tokens[] = {
     {BACKQUOTE},
     {COMMA},
     {T_SYMBOL, 0, "A"},
@@ -323,7 +330,7 @@ void test_parse_invalid_quote()
 
 /** 
  * Тестируем массив #(1 2 3)
- * На выходе: (1 2 3)
+ * На выходе: #(1 2 3)
  */
 void test_parse_array()
 {
@@ -331,9 +338,11 @@ void test_parse_array()
     count = 0;
     tokens = tok_array;
     object_t *o = parse();
-    ASSERT(o->u.pair->left->u.value, 1);
-    ASSERT(o->u.pair->right->u.pair->left->u.value, 2);
-    ASSERT(o->u.pair->right->u.pair->right->u.pair->left->u.value, 3);
+    ASSERT(o->type, ARRAY);
+    array_t *a = o->u.arr;
+    ASSERT(a->data[0]->u.value, 1);
+    ASSERT(a->data[1]->u.value, 2);
+    ASSERT(a->data[2]->u.value, 3);
 }
 
 /**
@@ -344,8 +353,8 @@ void test_parse_backquote_comma()
     printf("test_parse_backquote_comma: \n");
     count = 0;
     cur_token = &token;
-    tokens = comma_tokens;
-    object_t *o = parse_list();
+    tokens = back_comma_tokens;
+    object_t *o = parse();
     o = o->u.pair->left;
     ASSERT(strcmp(o->u.pair->left->u.symbol->str, "BACKQUOTE"), 0);
     o = o->u.pair->right->u.pair->left;
@@ -356,6 +365,7 @@ void test_parse_backquote_comma()
 int main()
 {
     printf("------------test_parser------------\n");
+    init_regions();
     test_strupr();
     test_parse_list_numbers();
     test_parse_list_symbols();
