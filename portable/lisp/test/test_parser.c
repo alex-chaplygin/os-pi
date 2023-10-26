@@ -348,7 +348,8 @@ void test_parse_array()
 
 /**
  * Тестируем `(,a)
-*/
+ * Должно получиться: (BACKQUOTE ((COMMA A)))
+ */
 void test_parse_backquote_comma()
 {
     printf("test_parse_backquote_comma: \n");
