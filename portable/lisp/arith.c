@@ -105,7 +105,7 @@ object_t *int_div(object_t *list)
         error("div: no arguments\n");
         return ERROR;
     }
-    if (SECOND(list) == NULL) {
+    if (TAIL(list) == NULL) {
         error("div: no divisor\n");
         return ERROR;
     }
