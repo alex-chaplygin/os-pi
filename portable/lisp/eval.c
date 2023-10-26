@@ -202,7 +202,7 @@ object_t *defmacro(object_t *obj)
 object_t *defvar(object_t *params)
 {
     symbol_t *name = find_symbol(FIRST(params)->u.symbol->str);
-    if (SECOND(params) == NULL)
+    if (TAIL(params) == NULL)
         name->value = NULL;
     else
         name->value = eval(SECOND(params), NULL);
@@ -497,8 +497,6 @@ object_t *eval(object_t *obj, object_t *env)
     current_env = env;
 }
 
-
-
 /**
  * Присвоение значения переменной
  * @param param параметры (символьный объект, значение, окружение)
@@ -528,7 +526,6 @@ object_t *setq(object_t *params)
     }
     return setq_rec(params);
 }
-
 
 /** 
  * инициализация примитивов 
