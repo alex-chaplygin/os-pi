@@ -191,13 +191,10 @@ void get_string(char *cur_str)
 {
     int c = 0;
 
-    //printf("get_string\n");
     get_cur_char(); // Считываем открывающую кавычку
     get_cur_char();
     while (cur_symbol != EOF) {
-	//printf("sym = %c\n", cur_symbol);
 	if (cur_symbol == '"') {
-	    get_cur_char(); // Пропускаем закрывающую кавычку
 	    break;
 	} else if (cur_symbol == '\\') {
 	    get_cur_char();
