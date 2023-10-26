@@ -94,11 +94,10 @@ void free_object(object_t *obj)
     	error("free_object: null pointer: obj");
     	return;
     }
-    
-    //printf("free objects: %d %x \n ", obj - objects, obj->next);
     if (obj->free)
 	 return;
-    //printf("free\n");
+    if (obj->type == STRING)
+	free_string(obj->u.str);
     obj->next = free_objs;
     obj->free = 1;
     free_objs = obj;
@@ -134,7 +133,7 @@ object_t *new_pair(object_t *left, object_t *right)
 /** 
  * Освобождение памяти для пары
  * 
- * @param obj объект для освобождения
+ * @param p объект для освобождения
  */
 void free_pair(pair_t *p)
 {
@@ -201,6 +200,25 @@ string_t *new_string(char *str)
     string->next = NULL;
     string->free = 0;
     return string;
+}
+
+/** 
+ * Освобождение памяти для строки
+ * 
+ * @param s объект для освобождения
+ */
+void free_string(string_t *s)
+{
+    if (s == NULL) {
+    	error("free_string: null pointer");
+    	return;
+    }
+    if (s->free)
+	return;
+    s->next = free_strings;
+    free_strings = s;
+    s->free = 1;
+    free_region(s->data);
 }
 
 /**
@@ -282,12 +300,10 @@ void sweep()
  */
 void garbage_collect()
 {
-    for (int i = 0; i < last_symbol; i++)
-    {
+    for (int i = 0; i < last_symbol; i++) {
         mark_object(symbols[i].value);
         mark_object(symbols[i].lambda);
     }
-   
     sweep();
 }
 
@@ -322,8 +338,7 @@ void print_obj(object_t *obj)
 	printf("(");
 	print_list(obj);
 	printf(")");
-    }
-    else if (obj->type == ARRAY) {
+    } else if (obj->type == ARRAY) {
 	printf("#(");
 	print_list(obj);
 	printf(")");
