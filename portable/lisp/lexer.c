@@ -210,6 +210,23 @@ void get_string(char *cur_str)
     cur_str[c] = '\0'; // Завершаем строку
 }
 
+//COMMA_AT function
+token_t get_comma()
+{
+    char ctr[2];
+    ctr[0] = cur_symbol;
+    get_cur_char();
+    get_cur_char();
+    ctr[1] = cur_symbol;
+    if (ctr[0] == ',' && ctr[1] == '@') {
+        token.type = COMMA_AT;
+    }
+    else {
+        token.type = COMMA;
+        unget_cur_char();
+    }
+}
+
 // '(3 4) 'a
 token_t *get_token()
 {
@@ -237,9 +254,8 @@ token_t *get_token()
 	token.type = BACKQUOTE;
 	break;    
     case ',':
-	get_cur_char();
-	token.type = COMMA;
-	break;  
+    get_comma();
+	break;
     case '"':
 	// Используем get_string для чтения строки в двойных кавычках
 	get_string(token.str); 
@@ -293,6 +309,9 @@ void print_token(token_t *token)
     case COMMA:
 	printf("COMMA\n");
 	break;
+	case COMMA_AT:
+	printf("COMMA_AT\n");
+	break;
     case INVALID:
 	printf("INVALID\n");
 	break;
@@ -304,4 +323,3 @@ void print_token(token_t *token)
        
     }
 }
-   

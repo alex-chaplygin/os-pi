@@ -228,6 +228,7 @@ int main()
     test_get_token("quote", "\'", QUOTE);
     test_get_token("backquote", "`", BACKQUOTE);
     test_get_token("comma", ",", COMMA);
+    test_get_token("comma_at", ",@", COMMA_AT);
     test_get_token("sharp", "#(1 2 3)", SHARP);
     test_get_token("symbol", "abc", T_SYMBOL);
     test_invalid_num("invalid num", "11D", 1);

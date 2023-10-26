@@ -9,6 +9,7 @@ typedef enum {
     QUOTE, // символ '
     BACKQUOTE, // символ `
     COMMA, // символ ,
+    COMMA_AT, // символ ,@
     T_STRING, // строка в кавычках
     SHARP, // символ #
     INVALID // неизвестный объект
