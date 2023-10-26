@@ -13,6 +13,9 @@ extern int last_pair;
 extern int last_symbol;
 extern pair_t *free_pairs;
 extern char region_data[];
+extern string_t *free_strings;
+extern struct region *regions;
+extern int last_string;
 
 object_t *mobject;
 
@@ -21,6 +24,8 @@ void mark_object(object_t *obj);
 void sweep();
 
 void garbage_collect();
+
+void free_string(string_t *s);
 
 void error(char *str)
 {
@@ -97,6 +102,8 @@ void reset_mem()
     free_objs = NULL;
     last_pair = 0;
     free_pairs = NULL;
+    last_string = 0;
+    free_strings = NULL;
 }
 
 /**
@@ -294,6 +301,7 @@ void test_garbage_collect_list()
     } 
     printf("pairs: OK\n");
 }
+
 /**
  * Выделить 2 региона с размерами 5 и 64
  * Проверить указатели регионов относительно начала
@@ -410,6 +418,51 @@ void test_free_pair_empty()
     free_pair(NULL);    
 }
 
+/**
+ * Проверка корректности функции освобождения строки
+ * Создать строку, освободить её, проверить список свбодных строк
+ */
+void test_free_string()
+{
+    printf("test_free_string: ");
+    reset_mem();
+    string_t *str = new_string("ffffff");
+    free_string(str);
+    ASSERT(free_strings, str);
+    ASSERT(free_strings->next, NULL);
+}
+
+/**
+ * Создать символ B
+ * Присвоить ему значение - строка "abc"
+ * Создать ещё две строки
+ * Выполнить сборку мусора
+ * Проверить, что объект не в списке свободных строк
+ */
+void test_garbage_collect_strings()
+{
+    printf("test_garbage_collect_strings: ");
+    reset_mem();
+    symbol_t *s = new_symbol("B");
+    object_t *obj1 = object_new(STRING, "abc");
+    object_t *obj2 = object_new(STRING, "ff");
+    object_t *obj3 = object_new(STRING, "cc");
+    s->value = obj1;
+    garbage_collect();
+    string_t *fs = free_strings;
+    while (fs != NULL) {
+	printf("%s->", fs->data);
+	if (!strcmp(fs->data, "abc")) {
+	    printf("fail_string\n");
+	    return;
+	}
+	fs = fs->next;
+    }
+    printf("strings_OK\n");
+    ASSERT(regions->free, 0);
+    ASSERT((regions->next != NULL), 1);
+}
+
 void main()
 {
     printf("--------------test objects---------------------\n");
@@ -430,6 +483,8 @@ void main()
     test_pairs_overflow();
     test_free_pair_max_memory();
     test_free_pair_empty();
+    test_free_string();
+    test_garbage_collect_strings();
     int i = 10;
     test_print_obj(object_new(NUMBER, &i), "10");
 }
