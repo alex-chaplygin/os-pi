@@ -77,6 +77,39 @@ void test_register_func()
     ASSERT(find_symbol("TEST")->func, test); 
 }
 
+/** 
+ * Тестирование символов с обинаковым хеш значением
+ */
+void test_same_hash_three_symbols()
+{
+    printf("test_same_hash_three_symbols:");
+    char str1[] = "PJ";
+    char str2[] = "452";
+    char str3[] = "\x7\x0   ";
+    printf("!!!!\n");
+    for (int i = 0; i < 256; i++ ) {
+	str3[0] = i;
+	str3[1] = 0;
+	printf("%c %d\n", i, hash(str3));
+    }
+    for (int i = 0; i < 256; i++ )
+        for (int g = 0; g < 256; g++ )
+	     {
+	str3[0] = i;
+	str3[1] = g;
+	str3[2] = 0;
+	printf("%d %x %s %d\n", hash(str3), g, str3, i);
+    }
+    
+    printf("!!!!\n");
+    str3[0]= 7;
+    
+    printf("%d\n", hash(str1));
+    printf("%d\n", hash(str2));
+    printf("%d\n", hash(str3));
+    ASSERT(((find_symbol(str1) != find_symbol(str2)) || (find_symbol(str1) != find_symbol(str3)) || (find_symbol(str2) != find_symbol(str3))), 1);
+}
+
 int main()
 {
     printf("--------------test symbols---------------------\n");
