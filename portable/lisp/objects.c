@@ -5,6 +5,7 @@
 #include "objects.h" 
 #include "parser.h"
 #include "symbols.h"
+#include "eval.h"
 
 /// Индекс последнего объекта массива
 int last_object = 0;
@@ -31,6 +32,13 @@ int last_string = 0;
 string_t strings[MAX_STRINGS];
 /// Список свободных строк
 string_t *free_strings = NULL;
+
+/// Индекс последнего массива
+int last_array = 0;
+/// Хранилище массивов
+array_t arrays[MAX_ARRAYS];
+/// Список свободных массивов
+array_t *free_arrays = NULL;
 
 /// Хранилище для регионов
 char region_data[MAX_CHARS];
@@ -70,6 +78,8 @@ object_t *object_new(type_t type, void *data)
         new->u.pair = (pair_t *)data;
     else if (type == STRING)
 	new->u.str = new_string((char *)data);
+    else if (type == ARRAY)
+	new->u.arr = new_array((object_t *)data);
     return new;
 }
 
@@ -173,17 +183,63 @@ symbol_t *new_symbol(char *str)
  */
 string_t *new_string(char *str)
 {
-    string_t *string = &strings[last_string++];
+    string_t *string;
     if (last_string == MAX_STRINGS) {
-	error("Error: out of memory: srings");
-	return (string_t*)ERROR;
-    }
+	if (free_strings == NULL) {
+	    error("Error: out of memory: strings");
+	    return (string_t *)ERROR;
+	}
+	string = free_strings;
+	free_strings = free_strings->next;
+	string->next = NULL;
+	string->free = 0;
+    } else
+	string = &strings[last_string++];
     string->length = strlen(str);
     string->data = alloc_region(string->length + 1);
     strcpy(string->data, str);
     string->next = NULL;
     string->free = 0;
     return string;
+}
+
+/**
+ * Создание нового объекта массива
+ *
+ * @param list - список
+ *
+ * @return указатель на объект массива
+ */
+array_t *new_array(object_t *list)
+{
+    array_t *array;
+    if (last_array == MAX_ARRAYS) {
+	if (free_arrays == NULL) {
+	    error("Error: out of memory: arrays");
+	    return (array_t *)ERROR;
+	}
+	array = free_arrays;
+	free_arrays = free_arrays->next;
+	array->next = NULL;
+	array->free = 0;
+    } else
+	array = &arrays[last_array++];
+    array->length = 0;
+    array->next = NULL;
+    array->free = 0;
+    object_t *a = list;
+    while (a != NULL) {
+	array->length++;
+	a = TAIL(a);
+    }
+    array->data = alloc_region(array->length * sizeof(object_t *));
+    object_t **d = array->data;
+    a = list;
+    while (a != NULL) {
+	*d++ = FIRST(a);
+	a = TAIL(a);
+    }
+    return array;
 }
 
 /** 
@@ -266,7 +322,12 @@ void print_obj(object_t *obj)
 	printf("(");
 	print_list(obj);
 	printf(")");
-    }	
+    }
+    else if (obj->type == ARRAY) {
+	printf("#(");
+	print_list(obj);
+	printf(")");
+    }
 }
 
 /**

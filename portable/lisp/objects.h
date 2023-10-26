@@ -11,8 +11,11 @@
 #define MAX_CHARS 1500
 /// Всего строк
 #define MAX_STRINGS 100
-
+/// Всего массивов
+#define MAX_ARRAYS 100
+/// Максимальная длина символа
 #define MAX_STR 500
+
 #define PRINT(o) print_obj(o); printf("\n");
 
 /// Отсутствие значения у переменных
@@ -36,12 +39,14 @@ typedef enum {
     NUMBER, /// целое число
     SYMBOL, ///символ
     PAIR,    ///пара
-    STRING   ///строка
+    STRING,  ///строка
+    ARRAY, ///массив
 } type_t;
 
 struct pair_s;
 struct symbol_s;
 struct string_s;
+struct array_s;
 
 typedef struct object_s
 {
@@ -51,6 +56,7 @@ typedef struct object_s
         struct symbol_s *symbol; // указатель на символ
         struct pair_s *pair; // Если объект пара из 2-х объектов (левый и правый) то указатель на пару
 	struct string_s *str; // если объект строка
+	struct array_s *arr; // Если объект массив
     } u;
     struct object_s *next; // указатель на следующий свободный объект
     int mark; // пометка для сборки мусора
@@ -74,6 +80,15 @@ typedef struct string_s
     struct string_s *next; //указатель на следующую свободную строку
     int free; // Если 1 - строка свободна
 } string_t; //структура строки
+
+/// Структура массива
+typedef struct array_s
+{
+    object_t **data; // Данные массива
+    int length; // Длина массива
+    struct array_s *next; // Указатель на следующий свободный массив
+    int free; // Если 1 - массив свободен
+} array_t;
 
 typedef  object_t *(*func_t)(object_t *);
 
@@ -109,4 +124,5 @@ void init_regions();
 void *alloc_region(int size);
 void free_region(void *data);
 string_t *new_string(char *str);
+array_t *new_array(object_t *list);
 #endif
