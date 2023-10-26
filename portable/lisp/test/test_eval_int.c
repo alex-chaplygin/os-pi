@@ -508,6 +508,43 @@ void test_add_no_number()
     ASSERT(res, ERROR);
 }
 
+/**
+ * Тест пустого списка деления
+ */
+void test_div_nulllist()
+{
+    printf("test_div_nulllist: \n");
+    object_t *list = NULL;
+    object_t *res = int_div(list);
+    ASSERT(res,ERROR);
+}
+
+/**
+ * Тест нулевого делителя
+ */
+void test_div_zerodivisor()
+{
+    printf("test_div_zerodivisor: \n");
+    int num1 = 8;
+    int num2 = 0;
+    object_t *list =  new_pair(object_new(NUMBER,&num1),
+			      new_pair(object_new(NUMBER,&num2),NULL));
+    object_t *res =  int_div(list);
+    ASSERT(res,ERROR);
+}
+
+/**
+ * Тест пустого делителя
+ */
+void test_div_nulldivisor()
+{
+    printf("test_div_nulldivisor: \n");
+    int num1 = 8;
+    object_t *list = new_pair(object_new(NUMBER, &num1), NULL);
+    object_t *res =  int_div(list);
+    ASSERT(res,ERROR);
+}
+
 int main()
 {
     printf("------------test_eval_int---------\n");
@@ -534,6 +571,9 @@ int main()
     test_sub_no_number();
     test_mul();
     test_div();
+    test_div_nulllist();
+    test_div_zerodivisor();
+    test_div_nulldivisor();
     test_num_eq(1, 2, nil);
     test_num_eq(10, 10, t);
     test_add_null();
