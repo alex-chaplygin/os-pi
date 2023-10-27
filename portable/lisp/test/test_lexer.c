@@ -138,6 +138,9 @@ void test_get_symbol(char* src, const char* expect)
 
 /**
  * Проверка получения токена типа exp.
+ * name_test - имя теста
+ * str - входная строка
+ * exp - ожидаемый тип токена
  */
 void test_get_token(const char* name_test, char* str, tokentype_t exp) 
 {
@@ -146,6 +149,26 @@ void test_get_token(const char* name_test, char* str, tokentype_t exp)
     tokentype_t res = get_token()->type; // получение типа токена
     flag = 0; // считать символ (если true, не считывать символ)
     ASSERT(res, exp);
+}
+
+/**
+ * Проверка получения токена типа exp.
+ * name_test - имя теста
+ * str - входная строка
+ * exp1 - ожидаемый тип токена
+ * exp2 - ожидаемый тип токена
+ */
+void test_get_token2(const char* name_test, char* str, tokentype_t exp1,tokentype_t exp2)
+{
+    printf("test_get_token2 %s : ", name_test); // вывод имени теста
+    write_file(str); // запись в файл
+    token_t t1 = *get_token();
+    print_token(&t1);
+    token_t t2 = *get_token();
+    print_token(&t2);
+    flag = 0; // считать символ (если true, не считывать символ)
+    ASSERT(t1.type, exp1);
+    ASSERT(t2.type, exp2);
 }
 
 void test_print_token(token_t *token, const char *expected_output)
@@ -230,7 +253,8 @@ int main()
     test_get_token("comma", ",", COMMA);
     test_get_token("comma_at", ",@", COMMA_AT);
     test_get_token("sharp", "#(1 2 3)", SHARP);
-    test_get_token("symbol", "abc", T_SYMBOL);
+    test_get_token("symbol", "abc", T_SYMBOL); 
+    test_get_token2("setq_rec", "setq_rec", T_SYMBOL, T_SYMBOL); 
     test_invalid_num("invalid num", "11D", 1);
     test_invalid_num("valid num", "11 dd", 0);
     test_invalid_num("invalid num", "0GG", 1);
