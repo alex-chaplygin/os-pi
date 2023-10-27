@@ -63,18 +63,20 @@ git push origin iss<номер>
 
 ## Настройка Emacs
 
-(global-set-key [f5] 'user-save-and-make-all)
-(global-set-key (kbd "<f5>") 'user-save-and-make-all)
-
-(defun user-save-and-make-all ()
-  "save and call compile as make all"
+(defun do-all-tests()
   (interactive)
-  (save-buffer)
-  (compile "make all")
-  (message "make all executed!"))
+  (save-some-buffers (lambda () t))
+  (compile "make test"))
 
-(defun do-tests()
-  (compile "make test")
+(defun do-cur-test()
+  (interactive)
+  (save-some-buffers (lambda () t))
+  (let* ((buf (file-name-base (buffer-file-name (window-buffer (minibuffer-selected-window)))))
+	 (buf2 (concat "/tmp/" buf)))
+    (add-hook 'compilation-finish-functions 'my-compilation-finish-function)
+    (compile (concat "make " buf2))
+    (sit-for 2)
+    (shell-command buf2)))
 
 (require 'doxymacs)
 
@@ -84,13 +86,13 @@ git push origin iss<номер>
 
 (global-set-key [f3] 'doxymacs-insert-member-comment)
 
-(global-set-key [f4] 'do-tests)
+(global-set-key [f4] 'do-all-tests)
+
+(global-set-key [f5] 'do-cur-test)
 
 (global-set-key (kbd "C-v") 'yank)
 
 (define-key input-decode-map (kbd "C-c") (kbd "M-w"))
-
-(add-to-list 'term-bind-key-alist '("C-v" . term-paste))
 
 (global-set-key (kbd "C-s") 'save-buffer)
 
@@ -99,7 +101,5 @@ git push origin iss<номер>
 (global-set-key (kbd "C-f") 'find-file)
 
 (global-set-key (kbd "C-w") 'other-window)
-
-(global-set-key (kbd "C-e") 'eval-region)
 
 (setq-default c-basic-offset 4)
