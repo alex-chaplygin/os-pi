@@ -23,8 +23,8 @@ int main()
 	    //printf("res: "); PRINT(res);
 	    if (res != ERROR) {
 		print_obj(res);
-		printf("\n");
 	    }
+	    printf("\n");
 	}
 	garbage_collect();
     } while (token.type != END);
