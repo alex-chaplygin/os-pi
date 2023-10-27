@@ -135,11 +135,34 @@ object_t *quote(object_t *list)
  *
  * @return аргумент
  */
-object_t *backquote(object_t *list)
+object_t *backquote_rec(object_t *list)
 {
     if (list == NULL)
 	return NULL;
-    return backquote(TAIL(list));
+    //PRINT(list);
+    object_t *o;
+    if (list->type == NUMBER)
+	return object_new(NUMBER, &list->u.value);
+    else if (list->type == SYMBOL)
+	return object_new(SYMBOL, list->u.symbol->str);
+    /*else if (list->type == ARRAY) {
+	array_t *arr = new_empty_array(list->u.arr->length);
+	return object_new(ARRAY, list->u.arr->data);
+	} */else if (list->type == STRING)
+	return object_new(STRING, list->u.str->data);
+    else if (list->type == PAIR)
+	return new_pair(backquote_rec(FIRST(list)), backquote_rec(TAIL(list)));
+    return ERROR;
+}
+
+object_t *backquote(object_t *list)
+{
+    if (list == NULL){
+	error("backquote: NULL");
+	return ERROR;
+    }
+    //PRINT(list);
+    return backquote_rec(FIRST(list));
 }
 
 /** 
@@ -465,7 +488,7 @@ object_t *eval(object_t *obj, object_t *env)
     current_env = env;
     if (obj == NULL)
         return NULL;
-    else if (obj->type == NUMBER || obj->type == STRING)
+    else if (obj->type == NUMBER || obj->type == STRING || obj->type == ARRAY)
 	return obj;
     else if (obj->type == SYMBOL) {
         object_t *symbol = eval_symbol(obj, env);
