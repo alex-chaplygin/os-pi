@@ -126,4 +126,6 @@ void free_region(void *data);
 string_t *new_string(char *str);
 void free_string(string_t *s);
 array_t *new_array(object_t *list);
+array_t *new_empty_array(int length);
+void free_array(array_t *a);
 #endif

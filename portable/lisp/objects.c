@@ -63,12 +63,12 @@ object_t *object_new(type_t type, void *data)
 	    }
         new = free_objs;
         free_objs = free_objs->next;
-        new->next = NULL;
-	new->free = 0;
     } else
         new = &objects[last_object++];
     new->type = type;
     new->mark = 0;
+    new->next = NULL;
+    new->free = 0;
     if (type == NUMBER)
         new->u.value = *(int *)data;
     else if (type == SYMBOL)
@@ -78,7 +78,7 @@ object_t *object_new(type_t type, void *data)
         new->u.pair = (pair_t *)data;
     else if (type == STRING)
 	new->u.str = new_string((char *)data);
-    else if (type == ARRAY)
+    else if (type == ARRAY) 
 	new->u.arr = new_array((object_t *)data);
     return new;
 }
@@ -98,6 +98,8 @@ void free_object(object_t *obj)
 	 return;
     if (obj->type == STRING)
 	free_string(obj->u.str);
+    else if (obj->type == ARRAY)
+	free_array(obj->u.arr);
     obj->next = free_objs;
     obj->free = 1;
     free_objs = obj;
@@ -121,10 +123,10 @@ object_t *new_pair(object_t *left, object_t *right)
 	}
 	pair = free_pairs;
 	free_pairs = free_pairs->next;
-	pair->next = NULL;
-	pair->free = 0;
     } else
 	pair = &pairs[last_pair++];        
+    pair->next = NULL;
+    pair->free = 0;
     pair->left = left;
     pair->right = right;  
     return object_new(PAIR, pair);
@@ -190,8 +192,6 @@ string_t *new_string(char *str)
 	}
 	string = free_strings;
 	free_strings = free_strings->next;
-	string->next = NULL;
-	string->free = 0;
     } else
 	string = &strings[last_string++];
     string->length = strlen(str);
@@ -238,8 +238,6 @@ array_t *new_array(object_t *list)
 	}
 	array = free_arrays;
 	free_arrays = free_arrays->next;
-	array->next = NULL;
-	array->free = 0;
     } else
 	array = &arrays[last_array++];
     array->length = 0;
@@ -258,6 +256,54 @@ array_t *new_array(object_t *list)
 	a = TAIL(a);
     }
     return array;
+}
+
+/**
+ * Создание нового объекта пустого массива 
+ *
+ * @param length - длина массива
+ *
+ * @return указатель на объект массива
+ */
+array_t *new_empty_array(int length)
+{
+    array_t *array;
+    if (last_array == MAX_ARRAYS) {
+	if (free_arrays == NULL) {
+	    error("Error: out of memory: arrays");
+	    return (array_t *)ERROR;
+	}
+	array = free_arrays;
+	free_arrays = free_arrays->next;
+    } else
+	array = &arrays[last_array++];
+    array->length = length;
+    array->next = NULL;
+    array->free = 0;   
+    array->data = alloc_region(array->length * sizeof(object_t *));
+    object_t **d = array->data;
+    for (int i = 0; i < length; i++)
+	*d++ = NULL;
+    return array;
+}
+
+/** 
+ * Освобождение памяти для массива
+ * 
+ * @param s объект для освобождения
+ */
+void free_array(array_t *a)
+{
+    if (a == NULL) {
+    	error("free_array: null pointer");
+    	return;
+    }
+    if (a->free)
+	return;
+    a->next = free_arrays;
+    free_arrays = a;
+    a->free = 1;
+    free_region(a->data);
 }
 
 /** 
@@ -303,6 +349,7 @@ void garbage_collect()
     for (int i = 0; i < last_symbol; i++) {
         mark_object(symbols[i].value);
         mark_object(symbols[i].lambda);
+        mark_object(symbols[i].macro);
     }
     sweep();
 }
@@ -319,6 +366,20 @@ void print_list(object_t *obj)
 	return;
     printf(" ");
     print_list(obj->u.pair->right);
+}
+
+/**
+ * Печать массива
+ */
+void print_array(object_t *obj)
+{
+    array_t *a = obj->u.arr;
+    for (int i = 0; i < a->length; i++) {
+	print_obj(a->data[i]);
+	if (i < a->length - 1)
+	    printf(" ");
+    }
+    
 }
     
 /**
@@ -340,7 +401,7 @@ void print_obj(object_t *obj)
 	printf(")");
     } else if (obj->type == ARRAY) {
 	printf("#(");
-	print_list(obj);
+	print_array(obj);
 	printf(")");
     }
 }

@@ -14,6 +14,7 @@ extern int last_symbol;
 extern pair_t *free_pairs;
 extern char region_data[];
 extern string_t *free_strings;
+extern array_t *free_arrays;
 extern struct region *regions;
 extern int last_string;
 
@@ -463,6 +464,49 @@ void test_garbage_collect_strings()
     ASSERT((regions->next != NULL), 1);
 }
 
+/**
+ * Создать список с числом элементов num
+ * 
+ */
+object_t *make_list(int num)
+{
+    object_t *o = object_new(NUMBER, &num);
+    if (num == 1)
+	return new_pair(o, NULL);
+    return new_pair(o, make_list(num - 1));
+}
+
+/**
+ * Создать символ B
+ * Присвоить ему значение - массив из трех элементов
+ * Создать ещё два массива - 10 элементов и 20 элементов
+ * Выполнить сборку мусора
+ * Проверить, что объект не в списке свободных массивов
+ */
+void test_garbage_collect_arrays()
+{
+    printf("test_garbage_collect_array: ");
+    reset_mem();
+    symbol_t *s = new_symbol("B");
+    object_t *obj1 = object_new(ARRAY, make_list(3));
+    object_t *obj2 = object_new(ARRAY, make_list(10));
+    object_t *obj3 = object_new(ARRAY, make_list(20));
+    s->value = obj1;
+    garbage_collect();
+    array_t *fs = free_arrays;
+    while (fs != NULL) {
+	if (fs == obj1->u.arr) {
+	    printf("fail_array\n");
+	    return;
+	}
+	fs = fs->next;
+    }
+    printf("array_OK\n");
+    ASSERT(obj1->u.arr->length, 3);
+    ASSERT(regions->free, 0);
+    ASSERT((regions->next != NULL), 1);
+}
+
 void main()
 {
     printf("--------------test objects---------------------\n");
@@ -485,6 +529,7 @@ void main()
     test_free_pair_empty();
     test_free_string();
     test_garbage_collect_strings();
+    test_garbage_collect_arrays();
     int i = 10;
     test_print_obj(object_new(NUMBER, &i), "10");
 }
