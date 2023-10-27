@@ -4,12 +4,16 @@ sh sys_test "'()" "NIL"
 sh sys_test "(quote())" "NIL"
 sh sys_test "((lambda (x y) (cons x y)) 1 '(2))" "(1 2)"
 sh sys_test "(defun null (x) (eq x (quote())))\
-(null 'a) (null (quote ())) (null '())" "NULLNILTT"
+(null 'a) (null (quote ())) (null '())" "NULL
+NIL
+T
+T"
 sh sys_test "(defun f(x)\
          (cond \
             ((= x 1) 1) \
             (T (* x (f (- x 1))))))\
-         (f 8) (f 3) (f 8) (f 9) (f 10) (f 10)" "F4790016006479001600"
+         (f 8) (f 3) (f 8) (f 9) (f 10) (f 10)" "F
+4790016006479001600"
 sh sys_test "(defun f(x)\
          (cond \
             ((= x 1) 1) \
@@ -55,6 +59,13 @@ sh sys_test "(defun bgr-out (reg data)\
 (graph-send-buffer \"1234567890q\" )" ""
 sh sys_test "(defvar str  \"1234567890111111qwertyu\\nuiop111\\n1111111111111111\\nqqqqqqqqqqqqqqqqqqqq\\nqqqqqqqqqqqqqqqqqqqqq\\nwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww\") str" ""
 sh sys_test "(setq a 1 b 2 c 3)a b c" "1 2 3"
-sh sys_test "(setq a 1 b)" "1"
-sh sys_test "(defvar a #(1 2 3)) a" "#(1 2 3)" 
+sh sys_test "(setq a 1 b)" "setq: no value"
+sh sys_test "(defvar a #(1 2 3)) a" "#(1 2 3)"
+sh sys_test "(defvar a #(1 #(a b c) 2 3)) a" "#(1 2 3)"
+sh sys_test "\`(1 2 3 4)" "(1 2 3 4)"
+sh sys_test "\`(A B C D 1 2 3 4)" "(A B C D 1 2 3 4)"
+sh sys_test "\`((1) 2 3 (A B) (C ABC)  4)" "((1) 2 3 4)"
+sh sys_test "\`a" "A"
+sh sys_test "\`(\"abcdefg\")" "ABCDEFG"
+sh sys_test "\`#(1 2 3 4)" "ABCDEFG"
 #sh sys_test "(setq_rec a 1 b)" "1"
