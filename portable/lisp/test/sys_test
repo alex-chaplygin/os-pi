@@ -3,11 +3,11 @@ OUT=/tmp/out
 OUT_EXP=/tmp/out_exp
 echo "TEST: $1"
 echo "$1" >$IN
-echo -n "$2" >$OUT_EXP
-/tmp/test_sys <$IN #>$OUT
-#if diff $OUT_EXP $OUT ; then
-#   echo "OK"
-#else
-#   echo "FAIL"
-#fi
+echo "$2" >$OUT_EXP
+/tmp/test_sys <$IN >$OUT
+if diff $OUT_EXP $OUT ; then
+   echo "OK"
+else
+   echo "FAIL"
+fi
 echo
