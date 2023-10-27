@@ -93,7 +93,18 @@ token_t tok_array[] = {
     {T_NUMBER, 2},
     {T_NUMBER, 3},
     {RPAREN}
-};    
+};
+
+token_t tok_array_list[] = {
+    {LPAREN},
+    {SHARP},
+    {LPAREN},
+    {T_NUMBER, 1},
+    {T_NUMBER, 2},
+    {T_NUMBER, 3},
+    {RPAREN},
+    {RPAREN}
+}; 
 
 token_t tok_inv_quote[] = 
 {
@@ -346,6 +357,23 @@ void test_parse_array()
     ASSERT(a->data[2]->u.value, 3);
 }
 
+/** 
+ * Тестируем массив в списке (#(1 2 3))
+ * На выходе: (#(1 2 3))
+ */
+void test_parse_array_list()
+{
+    printf("test_parse_array_list: \n");
+    count = 0;
+    tokens = tok_array_list;
+    object_t *o = parse()->u.pair->left;
+    ASSERT(o->type, ARRAY);
+    array_t *a = o->u.arr;
+    ASSERT(a->data[0]->u.value, 1);
+    ASSERT(a->data[1]->u.value, 2);
+    ASSERT(a->data[2]->u.value, 3);
+}
+
 /**
  * Тестируем `(,a)
  * Должно получиться: (BACKQUOTE ((COMMA A)))
@@ -357,9 +385,8 @@ void test_parse_backquote_comma()
     cur_token = &token;
     tokens = back_comma_tokens;
     object_t *o = parse();
-    o = o->u.pair->left;
     ASSERT(strcmp(o->u.pair->left->u.symbol->str, "BACKQUOTE"), 0);
-    o = o->u.pair->right->u.pair->left;
+    o = o->u.pair->right->u.pair->left->u.pair->left;
     ASSERT(strcmp(o->u.pair->left->u.symbol->str, "COMMA"), 0);
     ASSERT(strcmp(o->u.pair->right->u.pair->left->u.symbol->str, "A"), 0);
 }
@@ -381,6 +408,7 @@ int main()
     test_parse_invalid();
     test_parse_invalid_quote();
     test_parse_array();
+    test_parse_array_list();
     test_parse_backquote_comma();
     return 0;
 }

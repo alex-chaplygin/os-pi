@@ -31,6 +31,7 @@ char *strupr(char *str)
 
 object_t *parse();
 object_t *parse_list();
+object_t *parse_array();
 
 /**
  *  Обработка кавычки, обратной кавычки, запятой
@@ -63,6 +64,8 @@ object_t *parse_element(type_t type, void *data, tokentype_t t_type)
     object_t *obj;
     if (t_type == QUOTE)
 	obj = parse_quote("QUOTE");
+    else if (t_type == SHARP)
+	obj = parse_array();
     else if (t_type == BACKQUOTE)
 	obj = parse_quote("BACKQUOTE");
     else if (t_type == COMMA)
@@ -109,9 +112,11 @@ object_t *parse_list()
 	return parse_element(SYMBOL, strupr(str), cur_tok->type);
     } else if (cur_tok->type == LPAREN || cur_tok->type == QUOTE
 	       || cur_tok->type == BACKQUOTE || cur_tok->type == COMMA
-	       || cur_tok->type == COMMA_AT)
+	       || cur_tok->type == COMMA_AT || cur_tok->type == SHARP)
 	return parse_element(SYMBOL, NULL, cur_tok->type); 
     else if (cur_tok->type == INVALID)
+	return ERROR;
+    else
 	return ERROR;
 }
 
