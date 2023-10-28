@@ -58,6 +58,17 @@ token_t back_comma_tokens[] = {
     {END}
 };
 
+token_t back_comma_at_tokens[] = {
+    {LPAREN},
+    {BACKQUOTE},
+    {LPAREN},
+    {COMMA_AT},
+    {T_SYMBOL, 0, "A"},
+    {RPAREN},
+    {RPAREN},
+    {END}
+};
+
 token_t no_rparen_tokens[] = {
     {LPAREN},
     {T_NUMBER, 1},
@@ -106,12 +117,16 @@ token_t tok_array_list[] = {
     {RPAREN}
 }; 
 
-token_t tok_inv_quote[] = 
-{
+token_t tok_inv_quote[] = {
     {QUOTE},
     {INVALID}
 };
 
+token_t tok_quote_number[] = {
+    {QUOTE},
+    {T_NUMBER, 5}
+};
+    
 token_t *tokens;
 
 symbol_t test_symbols[] = {
@@ -122,7 +137,8 @@ symbol_t test_symbols[] = {
     {"Z"},
     {"QUOTE"},
     {"BACKQUOTE"},
-    {"COMMA"}
+    {"COMMA"},
+    {"COMMA-AT"},
 };
 
 char *strupr (char *str);
@@ -297,7 +313,7 @@ void test_parse_no_rparen()
  */
 void test_parse_inner_list()
 {
-    printf("test_parse_inner_list:\n");
+    printf("test_parse_inner_list:");
     count = 0;
     cur_token = &token;
     tokens = token_list;
@@ -320,7 +336,7 @@ void test_parse_inner_list()
  */
 void test_parse_invalid()
 {
-    printf("test_parse_invalid: \n");
+    printf("test_parse_invalid: ");
     count = 0;
     tokens = tok_inv;
     object_t *o = parse();
@@ -332,7 +348,7 @@ void test_parse_invalid()
  */
 void test_parse_invalid_quote()
 {
-    printf("test_parse_invalid_quote: \n");
+    printf("test_parse_invalid_quote: ");
     count = 0;
     cur_token = &token;
     tokens = tok_inv_quote;
@@ -346,7 +362,7 @@ void test_parse_invalid_quote()
  */
 void test_parse_array()
 {
-    printf("test_parse_array: \n");
+    printf("test_parse_array: ");
     count = 0;
     tokens = tok_array;
     object_t *o = parse();
@@ -363,7 +379,7 @@ void test_parse_array()
  */
 void test_parse_array_list()
 {
-    printf("test_parse_array_list: \n");
+    printf("test_parse_array_list: ");
     count = 0;
     tokens = tok_array_list;
     object_t *o = parse()->u.pair->left;
@@ -380,7 +396,7 @@ void test_parse_array_list()
  */
 void test_parse_backquote_comma()
 {
-    printf("test_parse_backquote_comma: \n");
+    printf("test_parse_backquote_comma: ");
     count = 0;
     cur_token = &token;
     tokens = back_comma_tokens;
@@ -389,6 +405,38 @@ void test_parse_backquote_comma()
     o = o->u.pair->right->u.pair->left->u.pair->left;
     ASSERT(strcmp(o->u.pair->left->u.symbol->str, "COMMA"), 0);
     ASSERT(strcmp(o->u.pair->right->u.pair->left->u.symbol->str, "A"), 0);
+}
+
+/**
+ * Тестируем (`(,@a))
+ * Должно получиться: ((BACKQUOTE ((COMMA-AT A))))
+ */
+void test_parse_backquote_comma_at()
+{
+    printf("test_parse_backquote_comma_at: ");
+    count = 0;
+    cur_token = &token;
+    tokens = back_comma_at_tokens;
+    object_t *o = parse()->u.pair->left;
+    printf("o = ");
+    PRINT(o);
+    ASSERT(strcmp(o->u.pair->left->u.symbol->str, "BACKQUOTE"), 0);
+    o = o->u.pair->right->u.pair->left->u.pair->left;
+    ASSERT(strcmp(o->u.pair->left->u.symbol->str, "COMMA-AT"), 0);
+    ASSERT(strcmp(o->u.pair->right->u.pair->left->u.symbol->str, "A"), 0);
+}
+
+/** 
+ * Тестируем выражение '5
+ */
+void test_parse_quote_number()
+{
+    printf("test_parse_quote_number: ");
+    count = 0;
+    cur_token = &token;
+    tokens = tok_quote_number;
+    object_t *o = parse();
+    ASSERT(ERROR, o);
 }
 
 int main()
@@ -410,5 +458,7 @@ int main()
     test_parse_array();
     test_parse_array_list();
     test_parse_backquote_comma();
+    test_parse_quote_number();
+    test_parse_backquote_comma_at();
     return 0;
 }
