@@ -232,42 +232,16 @@ void test_setq_set_env()
     printf("test_setq_set_env: ");
     object_t *env = create_env();
     object_t *p2 = SECOND(env);
-
     int num = 1010;
-    
-    object_t *params = new_pair(FIRST(p2), new_pair(object_new(NUMBER, &num), NULL));
+    object_t *num_obj = object_new(NUMBER, &num);
+    object_t *params = new_pair(FIRST(p2), new_pair(num_obj, NULL));
     current_env = env;
     object_t *setq_res = setq(params);
-    ASSERT(setq_res, SECOND(p2));
-    ASSERT(SECOND(p2)->u.value, num); 
-}
-
-/**
- * Создать переменную res
- * Вызвать функцию setq для создания числовой переменной 
- *  test_var со значением 1010
- * Проверить что значение test_var = 1010
- */
-void test_setq_make_env()
-{
-    printf("test_setq_make_env: ");
-    object_t *env = create_env();
-    int num = 1010;
-
-    object_t obj_val;
-    symbol_t s1;
-    s1.value = &obj_val;
-    strcpy(s1.str, "test_var");
-    obj_val.type = SYMBOL;
-    obj_val.u.symbol = &s1;
-
-    object_t *params = new_pair(&obj_val, new_pair(object_new(NUMBER, &num), NULL));
-    current_env = env;
-    object_t *setq_res = setq(params);
-    object_t *res;
-    find_in_env(env, &obj_val, &res);
-    ASSERT(setq_res, res);
-    ASSERT(res->u.value, num);
+    object_t *obj_in_env;
+    find_in_env(current_env, FIRST(p2), &obj_in_env);
+    ASSERT(setq_res->u.value, num);
+    ASSERT(setq_res, num_obj);
+    ASSERT(setq_res->u.value, obj_in_env->u.value);
 }
 
 /**
@@ -558,7 +532,6 @@ int main()
     test_make_env();
     test_find_in_env();
     test_defun();
-    //    test_setq_make_env();
     test_setq_set_env();
     test_setq_global_set();
     test_append();

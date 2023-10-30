@@ -524,6 +524,27 @@ object_t *eval(object_t *obj, object_t *env)
 }
 
 /**
+ * Установление значения символа в окружении
+ * 
+ * @param env - окружение, где ищем символ
+ * @param sym - символ, для которого устан. значение
+ * @param val - устанавливаемое значение
+ */
+int set_in_env(object_t *env, object_t *sym, object_t *val)
+{
+    if (env == NULL) {
+        error("ERROR: NULL as env in set_in_env");
+        return ERROR;
+    }
+    object_t *pair = FIRST(env);
+    object_t *var = FIRST(pair);
+    if (var->u.symbol  == sym->u.symbol)
+        SECOND(pair) = val;
+    else
+        set_in_env(TAIL(env), sym, val);
+}
+
+/**
  * Присвоение значения переменной
  * @param param параметры (символьный объект, значение, окружение)
  * @return возвращает значение переменной
@@ -532,13 +553,20 @@ object_t *setq_rec(object_t *params)
 {
     if (params == NULL)
         return NULL;
-    symbol_t *sym = find_symbol(FIRST(params)->u.symbol->str);
+    symbol_t *sym = FIRST(params)->u.symbol;
+    object_t *res;
+    int find_res = find_in_env(current_env, FIRST(params), &res);
+    if (!find_res)
+        sym = find_symbol(FIRST(params)->u.symbol->str);
     if (TAIL(params) == NULL) {
 	error("setq: no value");
 	return ERROR;
     }
     object_t *obj = eval(SECOND(params), current_env);
-    sym->value = obj;
+    if (find_res)
+        set_in_env(current_env, FIRST(params), obj);
+    else
+        sym->value = obj;
     if (TAIL(TAIL(params)) == NULL)
 	return obj;
     return setq_rec(TAIL(TAIL(params)));
