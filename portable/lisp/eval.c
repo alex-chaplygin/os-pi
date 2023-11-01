@@ -193,7 +193,7 @@ object_t *cons(object_t *list)
  * @param obj входное выражение
  * @return возвращает вычисленный объект
 */
-object_t *cond(object_t *obj, object_t *env)
+object_t *cond(object_t *obj)
 {
     if (obj == NULL){
         error("NULL in COND");
@@ -201,10 +201,10 @@ object_t *cond(object_t *obj, object_t *env)
     }
     object_t *pair = FIRST(obj);
     object_t *p = FIRST(pair);
-    if (eval(p, env) == t)
-        return eval(SECOND(pair), env);
+    if (eval(p, current_env) == t)
+        return eval(SECOND(pair), current_env);
     else
-        return cond(TAIL(obj), env);
+        return cond(TAIL(obj));
 }
 
 /** 
@@ -437,7 +437,8 @@ object_t *eval_args(object_t *args, object_t *env)
 int is_special_form(symbol_t *s)
 {
     return s == quote_sym || s == defun_sym || s == defmacro_sym ||
-	s == defvar_sym || s == setq_sym || s == backquote_sym;
+	s == defvar_sym || s == setq_sym || s == backquote_sym ||
+	s == cond_sym;
 }
 
 /**
@@ -503,8 +504,6 @@ object_t *eval(object_t *obj, object_t *env)
 	    return eval_func(first, eval_args(TAIL(obj), env), env);
 	symbol_t *s = find_symbol(first->u.symbol->str);
 	object_t *args;
-	if (s == cond_sym)
-	    return cond(TAIL(obj), env);
 	if (is_special_form(s))
 	    args = TAIL(obj);
 	else
@@ -565,6 +564,7 @@ void init_eval()
     register_func("QUOTE", quote);
     register_func("BACKQUOTE",backquote);
     register_func("CONS", cons);
+    register_func("COND", cond);
     register_func("DEFUN", defun);
     register_func("DEFMACRO", defmacro);
     register_func("DEFVAR", defvar);
