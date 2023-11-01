@@ -91,7 +91,7 @@ int is_alpha(char c)
  */ 
 int is_symbol(char c)
 {
-    char str[] = "+-*/=";
+    char str[] = "+-*/=_";
     for (int i = 0; i < sizeof(str); i++)
 	if (str[i] == c)
 	    return 1;
@@ -177,6 +177,10 @@ void get_symbol(char *cur_str)
     {
         cur_str[c++] = cur_symbol;
         get_cur_char();
+    }
+    if (c == 0) {
+        printf("ERROR: lexer.c: Unsupported character in input: %c(#%x)", cur_symbol, cur_symbol);
+        token_error = 1;
     }
     unget_cur_char();
     cur_str[c] = 0;
