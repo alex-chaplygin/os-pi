@@ -85,28 +85,27 @@ void test_same_hash_three_symbols()
     printf("test_same_hash_three_symbols:");
     char str1[] = "PJ";
     char str2[] = "452";
-    char str3[] = "\x7\x0   ";
-    printf("!!!!\n");
-    for (int i = 0; i < 256; i++ ) {
-	str3[0] = i;
-	str3[1] = 0;
-	printf("%c %d\n", i, hash(str3));
-    }
-    for (int i = 0; i < 256; i++ )
-        for (int g = 0; g < 256; g++ )
-	     {
-	str3[0] = i;
-	str3[1] = g;
-	str3[2] = 0;
-	printf("%d %x %s %d\n", hash(str3), g, str3, i);
-    }
-    
-    printf("!!!!\n");
-    str3[0]= 7;
-    
+    char str3[] = "\xe4\x44\x8a";
+    /*    for (int i = 0; i < 256; i++ ){
+        for (int j = 0; j < 256; j++ ){
+            for (int k = 0; k < 256; k++){
+                str3[0] = i;
+                str3[1] = j;
+                str3[2] = k;
+                str3[3] = 0;    
+                if (hash(str3) == hash(str2)){
+                    printf("str:");
+                    printf("%d %s %d %s %d %x %x %x \n", hash(str1), str1, hash(str2), str2, hash(str2), str3[0], str3[1], str3[2]);
+                }
+            }
+        }
+    }*/    
     printf("%d\n", hash(str1));
     printf("%d\n", hash(str2));
     printf("%d\n", hash(str3));
+    find_symbol(str1);
+    find_symbol(str2);
+    find_symbol(str3);
     ASSERT(((find_symbol(str1) != find_symbol(str2)) || (find_symbol(str1) != find_symbol(str3)) || (find_symbol(str2) != find_symbol(str3))), 1);
 }
 
@@ -120,4 +119,5 @@ int main()
     test_check_symbol();
     test_register_func();
     test_same_hash();
+    test_same_hash_three_symbols();
 }
