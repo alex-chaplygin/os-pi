@@ -91,7 +91,7 @@ int is_alpha(char c)
  */ 
 int is_symbol(char c)
 {
-    char str[] = "+-*/=_";
+    char str[] = "+-*/=_&|<>";
     for (int i = 0; i < sizeof(str); i++)
 	if (str[i] == c)
 	    return 1;
