@@ -1,7 +1,7 @@
 SHELL=bash
 SRC=parser.o lexer.o objects.o symbols.o eval.o arith.o array.o
 CFLAGS=-g -m32 -nostdlib -nodefaultlibs -Wno-builtin-declaration-mismatch -I../include
-LISP=boot/lib.lsp boot/bgr.lsp
+LISP=boot/lib.lsp boot/bgr.lsp boot/ata.lsp
 
 all: $(SRC) /tmp/lisp.lsp
 
