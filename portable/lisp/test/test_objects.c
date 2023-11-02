@@ -488,9 +488,9 @@ void test_garbage_collect_arrays()
     printf("test_garbage_collect_array: ");
     reset_mem();
     symbol_t *s = new_symbol("B");
-    object_t *obj1 = object_new(ARRAY, make_list(3));
-    object_t *obj2 = object_new(ARRAY, make_list(10));
-    object_t *obj3 = object_new(ARRAY, make_list(20));
+    object_t *obj1 = object_new(ARRAY, new_array(make_list(3)));
+    object_t *obj2 = object_new(ARRAY, new_array(make_list(10)));
+    object_t *obj3 = object_new(ARRAY, new_array(make_list(20)));
     s->value = obj1;
     garbage_collect();
     array_t *fs = free_arrays;
