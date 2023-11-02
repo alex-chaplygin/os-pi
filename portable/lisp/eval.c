@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include "objects.h"
 #include "symbols.h"
 #include "parser.h"
@@ -43,7 +44,7 @@ object_t *car(object_t *list)
 {
     object_t *arg = FIRST(list);
     if (arg->type != PAIR){
-        error("Not list in car\n");
+        error("Not list in car");
 	return ERROR;
     }
     return FIRST(arg);
@@ -61,7 +62,7 @@ object_t *cdr(object_t *list)
 {
     object_t *arg = FIRST(list);
     if (arg->type != PAIR){
-        error("Not list in cdr\n");
+        error("Not list in cdr");
     	return ERROR;
     }
     return TAIL(arg);
@@ -87,7 +88,7 @@ object_t *eq(object_t *list)
     //printf("p2: ");
     //PRINT(p2);
     if (p1 != NULL && p1->type != SYMBOL || p2 != NULL && p2->type != SYMBOL){
-        error("not symbol in eq\n");
+        error("not symbol in eq");
 	return ERROR;
     }
     if (p1 == NULL && p2 == NULL || p1 != NULL && p2 != NULL && p1->u.symbol == p2->u.symbol)
@@ -126,10 +127,12 @@ object_t *quote(object_t *list)
 /**
  * возвращает аргумент с вычислением
  * b = 7 `(a ,b c) -> (a 7 c)
+ * (a (COMMA b) c)
  * b = (1 2) `(a ,b c) -> (a (1 2) c)
  * b = (1 2) `(a ,b c) -> (list 'a '(1 2) 'c)
  * b = (1 2) `(a (,b) c) -> (a ((1 2)) c)
  * b = (1 2) `(a ,@b c) -> (a 1 2 c)
+ * (A (COMMA-AT B) C)
  *
  * @param list - список параметров (1 парамет)
  *
@@ -145,16 +148,37 @@ object_t *backquote_rec(object_t *list)
 	return object_new(NUMBER, &list->u.value);
     else if (list->type == SYMBOL)
 	return object_new(SYMBOL, list->u.symbol->str);
-    /*else if (list->type == ARRAY) {
+    else if (list->type == ARRAY) {
 	array_t *arr = new_empty_array(list->u.arr->length);
-	return object_new(ARRAY, list->u.arr->data);
-	} */else if (list->type == STRING)
+	int l = list->u.arr->length;
+	for (int i = 0; i < l; i++)
+	    arr->data[i] = backquote_rec(list->u.arr->data[i]);
+	return object_new(ARRAY, arr);
+    } else if (list->type == STRING)
 	return object_new(STRING, list->u.str->data);
-    else if (list->type == PAIR)
-	return new_pair(backquote_rec(FIRST(list)), backquote_rec(TAIL(list)));
+    else if (list->type == PAIR) {
+	object_t *el = FIRST(list); // el = (COMMA B)
+	if (el->type == SYMBOL && !strcmp(el->u.symbol->str, "COMMA"))
+	    return eval(SECOND(list), current_env);
+	// el = ((COMMA-AT B) A B)
+	else if (el->type == PAIR) {
+	    object_t *comma_list = FIRST(el); // comma_list = (COMMA-AT B)
+	    if (comma_list->type == PAIR) {
+		object_t *comma_at = FIRST(comma_list);
+		if (comma_at->type == SYMBOL && !strcmp(comma_at->u.symbol->str, "COMMA-AT"))
+		    return NULL; //!!!!!!!!!!!!!!!!!!!
+	    }
+	}
+	return new_pair(backquote_rec(el), backquote_rec(TAIL(list)));
+    }
     return ERROR;
+    
 }
 
+/**
+ * (BACKQOUTE (a b c))
+ *
+ */
 object_t *backquote(object_t *list)
 {
     if (list == NULL){
@@ -175,11 +199,11 @@ object_t *backquote(object_t *list)
 object_t *cons(object_t *list)
 {			
     if (list->type != PAIR){
-	error("Not list in cons\n");
+	error("Not list in cons");
 	return ERROR;
     }
     if (list->u.pair->right->type != PAIR) {
-        error("second parameter not list\n");
+        error("second parameter not list");
 	return ERROR;
     }
     object_t *p1 = FIRST(list);
@@ -268,7 +292,7 @@ object_t *defvar(object_t *params)
 object_t *progn(object_t *params)
 {
     if (params == NULL) {
-	error("progn: params = NULL \n");
+	error("progn: params = NULL");
 	return ERROR;
     } else if (params == ERROR)
 	return ERROR;
@@ -307,20 +331,20 @@ int is_lambda(object_t *list)
 {
     object_t *lambda = FIRST(list);
     if (lambda->type != SYMBOL || lambda->u.symbol != lambda_sym){
-	error("Invalid lambda symbol\n");
+	error("Invalid lambda symbol");
 	return (int)ERROR;
     }
     if (list->u.pair->right == NULL){
-	error("No params in lambda\n");
+	error("No params in lambda");
 	return (int)ERROR;
     }
     object_t *params = SECOND(list);
     if (params->type != PAIR){
-	error("Invalid params in lambda\n");
+	error("Invalid params in lambda");
 	return (int)ERROR;
     }
     if (!check_params(params)){
-        error("Not symbol in lambda attrs\n");
+        error("Not symbol in lambda attrs");
         return 0;
     } else
 	return 1;
@@ -337,7 +361,7 @@ int is_lambda(object_t *list)
 object_t *make_env(object_t *args, object_t *values)
 {
     if (args != NULL && values == NULL){
-	error("Not enough values for params\n");
+	error("Not enough values for params");
 	return ERROR;
     }
     if (args == NULL)
@@ -422,7 +446,7 @@ object_t *eval_args(object_t *args, object_t *env)
     if (args == NULL)
 	return NULL;
     object_t *f = FIRST(args);
-    //printf("f = %x pair = %x\n", f, f->u.pair);
+    //printf("f = %x pair = %x", f, f->u.pair);
     //PRINT(f);
     object_t *arg = eval(f, env);
     if (arg == ERROR)
@@ -498,7 +522,7 @@ object_t *eval(object_t *obj, object_t *env)
     else if (obj->type == SYMBOL) {
         object_t *symbol = eval_symbol(obj, env);
         if (symbol == ERROR) {
-	    error("Unknown SYMBOL \n");
+	    error("Unknown SYMBOL");
 	    return ERROR;
 	}
         return symbol;
@@ -517,11 +541,11 @@ object_t *eval(object_t *obj, object_t *env)
 	else if (s->func != NULL)
 	    return s->func(args);
 	else {
-	    error("Unknown func\n");
+	    error("Unknown func");
 	    return ERROR;
 	}
     } else { 
-        error("Unknown object_type\n");
+        error("Unknown object_type");
 	return ERROR;
     }
     current_env = env;
@@ -579,7 +603,7 @@ object_t *setq_rec(object_t *params)
 object_t *setq(object_t *params)
 {
     if (params == NULL) {
-	error("setq: params = NULL\n");
+	error("setq: params = NULL");
         return ERROR;
     }
     return setq_rec(params);

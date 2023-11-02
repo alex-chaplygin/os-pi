@@ -13,32 +13,55 @@ sh sys_test "(defun f(x)\
             ((= x 1) 1) \
             (T (* x (f (- x 1))))))\
          (f 8) (f 3) (f 8) (f 9) (f 10) (f 10)" "F
-4790016006479001600"
+40320
+6
+40320
+362880
+3628800
+3628800"
 sh sys_test "(defun f(x)\
          (cond \
             ((= x 1) 1) \
             (T (* x (f (- x 1))))))\
-         (f 11) (f 11) (f 11) (f 10) (f 11)" "F399168003991680039916800362880039916800"
+         (f 11) (f 11) (f 11) (f 10) (f 11)" "F
+39916800
+39916800
+39916800
+3628800
+39916800"
 sh sys_test "(+ 1 2 3 4)" "10"
 sh sys_test "(1" "expected )"
 sh sys_test "(+ 1 2 3 5)" "11"
 sh sys_test "(- 9 5 1 1)" "2"
 sh sys_test "(* 1 2 3 5)" "30"
 sh sys_test "(progn (+ 2 3) (* 3 4))" "12"
-sh sys_test "(defun test (x) (+ x 10) (* x 20)) (test 5)" "100"
-sh sys_test "(defvar a 10)(A)A" "10"
-sh sys_test "(defvar a 10) A" "10"
-sh sys_test "T NIL" "10"
+sh sys_test "(defun test (x) (+ x 10) (* x 20)) (test 5)" "TEST
+100"
+sh sys_test "(defvar a 10) (A)A" "A
+Unknown func
+10"
+sh sys_test "(defvar a 10) A" "A
+10"
+sh sys_test "T NIL" "T
+NIL"
 sh sys_test "(defvar +bgr-index+ 0x1ce) \
-(defvar +bgr-data+ 0x1cf) +BGR-INDEX+ +BGR-DATA+ X ABC" "+BGR-INDEX+ +BGR-DATA+"
-sh sys_test "\"a b c d\""
+(defvar +bgr-data+ 0x1cf) +BGR-INDEX+ +BGR-DATA+ X ABC" "+BGR-INDEX+
++BGR-DATA+
+462
+463
+Unknown SYMBOL
+Unknown SYMBOL"
+sh sys_test "\"a b c d\"" "\"a b c d\""
 sh sys_test "(defun f(x)\
              \"factorial f(x)\"\
          (cond \
             ((= x 1) 1) \
             (T (* x (f (- x 1))))))\
-         (f 12) (f 10)" "F479001600"
-sh sys_test "(setq test 200) test" "200"
+         (f 12) (f 10)" "F
+479001600
+3628800"
+sh sys_test "(setq test 200) test" "200
+200"
 sh sys_test "(defun bgr-out (reg data)\
   \"Запись регистра видео\"\
   (+ 0 reg)\
@@ -56,16 +79,39 @@ sh sys_test "(defun bgr-out (reg data)\
 \
 (defun graph-send-buffer (a) nil)\
 \
-(graph-send-buffer \"1234567890q\" )" ""
-sh sys_test "(defvar str  \"1234567890111111qwertyu\\nuiop111\\n1111111111111111\\nqqqqqqqqqqqqqqqqqqqq\\nqqqqqqqqqqqqqqqqqqqqq\\nwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww\") str" ""
-sh sys_test "(setq a 1 b 2 c 3)a b c" "1 2 3"
+(graph-send-buffer \"1234567890q\" )" "BGR-OUT
+BGR-SET-RES
+2
+GRAPH-SEND-BUFFER
+NIL"
+sh sys_test "(defvar str  \"1234567890111111qwertyu\\nuiop111\\n1111111111111111\\nqqqqqqqqqqqqqqqqqqqq\\nqqqqqqqqqqqqqqqqqqqqq\\nwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww\") str" "STR
+\"1234567890111111qwertyu
+uiop111
+1111111111111111
+qqqqqqqqqqqqqqqqqqqq
+qqqqqqqqqqqqqqqqqqqqq
+wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww\""
+sh sys_test "(setq a 1 b 2 c 3)a b c" "3
+1
+2
+3"
 sh sys_test "(setq a 1 b)" "setq: no value"
-sh sys_test "(defvar a #(1 2 3)) a" "#(1 2 3)"
-sh sys_test "(defvar a #(1 #(a b c) 2 3)) a" "#(1 2 3)"
+sh sys_test "(defvar a #(1 2 3)) a" "A
+#(1 2 3)"
+sh sys_test "(defvar a #(1 #(a b c) 2 3)) a" "A
+#(1 #(A B C) 2 3)"
 sh sys_test "\`(1 2 3 4)" "(1 2 3 4)"
 sh sys_test "\`(A B C D 1 2 3 4)" "(A B C D 1 2 3 4)"
-sh sys_test "\`((1) 2 3 (A B) (C ABC)  4)" "((1) 2 3 4)"
+sh sys_test "\`((1) 2 3 (A B) (C ABC)  4)" "((1) 2 3 (A B) (C ABC) 4)"
 sh sys_test "\`a" "A"
-sh sys_test "\`(\"abcdefg\")" "ABCDEFG"
-sh sys_test "\`#(1 2 3 4)" "ABCDEFG"
-sh sys_test "(setq_rec a 1 b)" "1"
+sh sys_test "\`(\"abcdefg\")" "(\"abcdefg\")"
+sh sys_test "\`#(1 2 3 4)" "#(1 2 3 4)"
+sh sys_test "\`(#(1 2 (3) 4 b #(b c)) a (1) \"ab\")" "(#(1 2 (3) 4 B #(B C)) A (1) \"ab\")"
+sh sys_test "(setq_rec a 1 b)" "Unknown SYMBOLUnknown func"
+sh sys_test "(defvar x 1) \`(a ,x 2)" "X
+(A 1 2)"
+sh sys_test "(defvar x 1) (defvar y \`(,x a b)) \`(a ,x 2 ,y)" "X
+Y
+(A 1 2 (1 A B))"
+sh sys_test "(defvar x 1) \`(a ,x (,x #(,x)) 2)" "X
+(A 1 (1 #(1)) 2)"
