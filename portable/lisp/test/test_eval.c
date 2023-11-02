@@ -10,7 +10,13 @@ pair_t test_pair;
 
 void print_obj(object_t *head){}
 
-object_t *object_new(type_t type, void *data){
+object_t *object_new(type_t type, void *data)
+{
+    return NULL;
+}
+
+array_t *new_empty_array(int length)
+{
     return NULL;
 }
 
@@ -315,6 +321,7 @@ void test_quote()
     ASSERT(o->type, NUMBER);
     ASSERT(o->u.value, 5); 
 }
+
 
 int main()
 {

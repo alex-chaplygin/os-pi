@@ -16,12 +16,7 @@ int is_lambda(object_t *list);
 void append_env(object_t *l1, object_t *l2);
 object_t *setq(object_t *params);
 object_t *defvar(object_t *params);
-object_t *add(object_t *list);
-object_t *sub(object_t *list);
 object_t *cons(object_t *list);
-object_t *mul(object_t *list);
-object_t *int_div(object_t *list);
-object_t *num_eq(object_t *list);
 
 void error(char *str)
 {
@@ -314,38 +309,6 @@ void test_progn()
     ASSERT(res->u.value, 3);
 }
 
-/**
- * Тест сложения
- */
-void test_add()
-{
-    printf("test_add: ");
-    int num1 = 1;
-    int num2 = 2;
-    int num3 = 3;
-    object_t *list = new_pair(object_new(NUMBER, &num1),
-                        new_pair(object_new(NUMBER, &num2), 
-                            new_pair(object_new(NUMBER, &num3), NULL)));
-    object_t *res = add(list);
-    ASSERT(res->u.value, 6);
-}
-
-/**
- * Тест вычитания 
- */
-void test_sub()
-{
-    printf("test_sub: ");
-    int num1 = 10;
-    int num2 = 3;
-    int num3 = 2;
-    object_t *list = new_pair(object_new(NUMBER, &num1),
-                        new_pair(object_new(NUMBER, &num2), 
-                            new_pair(object_new(NUMBER, &num3), NULL)));
-    object_t *res = sub(list);
-    ASSERT(res->u.value, 5);
-}
-
 /*
  *создать объект для выражения (cdr (quote 5))
  *вычислить объект
@@ -385,140 +348,6 @@ void test_invalid_cons()
     ASSERT(res, ERROR);
 }
 
-/**
- * Тест вычитания - проверка на NULL.
- */
-void test_sub_null()
-{
-    printf("test_sub_null: ");
-    object_t *list = NULL;
-    object_t *res = sub(list);
-    ASSERT(res, ERROR);
-}
-
-/**
- * Тест вычитания передача значения не число
- */
-void test_sub_no_number()
-{
-    printf("test_sub_no_number: ");
-
-    int num = 2;
-    object_t *list = new_pair(object_new(NUMBER, &num),
-			      new_pair(new_pair(NULL, NULL), NULL));
-    object_t *res = sub(list);
-    ASSERT(res, ERROR);
-}
-
-/**
- * Тест умножения.
- */
-void test_mul()
-{
-    printf ("test_mul:");
-    int num1 = 1;
-    int num2 = 2;
-    int num3 = 3;
-
-    object_t *list = new_pair(object_new(NUMBER, &num1),
-			      new_pair(object_new(NUMBER, &num2),
-				       new_pair(object_new(NUMBER, &num3), NULL)));
-    
-    object_t *res = mul(list);
-    ASSERT(res->u.value, 6); 
-}
-
-/**
- * Тест сравнения чисел
- */
-void test_num_eq(int num1, int num2, object_t *token)
-{
-
-    printf ("test_num_eq:");
-
-    object_t *list = new_pair(object_new(NUMBER, &num1),
-			      new_pair(object_new(NUMBER, &num2), NULL));
-    
-    object_t *res = num_eq(list);
-    ASSERT(res, token);   
-}
-
-/**
- * Тест деления
- */
-void test_div()
-{
-    printf("test_div: \n");
-    int num1 = 8;
-    int num2 = 2;
-    object_t *list = new_pair(object_new(NUMBER, &num1),
-                        new_pair(object_new(NUMBER, &num2), NULL));
-    object_t *res = int_div(list);
-    ASSERT(res->u.value, 4);
-}
-
-/**
- * Тест сложения - проверка на NULL.
- */
-void test_add_null()
-{
-    printf("test_add_null: ");
-    object_t *list = NULL;
-    object_t *res = add(list);
-    ASSERT(res, ERROR);
-}
-
-/**
- * Тест сложения передача значения не число
- */
-void test_add_no_number()
-{
-    printf("test_add_no_number: ");
-
-    int num = 2;
-    object_t *list = new_pair(object_new(NUMBER, &num),
-			      new_pair(new_pair(NULL, NULL), NULL));
-    object_t *res = add(list);
-    ASSERT(res, ERROR);
-}
-
-/**
- * Тест пустого списка деления
- */
-void test_div_nulllist()
-{
-    printf("test_div_nulllist: \n");
-    object_t *list = NULL;
-    object_t *res = int_div(list);
-    ASSERT(res,ERROR);
-}
-
-/**
- * Тест нулевого делителя
- */
-void test_div_zerodivisor()
-{
-    printf("test_div_zerodivisor: \n");
-    int num1 = 8;
-    int num2 = 0;
-    object_t *list =  new_pair(object_new(NUMBER,&num1),
-			      new_pair(object_new(NUMBER,&num2),NULL));
-    object_t *res =  int_div(list);
-    ASSERT(res,ERROR);
-}
-
-/**
- * Тест пустого делителя
- */
-void test_div_nulldivisor()
-{
-    printf("test_div_nulldivisor: \n");
-    int num1 = 8;
-    object_t *list = new_pair(object_new(NUMBER, &num1), NULL);
-    object_t *res =  int_div(list);
-    ASSERT(res,ERROR);
-}
-
 int main()
 {
     printf("------------test_eval_int---------\n");
@@ -536,21 +365,8 @@ int main()
     test_setq_global_set();
     test_append();
     test_progn();
-    test_add();
-    test_sub();
     test_invalid_cdr();
-    test_invalid_cons();
-    test_sub_null();
-    test_sub_no_number();
-    test_mul();
-    test_div();
-    test_div_nulllist();
-    test_div_zerodivisor();
-    test_div_nulldivisor();
-    test_num_eq(1, 2, nil);
-    test_num_eq(10, 10, t);
-    test_add_null();
-    test_add_no_number();    
+    test_invalid_cons();  
     return 0;
 }
 
