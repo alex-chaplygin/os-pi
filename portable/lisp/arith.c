@@ -254,7 +254,7 @@ void init_arith()
     register_func("=", num_eq);
     register_func("/", int_div);
     register_func("&", bitwise_and);
-    register_func("|", bitwise_or);
+    register_func("BITOR", bitwise_or);
     register_func("<<", shift_left);
     register_func(">>", shift_right);
 }
