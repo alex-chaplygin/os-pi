@@ -1,7 +1,7 @@
 SHELL=bash
 CFLAGS=-I. -I../ --coverage -g -Wno-pointer-to-int-cast
 LDFLAGS="-lgcov"
-TESTS=/tmp/test_lexer /tmp/test_eval /tmp/test_symbols /tmp/test_objects /tmp/test_parser /tmp/test_eval_int
+TESTS=/tmp/test_lexer /tmp/test_eval /tmp/test_symbols /tmp/test_objects /tmp/test_parser /tmp/test_eval_int /tmp/test_arrays
 
 all: $(TESTS)
 
@@ -16,6 +16,8 @@ all: $(TESTS)
 /tmp/test_objects: test_objects.c ../objects.c
 	gcc $(CFLAGS) $(LDFLAGS) -o $@ $^
 /tmp/test_parser: test_parser.c ../parser.c ../objects.c
+	gcc $(CFLAGS) $(LDFLAGS) -o $@ $^
+/tmp/test_arrays: test_arrays.c ../symbols.c ../objects.c ../array.c
 	gcc $(CFLAGS) $(LDFLAGS) -o $@ $^
 /tmp/test_sys: test_sys.c ../eval.c ../symbols.c ../objects.c ../parser.c ../lexer.c ../arith.c
 	gcc $(CFLAGS) $(LDFLAGS) -o $@ $^

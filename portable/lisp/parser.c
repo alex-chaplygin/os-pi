@@ -133,7 +133,7 @@ object_t *parse_array()
 	error("invalid array\n");
 	return ERROR;
     }
-    return object_new(ARRAY, o);
+    return object_new(ARRAY, new_array(o));
 }
 
 /**

@@ -7,6 +7,7 @@
 #include "test.h"
 #include "parser.h"
 #include "arith.h"
+#include "array.h"
 
 extern token_t token;
 

@@ -79,7 +79,7 @@ object_t *object_new(type_t type, void *data)
     else if (type == STRING)
 	new->u.str = new_string((char *)data);
     else if (type == ARRAY) 
-	new->u.arr = new_array((object_t *)data);
+	new->u.arr = (array_t *)data;
     return new;
 }
 

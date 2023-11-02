@@ -29,6 +29,7 @@
 #include <eval.h>
 #include <arith.h>
 #include <symbols.h>
+#include <array.h>
 
 /// Адрес начала секции .lisp
 const void *_lisp_start;
@@ -70,6 +71,7 @@ void kmain(void)
     init_eval();
     init_arith();
     init_regions();
+    init_arrays();
     init_sys();
     graph_init();
     boot_lisp();
