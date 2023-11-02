@@ -115,6 +115,10 @@ void putchar(char c){
     videoptr[printPtr] = ' ';
     videoptr[printPtr + 1] = 0x07;
   }
+  if (currRow == 24) {
+      console_clear();
+      printPtr = current_page = print_page = 0;
+  }
 }
 
 
