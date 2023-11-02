@@ -105,7 +105,7 @@
     (t (progn
 	 (ata-wait) ; ждем освобождения
 	 (ata-set-dev dev)
-	 (ata-get-command-ready)
+	 (ata-wait-command-ready)
 	 (ata-set-lba start num) ;установить стартовый сектор и количество
 	 (ata-set-command +ata-cmd-read-sectors+)
 	 (read-store (make-array 'a 20) 0)))))
@@ -120,7 +120,7 @@
     (t (progn
 	 (ata-wait) ; ждем освобождения
 	 (ata-set-dev dev)
-	 (ata-get-command-ready)
+	 (ata-wait-command-ready)
 	 (ata-set-lba start num) ;установить стартовый сектор и количество
 	 (ata-set-command +ata-cmd-write-sectors+)
 	 (write-store arr 0)))))
