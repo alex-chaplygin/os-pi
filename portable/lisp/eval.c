@@ -178,6 +178,10 @@ object_t *cons(object_t *list)
 	error("Not list in cons\n");
 	return ERROR;
     }
+    if (list->u.pair->right->type != PAIR) {
+        error("second parameter not list\n");
+	return ERROR;
+    }
     object_t *p1 = FIRST(list);
     object_t *p2 = SECOND(list);
     if (p2->type != PAIR){
