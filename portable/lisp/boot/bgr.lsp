@@ -25,9 +25,7 @@
   (bgr-out +bgr-depth+ depth  )
   (bgr-out +bgr-enable+ 1  ))
 
-(defvar str  "1234567890111111qwertyuuiop111111"   )
-
-str
-
-(bgr-set-res 320 200 8   )
-(graph-send-buffer str   )
+(defun bgr-test ()
+  (defvar str  "1234567890111111qwertyuuiop111111"   )
+  (bgr-set-res 320 200 8   )
+  (graph-send-buffer str   ))
