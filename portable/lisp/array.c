@@ -3,13 +3,14 @@
 #include "symbols.h"
 #include "eval.h"
 #include "array.h"
+#include "parser.h"
 
 /**
  * Создание пустого массива заданной длины
  * 
  * @param list <имя массива> <размер>
  * 
- * @return объект имя массива
+ * @return объект массива
 */
 object_t *make_array(object_t *list)
 {
@@ -17,8 +18,7 @@ object_t *make_array(object_t *list)
     object_t *new_obj = object_new(ARRAY, new_arr);
     object_t *new_sym = object_new(SYMBOL, FIRST(list)->u.symbol->str);
     new_sym->u.symbol->value = new_obj;
-    // return new_obj;
-    return SECOND(list);
+    return new_obj;
 }
 
 /**
@@ -32,6 +32,10 @@ object_t *seta(object_t *list)
 {
     object_t *arr_o = FIRST(list);
     int index = SECOND(list)->u.value;
+    if (index >= arr_o->u.arr->length || index < 0) {
+	error("seta: index out of range");
+	return ERROR;
+    }
     object_t *obj = THIRD(list);
     arr_o->u.arr->data[index] = obj;
     return arr_o;
@@ -48,6 +52,10 @@ object_t *aref(object_t *list)
 {
     object_t *arr_o = FIRST(list);
     int index = SECOND(list)->u.value;
+    if (index >= arr_o->u.arr->length || index < 0) {
+	error("aref: index out of range");
+	return ERROR;
+    }
     return arr_o->u.arr->data[index];
 }
 

@@ -3,6 +3,12 @@
 #include "objects.h"
 #include "symbols.h"
 #include "array.h"
+#include "parser.h"
+
+void error(char *str)
+{
+  printf("%s", str);
+}
 
 /**
  * Проверка создания массивов:
@@ -14,6 +20,8 @@ void test_make_array()
     int length = 10;
     object_t *list = new_pair(object_new(SYMBOL, "TESTARRAY"), new_pair(object_new(NUMBER, &length), NULL));
     object_t *arr = make_array(list);
+    PRINT(list);
+    PRINT(arr);
     ASSERT(arr->type, ARRAY);
     for (int i = 0; i < length; i++)
         ASSERT(arr->u.arr->data[i], NULL);
@@ -39,14 +47,42 @@ void test_seta()
     object_t *obj4 = object_new(NUMBER, &num2);
     object_t *list = new_pair(object_new(SYMBOL, "TESTARRAY2"), new_pair(object_new(NUMBER, &length), NULL));
     object_t *arr = make_array(list);
-    object_t *cmd1 = new_pair(object_new(SYMBOL, "TESTARRAY2"), new_pair(object_new(NUMBER, &num3), new_pair(obj1, NULL)));
-    object_t *cmd2 = new_pair(object_new(SYMBOL, "TESTARRAY2"), new_pair(object_new(NUMBER, &num4), new_pair(obj2, NULL)));
-    object_t *cmd3 = new_pair(object_new(SYMBOL, "TESTARRAY2"), new_pair(object_new(NUMBER, &num5), new_pair(obj3, NULL)));
-    object_t *cmd4 = new_pair(object_new(SYMBOL, "TESTARRAY2"), new_pair(object_new(NUMBER, &num6), new_pair(obj4, NULL)));
-    // seta(cmd1);
-    // seta(cmd2);
-    // seta(cmd3);
-    // seta(cmd4);
+    object_t *cmd1 = new_pair(arr, new_pair(object_new(NUMBER, &num3), new_pair(obj1, NULL)));
+    object_t *cmd2 = new_pair(arr, new_pair(object_new(NUMBER, &num4), new_pair(obj2, NULL)));
+    object_t *cmd3 = new_pair(arr, new_pair(object_new(NUMBER, &num5), new_pair(obj3, NULL)));
+    object_t *cmd4 = new_pair(arr, new_pair(object_new(NUMBER, &num6), new_pair(obj4, NULL)));
+    seta(cmd1);
+    seta(cmd2);
+    seta(cmd3);
+    object_t *o = seta(cmd4);
+    ASSERT(arr->u.arr->data[num3], obj1);
+    ASSERT(arr->u.arr->data[num4], obj2);
+    ASSERT(arr->u.arr->data[num5], obj3);
+    ASSERT(o, ERROR);
+}
+
+/**
+ * Тестирование чтени элемента массива
+ * Создать массив на 3 элемента 
+ * Присвоить во 2 ячейку число 4 
+ * Проверить число во 2 ячейке (aref arr 2)
+ * Проверить 0 элемент массива
+ */
+void test_aref()
+{
+    printf("test_aref: ");
+    int length = 3;
+    int num = 4;
+    int idx = 2;
+    object_t *list = new_pair(object_new(SYMBOL, "TESTARRAY2"), new_pair(object_new(NUMBER, &length), NULL));
+    object_t *arr = make_array(list);
+    object_t *obj = object_new(NUMBER, &num);
+    arr->u.arr->data[2] = obj;
+    object_t *elem = aref(new_pair(arr, new_pair(object_new(NUMBER, &idx), NULL)));
+    ASSERT(elem->u.value, num);
+    idx = 0;
+    elem = aref(new_pair(arr, new_pair(object_new(NUMBER, &idx), NULL)));
+    ASSERT(elem, NULL);
 }
 
 int main()
@@ -55,5 +91,6 @@ int main()
     init_regions();
     test_make_array();
     test_seta();
+    test_aref();
     return 0;
 }
