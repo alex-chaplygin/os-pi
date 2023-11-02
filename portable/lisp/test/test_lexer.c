@@ -254,7 +254,7 @@ int main()
     test_get_token("comma_at", ",@", COMMA_AT);
     test_get_token("sharp", "#(1 2 3)", SHARP);
     test_get_token("symbol", "abc", T_SYMBOL); 
-    test_get_token2("setq_rec", "setq_rec", T_SYMBOL, T_SYMBOL); 
+    test_get_token2("setq_rec", "setq_rec setq_rec ", T_SYMBOL, T_SYMBOL); 
     test_invalid_num("invalid num", "11D", 1);
     test_invalid_num("valid num", "11 dd", 0);
     test_invalid_num("invalid num", "0GG", 1);
