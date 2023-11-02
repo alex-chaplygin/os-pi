@@ -522,7 +522,7 @@ object_t *eval(object_t *obj, object_t *env)
     else if (obj->type == SYMBOL) {
         object_t *symbol = eval_symbol(obj, env);
         if (symbol == ERROR) {
-	    error("Unknown SYMBOL");
+	    printf("Unknown SYMBOL: %s", obj->u.symbol->str);
 	    return ERROR;
 	}
         return symbol;
@@ -541,7 +541,7 @@ object_t *eval(object_t *obj, object_t *env)
 	else if (s->func != NULL)
 	    return s->func(args);
 	else {
-	    error("Unknown func");
+	    printf("Unknown func: %s", s->str);
 	    return ERROR;
 	}
     } else { 
