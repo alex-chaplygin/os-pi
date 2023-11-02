@@ -530,11 +530,11 @@ object_t *eval(object_t *obj, object_t *env)
  * @param sym - символ, для которого устан. значение
  * @param val - устанавливаемое значение
  */
-int set_in_env(object_t *env, object_t *sym, object_t *val)
+void set_in_env(object_t *env, object_t *sym, object_t *val)
 {
     if (env == NULL) {
         error("ERROR: NULL as env in set_in_env");
-        return ERROR;
+        return;
     }
     object_t *pair = FIRST(env);
     object_t *var = FIRST(pair);
