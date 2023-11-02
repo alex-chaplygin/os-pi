@@ -138,6 +138,112 @@ object_t *num_eq(object_t *list)
 }
 
 /** 
+ * Побитовое И (& 1 2 3)
+ *
+ * @param list - список чисел (1 2 3)
+ *
+ * @return побитовое И
+ */
+object_t *bitwise_and(object_t *list)
+{
+    if (list == NULL) {
+	error("bitwise_and: no arguments\n");
+	return ERROR;
+    }
+    int num = FIRST(list)->u.value;
+    list = TAIL(list);
+    while (list != NULL) {
+	object_t *first = FIRST(list);
+	if (first->type == NUMBER) {  
+	    num &= first->u.value;
+	    list = TAIL(list);
+	}
+	else {
+	    error("bitwise_and: Not number\n");
+	    return ERROR;
+	}
+    }
+    return object_new(NUMBER, &num);
+}
+
+/** 
+ * Побитовое ИЛИ (| 1 2 3)
+ *
+ * @param list - список чисел (1 2 3)
+ *
+ * @return побитовое ИЛИ
+ */
+object_t *bitwise_or(object_t *list)
+{
+    if (list == NULL) {
+	error("bitwise_or: no arguments\n");
+	return ERROR;
+    }
+    int num = FIRST(list)->u.value;
+    list = TAIL(list);
+    while (list != NULL) {
+	object_t *first = FIRST(list);
+	if (first->type == NUMBER) {  
+	    num |= first->u.value;
+	    list = TAIL(list);
+	}
+	else {
+	    error("bitwise_or: Not number\n");
+	    return ERROR;
+	}
+    }
+    return object_new(NUMBER, &num);
+}
+
+/**
+ * Побитовый сдвиг влево (<< 8 2)
+ * 
+ * @param list - список (<Любое число> <Число бит>)
+ *
+ * @return результат сдвига
+ */
+
+object_t *shift_left(object_t *list)
+{
+    if (list == NULL) {
+        error("shift_left: no arguments\n");
+        return ERROR;
+    }
+    if (TAIL(list) == NULL) {
+        error("shift_left: no second param\n");
+        return ERROR;
+    }
+    object_t *first = FIRST(list);
+    object_t *second = SECOND(list);
+    int num = first->u.value << second->u.value;
+    return object_new(NUMBER, &num);
+}
+
+/**
+ * Побитовый сдвиг вправо (>> 8 2)
+ * 
+ * @param list - список (<Любое число> <Число бит>)
+ *
+ * @return результат сдвига
+ */
+
+object_t *shift_right(object_t *list)
+{
+    if (list == NULL) {
+        error("shift_right: no arguments\n");
+        return ERROR;
+    }
+    if (TAIL(list) == NULL) {
+        error("shift_right: no second param\n");
+        return ERROR;
+    }
+    object_t *first = FIRST(list);
+    object_t *second = SECOND(list);
+    int num = first->u.value >> second->u.value;
+    return object_new(NUMBER, &num);
+}
+
+/** 
  * Инициализация арифметических функций
  */
 void init_arith()
@@ -147,4 +253,8 @@ void init_arith()
     register_func("*", mul);
     register_func("=", num_eq);
     register_func("/", int_div);
+    register_func("&", bitwise_and);
+    register_func("|", bitwise_or);
+    register_func("<<", shift_left);
+    register_func(">>", shift_right);
 }
