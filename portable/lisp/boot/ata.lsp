@@ -49,7 +49,7 @@
 (defun ata-set-lba (sec num)
   "Установить номер сектора в режиме LBA"
   (outb +ata-n-sectors+ num) ;число секторов
-  (outb +ata-lba1+ sec 0xff))
+  (outb +ata-lba1+ sec 0xff)
   (outb +ata-lba2+ (& (>> sec 8) 0xff))
   (outb +ata-lba3+ (& (>> sec 16) 0xff)))
 
@@ -62,37 +62,30 @@
   "Установить команду контроллера"
   (outb +ata-command+ cmd))
 
-(defun read-store (arr pos)
+(defun read-store (arr i)
   "Чтение и запись данных в массив в позиции pos"
   (ata-wait)
-	     (seta arr pos (& (inw +ata-data+) 0xff))
-	     (cond
-	       ((= pos 19) arr);(ata-has-data) 0) arr)
-	       (t (read-store arr (+ pos 1)))))
+  (if (ata-check-error) nil
+      (progn
+	(seta arr i (& (inw +ata-data+) 0xff))
+	(if (= (ata-has-data) 0) arr
+	    (read-store arr (+ i 1))))))
 
-(defun write-store (arr pos)
-  "Запись данных в жесткий диск"
-  (ata-wait)
-  (outw +ata-data+ (aref arr pos))
-  (cond
-    ((= pos 511) arr);(ata-has-data) 0) arr)
-    (t (write-store arr (+ pos 1)))))
+;(defun write-store (arr pos)
+;  "Запись данных в жесткий диск"
+;  (ata-wait)
+;  (outw +ata-data+ (aref arr pos))
+;  (cond
+;    ((= pos 511) arr);(ata-has-data) 0) arr)
+;    (t (write-store arr (+ pos 1)))))
+(defvar buf (make-array 512))
 
 (defun ata-identify ()
   (ata-wait)
   (ata-set-dev 0)
   (ata-wait-command-ready)
   (ata-set-command 0xec)
-  (ata-wait)
-  (make-array 'res 10)
-  (seta res 0 (inw +ata-data+))
-  (seta res 1 (inw +ata-data+))
-  (seta res 2 (inw +ata-data+))
-  (seta res 3 (inw +ata-data+))
-  (seta res 4 (inw +ata-data+))
-  (seta res 5 (inw +ata-data+))
-  (seta res 6 (inw +ata-data+))
-  res)
+  (read-store buf 0))
 
 (defun ata-read-sectors (dev start num)
   "Читает сектора жесткого диска"
@@ -108,22 +101,22 @@
 	 (ata-wait-command-ready)
 	 (ata-set-lba start num) ;установить стартовый сектор и количество
 	 (ata-set-command +ata-cmd-read-sectors+)
-	 (read-store (make-array 'a 20) 0)))))
+	 (read-store (make-array 20) 20)))))
 
-(defun ata-write-sectors (dev start num arr)
-  "Пишет сектора жесткого диска"
-  "dev - устройство: 0 primary master, 1 - slave"
-  "start - начальный сектор"
-  "num - число секторов"
-  (cond
-    ((= num 0) '(invalid number of sectors))
-    (t (progn
-	 (ata-wait) ; ждем освобождения
-	 (ata-set-dev dev)
-	 (ata-wait-command-ready)
-	 (ata-set-lba start num) ;установить стартовый сектор и количество
-	 (ata-set-command +ata-cmd-write-sectors+)
-	 (write-store arr 0)))))
+;(defun ata-write-sectors (dev start num arr)
+;  "Пишет сектора жесткого диска"
+;  "dev - устройство: 0 primary master, 1 - slave"
+;  "start - начальный сектор"
+;  "num - число секторов"
+;  (cond
+;    ((= num 0) '(invalid number of sectors))
+;    (t (progn
+;	 (ata-wait) ; ждем освобождения
+;	 (ata-set-dev dev)
+;	 (ata-wait-command-ready)
+;	 (ata-set-lba start num) ;установить стартовый сектор и количество
+;	 (ata-set-command +ata-cmd-write-sectors+)
+;	 (write-store arr 0)))))
 
-;(ata-identify)
-(ata-read-sectors 0 1 1)
+(ata-identify)
+;(ata-read-sectors 0 1 1)
