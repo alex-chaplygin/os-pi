@@ -1,7 +1,7 @@
 SHELL=bash
 CFLAGS=-I. -I../ --coverage -g -Wno-pointer-to-int-cast
 LDFLAGS="-lgcov"
-TESTS=/tmp/test_lexer /tmp/test_eval /tmp/test_symbols /tmp/test_objects /tmp/test_parser /tmp/test_eval_int /tmp/test_arrays
+TESTS=/tmp/test_lexer /tmp/test_eval /tmp/test_symbols /tmp/test_objects /tmp/test_parser /tmp/test_eval_int /tmp/test_arrays /tmp/test_arith
 
 all: $(TESTS)
 
@@ -9,7 +9,9 @@ all: $(TESTS)
 	gcc $(CFLAGS) $(LDFLAGS) -o $@ $^
 /tmp/test_eval: test_eval.c ../eval.c
 	gcc $(CFLAGS) $(LDFLAGS) -o $@ $^
-/tmp/test_eval_int: test_eval_int.c ../eval.c ../symbols.c ../objects.c ../arith.c
+/tmp/test_eval_int: test_eval_int.c ../eval.c ../symbols.c ../objects.c
+	gcc $(CFLAGS) $(LDFLAGS) -o $@ $^
+/tmp/test_arith: test_arith.c ../eval.c ../symbols.c ../objects.c ../arith.c
 	gcc $(CFLAGS) $(LDFLAGS) -o $@ $^
 /tmp/test_symbols: test_symbols.c ../symbols.c
 	gcc $(CFLAGS) $(LDFLAGS) -o $@ $^
@@ -19,7 +21,7 @@ all: $(TESTS)
 	gcc $(CFLAGS) $(LDFLAGS) -o $@ $^
 /tmp/test_arrays: test_arrays.c ../symbols.c ../objects.c ../array.c
 	gcc $(CFLAGS) $(LDFLAGS) -o $@ $^
-/tmp/test_sys: test_sys.c ../eval.c ../symbols.c ../objects.c ../parser.c ../lexer.c ../arith.c
+/tmp/test_sys: test_sys.c ../eval.c ../symbols.c ../objects.c ../parser.c ../lexer.c ../arith.c ../array.c
 	gcc $(CFLAGS) $(LDFLAGS) -o $@ $^
 
 test: $(TESTS) /tmp/test_sys
