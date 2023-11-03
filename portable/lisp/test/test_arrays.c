@@ -18,7 +18,7 @@ void test_make_array()
 {
     printf("test_make_array: ");
     int length = 10;
-    object_t *list = new_pair(object_new(SYMBOL, "TESTARRAY"), new_pair(object_new(NUMBER, &length), NULL));
+    object_t *list = new_pair(object_new(NUMBER, &length), NULL);
     object_t *arr = make_array(list);
     PRINT(list);
     PRINT(arr);
@@ -45,7 +45,7 @@ void test_seta()
     object_t *obj2 = object_new(SYMBOL, "ABCDEF");
     object_t *obj3 = object_new(STRING, "qwerty");
     object_t *obj4 = object_new(NUMBER, &num2);
-    object_t *list = new_pair(object_new(SYMBOL, "TESTARRAY2"), new_pair(object_new(NUMBER, &length), NULL));
+    object_t *list = new_pair(object_new(NUMBER, &length), NULL);
     object_t *arr = make_array(list);
     object_t *cmd1 = new_pair(arr, new_pair(object_new(NUMBER, &num3), new_pair(obj1, NULL)));
     object_t *cmd2 = new_pair(arr, new_pair(object_new(NUMBER, &num4), new_pair(obj2, NULL)));
@@ -74,7 +74,7 @@ void test_aref()
     int length = 3;
     int num = 4;
     int idx = 2;
-    object_t *list = new_pair(object_new(SYMBOL, "TESTARRAY2"), new_pair(object_new(NUMBER, &length), NULL));
+    object_t *list = new_pair(object_new(NUMBER, &length), NULL);
     object_t *arr = make_array(list);
     object_t *obj = object_new(NUMBER, &num);
     arr->u.arr->data[2] = obj;

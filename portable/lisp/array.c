@@ -2,22 +2,19 @@
 #include "objects.h"
 #include "symbols.h"
 #include "eval.h"
-#include "array.h"
 #include "parser.h"
 
 /**
  * Создание пустого массива заданной длины
  * 
- * @param list <имя массива> <размер>
+ * @param list <размер>
  * 
  * @return объект массива
 */
 object_t *make_array(object_t *list)
 {
-    array_t *new_arr = new_empty_array(SECOND(list)->u.value);
+    array_t *new_arr = new_empty_array(FIRST(list)->u.value);
     object_t *new_obj = object_new(ARRAY, new_arr);
-    object_t *new_sym = object_new(SYMBOL, FIRST(list)->u.symbol->str);
-    new_sym->u.symbol->value = new_obj;
     return new_obj;
 }
 
