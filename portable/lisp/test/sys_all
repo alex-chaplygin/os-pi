@@ -107,7 +107,7 @@ sh sys_test "\`a" "A"
 sh sys_test "\`(\"abcdefg\")" "(\"abcdefg\")"
 sh sys_test "\`#(1 2 3 4)" "#(1 2 3 4)"
 sh sys_test "\`(#(1 2 (3) 4 b #(b c)) a (1) \"ab\")" "(#(1 2 (3) 4 B #(B C)) A (1) \"ab\")"
-sh sys_test "(setq_rec a 1 b)" "Unknown SYMBOLUnknown func"
+sh sys_test "(setq_rec a 1 b)" "Unknown SYMBOL: AUnknown func: SETQ_REC"
 sh sys_test "(defvar x 1) \`(a ,x 2)" "X
 (A 1 2)"
 sh sys_test "(defvar x 1) (defvar y \`(,x a b)) \`(a ,x 2 ,y)" "X
@@ -115,3 +115,39 @@ Y
 (A 1 2 (1 A B))"
 sh sys_test "(defvar x 1) \`(a ,x (,x #(,x)) 2)" "X
 (A 1 (1 #(1)) 2)"
+sh sys_test "(defvar a '(1 2 3 (4 5))) \`(b ,@a c)" "A
+(B 1 2 3 (4 5) C)"
+sh sys_test "(defmacro macro (x) 
+                 \`(+ ,x 1))
+             (defvar a 4)
+             (macro a)" "MACRO
+A
+5"
+sh sys_test "(defmacro if (test true false) 
+                 \`(cond (,test ,true)
+                         (t ,false)))
+             (defvar a 4)
+             (if (= a 4) 
+                 (+ a 1)
+                 (- a 1))" "IF
+A
+5"
+sh sys_test "(defmacro macro (x) 
+                 \`(+ ,x 1)\`(* ,x 2))
+             (defvar a 4)
+             (macro a)" "MACRO
+A
+8"
+sh sys_test "(defmacro for (var start end body)
+   	    	       \`(defun for-func (,var)
+                           (cond ((= ,var ,end) 'end)
+			   	 (t (progn ,body 
+                                           (for-func (+ ,var 1))))))
+			\`(for-func ,start))
+        (defvar arr (make-array 10))
+	(for n 0 10 (seta arr n n))
+	arr" "FOR
+SUM
+END
+4950"
+                                        

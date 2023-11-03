@@ -124,6 +124,8 @@ object_t *quote(object_t *list)
     return FIRST(list);
 }
 
+void append_env(object_t *l1, object_t *l2);
+
 /**
  * возвращает аргумент с вычислением
  * b = 7 `(a ,b c) -> (a 7 c)
@@ -157,22 +159,25 @@ object_t *backquote_rec(object_t *list)
     } else if (list->type == STRING)
 	return object_new(STRING, list->u.str->data);
     else if (list->type == PAIR) {
-	object_t *el = FIRST(list); // el = (COMMA B)
+	object_t *el = FIRST(list); // list = (COMMA B)
 	if (el->type == SYMBOL && !strcmp(el->u.symbol->str, "COMMA"))
 	    return eval(SECOND(list), current_env);
-	// el = ((COMMA-AT B) A B)
-	else if (el->type == PAIR) {
-	    object_t *comma_list = FIRST(el); // comma_list = (COMMA-AT B)
-	    if (comma_list->type == PAIR) {
-		object_t *comma_at = FIRST(comma_list);
-		if (comma_at->type == SYMBOL && !strcmp(comma_at->u.symbol->str, "COMMA-AT"))
-		    return NULL; //!!!!!!!!!!!!!!!!!!!
+	object_t *first = backquote_rec(el);
+	if (first->type == PAIR) {  // first = (COMMA-AT B)
+	    object_t *comma_at = FIRST(first);
+	    if (comma_at->type == SYMBOL && !strcmp(comma_at->u.symbol->str, "COMMA-AT")) {
+		object_t *l = eval(SECOND(first), current_env);
+		    if (l->type != PAIR) {
+			error("COMMA-AT: not list");
+			return ERROR;
+		    }
+		    append_env(l, backquote_rec(TAIL(list)));
+		    return l;
 	    }
 	}
-	return new_pair(backquote_rec(el), backquote_rec(TAIL(list)));
+	return new_pair(first, backquote_rec(TAIL(list)));
     }
-    return ERROR;
-    
+    return ERROR;   
 }
 
 /**
@@ -430,6 +435,31 @@ object_t *eval_func(object_t *lambda, object_t *args, object_t *env)
     append_env(new_env, env);
     return eval(body, new_env);
 }
+
+/**
+ * Вычислить macro подстановку с заданными аргументами.
+ * 
+ * @param macro - тело макроса (lambda (x) e1 e2 .. en)
+ * @param args - список значений аргументов (1)
+ * @param env окружение
+ * @return вычисленное значение макроса
+ */
+object_t *macro_call(object_t *macro, object_t *args, object_t *env)
+{
+    object_t *new_env = make_env(SECOND(macro), args);
+    object_t *body;
+    object_t *eval_res;
+    body = TAIL(TAIL(macro));
+    append_env(new_env, env);
+    while (body != NULL) {
+	/*eval_res = eval(FIRST(body), new_env);
+	printf("macro = ");
+	PRINT(eval_res);*/
+	eval_res = eval(eval(FIRST(body), new_env), new_env);
+	body = TAIL(body);
+    }
+    return eval_res;
+}
     
 /**
  * Рекурсивно вычисляет список аргументов, создаёт новый список
@@ -532,7 +562,7 @@ object_t *eval(object_t *obj, object_t *env)
 	    return eval_func(first, eval_args(TAIL(obj), env), env);
 	symbol_t *s = find_symbol(first->u.symbol->str);
 	object_t *args;
-	if (is_special_form(s))
+	if (is_special_form(s) || s->macro != NULL)
 	    args = TAIL(obj);
 	else
 	    args = eval_args(TAIL(obj), env);
@@ -540,6 +570,8 @@ object_t *eval(object_t *obj, object_t *env)
 	    return eval_func(s->lambda, args, env);
 	else if (s->func != NULL)
 	    return s->func(args);
+	else if (s->macro != NULL)
+	    return macro_call(s->macro, args, env);
 	else {
 	    printf("Unknown func: %s", s->str);
 	    return ERROR;
