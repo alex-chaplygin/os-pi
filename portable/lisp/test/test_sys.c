@@ -16,6 +16,7 @@ int main()
     init_eval();
     init_arith();
     init_regions();
+    init_arrays();
     do {
 	object_t *o = parse();
         //printf("parse: "); PRINT(o);
