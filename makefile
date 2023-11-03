@@ -14,7 +14,7 @@ run: bin/kernel
 	qemu-system-i386 -hda test.img -kernel bin/kernel
 
 debug:
-	qemu-system-i386 -kernel bin/kernel -s -S
+	qemu-system-i386 -hda test.img -kernel bin/kernel -s -S
 clean:
 	rm bin/kernel portable/*.o portable/lisp/*.o x86/*.o
 tags:
