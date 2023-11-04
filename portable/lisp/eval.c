@@ -87,10 +87,10 @@ object_t *eq(object_t *list)
     //PRINT(p1);
     //printf("p2: ");
     //PRINT(p2);
-    if (p1 != NULL && p1->type != SYMBOL || p2 != NULL && p2->type != SYMBOL){
+    /*    if (p1 != NULL && p1->type != SYMBOL || p2 != NULL && p2->type != SYMBOL){
         error("not symbol in eq");
 	return ERROR;
-    }
+	}*/
     if (p1 == NULL && p2 == NULL || p1 != NULL && p2 != NULL && p1->u.symbol == p2->u.symbol)
         return t;
     else
@@ -167,10 +167,10 @@ object_t *backquote_rec(object_t *list)
 	    object_t *comma_at = FIRST(first);
 	    if (comma_at->type == SYMBOL && !strcmp(comma_at->u.symbol->str, "COMMA-AT")) {
 		object_t *l = eval(SECOND(first), current_env);
-		    if (l->type != PAIR) {
+		/*if (l->type != PAIR) {
 			error("COMMA-AT: not list");
 			return ERROR;
-		    }
+			}*/
 		    append_env(l, backquote_rec(TAIL(list)));
 		    return l;
 	    }
@@ -207,16 +207,8 @@ object_t *cons(object_t *list)
 	error("Not list in cons");
 	return ERROR;
     }
-    if (list->u.pair->right->type != PAIR) {
-        error("second parameter not list");
-	return ERROR;
-    }
     object_t *p1 = FIRST(list);
     object_t *p2 = SECOND(list);
-    if (p2->type != PAIR){
-	error("second parameter not list");
-	return ERROR;
-    }
     return new_pair(p1, p2);
 }
 
@@ -432,7 +424,10 @@ object_t *eval_func(object_t *lambda, object_t *args, object_t *env)
 	body = new_pair(object_new(SYMBOL, "PROGN"), TAIL(TAIL(lambda)));
     if (body == ERROR)
 	return ERROR;
-    append_env(new_env, env);
+    if (new_env == NULL)
+	new_env = env;
+    else
+	append_env(new_env, env);
     return eval(body, new_env);
 }
 
@@ -508,10 +503,10 @@ object_t *eval_symbol(object_t *obj, object_t *env)
 {
     object_t *res;
     
-    //printf("eval_symbol: ");
-    //PRINT(obj);
-    //printf("env: ");
-    //PRINT(env);  
+    //    printf("eval_symbol: ");
+    //    PRINT(obj);
+    //    printf("env: ");
+    //    PRINT(env);  
     
     if (find_in_env(env, obj, &res))
         return res;
