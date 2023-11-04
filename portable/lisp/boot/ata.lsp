@@ -77,7 +77,7 @@
   (ata-set-dev 0)
   (ata-wait-command-ready)
   (ata-set-command 0xec)
-  (ata-read (make-array +sector-size+ 0)))
+  (ata-read (make-array +sector-size+) 0))
 
 (defun ata-read-sectors (dev start num)
   "Читает сектора жесткого диска"
