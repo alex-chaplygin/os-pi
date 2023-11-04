@@ -196,7 +196,7 @@ a_isrNonExistent: exception 19
 kernel_code dw 0
 
 section .bss
-resb 8192; 8KB for stack
+resb 8192 * 64; 8KB for stack
 stack_space:
 
 section .lisp
