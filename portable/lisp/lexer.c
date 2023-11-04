@@ -270,9 +270,12 @@ token_t *get_token()
 	if (is_digit(cur_symbol)) {
 	    token.type = T_NUMBER;
 	    token.value = get_num();
-	} else {
+	} else if (is_alpha(cur_symbol) || is_symbol(cur_symbol)) {
 	    token.type =  T_SYMBOL;
 	    get_symbol(token.str);
+	} else {
+	    token.type = INVALID;
+	    get_cur_char();
 	}
     }
     return &token;
@@ -310,7 +313,7 @@ void print_token(token_t *token)
     case COMMA:
 	printf("COMMA\n");
 	break;
-	case COMMA_AT:
+    case COMMA_AT:
 	printf("COMMA_AT\n");
 	break;
     case INVALID:
