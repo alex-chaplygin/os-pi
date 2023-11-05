@@ -56,6 +56,7 @@ void boot_lisp()
     } while (token.type != END);
     boot_load = 0;
     flag = 0;
+    printf("Total memory used: %d\n", boot_code);
 }
 
 /** 
