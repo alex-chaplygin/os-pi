@@ -8,7 +8,7 @@
 /// Всего символов
 #define MAX_SYMBOLS 1000
 /// Всего байт для регионов 
-#define MAX_CHARS 15000
+#define MAX_CHARS 150000
 /// Всего строк
 #define MAX_STRINGS 100
 /// Всего массивов
