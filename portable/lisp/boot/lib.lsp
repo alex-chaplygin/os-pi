@@ -28,15 +28,16 @@
   `(for-func ,start))
 
 (defmacro let (vars body)
-  `((lambda ,(get-vars vars) ,body) ,@(get-vals vars)))
+  `((lambda ,(get-vars vars) ,body)
+    ,@(get-vals vars)))
 
-(defun get-vars (vars)
-  (if (null vars) nil
-      (cons (caar vars) (get-vars (cdr vars)))))
+(defun get-vars (v)
+  (if (null v) nil
+      (cons (caar v) (get-vars (cdr v)))))
 
-(defun get-vals (vars)
-  (if (null vars) nil
-      (cons (cadar vars) (get-vals (cdr vars)))))
+(defun get-vals (v)
+  (if (null v) nil
+      (cons (cadar v) (get-vals (cdr v)))))
 
 (defmacro ++ (x)
   `(+ ,x 1))
