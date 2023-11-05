@@ -6,6 +6,8 @@ extern uint inw(int num);
 extern void outw(int num, int data);
 extern uint indw(int num);
 extern void outdw(int num, int data);
+extern void inw_arr(int port, int size, void *buf);
+extern void outw_arr(int port, int size, void *buf);
 extern void save_regs();
 extern void restore_regs();
 extern void disable_interrupts();

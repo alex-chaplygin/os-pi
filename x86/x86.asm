@@ -31,7 +31,7 @@ global a_isrMachineCheckException
 global a_isrNonExistent
 global a_syscall
 global save_regs, restore_regs
-global inb, outb, inw, outw, indw, outdw
+global inb, outb, inw, outw, indw, outdw, inw_arr, outw_arr
 global a_timer
 global a_interrupt_handler
 global disable_interrupts, enable_interrupts
@@ -42,8 +42,7 @@ extern interrupt_handler
 extern current_proc
 extern keyboard_interrupt	
 
-	MEMSIZE equ 128 * 1024 * 1024 	; 128M
-	global MEMSIZE
+MEMSIZE equ 128 * 1024 * 1024 	; 128M
 stack_end equ MEMSIZE
 stack_begin equ 0xF0000000
 start:
@@ -138,7 +137,23 @@ outdw:				;запись двойного слова в порт
 	mov   eax, [esp + 4 + 4]  
 	out   dx, eax
 	ret
-	
+
+inw_arr:			;чтение массива слов из порта
+	mov edx, [esp + 4] 	;порт
+	mov ecx, [esp + 8]	;размер
+	mov edi, [esp + 12]	;буфер
+	cld
+	rep insw
+	ret
+
+outw_arr:			;запись массива слов в порт
+	mov edx, [esp + 4] 	;порт
+	mov ecx, [esp + 8]	;размер
+	mov esi, [esp + 12]	;буфер
+	cld
+	rep outsw
+	ret
+
 a_syscall:
 	iret
 
