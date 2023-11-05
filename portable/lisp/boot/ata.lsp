@@ -58,7 +58,7 @@
   "Установить команду контроллера"
   (outb +ata-command+ cmd))
 
-(defun ata-read (arr i)
+(defun ata-read-old (arr i)
   "Чтение данных жесткого диска и запись в массив, начиная с позиции i"
   (ata-wait)
   (if (ata-check-error) '(read error)
@@ -69,6 +69,18 @@
 	   (if (= (ata-has-data) 0) arr
 	       (ata-read arr (+ i 2)))))))
 
+(defun ata-read (size)
+  "Чтение данных жесткого диска, size байт"
+  (ata-wait)
+  (if (ata-check-error) '(read error)
+      (insw +ata-data+ (>> size 1))))
+
+(defun ata-write (arr)
+  "Чтение данных жесткого диска, size байт"
+  (ata-wait)
+  (if (ata-check-error) '(read error)
+      (outsw +ata-data+ arr)))
+
 (defun ata-identify ()
   "Чтение служебной информации: число головок, цилиндров, секторов,"
   "серийный номер, ..."
@@ -76,7 +88,7 @@
   (ata-set-dev 0)
   (ata-wait-command-ready)
   (ata-set-command 0xec)
-  (ata-read (make-array +sector-size+) 0))
+  (ata-read +sector-size+))
 
 (defun ata-read-sectors (dev start num)
   "Читает сектора жесткого диска"
@@ -84,15 +96,31 @@
   "start - начальный сектор"
   "num - число секторов"
   "возвращает массив данных"  
-  (cond
-    ((= num 0) '(invalid number of sectors))
-    (t (progn
+  (if (= num 0) '(invalid number of sectors)
+      (progn
 	 (ata-wait) ; ждем освобождения
 	 (ata-set-dev dev)
 	 (ata-wait-command-ready)
 	 (ata-set-lba start num) ;установить стартовый сектор и количество
 	 (ata-set-command +ata-cmd-read-sectors+)
-	 (ata-read (make-array (* num +sector-size+)) 0)))))
+	 (ata-read (* num +sector-size+))))))
+
+(defun ata-write-sectors (dev start num arr)
+  "Пишет сектора жесткого диска"
+  "dev - устройство: 0 primary master, 1 - slave"
+  "start - начальный сектор"
+  "num - число секторов"
+  "arr - массив байт данных"
+    (if (= num 0) '(invalid number of sectors)
+	(progn
+	 (ata-wait) ; ждем освобождения
+	 (ata-set-dev dev)
+	 (ata-wait-command-ready)
+	 (ata-set-lba start num) ;установить стартовый сектор и количество
+	 (ata-set-command +ata-cmd-write-sectors+)
+	 (ata-write arr))))
 
 ;(ata-identify)
-(defvar sec (ata-read-sectors 0 1 1))
+(defvar sec (ata-read-sectors 0 0 1))
+(for i 0 512 (seta sec i (& i 0xff)))
+(ata-write-sectors 0 1 1 sec)
