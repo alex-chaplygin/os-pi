@@ -42,11 +42,15 @@ extern interrupt_handler
 extern current_proc
 extern keyboard_interrupt	
 
+	MEMSIZE equ 128 * 1024 * 1024 	; 128M
+	global MEMSIZE
+stack_end equ MEMSIZE
+stack_begin equ 0xF0000000
 start:
 	cli 				;block interrupts
         mov ax, cs
         mov [kernel_code], ax
-	mov esp, stack_space
+	mov esp, stack_end
 	call kmain
 	hlt 				;halt the CPU
 
@@ -194,10 +198,6 @@ a_isrMachineCheckException: exception 18
 a_isrNonExistent: exception 19
 	
 kernel_code dw 0
-
-section .bss
-resb 8192 * 64; 8KB for stack
-stack_space:
 
 section .lisp
 incbin "/tmp/lisp.lsp"
