@@ -62,13 +62,12 @@
   "Чтение данных жесткого диска и запись в массив, начиная с позиции i"
   (ata-wait)
   (if (ata-check-error) '(read error)
-      (progn
-	((lambda (d)
+      (let ((d (inw +ata-data+)))
+	(progn
 	   (seta arr i (& d 0xff))
-	   (seta arr (++ i) (>> d 8)))
-	   (inw +ata-data+))
-	(if (= (ata-has-data) 0) arr
-	    (ata-read arr (+ i 2))))))
+	   (seta arr (++ i) (>> d 8))
+	   (if (= (ata-has-data) 0) arr
+	       (ata-read arr (+ i 2)))))))
 
 (defun ata-identify ()
   "Чтение служебной информации: число головок, цилиндров, секторов,"
