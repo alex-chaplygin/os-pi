@@ -28,6 +28,7 @@
 #include <parser.h>
 #include <eval.h>
 #include <arith.h>
+#include <str.h>
 #include <symbols.h>
 #include <array.h>
 
@@ -71,6 +72,7 @@ void kmain(void)
     init_keyboard();
     init_eval();
     init_arith();
+    init_strings();
     init_regions();
     init_arrays();
     init_sys();

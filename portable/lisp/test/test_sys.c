@@ -7,6 +7,7 @@
 #include "test.h"
 #include "parser.h"
 #include "arith.h"
+#include "str.h"
 #include "array.h"
 
 extern token_t token;
@@ -15,6 +16,7 @@ int main()
 {
     init_eval();
     init_arith();
+	init_strings();
     init_regions();
     init_arrays();
     do {
