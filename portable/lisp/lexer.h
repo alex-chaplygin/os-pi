@@ -5,7 +5,7 @@ typedef enum {
     T_SYMBOL, // строка +a4s6d7fd23
     LPAREN, //левая скобка (
     RPAREN, // правая скобка )
-    END, // конец строки
+    END, // конец потока
     QUOTE, // символ '
     BACKQUOTE, // символ `
     COMMA, // символ ,
