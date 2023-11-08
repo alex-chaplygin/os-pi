@@ -72,8 +72,10 @@ object_t *sub(object_t *list)
  */
 object_t *mul(object_t *list)
 {
-    if (list == NULL)
+    if (list == NULL) {
 	error("mul: no arguments\n");
+	return ERROR;
+    }
     object_t *first = FIRST(list);
     int num = first->u.value;
     list = TAIL(list);

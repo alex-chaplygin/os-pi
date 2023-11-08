@@ -125,6 +125,30 @@ void test_mul()
 }
 
 /**
+ * Тест умножения, передача пустого списка.
+ */
+void test_mul_empty_list()
+{
+    printf ("test_mul_empty_list:");
+    object_t *empty_list = NULL;
+    object_t *res = mul(empty_list);
+    ASSERT(res, ERROR);
+}
+
+/**
+ * Тест умножения, передача списка содержащего символ.
+ */
+void test_mul_list_with_symbol()
+{
+    printf ("test_mul_list_with_symbol :");
+    int num = 1;
+    object_t *list_with_symbol = new_pair(object_new(NUMBER, &num),
+                                         new_pair(object_new(SYMBOL, "A"), NULL));
+    object_t *res = mul(list_with_symbol);
+    ASSERT(res, ERROR);
+}
+
+/**
  * Тест сравнения чисел
  */
 void test_num_eq(int num1, int num2, object_t *token)
@@ -249,6 +273,8 @@ int main()
     test_sub_null();
     test_sub_no_number();
     test_mul();
+    test_mul_empty_list();
+    test_mul_list_with_symbol();
     test_div();
     test_div_nulllist();
     test_div_zerodivisor();
