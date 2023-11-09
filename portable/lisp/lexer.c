@@ -125,7 +125,8 @@ int hex_num()
 	    cur_num = cur_num * 16 + cur_symbol - 'A' + 10;
 	} else {
 	    token_error = 1;
-	    break;
+	    printf("invalid hex num\n");
+	    return 0;
 	}
     } while (is_digit(cur_symbol) || is_hex_symbol(cur_symbol));
   
@@ -157,6 +158,7 @@ int get_num()
 	    get_cur_char();
 	} else {
 	    token_error = 1;
+	    printf("invalid num\n");
 	    return 0;
 	}
     }
