@@ -507,6 +507,21 @@ void test_garbage_collect_arrays()
     ASSERT((regions->next != NULL), 1);
 }
 
+/**
+ * Печать объекта
+ * Создать объект (4 . 5)
+ */
+void test_print()
+{
+    printf("test_print: ");
+    int n1 = 4;
+    int n2 = 5;
+    
+    object_t *list = new_pair(object_new(NUMBER, &n1), object_new(NUMBER, &n2));
+    print_obj(list);
+    printf("\n");
+}    
+
 void main()
 {
     printf("--------------test objects---------------------\n");
@@ -530,6 +545,7 @@ void main()
     test_free_string();
     test_garbage_collect_strings();
     test_garbage_collect_arrays();
+    test_print();
     int i = 10;
     test_print_obj(object_new(NUMBER, &i), "10");
 }
