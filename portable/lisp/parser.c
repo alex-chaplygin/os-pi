@@ -6,6 +6,8 @@
 #include "symbols.h"
 #include "parser.h"
 
+extern int token_error;
+
 token_t *cur_token; // текущий токен
 
 // Вывод сообщения об ошибке и выход из программы
@@ -92,8 +94,8 @@ object_t *parse_list()
     int val;
     char str[MAX_STR];
     token_t *cur_tok = get_token();
-    //printf("parselist: ");
-    //print_token(cur_tok);
+    if (token_error == 1)
+	return ERROR;
     if (cur_tok->type == END) {
 	error("expected )\n");
 	return ERROR;
@@ -147,8 +149,8 @@ object_t *parse()
 {   
     object_t *el; // создаем новый элемент
     token_t *cur_token = get_token(); // считывается левая скобка
-    //printf("parse: ");
-    //print_token(cur_token);
+    if (token_error == 1)
+	return ERROR;
     if (cur_token->type == T_NUMBER) // считывается число
 	return object_new(NUMBER, &cur_token->value);
     else if (cur_token->type == T_SYMBOL)//считывается символ
