@@ -263,6 +263,20 @@ int strlen(char *str)
     return c;
 }
 
+/**
+ * @brief Соединение строк: к строке str1 добавляется str2
+ * @param str1 первая строка "ab"
+ * @param str2 вторая строка "cd"
+ * 
+ */
+void strcat(char *str1, char *str2)
+{
+    while (*str1++ != 0);
+    while (*str2 != 0)
+	*str1++ = *str2++;
+    *str1 = 0;
+}
+
 /** 
  * Перевод символа в верхний регистр
  */ 
