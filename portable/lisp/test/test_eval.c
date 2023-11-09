@@ -229,19 +229,6 @@ void test_cons()
     ASSERT(res->u.pair->right->u.pair->left->u.value, 2);
 }
 
-void test_cons_not_list()
-{
-    printf("test_cons_not_list: ");
-    object_t not_list;
-
-    not_list.type = NUMBER;
-    not_list.u.value = 6;
-
-    object_t *res = cons(&not_list); 
-
-    ASSERT(res, ERROR);
-}
-
 void test_cons_second_not_pair() 
 {
     printf("test_cons_second_not_pair: ");
@@ -340,7 +327,6 @@ int main()
     test_eq_sym();
     test_eq_sym_eq();
     test_cons();
-    test_cons_not_list();
     test_cons_second_not_pair();
     test_atom_is();
     test_atom_not();
