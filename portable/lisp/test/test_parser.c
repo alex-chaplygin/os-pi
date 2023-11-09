@@ -6,6 +6,7 @@
 #include "parser.h"
 
 extern token_t *cur_token; // текущий токен
+int token_error;
 token_t token = {LPAREN, 0, ""};
 
 token_t numbers_tokens[] = {
