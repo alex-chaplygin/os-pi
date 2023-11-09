@@ -165,6 +165,8 @@ symbol_t *new_symbol(char *str)
 	error("Error: out of memory: symbols");
 	return (symbol_t*)ERROR;
     }
+    if (*str == 0)
+	return NULL;
     symbol_t *symbol = &symbols[last_symbol++];
     strcpy(symbol->str, str);
     symbol->next = NULL;
