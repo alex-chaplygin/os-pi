@@ -355,7 +355,7 @@ void garbage_collect()
 }
 
 /**
- * Печать списка пар
+ * Печать списка пар (5 . 7)
  */
 void print_list(object_t *obj)
 {
@@ -364,8 +364,13 @@ void print_list(object_t *obj)
     print_obj(obj->u.pair->left);
     if (obj->u.pair->right == NULL)
 	return;
-    printf(" ");
-    print_list(obj->u.pair->right);
+    if (obj->u.pair->right->type != PAIR) {
+	printf(" . ");
+	print_obj(obj->u.pair->right);
+    } else {
+	printf(" ");
+	print_list(obj->u.pair->right);
+    }
 }
 
 /**
@@ -378,8 +383,7 @@ void print_array(object_t *obj)
 	print_obj(a->data[i]);
 	if (i < a->length - 1)
 	    printf(" ");
-    }
-    
+    }   
 }
     
 /**
