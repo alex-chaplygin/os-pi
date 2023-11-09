@@ -26,6 +26,10 @@ object_t *intern(object_t *list)
     }
     char *str = FIRST(list)->u.str->data;
     symbol_t *sym = new_symbol(str);
+    if (sym == NULL) {
+	error("intern: empty string\n");
+	return ERROR;
+    }
     return object_new(SYMBOL, sym);
 }
 
@@ -85,7 +89,9 @@ object_t *symbol_name(object_t *list)
         error("symbol-name: no arguments\n");
         return ERROR;
     }
-    if (FIRST(list) == NULL || FIRST(list)->type != SYMBOL) {
+    if (FIRST(list) == NULL)
+	return object_new(STRING, "NIL");
+    if (FIRST(list)->type != SYMBOL) {
         error("symbol-name: not symbol in params\n");
         return ERROR;
     }

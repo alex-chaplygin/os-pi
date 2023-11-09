@@ -52,24 +52,24 @@ void test_intern_two_param()
 
 /**
  * Тест создания символа на основе строки
- * Ошибка: NULL в параметре-списке
- */
-void test_intern_null_first_param()
-{
-    printf("test_intern_null_first_param: ");
-    object_t *obj = new_pair(NULL, NULL);
-    object_t *res = intern(obj);
-    ASSERT(res, ERROR);
-}
-
-/**
- * Тест создания символа на основе строки
  * Ошибка: без параметра
  */
 void test_intern_no_params()
 {
     printf("test_intern_no_params: ");
     object_t *res = intern(NULL);
+    ASSERT(res, ERROR);
+}
+
+/**
+ * Тест создания символа на основе пустой строки
+ * Ошибка: пустая строка
+ */
+void test_intern_empty_string()
+{
+    printf("test_intern_empty_string: ");
+    object_t *obj = new_pair(object_new(STRING, ""), NULL);
+    object_t *res = intern(obj);
     ASSERT(res, ERROR);
 }
 
@@ -85,6 +85,7 @@ void test_concat_one_str()
     ASSERT(res->type, STRING);
     ASSERT(strcmp(res->u.str->data, "ab "), 0);
 }
+
 
 /**
  * Тест функции объединения строк
@@ -120,18 +121,6 @@ void test_concat_incorrect_type()
 {
     printf("test_concat_incorrect_type: ");
     object_t *obj = new_pair(object_new(SYMBOL, "ab "), new_pair(object_new(STRING, "cd"), NULL));
-    object_t *res = concat(obj);
-    ASSERT(res, ERROR);
-}
-
-/**
- * Тест функции объединения строк
- * Ошибка: NULL в параметре-списке
- */
-void test_concat_null_first_param()
-{
-    printf("test_concat_null_first_param: ");
-    object_t *obj = new_pair(NULL, NULL);
     object_t *res = concat(obj);
     ASSERT(res, ERROR);
 }
@@ -192,7 +181,8 @@ void test_symbol_name_null_first_param()
     printf("test_symbol_name_null_first_param: ");
     object_t *obj = new_pair(NULL, NULL);
     object_t *res = symbol_name(obj);
-    ASSERT(res, ERROR);
+    ASSERT(res->type, STRING);
+    ASSERT(strcmp(res->u.str->data, "NIL"), 0);
 }
 
 /**
@@ -213,13 +203,12 @@ int main()
     test_intern();
     test_intern_incorrect_type();
     test_intern_two_param();
-    test_intern_null_first_param();
     test_intern_no_params();
+    test_intern_empty_string();
     test_concat_one_str();
     test_concat_two_str();
     test_concat_three_str();
     test_concat_incorrect_type();
-    test_concat_null_first_param();
     test_concat_no_params();
     test_symbol_name();
     test_symbol_name_incorrect_type();
