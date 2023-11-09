@@ -138,12 +138,27 @@ sh sys_test "(defmacro macro (x)
              (macro a)" "MACRO
 A
 8"
-sh sys_test "(defmacro for (var start end body)
-   	    	       \`(defun for-func (,var)
+sh sys_test "(concat \"for-\" (symbol-name 'var))"
+sh sys_test "
+(defmacro let (vars body)
+  \`((lambda ,(get-vars vars) ,body)
+    ,@(get-vals vars)))
+
+(defun get-vars (v)
+  (if (null v) nil
+      (cons (caar v) (get-vars (cdr v)))))
+
+(defun get-vals (v)
+  (if (null v) nil
+      (cons (cadar v) (get-vals (cdr v)))))
+(defmacro for (var start end body)
+\`(let ((for-name ,(concat \"for-\" (symbol-name var))))
+     (progn
+   	    	       (defun ,(intern for-name) (,var)
                            (cond ((= ,var ,end) 'end)
 			   	 (t (progn ,body 
-                                           (for-func (+ ,var 1))))))
-			\`(for-func ,start))
+                                           (,(intern for-name) (+ ,var 1))))))
+			(,(intern for-name) ,start))))
         (defvar arr (make-array 10))
 	(for n 0 10 (seta arr n n))
 	arr" "FOR
