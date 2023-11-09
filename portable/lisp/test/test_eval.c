@@ -23,7 +23,7 @@ array_t *new_empty_array(int length)
 object_t *new_pair(object_t *left, object_t *right)
 {
     test_pair.left = left;
-    test_pair.right = right->u.pair->left;
+    test_pair.right = right;
     test_res.type = PAIR;
     test_res.u.pair = &test_pair;
     return &test_res;
@@ -65,7 +65,7 @@ void test_eq_num()
     num1.type = NUMBER;
     num1.u.value = 6;
     num2.type = NUMBER;
-    num2.u.value = 15;
+    num2.u.value = 6;
 
     p2.right = NULL;
     p2.left = &num2;
@@ -79,7 +79,7 @@ void test_eq_num()
     ob1.type = PAIR;
     ob1.u.pair = &p1;
     
-    ASSERT(eq(&ob1), ERROR);
+    ASSERT(eq(&ob1), NULL);
 }
 
 //символы не равны
@@ -226,7 +226,7 @@ void test_cons()
 
     ASSERT(res->type, PAIR);
     ASSERT(res->u.pair->left->u.value, 1);
-    ASSERT(res->u.pair->right->u.value, 2);
+    ASSERT(res->u.pair->right->u.pair->left->u.value, 2);
 }
 
 void test_cons_not_list()
@@ -245,26 +245,34 @@ void test_cons_not_list()
 void test_cons_second_not_pair() 
 {
     printf("test_cons_second_not_pair: ");
-    object_t left;
-    object_t right;
-    pair_t pair;
-    object_t second_not_pair;
+    object_t num1; // 8
+    object_t num2; // 9
+    pair_t pair; // (8
+    pair_t pair2; // (9
+    object_t obj_pair; // (8
+    object_t obj_pair2; // (9
 
-    left.type = NUMBER;
-    left.u.value = 8;
+    num1.type = NUMBER;
+    num1.u.value = 8;
 
-    right.type = NUMBER;
-    right.u.value = 9;
+    num2.type = NUMBER;
+    num2.u.value = 9;
 
-    pair.left = &left;
-    pair.right = &right;
+    pair.left = &num1;
+    pair.right = &obj_pair2;
 
-    second_not_pair.type = PAIR;
-    second_not_pair.u.pair = &pair;
+    pair2.left = &num2;
+    pair2.right = NULL;
 
-    object_t *res = cons(&second_not_pair);  
+    obj_pair2.type = PAIR;
+    obj_pair2.u.pair = &pair2;
 
-    ASSERT(res, ERROR);
+    obj_pair.type = PAIR;
+    obj_pair.u.pair = &pair;
+
+    object_t *res = cons(&obj_pair);  
+
+    ASSERT(res->type, PAIR);
 }
 
 // тип объекта - атом
@@ -325,6 +333,7 @@ void test_quote()
 
 int main()
 {
+    printf("-------test eval--------\n");
     test_car();
     test_cdr();
     test_eq_num();

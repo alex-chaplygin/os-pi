@@ -63,7 +63,6 @@ void test_invalid_car()
  * создать объект для выражения (cons (quote a) (quote (5)))
  * вычислить объект (A 5)
  */
-
 void test_cons()
 {
     printf("test_cons: ");
@@ -81,6 +80,65 @@ void test_cons()
     ASSERT(SECOND(res)->u.value, 5);
 }
 
+/**
+ * Тест cons без параметров (CONS)
+ * 
+ */
+void test_cons_noparams()
+{
+    printf("test_cons_noparams: ");
+    object_t *a = new_pair(object_new(SYMBOL, "CONS"), NULL);
+    object_t *res = eval(a, NULL);
+    ASSERT(res, ERROR);
+}
+
+/**
+ * Тест cons с одним параметром (cons 5)
+ * 
+ */
+void test_cons_one_param()
+{
+    printf("test_cons_one_param: ");
+    int num = 5;
+    object_t *a = new_pair(object_new(SYMBOL, "CONS"), new_pair(object_new(NUMBER, &num), NULL));
+    object_t *res = eval(a, NULL);
+    ASSERT(res, ERROR);
+}
+
+/**
+ * Тест cons с 3 параметрами (cons 5 5 5)
+ * 
+ */
+void test_cons_3_params()
+{
+    printf("test_cons_3_params: ");
+    int num = 5;
+    object_t *a = new_pair(object_new(SYMBOL, "CONS"),
+			   new_pair(object_new(NUMBER, &num),
+				    new_pair(object_new(NUMBER, &num), 
+					     new_pair(object_new(NUMBER, &num), NULL))));
+    object_t *res = eval(a, NULL);
+    ASSERT(res, ERROR);
+}
+
+/*
+ *создать объект для выражения (cons (quote a) 4)
+ *вычислить объект
+ */
+void test_cons2()
+{
+    printf("test_cons2:\n");
+
+    int ee = 4;
+    object_t *qa = new_pair(object_new(SYMBOL, "QUOTE"),
+			    new_pair(object_new(SYMBOL, "A"), NULL)); //(quote a)))
+    object_t *o = new_pair(object_new(SYMBOL, "CONS"),
+			   new_pair(qa, new_pair(object_new(NUMBER, &ee), NULL))); //(cons (quote a) 4))
+    object_t *res = eval(o, NULL);
+    ASSERT(res->type, PAIR);
+    ASSERT(res->u.pair->right->u.value, 4);
+}
+    
 /**
  * Создать пары объеектов типа(t/nil,number)
  * (cond (nil 1)
@@ -326,27 +384,7 @@ void test_invalid_cdr()
     ASSERT(res, ERROR);
 }
 
-/*
-*создать объект для выражения (cons (quote a) 5)
- *создать объект для выражения (cons (5))
- *вычислить объект
- */
-void test_invalid_cons()
-{
-    printf("test_invalid_cons:\n");
 
-    int e = 5;
-    int ee = 4;
-    object_t *l = new_pair(object_new(NUMBER, &e), NULL); // 5
-    object_t *q = new_pair(object_new(SYMBOL, "QUOTE"),
-			   new_pair(l, NULL)); // (quote 5)
-    object_t *qa = new_pair(object_new(SYMBOL, "QUOTE"),
-			    new_pair(object_new(SYMBOL, "A"), NULL)); //(quote a) (quote (5)))
-    object_t *o = new_pair(object_new(SYMBOL, "CONS"),
-			   new_pair(qa, new_pair(object_new(NUMBER, &ee), NULL))); //(cons (quote a) 5))
-    object_t *res = eval(o, NULL);
-    ASSERT(res, ERROR);
-}
 
 int main()
 {
@@ -366,7 +404,10 @@ int main()
     test_append();
     test_progn();
     test_invalid_cdr();
-    test_invalid_cons();  
+    test_cons_noparams();
+    test_cons2();
+    test_cons_one_param();
+    test_cons_3_params();
     return 0;
 }
 

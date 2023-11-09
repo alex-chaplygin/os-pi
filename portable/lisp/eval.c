@@ -195,16 +195,16 @@ object_t *backquote(object_t *list)
 }
 
 /** 
- * Конструирование объекта ожидает, что 2 параметр - список
+ * Создание новой пары
  *
- * @param list - список параметров
+ * @param list - список параметров (должно быть два параметра - левый и правый объекты)
  *
  * @return список который содержит 1 параметр, и продолжается с элементами 2 параметра.
  */
 object_t *cons(object_t *list)
 {			
-    if (list->type != PAIR){
-	error("Not list in cons");
+    if (list == NULL || TAIL(list) == NULL || TAIL(TAIL(list)) != NULL) {
+	error("CONS: invalid params");
 	return ERROR;
     }
     object_t *p1 = FIRST(list);
@@ -447,9 +447,9 @@ object_t *macro_call(object_t *macro, object_t *args, object_t *env)
     body = TAIL(TAIL(macro));
     append_env(new_env, env);
     while (body != NULL) {
-	/*eval_res = eval(FIRST(body), new_env);
+	eval_res = eval(FIRST(body), new_env);
 	printf("macro = ");
-	PRINT(eval_res);*/
+	PRINT(eval_res);
 	eval_res = eval(eval(FIRST(body), new_env), new_env);
 	body = TAIL(body);
     }
