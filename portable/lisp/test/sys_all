@@ -138,7 +138,16 @@ sh sys_test "(defmacro macro (x)
              (macro a)" "MACRO
 A
 8"
-sh sys_test "(concat \"for-\" (symbol-name 'var))"
+sh sys_test "(concat \"for-\" (symbol-name 'var))" "\"for-VAR\""
+sh sys_test "
+(defvar x 10)
+(defun change-local-x (x)
+(setq x 5) x) 
+(change-local-x x) 
+x" "X
+CHANGE-LOCAL-X
+5
+10"
 sh sys_test "
 (defmacro let (vars body)
   \`((lambda ,(get-vars vars) ,body)
