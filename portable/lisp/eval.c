@@ -33,41 +33,6 @@ symbol_t *nil_sym;
 /// текущее окружение
 object_t *current_env;
 
-/** 
- * возвращает первый элемент списка
- * 
- * @param list - список параметров
- * 
- * @return указатель на значиение первого элемента списка
- */
-object_t *car(object_t *list)
-{
-    object_t *arg = FIRST(list);
-    if (arg->type != PAIR){
-        error("Not list in car");
-	return ERROR;
-    }
-    return FIRST(arg);
-}
-
-
-/** 
- * возвращает список без первого элемента
- * 
- * @param list - объект типа список
- * 
- * @return указатель на второй элемент списка
- */
-object_t *cdr(object_t *list)
-{
-    object_t *arg = FIRST(list);
-    if (arg->type != PAIR){
-        error("Not list in cdr");
-    	return ERROR;
-    }
-    return TAIL(arg);
-}
-
 // (eq 'a 'a) -> T
 // (eq 'a 'b) -> ()
 /** 
@@ -163,6 +128,8 @@ object_t *backquote_rec(object_t *list)
 	if (el->type == SYMBOL && !strcmp(el->u.symbol->str, "COMMA"))
 	    return eval(SECOND(list), current_env);
 	object_t *first = backquote_rec(el);
+	if (first == ERROR)
+	    return ERROR;
 	if (first->type == PAIR) {  // first = (COMMA-AT B)
 	    object_t *comma_at = FIRST(first);
 	    if (comma_at->type == SYMBOL && !strcmp(comma_at->u.symbol->str, "COMMA-AT")) {
@@ -175,7 +142,10 @@ object_t *backquote_rec(object_t *list)
 		    return l;
 	    }
 	}
-	return new_pair(first, backquote_rec(TAIL(list)));
+	object_t *tail = backquote_rec(TAIL(list));
+	if (tail == ERROR)
+	    return ERROR;
+	return new_pair(first, tail);
     }
     return ERROR;   
 }
@@ -192,24 +162,6 @@ object_t *backquote(object_t *list)
     }
     //PRINT(list);
     return backquote_rec(FIRST(list));
-}
-
-/** 
- * Создание новой пары
- *
- * @param list - список параметров (должно быть два параметра - левый и правый объекты)
- *
- * @return список который содержит 1 параметр, и продолжается с элементами 2 параметра.
- */
-object_t *cons(object_t *list)
-{			
-    if (list == NULL || TAIL(list) == NULL || TAIL(TAIL(list)) != NULL) {
-	error("CONS: invalid params");
-	return ERROR;
-    }
-    object_t *p1 = FIRST(list);
-    object_t *p2 = SECOND(list);
-    return new_pair(p1, p2);
 }
 
 /**
@@ -448,9 +400,11 @@ object_t *macro_call(object_t *macro, object_t *args, object_t *env)
     append_env(new_env, env);
     while (body != NULL) {
 	eval_res = eval(FIRST(body), new_env);
-	printf("macro = ");
-	PRINT(eval_res);
-	eval_res = eval(eval(FIRST(body), new_env), new_env);
+	if (eval_res == ERROR)
+	    return ERROR;
+	//printf("macro = ");
+	//PRINT(eval_res);
+	eval_res = eval(eval_res, new_env);
 	body = TAIL(body);
     }
     return eval_res;
@@ -561,6 +515,11 @@ object_t *eval(object_t *obj, object_t *env)
 	    args = TAIL(obj);
 	else
 	    args = eval_args(TAIL(obj), env);
+	if (args == ERROR){
+	    printf("Error in args: ");
+	    PRINT(obj);
+	    return ERROR;
+	}
 	if (s->lambda != NULL)
 	    return eval_func(s->lambda, args, env);
 	else if (s->func != NULL)
@@ -640,13 +599,10 @@ object_t *setq(object_t *params)
  * инициализация примитивов 
  */
 void init_eval()
-{
-    register_func("CAR", car);
-    register_func("CDR", cdr);    
+{   
     register_func("EQ", eq);
     register_func("QUOTE", quote);
     register_func("BACKQUOTE",backquote);
-    register_func("CONS", cons);
     register_func("COND", cond);
     register_func("DEFUN", defun);
     register_func("DEFMACRO", defmacro);
