@@ -9,16 +9,15 @@
 #include "arith.h"
 #include "str.h"
 #include "array.h"
+#include "pair.h"
+#include "../init.c"
 
 extern token_t token;
 
 int main()
 {
-    init_eval();
-    init_arith();
-	init_strings();
-    init_regions();
-    init_arrays();
+    init_all();
+    
     do {
 	object_t *o = parse();
         //printf("parse: "); PRINT(o);

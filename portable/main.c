@@ -38,6 +38,8 @@ const void *_lisp_start;
 /// последний прочитанный токен
 extern token_t token;
 
+void init_all();
+
 /** 
  * Загрузка начального кода lisp
  *
@@ -70,11 +72,7 @@ void kmain(void)
     init_memory(); // init gdt
     init_interrupts();
     init_keyboard();
-    init_eval();
-    init_arith();
-    init_strings();
-    init_regions();
-    init_arrays();
+    init_all();
     init_sys();
     graph_init();
     boot_lisp();
