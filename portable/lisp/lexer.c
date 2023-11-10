@@ -118,6 +118,8 @@ int hex_num()
   
     do {
 	get_cur_char();
+	if (cur_symbol == ')' || cur_symbol == '(' || is_whitespace(cur_symbol) || cur_symbol == EOF)
+	    break;
 	if (is_digit(cur_symbol)) {
 	    cur_num = cur_num * 16 + cur_symbol - '0';
 	} else if (is_hex_symbol(cur_symbol)) {
