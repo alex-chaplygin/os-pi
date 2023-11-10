@@ -7,9 +7,9 @@ all: $(TESTS)
 
 /tmp/test_lexer: test_lexer.c ../lexer.c
 	gcc $(CFLAGS) $(LDFLAGS) -o $@ $^
-/tmp/test_eval: test_eval.c ../eval.c
+/tmp/test_eval: test_eval.c ../eval.c ../pair.c
 	gcc $(CFLAGS) $(LDFLAGS) -o $@ $^
-/tmp/test_eval_int: test_eval_int.c ../eval.c ../symbols.c ../objects.c
+/tmp/test_eval_int: test_eval_int.c ../eval.c ../symbols.c ../objects.c ../pair.c
 	gcc $(CFLAGS) $(LDFLAGS) -o $@ $^
 /tmp/test_arith: test_arith.c ../eval.c ../symbols.c ../objects.c ../arith.c
 	gcc $(CFLAGS) $(LDFLAGS) -o $@ $^
@@ -23,12 +23,13 @@ all: $(TESTS)
 	gcc $(CFLAGS) $(LDFLAGS) -o $@ $^
 /tmp/test_str_int: test_str_int.c ../symbols.c ../objects.c ../str.c
 	gcc $(CFLAGS) $(LDFLAGS) -o $@ $^
-/tmp/test_sys: test_sys.c ../eval.c ../symbols.c ../objects.c ../parser.c ../lexer.c ../arith.c ../str.c ../array.c
+/tmp/test_sys: test_sys.c ../eval.c ../symbols.c ../objects.c ../parser.c ../lexer.c ../arith.c ../str.c ../array.c ../pair.c
 	gcc $(CFLAGS) $(LDFLAGS) -o $@ $^
 
 test: $(TESTS) /tmp/test_sys
 	for test in $(TESTS); do bash -c $$test ; done
 	sh sys_all
+	sh pair.sh
 
 coverage: $(TESTS) /tmp/test_sys
 	lcov -c -i -d ../ -o /tmp/base.info

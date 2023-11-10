@@ -4,6 +4,7 @@
 #include "eval.h"
 #include "test.h"
 #include "parser.h"
+#include "pair.h"
 #include "string.h"
 
 extern object_t *t;
@@ -389,6 +390,7 @@ void test_invalid_cdr()
 int main()
 {
     printf("------------test_eval_int---------\n");
+    init_pair();
     init_eval();
     test_car();
     test_invalid_car();
