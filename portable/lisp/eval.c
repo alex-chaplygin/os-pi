@@ -453,7 +453,7 @@ int is_special_form(symbol_t *s)
  * @param obj - символьный объект
  * @return объект, соответствующий obj
  */
-object_t *eval_symbol(object_t *obj, object_t *env)
+object_t *eval_symbol(object_t *obj)
 {
     object_t *res;
     
@@ -462,7 +462,7 @@ object_t *eval_symbol(object_t *obj, object_t *env)
     //    printf("env: ");
     //    PRINT(env);  
     
-    if (find_in_env(env, obj, &res))
+    if (find_in_env(current_env, obj, &res))
         return res;
     else {
 	symbol_t *res_sym = check_symbol(obj->u.symbol->str);
@@ -499,7 +499,7 @@ object_t *eval(object_t *obj, object_t *env)
     else if (obj->type == NUMBER || obj->type == STRING || obj->type == ARRAY)
 	return obj;
     else if (obj->type == SYMBOL) {
-        object_t *symbol = eval_symbol(obj, env);
+        object_t *symbol = eval_symbol(obj);
         if (symbol == ERROR) {
 	    printf("Unknown SYMBOL: %s", obj->u.symbol->str);
 	    return ERROR;
