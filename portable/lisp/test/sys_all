@@ -38,7 +38,7 @@ sh sys_test "(progn (+ 2 3) (* 3 4))" "12"
 sh sys_test "(defun test (x) (+ x 10) (* x 20)) (test 5)" "TEST
 100"
 sh sys_test "(defvar a 10) (A)A" "A
-Unknown func
+Unknown func: A
 10"
 sh sys_test "(defvar a 10) A" "A
 10"
@@ -49,8 +49,8 @@ sh sys_test "(defvar +bgr-index+ 0x1ce) \
 +BGR-DATA+
 462
 463
-Unknown SYMBOL
-Unknown SYMBOL"
+Unknown SYMBOL: X
+Unknown SYMBOL: ABC"
 sh sys_test "\"a b c d\"" "\"a b c d\""
 sh sys_test "(defun f(x)\
              \"factorial f(x)\"\
@@ -107,7 +107,7 @@ sh sys_test "\`a" "A"
 sh sys_test "\`(\"abcdefg\")" "(\"abcdefg\")"
 sh sys_test "\`#(1 2 3 4)" "#(1 2 3 4)"
 sh sys_test "\`(#(1 2 (3) 4 b #(b c)) a (1) \"ab\")" "(#(1 2 (3) 4 B #(B C)) A (1) \"ab\")"
-sh sys_test "(setq_rec a 1 b)" "Unknown SYMBOL: AUnknown func: SETQ_REC"
+sh sys_test "(setq_rec a 1 b)" "Unknown SYMBOL: AError in args: (SETQ_REC A 1 B)"
 sh sys_test "(defvar x 1) \`(a ,x 2)" "X
 (A 1 2)"
 sh sys_test "(defvar x 1) (defvar y \`(,x a b)) \`(a ,x 2 ,y)" "X
@@ -139,6 +139,7 @@ sh sys_test "(defmacro macro (x)
 A
 8"
 sh sys_test "(concat \"for-\" (symbol-name 'var))" "\"for-VAR\""
+sh sys_test "\`(,(concat \"for-\" (symbol-name 'var)))" "(\"for-VAR\")"
 sh sys_test "
 (defvar x 10)
 (defun change-local-x (x)
@@ -149,29 +150,27 @@ CHANGE-LOCAL-X
 5
 10"
 sh sys_test "
-(defmacro let (vars body)
-  \`((lambda ,(get-vars vars) ,body)
-    ,@(get-vals vars)))
-
-(defun get-vars (v)
-  (if (null v) nil
-      (cons (caar v) (get-vars (cdr v)))))
-
-(defun get-vals (v)
-  (if (null v) nil
-      (cons (cadar v) (get-vals (cdr v)))))
-(defmacro for (var start end body)
-\`(let ((for-name ,(concat \"for-\" (symbol-name var))))
-     (progn
-   	    	       (defun ,(intern for-name) (,var)
+(defmacro inner-for (name var start end body)
+	  \`(defun ,name (,var)
                            (cond ((= ,var ,end) 'end)
 			   	 (t (progn ,body 
-                                           (,(intern for-name) (+ ,var 1))))))
-			(,(intern for-name) ,start))))
-        (defvar arr (make-array 10))
-	(for n 0 10 (seta arr n n))
-	arr" "FOR
-SUM
+                                           (,name (+ ,var 1))))))
+			\`(,name ,start))
+
+(defmacro for (var start end body)
+  \`(inner-for ,(intern (concat \"for-\" (symbol-name var))) ,var ,start ,end ,body))
+
+(defvar arr (make-array 3))
+(for row 0 3
+     (progn
+	(defvar a (make-array 3))
+	(for col 0 3
+	     (seta a col row))		
+	(seta arr row a)))
+	arr" "INNER-FOR
+FOR
+ARR
 END
-4950"
-                                        
+#(#(0 0 0) #(1 1 1) #(2 2 2))"
+                  
+
