@@ -18,13 +18,22 @@ char outbuf[50]; // память для возвращаемого значен�
  * 
  * @param destptr Адрес куда
  * @param srcptr Адрес откуда
- * @param num Количество копируемых байт
+ * @param size Количество копируемых байт
  */
-void memcpy(unsigned char* destptr, unsigned char* srcptr, int num ){
-    for (int i = 0; i < num; i++)
-    {
-        destptr[i] = srcptr[i];
-    }    
+
+void memcpy(void* destptr, const void* srcptr, unsigned int size)
+{
+    const unsigned char *source = (const unsigned char *)srcptr;
+    unsigned char *destination = (unsigned char *)destptr;
+    unsigned int i;
+
+    for (i = 0; i < size / 4; ++i) {
+	*((int *)destination) = *((const int *)source);
+	destination += 4;
+	source += 4;
+    }
+    for (i = 0; i < size % 4; ++i)
+	*destination++ = *source++;
 }
 
 /**
