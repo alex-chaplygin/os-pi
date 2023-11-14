@@ -228,6 +228,28 @@ void test_bitwise_and(int num1, int num2, int res)
 }
 
 /**
+* Тест проверка на NULL.
+*/
+void test_bitwise_and_null()
+{
+    printf("test_bitwise_and_null: ");
+    object_t *list = NULL;
+    object_t *res = bitwise_and(list);
+    ASSERT(res, ERROR);
+}
+
+/**1
+ * Тест передача значения не число
+ */
+void test_bitwise_and_no_number()
+{
+    printf("test_bitwise_and_no_number: ");
+    object_t *list = new_pair(object_new(SYMBOL, "G"), NULL);
+    object_t *res = bitwise_and(list);
+    ASSERT(res, ERROR);
+}
+
+/**
  * Тест побитового ИЛИ
  */
 void test_bitwise_or(int num1, int num2, int res)
@@ -284,6 +306,8 @@ int main()
     test_bitwise_and(0xA, 2, 2);
     test_bitwise_and(0xB, 2, 2);
     test_bitwise_and(0xA, 5, 0);
+    test_bitwise_and_null();
+    test_bitwise_and_no_number();
     test_bitwise_or(0xA, 5, 0xF);//1010|101
     test_bitwise_or(0, 0, 0);
     test_shift_left(1, 2, 4); //100
