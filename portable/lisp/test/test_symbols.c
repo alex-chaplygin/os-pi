@@ -109,14 +109,29 @@ void test_same_hash_three_symbols()
     ASSERT(((find_symbol(str1) != find_symbol(str2)) || (find_symbol(str1) != find_symbol(str3)) || (find_symbol(str2) != find_symbol(str3))), 1);
 }
 
+/*
+find_symbol
+|условие               |правильный класс                    |неправильный класс  |
+|входная строка        |1) длина строки <= 80 && > 0        |2) длина строки = 0 |
+|                      |                                    |3) длина строки > 80|
+|кол-во вызовов функции|4) два вызова с одинаковыми строками|                    |
+|                      |5) два вызова с разными строками    |                    |
+
+check_symbol
+|условие               |правильный класс                    |неправильный класс  |
+|входная строка        |6) длина строки <= 80 && > 0        |7) длина строки = 0 |
+|                      |                                    |8) длина строки > 80|
+|вызов функции         |9) символ есть в таблице            |                    |
+|                      |10) символа нет в таблице           |                    |
+*/
 int main()
 {
     printf("--------------test symbols---------------------\n");
     test_compare_str("abc", "abc", 1);
     test_compare_str("abc", "abc1", 0);
-    test_find_symbol("a", "a");
-    test_find_symbol("ab", "ab");
-    test_check_symbol();
+    test_find_symbol("a", "a"); // 1, 4
+    test_find_symbol("ab", "ab"); // 1, 4
+    test_check_symbol(); // 6, 9, 10
     test_register_func();
     test_same_hash();
     test_same_hash_three_symbols();
