@@ -103,7 +103,7 @@
 	 (ata-wait-command-ready)
 	 (ata-set-lba start num) ;установить стартовый сектор и количество
 	 (ata-set-command +ata-cmd-read-sectors+)
-	 (ata-read (* num +sector-size+))))))
+	 (ata-read (* num +sector-size+)))))
 
 (defun ata-write-sectors (dev start num arr)
   "Пишет сектора жесткого диска"
