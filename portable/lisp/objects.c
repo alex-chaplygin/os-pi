@@ -41,7 +41,7 @@ array_t arrays[MAX_ARRAYS];
 array_t *free_arrays = NULL;
 
 /// Хранилище для регионов
-char region_data[MAX_CHARS];
+char region_data[MAX_REGION_SIZE];
 /// Список регионов
 struct region *regions;
 
@@ -494,7 +494,7 @@ void init_regions()
     regions->free = 1;
     regions->next = NULL;
     regions->prev = NULL;
-    regions->size = MAX_CHARS - sizeof(struct region) + sizeof(char *);
+    regions->size = MAX_REGION_SIZE - sizeof(struct region) + sizeof(char *);
     //for(int i =0;i < regions->size;i++)regions->data[i] = 0;
 }
 

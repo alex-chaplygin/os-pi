@@ -2,13 +2,13 @@
 #define OBJECTS
 
 /// Всего объектов
-#define MAX_OBJECTS 300000
+#define MAX_OBJECTS 1000000
 /// Всего пар
-#define MAX_PAIRS 200000
+#define MAX_PAIRS 1000000
 /// Всего символов
 #define MAX_SYMBOLS 1000
 /// Всего байт для регионов 
-#define MAX_CHARS 150000
+#define MAX_REGION_SIZE 500000
 /// Всего строк
 #define MAX_STRINGS 100
 /// Всего массивов

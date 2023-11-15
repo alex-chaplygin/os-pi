@@ -17,15 +17,17 @@
   `(cond (,test ,true)
 	 (t ,false)))
 
+(defmacro inner-for (name var start end body)
+	  `(defun ,name (,var)
+                           (cond ((= ,var ,end) 'end)
+			   	 (t (progn ,body 
+                                           (,name (+ ,var 1))))))
+			`(,name ,start))
+
 (defmacro for (var start end body)
   "Цикл for, переменная var от start до end - 1"
   "body - тело цикла"
-  `(defun for-func (,var)
-     (cond ((= ,var ,end) 'end)
-	   (t (progn
-		,body 
-		(for-func (+ ,var 1))))))
-  `(for-func ,start))
+  `(inner-for ,(intern (concat "for-" (symbol-name var))) ,var ,start ,end ,body))
 
 (defmacro let (vars body)
   `((lambda ,(get-vars vars) ,body)
