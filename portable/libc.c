@@ -43,32 +43,27 @@ void memcpy(void* destptr, const void* srcptr, unsigned int size)
  * @param num Положительное беззнаковое целое число от 0 до 4294967295
  * @return char* Указатель на первый символ строки
  */
-char * int_to_str_hex(unsigned int num) {
-    if ((num < 0) || (num > 4294967295)) return 0; // Проверка на исключение
-
-    int numLength = 1;
-    int numLengthBuffer = num;
-    while (numLengthBuffer > 9) { // Вычисление символьной длины int числа
-        numLength++;
-        numLengthBuffer /= 10;
-    }
+void print_hex_num(unsigned int num)
+{
+    char hex[10];
+    int i = 0;
     
-    int base = 16; // Возвращаемая система счисления
-    int i = 12;
-    int j = 0;
-
-    do {
-        outbuf[i] = "0123456789abcdef" [num % base];
-        i--;
-        num = num / base;
-    } while (num > 0);
-
-    while (++i < 13) {
-        outbuf[j++] = outbuf[i];
+    if (num == 0) { // если число равно 0, то выводит 0
+        hex[0] = '0';
+        i++;
+    } else {
+        while (num != 0) {
+            if (num % 16 < 10)
+                hex[i] = num % 16 + '0';
+            else
+                hex[i] = num % 16 - 10 + 'A';
+            num = num / 16; 
+            i++; 
+        }
     }
-
-    outbuf[j] = '\0'; // Добавление нуль терминального символа строки в конец char массива
-    return outbuf;
+    hex[i] = '\0'; // добавление нулевого символа в конце массива
+    for (int j = i - 1; j >= 0; j--)
+        printf("%c", hex[j]); // печать шестнадцатеричного числа в обратном порядке
 }
 
 /**
@@ -191,43 +186,32 @@ unsigned int str_hex_to_int(char* s)
  */
 void printf(char *str,...)
 {
-  int i=0,u=1;
+  int i = 0;
     
-  for(i=0; str[i]!='\0'; i++){
-    char symbol=str[i];
-    char next_symbol=str[i+1];
-      
-    if(symbol=='%' && next_symbol=='i'){
-      int *param = (int *)&str;
-      char *param_int = int_to_str(*(param + u));      
-      printf(param_int);
-      i++;
-      u++;
-    }
-    else if(symbol=='%' && next_symbol=='d'){
-      int *param = (int *)&str;
-      char *param_int = int_to_str(*(param + u));      
-      printf(param_int);
-      i++;
-      u++;
-    }
-    else if(symbol=='%' && next_symbol=='x'){
-      int *param = (int *)&str;
-      char *param_int = int_to_str_hex(*(param + u));
-      printf(param_int);
-      i++;
-      u++;
-    }
-    else if(symbol=='%' && next_symbol=='s'){
-      char* *param = (char* *)&str;
-      printf(*(param + u));
-      i++;
-      u++;
-    }
-    else{
-      putchar(symbol);
-    }
-	
+  int *param = (int *)&str;
+  for (i = 0; str[i]!='\0'; i++) {
+      char symbol = str[i];
+      char next_symbol = str[i + 1];
+ 
+      if (symbol == '%' && next_symbol == 'i') {
+	  char *param_int = int_to_str(*++param);      
+	  printf(param_int);
+	  i++;
+      } else if (symbol=='%' && next_symbol=='d') {
+	  char *param_int = int_to_str(*++param);      
+	  printf(param_int);
+	  i++;
+      } else if (symbol=='%' && next_symbol=='x') {
+	  print_hex_num(*++param);
+	  i++;
+      } else if (symbol=='%' && next_symbol=='s') {
+	  printf((char *)*++param);
+	  i++;
+      } else if (symbol=='%' && next_symbol=='c') {
+	  putchar((char)*++param);
+	  i++;
+      } else
+	  putchar(symbol);
   }
 }
 
