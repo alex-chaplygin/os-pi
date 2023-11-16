@@ -18,11 +18,11 @@
 	 (t ,false)))
 
 (defmacro inner-for (name var start end body)
-	  `(defun ,name (,var)
-                           (cond ((= ,var ,end) 'end)
-			   	 (t (progn ,body 
-                                           (,name (+ ,var 1))))))
-			`(,name ,start))
+  `(defun ,name (,var)
+     (cond ((= ,var ,end) 'end)
+	   (t (progn ,body 
+		     (,name (+ ,var 1))))))
+  `(,name ,start))
 
 (defmacro for (var start end body)
   "Цикл for, переменная var от start до end - 1"
