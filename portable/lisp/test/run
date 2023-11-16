@@ -1,0 +1,3 @@
+cd ..
+cat boot/lib.lsp boot/hash.lsp >/tmp/lisp
+/tmp/test_sys </tmp/lisp
