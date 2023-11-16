@@ -127,6 +127,14 @@ token_t tok_quote_number[] = {
     {QUOTE},
     {T_NUMBER, 5}
 };
+
+token_t tok_number_dot_number[] = {
+    {LPAREN},
+    {T_NUMBER, 1},
+    {DOT},
+    {T_NUMBER, 2},
+    {RPAREN}
+};
     
 token_t *tokens;
 
@@ -440,6 +448,20 @@ void test_parse_quote_number()
     ASSERT(ERROR, o);
 }
 
+/**
+ * Тестируем точечную пару (1 . 2)
+ */
+void test_parse_number_dot_number()
+{
+    printf("test_parse_number_dot_number: ");
+    count = 0;
+    cur_token = &token;
+    tokens = tok_number_dot_number;
+    object_t *o = parse();
+    ASSERT(o->u.pair->left->u.value, 1);
+    ASSERT(o->u.pair->right->u.value, 2);
+}
+
 int main()
 {
     printf("------------test_parser------------\n");
@@ -461,5 +483,6 @@ int main()
     test_parse_backquote_comma();
     test_parse_quote_number();
     test_parse_backquote_comma_at();
+    test_parse_number_dot_number();
     return 0;
 }

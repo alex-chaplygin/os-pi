@@ -60,6 +60,12 @@ object_t *parse_quote(char *quote_sym)
     return new_pair(object_new(SYMBOL, quote_sym), p);
 }
 
+/** 
+ * Обработка элемента списка
+ * Создаём объект пару с текущим элементом и рекурсивной обработкой хвоста
+ *  
+ * @return указатель на объект списка
+ */
 object_t *parse_element(type_t type, void *data, tokentype_t t_type)
 {
     object_t *obj;
@@ -85,6 +91,8 @@ object_t *parse_element(type_t type, void *data, tokentype_t t_type)
 
 /** 
  * Обработка списка без левой скобки
+ * (1 2 3) (1 . (2 . (3 . nil)))
+ * (1 . 2)
  * Обработка заканчивается когда встречает правую скобку или конец ввода
  *  
  * @return указатель на объект списка
@@ -94,8 +102,8 @@ object_t *parse_list()
     int val;
     char str[MAX_STR];
     token_t *cur_tok = get_token();
-    // printf("parselist: ");
-    // print_token(cur_tok);
+    //   printf("parselist: ");
+    //   print_token(cur_tok);
     if (token_error == 1)
 	return ERROR;
     if (cur_tok->type == END) {
@@ -116,8 +124,16 @@ object_t *parse_list()
     } else if (cur_tok->type == LPAREN || cur_tok->type == QUOTE
 	       || cur_tok->type == BACKQUOTE || cur_tok->type == COMMA
 	       || cur_tok->type == COMMA_AT || cur_tok->type == SHARP)
-	return parse_element(SYMBOL, NULL, cur_tok->type); 
-    else if (cur_tok->type == INVALID)
+	return parse_element(SYMBOL, NULL, cur_tok->type);
+    else if (cur_tok->type == DOT) {
+	object_t *res = parse();
+	cur_tok = get_token();       
+	if (cur_tok->type != RPAREN) { 
+	    error("expected )\n");
+	    return ERROR;
+	}
+	return res;
+    } else if (cur_tok->type == INVALID)
 	return ERROR;
     else
 	return ERROR;

@@ -227,7 +227,8 @@ get_token
 |                      |5) символ `                                             |                                           |
 |                      |6) символ ,                                             |                                           |
 |                      |7) символ ,@                                            |                                           |
-|                      |8) символ #                                             |                                           |
+|                      |8) символ #                                             |
+|                      |21) символ .                                            |
 |строка                |9) корректная строка                                    |17) строка без закрывающей кавычки         |
 |комментарии           |10) комментарий - начинается c ';' оканчивается '\n'    |                                           |
 |число                 |11) положительное dec-число                             |18) некорректное Dec-число                 |
@@ -271,6 +272,7 @@ int main()
     test_get_token("comma", ",", COMMA); // 6
     test_get_token("comma_at", ",@", COMMA_AT); // 7
     test_get_token("sharp", "#(1 2 3)", SHARP); // 8
+    test_get_token("dot", ".", DOT); //21
     test_get_token("symbol", "abc", T_SYMBOL);  // 14
     test_get_token2("setq_rec", "setq_rec setq_rec ", T_SYMBOL, T_SYMBOL); // 14
     test_string("\"1 2 3\"", "1 2 3"); // 9

@@ -173,5 +173,6 @@ FOR
 ARR
 END
 #(#(0 0 0) #(1 1 1) #(2 2 2))"
-                  
-
+sh sys_test "'(4 . 5)" "(4 . 5)"
+sh sys_test "'(4.(3.(5.())))" "(4 3 5)"
+sh sys_test "'(4.5"  "expected )"
