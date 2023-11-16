@@ -1,6 +1,16 @@
 (defun null (x)
   (eq x (quote())))
 
+(defun append (list1 list2)
+  "объединение двух списков (1 . (2 . nil)) (a . (b . nil))"
+  "(append '(1 2) '(a b))"
+  "(1 . (append (2) '(a b)))"
+  "(1 2 . (a b))"
+  "(1 2 a b)"
+  (if (null (cdr list1))
+      (cons (car list1) list2)
+    (cons (car list1) (append (cdr list1) list2))))
+
 (defun fac(x)
   (cond
     ((= x 1) 1)
@@ -8,6 +18,7 @@
 
 (defun caar(x) (car (car x)))
 (defun cadar(x) (car (cdr (car x))))
+(defun cdar(x) (cdr (car x)))
 
 (defun get-bit (num bit)
   "Получение бита с номером bit у числа num"
