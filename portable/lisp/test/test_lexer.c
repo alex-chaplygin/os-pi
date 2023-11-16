@@ -193,11 +193,11 @@ void test_print_token(token_t *token, const char *expected_output)
 /*
 * Проверка получения ошибки, если в значении встречается буква.
 */
-void test_invalid_num(const char* name_test, char* str, int error) 
+void test_invalid_token(const char* name_test, char* str, int error) 
 {
     printf("test_get_num_%s : ", name_test); // вывод имени теста
     write_file(str); // запись в файл
-    get_token(str);
+    get_token();
     flag = 0; // считать символ (если true, не считывать символ)
     ASSERT(token_error, error);
 }
@@ -216,52 +216,76 @@ void test_string(char* str, char* exp_str)
     ASSERT(strcmp(tok->str, exp_str), 0);
 }
 
+/*
+get_token
+|условие               |правильный класс                                        |неправильный класс                         | 
+
+|одиночные символы     |1) символ (                                             |16) некорректные одиночные символы         |
+|                      |2) символ )                                             |                                           |
+|                      |3) символ EOF                                           |                                           |
+|                      |4) символ '                                             |                                           |
+|                      |5) символ `                                             |                                           |
+|                      |6) символ ,                                             |                                           |
+|                      |7) символ ,@                                            |                                           |
+|                      |8) символ #                                             |                                           |
+|строка                |9) корректная строка                                    |17) строка без закрывающей кавычки         |
+|комментарии           |10) комментарий - начинается c ';' оканчивается '\n'    |                                           |
+|число                 |11) положительное dec-число                             |18) некорректное Dec-число                 |
+|                      |12) отрицательное dec-число                             |19) некорректное Hex-число                 |
+|                      |13) Hex-число                                           |                                           |
+|символ                |14) допустимый символ                                   |20) недопустимый символ                    |
+|пустоты               |15) пустоты - любая последовательность                  |                                           |
+|                      |    '\r', '\n', '\t', ' '                               |                                           |
+*/
+ 
 int main()
 {
-    printf("-------------test_lexer---------------\n");
-
-    token_t token;
-    token.type = T_NUMBER;
-    token.value = 42;
-
-    test_print_token(&token, "NUM 42\n");    
-
+    printf("-------------test_lexer---------------\n");\
+    
     test_get_cur_char();
-    test_skip_white_space();
-    test_skip_new_line();
-    test_get_num("1234", 1234);
-    test_get_num("-5    ", -5);
-    test_get_num("0xF", 15);
-    test_get_num("0xa", 10);
-    test_get_num("0xff", 255);
-    test_get_num("0x1A23", 0x1A23);
     test_is_digit();
     test_is_alpha();
     test_is_symbol('+', 1);
-    test_is_symbol(';', 0);
-    test_get_symbol("Hello 12", "Hello");
-    test_get_symbol("* 1 2", "*");
-    test_get_token("empty", " ", END);
-    test_get_token("lparen", "(", LPAREN);
-    test_get_token("rparen", ")", RPAREN);
-    test_get_token("comment", " ; comment\n  42", T_NUMBER);
-    test_get_token("comment2", ";comment\n\n\n;fffff\n  42", T_NUMBER);
-    test_get_token("comment3", ";comment;dsada\n  42", T_NUMBER);
-    test_get_token("tnumber", "42", T_NUMBER);
-    test_get_token("quote", "\'", QUOTE);
-    test_get_token("backquote", "`", BACKQUOTE);
-    test_get_token("comma", ",", COMMA);
-    test_get_token("comma_at", ",@", COMMA_AT);
-    test_get_token("sharp", "#(1 2 3)", SHARP);
-    test_get_token("symbol", "abc", T_SYMBOL); 
-    test_get_token2("setq_rec", "setq_rec setq_rec ", T_SYMBOL, T_SYMBOL); 
-    test_invalid_num("invalid num", "11D", 1);
-    test_invalid_num("valid num", "11 dd", 0);
-    test_invalid_num("invalid num", "0GG", 1);
-    test_invalid_num("invalid hex", "0xfrf", 1);
-    test_invalid_num("invalid hex", "0xrf", 1);
-    test_string("\"1 2 3\"", "1 2 3");
-    test_string("\"a b\\n\"", "a b\n");
-    test_string("\"a b\\n\\n\"", "a b\n\n");
+    test_skip_white_space(); 
+    test_skip_new_line(); 
+    test_is_symbol(';', 0); 
+    
+    // Правильные классы
+    test_get_num("1234", 1234); // 11
+    test_get_num("-5    ", -5); // 12
+    test_get_num("0xF", 15); // 13
+    test_get_num("0xa", 10); // 13
+    test_get_num("0xff", 255); // 13
+    test_get_num("0x1A23", 0x1A23); // 13
+    test_get_symbol("Hello 12", "Hello"); // 14
+    test_get_symbol("* 1 2", "*"); // 14
+    test_get_token("lparen", "(", LPAREN); // 1
+    test_get_token("rparen", ")", RPAREN); // 2
+    test_get_token("empty", " ", END); // 3
+    test_get_token("comment", " ; comment\n  42", T_NUMBER); // 10, 11
+    test_get_token("comment2", ";comment\n\n\n;fffff\n  42", T_NUMBER); // 10, 11, 15
+    test_get_token("comment3", ";comment;dsada\n  42", T_NUMBER); // 10, 11, 15
+    test_get_token("tnumber", "42", T_NUMBER); // 11
+    test_get_token("quote", "\'", QUOTE); // 4
+    test_get_token("backquote", "`", BACKQUOTE); // 5
+    test_get_token("comma", ",", COMMA); // 6
+    test_get_token("comma_at", ",@", COMMA_AT); // 7
+    test_get_token("sharp", "#(1 2 3)", SHARP); // 8
+    test_get_token("symbol", "abc", T_SYMBOL);  // 14
+    test_get_token2("setq_rec", "setq_rec setq_rec ", T_SYMBOL, T_SYMBOL); // 14
+    test_string("\"1 2 3\"", "1 2 3"); // 9
+    test_string("\"a b\\n\"", "a b\n"); // 9
+    test_string("\"a b\\n\\n\"", "a b\n\n"); // 9
+    test_invalid_token("valid num", "11 dd", 0); // 11
+    
+    // Неправильные классы
+    test_invalid_token("invalid num", "11D", 1); // 18
+    test_invalid_token("invalid num", "0GG", 1); // 19
+    test_invalid_token("invalid hex", "0xfrf", 1); // 19
+    test_invalid_token("invalid hex", "0xrf", 1); // 19
+    test_get_token("invalid_symbol", "^", INVALID); // 16
+    test_invalid_token("invalid string", "\"1 2 3", 1); // 17
+    test_invalid_token("invalid symbol", "ss^s?", 1); // 20
+ 
     return 0;
 }
