@@ -55,7 +55,7 @@ int is_whitespace(char c)
  */
 void skip_comment()
 {
-    while (cur_symbol != '\n')
+    while (cur_symbol != '\n' && cur_symbol != EOF)
 	get_cur_char();
 }
 
@@ -348,8 +348,6 @@ void print_token(token_t *token)
 	printf("SHARP\n");
 	break;
     case DOT:
-	printf("DOT\n");
-	
-       
+	printf("DOT\n");       
     }
 }

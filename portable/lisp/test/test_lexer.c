@@ -266,6 +266,7 @@ int main()
     test_get_token("comment", " ; comment\n  42", T_NUMBER); // 10, 11
     test_get_token("comment2", ";comment\n\n\n;fffff\n  42", T_NUMBER); // 10, 11, 15
     test_get_token("comment3", ";comment;dsada\n  42", T_NUMBER); // 10, 11, 15
+    test_get_token("comment4", ";comment", END); // 10
     test_get_token("tnumber", "42", T_NUMBER); // 11
     test_get_token("quote", "\'", QUOTE); // 4
     test_get_token("backquote", "`", BACKQUOTE); // 5
