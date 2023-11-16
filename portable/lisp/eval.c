@@ -25,7 +25,11 @@ symbol_t *defmacro_sym;
 /// символ "DEFVAR"
 symbol_t *defvar_sym; 
 /// символ "SETQ"
-symbol_t *setq_sym; 
+symbol_t *setq_sym;
+/// символ "OR"
+symbol_t *or_sym;
+/// символ "AND"
+symbol_t *and_sym;
 /// символ "T"
 symbol_t *t_sym;
 /// символ "NIL"
@@ -445,7 +449,7 @@ int is_special_form(symbol_t *s)
 {
     return s == quote_sym || s == defun_sym || s == defmacro_sym ||
 	s == defvar_sym || s == setq_sym || s == backquote_sym ||
-	s == cond_sym;
+	s == cond_sym || s == or_sym || s == and_sym;
 }
 
 /**
@@ -595,6 +599,62 @@ object_t *setq(object_t *params)
     return setq_rec(params);
 }
 
+/**
+ * Логическое И (and (= 1 2) (= 2 2))
+ * Возвращает результат ЛОЖЬ после нахождения первого ложного условия
+ * Должно быть хотя бы одно условие
+ * @param param параметры (условие 1, условие 2, и т.д.)
+ * @return возвращает результат И
+ */
+object_t *and(object_t *params)
+{
+    if (params == NULL) {
+	error("and: no params");
+	return ERROR;
+    }
+    while (params != NULL) {
+	object_t *first = FIRST(params);
+	object_t *res = eval(first, current_env);
+	if (res == nil)
+	    return nil;
+	else if (res == t)
+	    params = TAIL(params);
+	else {
+	    error("and: invalid param");
+	    return ERROR;
+	}
+    }
+    return t;
+}
+
+/**
+ * Логическое ИЛИ (or (= 1 2) (= 2 2))
+ * Возвращает результат ИСТИНА после нахождения первого истинного условия
+ * Должно быть хотя бы одно условие
+ * @param param параметры (условие 1, условие 2, и т.д.)
+ * @return возвращает результат ИЛИ
+ */
+object_t *or(object_t *params)
+{
+    if (params == NULL) {
+	error("or: no params");
+	return ERROR;
+    }
+    while (params != NULL) {
+	object_t *first = FIRST(params);
+	object_t *res = eval(first, current_env);
+	if (res == t)
+	    return t;
+	else if (res == nil)
+	    params = TAIL(params);
+	else {
+	    error("or: invalid param");
+	    return ERROR;
+	}
+    }
+    return nil;
+}
+
 /** 
  * инициализация примитивов 
  */
@@ -609,6 +669,8 @@ void init_eval()
     register_func("DEFVAR", defvar);
     register_func("PROGN", progn);
     register_func("SETQ", setq);
+    register_func("OR", or);
+    register_func("AND", and);
     t = object_new(SYMBOL, "T");
     nil = NULL;
     quote_sym = find_symbol("QUOTE");
@@ -619,6 +681,8 @@ void init_eval()
     defmacro_sym = find_symbol("DEFMACRO");
     defvar_sym = find_symbol("DEFVAR");
     setq_sym = find_symbol("SETQ");
+    or_sym = find_symbol("OR");
+    and_sym = find_symbol("AND");
     t_sym = t->u.symbol;
     t_sym->value = t;
     nil_sym = find_symbol("NIL");
