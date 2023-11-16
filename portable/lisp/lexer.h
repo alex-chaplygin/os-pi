@@ -12,6 +12,7 @@ typedef enum {
     COMMA_AT, // символ ,@
     T_STRING, // строка в кавычках
     SHARP, // символ #
+    DOT,// точка .
     INVALID // неизвестный объект
 } tokentype_t; //тип ликсемы 
 

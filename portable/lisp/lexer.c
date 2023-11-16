@@ -284,6 +284,10 @@ token_t *get_token()
 	get_cur_char();
 	token.type = SHARP;
 	break;
+    case '.':
+	get_cur_char();
+	token.type = DOT;
+	break;
     default:
 	if (is_digit(cur_symbol)) {
 	    token.type = T_NUMBER;
@@ -342,6 +346,10 @@ void print_token(token_t *token)
 	break;
     case SHARP:
 	printf("SHARP\n");
+	break;
+    case DOT:
+	printf("DOT\n");
+	
        
     }
 }
