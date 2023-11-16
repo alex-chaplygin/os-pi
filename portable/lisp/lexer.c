@@ -107,6 +107,14 @@ int is_hex_symbol(char c)
            c >= 'A' && c <= 'F';
 }
 
+/**
+ * Проверка на разделитель
+ */
+int is_delimeter(char c)
+{
+    return c == ')' || c == '(' || is_whitespace(c) || c == EOF;
+}
+
 /** 
  * на входе строка FFAA
  *
@@ -118,7 +126,7 @@ int hex_num()
   
     do {
 	get_cur_char();
-	if (cur_symbol == ')' || cur_symbol == '(' || is_whitespace(cur_symbol) || cur_symbol == EOF)
+	if (is_delimeter(cur_symbol))
 	    break;
 	if (is_digit(cur_symbol)) {
 	    cur_num = cur_num * 16 + cur_symbol - '0';
@@ -177,14 +185,16 @@ void get_symbol(char *cur_str)
 {
     get_cur_char();
     int c = 0;
-    while (is_alpha(cur_symbol) || is_digit(cur_symbol) || is_symbol(cur_symbol))
+    while (!is_delimeter(cur_symbol))
     {
+	if (!(is_alpha(cur_symbol) || is_digit(cur_symbol) || is_symbol(cur_symbol))){
+	    printf("ERROR: lexer.c: Unsupported character in input: %c(#%x)", cur_symbol, cur_symbol);
+	    token_error = 1;
+	    return;
+	}
+	
         cur_str[c++] = cur_symbol;
         get_cur_char();
-    }
-    if (c == 0) {
-        printf("ERROR: lexer.c: Unsupported character in input: %c(#%x)", cur_symbol, cur_symbol);
-        token_error = 1;
     }
     unget_cur_char();
     cur_str[c] = 0;
@@ -198,11 +208,13 @@ void get_symbol(char *cur_str)
 void get_string(char *cur_str)
 {
     int c = 0;
-
+    int ended_quote = 0;
+    
     get_cur_char(); // Считываем открывающую кавычку
     get_cur_char();
     while (cur_symbol != EOF) {
 	if (cur_symbol == '"') {
+	    ended_quote = 1;
 	    break;
 	} else if (cur_symbol == '\\') {
 	    get_cur_char();
@@ -212,6 +224,8 @@ void get_string(char *cur_str)
 	cur_str[c++] = cur_symbol;
 	get_cur_char();
     }
+    if (!ended_quote)
+	token_error = 1;
     cur_str[c] = '\0'; // Завершаем строку
 }
 
