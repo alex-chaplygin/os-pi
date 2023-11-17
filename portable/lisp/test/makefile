@@ -28,8 +28,8 @@ all: $(TESTS)
 
 test: $(TESTS) /tmp/test_sys
 	for test in $(TESTS); do bash -c $$test ; done
-	sh sys_all
 	sh pair.sh
+	sh sys_all
 
 coverage: $(TESTS) /tmp/test_sys
 	lcov -c -i -d ../ -o /tmp/base.info
