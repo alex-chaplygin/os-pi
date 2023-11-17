@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 #include "objects.h"
 #include "eval.h"
 #include "symbols.h"
@@ -139,6 +140,42 @@ object_t *num_eq(object_t *list)
 	return NULL;
 }
 
+/**
+ *Функция сравнения объектов
+ *
+ */
+int compair_obj(object_t *obj1, object_t *obj2)
+{
+    
+}
+
+/** 
+ * Сравнение аргументов по значению (= 1 2)
+ *
+ * @param list - список любых двух объектов (1 2)
+ *
+ * @return T - если равно, иначе NIL
+ */
+object_t *equal(object_t *list)
+{
+    
+    object_t *n1 = FIRST(list);
+    object_t *n2 = SECOND(list);
+    if (n1->type != n2->type)
+	return NULL;
+    if (n1->type == STRING) {
+	if (strcmp(n1->u.str->data, n2->u.str->data) == 0)
+	    return t;
+	else
+	    return NULL;
+    } else {
+	if (n1->u.value == n2->u.value)
+	    return t;
+	else
+	    return NULL;
+    }
+}
+
 /** 
  * Побитовое И (& 1 2 3)
  *
@@ -258,6 +295,7 @@ void init_arith()
     register_func("-", sub);
     register_func("*", mul);
     register_func("=", num_eq);
+    register_func("EQUAL", equal);
     register_func("/", int_div);
     register_func("&", bitwise_and);
     register_func("BITOR", bitwise_or);

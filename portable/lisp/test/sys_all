@@ -218,3 +218,19 @@ sh sys_test "(and)" "and: no params"
 sh sys_test "(and (+ 1 2))" "and: invalid param"
 # проверка на невычисление аргумента
 sh sys_test "(and nil (+ 1 2))" "NIL"
+
+echo "---Тесты EQUAL----"
+# случай число TRUE
+sh sys_test "(equal 1 1)" "T"
+# случай символ TRUE
+sh sys_test "(equal 'v 'v)" "T"
+# случай число FALSE
+sh sys_test "(equal 3 1)" "NIL"
+# случай символ FALSE
+sh sys_test "(equal 'c 'x)" "NIL"
+# случай строки TRUE
+sh sys_test "(equal \"vvv\" \"vvv\")" "T"
+# случай строки FALSE
+sh sys_test "(equal \"vbv\" \"vvv\")" "NIL"
+# случай списка TRUE
+sh sys_test "(equal '(a b c) '(a b c))" "T"
