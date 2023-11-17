@@ -41,7 +41,7 @@ symbol_t *find_symbol(char *str)
 /** 
  * Создать два обьекта числа и провериить массив обьектов
  */
-void test_object_new()
+void test_object_new_number()
 {
     int number = 10;
     printf("test_object_new: ");
@@ -522,19 +522,53 @@ void test_print()
     printf("\n");
 }    
 
+/*
+object_new
+|условие               |правильный класс                    |неправильный класс                       |
+|Создание объекта      |1) NUMBER, 1                        |6) Несовпадение типа и данных (NUMBER, Y)|
+|                      |2) SYMBOL, T                        |7) Пустой тип                            |
+|                      |3) PAIR, 0,0                        |8) Пустой указатель на данные            |
+|                      |4) STRING, "qwerty"                 |                                         |
+|                      |5) ARRAY, (1,2,3)                   |                                         |
+
+new_pair
+|условие               |правильный класс                    |неправильный класс                       |
+|Указатель на объекты  |9) 0,1                              |11) Нет                                  |
+left и right           |10) Нулевой указатель               |12) Пустой тип                           |
+
+
+new_array
+|условие               |правильный класс                    |неправильный класс                       |
+|Указатель на объект   |13) (0,1,2)                         |15) Нулевой указатель                    |
+|                      |14) (q,w,e)                         |16) Пустой тип                           |
+
+
+new_empty_array
+|условие               |правильный класс                    |неправильный класс                       |
+|Длина массива         |17) NUMBER > 0                      |18) NUMBER ≤ 0                           |
+
+garbage_collect
+|условие               |правильный класс                    |неправильный класс                       |
+|Существование         |19)NUMBER, 1                        |                                         |
+объекта/ов             |20) SYMBOL, T                       |                                         |
+с ссылкой на символ    |21) PAIR, 0,0                       |                                         |
+|                      |22) STRING, "qwerty"                |                                         |
+|Существование         |23) ARRAY, (1,2,3)                  |                                         |
+свободного объекта/ов  |24)Да                               |                                         |
+*/
 void main()
 {
     printf("--------------test objects---------------------\n");
     init_regions();
-    test_object_new();
-    test_new_pair();
+    test_object_new_number();   // 1
+    test_new_pair();            //3, 9
     test_free_object();
     test_free_object_null();
     test_free_pair();
     test_mark();
     test_sweep();
-    test_garbage_collect();
-    test_garbage_collect_list();
+    test_garbage_collect();     //19,24
+    test_garbage_collect_list();    //21,24
     test_alloc_region();
     test_free_region();
     test_new_string();
@@ -543,8 +577,8 @@ void main()
     test_free_pair_max_memory();
     test_free_pair_empty();
     test_free_string();
-    test_garbage_collect_strings();
-    test_garbage_collect_arrays();
+    test_garbage_collect_strings(); //22,24
+    test_garbage_collect_arrays();  //23,24
     test_print();
     int i = 10;
     test_print_obj(object_new(NUMBER, &i), "10");
