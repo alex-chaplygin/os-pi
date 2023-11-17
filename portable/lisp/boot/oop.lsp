@@ -1,6 +1,13 @@
 					; Таблица классов хранит имя класса и список свойств
-					; ((point.(X Y)))
-					; ((line . (x y x2 y2)))
+					; {
+					;    point: {
+					;      parent: nil,
+					;      slots: (x y)
+					;    },
+					;    line: {
+					;      parent: point,
+					;      slots: (x2 y2)
+					;    }
 					; экземпляр класса point
 					; ((class . point)(x.10)(y.20))
 					;экземпляр класса line
@@ -12,14 +19,37 @@
   name - имя, parent - родительский класс,
   slots - список полей"
   "(defclass point () (x y))"
-  (set-hash *class-table* name (make-slots parent slots)))
+  `(let ((class (make-hash)))
+	 (progn
+	   (set-hash class 'parent ',parent)
+	   (set-hash class 'slots ',slots)
+	   (set-hash *class-table* ',name class)
+	   ',name)))
 
 (defmacro make-instance (class)
   "Создать экземпляр объекта класса class"
-  "(make-instance point) -> ((X.nil)(Y.nil))"
-  nil)
+  "(make-instance 'point) -> ((X.nil)(Y.nil))"
+  (if (not (check-key *class-table* ,class)) (concat "no class " (symbol-name class))
+    `(let ((object (make-hash)))
+       (progn
+	 (set-hash object 'class ',class)  
+	 nil))))
 
-(defun make-slots (parent slots)
-  "Получение списка свойств"
-  (if (null parent) slots
-    (append slots (get-hash *class-table* parent))))
+
+(defun get-slots (class)
+  "Получение списка свойств класса class"
+  (if (null class)  nil
+    (let* ((cl (get-hash *class-table* class))
+	   (slots (get-hash cl 'slots))
+	   (parent (get-hash cl 'parent)))
+      (append (get-slots parent) slots))))
+
+(defclass point () (x y))
+
+(defclass line point (x2 y2))
+
+*class-table*
+
+(get-slots 'point)
+(get-slots 'line)
+(funcall 'car '(1 2))
