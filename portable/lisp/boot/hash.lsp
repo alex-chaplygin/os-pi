@@ -20,16 +20,16 @@
     (if (eq key (caar hash))
 	(cdar hash)
       (get-hash (cdr hash) key))))
+
+(defun check-key (hash key)
+  "Проверяет есть ли ключ key в таблице hash"
+  (if (or (null hash) (null (car hash))) nil
+    (if (eq key (caar hash))
+	t
+      (check-key (cdr hash) key))))
 			
 (defun hash-test ()
   (setq a (make-hash))
   (set-hash a 'x 5)
   (set-hash a 'y 10)
   a)
-
-;(hash-test)
-;(get-hash a 'x)
-;(get-hash a 'y)
-					;(get-hash a 'z)
-;(append '(1 2) '(a b))
-;(append '(1) '())
