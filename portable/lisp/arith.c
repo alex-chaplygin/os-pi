@@ -152,6 +152,10 @@ object_t *bitwise_and(object_t *list)
 	error("bitwise_and: no arguments\n");
 	return ERROR;
     }
+    if (FIRST(list)->type != NUMBER) {
+	error("bitwise_and: Not a number\n");
+	return ERROR;
+    }
     int num = FIRST(list)->u.value;
     list = TAIL(list);
     while (list != NULL) {
