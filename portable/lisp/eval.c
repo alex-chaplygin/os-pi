@@ -134,7 +134,7 @@ object_t *backquote_rec(object_t *list)
 	object_t *first = backquote_rec(el);
 	if (first == ERROR)
 	    return ERROR;
-	if (first->type == PAIR) {  // first = (COMMA-AT B)
+	if (first != NULL && first->type == PAIR) {  // first = (COMMA-AT B)
 	    object_t *comma_at = FIRST(first);
 	    if (comma_at->type == SYMBOL && !strcmp(comma_at->u.symbol->str, "COMMA-AT")) {
 		object_t *l = eval(SECOND(first), current_env);
@@ -655,6 +655,43 @@ object_t *or(object_t *params)
     return nil;
 }
 
+/**
+ * Выполняет макро подстановку
+ * @param param параметры (макро вызов)
+ * @return возвращает результат макро подстановки
+ */
+object_t *macroexpand(object_t *params)
+{
+    if (params == NULL) {
+	error("macroexpand: no params");
+	return ERROR;
+    }
+    object_t *first = FIRST(params);
+    return eval(first, current_env);
+}
+
+/**
+ * Выполняет функцию с аргументами
+ * @param param параметры (функция аргумент 1, аргумент 2 ...)
+ * @return возвращает результат выполнения функции
+ */
+object_t *funcall(object_t *params)
+{
+    object_t *func = FIRST(params);
+    object_t *args = TAIL(params);
+    if (func->type == PAIR && is_lambda(func))
+	return eval_func(func, args, current_env);
+    symbol_t *s = find_symbol(func->u.symbol->str);
+    if (s->lambda != NULL)
+        return eval_func(s->lambda, args, current_env);
+    else if (s->func != NULL)
+	return s->func(args);
+    else {
+	printf("Unknown func: %s", s->str);
+	return ERROR;
+    }
+}
+
 /** 
  * инициализация примитивов 
  */
@@ -671,6 +708,8 @@ void init_eval()
     register_func("SETQ", setq);
     register_func("OR", or);
     register_func("AND", and);
+    register_func("MACROEXPAND", macroexpand);
+    register_func("FUNCALL", funcall);
     t = object_new(SYMBOL, "T");
     nil = NULL;
     quote_sym = find_symbol("QUOTE");
