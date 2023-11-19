@@ -120,7 +120,8 @@
 	 (ata-set-command +ata-cmd-write-sectors+)
 	 (ata-write arr))))
 
-;(ata-identify)
-(defvar sec (ata-read-sectors 0 0 1))
-(for i 0 512 (seta sec i (& i 0xff)))
-(ata-write-sectors 0 1 1 sec)
+(defun ata-test
+    (ata-identify)
+  (defvar sec (ata-read-sectors 0 0 1))
+  (for i 0 512 (seta sec i (& i 0xff)))
+  (ata-write-sectors 0 1 1 sec))
