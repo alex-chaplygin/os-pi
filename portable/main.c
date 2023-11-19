@@ -53,8 +53,9 @@ void boot_lisp()
 	object_t *o = parse();
 	if (o != ERROR) {
 	    object_t *res = eval(o, NULL);
-	    PRINT(res);
-        garbage_collect();
+	    if (res != ERROR)
+		PRINT(res);
+	    garbage_collect();
 	}
     } while (token.type != END);
     boot_load = 0;
@@ -83,8 +84,9 @@ void kmain(void)
 	//print_obj(o);
 	if (o != ERROR) {
 	    object_t *res = eval(o, NULL);
-	    printf("\n");
-	    PRINT(res);
+	    //printf("\n");
+	    if (res != ERROR)
+		PRINT(res);
 	}      
 	garbage_collect();
     }
