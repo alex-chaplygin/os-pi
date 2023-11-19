@@ -20,7 +20,7 @@ object_t *intern(object_t *list)
         error("intern: not string in params\n");
         return ERROR;
     }
-    if(TAIL(list) != NULL) {
+    if (TAIL(list) != NULL) {
         error("intern: too many parameters\n");
         return ERROR;
     }
