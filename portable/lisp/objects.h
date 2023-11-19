@@ -2,15 +2,15 @@
 #define OBJECTS
 
 /// Всего объектов
-#define MAX_OBJECTS 1000000
+#define MAX_OBJECTS 2000000
 /// Всего пар
-#define MAX_PAIRS 1000000
+#define MAX_PAIRS 2000000
 /// Всего символов
-#define MAX_SYMBOLS 1000
+#define MAX_SYMBOLS 2000
 /// Всего байт для регионов 
 #define MAX_REGION_SIZE 500000
 /// Всего строк
-#define MAX_STRINGS 100
+#define MAX_STRINGS 2000
 /// Всего массивов
 #define MAX_ARRAYS 100
 /// Максимальная длина символа
