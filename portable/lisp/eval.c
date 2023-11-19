@@ -677,10 +677,19 @@ object_t *macroexpand(object_t *params)
  */
 object_t *funcall(object_t *params)
 {
+    if (params == NULL) {
+        error("funcall: no arguments");
+        return ERROR;
+    }
     object_t *func = FIRST(params);
+    if (func == NULL || func->type != SYMBOL &&
+        !(func->type == PAIR && is_lambda(func) == 1)) {
+        error("funcall: invalid func");
+        return ERROR;
+    }
     object_t *args = TAIL(params);
-    if (func->type == PAIR && is_lambda(func))
-	return eval_func(func, args, current_env);
+    if (func->type == PAIR)
+        return eval_func(func, args, current_env);
     symbol_t *s = find_symbol(func->u.symbol->str);
     if (s->lambda != NULL)
         return eval_func(s->lambda, args, current_env);

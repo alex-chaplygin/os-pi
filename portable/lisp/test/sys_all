@@ -234,3 +234,23 @@ sh sys_test "(equal \"vvv\" \"vvv\")" "T"
 sh sys_test "(equal \"vbv\" \"vvv\")" "NIL"
 # случай списка TRUE
 sh sys_test "(equal '(a b c) '(a b c))" "T"
+
+echo "---Тесты FUNCALL---"
+# аргумент - ламбда-функция
+sh sys_test "(funcall '(lambda (x) (+ x 1)) 2)" "3"
+# аргумент - встроенная функция "+"
+sh sys_test "(funcall '+ 1 2 3 4 5)" "15"
+# аргумент - встроенная функция "car"
+sh sys_test "(funcall 'car '(a b c))" "A"
+# аргумент - пользовательская функция
+sh sys_test "(defun tfun (x y) (* (+ x 1) y))
+(funcall 'tfun 2 3)" "TFUN
+9"
+# аргумент отсутствует
+sh sys_test "(funcall)" "funcall: no arguments"
+# неправильный аргумент - пустой список
+sh sys_test "(funcall ())" "funcall: invalid func"
+# неправильный аргумент - число
+sh sys_test "(funcall 1)" "funcall: invalid func"
+# неправильный аргумент - nil
+sh sys_test "(funcall nil)" "funcall: invalid func"
