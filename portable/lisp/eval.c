@@ -317,12 +317,19 @@ object_t *make_env(object_t *args, object_t *values)
 	error("Not enough values for params");
 	return ERROR;
     }
+    if (args == NULL && values != NULL) {
+	error("Invalid number of arguments");
+	return ERROR;
+    }
     if (args == NULL)
 	return NULL;
     object_t *param = FIRST(args);
     object_t *val = FIRST(values);
     object_t *pair = new_pair(param, new_pair(val, nil));
-    return new_pair(pair, make_env(TAIL(args), TAIL(values)));
+    object_t *new_env = make_env(TAIL(args), TAIL(values));
+    if (new_env == ERROR)
+        return ERROR;
+    return new_pair(pair, new_env);
 }
 
 /**
@@ -373,6 +380,8 @@ void append_env(object_t *l1, object_t *l2)
 object_t *eval_func(object_t *lambda, object_t *args, object_t *env)
 {
     object_t *new_env = make_env(SECOND(lambda), args);
+    if (new_env == ERROR)
+	return ERROR;
     object_t *body;
     if (TAIL(TAIL(lambda))->u.pair->right == NULL)
 	body = THIRD(lambda);

@@ -254,3 +254,11 @@ sh sys_test "(funcall ())" "funcall: invalid func"
 sh sys_test "(funcall 1)" "funcall: invalid func"
 # неправильный аргумент - nil
 sh sys_test "(funcall nil)" "funcall: invalid func"
+# ошибка - аргументов больше параметров
+sh sys_test "(defun tfun (x y) (+ x y))
+(funcall 'tfun 2 3 4)" "TFUN
+Invalid number of arguments"
+# ошибка - параметров больше аргументов
+sh sys_test "(defun tfun (x y) (+ x y))
+(funcall 'tfun 2)" "TFUN
+Not enough values for params"
