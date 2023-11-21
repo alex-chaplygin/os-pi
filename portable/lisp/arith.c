@@ -144,9 +144,16 @@ object_t *num_eq(object_t *list)
  *Функция сравнения объектов
  *
  */
-int compair_obj(object_t *obj1, object_t *obj2)
+int compare_obj(object_t *obj1, object_t *obj2)
 {
-    
+    if (obj1->type != obj2->type)
+	return 0;
+    if (obj1->type == SYMBOL)
+	return obj1->u.symbol == obj2->u.symbol;
+    else if (obj1->type == STRING)
+	return strcmp(obj1->u.str->data, obj2->u.str->data) == 0;
+    else if (obj1->type == NUMBER)
+	return obj1->u.value == obj2->u.value;
 }
 
 /** 
@@ -158,22 +165,9 @@ int compair_obj(object_t *obj1, object_t *obj2)
  */
 object_t *equal(object_t *list)
 {
-    
-    object_t *n1 = FIRST(list);
-    object_t *n2 = SECOND(list);
-    if (n1->type != n2->type)
-	return NULL;
-    if (n1->type == STRING) {
-	if (strcmp(n1->u.str->data, n2->u.str->data) == 0)
-	    return t;
-	else
-	    return NULL;
-    } else {
-	if (n1->u.value == n2->u.value)
-	    return t;
-	else
-	    return NULL;
-    }
+    object_t *obj1 = FIRST(list);
+    object_t *obj2 = SECOND(list);
+    return compare_obj(obj1, obj2) ? t : NULL;
 }
 
 /** 
