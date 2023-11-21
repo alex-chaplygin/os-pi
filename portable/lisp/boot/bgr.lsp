@@ -17,10 +17,10 @@
   (outw +bgr-index+ reg)
   (outw +bgr-data+ data))
   
-(defun bgr-set-res (width height depth   )
+(defun bgr-set-res (width height depth)
   "Установка разрешения экрана"
-  (bgr-out +bgr-enable+ 0   )
-  (bgr-out +bgr-width+ width   )
-  (bgr-out +bgr-height+ height   )
-  (bgr-out +bgr-depth+ depth  )
-  (bgr-out +bgr-enable+ 1  ))   
+  (bgr-out +bgr-enable+ 0)
+  (bgr-out +bgr-width+ width)
+  (bgr-out +bgr-height+ height)
+  (bgr-out +bgr-depth+ depth)
+  (bgr-out +bgr-enable+ 1))
