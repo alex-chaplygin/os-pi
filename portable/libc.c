@@ -67,62 +67,28 @@ void print_hex_num(unsigned int num)
 }
 
 /**
- * @brief Переводит int в нуль-терминируемую "строку"
+ * @brief Печать целого числа
  * 
  * @param n Входное число
- * @return char* Указатель на первый символ строки
  */
-char* int_to_str(int n)
+void print_num(int num)
 {
-    char* c = outbuf;
-    int negative = 0;//идентификация отрицательного числа
-
-    if (n < 0)
-        negative = 1;
-
-    for (int i = 0; i < 11; i++)
-        c[i] = 0;
-
-    int v = 0;//количество цифр в числе n
-    //разбиваем на отдельные символы число n
-
-    if (n < 0)
-    {
-        n = n * (-1);
+    char str[15];
+    str[14] = 0;
+    char *p = &str[14];
+    if (num == 0)
+	*p = '0'; //для вывода числа 0 в виде строки
+    if (num < 0) {
+        putchar('-');
+        num *= -1;
     }
-
-    while (n > 9)
-    {
-        c[v++] = (n % 10) + '0';
-        n = n / 10;
+    while (num > 0) {
+        int currchar = num % 10;
+        p--;
+        *p = '0' + currchar;
+        num = num/10;        
     }
-
-    if (negative == 1)
-    {
-        c[v++] = n + '0';
-        c[v++] = '-';
-        c[v] = '\0';
-    }
-    else
-    {
-        c[v++] = n + '0';
-        c[v] = '\0';
-    }
-    char t;
-    //инвертируем массив символов
-    for (int i = 0; i < v / 2; i++)
-    {
-        t = c[i];
-        c[i] = c[v - 1 - i];
-        c[v - 1 - i] = t;
-    }
-    v = 0;
-
-    //while (c[v] != '\0')
-     //   printf("%c", c[v++]);
-
-    //free(c);
-    return c;
+    printf(p);
 }
 
 /**
@@ -194,12 +160,10 @@ void printf(char *str,...)
       char next_symbol = str[i + 1];
  
       if (symbol == '%' && next_symbol == 'i') {
-	  char *param_int = int_to_str(*++param);      
-	  printf(param_int);
+	  print_num(*++param);      
 	  i++;
       } else if (symbol=='%' && next_symbol=='d') {
-	  char *param_int = int_to_str(*++param);      
-	  printf(param_int);
+	  print_num(*++param);      
 	  i++;
       } else if (symbol=='%' && next_symbol=='x') {
 	  print_hex_num(*++param);
