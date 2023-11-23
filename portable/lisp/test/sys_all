@@ -234,6 +234,11 @@ sh sys_test "(equal \"vvv\" \"vvv\")" "T"
 sh sys_test "(equal \"vbv\" \"vvv\")" "NIL"
 # случай списка TRUE
 sh sys_test "(equal '(a b c) '(a b c))" "T"
+sh sys_test "(equal '(a (b (c))) '(a (b (c))))" "T"
+# случай списка FALSE
+sh sys_test "(equal '(a 1 c) '(a b c))" "NIL"
+sh sys_test "(equal '(a c) '(a b c))" "NIL"
+sh sys_test "(equal '(a c c) '(a b))" "NIL"
 
 echo "---Тесты FUNCALL---"
 # аргумент - ламбда-функция

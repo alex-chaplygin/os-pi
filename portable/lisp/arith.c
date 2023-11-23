@@ -141,19 +141,29 @@ object_t *num_eq(object_t *list)
 }
 
 /**
- *Функция сравнения объектов
- *
+ * Функция сравнения объектов
+ * возвращает 1 если значения объектов равны, иначе 0
  */
 int compare_obj(object_t *obj1, object_t *obj2)
 {
+    if (obj1 == NULL && obj2 == NULL)
+	return 1;
+    else if (obj1 == NULL || obj2 == NULL)
+	return 0;
     if (obj1->type != obj2->type)
 	return 0;
-    if (obj1->type == SYMBOL)
+    else if (obj1->type == SYMBOL)
 	return obj1->u.symbol == obj2->u.symbol;
     else if (obj1->type == STRING)
 	return strcmp(obj1->u.str->data, obj2->u.str->data) == 0;
     else if (obj1->type == NUMBER)
 	return obj1->u.value == obj2->u.value;
+    else if (obj1->type == PAIR) {
+	if (!compare_obj(FIRST(obj1), FIRST(obj2)))
+	    return 0;
+	else
+	    return compare_obj(TAIL(obj1), TAIL(obj2));
+    }
 }
 
 /** 
