@@ -22,6 +22,10 @@
 #define NOVALUE ((void *)1)
 /// Метка региона
 #define MAGIC 0xABCD1234
+/// Число бит на тип объекта
+#define TYPE_BITS 3 
+/// Возвращение типа объекта в младших битах
+#define TYPE(obj) ((obj) & ((1 << TYPE_BITS) - 1))
 
 #pragma pack(4)
 /// создаваемый или свободный регион памяти
@@ -43,25 +47,8 @@ typedef enum {
     ARRAY, ///массив
 } type_t;
 
-struct pair_s;
-struct symbol_s;
-struct string_s;
-struct array_s;
-
-typedef struct object_s
-{
-    type_t type; // тип объекта
-    union {
-        int value; // если объект число, то его значение
-        struct symbol_s *symbol; // указатель на символ
-        struct pair_s *pair; // Если объект пара из 2-х объектов (левый и правый) то указатель на пару
-	struct string_s *str; // если объект строка
-	struct array_s *arr; // Если объект массив
-    } u;
-    struct object_s *next; // указатель на следующий свободный объект
-    int mark; // пометка для сборки мусора
-    int free; // Если 1 - элемент в списке свободных объектов
-} object_t; // Структура объекта
+/// Тип для объекта
+typedef unsigned int object_t;  
 
 /// Структура пары
 typedef struct pair_s
