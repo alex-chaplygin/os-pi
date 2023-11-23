@@ -308,27 +308,6 @@ struct region *regions;
 /*     free_region(a->data); */
 /* } */
 
-<<<<<<< HEAD
-/** 
- * Пометить объект как используемый
- * 
- * @param obj - помечаемый объект
- */
-void mark_object(object_t *obj)
-{
-    if (obj == NULL || obj == NOVALUE || obj->mark == 1)
-	return;
-    obj->mark = 1;
-    if (obj->type == PAIR) {
-	mark_object(obj->u.pair->left);
-	mark_object(obj->u.pair->right);
-    } else if (obj->type == ARRAY) {
-	array_t *arr = obj->u.arr;
-	for (int i = 0; i < arr->length; i++)
-	    mark_object(arr->data[i]);
-    }
-}
-=======
 /* /\**  */
 /*  * Пометить объект как используемый */
 /*  *  */
@@ -342,9 +321,12 @@ void mark_object(object_t *obj)
 /*     if (obj->type == PAIR) { */
 /* 	mark_object(obj->u.pair->left); */
 /* 	mark_object(obj->u.pair->right); */
+/*     } else if (obj->type == ARRAY) { */
+/* 	array_t *arr = obj->u.arr; */
+/* 	for (int i = 0; i < arr->length; i++) */
+/* 	    mark_object(arr->data[i]); */
 /*     } */
 /* } */
->>>>>>> Смена типа объекта
 
 /* /\**  */
 /*  * Освобождаем все непомеченные объекты, снимаем пометки */
