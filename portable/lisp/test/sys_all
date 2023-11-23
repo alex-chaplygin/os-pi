@@ -1,4 +1,16 @@
 echo "------------SYSTEM TEST-------------------"
+
+echo "---Тесты ATOM---"
+sh sys_test "(atom 'a)" "T"
+sh sys_test "(atom 10)" "T"
+sh sys_test "(atom '(a b c))" "NIL"
+sh sys_test "(atom '())" "T"
+sh sys_test "(atom (atom 'a))" "T"
+sh sys_test "(atom '(atom 'a))" "NIL"
+sh sys_test "(atom )" "atom: no args"
+sh sys_test "(atom 'a 'd)" "atom: many args"
+
+echo "---Тесты QUOTE---"
 sh sys_test "'a" "A"
 sh sys_test "'()" "NIL"
 sh sys_test "(quote())" "NIL"

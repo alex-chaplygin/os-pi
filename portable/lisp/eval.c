@@ -73,9 +73,18 @@ object_t *eq(object_t *list)
  *
  * @return t или nil
  */
-object_t *atom(object_t *obj)
+object_t *atom(object_t *list)
 {
-    if(obj->type != PAIR)
+    if (list == NULL) {
+	error("atom: no args");
+	return ERROR;
+    }
+    else if (TAIL(list) != NULL) {
+	error("atom: many args");
+	return ERROR;
+    }
+    object_t *obj = FIRST(list);
+    if (obj == NULL || obj->type != PAIR)
         return t;
     else
         return nil;
@@ -714,7 +723,8 @@ object_t *funcall(object_t *params)
  * инициализация примитивов 
  */
 void init_eval()
-{   
+{
+    register_func("ATOM", atom);
     register_func("EQ", eq);
     register_func("QUOTE", quote);
     register_func("BACKQUOTE",backquote);
