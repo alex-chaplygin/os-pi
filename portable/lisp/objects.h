@@ -23,10 +23,19 @@
 /// Метка региона
 #define MAGIC 0xABCD1234
 /// Число бит на тип объекта
-#define TYPE_BITS 3 
+#define TYPE_BITS 3
+/// Номер бита пометки для сборщика мусора
+#define MARK_BIT (TYPE_BITS + 1)
 /// Возвращение типа объекта в младших битах
 #define TYPE(obj) ((obj) & ((1 << TYPE_BITS) - 1))
-
+/// Установить бит пометки
+#define SET_MARK(obj) ((obj) |= (1 << TYPE_BITS))
+/// Возврат значения бита пометки
+#define GET_MARK(obj) (((obj) >> TYPE_BITS) & 1)
+/// Очистка бита пометки
+#define CLEAR_MARK(obj) ((obj) &= ~(1 << TYPE_BITS))
+/// Получить адрес объекта
+#define GET_ADDR(obj) (&(obj))
 #pragma pack(4)
 /// создаваемый или свободный регион памяти
 struct region {

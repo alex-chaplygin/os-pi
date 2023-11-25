@@ -673,6 +673,43 @@ void test_return_type()
     ASSERT(TYPE(obj), SYMBOL);
 }
 
+void test_return_set_mark()
+{
+    printf("test_return_set_mark: ");
+    object_t obj = 0xf0;
+    SET_MARK(obj); // 1000
+    ASSERT(obj, 0xf8);
+}
+
+void test_return_get_mark()
+{
+    printf("test_return_get_mark : ");
+    object_t obj = 0xf0;
+    ASSERT(GET_MARK(obj), 0);
+    obj = 0xf8;
+    ASSERT(GET_MARK(obj), 1);
+}
+
+void test_return_clear_mark()
+{
+    printf("test_return_clear_mark: ");
+    object_t obj = 0xf8;
+    CLEAR_MARK(obj); // 1000
+    ASSERT(obj, 0xf0);
+    obj = 0xf1;
+    CLEAR_MARK(obj); // 1000
+    ASSERT(obj, 0xf1);
+}
+void test_return_get_addr()
+{
+    printf("test_return_get_addr: ");
+    object_t obj = 0xABC8;
+    
+    ASSERT(GET_ADDR(obj), 0xABC) 
+
+}
+
+
 /*
 object_new
 |условие               |правильный класс                    |неправильный класс                       |
@@ -735,4 +772,8 @@ void main()
     /* int i = 10; */
     /* test_print_obj(object_new(NUMBER, &i), "10"); */
     test_return_type();
+    test_return_set_mark();
+    test_return_get_mark();
+    test_return_clear_mark();
+    test_return_get_addr();
 }
