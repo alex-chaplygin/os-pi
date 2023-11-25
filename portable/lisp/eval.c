@@ -138,6 +138,10 @@ object_t *backquote_rec(object_t *list)
 	return object_new(STRING, list->u.str->data);
     else if (list->type == PAIR) {
 	object_t *el = FIRST(list); // list = (COMMA B)
+	if (el == NULL)
+	    return new_pair(NULL, backquote_rec(TAIL(list)));
+	if (el->type == SYMBOL && !strcmp(el->u.symbol->str, "BACKQUOTE"))
+	    return list;
 	if (el->type == SYMBOL && !strcmp(el->u.symbol->str, "COMMA"))
 	    return eval(SECOND(list), current_env);
 	object_t *first = backquote_rec(el);
@@ -332,6 +336,8 @@ object_t *make_env(object_t *args, object_t *values)
     }
     if (args == NULL)
 	return NULL;
+    if (values == ERROR)
+	return ERROR;
     object_t *param = FIRST(args);
     object_t *val = FIRST(values);
     object_t *pair = new_pair(param, new_pair(val, nil));
@@ -364,7 +370,7 @@ int find_in_env(object_t *env, object_t *sym, object_t **res)
 }
 
 /**
- * Объединить два списка
+ * К первому списку присоединяет второй список
  * 
  * @param l1 - первый список
  * @param l2 - второй список
@@ -599,6 +605,8 @@ object_t *setq_rec(object_t *params)
 	return ERROR;
     }
     object_t *obj = eval(SECOND(params), current_env);
+    if (obj == ERROR)
+	return ERROR;
     if (find_res)
         set_in_env(current_env, FIRST(params), obj);
     else
@@ -675,7 +683,7 @@ object_t *or(object_t *params)
 
 /**
  * Выполняет макро подстановку
- * @param param параметры (макро вызов)
+ * @param param параметры (if (= 1 1) 2 3)
  * @return возвращает результат макро подстановки
  */
 object_t *macroexpand(object_t *params)
@@ -684,8 +692,43 @@ object_t *macroexpand(object_t *params)
 	error("macroexpand: no params");
 	return ERROR;
     }
-    object_t *first = FIRST(params);
-    return eval(first, current_env);
+    if (TAIL(params) != NULL) {
+	error("macroexpand: many params");
+	return ERROR;
+    }
+    object_t *macro_c = FIRST(params);
+    if (macro_c->type != PAIR) {
+	error("macroexpand: invalid macro call");
+	return ERROR;
+    }
+    object_t *macro_name = FIRST(macro_c);
+    object_t *macro;
+    if (macro_name == NULL || macro_name->type != SYMBOL || macro_name->u.symbol->macro == NULL) {
+	error("macroexpand: invalid macro");
+	return ERROR;
+    }
+    macro = macro_name->u.symbol->macro;
+    object_t *args = TAIL(macro_c);
+    object_t *new_env = make_env(SECOND(macro), args);
+    if (new_env == ERROR)
+	return ERROR;
+    append_env(new_env, current_env);
+    object_t *body = TAIL(TAIL(macro));
+    object_t *eval_res;
+    object_t *res = NULL;
+    while (body != NULL) {
+	eval_res = eval(FIRST(body), new_env);
+	if (eval_res == ERROR)
+	    return ERROR;
+	if (res == NULL)
+	    res = eval_res;
+	else if (res->type == STRING)
+	    res = NULL;
+	else
+	    append_env(res, eval_res);
+	body = TAIL(body);
+    }
+    return res;
 }
 
 /**
