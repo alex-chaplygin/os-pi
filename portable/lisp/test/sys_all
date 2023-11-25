@@ -14,6 +14,11 @@ echo "---Тесты QUOTE---"
 sh sys_test "'a" "A"
 sh sys_test "'()" "NIL"
 sh sys_test "(quote())" "NIL"
+
+echo "---Тесты BACKQUOTE---"
+sh sys_test "(setq y 3)
+   	    	  \`(x ,y \`(a ,b))" "3
+(X 3 (BACKQUOTE (A (COMMA B))))"
 sh sys_test "((lambda (x y) (cons x y)) 1 '(2))" "(1 2)"
 sh sys_test "(defun null (x) (eq x (quote())))\
 (null 'a) (null (quote ())) (null '())" "NULL
@@ -278,4 +283,30 @@ Invalid number of arguments"
 # ошибка - параметров больше аргументов
 sh sys_test "(defun tfun (x y) (+ x y))
 (funcall 'tfun 2)" "TFUN
+Not enough values for params"
+
+echo "---Тесты MACROEXPAND---"
+# нормальный вызов
+sh sys_test "(defmacro if (test true false) 
+                 \`(cond (,test ,true)
+                         (t ,false)))
+(macroexpand '(if (= 1 1) 2 3))" "IF
+(COND ((= 1 1) 2) (T 3))"
+# без параметров
+sh sys_test "(macroexpand)" "macroexpand: no params"
+# неверный параметр
+sh sys_test "(macroexpand 2)" "macroexpand: invalid macro call"
+# лишний параметр
+sh sys_test "(defmacro if (test true false) 
+                 \`(cond (,test ,true)
+                         (t ,false)))
+(macroexpand '(if (= 1 1) 2 3) 4)" "IF
+macroexpand: many params"
+# не макрос
+sh sys_test "(macroexpand '(+ 1 1))" "macroexpand: invalid macro"
+# ошибка в макросе
+sh sys_test "(defmacro if (test true false) 
+                 \`(cond (,test ,true)
+                         (t ,false)))
+(macroexpand '(if (= 1 1)))" "IF
 Not enough values for params"
