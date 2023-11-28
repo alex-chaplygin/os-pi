@@ -67,6 +67,15 @@
 	(get-method (slot class 'parent) method-name)))))
 
 (defmacro defmethod (name args body)
+    `(let* ((l-name ,name) (c-name (cadar ,args)) (l_body ,body)
+		(ss (cons (caar ,args) (cdr ,args))))
+  		(progn
+  			`(set-hash (slot *class-table* ,c-name) ,l-name
+  				(lambda ,ss ,l_body))
+  			`(defun ,l-name ,ss (get-method ,c-name ,l-name))
+  		)
+	)
+)
     
 (defclass point () (x y))
 
@@ -103,3 +112,11 @@
 (get-method 'line 'move)
 (move l1 'a 'b)
 (move p2 'b 'c)
+
+(defmethod 'muv '((self line) dx dy)
+	'((setf (slot self x) (+ (slot self x) dx))
+	(setf (slot self x2) (+ (slot self x2) dx))
+	(setf (slot self y) (+ (slot self y) dy))
+	(setf (slot self y2) (+ (slot self y2) dy)))
+)
+(get-method 'line 'muv)
