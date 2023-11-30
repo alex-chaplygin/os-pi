@@ -19,6 +19,13 @@ echo "---Тесты BACKQUOTE---"
 sh sys_test "(setq y 3)
    	    	  \`(x ,y \`(a ,b))" "3
 (X 3 (BACKQUOTE (A (COMMA B))))"
+sh sys_test "(setq abc '(a b c))
+(setq a 9)
+\`(1 (comma-at abc) ((comma a)) \"a\" #(1 (comma a) 2))" "(A B C)
+9
+(1 A B C (9) \"a\" #(1 9 2))"
+
+
 sh sys_test "((lambda (x y) (cons x y)) 1 '(2))" "(1 2)"
 sh sys_test "(defun null (x) (eq x (quote())))\
 (null 'a) (null (quote ())) (null '())" "NULL
