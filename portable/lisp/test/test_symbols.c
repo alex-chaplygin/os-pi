@@ -33,6 +33,30 @@ void test_find_symbol(char *str, char *expected_symbol)
 }
 
 /** 
+ * Тест пустой строки
+ */
+void test_find_symbol_empty_string()
+{
+    printf("test_find_symbol_empty_string: ");
+    symbol_t *result = find_symbol("");
+    ASSERT(result, NULL);
+}
+
+/** 
+ * Тест строки недопустимой длины
+ */
+void test_find_symbol_invalid_string_length()
+{
+    printf("test_find_symbol_invalid_string_length: ");
+    char str[82];
+    for (int i = 0; i < 81; i++)
+        str[i] = 'a';
+    str[81] = '\0';
+    symbol_t *result = find_symbol(str);
+    ASSERT(result, NULL);
+}
+
+/** 
  * Тестирование символов с обинаковым хеш значением
  */
 void test_same_hash()
@@ -58,6 +82,30 @@ void test_check_symbol()
     symbol_t *s2 = find_symbol("f");
     symbol_t *s3 = check_symbol("f");
     ASSERT(s2, s3);
+}
+
+/** 
+ * Тест пустой строки
+ */
+void test_check_symbol_empty_string()
+{
+    printf("test_check_symbol_empty_string: ");
+    symbol_t *result = check_symbol("");
+    ASSERT(result, NULL);
+}
+
+/** 
+ * Тест строки недопустимой длины
+ */
+void test_check_symbol_invalid_string_length()
+{
+    printf("test_check_symbol_invalid_string_length: ");
+    char str[82];
+    for (int i = 0; i < 81; i++)
+        str[i] = 'a';
+    str[81] = '\0';
+    symbol_t *result = check_symbol(str);
+    ASSERT(result, NULL);
 }
 
 object_t *test(object_t *list)
@@ -131,6 +179,10 @@ int main()
     test_compare_str("abc", "abc1", 0);
     test_find_symbol("a", "a"); // 1, 4
     test_find_symbol("ab", "ab"); // 1, 4
+    test_find_symbol_empty_string(); // 2
+    test_find_symbol_invalid_string_length(); // 3
+    test_check_symbol_empty_string(); // 7
+    test_check_symbol_invalid_string_length(); // 8
     test_check_symbol(); // 6, 9, 10
     test_register_func();
     test_same_hash();

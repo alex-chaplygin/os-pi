@@ -5,6 +5,7 @@
 #include "symbols.h"
 
 #define HASH_SIZE 1000
+#define MAX_SYMBOL_SIZE 80
 
 symbol_t *hash_table[HASH_SIZE];
 
@@ -38,6 +39,8 @@ int compare_str(char *str1, char *str2)
  */
 symbol_t *check_symbol(char *str)
 {
+    if (str[0] == '\0' || strlen(str) > MAX_SYMBOL_SIZE)
+        return NULL;
     int i = hash(str) % HASH_SIZE;
     symbol_t *el = hash_table[i];
     if (el == NULL)
@@ -57,6 +60,8 @@ symbol_t *check_symbol(char *str)
  */
 symbol_t *find_symbol(char *str) 
 {
+    if (str[0] == '\0' || strlen(str) > MAX_SYMBOL_SIZE)
+        return NULL;
     int i = hash(str) % HASH_SIZE;
     symbol_t *el = hash_table[i];
     if (el == NULL ){
