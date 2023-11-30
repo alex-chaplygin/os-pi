@@ -445,7 +445,7 @@ void test_parse_quote_number()
     cur_token = &token;
     tokens = tok_quote_number;
     object_t *o = parse();
-    ASSERT(ERROR, o);
+    ASSERT(o->u.pair->right->u.pair->left->u.value, 5);
 }
 
 /**
@@ -462,27 +462,64 @@ void test_parse_number_dot_number()
     ASSERT(o->u.pair->right->u.value, 2);
 }
 
+
+/*
+ * условие   | правильный класс       | неправильный класс
+ * атом      | 1 число                | 2 invalid
+ *           | 3 символ               | 
+ *           | 4 строка               |
+ * ---------------------------------------------------------------------------
+ * список    | 5 правильный список    | 6 список без закрывающей скобки
+ *           | 7 правильный           | 8 пустой список без открывающей скобки
+ *           |   многоуровневый список| 10 многоуровневый список с несоответствием
+ *           | 9 массив внутри списка |    количества открывающих и закрывающих скобок
+ *           |                        | 11 вложенный массив с несоответствием
+ *           |                        |    количества открывающих и закрывающих скобок
+ * ---------------------------------------------------------------------------
+ *           | 12 символ(функция,var) |
+ * Цитата    | 13 число               |
+ * или       | 14 массив              |  
+ *           | 15 строка              |
+ * квазицита | 16 список              |
+ *           | 28 квазицитирование    |
+ *           |    внутри квазицитиро- |
+ *           |    вания               |
+ * -------------------------------------------------------------------------
+ * Запятая   | 17 находится внутри    | 26 находится вне выражения с backquote
+ *           | выражения с backquote  |
+ * -------------------------------------------------------------------------
+ * Массив    | 18 правильный массив   | 19 отсутсвуют открывающая или закрывающая скобки
+ *           | 20 правильный          | 21 больше одного символа "#" в начале массива
+ *           |    многоуровн. массив  | 23 многоуровневый массив с несоответствием количества
+ *           | 22 правильный вложенный|    открывающих и закрывающих скобок
+ *           |    список              | 24 вложенный список с несоответствием количества
+ *           |                        |    открывающих и закрывающих скобок
+ * --------------------------------------------------------------------------
+ * Запятая и | 25 находится внутри    |
+ * @         |   выражения с backquote| 27 находится вне выражения с backquote
+ *           |  и применяется к списку|
+*/
 int main()
 {
     printf("------------test_parser------------\n");
     init_regions();
     test_strupr();
-    test_parse_list_numbers();
-    test_parse_list_symbols();
-    test_parse_list_list();
-    test_parse_quote(quote_tokens, "QUOTE");
-    test_parse_quote(backquote_tokens, "BACKQUOTE");
-    test_parse_quote(comma_tokens, "COMMA");
-    test_parse_list_quote();
-    test_parse_no_rparen();
-    test_parse_inner_list();
-    test_parse_invalid();
-    test_parse_invalid_quote();
-    test_parse_array();
-    test_parse_array_list();
-    test_parse_backquote_comma();
-    test_parse_quote_number();
-    test_parse_backquote_comma_at();
-    test_parse_number_dot_number();
+    test_parse_list_numbers(); //5, 1
+    test_parse_list_symbols(); //3, 5
+    test_parse_list_list();    //7
+    test_parse_quote(quote_tokens, "QUOTE"); //12
+    test_parse_quote(backquote_tokens, "BACKQUOTE");//12
+    test_parse_quote(comma_tokens, "COMMA"); //17
+    test_parse_list_quote(); //16
+    test_parse_no_rparen();  //6
+    test_parse_inner_list(); //7
+    test_parse_invalid();    //2
+    test_parse_invalid_quote(); //2
+    test_parse_array(); //18 
+    test_parse_array_list(); //9
+    test_parse_backquote_comma(); //17
+    test_parse_quote_number(); //13
+    test_parse_backquote_comma_at(); //25
+    test_parse_number_dot_number(); 
     return 0;
 }

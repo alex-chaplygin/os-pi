@@ -51,11 +51,6 @@ object_t *parse_quote(char *quote_sym)
     //PRINT(o);
     if (o == ERROR)
 	return ERROR;    
-    if (o != NULL && o->type == NUMBER) {
-	error(quote_sym);
-	error(" Number\n");
-	return ERROR;
-    }
     object_t *p = new_pair(o, NULL);
     return new_pair(object_new(SYMBOL, quote_sym), p);
 }
