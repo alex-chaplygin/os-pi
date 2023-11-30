@@ -38,6 +38,34 @@ void write_file(char *string)
     freopen(filename, "r", stdin);
 }
 
+/*
+* Генерация последовательности символов
+*
+* @param size размер последовательности
+* @param fill символ заполнения
+*/
+char *generate_raw_string(int size, char fill)
+{
+    char *res = (char*)malloc((size + 1)  * sizeof(char));
+    memset(res, fill, size);
+    res[size] = '\0';
+    return res;
+}
+
+/*
+* Генерация строки
+*
+* @param size размер строки
+* @param fill символ заполнения
+*/
+char *generate_string(int size, char fill)
+{
+    char *raw = generate_raw_string(size + 2, fill);
+    raw[0] = '\"';
+    raw[size + 1] = '\"';
+    return raw;
+}
+
 /** 
  * Тест должен прочитать символ два раза, вернуть символ и прочитать ещё один 
  * символ
@@ -217,6 +245,32 @@ void test_string(char* str, char* exp_str)
 }
 
 /*
+* Тестирование строки максимального размера
+*/
+void test_string_max()
+{
+    char *in  = generate_string(MAX_STR, 'a');
+    char *out = generate_raw_string(MAX_STR, 'a');
+    test_string(in, out);
+    free(in);
+    free(out);
+}
+
+/*
+* Тестирование превышения длины строки
+*/
+void test_string_overflow()
+{
+    printf("test_string_overflow :");
+    char *src = generate_string(MAX_STR + 1, 'a');
+    write_file(src); // запись в файл 
+    free(src);
+    get_token();
+    ASSERT(token_error, 1);    
+}
+
+
+/*
 get_token
 |условие               |правильный класс                                        |неправильный класс                         | 
 
@@ -258,12 +312,15 @@ int main()
     test_get_num("0xa", 10); // 13
     test_get_num("0xff", 255); // 13
     test_get_num("0x1A23", 0x1A23); // 13
+    test_get_num("-2147483648", -2147483648); // граничный тест минимальное число
+    test_get_num("2147483648", 2147483648); // граничный тест минимальное число
     test_get_symbol("Hello 12", "Hello"); // 14
     test_get_symbol("* 1 2", "*"); // 14
     test_get_token("lparen", "(", LPAREN); // 1
     test_get_token("rparen", ")", RPAREN); // 2
     test_get_token("empty", " ", END); // 3
     test_get_token("comment", " ; comment\n  42", T_NUMBER); // 10, 11
+    test_get_token("comment_board", " ; \n  42", T_NUMBER); // граничный тест пустой комментарий
     test_get_token("comment2", ";comment\n\n\n;fffff\n  42", T_NUMBER); // 10, 11, 15
     test_get_token("comment3", ";comment;dsada\n  42", T_NUMBER); // 10, 11, 15
     test_get_token("comment4", ";comment", END); // 10
@@ -279,6 +336,9 @@ int main()
     test_string("\"1 2 3\"", "1 2 3"); // 9
     test_string("\"a b\\n\"", "a b\n"); // 9
     test_string("\"a b\\n\\n\"", "a b\n\n"); // 9
+    test_string("\"\"", ""); // граничный тест на пустую строку
+    test_string_max(); // граничный тест на максимальную строку
+    test_string_overflow(); // граничный тест на превышение допустимого размера строки
     test_invalid_token("valid num", "11 dd", 0); // 11
     
     // Неправильные классы

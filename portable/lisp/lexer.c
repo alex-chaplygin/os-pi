@@ -208,23 +208,26 @@ void get_symbol(char *cur_str)
 void get_string(char *cur_str)
 {
     int c = 0;
-    int ended_quote = 0;
-    
+
     get_cur_char(); // Считываем открывающую кавычку
     get_cur_char();
     while (cur_symbol != EOF) {
-	if (cur_symbol == '"') {
-	    ended_quote = 1;
-	    break;
-	} else if (cur_symbol == '\\') {
-	    get_cur_char();
-	    if (cur_symbol == 'n')
-		cur_symbol = '\n';
+	if (cur_symbol == '"')
+	    	break;
+	else if (c == MAX_STR) {
+		token_error = 1;
+		--c;
+		break;
+	}
+    	else if (cur_symbol == '\\') {
+	    	get_cur_char();
+	    	if (cur_symbol == 'n')
+			cur_symbol = '\n';
 	}
 	cur_str[c++] = cur_symbol;
 	get_cur_char();
     }
-    if (!ended_quote)
+    if (cur_symbol != '"')
 	token_error = 1;
     cur_str[c] = '\0'; // Завершаем строку
 }
