@@ -56,6 +56,20 @@ void test_find_symbol_invalid_string_length()
     ASSERT(result, NULL);
 }
 
+/**
+ * Тест строки максимальной длины
+ */
+void test_find_symbol_max_string_length()
+{
+    printf("test_find_symbol_max_string_length: ");
+    char str[81];
+    for (int i = 0; i < 80; i++)
+        str[i] = 'a';
+    str[80] = '\0';
+    symbol_t *result = find_symbol(str);
+    ASSERT(strcmp(result->str, str), 0);
+}
+
 /** 
  * Тестирование символов с обинаковым хеш значением
  */
@@ -106,6 +120,20 @@ void test_check_symbol_invalid_string_length()
     str[81] = '\0';
     symbol_t *result = check_symbol(str);
     ASSERT(result, NULL);
+}
+
+/**
+ * Тест строки максимальной длины
+ */
+void test_check_symbol_max_string_length()
+{
+    printf("test_check_symbol_max_string_length: ");
+    char str[81];
+    for (int i = 0; i < 80; i++)
+        str[i] = 'a';
+    str[80] = '\0';
+    symbol_t *result = check_symbol(str);
+    ASSERT(strcmp(result->str, str), 0);
 }
 
 object_t *test(object_t *list)
@@ -181,8 +209,11 @@ int main()
     test_find_symbol("ab", "ab"); // 1, 4
     test_find_symbol_empty_string(); // 2
     test_find_symbol_invalid_string_length(); // 3
+    test_find_symbol_max_string_length(); // граничный тест строки максимально допустимой длины
     test_check_symbol_empty_string(); // 7
     test_check_symbol_invalid_string_length(); // 8
+    test_check_symbol_max_string_length(); // граничный тест строки максимально допустимой длины
+    test_register_func();
     test_check_symbol(); // 6, 9, 10
     test_register_func();
     test_same_hash();
