@@ -140,6 +140,7 @@ object_t *num_eq(object_t *list)
 	return NULL;
 }
 
+
 /**
  * Функция сравнения объектов
  * возвращает 1 если значения объектов равны, иначе 0
@@ -163,6 +164,13 @@ int compare_obj(object_t *obj1, object_t *obj2)
 	    return 0;
 	else
 	    return compare_obj(TAIL(obj1), TAIL(obj2));
+    } else if (obj1->type == ARRAY) {
+	if (obj1->u.arr->length != obj2->u.arr->length)
+	    return 0;
+	for (int i = 0; i < obj1->u.arr->length; i++)
+	    if (!compare_obj(obj1->u.arr->data[i], obj2->u.arr->data[i]))
+		return 0;	    
+	return 1;
     }
 }
 

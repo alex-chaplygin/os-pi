@@ -263,6 +263,8 @@ sh sys_test "(equal '(a (b (c))) '(a (b (c))))" "T"
 sh sys_test "(equal '(a 1 c) '(a b c))" "NIL"
 sh sys_test "(equal '(a c) '(a b c))" "NIL"
 sh sys_test "(equal '(a c c) '(a b))" "NIL"
+sh sys_test "(equal #(1 2 a) #(1 2 a))" "T"
+sh sys_test "(equal #(1 2 a) #(1 b a))" "NIL"
 
 echo "---Тесты FUNCALL---"
 # аргумент - ламбда-функция
