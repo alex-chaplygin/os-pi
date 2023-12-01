@@ -10,6 +10,7 @@
 #include "str.h"
 #include "array.h"
 #include "pair.h"
+#include "predicates.h"
 #include "../init.c"
 
 extern token_t token;

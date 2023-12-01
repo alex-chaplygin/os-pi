@@ -6,4 +6,5 @@ void init_all()
     init_regions();
     init_arrays();
     init_pair();
+    init_predicates();
 }

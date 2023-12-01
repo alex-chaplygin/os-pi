@@ -317,3 +317,13 @@ sh sys_test "(defmacro if (test true false)
                          (t ,false)))
 (macroexpand '(if (= 1 1)))" "IF
 Not enough values for params"
+
+echo "---Тесты PREDICATES---"
+# тест функции symbolp без параметров
+sh sys_test "(symbolp)" "SYMBOLP: no params"
+# тест функции с неверным параметром
+sh sys_test "(symbolp 1)" "NIL"
+# тест функции с верным параметром
+sh sys_test "(symbolp 'a)" "T"
+# тест с двумя параметрами
+sh sys_test "(symbolp 'a 'b)" "SYMBOLP: many params"

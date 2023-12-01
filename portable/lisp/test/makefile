@@ -23,7 +23,7 @@ all: $(TESTS)
 	gcc $(CFLAGS) $(LDFLAGS) -o $@ $^
 /tmp/test_str_int: test_str_int.c ../symbols.c ../objects.c ../str.c
 	gcc $(CFLAGS) $(LDFLAGS) -o $@ $^
-/tmp/test_sys: test_sys.c ../eval.c ../symbols.c ../objects.c ../parser.c ../lexer.c ../arith.c ../str.c ../array.c ../pair.c
+/tmp/test_sys: test_sys.c ../eval.c ../symbols.c ../objects.c ../parser.c ../lexer.c ../arith.c ../str.c ../array.c ../pair.c ../predicates.c
 	gcc $(CFLAGS) $(LDFLAGS) -o $@ $^
 
 test: $(TESTS) /tmp/test_sys
