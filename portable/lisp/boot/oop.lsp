@@ -29,7 +29,7 @@
   `(defun ,(intern (concat "MAKE-" (symbol-name name))) ,(get-slots name)
      (let ((obj (make-instance ,name)))
        (progn
-	 ,@(map '(lambda(s) `(setf (slot obj ,s) ,s)) (get-slots name))
+	 ,@(map '(lambda(s) `(setf (slot obj ',s) ,s)) (get-slots name))
 	 obj)))
   `',name)
 
@@ -67,56 +67,45 @@
 	(get-method (slot class 'parent) method-name)))))
 
 (defmacro defmethod (name args body)
-    `(let* ((l-name ,name) (c-name (cadar ,args)) (l_body ,body)
-		(ss (cons (caar ,args) (cdr ,args))))
-  		(progn
-  			`(set-hash (slot *class-table* ,c-name) ,l-name
-  				(lambda ,ss ,l_body))
-  			`(defun ,l-name ,ss (get-method ,c-name ,l-name))
-  		)
-	)
-)
+  "Определяет метод с именем name"
+  "args - аргументы, первый аргумент состоит из имени экземпляра объекта и имени класса"
+  "body - тело метода"
+  `(let* ((class-name (cadar args))
+	  (class (slot *class-table* class-name)))
+     (progn
+       (set-hash class ',name '(lambda ,(cons (caar args) (cdr args)) ,body))
+       (defun ,name ,(cons (caar args) (cdr args))
+	 (funcall (get-method (slot ,(caar args) 'class) ',name) ,(caar args) ,@(cdr args))))))
     
-(defclass point () (x y))
+;(defclass point () (x y))
 
-(defclass line point (x2 y2))
+;(defclass line point (x2 y2))
 
-*class-table*
-  
-(macroexpand '(defclass point () (x y)))
-(setq p2 (make-point 10 20))
-(setq l1 (make-line 1 1 3 3))
-;(move p1 20 20)
+;(setq p2 (make-point 10 20))
+;(setf (slot p2 'x) 50)
+;(setq l1 (make-line 1 1 3 3))
 
 ;(map '(lambda(s) `(setf(slot obj ,s) ,s)) '(x y z))
+
 ;(defmethod move ((self point) dx dy)
- ; (setf (slot self x) (+ (slot self x) dx))
-  ;(setf (slot self y) (+ (slot self y) dy)))
+ ; (progn
+   ; (setf (slot self 'x) (+ (slot self 'x) dx))
+    ;(setf (slot self 'y) (+ (slot self 'y) dy))))
+
+
 
 ;(defmethod move ((self line) dx dy)
- ; (setf (slot self x) (+ (slot self x) dx))
-  ;(setf (slot self x2) (+ (slot self x2) dx))
- ; (setf (slot self y) (+ (slot self y) dy))
- ; (setf (slot self y2) (+ (slot self y2) dy)))
+ ; (progn
+   ; (setf (slot self 'x) (+ (slot self 'x) dx))
+    ;(setf (slot self 'x2) (+ (slot self 'x2) dx))
+   ; (setf (slot self 'y) (+ (slot self 'y) dy))
+    ;(setf (slot self 'y2) (+ (slot self 'y2) dy))))
 
+;(defun move (self dx dy)
+ ; (funcall (get-method (slot self 'class) 'move) self dx dy))
+
+;(get-method 'line 'move)
+;(move p2 20 20)
+;p2
 ;(move l1 20 20)
-
-(setq pc (slot *class-table* 'point))
-(set-hash pc 'move '(lambda(x y) x))
-
-(defun move (self dx dy)
-  (funcall (get-method (slot self 'class) 'move) dx dy))
-
-(get-method 'line 'move)
-(get-method 'point 'move)
-(get-method 'line 'move)
-(move l1 'a 'b)
-(move p2 'b 'c)
-
-(defmethod 'muv '((self line) dx dy)
-	'((setf (slot self x) (+ (slot self x) dx))
-	(setf (slot self x2) (+ (slot self x2) dx))
-	(setf (slot self y) (+ (slot self y) dy))
-	(setf (slot self y2) (+ (slot self y2) dy)))
-)
-(get-method 'line 'muv)
+;l1
