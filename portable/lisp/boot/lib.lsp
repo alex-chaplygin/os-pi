@@ -121,5 +121,5 @@
   "Если var - символ, то устанавливает его значение"
   "Если var - (slot obj key), то устанавливает значение по ключу"
   (cond ((atom var) `(setq ,var ,val))
-	((eq (car var) 'slot) `(set-hash ,(cadr var) ',(caddr var) ,val))
+	((eq (car var) 'slot) `(set-hash ,(cadr var) ,(caddr var) ,val))
 	(t "setf: invalid var")))
