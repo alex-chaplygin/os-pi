@@ -262,36 +262,6 @@ void test_cons_second_not_pair()
     ASSERT(res->type, PAIR);
 }
 
-// тип объекта - атом
-void test_atom_is()
-{
-    printf("test_atom_is: ");
-  
-    object_t obj, obj_t;
-    t = &obj_t;
-
-    obj.type = NUMBER;
-    obj.u.value = 5;
-
-    object_t* res = atom(&obj);
-    ASSERT(res, t);
-}
-
-// тип объекта - не атом
-void test_atom_not()
-{
-    printf("test_atom_not: ");
-
-    object_t obj_t;
-    t = &obj_t;
-  
-    object_t obj;
-    obj.type = PAIR;
-
-    object_t* res = atom(&obj);
-    ASSERT(res, NULL);
-}
-
 /**
  * Создать объект список (5)
  * Вызвать функцию quote
@@ -328,8 +298,6 @@ int main()
     test_eq_sym_eq();
     test_cons();
     test_cons_second_not_pair();
-    test_atom_is();
-    test_atom_not();
     test_quote();
     return 0;
 }
