@@ -235,7 +235,7 @@ void test_invalid_token(const char* name_test, char* str, int error)
 */
 void test_string(char* str, char* exp_str) 
 {
-    printf("test_string :"); // вывод имени теста
+    printf("test_string %s ", str); // вывод имени теста
     write_file(str); // запись в файл
     token_t *tok = get_token();
     printf("res = '%s' exp = '%s'", tok->str, exp_str);
@@ -334,6 +334,7 @@ int main()
     test_get_token("symbol", "abc", T_SYMBOL);  // 14
     test_get_token2("setq_rec", "setq_rec setq_rec ", T_SYMBOL, T_SYMBOL); // 14
     test_string("\"1 2 3\"", "1 2 3"); // 9
+    test_string("\"\\x31\\x32\"", "12");
     test_string("\"a b\\n\"", "a b\n"); // 9
     test_string("\"a b\\n\\n\"", "a b\n\n"); // 9
     test_string("\"\"", ""); // граничный тест на пустую строку

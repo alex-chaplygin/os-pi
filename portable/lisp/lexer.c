@@ -112,7 +112,7 @@ int is_hex_symbol(char c)
  */
 int is_delimeter(char c)
 {
-    return c == ')' || c == '(' || is_whitespace(c) || c == EOF;
+    return c == ')' || c == '(' || is_whitespace(c) || c == EOF || c == '"' || c == '\\';
 }
 
 /** 
@@ -223,6 +223,19 @@ void get_string(char *cur_str)
 	    	get_cur_char();
 	    	if (cur_symbol == 'n')
 			cur_symbol = '\n';
+		else if (cur_symbol == 'x')
+		{
+		    int code = hex_num();
+		    if (code > 255)
+		    {
+			printf("get_string: invalid symbol code\n");
+			token_error = 1;
+			return;
+		    }
+		    cur_str[c++] = code;
+		    get_cur_char();
+		    continue;
+		}
 	}
 	cur_str[c++] = cur_symbol;
 	get_cur_char();

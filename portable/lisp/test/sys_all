@@ -1,4 +1,5 @@
 echo "------------SYSTEM TEST-------------------"
+sh sys_test "\"\xFFF\"" "get_string: invalid symbol code"
 
 echo "---Тесты ATOM---"
 sh sys_test "(atom 'a)" "T"
