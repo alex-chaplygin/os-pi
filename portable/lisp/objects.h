@@ -35,9 +35,14 @@
 /// Очистка бита пометки
 #define CLEAR_MARK(obj) ((obj) &= ~(1 << TYPE_BITS))
 /// Получить адрес объекта
-#define GET_ADDR(obj) (&(obj))
+#define GET_ADDR(obj) ((obj) >> (TYPE_BITS + 1))
+
 #pragma pack(4)
 /// создаваемый или свободный регион памяти
+
+//макрос, который строит указатель, состоящий из типа в младших битах и значения в остальных
+#define NEW_OBJECT(type, val)  ((object_t)((((int)val) << (TYPE_BITS + 1)) | (type)))
+
 struct region {
     int magic; /// метка своих регионов
     int free; /// свободен ли регион

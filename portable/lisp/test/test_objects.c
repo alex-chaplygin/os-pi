@@ -700,13 +700,25 @@ void test_return_clear_mark()
     CLEAR_MARK(obj); // 1000
     ASSERT(obj, 0xf1);
 }
+/**
+ * тест: создаём объект и с помощью макроса получаем адрес объекта
+ */
 void test_return_get_addr()
 {
     printf("test_return_get_addr: ");
     object_t obj = 0xABC8;
     
-    ASSERT(GET_ADDR(obj), 0xABC) 
+    ASSERT(GET_ADDR(obj), 0xABC);
+}
 
+/**
+ * тест: создаём объект с помощью макроса и проверяем его тип
+ */
+void test_new_object(int type, void *val)
+{
+    printf("test_new_object: ");
+    object_t object = NEW_OBJECT(type, val);
+    ASSERT(TYPE(object), type);
 }
 
 
@@ -776,4 +788,6 @@ void main()
     test_return_get_mark();
     test_return_clear_mark();
     test_return_get_addr();
+    test_new_object(NUMBER, (void *)10);
+    test_new_object(STRING, "test");
 }
