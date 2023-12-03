@@ -34,6 +34,8 @@ symbol_t *and_sym;
 symbol_t *t_sym;
 /// символ "NIL"
 symbol_t *nil_sym;
+/// символ "&REST"
+symbol_t *rest_sym;
 /// текущее окружение
 object_t *current_env;
 
@@ -339,6 +341,17 @@ object_t *make_env(object_t *args, object_t *values)
     if (values == ERROR)
 	return ERROR;
     object_t *param = FIRST(args);
+    if (param->u.symbol == rest_sym) {
+        if (TAIL(args) == NULL) {
+            error("Missing parameter after &rest");
+            return ERROR;
+        }
+        if (TAIL(TAIL(args)) != NULL) {
+            error("Too many parameters after &rest");
+            return ERROR;
+        }
+        return new_pair(new_pair(SECOND(args), new_pair(values, nil)), nil);
+    }
     object_t *val = FIRST(values);
     object_t *pair = new_pair(param, new_pair(val, nil));
     object_t *new_env = make_env(TAIL(args), TAIL(values));
@@ -799,4 +812,5 @@ void init_eval()
     t_sym->value = t;
     nil_sym = find_symbol("NIL");
     nil_sym->value = nil;
+    rest_sym = find_symbol("&REST");
 }

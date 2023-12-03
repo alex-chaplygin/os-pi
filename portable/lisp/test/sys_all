@@ -294,6 +294,18 @@ Invalid number of arguments"
 sh sys_test "(defun tfun (x y) (+ x y))
 (funcall 'tfun 2)" "TFUN
 Not enough values for params"
+# объединение остаточных параметров в список, используя &rest
+sh sys_test "(defun test (a &rest b) b)
+(funcall 'test 1 2 3 4)" "TEST
+(2 3 4)"
+# ошибка - отсутсвует параметр после &rest
+sh sys_test "(defun test (a &rest) b)
+(funcall 'test 1 2 3 4)" "TEST
+Missing parameter after &rest"
+# ошибка - лишний параметр после &rest b
+sh sys_test "(defun test (a &rest b c) b)
+(funcall 'test 1 2 3 4)" "TEST
+Too many parameters after &rest"
 
 echo "---Тесты MACROEXPAND---"
 # нормальный вызов
