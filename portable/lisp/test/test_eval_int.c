@@ -18,6 +18,7 @@ void append_env(object_t *l1, object_t *l2);
 object_t *setq(object_t *params);
 object_t *defvar(object_t *params);
 object_t *cons(object_t *list);
+object_t *backquote(object_t *list);
 
 void error(char *str)
 {
@@ -385,13 +386,76 @@ void test_invalid_cdr()
     ASSERT(res, ERROR);
 }
 
+/*
+ *создать объект list = NULL и 
+ отправить его в метод backquote()
+ */
+void test_backquote_nulllist()
+{
+    printf("test_backquote_nulllist:\n");
+    object_t *li = NULL;
+    object_t *res = backquote(li);
+    ASSERT(res, ERROR);
+}
 
+/**
+ * Входящий аргумент с вычислением -> выходящий аргумент
+ * b = 7 `(a ,b c) -> (a 7 c)
+ * (a (COMMA b) c)
+ * b = (1 2) `(a ,b c) -> (a (1 2) c)
+ * b = (1 2) `(a ,b c) -> (list 'a '(1 2) 'c)
+ * b = (1 2) `(a (,b) c) -> (a ((1 2)) c)
+ * b = (1 2) `(a ,@b c) -> (a 1 2 c)
+ * (A (COMMA-AT B) C)
+ *
+ * abc = (5 8 6)
+ * a = 9
+ * Тестовый список - (1 (comma-at abc) ((comma a)) "a" #(1 (comma a) 2))
+ * (1 5 8 6 (9 "a" #(1 9 2)))
+ */
+void test_backquote_arguments()
+{
+    printf("test_backquote_arguments:\n");
+    int length = 3;
+    int a = 5;
+    int b = 8;
+    int c = 6;
+    int aa = 9;
+    int s1 = 1;
+    int s2 = 2;
+    object_t *abc = new_pair(object_new(NUMBER, &a),
+	                    new_pair(object_new(NUMBER, &b),
+		                     new_pair(object_new(NUMBER, &c),NULL))); //Переменная-список abc
+    find_symbol("ABC")->value = abc;
+    object_t *CAabc= new_pair(object_new(SYMBOL, "COMMA-AT"),
+			      new_pair(object_new(SYMBOL,"ABC"),NULL)); // (COMMA-AT abc)
+    find_symbol("A")->value = object_new(NUMBER,&aa);		      
+    object_t *obj1 = object_new(NUMBER, &s1);
+    object_t *obj2 = new_pair(object_new(SYMBOL, "COMMA"),
+		            new_pair(object_new(SYMBOL, "A"),NULL));
+    object_t *obj3 = object_new(NUMBER, &s2);
+    array_t *arr = new_empty_array(length);
+    arr->data[0] = obj1;
+    arr->data[1] = obj2;
+    arr->data[2] = obj3; //здесь создаём массив с элементами 1 (COMMA A) 2
+    object_t *Ca = new_pair(obj2, NULL); // ((COMMA A))
+    object_t *inputlist = new_pair(object_new(NUMBER, &s1),  //1
+				   new_pair(CAabc, //(COMMA-AT abc) *\/ */
+				    	    new_pair(Ca, //((COMMA A)) *\/ */
+				    		     new_pair(object_new(STRING, "a"), 
+							      new_pair(object_new(ARRAY, arr), NULL))))); // Наш массив *\/ */
+    object_t *resultlist = backquote(new_pair(inputlist, NULL));
+    PRINT(inputlist);
+    PRINT(resultlist);
+    //    ASSERT(SECOND(TAIL(TAIL(TAIL(resultlist))))->type, ARRAY);
+}
 
 int main()
 {
     printf("------------test_eval_int---------\n");
     init_pair();
     init_eval();
+    init_regions();
     test_car();
     test_invalid_car();
     test_cons();
@@ -410,6 +474,8 @@ int main()
     test_cons2();
     test_cons_one_param();
     test_cons_3_params();
+    test_backquote_nulllist();
+    test_backquote_arguments();
     return 0;
 }
 
