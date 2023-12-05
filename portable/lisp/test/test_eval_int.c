@@ -447,7 +447,7 @@ void test_backquote_arguments()
     object_t *resultlist = backquote(new_pair(inputlist, NULL));
     PRINT(inputlist);
     PRINT(resultlist);
-    //    ASSERT(SECOND(TAIL(TAIL(TAIL(resultlist))))->type, ARRAY);
+    ASSERT(FIRST(TAIL(TAIL(TAIL(TAIL(TAIL(TAIL(resultlist)))))))->type, ARRAY);
 }
 
 int main()
