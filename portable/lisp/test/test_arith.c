@@ -262,6 +262,30 @@ void test_bitwise_or(int num1, int num2, int res)
 }
 
 /**
+ * Тест побитового ИЛИ для пустого ввода
+ */
+void test_bitwise_or_null()
+{
+    printf("test_bitwise_or_null:");
+    object_t *list = NULL;
+    object_t *obj_res = bitwise_or(list);
+    ASSERT(obj_res, ERROR);
+}
+
+/**
+ * Тест побитового ИЛИ для неверного ввода
+ */
+void test_bitwise_or_no_number()
+{
+    printf("test_bitwise_or_no_number:");
+    int num1 = 8;
+    object_t *list = new_pair(object_new(NUMBER, &num1),
+			      new_pair(object_new(SYMBOL, "T"), NULL));
+    object_t *obj_res = bitwise_or(list);
+    ASSERT(obj_res, ERROR);
+}
+
+/**
  * Тест сдвига влево
  */
 void test_shift_left(int num1, int num2, int res)
@@ -310,6 +334,8 @@ int main()
     test_bitwise_and_no_number();
     test_bitwise_or(0xA, 5, 0xF);//1010|101
     test_bitwise_or(0, 0, 0);
+    test_bitwise_or_null();
+    test_bitwise_or_no_number();
     test_shift_left(1, 2, 4); //100
     test_shift_left(2, 3, 16); //10000
     test_shift_right(1, 1, 0);
