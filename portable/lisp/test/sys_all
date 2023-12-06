@@ -266,6 +266,15 @@ sh sys_test "(equal '(a c) '(a b c))" "NIL"
 sh sys_test "(equal '(a c c) '(a b))" "NIL"
 sh sys_test "(equal #(1 2 a) #(1 2 a))" "T"
 sh sys_test "(equal #(1 2 a) #(1 b a))" "NIL"
+# ошибка - нет аргументов
+sh sys_test "(equal)" "equal: no arguments
+"
+# ошибка - нет второго аргумента
+sh sys_test "(equal 1)" "equal: no second argument
+"
+# ошибка - более двух аргументов
+sh sys_test "(equal 1 2 3)" "equal: too many arguments
+"
 
 echo "---Тесты FUNCALL---"
 # аргумент - ламбда-функция

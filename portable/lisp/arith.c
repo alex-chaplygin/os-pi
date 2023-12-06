@@ -183,8 +183,20 @@ int compare_obj(object_t *obj1, object_t *obj2)
  */
 object_t *equal(object_t *list)
 {
+    if (list == NULL) {
+        error("equal: no arguments\n");
+        return ERROR;
+    }
     object_t *obj1 = FIRST(list);
+    if (TAIL(list) == NULL) {
+        error("equal: no second argument\n");
+        return ERROR;
+    }
     object_t *obj2 = SECOND(list);
+    if (TAIL(TAIL(list)) != NULL) {
+        error("equal: too many arguments\n");
+        return ERROR;
+    }
     return compare_obj(obj1, obj2) ? t : NULL;
 }
 
