@@ -298,6 +298,28 @@ void test_shift_left(int num1, int num2, int res)
 }
 
 /**
+ * Тест сдвига влево, передача пустого списка
+ */
+void test_shift_left_empty_list()
+{
+    printf("test_shift_left_empty_list: ");
+    object_t *res = shift_left(NULL);
+    ASSERT(res, ERROR);
+}
+
+/**
+ * Тест сдвига влево, передача списка без второго параметра
+ */
+void test_shift_left_no_second_param()
+{
+    printf("test_shift_left_no_second_param: ");
+    int num = 1;
+    object_t *list = new_pair(object_new(NUMBER, &num), NULL);
+    object_t *res = shift_left(list);
+    ASSERT(res, ERROR);
+}
+
+/**
  * Тест сдвига вправо
  */
 void test_shift_right(int num1, int num2, int res)
@@ -338,6 +360,8 @@ int main()
     test_bitwise_or_no_number();
     test_shift_left(1, 2, 4); //100
     test_shift_left(2, 3, 16); //10000
+    test_shift_left_empty_list();
+    test_shift_left_no_second_param();
     test_shift_right(1, 1, 0);
     test_shift_right(10, 2, 2);
     return 0;
