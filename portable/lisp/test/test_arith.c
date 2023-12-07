@@ -18,6 +18,7 @@ object_t *bitwise_and(object_t *list);
 object_t *bitwise_or(object_t *list);
 object_t *shift_left(object_t *list);
 object_t *shift_right(object_t *list);
+object_t *equal(object_t *list);
 
 void error(char *str)
 {
@@ -249,6 +250,16 @@ void test_bitwise_and_no_number()
     ASSERT(res, ERROR);
 }
 
+void test_bitwise_and_number_sym()
+{
+    printf("test_bitwise_and_number_sym: ");
+    int num1 = 2;
+    object_t *list = new_pair(object_new(NUMBER, &num1),
+			      new_pair(object_new(SYMBOL, "C"), NULL));
+    object_t *res = bitwise_and(list);
+    ASSERT(res, ERROR);
+}
+
 /**
  * Тест побитового ИЛИ
  */
@@ -331,6 +342,20 @@ void test_shift_right(int num1, int num2, int res)
     ASSERT(obj_res->u.value, res);
 }
 
+/** 
+ * Сравнение чисел
+ */
+void test_equal()
+{
+    printf("test_equal: ");
+    int first1 = 1;
+    int second1 = 1;
+    object_t *list = new_pair(object_new(NUMBER, &first1),
+			      new_pair(object_new(NUMBER, &second1), NULL));
+    object_t *res = equal(list);
+    ASSERT(res, t);
+}
+
 int main()
 {
     printf("------------test_arith---------\n");
@@ -354,6 +379,7 @@ int main()
     test_bitwise_and(0xA, 5, 0);
     test_bitwise_and_null();
     test_bitwise_and_no_number();
+    test_bitwise_and_number_sym();
     test_bitwise_or(0xA, 5, 0xF);//1010|101
     test_bitwise_or(0, 0, 0);
     test_bitwise_or_null();
@@ -364,5 +390,6 @@ int main()
     test_shift_left_no_second_param();
     test_shift_right(1, 1, 0);
     test_shift_right(10, 2, 2);
+    test_equal();
     return 0;
 }
