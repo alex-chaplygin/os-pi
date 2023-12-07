@@ -101,6 +101,10 @@ object_t *atom(object_t *list)
  */
 object_t *quote(object_t *list)
 {
+    if (TAIL(list) != NULL) {
+	error("quote: many args");
+	return ERROR;
+    }
     return FIRST(list);
 }
 
