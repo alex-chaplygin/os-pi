@@ -8,6 +8,7 @@
  */
 
 #include <x86/x86.h>
+#include <x86/console.h>
 #include <portable/libc.h>
 #include <objects.h>
 #include <symbols.h>
@@ -174,6 +175,139 @@ object_t *OUTSW(object_t *args)
 }
 
 /** 
+ * Печать символа 
+ *
+ * @param args (строка, содержащая один символ)
+ *
+ * @return nil
+ */
+object_t *PUTCHAR(object_t *args)
+{
+    if (args == NULL || TAIL(args) != NULL) {
+	error("PUTCHAR: char\n");
+	return ERROR;
+    }
+    object_t *str = FIRST(args);
+    if (str->type != STRING) {
+	error("PUTCHAR: not string\n");
+	return ERROR;
+    }
+    putchar(*str->u.str->data);
+    return NULL;
+}
+
+/** 
+ * Установка позиции курсора 
+ *
+ * @param args (две координаты x, y)
+ *
+ * @return nil
+ */
+object_t *SET_CURSOR(object_t *args)
+{
+    if (args == NULL || TAIL(args) == NULL || TAIL(TAIL(args)) != NULL) {
+	error("SET-CURSOR: x y\n");
+	return ERROR;
+    }
+    object_t *x = FIRST(args);
+    object_t *y = SECOND(args);
+    if (x->type != NUMBER || y->type != NUMBER) {
+	error("SET-CURSOR: not number\n");
+	return ERROR;
+    }
+    set_cursor(x->u.value, y->u.value);
+    return NULL;
+}
+
+/** 
+ * Установка цвета символа 
+ *
+ * @param args цвет символа
+ *
+ * @return nil
+ */
+object_t *SET_COLOR(object_t *args)
+{
+    if (args == NULL || TAIL(args) != NULL) {
+	error("SET-COLOR: char\n");
+	return ERROR;
+    }
+    object_t *col = FIRST(args);
+    if (col->type != NUMBER) {
+	error("SET-COLOR: not number\n");
+	return ERROR;
+    }
+    int c = col->u.value;
+    if (c < 0 || c > 15) {
+	error("SET-COLOR: invalid color\n");
+	return ERROR;
+    }
+    set_color(col->u.value);
+    return NULL;
+}
+
+/** 
+ * Установка цвета фона 
+ *
+ * @param args цвет фона
+ *
+ * @return nil
+ */
+object_t *SET_BACK_COLOR(object_t *args)
+{
+    if (args == NULL || TAIL(args) != NULL) {
+	error("SET_BACK_COLOR: char\n");
+	return ERROR;
+    }
+    object_t *col = FIRST(args);
+    if (col->type != NUMBER) {
+	error("SET_BACK_COLOR: not number\n");
+	return ERROR;
+    }
+    int c = col->u.value;
+    if (c < 0 || c > 15) {
+	error("SET_BACK_COLOR: invalid color\n");
+	return ERROR;
+    }
+    set_back_color(col->u.value);
+    return NULL;
+}
+
+/** 
+ * Спрятать курсор 
+ *
+ * @param args параметров нет
+ *
+ * @return nil 
+ */
+object_t *HIDE_CURSOR(object_t *args)
+{
+     if (args != NULL) {
+	error("HIDE_CURSOR: invalid params\n");
+	return ERROR;
+     }
+     disable_cursor();
+     return NULL;
+}
+
+/** 
+ * Показать курсор 
+ *
+ * @param args параметров нет
+ *
+ * @return nil 
+ */
+object_t *SHOW_CURSOR(object_t *args)
+{
+     if (args != NULL) {
+	error("SHOW_CURSOR: invalid params\n");
+	return ERROR;
+     }
+     enable_cursor(15, 0xFF);
+     return NULL;
+}
+
+/** 
  * Регистрация системных функций
  */
 void init_sys()
@@ -186,4 +320,10 @@ void init_sys()
     register_func("OUTDW", OUTDW);
     register_func("INSW", INSW);
     register_func("OUTSW", OUTSW);
+    register_func("PUTCHAR", PUTCHAR);
+    register_func("SET-CURSOR", SET_CURSOR);
+    register_func("SET-COLOR", SET_COLOR);
+    register_func("SET-BACK-COLOR", SET_BACK_COLOR);
+    register_func("HIDE-CURSOR", HIDE_CURSOR);
+    register_func("SHOW-CURSOR", SHOW_CURSOR);
 }
