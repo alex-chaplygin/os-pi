@@ -103,6 +103,28 @@ void test_aref_invalid_index(int index)
     ASSERT(elem, ERROR);
 }
 
+/**
+ * Тестирование чтения элемента массива без параметров
+ */
+void test_aref_no_args()
+{
+    printf("test_aref_no_args: ");
+    object_t *elem = aref(NULL);
+    ASSERT(elem, ERROR);
+}
+
+/**
+ * Тестирование чтения элемента массива с одним параметром (только массив без индекса)
+ */
+void test_aref_only_array()
+{
+    printf("test_aref_only_array: ");
+    int length = 3;
+    object_t *list = new_pair(object_new(NUMBER, &length), NULL);
+    object_t *elem = aref(list);    
+    ASSERT(elem, ERROR);
+}
+
 int main()
 {
     printf("------------test_arrays---------\n");
@@ -112,5 +134,7 @@ int main()
     test_aref();
     test_aref_invalid_index(10);
     test_aref_invalid_index(-1);
+    test_aref_no_args();
+    test_aref_only_array();
     return 0;
 }

@@ -47,8 +47,18 @@ object_t *seta(object_t *list)
 */
 object_t *aref(object_t *list)
 {
+    if (list == NULL || TAIL(list) == NULL) {
+        error("aref: invalid arguments");
+        return ERROR;
+    }
     object_t *arr_o = FIRST(list);
-    int index = SECOND(list)->u.value;
+    object_t *index_obj = SECOND(list);
+    if (index_obj->type != NUMBER) {
+        error("aref: index should be a number");
+        return ERROR;
+    }
+    int index = index_obj->u.value;
+    
     if (index >= arr_o->u.arr->length || index < 0) {
 	error("aref: index out of range");
 	return ERROR;
