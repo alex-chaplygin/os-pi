@@ -155,7 +155,7 @@ object_t *backquote_rec(object_t *list)
 	    return ERROR;
 	if (first != NULL && first->type == PAIR) {  // first = (COMMA-AT B)
 	    object_t *comma_at = FIRST(first);
-	    if (comma_at->type == SYMBOL && !strcmp(comma_at->u.symbol->str, "COMMA-AT")) {
+	    if (comma_at != NULL && comma_at->type == SYMBOL && !strcmp(comma_at->u.symbol->str, "COMMA-AT")) {
 		object_t *l = eval(SECOND(first), current_env);
 		/*if (l->type != PAIR) {
 			error("COMMA-AT: not list");
