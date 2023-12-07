@@ -1,6 +1,13 @@
 echo "------------SYSTEM TEST-------------------"
 sh sys_test "\"\xFFF\"" "get_string: invalid symbol code"
 
+#PARSER 2 Неправильный символ
+sh sys_test "~" "ERROR: lexer.c: INVALID SYMBOL"
+#PARSER 6 список без закрывающей скобки
+sh sys_test "(a b c" "expected )"
+#PARSER 8 пустой список без открывающей скобки
+sh sys_test ")" ""
+
 echo "---Тесты ATOM---"
 sh sys_test "(atom 'a)" "T" # 2
 sh sys_test "(atom 10)" "T" # 1
