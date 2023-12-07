@@ -26,6 +26,19 @@
   (if (null list) nil
     (cons (funcall f (car list)) (map f (cdr list)))))
 
+(defun foldl (f start list)
+  "Левоассоциативная свертка (foldl):"
+  "(f ... (f (f start elem_1) elem_2) ... elem_n)"
+  (defun foldl*(list a)
+    (if (null list) a
+      (foldl* (cdr list) (funcall f a (car list)))))
+  (foldl* list start))
+
+(defun foldr (f start list)
+  "Правоассоциативная свертка (foldr):"
+  "(f elem_1 (f elem_2 ... (f elem_n start) ... ))"
+  (if (null list) start
+    (funcall f (foldr f start (cdr list)) (car list))))
 
 (defun fac(x)
   (cond
@@ -54,27 +67,27 @@
   `(cond (,test ,true)
 	 (t ,false)))
 
-(defmacro inner-for (name var start end body)
+(defmacro inner-for (name var start end &rest body)
   "Вспомогательная функция для for"
   `(defun ,name (,var)
      (cond ((= ,var ,end) 'end)
-	   (t (progn ,body 
+	   (t (progn ,@body 
 		     (,name (+ ,var 1))))))
   `(,name ,start))
 
-(defmacro for (var start end body)
+(defmacro for (var start end &rest body)
   "Цикл for, переменная var от start до end - 1"
   "body - тело цикла"
-  `(inner-for ,(intern (concat "for-" (symbol-name var))) ,var ,start ,end ,body))
+  `(inner-for ,(intern (concat "for-" (symbol-name var))) ,var ,start ,end ,@body))
 
-(defmacro let (vars body)
+(defmacro let (vars &rest body)
   "Блок локальных переменных"
   "(let ((x 0)
          (y 0))
         (+ x y))"
   "((lambda (x y) 
        (+ x y)) 0 0)"
-  `((lambda ,(get-vars vars) ,body)
+  `((lambda ,(get-vars vars) ,@body)
     ,@(get-vals vars)))
 
 "(let* ((x 0)
@@ -91,16 +104,16 @@
 
 "(inner-let* (x y z) (0 (+ x 1) (*y 5)) (+ x y z))"
 
-(defmacro inner-let* (vars vals body)
+(defmacro inner-let* (vars vals &rest body)
   "Вспомогательная функция для let"
-  `((lambda (,(car vars)) ,(if (null (cdr vars))
-			       body
-			       `(inner-let* ,(cdr vars) ,(cdr vals) ,body)))
+  `((lambda (,(car vars)) (if ,(null (cdr vars))
+			       (progn ,@body)
+			       (inner-let* ,(cdr vars) ,(cdr vals) ,@body)))
 			     ,(car vals)))
 
-(defmacro let* (vars body)
+(defmacro let* (vars &rest body)
   "Создаёт блок из локальных переменных, которые могут использовать друг друга при задании начального значения"
-  `(inner-let* ,(get-vars vars) ,(get-vals vars) ,body))
+  `(inner-let* ,(get-vars vars) ,(get-vals vars) ,@body))
 
 
 (defun get-vars (v)
@@ -123,3 +136,5 @@
   (cond ((atom var) `(setq ,var ,val))
 	((eq (car var) 'slot) `(set-hash ,(cadr var) ,(caddr var) ,val))
 	(t "setf: invalid var")))
+
+
