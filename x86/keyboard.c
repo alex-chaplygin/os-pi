@@ -225,17 +225,6 @@ void keyboard_interrupt()
         // При заполнении буфера очистить его до позиции чтения.
         clear_buffer(keyboard_buffer, 0, keybuffer_read_pos);
       }
-
-      if (key_code == PAGE_UP_CODE) {
-        screen_up();
-        return;
-      }
-
-      if (key_code == PAGE_DOWN_CODE) {
-        screen_down();
-        return;
-      }
-
       char symbol = key_map(key_code);
 
       if (key_code == ENTER_CODE)
