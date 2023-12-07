@@ -98,10 +98,17 @@ void print_num(int num)
  * @param offset смещение.
  * @param count количество байтов, которые необходимо установить в 0.
  */
-void clear_buffer(byte* buffer, int offset, int count) {
-    for (int i = 0; i < count; i++) {
+void clear_buffer(byte* buffer, int offset, int count)
+{
+    for (int i = 0; i < count; i++)
         buffer[offset + i] = 0;
-    }
+}
+
+void memset(void *buf, int val, int count)
+{
+    byte *p = (byte *)buf;
+    for (int i = 0; i < count; i++)
+	*p++ = (byte)val;
 }
 
 /** 
