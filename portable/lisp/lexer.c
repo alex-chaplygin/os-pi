@@ -313,6 +313,7 @@ token_t *get_token()
 	    get_symbol(token.str);
 	} else {
 	    token.type = INVALID;
+	    printf("ERROR: lexer.c: INVALID SYMBOL\n");
 	    get_cur_char();
 	}
     }

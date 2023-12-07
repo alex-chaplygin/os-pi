@@ -348,6 +348,7 @@ int main()
     test_invalid_token("invalid hex", "0xfrf", 1); // 19
     test_invalid_token("invalid hex", "0xrf", 1); // 19
     test_get_token("invalid_symbol", "^", INVALID); // 16
+    test_get_token("invalid_symbol", "!~", INVALID); // 16
     test_invalid_token("invalid string", "\"1 2 3", 1); // 17
     test_invalid_token("invalid symbol", "ss^s?", 1); // 20
  
