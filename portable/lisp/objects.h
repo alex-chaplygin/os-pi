@@ -17,7 +17,7 @@
 #define MAX_STR 500
 
 #define PRINT(o) print_obj(o); printf("\n");
-
+#define ERROR (-1)
 /// Отсутствие значения у переменных
 #define NOVALUE ((void *)1)
 /// Метка региона
@@ -36,13 +36,11 @@
 #define CLEAR_MARK(obj) ((obj) &= ~(1 << TYPE_BITS))
 /// Получить адрес объекта
 #define GET_ADDR(obj) ((obj) >> (TYPE_BITS + 1))
+//макрос, который строит указатель, состоящий из типа в младших битах и значения в остальных
+#define NEW_OBJECT(type, val)  ((object_t )((((int)val) << (TYPE_BITS + 1)) | (type)))
 
 #pragma pack(4)
 /// создаваемый или свободный регион памяти
-
-//макрос, который строит указатель, состоящий из типа в младших битах и значения в остальных
-#define NEW_OBJECT(type, val)  ((object_t)((((int)val) << (TYPE_BITS + 1)) | (type)))
-
 struct region {
     int magic; /// метка своих регионов
     int free; /// свободен ли регион
@@ -67,8 +65,8 @@ typedef unsigned int object_t;
 /// Структура пары
 typedef struct pair_s
 {
-    object_t *left; // левый элемент (элемент списка)
-    object_t *right; // правый элемент (следующая пара)
+    object_t left; // левый элемент (элемент списка)
+    object_t right; // правый элемент (следующая пара)
     struct pair_s *next; // указатель на следующую свободную пару
     int free; // Если 1 - пара свободна
     int print_counter; // счетчик печати
@@ -112,8 +110,8 @@ typedef struct symbol_s
 } symbol_t;
 
 extern int print_counter;
-object_t *object_new(type_t type, void *data);
-object_t *new_pair(object_t *left, object_t *right);
+
+object_t new_pair(object_t left, object_t right);
 struct symbol_s *new_symbol(char *str);
 void garbage_collect();
 object_t *dump_free(object_t *);
