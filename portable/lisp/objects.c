@@ -45,43 +45,7 @@ char region_data[MAX_REGION_SIZE];
 /// Список регионов
 struct region *regions;
 
-/* /\**  */
-/*  * Создание нового объекта из пула объектов */
-/*  * */
-/*  * @param type тип объекта */
-/*  * @param data указатель на данные */
-/*  * */
-/*  * @return указатель на созданный объект */
-/*  *\/ */
-/* object_t *object_new(type_t type, void *data) */
-/* { */
-/*     object_t *new; */
-/*     if (last_object == MAX_OBJECTS) { */
-/* 	    if (free_objs == NULL) { */
-/* 		error("Error: out of memory: objects\n"); */
-/* 		return ERROR; */
-/* 	    } */
-/*         new = free_objs; */
-/*         free_objs = free_objs->next; */
-/*     } else */
-/*         new = &objects[last_object++]; */
-/*     new->type = type; */
-/*     new->mark = 0; */
-/*     new->next = NULL; */
-/*     new->free = 0; */
-/*     if (type == NUMBER) */
-/*         new->u.value = *(int *)data; */
-/*     else if (type == SYMBOL) */
-/*         // заполнить поле строки */
-/*       new->u.symbol = find_symbol((char *)data); */
-/*     else if (type == PAIR) */
-/*         new->u.pair = (pair_t *)data; */
-/*     else if (type == STRING) */
-/* 	new->u.str = new_string((char *)data); */
-/*     else if (type == ARRAY)  */
-/* 	new->u.arr = (array_t *)data; */
-/*     return new; */
-/* } */
+
 
 /* /\**  */
 /*  * Освобождение памяти объекта */
@@ -105,52 +69,52 @@ struct region *regions;
 /*     free_objs = obj; */
 /* } */
 
-/* /\**  */
-/*  * Создание нового объекта пары */
-/*  *  */
-/*  * @param left левый объект */
-/*  * @param right правый объект */
-/*  *  */
-/*  * @return указатель на объект пары */
-/*  *\/ */
-/* object_t *new_pair(object_t *left, object_t *right) */
-/* { */
-/*     pair_t *pair; */
-/*     if (last_pair == MAX_PAIRS) { */
-/* 	if (free_pairs == NULL) { */
-/* 	    error("Error: out of memory: pairs"); */
-/* 	    return ERROR; */
-/* 	} */
-/* 	pair = free_pairs; */
-/* 	free_pairs = free_pairs->next; */
-/*     } else */
-/* 	pair = &pairs[last_pair++];         */
-/*     pair->next = NULL; */
-/*     pair->free = 0; */
-/*     pair->left = left; */
-/*     pair->right = right;   */
-/*     return object_new(PAIR, pair); */
-/* } */
+/**
+ * Создание нового объекта пары
+ *
+ * @param left левый объект
+ * @param right правый объект
+ *
+ * @return указатель на объект пары 
+/*  */
+object_t new_pair(object_t left, object_t right) 
+{ 
+    pair_t *pair; 
+    if (last_pair == MAX_PAIRS) { 
+ 	if (free_pairs == NULL) { 
+ 	    error("Error: out of memory: pairs"); 
+ 	    return ERROR; 
+ 	} 
+ 	pair = free_pairs; 
+ 	free_pairs = free_pairs->next; 
+    } else 
+ 	pair = &pairs[last_pair++];         
+    pair->next = NULL; 
+    pair->free = 0; 
+    pair->left = left; 
+    pair->right = right;   
+    return NEW_OBJECT(PAIR, pair); 
+} 
 
-/* /\**  */
-/*  * Освобождение памяти для пары */
-/*  *  */
-/*  * @param p объект для освобождения */
-/*  *\/ */
-/* void free_pair(pair_t *p) */
-/* { */
-/*     if (p == NULL) { */
-/*     	error("free_pair: null pointer: obj"); */
-/*     	return; */
-/*     } */
+/**
+ * Освобождение памяти для пары
+ *
+ * @param p объект для освобождения
+ */
+void free_pair(pair_t *p)
+{
+    if (p == NULL) {
+    	error("free_pair: null pointer: obj");
+    	return;
+    }
 
-/*     //printf("free pair: %d %x \n ", p - pairs, p->next); */
-/*     if (p->free) */
-/* 	return; */
-/*     p->next = free_pairs; */
-/*     free_pairs = p; */
-/*     p->free = 1; */
-/* } */
+    //printf("free pair: %d %x \n ", p - pairs, p->next);
+    if (p->free)
+	return;
+    p->next = free_pairs;
+    free_pairs = p;
+    p->free = 1;
+}
 
 /* /\**  */
 /*  * Создание нового объекта символа */

@@ -38,37 +38,26 @@ symbol_t *find_symbol(char *str)
     return NULL;
 }
 
-/* /\**  */
-/*  * Создать два обьекта числа и провериить массив обьектов */
-/*  *\/ */
-/* void test_object_new_number() */
-/* { */
-/*     int number = 10; */
-/*     printf("test_object_new: "); */
-/*     object_new(NUMBER, &number); */
-/*     number = 11; */
-/*     object_new(NUMBER, &number); */
-/*     ASSERT(objects[0].u.value, 10); */
-/*     ASSERT(objects[1].u.value, 11); */
-/* } */
 
-/* /\**  */
-/*  * Создать две пары и проверить массив пар  */
-/*  *\/ */
-/* void test_new_pair() */
-/* { */
-/*     object_t o1, o2, o3, o4; */
-/*     o1.type = NUMBER; */
-/*     o1.u.value = 5; */
-/*     printf("test_new_pair: "); */
-/*     new_pair(&o1, &o2); */
-/*     new_pair(&o3, &o4); */
-/*     ASSERT(pairs[0].left, &o1); */
-/*     ASSERT(pairs[0].left->u.value, 5); */
-/*     ASSERT(pairs[0].right, &o2); */
-/*     ASSERT(pairs[1].left, &o3); */
-/*     ASSERT(pairs[1].right, &o4); */
-/* } */
+
+/**
+ * Создать две пары и проверить массив пар
+ */
+void test_new_pair()
+{
+    object_t o1,o2,o3,o4;
+    o1 = NEW_OBJECT(NUMBER, 5);
+   
+    printf("test_new_pair: ");
+    new_pair(o1, o2);
+    new_pair(o3, o4);
+    ASSERT(pairs[0].left, o1);
+    ASSERT(GET_ADDR(pairs[0].left), 5);
+    ASSERT(pairs[0].right, o2);
+    ASSERT(pairs[1].left, o3);
+    ASSERT(pairs[1].right, o4);
+   
+}
 
 /* /\**  */
 /*  * Проверка правильной печати объекта (1 2) */
@@ -197,6 +186,32 @@ void test_mark()
     ASSERT(sym->mark, 1);
     ASSERT(p3->mark, 1);
     ASSERT(num2->mark, 1);
+}
+
+/**
+ * Проверка корректности функции освобождения пары
+ *  объектов и их дальнейшего переиспользования
+ */
+void test_free_pair()
+{
+    printf("test_free_pair: ");
+    reset_mem();
+    int last_num = last_pair;
+    object_t o1,o2;
+    for (int i = last_object; i < MAX_PAIRS; i++)
+    {
+
+        o1 = NEW_OBJECT(NUMBER, i);
+	o2 = NEW_OBJECT(NUMBER, i-1);
+	new_pair(o1, o2);
+    }
+    pair_t *pair1 = &pairs[0];
+    pair_t *pair2 = &pairs[1];
+    free_pair(pair1);
+    free_pair(pair2);
+    ASSERT(free_pairs, pair2);
+    ASSERT(free_pairs->next, pair1);
+    ASSERT(free_pairs->next->next, NULL);
 }
 
 /**
@@ -707,8 +722,8 @@ void test_return_get_addr()
 {
     printf("test_return_get_addr: ");
     object_t obj = 0xABC8;
-    
-    ASSERT(GET_ADDR(obj), 0xABC);
+   
+     ASSERT(GET_ADDR(obj), 0xABC);
 }
 
 /**
@@ -761,10 +776,9 @@ void main()
     printf("--------------test objects---------------------\n");
     /* init_regions(); */
     /* test_object_new_number();   // 1 */
-    /* test_new_pair();            //3, 9 */
+           //3, 9
     /* test_free_object(); */
     /* test_free_object_null(); */
-    /* test_free_pair(); */
     /* test_mark(); */
     /* test_sweep(); */
     /* test_garbage_collect();     //19,24 */
@@ -790,4 +804,6 @@ void main()
     test_return_get_addr();
     test_new_object(NUMBER, (void *)10);
     test_new_object(STRING, "test");
+    test_new_pair();
+    test_free_pair();
 }
