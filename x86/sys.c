@@ -16,6 +16,8 @@
 #include <parser.h>
 
 #define NULL 0
+void __stack_chk_fail_local(){
+}
 
 /** 
  * Чтение байта из порта
