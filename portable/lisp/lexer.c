@@ -23,6 +23,25 @@ int token_error;
 int boot_load = 0;
 /// Адрес памяти, откуда загружается lisp при загрузке
 char *boot_code;
+/// размер буфера символов symbol_buffer
+#define SYMBOL_BUFFER_SIZE 8
+/// буфер символов из stdin
+/// с обратным  порядком элементов
+char symbol_buffer[SYMBOL_BUFFER_SIZE];
+/// текущая позиция в буфере symbol_buffer
+int symbuf_pos = SYMBOL_BUFFER_SIZE;
+/// смещение по symbuf_pos для следующего
+/// чтения символа из symbol_buffer.
+/// -1: не выполнять смещение
+int symbuf_shift = -1;
+
+/** 
+ * Увеличить сдвиг, заданный переменной symbuf_shift
+ * @param shift - значение увеличения сдвига
+ */
+void unget_char(int shift) {
+    symbuf_shift += shift;
+}
 
 // читать один символ
 void get_cur_char()
@@ -30,10 +49,23 @@ void get_cur_char()
     if (flag)
         flag = 0;
     else {
-	if (!boot_load)
-	    cur_symbol = getchar();
-	else
-	    cur_symbol = *boot_code++;
+        if (!boot_load) {
+            if (symbuf_shift != -1)
+                cur_symbol = symbol_buffer[symbuf_pos+
+                  symbuf_shift-- % SYMBOL_BUFFER_SIZE];
+            else {
+                cur_symbol = getchar();
+                if (symbuf_pos != 0)
+                    symbol_buffer[--symbuf_pos] = cur_symbol;
+                else {
+                    for (int i = SYMBOL_BUFFER_SIZE - 1; i >= 0; i--)
+                        symbol_buffer[i]=symbol_buffer[i-1];
+                    symbol_buffer[0] = cur_symbol;
+                }
+            }
+        }
+        else
+            cur_symbol = *boot_code++;
     }
 }
 
@@ -321,12 +353,20 @@ token_t *get_token()
 	token.type = DOT;
 	break;
     default:
-	if (is_digit(cur_symbol)) {
+	if (cur_symbol == '-' || is_digit(cur_symbol)) {
+	    if (cur_symbol == '-') {
+	        flag = 0;
+	        get_cur_char();
+	        unget_char(2);
+	        if (!is_digit(cur_symbol))
+	            goto get_token_symbol;
+	    }
 	    token.type = T_NUMBER;
 	    token.value = get_num();
 	} else if (is_alpha(cur_symbol) || is_symbol(cur_symbol)) {
-	    token.type =  T_SYMBOL;
-	    get_symbol(token.str);
+	    get_token_symbol:
+	        token.type =  T_SYMBOL;
+	        get_symbol(token.str);
 	} else {
 	    token.type = INVALID;
 	    printf("ERROR: lexer.c: INVALID SYMBOL\n");
