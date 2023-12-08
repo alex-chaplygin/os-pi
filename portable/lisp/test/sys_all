@@ -361,3 +361,8 @@ sh sys_test "(symbolp 1)" "NIL"
 sh sys_test "(symbolp 'a)" "T"
 # тест с двумя параметрами
 sh sys_test "(symbolp 'a 'b)" "SYMBOLP: many params"
+
+echo "---Тесты LIST---"
+sh sys_test "(list)" "NIL"
+sh sys_test "(list 1 2 3)" "(1 2 3)"
+sh sys_test "(list 'a 'b '(1 2 3))" "(A B (1 2 3))"

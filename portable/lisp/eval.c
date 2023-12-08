@@ -780,6 +780,15 @@ object_t *funcall(object_t *params)
 	return ERROR;
     }
 }
+/**
+ * Возвращает список из аргументов
+ * @param args (аргумент 1, аргумент 2 ...)
+ * @return возвращает список из аргументов
+ */
+object_t *list(object_t *args)
+{
+    return args;
+}
 
 /** 
  * инициализация примитивов 
@@ -800,6 +809,7 @@ void init_eval()
     register_func("AND", and);
     register_func("MACROEXPAND", macroexpand);
     register_func("FUNCALL", funcall);
+    register_func("LIST", list);
     t = object_new(SYMBOL, "T");
     nil = NULL;
     quote_sym = find_symbol("QUOTE");
