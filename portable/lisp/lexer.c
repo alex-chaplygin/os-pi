@@ -22,6 +22,54 @@ int token_error;
 int boot_load = 0;
 /// Адрес памяти, откуда загружается lisp при загрузке
 char *boot_code;
+/// размер буфера символов symbol_buffer
+#define SYMBOL_BUFFER_SIZE 3
+/// буфер символов из stdin
+char symbol_buffer[SYMBOL_BUFFER_SIZE];
+/// текущая позиция в буфере symbol_buffer
+int symbol_buffer_pos = 0;
+/// негативное смещение (>=0) по symbol_buffer_pos для
+/// следующего чтения символа из symbol_buffer.
+/// -1: не выполнять смещение
+int symbol_buffer_shift = -1;
+
+/** 
+ * Измененить значение переменной symbol_buffer_shift
+ */
+void unget_char() {
+    if (symbol_buffer_shift >= SYMBOL_BUFFER_SIZE - 1) {
+        printf("Shift value is greater than symbol buffer size\n");
+        return;
+	}
+    if (symbol_buffer_shift == -1)
+        symbol_buffer_shift = 1;
+    else
+        symbol_buffer_shift++;
+}
+
+/** 
+ * Записать в symbol_buffer новый символ
+ *
+ * @param c записываемый символ
+ */
+void set_symbol(char c) {
+    symbol_buffer_pos++;
+    if (symbol_buffer_pos == SYMBOL_BUFFER_SIZE - 1)
+        symbol_buffer_pos = 0;
+    symbol_buffer[symbol_buffer_pos] = c;
+    cur_symbol = symbol_buffer[symbol_buffer_pos];
+}
+
+/** 
+ * Получить символ из symbol_buffer со сдвигом
+ */
+char shift_symbol() {
+    int new_pos = symbol_buffer_pos - symbol_buffer_shift;
+    if (new_pos < 0)
+        new_pos = SYMBOL_BUFFER_SIZE - 1 + new_pos;
+    symbol_buffer_shift -= 1;
+    return symbol_buffer[new_pos];
+}
 
 // читать один символ
 void get_cur_char()
@@ -29,8 +77,12 @@ void get_cur_char()
     if (flag)
         flag = 0;
     else {
-	if (!boot_load)
-	    cur_symbol = getchar();
+	if (!boot_load) {
+        if (symbol_buffer_shift != -1)
+            cur_symbol = shift_symbol();
+        else
+            set_symbol(getchar());
+	}
 	else
 	    cur_symbol = *boot_code++;
     }
@@ -305,12 +357,20 @@ token_t *get_token()
 	token.type = DOT;
 	break;
     default:
-	if (is_digit(cur_symbol)) {
+	if (cur_symbol == '-' || is_digit(cur_symbol)) {
+	    if (cur_symbol == '-') {
+	        flag = 0;
+	        get_cur_char();
+	        unget_char();
+	        if (!is_digit(cur_symbol))
+	            goto get_token_symbol;
+	    }
 	    token.type = T_NUMBER;
 	    token.value = get_num();
 	} else if (is_alpha(cur_symbol) || is_symbol(cur_symbol)) {
-	    token.type =  T_SYMBOL;
-	    get_symbol(token.str);
+	    get_token_symbol:
+	        token.type =  T_SYMBOL;
+	        get_symbol(token.str);
 	} else {
 	    token.type = INVALID;
 	    printf("ERROR: lexer.c: INVALID SYMBOL\n");

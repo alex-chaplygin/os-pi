@@ -68,6 +68,10 @@ sh sys_test "(defun f(x)\
 39916800
 3628800
 39916800" # 18
+# обработка отрицательного числа
+sh sys_test "-143" "-143"
+# обработка строки со знаком "-"
+sh sys_test "\"-test\"" "\"-test\""
 sh sys_test "(+ 1 2 3 4)" "10"
 sh sys_test "(1" "expected )"
 sh sys_test "(+ 1 2 3 5)" "11"
