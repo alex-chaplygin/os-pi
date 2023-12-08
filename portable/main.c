@@ -48,16 +48,16 @@ void boot_lisp()
 {
     boot_load = 1;
     boot_code = (char *)&_lisp_start;
-    printf("boot = %x\n", &_lisp_start);
     do {
 	object_t *o = parse();
 	if (o != ERROR) {
 	    object_t *res = eval(o, NULL);
+	    if (res == ERROR)
+		panic();
 	    print_counter++;
-	    if (res != ERROR)
-		PRINT(res);
 	    garbage_collect();
-	}
+	} else if (token.type != END)
+	    panic();
     } while (token.type != END);
     boot_load = 0;
     reset_buffer();
@@ -78,19 +78,6 @@ void kmain(void)
     init_sys();
     graph_init();
     boot_lisp();
-    while(1) {
-	printf("> ");
-	object_t *o = parse();
-	//printf("parse: ");
-	//print_obj(o);
-	if (o != ERROR) {
-	    object_t *res = eval(o, NULL);
-	    //printf("\n");
-	    print_counter++;
-	    if (res != ERROR)
-		PRINT(res);
-	}      
-	garbage_collect();
-    }
+    while(1);
 }
 

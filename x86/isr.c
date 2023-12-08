@@ -34,11 +34,10 @@ char *table[] = {
  * @brief Вызывается при панике ядра
  * 
  */
-void panic(){
-  printf("\nPanic\n");
-  while(1){
-    
-  }
+void panic()
+{
+    printf("\nPanic\n");
+    while(1);
 }
 
 /**
@@ -48,7 +47,7 @@ void panic(){
  */
 void exception_handler(int num){
   printf(table[num]);
-  //  panic();
+  panic();
 }
 
 /** 

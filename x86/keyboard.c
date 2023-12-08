@@ -145,7 +145,7 @@ void init_keyboard()
   outb(0x64, 0xAA);
   data = inb(0x60);
   if (data == 0x55)
-    printf("Кeyboard is enabled\n");
+      ;//printf("Кeyboard is enabled\n");
   else
     printf("No keyboard\n");
 
