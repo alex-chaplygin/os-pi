@@ -78,6 +78,7 @@
 (defmacro for (var start end &rest body)
   "Цикл for, переменная var от start до end - 1"
   "body - тело цикла"
+  "(for i 0 10 (seta arr i i))"
   `(inner-for ,(intern (concat "for-" (symbol-name var))) ,var ,start ,end ,@body))
 
 (defmacro let (vars &rest body)
