@@ -99,7 +99,4 @@
 ;(move l1 20 20)
 ;l1
 
-(foldl '* 1 '(1 2 3 10))
-(foldl '(lambda (a x) (cons x a)) nil '(1 2 3))
-(foldr '* 1 '(1 2 3 10))
-(foldr '(lambda (a x) (cons x a)) nil '(1 2 3))
+     
