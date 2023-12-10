@@ -161,8 +161,9 @@ object_t *backquote_rec(object_t *list)
 			error("COMMA-AT: not list");
 			return ERROR;
 			}*/
-		    append_env(l, backquote_rec(TAIL(list)));
-		    return l;
+		object_t *new_comma = backquote_rec(l);
+		append_env(new_comma, backquote_rec(TAIL(list)));
+		return new_comma;
 	    }
 	}
 	object_t *tail = backquote_rec(TAIL(list));
