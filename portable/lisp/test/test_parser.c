@@ -135,6 +135,45 @@ token_t tok_number_dot_number[] = {
     {T_NUMBER, 2},
     {RPAREN}
 };
+
+token_t no_rparen_tokens_lists[] = {
+    {LPAREN},
+    {LPAREN},
+    {T_SYMBOL, 0, "a"},
+    {T_SYMBOL, 0, "b"},
+    {LPAREN},
+    {T_NUMBER, 1},
+    {T_NUMBER, 2},
+    {RPAREN},
+    {T_SYMBOL, 0, "e"},
+    {T_SYMBOL, 0, "f"},
+    {RPAREN},
+    {END}
+};
+
+token_t no_rparen_tokens_arrays[] = {
+    {LPAREN},
+    {LPAREN},
+    {T_SYMBOL, 0, "a"},
+    {T_SYMBOL, 0, "b"},
+    {SHARP},
+    {LPAREN},
+    {T_NUMBER, 1},
+    {SHARP},
+    {LPAREN},
+    {T_NUMBER, 2},
+    {LPAREN},
+    {T_NUMBER, 3},
+    {T_NUMBER, 4},
+    {RPAREN},
+    {T_NUMBER, 5},
+    {RPAREN},
+    {RPAREN},
+    {T_SYMBOL, 0, "c"},
+    {T_SYMBOL, 0, "d"},
+    {RPAREN},
+    {END}
+};
     
 token_t *tokens;
 
@@ -313,6 +352,32 @@ void test_parse_no_rparen()
     count = 0;
     cur_token = &token;
     tokens = no_rparen_tokens;
+    object_t *o = parse();
+    ASSERT(o, ERROR);
+}
+
+/** 
+ * Создать "((a b (1 2) e f)" и проверить ошибку при создании многоуровневого списка
+ */
+void test_parse_no_rparen_lists()
+{
+    printf("test_parse_no_rparen_lists: ");
+    count = 0;
+    cur_token = &token;
+    tokens = no_rparen_tokens_lists;
+    object_t *o = parse();
+    ASSERT(o, ERROR);
+}
+
+/** 
+ * Создать "((a b #(1 #(2 (3 4) 5)) c d )" и проверить ошибку при создании многоуровневых массивов
+ */
+void test_parse_no_rparen_arrays()
+{
+    printf("test_parse_no_rparen_arrays: ");
+    count = 0;
+    cur_token = &token;
+    tokens = no_rparen_tokens_arrays;
     object_t *o = parse();
     ASSERT(o, ERROR);
 }
@@ -512,6 +577,8 @@ int main()
     test_parse_quote(comma_tokens, "COMMA"); //17
     test_parse_list_quote(); //16
     test_parse_no_rparen();  //6
+    test_parse_no_rparen_lists(); //10
+    test_parse_no_rparen_arrays(); //11
     test_parse_inner_list(); //7
     test_parse_invalid();    //2
     test_parse_invalid_quote(); //2
