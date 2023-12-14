@@ -40,6 +40,11 @@ sh sys_test "(setq abc '(a b c))
 9
 (1 A B C (9) \"a\" #(1 9 2))" # 25 26 27
 
+echo "---Тесты cdr ---"
+sh sys_test "(cdr '(a b c))" "(B C)" #11
+sh sys_test "(cdr \"dsfsd\")" "Not list in cdr" #61
+sh sys_test "(cdr)" "cdr: No args" #62
+sh sys_test  "(cdr '(a b c) '(d e f))" "cdr: Too many args" #63 
 
 sh sys_test "((lambda (x y) (cons x y)) 1 '(2))" "(1 2)" # 14 125
 sh sys_test "(defun null (x) (eq x (quote())))\

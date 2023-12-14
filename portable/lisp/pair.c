@@ -31,6 +31,16 @@ object_t *car(object_t *list)
  */
 object_t *cdr(object_t *list)
 {
+    if (list == NULL)
+    {
+	error("cdr: No args");
+	return ERROR;
+    }
+    if (TAIL(list) != NULL)
+    {
+        error("cdr: Too many args");
+        return ERROR;
+    }
     object_t *arg = FIRST(list);
     if (arg->type != PAIR){
         error("Not list in cdr");
