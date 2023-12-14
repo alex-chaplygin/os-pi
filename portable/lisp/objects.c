@@ -315,7 +315,7 @@ void free_array(array_t *a)
  */
 void mark_object(object_t *obj)
 {
-    if (obj == NULL || obj == NOVALUE)
+    if (obj == NULL || obj == NOVALUE || obj->mark == 1)
 	return;
     obj->mark = 1;
     if (obj->type == PAIR) {
