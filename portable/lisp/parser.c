@@ -186,4 +186,6 @@ object_t *parse()
 	return ERROR;
     else if (cur_token->type == INVALID)
 	return ERROR;
+    else
+	return ERROR;
 }

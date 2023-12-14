@@ -4,23 +4,22 @@
 #include "objects.h"
 #include "lexer.h"
 #include "parser.h"
+#include "eval.h"
 
 extern token_t *cur_token; // текущий токен
 int token_error;
 token_t token = {LPAREN, 0, ""};
 
-token_t numbers_tokens[] = {
+token_t atoms_tokens[] = {
     {T_NUMBER, 45},
     {T_NUMBER, 65},
+    {T_SYMBOL, 0, "A"},
+    {T_SYMBOL, 0, "B"},
+    {T_STRING, 0, "StrA"},
+    {T_STRING, 0, "StrB"},
     {RPAREN}
 };
 int count = 0;
-
-token_t symbols_tokens[] = {
-    {T_SYMBOL, 0, "A"},
-    {T_SYMBOL, 0, "B"},
-    {RPAREN}
-};
 
 //"1 (2))"
 token_t list_tokens[] = {
@@ -105,6 +104,25 @@ token_t tok_array[] = {
     {T_NUMBER, 2},
     {T_NUMBER, 3},
     {RPAREN}
+};
+
+token_t tok_array_error[] = {
+    {SHARP},
+    {SHARP},
+    {LPAREN},
+    {T_NUMBER, 1},
+    {T_NUMBER, 2},
+    {T_NUMBER, 3},
+    {RPAREN}
+};
+
+token_t tok_array_error_paren[] = {
+    {SHARP},
+    {RPAREN},
+    {T_NUMBER, 1},
+    {T_NUMBER, 2},
+    {T_NUMBER, 3},
+    {END}
 };
 
 token_t tok_array_list[] = {
@@ -245,44 +263,43 @@ token_t *get_token()
     return &tokens[count++];
 }
 
-
 /** 
- * Создать список из 2 элементов (чисел) и проверить корректность создания пар
+ * Создать список из 2 чисел, 2 символов и 2 строк и проверить корректность создания пар
  */
-void test_parse_list_numbers()
+void test_parse_list_atoms()
 {
-    printf("test_parse_list_numbers: ");
+    printf("test_parse_list_atoms: ");
     count = 0;
     cur_token = &token;
-    tokens = numbers_tokens;
+    tokens = atoms_tokens;
     object_t *o = parse_list();
+
     ASSERT(o->type, PAIR);
-    ASSERT(o->u.pair->right->type, PAIR);
-    ASSERT(o->u.pair->left->type, NUMBER);
-    ASSERT(o->u.pair->left->u.value, 45);
-    ASSERT(o->u.pair->right->u.pair->left->u.value, 65);
-    ASSERT(o->u.pair->right->u.pair->right, NULL);
+    
+    ASSERT(TAIL(o)->type, PAIR);
+    ASSERT(FIRST(o)->type, NUMBER);
+    ASSERT(FIRST(o)->u.value, 45);
+    ASSERT(SECOND(o)->type, NUMBER);
+    ASSERT(SECOND(o)->u.value, 65);
+
+    o = TAIL(TAIL(o));
+    
+    ASSERT(TAIL(o)->type, PAIR);
+    ASSERT(FIRST(o)->type, SYMBOL);
+    ASSERT(strcmp(FIRST(o)->u.symbol->str, "A"), 0);
+    ASSERT(SECOND(o)->type, SYMBOL);
+    ASSERT(strcmp(SECOND(o)->u.symbol->str, "B"), 0);
+
+    o = TAIL(TAIL(o));
+    
+    ASSERT(TAIL(o)->type, PAIR);
+    ASSERT(FIRST(o)->type, STRING);
+    ASSERT(strcmp(FIRST(o)->u.str->data, "StrA"), 0);
+    ASSERT(SECOND(o)->type, STRING);
+    ASSERT(strcmp(SECOND(o)->u.str->data, "StrB"), 0);
+
+    ASSERT(TAIL(TAIL(o)), NULL);
 }
-
-
-/** 
- * Создать список из 2 элементов (символов) и проверить корректность создания пар
- */
-void test_parse_list_symbols()
-{
-    printf("test_parse_list_symbols: ");
-    count = 0;
-    cur_token = &token;
-    tokens = symbols_tokens;
-    object_t *o = parse_list();
-    ASSERT(o->type, PAIR);
-    ASSERT(o->u.pair->right->type, PAIR);
-    ASSERT(o->u.pair->left->type, SYMBOL);
-    ASSERT(strcmp(o->u.pair->left->u.symbol->str, "A"), 0);
-    ASSERT(strcmp(o->u.pair->right->u.pair->left->u.symbol->str, "B"), 0);
-    ASSERT(o->u.pair->right->u.pair->right, NULL);
-}
-
 
 /** 
  * Создать список "1 (2))" и проверить корректность создания пар
@@ -448,6 +465,32 @@ void test_parse_array()
 }
 
 /** 
+ * Тестируем массив ##(1 2 3)
+ * На выходе: ошибка
+ */
+void test_parse_array_error()
+{
+    printf("test_parse_array_error: ");
+    count = 0;
+    tokens = tok_array_error;
+    object_t *o = parse();
+    ASSERT(ERROR, o);
+}
+
+/** 
+ * Тестируем массив #(1 2 3
+ * На выходе: ошибка
+ */
+void test_parse_array_error_paren()
+{
+    printf("test_parse_array_error_paren: ");
+    count = 0;
+    tokens = tok_array_error_paren;
+    object_t *o = parse();
+    ASSERT(ERROR, o);
+}
+
+/** 
  * Тестируем массив в списке (#(1 2 3))
  * На выходе: (#(1 2 3))
  */
@@ -550,10 +593,10 @@ void test_parse_number_dot_number()
  *           |    внутри квазицитиро- |
  *           |    вания               |
  * -------------------------------------------------------------------------
- * Запятая   | 17 находится внутри    | 26 находится вне выражения с backquote
+ * Запятая   | 17 находится внутри    | 
  *           | выражения с backquote  |
  * -------------------------------------------------------------------------
- * Массив    | 18 правильный массив   | 19 отсутсвуют открывающая или закрывающая скобки
+ * Массив    | 18 правильный массив   | 19 отсутсвуют открывающая скобки
  *           | 20 правильный          | 21 больше одного символа "#" в начале массива
  *           |    многоуровн. массив  | 23 многоуровневый массив с несоответствием количества
  *           | 22 правильный вложенный|    открывающих и закрывающих скобок
@@ -561,7 +604,7 @@ void test_parse_number_dot_number()
  *           |                        |    открывающих и закрывающих скобок
  * --------------------------------------------------------------------------
  * Запятая и | 25 находится внутри    |
- * @         |   выражения с backquote| 27 находится вне выражения с backquote
+ * @         |   выражения с backquote| 
  *           |  и применяется к списку|
 */
 int main()
@@ -569,8 +612,7 @@ int main()
     printf("------------test_parser------------\n");
     init_regions();
     test_strupr();
-    test_parse_list_numbers(); //5, 1
-    test_parse_list_symbols(); //3, 5
+    test_parse_list_atoms(); // 1, 3, 4, 5
     test_parse_list_list();    //7
     test_parse_quote(quote_tokens, "QUOTE"); //12
     test_parse_quote(backquote_tokens, "BACKQUOTE");//12
@@ -578,12 +620,14 @@ int main()
     test_parse_list_quote(); //16
     test_parse_no_rparen();  //6
     test_parse_no_rparen_lists(); //10
-    test_parse_no_rparen_arrays(); //11
+    test_parse_no_rparen_arrays(); //11 23
     test_parse_inner_list(); //7
     test_parse_invalid();    //2
     test_parse_invalid_quote(); //2
     test_parse_array(); //18 
     test_parse_array_list(); //9
+    test_parse_array_error(); //21
+    test_parse_array_error_paren(); //19
     test_parse_backquote_comma(); //17
     test_parse_quote_number(); //13
     test_parse_backquote_comma_at(); //25
