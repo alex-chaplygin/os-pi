@@ -27,6 +27,10 @@ object_t *make_array(object_t *list)
 */
 object_t *seta(object_t *list)
 {
+    if (list == NULL || TAIL(list) == NULL) {
+	error("seta: invalid arguments");
+	return ERROR;
+    }
     object_t *arr_o = FIRST(list);
     int index = SECOND(list)->u.value;
     if (index >= arr_o->u.arr->length || index < 0) {
