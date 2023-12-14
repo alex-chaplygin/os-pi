@@ -5,10 +5,9 @@
 #include "objects.h"
 #include "parser.h"
 
-extern object_t objects[];
+extern bignumber_t bignumbers[];
 extern pair_t pairs[];
-extern object_t *free_objs;
-extern int last_object;
+extern int last_bignumber;
 extern int last_pair;
 extern int last_symbol;
 extern pair_t *free_pairs;
@@ -38,7 +37,16 @@ symbol_t *find_symbol(char *str)
     return NULL;
 }
 
-
+/**
+ * Создать объект большое число и проверить, что оно правильно записалось
+ */
+void test_new_bignumber(int number)
+{
+    printf("test_new_number: ");
+    new_bignumber(number);
+    ASSERT(bignumbers[last_bignumber - 1].value, number);
+    //    ASSERT(GET_ADDR(bignumbers[last_number - 1].value), GET_ADDR(number));
+}
 
 /**
  * Создать две пары и проверить массив пар
@@ -88,8 +96,7 @@ void test_new_pair()
 void reset_mem()
 {
     last_symbol = 0;
-    last_object = 0;
-    free_objs = NULL;
+    last_bignumber = 0;
     last_pair = 0;
     free_pairs = NULL;
     last_string = 0;
@@ -198,9 +205,8 @@ void test_free_pair()
     reset_mem();
     int last_num = last_pair;
     object_t o1,o2;
-    for (int i = last_object; i < MAX_PAIRS; i++)
+    for (int i = last_pair; i < MAX_PAIRS; i++)
     {
-
         o1 = NEW_OBJECT(NUMBER, i);
 	o2 = NEW_OBJECT(NUMBER, i-1);
 	new_pair(o1, o2);
@@ -804,6 +810,9 @@ void main()
     test_return_get_addr();
     test_new_object(NUMBER, (void *)10);
     test_new_object(STRING, "test");
+    test_new_bignumber(1100);
+    test_new_bignumber(0);
+    test_new_bignumber(-1520);
     test_new_pair();
     test_free_pair();
 }

@@ -7,12 +7,10 @@
 #include "symbols.h"
 #include "eval.h"
 
-/// Индекс последнего объекта массива
-int last_object = 0;
-/// Массив или хранилище объектов
-object_t objects[MAX_OBJECTS];
-/// Указывает на начало списка свободных объектов 
-object_t *free_objs = NULL;
+/// Индекс последнего большого числа
+int last_bignumber = 0;
+/// Хранилище больших чисел
+bignumber_t bignumbers[MAX_NUMBERS];
 
 /// Индекс последней пары
 int last_pair = 0;
@@ -68,6 +66,28 @@ struct region *regions;
 /*     obj->free = 1; */
 /*     free_objs = obj; */
 /* } */
+
+/**
+ * Создание нового объекта большого целого числа
+ *
+ * @param num целое число
+ * 
+ * @return указатель на объект числа
+/*  */
+object_t new_bignumber(int num)
+{
+    bignumber_t *number;
+    if (last_bignumber == MAX_NUMBERS)
+    {
+        error("Error: out of memory: numbers");
+        return ERROR;
+    }
+    number = &bignumbers[last_bignumber++];
+    number->next = NULL;
+    number->free = 0;
+    number->value = num;
+    return NEW_OBJECT(BIGNUMBER, number);
+}
 
 /**
  * Создание нового объекта пары

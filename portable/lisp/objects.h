@@ -15,6 +15,8 @@
 #define MAX_ARRAYS 100
 /// Максимальная длина символа
 #define MAX_STR 500
+/// Всего больших чисел
+#define MAX_NUMBERS 1000
 
 #define PRINT(o) print_obj(o); printf("\n");
 #define ERROR (-1)
@@ -53,6 +55,7 @@ struct region {
 /// перечисление типов объектов
 typedef enum {
     NUMBER, /// целое число
+    BIGNUMBER, /// большое целое число
     SYMBOL, ///символ
     PAIR,    ///пара
     STRING,  ///строка
@@ -61,6 +64,14 @@ typedef enum {
 
 /// Тип для объекта
 typedef unsigned int object_t;  
+
+/// Структура большого целого числа
+typedef struct bignumber_s
+{
+    int value; // значение числа
+    struct bignumber_s *next; // указатель на следующее свободное число
+    int free; // Если 1 - число свободно
+} bignumber_t;
 
 /// Структура пары
 typedef struct pair_s
@@ -111,6 +122,7 @@ typedef struct symbol_s
 
 extern int print_counter;
 
+object_t new_bignumber(int num);
 object_t new_pair(object_t left, object_t right);
 struct symbol_s *new_symbol(char *str);
 void garbage_collect();
