@@ -56,11 +56,15 @@ object_t *eq(object_t *list)
 	error("eq: no args");
 	return ERROR;
     }
+    if (TAIL(list) == NULL) {
+	error("eq: one arg");
+	return ERROR;
+    }
     if (TAIL(TAIL(list)) != NULL) {
 	error("eq: too many args");
 	return ERROR;
     }
-    object_t *p1 = FIRST(list);
+        object_t *p1 = FIRST(list);
     object_t *p2 = SECOND(list);
     //printf("p1: ");
     //PRINT(p1);
