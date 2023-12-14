@@ -279,7 +279,7 @@ sh sys_test "(eq)" "eq: no args" # 55
 #случай больше двух аргументов 
 sh sys_test "(eq 1 2 3)" "eq: too many args" # 56
 #случай  1 аргумент
-sh sys_test "(eq 'g)" ""  # 57
+sh sys_test "(eq 'g)" "eq: one arg"  # 57
 
 echo "---Тесты EQUAL----"
 # случай число TRUE
@@ -336,7 +336,9 @@ sh sys_test "(seta #(1 2 3 4) 0 10)" "#(10 2 3 4)"  #37
 # отсутствие аргументов
 sh sys_test "(seta  )" "seta: invalid arguments" #99
 # >3 аргументов
-sh sys_test "(seta #(1 2 3 4) 1 2 4)" "#(1 2 3 4)" #100
+sh sys_test "(seta #(1 2 3 4) 1 2 4)" "" #100
+# без значения
+sh sys_test "(seta #(1 2 3 4) 1)" ""
 # <3 аргументов
 sh sys_test "(seta #(1 2 3 4))" "seta: invalid arguments" #101
 # второй аргумент не число
