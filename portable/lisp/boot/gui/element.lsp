@@ -103,11 +103,5 @@
 (defmethod add-child ((self element) child)
   "Добавление дочернего элемента child"
   (setf (slot self 'children) (append (slot self 'children) (list child)))
-  (setf (slot child 'parent) self))
-					;(calc-y self)
-;(calc-x self)
-
-(defun set-color (c) nil)
-(defun set-back-color (c) nil)
-(defun set-cursor (a b) nil)
-(defun putchar (c) c)
+  (setf (slot child 'parent) 'self)
+  nil)
