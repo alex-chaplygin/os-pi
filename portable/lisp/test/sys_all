@@ -294,6 +294,55 @@ sh sys_test "(equal 1)" "equal: no second argument
 sh sys_test "(equal 1 2 3)" "equal: too many arguments
 "
 
+echo "---Тесты INTERN---"
+#аргумент строка
+sh sys_test "(intern \"F\")" "F" #30
+# отсутствие аргументов
+sh sys_test "(intern )" "intern: no arguments
+" #91
+# аргумент не строка
+sh sys_test "(intern 1)" "intern: not string in params
+" #92
+# больше одного аргумента
+sh sys_test "(intern 'a 'd)" "intern: not string in params
+" #93
+
+echo  "---Тесты SETA---"
+# три аргумента
+sh sys_test "(seta #(1 2 3 4) 0 10)" "#(10 2 3 4)"  #35
+# второй аргумент число 
+sh sys_test "(seta #(1 2 3 4) 0 10)" "#(10 2 3 4)"  #36
+# первый аргумент объект массив 
+sh sys_test "(seta #(1 2 3 4) 0 10)" "#(10 2 3 4)"  #37
+# отсутствие аргументов
+sh sys_test "(seta  )" "seta: invalid arguments" #99
+# >3 аргументов
+sh sys_test "(seta #(1 2 3 4) 1 2 4)" "#(1 2 3 4)" #100
+# <3 аргументов
+sh sys_test "(seta #(1 2 3 4))" "seta: invalid arguments" #101
+# второй аргумент не число
+sh sys_test "(seta #(1 2 3 4) 'd 10)" "seta: index out of range" #102
+# первый аргумент не объект массив
+sh sys_test "(seta 2 1)" "" #103
+
+echo  "---Тесты AREF---"
+# два аргумента
+sh sys_test "(aref #(1 2 3 4) 1)" 2  #38
+# первый аргумент объект массив
+sh sys_test "(aref #(1 2 3 4) 1)" 2  #39
+# второй аргумент число 
+sh sys_test "(aref #(1 2 3 4) 1)" 2  #40
+# отсутствие аргументов
+sh sys_test "(aref  )" "aref: invalid arguments" #104
+# >2 аргументов
+sh sys_test "(aref #(1 2 3 4) 1 2 )" 2 #105
+# <2 аргументов
+sh sys_test "(aref #(1 2 3 4))" "aref: invalid arguments" #106
+# второй аргумент не число
+sh sys_test "(aref #(1 2 3 4) 'd)" "aref: index should be a number" #107
+# первый аргумент не объект массив
+sh sys_test "(aref 2 1)" "aref: index out of range" #108
+
 echo "---Тесты FUNCALL---"
 # аргумент - ламбда-функция
 sh sys_test "(funcall '(lambda (x) (+ x 1)) 2)" "3" # 14 125
