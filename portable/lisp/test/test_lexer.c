@@ -154,7 +154,7 @@ void test_is_symbol(char ch, int ch_i)
 void test_get_symbol(char* src, const char* expect)
 {
     //Буфер
-    char str[20];
+    char str[MAX_SYMBOL];
     
     printf("test_get_symbol: ");
     write_file(src);
@@ -269,6 +269,35 @@ void test_string_overflow()
     ASSERT(token_error, 1);    
 }
 
+/*
+* Тестирование символа максимального размера
+*/
+void test_symbol_max()
+{
+    char *in  = generate_string(MAX_SYMBOL, 'a');
+    char *out = generate_raw_string(MAX_SYMBOL, 'a');
+    test_get_symbol(in, out);
+    free(in);
+    free(out);
+}
+
+/*
+* Тестирование превышения длины строки
+*/
+void test_symbol_overflow()
+{
+    printf("test_symbol_overflow :");
+    char *src = generate_string(MAX_SYMBOL + 1, 'a');
+    //Буфер
+    char str[MAX_SYMBOL];
+    
+    write_file(src);
+    get_cur_char();
+    get_symbol(str);
+
+    ASSERT(token_error, 1);    
+}
+
 
 /*
 get_token
@@ -352,5 +381,7 @@ int main()
     test_invalid_token("invalid string", "\"1 2 3", 1); // 17
     test_invalid_token("invalid symbol", "ss^s?", 1); // 20
  
+    test_symbol_max(); // граничный тест на максимальный символ
+    test_symbol_overflow(); // граничный тест на превышение допустимого размера символа
     return 0;
 }
