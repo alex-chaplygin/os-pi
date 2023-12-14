@@ -31,6 +31,7 @@ sh sys_test "(quote())" "NIL"
 sh sys_test "(quote a b)" "quote: many args" #53
 
 echo "---Тесты BACKQUOTE---"
+sh sys_test "\`(,@())" "NIL"
 sh sys_test "(setq y 3)
    	    	  \`(x ,y \`(a ,b))" "3
 (X 3 (BACKQUOTE (A (COMMA B))))" # 25 26 27
