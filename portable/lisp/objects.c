@@ -90,6 +90,44 @@ object_t new_bignumber(int num)
 }
 
 /**
+ * Создание нового объекта маленького целого числа
+ * -1 11111111111111111111111...
+ * GET_ADDR -> 00001111111111111111...
+ * -MAX_NUM 11111000000000000000...
+ * GET_ADDR -> 000010000000000...
+ *
+ * @param num целое число
+ * 
+ * @return указатель на объект числа
+ */
+object_t new_number(int num)
+{
+    unsigned int mask = (1 << ADDR_BITS) - 1;
+    int min_val = ((1 << (TYPE_BITS + 2)) - 1) << ADDR_BITS - 1;
+    if (num >= 0 && num <= mask)
+	return NEW_OBJECT(NUMBER, num);
+    else if (num >= min_val)
+	return NEW_OBJECT(NUMBER, num);
+    else
+	return new_bignumber(num);
+}
+
+/**
+ * Возвращает значение числа из объекта
+ * @param obj объект
+ * 
+ * @return число
+ */
+int get_value(object_t obj)
+{
+    if ((int)obj < 0)
+	return GET_ADDR(obj) | (((1 << TYPE_BITS + 1) - 1) << ADDR_BITS);
+    else
+	return GET_ADDR(obj);
+}
+
+
+/**
  * Создание нового объекта пары
  *
  * @param left левый объект

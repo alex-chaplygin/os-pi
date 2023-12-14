@@ -42,10 +42,31 @@ symbol_t *find_symbol(char *str)
  */
 void test_new_bignumber(int number)
 {
-    printf("test_new_number: ");
+    printf("test_new_bignumber: ");
     new_bignumber(number);
     ASSERT(bignumbers[last_bignumber - 1].value, number);
     //    ASSERT(GET_ADDR(bignumbers[last_number - 1].value), GET_ADDR(number));
+}
+
+/**
+ * Создать объект маленькое число и проверить, что оно правильно записалось
+ */
+void test_new_number(int number)
+{
+    printf("test_new_number: ");
+    object_t o = new_number(number);
+    ASSERT(TYPE(o), NUMBER);
+    ASSERT(get_value(o), number);
+}
+
+/**
+ * Создать объект маленькое число и проверить получение значения
+ */
+void test_get_value(int number)
+{
+    printf("test_get_value: ");
+    object_t o = new_number(number);
+    ASSERT(get_value(o), number);
 }
 
 /**
@@ -813,6 +834,12 @@ void main()
     test_new_bignumber(1100);
     test_new_bignumber(0);
     test_new_bignumber(-1520);
+    test_new_number(-677);
+    test_new_number(56);
+    test_new_number(0);
+    test_get_value(13);
+    test_get_value(0);
+    test_get_value(-6);
     test_new_pair();
     test_free_pair();
 }

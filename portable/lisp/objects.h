@@ -28,6 +28,8 @@
 #define TYPE_BITS 3
 /// Номер бита пометки для сборщика мусора
 #define MARK_BIT (TYPE_BITS + 1)
+/// Число бит в адресе
+#define ADDR_BITS 28
 /// Возвращение типа объекта в младших битах
 #define TYPE(obj) ((obj) & ((1 << TYPE_BITS) - 1))
 /// Установить бит пометки
@@ -39,7 +41,7 @@
 /// Получить адрес объекта
 #define GET_ADDR(obj) ((obj) >> (TYPE_BITS + 1))
 //макрос, который строит указатель, состоящий из типа в младших битах и значения в остальных
-#define NEW_OBJECT(type, val)  ((object_t )((((int)val) << (TYPE_BITS + 1)) | (type)))
+#define NEW_OBJECT(type, val)  ((object_t )((((unsigned int)val) << (TYPE_BITS + 1)) | (type)))
 
 #pragma pack(4)
 /// создаваемый или свободный регион памяти
@@ -123,6 +125,8 @@ typedef struct symbol_s
 extern int print_counter;
 
 object_t new_bignumber(int num);
+object_t new_number(int num);
+int get_value(object_t obj);
 object_t new_pair(object_t left, object_t right);
 struct symbol_s *new_symbol(char *str);
 void garbage_collect();
