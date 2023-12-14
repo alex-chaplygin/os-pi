@@ -104,6 +104,18 @@ void test_aref_invalid_index(int index)
 }
 
 /**
+ * Тестирование обращения по индексу к объекту, не являющемуся массивом
+ */
+void test_aref_invalid_array()
+{
+    printf("test_aref_invalid_array: ");
+    int idx = 2;
+    object_t *obj = object_new(NUMBER, &idx);
+    object_t *elem = aref(new_pair(obj, new_pair(object_new(NUMBER, &idx), NULL)));
+    ASSERT(elem, ERROR);
+}
+
+/**
  * Тестирование чтения элемента массива без параметров
  */
 void test_aref_no_args()
@@ -136,5 +148,6 @@ int main()
     test_aref_invalid_index(-1);
     test_aref_no_args();
     test_aref_only_array();
+    test_aref_invalid_array();
     return 0;
 }

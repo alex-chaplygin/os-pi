@@ -52,13 +52,16 @@ object_t *aref(object_t *list)
         return ERROR;
     }
     object_t *arr_o = FIRST(list);
+    if (arr_o->type != ARRAY) {
+	error("aref: not an array");
+	return ERROR;
+    }
     object_t *index_obj = SECOND(list);
     if (index_obj->type != NUMBER) {
         error("aref: index should be a number");
         return ERROR;
-    }
+    }    
     int index = index_obj->u.value;
-    
     if (index >= arr_o->u.arr->length || index < 0) {
 	error("aref: index out of range");
 	return ERROR;
