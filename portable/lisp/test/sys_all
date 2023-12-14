@@ -10,16 +10,16 @@ sh sys_test "(a b c" "expected )"
 sh sys_test ")" ""
 sh sys_test "((a b (1 2) e f)" "expected )" #10
 sh sys_test "((a b #(1 #(2 (3 4) 5)) c d )" "expected )" #11
-
+sh sys_test "#(1 #(2 3) 4)" "#(1 #(2 3) 4)" # 20
 
 echo "---Тесты ATOM---"
 sh sys_test "(atom 'a)" "T" # 2
 sh sys_test "(atom 10)" "T" # 1
-sh sys_test "(atom '(a b c))" "NIL"
-sh sys_test "(atom '())" "T"
-sh sys_test "(atom (atom 'a))" "T"
-sh sys_test "(atom '(atom 'a))" "NIL"
-sh sys_test "(atom )" "atom: no args" # 52
+sh sys_test "(atom '(a b c))" "NIL" # 7
+sh sys_test "(atom '())" "T" # 7
+sh sys_test "(atom (atom 'a))" "T" # 7
+sh sys_test "(atom '(atom 'a))" "NIL" # 7
+sh sys_test "(atom )" "atom: no args" # 52 54
 sh sys_test "(atom 'a 'd)" "atom: many args" # 131
 sh sys_test "(atom \"abc\")" "T" # 3
 sh sys_test "(atom #(1 2 3 4))" "T" # 4
@@ -261,6 +261,20 @@ sh sys_test "(and)" "and: no params"
 sh sys_test "(and (+ 1 2))" "and: invalid param"
 # проверка на невычисление аргумента
 sh sys_test "(and nil (+ 1 2))" "NIL"
+
+echo "---Тесты EQ----"
+#случай число FALSE
+sh sys_test "(eq 1 1)" "NIL"
+#случай символ TRUE
+sh sys_test "(eq 'a 'a)" "T"
+#случай символ FALSE
+sh sys_test "(eq 'a 'b)" "NIL" # 9
+#случай отстутствие аргументов
+sh sys_test "(eq)" "eq: no args" # 55
+#случай больше двух аргументов 
+sh sys_test "(eq 1 2 3)" "eq: too many args" # 56
+#случай  1 аргумент
+sh sys_test "(eq 'g)" ""  # 57
 
 echo "---Тесты EQUAL----"
 # случай число TRUE

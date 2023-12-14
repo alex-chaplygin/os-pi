@@ -52,6 +52,14 @@ object_t *eq(object_t *list)
 {
     //printf("eq: ");
     //PRINT(list);
+    if (list == NULL) {
+	error("eq: no args");
+	return ERROR;
+    }
+    if (TAIL(TAIL(list)) != NULL) {
+	error("eq: too many args");
+	return ERROR;
+    }
     object_t *p1 = FIRST(list);
     object_t *p2 = SECOND(list);
     //printf("p1: ");
@@ -62,7 +70,7 @@ object_t *eq(object_t *list)
         error("not symbol in eq");
 	return ERROR;
 	}*/
-    if (p1 == NULL && p2 == NULL || p1 != NULL && p2 != NULL && p1->u.symbol == p2->u.symbol)
+    if (p1 == NULL && p2 == NULL || p1 != NULL && p2 != NULL && p1->u.symbol == p2->u.symbol && p1->type == SYMBOL && p2->type == SYMBOL)
         return t;
     else
         return nil;
