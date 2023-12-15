@@ -123,6 +123,56 @@ object_t *int_div(object_t *list)
     }
 }
 
+/**
+ * Сравнение на больше (> 8 2)
+ * 
+ * @param list - список чисел (8 2)
+ *
+ * @return результат от сравнения
+ */
+object_t *gt(object_t *list)
+{
+    if (list == NULL) {
+        error(">: no arguments\n");
+        return ERROR;
+    }
+    if (TAIL(list) == NULL) {
+        error(">: one argument\n");
+        return ERROR;
+    }
+    object_t *first = FIRST(list);
+    object_t *second = SECOND(list);
+    if (first->u.value > second->u.value)
+        return t;
+    else 
+        return NULL;
+}
+
+/**
+ * Сравнение на меньше (< 8 2)
+ * 
+ * @param list - список чисел (8 2)
+ *
+ * @return результат от сравнения
+ */
+object_t *less(object_t *list)
+{
+    if (list == NULL) {
+        error("<: no arguments\n");
+        return ERROR;
+    }
+    if (TAIL(list) == NULL) {
+        error("<: one argument\n");
+        return ERROR;
+    }
+    object_t *first = FIRST(list);
+    object_t *second = SECOND(list);
+    if (first->u.value < second->u.value)
+        return t;
+    else 
+        return NULL;
+}
+
 /** 
  * Сравнение числовых аргументов (= 1 2)
  *
@@ -325,4 +375,6 @@ void init_arith()
     register_func("BITOR", bitwise_or);
     register_func("<<", shift_left);
     register_func(">>", shift_right);
+    register_func(">", gt);
+    register_func("<", less);
 }

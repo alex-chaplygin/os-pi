@@ -83,6 +83,12 @@ sh sys_test "(1" "expected )"
 sh sys_test "(+ 1 2 3 5)" "11"
 sh sys_test "(- 9 5 1 1)" "2"
 sh sys_test "(* 1 2 3 5)" "30"
+sh sys_test "(> 1 2)" "NIL"
+sh sys_test "(> 3 2)" "T"
+sh sys_test "(> 3 3)" "NIL"
+sh sys_test "(< 1 2)" "T"
+sh sys_test "(< 3 2)" "NIL"
+sh sys_test "(< 3 3)" "NIL"
 sh sys_test "(progn (+ 2 3) (* 3 4))" "12"
 sh sys_test "(defun test (x) (+ x 10) (* x 20)) (test 5)" "TEST
 100" # 18
