@@ -304,6 +304,30 @@ void test_garbage_collect_list()
 }
 
 /**
+ * Создать две пары
+ * Присвоить левым частям этих пар - числа, а правые ссылались друг на друга
+ * Создать два символа, которые ссылаются на эти пары
+ * Проверить работу сборщика мусора, у пар поле free должно быть равно нулю.
+ */
+void test_garbage_collect_cycle()
+{
+    printf("test_garbage_collect_cycle: ");
+    int num1 = 1;
+    symbol_t *s1 = new_symbol("A");
+    symbol_t *s2 = new_symbol("B");
+    object_t *p1 = new_pair(object_new(NUMBER, &num1), NULL);
+    object_t *p2 = new_pair(object_new(NUMBER, &num1), NULL);
+    p1->u.pair->right = p2;
+    p2->u.pair->right = p1;
+    s1->value = p1;
+    s2->value = p2;
+    garbage_collect();
+
+    ASSERT(p1->free, 0);
+    ASSERT(p2->free, 0);
+}
+
+/**
  * Выделить 2 региона с размерами 5 и 64
  * Проверить указатели регионов относительно начала
  * Проверить указатели данных
@@ -579,6 +603,7 @@ void main()
     test_free_string();
     test_garbage_collect_strings(); //22,24
     test_garbage_collect_arrays();  //23,24
+    test_garbage_collect_cycle();
     test_print();
     int i = 10;
     test_print_obj(object_new(NUMBER, &i), "10");
