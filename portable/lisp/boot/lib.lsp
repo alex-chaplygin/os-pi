@@ -67,6 +67,33 @@
   `(cond (,test ,true)
 	 (t ,false)))
 
+(defmacro unless (test &rest body)
+  "Условный неполный оператор"
+  "test - условие"
+  "body - список выражений по лжи"
+  `(if ,test nil (progn ,@body)))
+
+(defmacro when (test &rest body)
+  "Условный неполный оператор"
+  "test - условие"
+  "body - список выражений по истине"
+  `(if ,test (progn ,@body) nil))
+
+(defmacro case (val &rest list)
+  "(setq k 10)"
+  "(case k ((1 2)(2 3)(otherwise 4)))"
+  "(cond ((equal k 1) 2)
+         ((equal k 2) 3)
+         (t 4))"
+  `(cond ,@(map '(lambda (x) (case-func x val)) list)))
+
+(defun case-func (p val)
+  "(e v) -> ((equal val e) v)"
+  "(otherwise v) -> (t v)"
+  (if (eq (car p) 'otherwise)
+      (list t (cadr p))
+      (list (list 'equal (car p) val) (cadr p))))
+
 (defmacro inner-for (name var start end &rest body)
   "Вспомогательная функция для for"
   `(defun ,name (,var)
@@ -137,5 +164,3 @@
   (cond ((atom var) `(setq ,var ,val))
 	((eq (car var) 'slot) `(set-hash ,(cadr var) ,(caddr var) ,val))
 	(t "setf: invalid var")))
-
-
