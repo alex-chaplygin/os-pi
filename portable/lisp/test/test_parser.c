@@ -125,6 +125,19 @@ token_t tok_array_error_paren[] = {
     {END}
 };
 
+token_t tok_inner_array[] = {
+    {SHARP},
+    {LPAREN},
+    {T_NUMBER, 1},
+    {SHARP},
+    {LPAREN},
+    {T_NUMBER, 2},
+    {T_NUMBER, 3},
+    {RPAREN},
+    {T_NUMBER, 4},
+    {RPAREN},
+};
+
 token_t tok_array_list[] = {
     {LPAREN},
     {SHARP},
@@ -490,6 +503,28 @@ void test_parse_array_error_paren()
     ASSERT(ERROR, o);
 }
 
+/**
+ * Тестируем вложенныий в массив массив #(1 #(2 3) 4)
+ * На выходе: #(1 #(2 3) 4)
+*/
+void test_parse_inner_array()
+{
+    printf("test_parse_inner_array: ");
+    count = 0;
+    tokens = tok_inner_array;
+    object_t *o = parse();
+    array_t *a1 = o->u.arr;
+    object_t *o2 = a1->data[1];
+    array_t *a2 = o2->u.arr;
+
+    ASSERT(o->type, ARRAY);
+    ASSERT(a1->data[0]->u.value, 1);
+    ASSERT(o2->type, ARRAY);
+    ASSERT(a2->data[0]->u.value, 2);
+    ASSERT(a2->data[1]->u.value, 3);
+    ASSERT(a1->data[2]->u.value, 4);
+}
+
 /** 
  * Тестируем массив в списке (#(1 2 3))
  * На выходе: (#(1 2 3))
@@ -626,6 +661,7 @@ int main()
     test_parse_invalid_quote(); //2
     test_parse_array(); //18 
     test_parse_array_list(); //9
+    test_parse_inner_array(); // 20
     test_parse_array_error(); //21
     test_parse_array_error_paren(); //19
     test_parse_backquote_comma(); //17
