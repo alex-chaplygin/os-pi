@@ -11,6 +11,8 @@
 int last_bignumber = 0;
 /// Хранилище больших чисел
 bignumber_t bignumbers[MAX_NUMBERS];
+/// Список свободных больших чисел
+bignumber_t *free_bignumbers = NULL;
 
 /// Индекс последней пары
 int last_pair = 0;
@@ -79,14 +81,36 @@ object_t new_bignumber(int num)
     bignumber_t *number;
     if (last_bignumber == MAX_NUMBERS)
     {
-        error("Error: out of memory: numbers");
-        return ERROR;
-    }
-    number = &bignumbers[last_bignumber++];
+	if (free_bignumbers == NULL) {
+	    error("Error: out of memory: numbers");
+	    return ERROR;
+	}
+	number = free_bignumbers;
+	free_bignumbers = free_bignumbers -> next;
+    } else
+	number = &bignumbers[last_bignumber++];
     number->next = NULL;
     number->free = 0;
     number->value = num;
     return NEW_OBJECT(BIGNUMBER, number);
+}
+
+/**
+ * Освобождение памяти для большого числа
+ *
+ * @param o  объект для освобождения
+ */
+void free_bignumber(bignumber_t *o)
+{
+    if (o == NULL) {
+    	error("free_bignumber: null pointer: obj");
+    	return;
+    }    
+    if (o->free)
+	return;
+    o->next = free_bignumbers;
+    free_bignumbers = o;
+    o->free = 1;
 }
 
 /**

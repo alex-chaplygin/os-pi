@@ -133,6 +133,7 @@ void garbage_collect();
 object_t *dump_free(object_t *);
 void print_obj(object_t *obj);
 void free_object(object_t *obj);
+void free_bignumber(bignumber_t *o);
 void free_pair(pair_t *p);
 void print_free_objs();
 void print_free_pairs();

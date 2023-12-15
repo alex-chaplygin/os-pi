@@ -6,6 +6,7 @@
 #include "parser.h"
 
 extern bignumber_t bignumbers[];
+extern bignumber_t *free_bignumbers;
 extern pair_t pairs[];
 extern int last_bignumber;
 extern int last_pair;
@@ -47,6 +48,7 @@ void test_new_bignumber(int number)
     ASSERT(bignumbers[last_bignumber - 1].value, number);
     //    ASSERT(GET_ADDR(bignumbers[last_number - 1].value), GET_ADDR(number));
 }
+
 
 /**
  * Создать объект маленькое число и проверить, что оно правильно записалось
@@ -214,6 +216,19 @@ void test_mark()
     ASSERT(sym->mark, 1);
     ASSERT(p3->mark, 1);
     ASSERT(num2->mark, 1);
+}
+
+/** 
+ *Освобождение большого числа из объекта
+ */
+void test_free_bignumber()
+{
+    printf("test_free_bignumber: ");
+    reset_mem();
+    object_t o = new_number(855500000);
+    ASSERT(TYPE(o), BIGNUMBER);
+    //    free_bignumber((bignumber_t *)GET_ADDR(o));
+    //ASSERT(free_bignumbers, (bignumber_t *)GET_ADDR(o));
 }
 
 /**
@@ -834,9 +849,12 @@ void main()
     test_new_bignumber(1100);
     test_new_bignumber(0);
     test_new_bignumber(-1520);
+    test_free_bignumber();
     test_new_number(-677);
     test_new_number(56);
     test_new_number(0);
+    test_new_number((1<<27)-1);
+    test_new_number(~((1<<27)-1));
     test_get_value(13);
     test_get_value(0);
     test_get_value(-6);
