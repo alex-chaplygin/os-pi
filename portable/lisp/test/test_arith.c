@@ -342,6 +342,28 @@ void test_shift_right(int num1, int num2, int res)
     ASSERT(obj_res->u.value, res);
 }
 
+/**
+ * Тест сдвига вправо, передача списка без второго параметра
+ */
+void test_shift_right_no_second_param()
+{
+    printf("test_shift_right_no_second_param: ");
+    int num = 1;
+    object_t *list = new_pair(object_new(NUMBER, &num), NULL);
+    object_t *res = shift_right(list);
+    ASSERT(res, ERROR);
+}
+
+/**
+ * Тест сдвига вправо, передача пустого списка
+ */
+void test_shift_right_empty_list()
+{
+    printf("test_shift_right_empty_list: ");
+    object_t *res = shift_right(NULL);
+    ASSERT(res, ERROR);
+}
+
 /** 
  * Сравнение чисел
  */
@@ -390,6 +412,8 @@ int main()
     test_shift_left_no_second_param();
     test_shift_right(1, 1, 0);
     test_shift_right(10, 2, 2);
+    test_shift_right_empty_list();
+    test_shift_right_no_second_param();
     test_equal();
     return 0;
 }
