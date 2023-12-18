@@ -335,11 +335,7 @@ sh sys_test "(intern 'a 'd)" "intern: not string in params
 
 echo  "---Тесты SETA---"
 # три аргумента
-sh sys_test "(seta #(1 2 3 4) 0 10)" "#(10 2 3 4)"  #35
-# второй аргумент число 
-sh sys_test "(seta #(1 2 3 4) 0 10)" "#(10 2 3 4)"  #36
-# первый аргумент объект массив 
-sh sys_test "(seta #(1 2 3 4) 0 10)" "#(10 2 3 4)"  #37
+sh sys_test "(seta #(1 2 3 4) 0 10)" "#(10 2 3 4)"  #35 36 37
 # отсутствие аргументов
 sh sys_test "(seta  )" "seta: invalid arguments" #99
 # >3 аргументов
