@@ -7,7 +7,7 @@ sh sys_test "~" "ERROR: lexer.c: INVALID SYMBOL"
 #PARSER 6 список без закрывающей скобки
 sh sys_test "(a b c" "expected )"
 #PARSER 8 пустой список без открывающей скобки
-sh sys_test ")" ""
+sh sys_test ")" "invalid expression"
 sh sys_test "((a b (1 2) e f)" "expected )" #10
 sh sys_test "((a b #(1 #(2 (3 4) 5)) c d )" "expected )" #11
 sh sys_test "#(1 #(2 3) 4)" "#(1 #(2 3) 4)" # 20
