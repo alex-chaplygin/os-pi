@@ -41,6 +41,24 @@ sh sys_test "(setq abc '(a b c))
 9
 (1 A B C (9) \"a\" #(1 9 2))" # 25 26 27
 
+echo  "---Тесты COND---"
+# первый аргумент приводит к истине
+sh sys_test "(cond ((eq 'a 'a) 'first) 
+		   ((eq 'a 'b) 'second))" "FIRST"  #13
+# второй аргумент приводит к истине
+sh sys_test "(cond ((eq 'a 'b) 'first) 
+		   ((eq 'a 'a) 'second))" "SECOND"  #13
+# отсутствие аргументов
+sh sys_test "(cond  )" "NULL in COND" #67
+# отсутствие аргумента, приводящего к истине
+sh sys_test "(cond ((eq 'a 'b) 'first) 
+		   ((eq 'a 'b) 'second))" "NULL in COND" #68
+# лишнее выражение в паре
+sh sys_test "(cond ((eq 'a 'a)(eq 'a 'b) 'first))" ERROR
+# отсутствие выражения после предикат
+sh sys_test "(cond ((eq 'a 'b)) 
+		   ((eq 'a 'a)))" ERROR  #69
+		   
 echo "---Тесты cdr ---"
 sh sys_test "(cdr '(a b c))" "(B C)" #11
 sh sys_test "(cdr \"dsfsd\")" "Not list in cdr" #61
