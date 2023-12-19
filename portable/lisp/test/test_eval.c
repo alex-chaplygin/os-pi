@@ -160,7 +160,7 @@ void test_cdr()
     
     struct pair_s node;
     node.left = &pair;
-    node.right = &num;
+    node.right = NULL;
     
     object_t lst;
     lst.type = PAIR;
