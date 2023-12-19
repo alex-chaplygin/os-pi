@@ -16,6 +16,7 @@ int find_in_env(object_t *env, object_t *sym, object_t **res);
 int is_lambda(object_t *list);
 void append_env(object_t *l1, object_t *l2);
 object_t *setq(object_t *params);
+object_t *atom(object_t *params);
 object_t *defvar(object_t *params);
 object_t *cons(object_t *list);
 object_t *backquote(object_t *list);
@@ -450,6 +451,60 @@ void test_backquote_arguments()
     ASSERT(FIRST(TAIL(TAIL(TAIL(TAIL(TAIL(TAIL(resultlist)))))))->type, ARRAY);
 }
 
+/**
+ * Проверка объекта на то, является ли аргумент неделимым
+ * Объект неделимый - результат истинна
+ */
+void test_atom()
+{
+    printf("test_atom: ");
+    int number = 5;
+    object_t *num_obj = object_new(NUMBER, &number);
+    object_t *pair = new_pair(num_obj, NULL);
+    object_t *res = atom(pair);
+    ASSERT(res, t);
+}
+
+/**
+ * Попытка проверки на неделимость объекта NULL 
+ */
+void test_atom_null()
+{
+    printf("test_atom_null: ");
+    object_t *res = atom(NULL);
+    ASSERT(res, ERROR);
+}
+
+/**
+ * Попытка проверки списка на неделимость 
+ * Объект список - результат nil
+ */
+void test_atom_list()
+{
+    printf("test_atom_list: ");
+    int number = 5;
+    char *symbol = "X";
+    object_t *sym_obj = object_new(SYMBOL, symbol);
+    object_t *num_obj = object_new(NUMBER, &number);
+    object_t *list = new_pair(num_obj, new_pair(sym_obj, NULL));
+    object_t *temp = new_pair(list, NULL);
+    object_t *res = atom(temp);
+    ASSERT(res, nil);
+}
+
+/**
+ * Попытка проверки на неделимость нескольких элементов 
+ */
+void test_atom_many_args()
+{
+    printf("test_atom_many_args: ");
+    int number = 5;
+    object_t *num_obj = object_new(NUMBER, &number);
+    object_t *list = new_pair(num_obj, new_pair(num_obj, NULL));
+    object_t *res = atom(list);
+    ASSERT(res, ERROR);
+}
+
 /*
 eval_int
 +---------------------------+------------------------------------------------+------------------------------------------------------+
@@ -594,6 +649,10 @@ int main()
     test_cons_3_params();//65
     test_backquote_nulllist();
     test_backquote_arguments();
+    test_atom();//1
+    test_atom_null();//52
+    test_atom_list();
+    test_atom_many_args();//131
     return 0;
 }
 
