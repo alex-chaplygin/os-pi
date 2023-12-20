@@ -54,10 +54,10 @@ sh sys_test "(cond  )" "NULL in COND" #67
 sh sys_test "(cond ((eq 'a 'b) 'first) 
 		   ((eq 'a 'b) 'second))" "NULL in COND" #68
 # лишнее выражение в паре
-sh sys_test "(cond ((eq 'a 'a)(eq 'a 'b) 'first))" ERROR
+sh sys_test "(cond ((eq 'a 'a)(eq 'a 'b) 'first))" "cond: too many params"
 # отсутствие выражения после предикат
 sh sys_test "(cond ((eq 'a 'b)) 
-		   ((eq 'a 'a)))" ERROR  #69
+		   ((eq 'a 'a)))" "cond: not enough params"  #69
 		   
 echo "---Тесты cdr ---"
 sh sys_test "(cdr '(a b c))" "(B C)" #11
