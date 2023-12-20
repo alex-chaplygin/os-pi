@@ -215,6 +215,16 @@ object_t *cond(object_t *obj)
 	return ERROR;
     }
     object_t *pair = FIRST(obj);
+    if (TAIL(pair) == NULL)
+    {
+        error("cond: not enough params");
+        return ERROR;
+    }
+    if (TAIL(TAIL(pair)) != NULL)
+    {
+        error("cond: too many params");
+        return ERROR;
+    }
     object_t *p = FIRST(pair);
     if (eval(p, current_env) == t)
         return eval(SECOND(pair), current_env);

@@ -162,6 +162,29 @@ void test_cond()
 }
 
 /**
+ * Создать выражение (cond ((eq 'a 'a) (eq 'a 'a) 'first))
+ * Вычислить его и проверить результат на ошибку
+*/
+void test_cond_many_params()
+{
+    printf("test_cond_many_params: \n");
+    object_t *a = new_pair(object_new(SYMBOL, "QUOTE"), new_pair(
+        object_new(SYMBOL, "A"), NULL));
+    object_t *eq_pair = new_pair(
+        object_new(SYMBOL, "EQ"), new_pair(
+            a, new_pair(
+                a, NULL)));
+    object_t *first = new_pair(object_new(SYMBOL, "QUOTE"), new_pair(
+        object_new(SYMBOL, "FIRST"), NULL));
+    object_t *args = new_pair(eq_pair, new_pair(
+        eq_pair, new_pair(
+            first, NULL)));
+    object_t *cond_pair = new_pair(object_new(SYMBOL, "COND"), new_pair(args, NULL));
+    object_t *res = eval(cond_pair, NULL);
+    ASSERT(res, ERROR);
+}
+
+/**
  * Создать объект для выражения (lambda (a, b) (atom (car (a, b))))
  * Вызвать функцию is_lambda
  * Проверить результат = 1
@@ -635,6 +658,7 @@ int main()
     test_is_lambda();//14
     test_is_lambda_not_symbol();//124
     test_cond();//13
+    test_cond_many_params();
     test_make_env();
     test_find_in_env();
     test_defun();//18
