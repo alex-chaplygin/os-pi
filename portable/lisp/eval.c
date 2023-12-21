@@ -562,7 +562,7 @@ object_t *eval_symbol(object_t *obj)
 object_t *eval(object_t *obj, object_t *env)
 {
     //printf("eval: ");
-    //PRINT(obj);
+    // PRINT(obj);
     //printf("env: ");
     //PRINT(env);
     current_env = env;
@@ -805,6 +805,7 @@ object_t *funcall(object_t *params)
 	return ERROR;
     }
 }
+
 /**
  * Возвращает список из аргументов
  * @param args (аргумент 1, аргумент 2 ...)
@@ -813,6 +814,16 @@ object_t *funcall(object_t *params)
 object_t *list(object_t *args)
 {
     return args;
+}
+
+/**
+ * Вычисляет свой аргумент
+ * @param args (выражение)
+ * @return возвращает список из аргументов
+ */
+object_t *lisp_eval(object_t *args)
+{
+    return eval(FIRST(args), current_env);
 }
 
 /** 
@@ -835,6 +846,7 @@ void init_eval()
     register_func("MACROEXPAND", macroexpand);
     register_func("FUNCALL", funcall);
     register_func("LIST", list);
+    register_func("EVAL", lisp_eval);
     t = object_new(SYMBOL, "T");
     nil = NULL;
     quote_sym = find_symbol("QUOTE");
