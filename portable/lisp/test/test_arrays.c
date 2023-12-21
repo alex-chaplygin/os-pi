@@ -137,6 +137,23 @@ void test_aref_only_array()
     ASSERT(elem, ERROR);
 }
 
+/**
+ * Тестирование чтения элемента массива по неверному типу индекса
+ */
+void test_aref_invalid_index_type()
+{
+    printf("test_aref_invalid_index_type: ");
+    int length = 3;
+    int num = 4;
+    object_t *list = new_pair(object_new(NUMBER, &length), NULL);
+    object_t *arr = make_array(list);
+    object_t *obj = object_new(NUMBER, &num);
+    arr->u.arr->data[2] = obj;
+
+    object_t *elem = aref(new_pair(arr, new_pair(object_new(PAIR, new_pair(NULL, NULL)), NULL)));
+    ASSERT(elem, ERROR);
+}
+
 int main()
 {
     printf("------------test_arrays---------\n");
@@ -146,6 +163,7 @@ int main()
     test_aref();
     test_aref_invalid_index(10);
     test_aref_invalid_index(-1);
+    test_aref_invalid_index_type();
     test_aref_no_args();
     test_aref_only_array();
     test_aref_invalid_array();
