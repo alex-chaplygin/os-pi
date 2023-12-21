@@ -13,6 +13,16 @@
  */
 object_t *car(object_t *list)
 {
+    if (list == NULL)
+    {
+	error("car: No args");
+	return ERROR;
+    }
+    if (TAIL(list) != NULL)
+    {
+        error("car: Too many args");
+        return ERROR;
+    }
     object_t *arg = FIRST(list);
     if (arg->type != PAIR){
         error("Not list in car");
