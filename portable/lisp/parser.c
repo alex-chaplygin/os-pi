@@ -49,8 +49,10 @@ object_t *parse_quote(char *quote_sym)
     object_t *o = parse();
     //printf("quote: ");
     //PRINT(o);
-    if (o == ERROR)
-	return ERROR;    
+    if (o == ERROR){
+	error("quote: no args\n");
+	return ERROR;
+    }
     object_t *p = new_pair(o, NULL);
     return new_pair(object_new(SYMBOL, quote_sym), p);
 }
