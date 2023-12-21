@@ -31,15 +31,20 @@ sh sys_test "(quote())" "NIL"
 sh sys_test "(quote a b)" "quote: many args" #53
 
 echo "---Тесты BACKQUOTE---"
-sh sys_test "\`(,@())" "NIL"
+sh sys_test "\`(,@())" "NIL" #43 48
 sh sys_test "(setq y 3)
    	    	  \`(x ,y \`(a ,b))" "3
-(X 3 (BACKQUOTE (A (COMMA B))))" # 25 26 27
+(X 3 (BACKQUOTE (A (COMMA B))))" # 25 26 27 43 45
 sh sys_test "(setq abc '(a b c))
 (setq a 9)
 \`(1 (comma-at abc) ((comma a)) \"a\" #(1 (comma a) 2))" "(A B C)
 9
-(1 A B C (9) \"a\" #(1 9 2))" # 25 26 27
+(1 A B C (9) \"a\" #(1 9 2))" # 25 26 27 49 45
+sh sys_test "\`y" "Y" #42
+sh sys_test "\` " "quote: no args" #115
+sh sys_test "\`5" "5" #116
+sh sys_test "\`#(1 2 3 4)" "#(1 2 3 4)" #117
+sh sys_test "\`\"A\"" "\"A\"" #118
 
 echo  "---Тесты COND---"
 # первый аргумент приводит к истине
