@@ -58,6 +58,12 @@ sh sys_test "(cond ((eq 'a 'a)(eq 'a 'b) 'first))" "cond: too many params"
 # отсутствие выражения после предикат
 sh sys_test "(cond ((eq 'a 'b)) 
 		   ((eq 'a 'a)))" "cond: not enough params"  #69
+
+echo "---Тесты car ---"
+sh sys_test "(car '(a b c))" "A" #10
+sh sys_test "(car \"fafaf\")" "Not list in car" #58
+sh sys_test "(car)" "car: No args" #59
+sh sys_test "(car '(a b c) '(n h r))" "car: Too many args" #60
 		   
 echo "---Тесты cdr ---"
 sh sys_test "(cdr '(a b c))" "(B C)" #11
@@ -65,7 +71,17 @@ sh sys_test "(cdr \"dsfsd\")" "Not list in cdr" #61
 sh sys_test "(cdr)" "cdr: No args" #62
 sh sys_test  "(cdr '(a b c) '(d e f))" "cdr: Too many args" #63 
 
+echo "---Тесты lambda ---"
 sh sys_test "((lambda (x y) (cons x y)) 1 '(2))" "(1 2)" # 14 125
+sh sys_test "((lambda (x y) (cons x y) (cons y x)) 1 '(2))" "((2) . 1)" #15
+
+sh sys_test "((lambda ) 1 2)" "No params in lambda" #70
+sh sys_test "((lambda (x y) (cons x y)) )" "Not enough values for params" #71 72
+sh sys_test "((lambda (x y) (cons x y)) 1)" "Not enough values for params" #72
+sh sys_test "((lambda (x y)) 1 '(2))" "" #73
+sh sys_test "((lambda () nil))" "NIL"
+
+
 sh sys_test "(defun null (x) (eq x (quote())))\
 (null 'a) (null (quote ())) (null '())" "NULL
 NIL
