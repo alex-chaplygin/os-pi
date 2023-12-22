@@ -329,20 +329,24 @@ int is_lambda(object_t *list)
     object_t *lambda = FIRST(list);
     if (lambda->type != SYMBOL || lambda->u.symbol != lambda_sym){
 	error("Invalid lambda symbol");
-	return (int)ERROR;
+	return 0;
     }
-    if (list->u.pair->right == NULL){
+    if (TAIL(list) == NULL){
 	error("No params in lambda");
-	return (int)ERROR;
+	return 0;
     }
     object_t *params = SECOND(list);
-    if (params->type != PAIR){
+    if (params != NULL && params->type != PAIR){
 	error("Invalid params in lambda");
-	return (int)ERROR;
+	return 0;
     }
     if (!check_params(params)){
         error("Not symbol in lambda attrs");
         return 0;
+    }
+    if (TAIL(TAIL(list)) == NULL) {
+	error("No body in lambda");
+	return 0;
     } else
 	return 1;
 }
@@ -579,8 +583,11 @@ object_t *eval(object_t *obj, object_t *env)
         return symbol;
     } else if (obj->type == PAIR) {
 	object_t *first = FIRST(obj);
-	if (first->type == PAIR && is_lambda(first))
-	    return eval_func(first, eval_args(TAIL(obj), env), env);
+	if (first->type == PAIR)
+	    if(is_lambda(first) == 1)
+		return eval_func(first, eval_args(TAIL(obj), env), env);
+	    else
+		return ERROR;
 	symbol_t *s = find_symbol(first->u.symbol->str);
 	object_t *args;
 	if (is_special_form(s) || s->macro != NULL)
