@@ -139,3 +139,13 @@
 	    ('left parent-x)
 	    ('right (- (+ parent-x parent-width) self-width))
 	    ('center (- (+ parent-x (/ parent-width 2)) (/ self-width 2)))))))
+
+(defmethod set-defaults ((self element))
+  "Устанавливает цвета по умолчанию, позицию для дочерних элементов, максимальное расстояние"
+  (setf (slot self 'color) +black+)
+  (setf (slot self 'back-color) +light-gray+)
+  (setf (slot self 'active-color) +white+)
+  (setf (slot self 'current-element-pos) (cons 0 0))
+  (setf (slot self 'max-children-bottom) 0))
+  
+  
