@@ -321,6 +321,8 @@ void test_garbage_collect_cycle()
     p2->u.pair->right = p1;
     s1->value = p1;
     s2->value = p2;
+    printf("p1 = ");
+    PRINT(p1);
     garbage_collect();
 
     ASSERT(p1->free, 0);
@@ -530,6 +532,25 @@ void test_garbage_collect_arrays()
     ASSERT(regions->free, 0);
     ASSERT((regions->next != NULL), 1);
 }
+/**
+ * Создать символ B
+ * Присвосить ему массив в котором будет пара
+ * Проверить после сборки мусора, что эта пара не очистилась
+ */
+void test_garbage_collect_array()
+{
+    printf("test_garbage_collect_array: ");
+    reset_mem();
+    symbol_t *s = new_symbol("B");
+    int i = 1;
+    object_t *num = object_new(NUMBER, &i);
+    object_t *p = new_pair(num, num);
+    object_t *arr = object_new(ARRAY, new_empty_array(i));
+    arr->u.arr->data[0] = p;
+    s->value = arr;
+    garbage_collect();
+    ASSERT(p->u.pair->free, 0);
+}
 
 /**
  * Печать объекта
@@ -604,6 +625,7 @@ void main()
     test_garbage_collect_strings(); //22,24
     test_garbage_collect_arrays();  //23,24
     test_garbage_collect_cycle();
+    test_garbage_collect_array();
     test_print();
     int i = 10;
     test_print_obj(object_new(NUMBER, &i), "10");
