@@ -51,6 +51,7 @@ void test_seta()
     object_t *cmd2 = new_pair(arr, new_pair(object_new(NUMBER, &num4), new_pair(obj2, NULL)));
     object_t *cmd3 = new_pair(arr, new_pair(object_new(NUMBER, &num5), new_pair(obj3, NULL)));
     object_t *cmd4 = new_pair(arr, new_pair(object_new(NUMBER, &num6), new_pair(obj4, NULL)));
+    object_t *cmd5 = new_pair(arr, new_pair(object_new(NUMBER, &num1), new_pair(obj4, new_pair(object_new(num4, &num1), NULL))));
     seta(cmd1);
     seta(cmd2);
     seta(cmd3);
@@ -59,6 +60,8 @@ void test_seta()
     ASSERT(arr->u.arr->data[num4], obj2);
     ASSERT(arr->u.arr->data[num5], obj3);
     ASSERT(o, ERROR);
+    object_t *o2 = seta(cmd5);
+    ASSERT(o2, ERROR);
 }
 
 /**
