@@ -27,11 +27,20 @@ object_t *make_array(object_t *list)
 */
 object_t *seta(object_t *list)
 {
-    if (list == NULL || TAIL(list) == NULL) {
+    if (list == NULL || TAIL(list) == NULL || TAIL(TAIL(list)) == NULL) {
 	error("seta: invalid arguments");
 	return ERROR;
     }
+    if (TAIL(TAIL(TAIL(list))) != NULL)
+    {
+        error("seta: many args");
+	    return ERROR;
+    }
     object_t *arr_o = FIRST(list);
+    if (arr_o->type != ARRAY){
+	error("seta: not array");
+	return ERROR;
+    }	
     int index = SECOND(list)->u.value;
     if (index >= arr_o->u.arr->length || index < 0) {
 	error("seta: index out of range");
