@@ -321,6 +321,10 @@ void mark_object(object_t *obj)
     if (obj->type == PAIR) {
 	mark_object(obj->u.pair->left);
 	mark_object(obj->u.pair->right);
+    } else if (obj->type == ARRAY) {
+	array_t *arr = obj->u.arr;
+	for (int i = 0; i < arr->length; i++)
+	    mark_object(arr->data[i]);
     }
 }
 
@@ -359,10 +363,18 @@ void garbage_collect()
 /**
  * Печать списка пар (5 . 7)
  */
+
+int print_counter = 0;
+
 void print_list(object_t *obj)
 {
     if (obj == NULL)
 	return;
+    if(obj->u.pair->print_counter == print_counter){
+	printf("...");
+	return;
+    }   
+    obj->u.pair->print_counter = print_counter; //помечаем на текущем 
     print_obj(obj->u.pair->left);
     if (obj->u.pair->right == NULL)
 	return;
@@ -403,7 +415,9 @@ void print_obj(object_t *obj)
 	printf("%s", obj->u.symbol->str);
     else if (obj->type == PAIR) {
 	printf("(");
+	print_counter++; //увеличиваем при входе в новую печать
 	print_list(obj);
+	print_counter--;//уменьшаем счетчик при выходе из печати
 	printf(")");
     } else if (obj->type == ARRAY) {
 	printf("#(");

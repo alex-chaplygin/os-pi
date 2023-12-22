@@ -16,7 +16,7 @@
 /// Максимальная длина символа
 #define MAX_STR 500
 
-#define PRINT(o) print_obj(o); printf("\n");
+#define PRINT(o) print_counter++; print_obj(o); printf("\n");
 
 /// Отсутствие значения у переменных
 #define NOVALUE ((void *)1)
@@ -70,6 +70,7 @@ typedef struct pair_s
     object_t *right; // правый элемент (следующая пара)
     struct pair_s *next; // указатель на следующую свободную пару
     int free; // Если 1 - пара свободна
+    int print_counter; // счетчик печати
 } pair_t;
 
 /// Структура строки
@@ -109,7 +110,7 @@ typedef struct symbol_s
     func_t func;
 } symbol_t;
 
-
+extern int print_counter;
 object_t *object_new(type_t type, void *data);
 object_t *new_pair(object_t *left, object_t *right);
 struct symbol_s *new_symbol(char *str);
