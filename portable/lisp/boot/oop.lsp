@@ -29,9 +29,7 @@
      (let ((obj (make-instance ,name)))
 	 ,@(map '(lambda(s) `(setf (slot obj ',s) ,s)) (get-slots name))
 	 obj))
-  `',name)
-
-	
+  `',name)	
 	
 (defmacro make-instance (class)
   "Создать экземпляр объекта класса class"
@@ -72,7 +70,11 @@
      (set-hash class ',name '(lambda ,(cons (caar args) (cdr args)) ,@body))
      (defun ,name ,(cons (caar args) (cdr args))
        (funcall (get-method (slot ,(caar args) 'class) ',name) ,(caar args) ,@(cdr args)))))
-    
+
+(defmacro super (method-name obj &rest args)
+  "Вызов метода method-name родителя экземпляра класса obj с аргументами args"
+  `(funcall (get-method (slot (slot *class-table* (slot ,obj 'class)) 'parent) ',method-name) ,obj ,@args))
+
 ;(defclass point () (x y)) 
 ;(defclass line point (x2 y2))
 
