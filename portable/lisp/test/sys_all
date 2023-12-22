@@ -279,6 +279,10 @@ END
 END
 #(0 1 2 3 4 5 6 7 8 9 10 11)" # 41 18 35 36 37 33 23 24
 
+sh sys_test "(defmacro testrest (&rest args) args)
+(testrest)" "TESTREST
+NIL"
+
 echo "---Тесты точечных пар----"
 sh sys_test "'(4 . 5)" "(4 . 5)"
 sh sys_test "'(4.(3.(5.())))" "(4 3 5)"

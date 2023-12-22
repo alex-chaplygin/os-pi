@@ -361,7 +361,7 @@ int is_lambda(object_t *list)
  */
 object_t *make_env(object_t *args, object_t *values)
 {
-    if (args != NULL && values == NULL){
+    if (args != NULL && values == NULL && FIRST(args)->u.symbol != rest_sym){
 	error("Not enough values for params");
 	return ERROR;
     }
