@@ -53,6 +53,7 @@ void boot_lisp()
 	object_t *o = parse();
 	if (o != ERROR) {
 	    object_t *res = eval(o, NULL);
+	    print_counter++;
 	    if (res != ERROR)
 		PRINT(res);
 	    garbage_collect();
@@ -85,6 +86,7 @@ void kmain(void)
 	if (o != ERROR) {
 	    object_t *res = eval(o, NULL);
 	    //printf("\n");
+	    print_counter++;
 	    if (res != ERROR)
 		PRINT(res);
 	}      

@@ -415,9 +415,7 @@ void print_obj(object_t *obj)
 	printf("%s", obj->u.symbol->str);
     else if (obj->type == PAIR) {
 	printf("(");
-	print_counter++; //увеличиваем при входе в новую печать
 	print_list(obj);
-	print_counter--;//уменьшаем счетчик при выходе из печати
 	printf(")");
     } else if (obj->type == ARRAY) {
 	printf("#(");

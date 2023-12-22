@@ -26,6 +26,7 @@ int main()
 	    object_t *res = eval(o, NULL);
 	    //printf("res: "); PRINT(res);
 	    if (res != ERROR) {
+		print_counter++;
 		print_obj(res);
 	    }
 	    printf("\n");

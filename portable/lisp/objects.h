@@ -16,7 +16,7 @@
 /// Максимальная длина символа
 #define MAX_STR 500
 
-#define PRINT(o) print_counter++; print_obj(o); printf("\n");
+#define PRINT(o) print_obj(o); printf("\n");
 
 /// Отсутствие значения у переменных
 #define NOVALUE ((void *)1)

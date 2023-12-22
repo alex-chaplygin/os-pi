@@ -7,6 +7,7 @@
 extern object_t *t;
 object_t test_res;
 pair_t test_pair;
+int print_counter;
 
 void print_obj(object_t *head){}
 
