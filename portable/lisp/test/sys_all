@@ -83,7 +83,7 @@ sh sys_test "((lambda (x y) (cons x y) (cons y x)) 1 '(2))" "((2) . 1)" #15
 sh sys_test "((lambda ) 1 2)" "No params in lambda" #70
 sh sys_test "((lambda (x y) (cons x y)) )" "Not enough values for params" #71 72
 sh sys_test "((lambda (x y) (cons x y)) 1)" "Not enough values for params" #72
-sh sys_test "((lambda (x y)) 1 '(2))" "" #73
+sh sys_test "((lambda (x y)) 1 '(2))" "No body in lambda" #73
 sh sys_test "((lambda () nil))" "NIL"
 
 
@@ -282,7 +282,8 @@ END
 echo "---Тесты точечных пар----"
 sh sys_test "'(4 . 5)" "(4 . 5)"
 sh sys_test "'(4.(3.(5.())))" "(4 3 5)"
-sh sys_test "'(4.5"  "expected )"
+sh sys_test "'(4.5"  "expected )
+quote: no args"
 
 echo "---Тесты OR----"
 # случай TRUE
@@ -378,15 +379,15 @@ sh sys_test "(seta #(1 2 3 4) 0 10)" "#(10 2 3 4)"  #35 36 37
 # отсутствие аргументов
 sh sys_test "(seta  )" "seta: invalid arguments" #99
 # >3 аргументов
-sh sys_test "(seta #(1 2 3 4) 1 2 4)" "" #100
+sh sys_test "(seta #(1 2 3 4) 1 2 4)" "seta: many args" #100
 # без значения
-sh sys_test "(seta #(1 2 3 4) 1)" ""
+sh sys_test "(seta #(1 2 3 4) 1)" "seta: invalid arguments"
 # <3 аргументов
 sh sys_test "(seta #(1 2 3 4))" "seta: invalid arguments" #101
 # второй аргумент не число
 sh sys_test "(seta #(1 2 3 4) 'd 10)" "seta: index out of range" #102
 # первый аргумент не объект массив
-sh sys_test "(seta 2 1)" "" #103
+sh sys_test "(seta 2 1 1)" "seta: not array" #103
 
 echo  "---Тесты AREF---"
 # два аргумента
@@ -404,7 +405,7 @@ sh sys_test "(aref #(1 2 3 4))" "aref: invalid arguments" #106
 # второй аргумент не число
 sh sys_test "(aref #(1 2 3 4) 'd)" "aref: index should be a number" #107
 # первый аргумент не объект массив
-sh sys_test "(aref 2 1)" "aref: index out of range" #108
+sh sys_test "(aref 2 1)" "aref: not an array" #108
 
 echo "---Тесты FUNCALL---"
 # аргумент - ламбда-функция
