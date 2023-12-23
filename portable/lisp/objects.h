@@ -97,7 +97,7 @@ typedef struct string_s
 /// Структура массива
 typedef struct array_s
 {
-    object_t **data; // Данные массива
+    object_t *data; // Данные массива
     int length; // Длина массива
     struct array_s *next; // Указатель на следующий свободный массив
     int free; // Если 1 - массив свободен
@@ -142,7 +142,7 @@ void *alloc_region(int size);
 void free_region(void *data);
 string_t *new_string(char *str);
 void free_string(string_t *s);
-array_t *new_array(object_t *list);
+array_t *new_array(object_t list);
 array_t *new_empty_array(int length);
 void free_array(array_t *a);
 #endif
