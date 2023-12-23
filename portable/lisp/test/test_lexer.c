@@ -342,7 +342,9 @@ int main()
     test_get_num("0xff", 255); // 13
     test_get_num("0x1A23", 0x1A23); // 13
     test_get_num("-2147483648", -2147483648); // граничный тест минимальное число
-    test_get_num("2147483648", 2147483648); // граничный тест минимальное число
+    test_get_num("2147483647", 2147483647); // граничный тест максимальное число
+    test_get_num("0xFFFFFFFF", 0xFFFFFFFF); // граничный тест максимальное число
+    test_get_num("0x00000000", 0x00000000); // граничный тест минимальное число
     test_get_symbol("Hello 12", "Hello"); // 14
     test_get_symbol("* 1 2", "*"); // 14
     test_get_token("lparen", "(", LPAREN); // 1
@@ -372,10 +374,13 @@ int main()
     test_invalid_token("valid num", "11 dd", 0); // 11
     
     // Неправильные классы
+    test_invalid_token("invalid num", "-2147483649", 1); // граничный тест минимальное число - 1
+    test_invalid_token("invalid num", "2147483648", 1); // граничный тест максимальное число + 1
     test_invalid_token("invalid num", "11D", 1); // 18
     test_invalid_token("invalid num", "0GG", 1); // 19
     test_invalid_token("invalid hex", "0xfrf", 1); // 19
     test_invalid_token("invalid hex", "0xrf", 1); // 19
+    test_invalid_token("invalid hex", "0x100000000", 1); // граничный тест максимальное число + 1
     test_get_token("invalid_symbol", "^", INVALID); // 16
     test_get_token("invalid_symbol", "!~", INVALID); // 16
     test_invalid_token("invalid string", "\"1 2 3", 1); // 17

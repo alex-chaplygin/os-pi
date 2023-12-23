@@ -8,6 +8,7 @@
 
 #include <stdio.h>
 #include <ctype.h>
+#include <limits.h>
 #include "lexer.h"
 
 /// текущий символ
@@ -122,7 +123,9 @@ int is_delimeter(char c)
  */
 int hex_num()
 {
-    int cur_num =  0;
+    long long cur_num =  0;
+    int hex_value;
+    const int msb_shr = CHAR_BIT * sizeof(int);
   
     do {
 	get_cur_char();
@@ -133,6 +136,10 @@ int hex_num()
 	} else if (is_hex_symbol(cur_symbol)) {
 	    cur_symbol = toupper(cur_symbol);
 	    cur_num = cur_num * 16 + cur_symbol - 'A' + 10;
+	} else if ((cur_num >> msb_shr) & 1) {
+	    token_error = 1;
+	    printf("hex number overflow\n");
+	    return 0;	
 	} else {
 	    token_error = 1;
 	    printf("invalid hex num\n");
@@ -161,10 +168,19 @@ int get_num()
         fl = 1;
         get_cur_char();
     }
+    const int sgn_shr = CHAR_BIT * sizeof(int) - 1;
+    int sgn = fl ? -1 : 1;
+    int msb;
     while (is_alpha(cur_symbol) || is_digit(cur_symbol) || is_symbol(cur_symbol)) 
     {
 	if (is_digit(cur_symbol)) {
 	    cur_num = cur_num * 10 + cur_symbol - '0';
+	    msb = (cur_num >> sgn_shr) & 1;
+	    if (msb != fl) {
+		token_error = 1;
+		printf("number overflow\n");
+		return 0;
+	    }
 	    get_cur_char();
 	} else {
 	    token_error = 1;
