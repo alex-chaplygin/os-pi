@@ -422,6 +422,17 @@ void test_backquote_nulllist()
     ASSERT(res, ERROR);
 }
 
+/*
+ *Тест backquote с неверным типом аргумента
+ */
+void test_backquote_invalid_arg_type()
+{
+    int num = 5;
+    printf("test_backquote_invalid_arg_type:\n");
+    object_t *res = backquote(new_pair(new_pair(object_new(NUMBER, &num), new_pair((object_t *)&num, NULL)), NULL));
+    ASSERT(res, ERROR);
+}
+
 /**
  * Входящий аргумент с вычислением -> выходящий аргумент
  * b = 7 `(a ,b c) -> (a 7 c)
@@ -434,8 +445,8 @@ void test_backquote_nulllist()
  *
  * abc = (5 8 6)
  * a = 9
- * Тестовый список - (1 (comma-at abc) ((comma a)) "a" #(1 (comma a) 2))
- * (1 5 8 6 (9 "a" #(1 9 2)))
+ * Тестовый список - (1 (comma-at abc) (backquote abc) (comma-at nil) nil ((comma a)) "a" #(1 (comma a) 2))
+ * (1 5 8 6 (backquote abc) nil (9) "a" #(1 9 2))
  */
 void test_backquote_arguments()
 {
@@ -453,6 +464,10 @@ void test_backquote_arguments()
     find_symbol("ABC")->value = abc;
     object_t *CAabc= new_pair(object_new(SYMBOL, "COMMA-AT"),
 			      new_pair(object_new(SYMBOL,"ABC"),NULL)); // (COMMA-AT abc)
+    object_t *CA= new_pair(object_new(SYMBOL, "COMMA-AT"),
+			      new_pair(NULL, NULL)); // (COMMA-AT NIL)
+    object_t *BQabc= new_pair(object_new(SYMBOL, "BACKQUOTE"),
+			      new_pair(object_new(SYMBOL,"ABC"),NULL)); // (BACKQUOTE abc)
     find_symbol("A")->value = object_new(NUMBER,&aa);		      
     object_t *obj1 = object_new(NUMBER, &s1);
     object_t *obj2 = new_pair(object_new(SYMBOL, "COMMA"),
@@ -464,14 +479,17 @@ void test_backquote_arguments()
     arr->data[2] = obj3; //здесь создаём массив с элементами 1 (COMMA A) 2
     object_t *Ca = new_pair(obj2, NULL); // ((COMMA A))
     object_t *inputlist = new_pair(object_new(NUMBER, &s1),  //1
-				   new_pair(CAabc, //(COMMA-AT abc) *\/ */
-				    	    new_pair(Ca, //((COMMA A)) *\/ */
-				    		     new_pair(object_new(STRING, "a"), 
-							      new_pair(object_new(ARRAY, arr), NULL))))); // Наш массив *\/ */
+        new_pair(CAabc, //(COMMA-AT abc) *\/ */
+            new_pair(BQabc, //(BACKQUOTE abc) *\/ */
+                new_pair(CA, //(BACKQUOTE abc) *\/ */
+                    new_pair(NULL,
+                        new_pair(Ca, //((COMMA-AT NIL)) *\/ */
+                            new_pair(object_new(STRING, "a"),
+                                new_pair(object_new(ARRAY, arr), NULL)))))))); // Наш массив *\/ */
     object_t *resultlist = backquote(new_pair(inputlist, NULL));
     PRINT(inputlist);
     PRINT(resultlist);
-    ASSERT(FIRST(TAIL(TAIL(TAIL(TAIL(TAIL(TAIL(resultlist)))))))->type, ARRAY);
+    ASSERT(FIRST(TAIL(TAIL(TAIL(TAIL(TAIL(TAIL(TAIL(TAIL(resultlist)))))))))->type, ARRAY);
 }
 
 /**
@@ -675,6 +693,7 @@ int main()
     test_cons_one_param();//66
     test_cons_3_params();//65
     test_backquote_nulllist();
+    test_backquote_invalid_arg_type();
     test_backquote_arguments();
     test_atom();//1
     test_atom_null();//52
