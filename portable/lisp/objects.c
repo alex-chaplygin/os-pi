@@ -130,7 +130,7 @@ object_t new_number(int num)
     int min_val = ((1 << (TYPE_BITS + 2)) - 1) << ADDR_BITS - 1;
     if (num >= 0 && num <= mask)
 	return NEW_OBJECT(NUMBER, num);
-    else if (num >= min_val)
+    else if (num >= min_val && num < 0)
 	return NEW_OBJECT(NUMBER, num);
     else
 	return new_bignumber(num);
@@ -198,36 +198,36 @@ void free_pair(pair_t *p)
     p->free = 1;
 }
 
-/* /\**  */
-/*  * Создание нового объекта символа */
-/*  *  */
-/*  * @param str имя символа */
-/*  *  */
-/*  * @return указатель на объект символа */
-/*  *\/ */
-/* symbol_t *new_symbol(char *str) */
-/* { */
-/*     if (last_symbol == MAX_SYMBOLS) { */
-/* 	error("Error: out of memory: symbols"); */
-/* 	return (symbol_t*)ERROR; */
-/*     } */
-/*     if (*str == 0) */
-/* 	return NULL; */
-/*     symbol_t *symbol = &symbols[last_symbol++]; */
-/*     strcpy(symbol->str, str); */
-/*     symbol->next = NULL; */
-/*     symbol->value = NOVALUE; */
-/*     symbol->func = NULL; */
-/*     symbol->lambda = NULL; */
-/*     symbol->macro = NULL; */
-/*     return symbol; */
-/* } */
+/**
+ * Создание нового объекта символа
+ *
+ * @param str имя символа
+ *
+ * @return указатель на объект символа
+ */
+symbol_t *new_symbol(char *str)
+{
+    if (last_symbol == MAX_SYMBOLS) {
+	error("Error: out of memory: symbols");
+	return (symbol_t*)ERROR;
+    }
+    if (*str == 0)
+	return NULL;
+    symbol_t *symbol = &symbols[last_symbol++];
+    strcpy(symbol->str, str);
+    symbol->next = NULL;
+    symbol->value = NOVALUE;
+    symbol->func = NULL;
+    symbol->lambda = NULL;
+    symbol->macro = NULL;
+    return symbol;
+}
 
-/* /\**  */
+/* /\** */
 /*  * Создание нового объекта строки */
-/*  *  */
+/*  * */
 /*  * @param str - строка */
-/*  *  */
+/*  * */
 /*  * @return указатель на объект строки */
 /*  *\/ */
 /* string_t *new_string(char *str) */
@@ -250,9 +250,9 @@ void free_pair(pair_t *p)
 /*     return string; */
 /* } */
 
-/* /\**  */
+/* /\** */
 /*  * Освобождение памяти для строки */
-/*  *  */
+/*  * */
 /*  * @param s объект для освобождения */
 /*  *\/ */
 /* void free_string(string_t *s) */
@@ -276,7 +276,7 @@ void free_pair(pair_t *p)
 /*  * */
 /*  * @return указатель на объект массива */
 /*  *\/ */
-/* array_t *new_array(object_t *list) */
+/* array_t *new_array(object_t list) */
 /* { */
 /*     array_t *array; */
 /*     if (last_array == MAX_ARRAYS) { */
