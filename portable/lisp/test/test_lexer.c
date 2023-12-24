@@ -175,8 +175,8 @@ void test_get_token(const char* name_test, char* str, tokentype_t exp)
 {
     printf("test_get_token_%s : ", name_test); // вывод имени теста
     write_file(str); // запись в файл
-    tokentype_t res = get_token()->type; // получение типа токена
     reset_buffer();
+    tokentype_t res = get_token()->type; // получение типа токена
     ASSERT(res, exp);
 }
 
@@ -191,11 +191,11 @@ void test_get_token2(const char* name_test, char* str, tokentype_t exp1,tokentyp
 {
     printf("test_get_token2 %s : ", name_test); // вывод имени теста
     write_file(str); // запись в файл
+    reset_buffer();
     token_t t1 = *get_token();
     print_token(&t1);
     token_t t2 = *get_token();
     print_token(&t2);
-    reset_buffer();
     ASSERT(t1.type, exp1);
     ASSERT(t2.type, exp2);
 }
@@ -226,8 +226,8 @@ void test_invalid_token(const char* name_test, char* str, int error)
 {
     printf("test_get_num_%s : ", name_test); // вывод имени теста
     write_file(str); // запись в файл
-    get_token();
     reset_buffer();
+    get_token();
     ASSERT(token_error, error);
 }
 
@@ -238,9 +238,9 @@ void test_string(char* str, char* exp_str)
 {
     printf("test_string %s ", str); // вывод имени теста
     write_file(str); // запись в файл
+    reset_buffer();
     token_t *tok = get_token();
     printf("res = '%s' exp = '%s'", tok->str, exp_str);
-    reset_buffer();
     ASSERT(tok->type, T_STRING);
     ASSERT(strcmp(tok->str, exp_str), 0);
 }

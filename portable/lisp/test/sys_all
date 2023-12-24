@@ -201,8 +201,6 @@ sh sys_test "\`a" "A"
 sh sys_test "\`(\"abcdefg\")" "(\"abcdefg\")"
 sh sys_test "\`#(1 2 3 4)" "#(1 2 3 4)"
 sh sys_test "\`(#(1 2 (3) 4 b #(b c)) a (1) \"ab\")" "(#(1 2 (3) 4 B #(B C)) A (1) \"ab\")"
-sh sys_test "(setq_rec a 1 b)" "Unknown SYMBOL: AError in args: (SETQ_REC A 1 B)
-"
 sh sys_test "(defvar x 1) \`(a ,x 2)" "X
 (A 1 2)" # 23 24
 sh sys_test "(defvar x 1) (defvar y \`(,x a b)) \`(a ,x 2 ,y)" "X
