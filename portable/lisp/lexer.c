@@ -37,18 +37,17 @@ int buffer_read_pos = 0;
  */
 void get_cur_char()
 {
-    if (!boot_load) {
-	if (buffer_write_pos == buffer_read_pos) {
+    if (buffer_write_pos == buffer_read_pos) {
+	if (!boot_load)
 	    cur_symbol = getchar();
-	    symbol_buffer[buffer_write_pos++] = cur_symbol;
-	    buffer_read_pos = buffer_write_pos &= SYMBOL_BUFFER_SIZE - 1;
-	} else {
-	    cur_symbol = symbol_buffer[buffer_read_pos++];
-	    buffer_read_pos &= SYMBOL_BUFFER_SIZE - 1;
-	}
+	else
+	    cur_symbol = *boot_code++;
+	symbol_buffer[buffer_write_pos++] = cur_symbol;
+	buffer_read_pos = buffer_write_pos &= SYMBOL_BUFFER_SIZE - 1;
+    } else {
+	cur_symbol = symbol_buffer[buffer_read_pos++];
+	buffer_read_pos &= SYMBOL_BUFFER_SIZE - 1;
     }
-    else
-	cur_symbol = *boot_code++;
     //    printf("get_cur_char: '%c' read=%d write=%d\n", cur_symbol, buffer_read_pos, buffer_write_pos);
 }
 
