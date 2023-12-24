@@ -14,8 +14,8 @@ int is_alpha(char);
 int is_digit(char);
 int is_symbol(char c);
 void get_symbol(char *cur_str);
+void reset_buffer();
 extern char cur_symbol;
-extern int flag;
 extern int token_error;
 
 FILE *oldstdin;
@@ -115,8 +115,9 @@ void test_get_num(char* src, int expect)
     fclose(stdin);
     stdin = oldstdin;
     write_file(src);
-    flag = 0;
-    int curnum = get_num();
+    reset_buffer();
+    token_t *t = get_token();
+    int curnum = t->value;
     ASSERT(curnum, expect);
 }
 
@@ -158,10 +159,10 @@ void test_get_symbol(char* src, const char* expect)
     
     printf("test_get_symbol: ");
     write_file(src);
-    get_cur_char();
-    get_symbol(str);
-    printf("res = '%s' exp = '%s'", str, expect);
-    ASSERT(strcmp(str, expect), 0);
+    reset_buffer();
+    token_t *t = get_token();
+    printf("res = '%s' exp = '%s'", t->str, expect);
+    ASSERT(strcmp(t->str, expect), 0);
 }
 
 /**
@@ -175,7 +176,7 @@ void test_get_token(const char* name_test, char* str, tokentype_t exp)
     printf("test_get_token_%s : ", name_test); // вывод имени теста
     write_file(str); // запись в файл
     tokentype_t res = get_token()->type; // получение типа токена
-    flag = 0; // считать символ (если true, не считывать символ)
+    reset_buffer();
     ASSERT(res, exp);
 }
 
@@ -194,7 +195,7 @@ void test_get_token2(const char* name_test, char* str, tokentype_t exp1,tokentyp
     print_token(&t1);
     token_t t2 = *get_token();
     print_token(&t2);
-    flag = 0; // считать символ (если true, не считывать символ)
+    reset_buffer();
     ASSERT(t1.type, exp1);
     ASSERT(t2.type, exp2);
 }
@@ -226,7 +227,7 @@ void test_invalid_token(const char* name_test, char* str, int error)
     printf("test_get_num_%s : ", name_test); // вывод имени теста
     write_file(str); // запись в файл
     get_token();
-    flag = 0; // считать символ (если true, не считывать символ)
+    reset_buffer();
     ASSERT(token_error, error);
 }
 
@@ -239,7 +240,7 @@ void test_string(char* str, char* exp_str)
     write_file(str); // запись в файл
     token_t *tok = get_token();
     printf("res = '%s' exp = '%s'", tok->str, exp_str);
-    flag = 0; // считать символ (если true, не считывать символ)
+    reset_buffer();
     ASSERT(tok->type, T_STRING);
     ASSERT(strcmp(tok->str, exp_str), 0);
 }

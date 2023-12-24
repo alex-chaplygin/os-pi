@@ -13,8 +13,6 @@
 
 /// текущий символ
 char cur_symbol;
-/// если true, не считывать символ
-int flag = 0;
 /// текущий токен
 token_t token;
 /// Если 1, то значит была ошибка при лексическом разборе
@@ -28,51 +26,41 @@ char *boot_code;
 /// буфер символов из stdin
 /// с обратным  порядком элементов
 char symbol_buffer[SYMBOL_BUFFER_SIZE];
-/// текущая позиция в буфере symbol_buffer
-int symbuf_pos = SYMBOL_BUFFER_SIZE;
-/// смещение по symbuf_pos для следующего
-/// чтения символа из symbol_buffer.
-/// -1: не выполнять смещение
-int symbuf_shift = -1;
+/// текущая позиция записи в буфере symbol_buffer
+int buffer_write_pos = 0;
+/// текущая позиция чтения из буфера symbol_buffer
+int buffer_read_pos = 0;
 
 /** 
- * Увеличить сдвиг, заданный переменной symbuf_shift
- * @param shift - значение увеличения сдвига
+ * Считываем символ, помещаем его в буфер.
+ * Когда буфер заполняется, то делаем сдвиг указателей
  */
-void unget_char(int shift) {
-    symbuf_shift += shift;
-}
-
-// читать один символ
 void get_cur_char()
 {
-    if (flag)
-        flag = 0;
-    else {
-        if (!boot_load) {
-            if (symbuf_shift != -1)
-                cur_symbol = symbol_buffer[symbuf_pos+
-                  symbuf_shift-- % SYMBOL_BUFFER_SIZE];
-            else {
-                cur_symbol = getchar();
-                if (symbuf_pos != 0)
-                    symbol_buffer[--symbuf_pos] = cur_symbol;
-                else {
-                    for (int i = SYMBOL_BUFFER_SIZE - 1; i >= 0; i--)
-                        symbol_buffer[i]=symbol_buffer[i-1];
-                    symbol_buffer[0] = cur_symbol;
-                }
-            }
-        }
-        else
-            cur_symbol = *boot_code++;
+    if (!boot_load) {
+	if (buffer_write_pos == buffer_read_pos) {
+	    cur_symbol = getchar();
+	    symbol_buffer[buffer_write_pos++] = cur_symbol;
+	    buffer_read_pos = buffer_write_pos &= SYMBOL_BUFFER_SIZE - 1;
+	} else {
+	    cur_symbol = symbol_buffer[buffer_read_pos++];
+	    buffer_read_pos &= SYMBOL_BUFFER_SIZE - 1;
+	}
     }
+    else
+	cur_symbol = *boot_code++;
+    //    printf("get_cur_char: '%c' read=%d write=%d\n", cur_symbol, buffer_read_pos, buffer_write_pos);
 }
 
-// вернуть последн\. символ назад 
+/** 
+ * Вернуть указатель назад, переприсвоить cur_symbol
+ */
 void unget_cur_char() 
 {
-    flag = 1;
+    cur_symbol = symbol_buffer[(buffer_read_pos - 2) & SYMBOL_BUFFER_SIZE - 1];
+    --buffer_read_pos;
+    buffer_read_pos &= SYMBOL_BUFFER_SIZE - 1;
+    //printf("unget_cur_char: '%c' read=%d write=%d\n", cur_symbol, buffer_read_pos, buffer_write_pos);
 }
 
 /** 
@@ -189,7 +177,6 @@ int hex_num()
  */
 int get_num()
 {
-    get_cur_char();
     int fl = 0;
     int cur_num = 0;
     if (cur_symbol == '0') {
@@ -226,12 +213,9 @@ int get_num()
     return cur_num;
 }
 
-
-
-//прочесть атом
+//прочесть символ
 void get_symbol(char *cur_str)
 {
-    get_cur_char();
     int c = 0;
     while (!is_delimeter(cur_symbol))
     {
@@ -257,7 +241,6 @@ void get_string(char *cur_str)
 {
     int c = 0;
 
-    get_cur_char(); // Считываем открывающую кавычку
     get_cur_char();
     while (cur_symbol != EOF) {
 	if (cur_symbol == '"')
@@ -293,12 +276,15 @@ void get_string(char *cur_str)
     cur_str[c] = '\0'; // Завершаем строку
 }
 
-//COMMA_AT function
+/** 
+ * Определяет тип лексемы , или ,@
+ *
+ * @return лексему
+ */
 token_t get_comma()
 {
     char ctr[2];
     ctr[0] = cur_symbol;
-    get_cur_char();
     get_cur_char();
     ctr[1] = cur_symbol;
     if (ctr[0] == ',' && ctr[1] == '@') {
@@ -310,34 +296,35 @@ token_t get_comma()
     }
 }
 
-// '(3 4) 'a
+/** 
+ * Читает очередную лексему из потока ввода
+ *
+ * @return указатель на структуру лексемы
+ */
 token_t *get_token()
 {
     token_error  = 0;
     get_cur_char();
     skip_white_space();
+    get_cur_char();
     switch (cur_symbol) {
     case '(':
-	get_cur_char();
 	token.type = LPAREN;
 	break;
     case ')':
-	get_cur_char();
 	token.type = RPAREN;
 	break;
     case EOF:
 	token.type = END;
 	break;
     case '\'':
-	get_cur_char();
 	token.type = QUOTE;
 	break;
     case '`':
-	get_cur_char();
 	token.type = BACKQUOTE;
 	break;    
     case ',':
-    get_comma();
+	get_comma();
 	break;
     case '"':
 	// Используем get_string для чтения строки в двойных кавычках
@@ -345,20 +332,18 @@ token_t *get_token()
 	token.type = T_STRING;
 	break;
     case '#':
-	get_cur_char();
 	token.type = SHARP;
 	break;
     case '.':
-	get_cur_char();
 	token.type = DOT;
 	break;
     default:
 	if (cur_symbol == '-' || is_digit(cur_symbol)) {
 	    if (cur_symbol == '-') {
-	        flag = 0;
 	        get_cur_char();
-	        unget_char(2);
-	        if (!is_digit(cur_symbol))
+		char c = cur_symbol;
+		unget_cur_char();
+	        if (!is_digit(c))
 	            goto get_token_symbol;
 	    }
 	    token.type = T_NUMBER;
@@ -370,7 +355,6 @@ token_t *get_token()
 	} else {
 	    token.type = INVALID;
 	    printf("ERROR: lexer.c: INVALID SYMBOL\n");
-	    get_cur_char();
 	}
     }
     return &token;
@@ -423,4 +407,12 @@ void print_token(token_t *token)
     case DOT:
 	printf("DOT\n");       
     }
+}
+
+/** 
+ * Сброс указателей в буфере
+ */
+void reset_buffer()
+{
+    buffer_read_pos = buffer_write_pos = 0;
 }
