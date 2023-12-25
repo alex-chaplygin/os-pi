@@ -19,6 +19,7 @@ object_t *setq(object_t *params);
 object_t *atom(object_t *params);
 object_t *defvar(object_t *params);
 object_t *cons(object_t *list);
+object_t *progn(object_t *list);
 object_t *backquote(object_t *list);
 
 void error(char *str)
@@ -393,6 +394,29 @@ void test_progn()
     ASSERT(res->u.value, 3);
 }
 
+/**
+ * Попытка вычисления пустого списка выражений
+ */
+void test_progn_null()
+{
+    printf("test_progn_null: ");
+    object_t *res = progn(NULL);
+    ASSERT(res, ERROR);
+}
+
+/**
+ * Попытка вычисления выражения ошибки 
+ */
+void test_progn_error()
+{
+    printf("test_progn_error: ");
+    int number = 5;
+    object_t *num_obj = object_new(NUMBER, &number);
+    object_t *list = new_pair(num_obj, ERROR);
+    object_t *res = progn(list);
+    ASSERT(res, ERROR);
+}
+
 /*
  *создать объект для выражения (cdr (quote 5))
  *вычислить объект
@@ -687,6 +711,8 @@ int main()
     test_setq_global_set();
     test_append();
     test_progn();
+    test_progn_null();
+    test_progn_error();
     test_invalid_cdr();//61
     test_cons_noparams();//64
     test_cons2();//12
