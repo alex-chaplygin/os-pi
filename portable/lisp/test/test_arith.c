@@ -19,6 +19,7 @@ object_t *bitwise_or(object_t *list);
 object_t *shift_left(object_t *list);
 object_t *shift_right(object_t *list);
 object_t *equal(object_t *list);
+object_t *less(object_t *list);
 
 void error(char *str)
 {
@@ -378,6 +379,57 @@ void test_equal()
     ASSERT(res, t);
 }
 
+/**
+ * Тест сравнения неравнества меньше для двух чисел
+ */
+void test_less()
+{
+    printf("test_less: ");
+    int first1 = 1;
+    int second1 = 2;
+    object_t *list = new_pair(object_new(NUMBER, &first1),
+			      new_pair(object_new(NUMBER, &second1), NULL));
+    object_t *res = less(list);
+    ASSERT(res, t);
+}
+
+/**
+ * Тест сравнения неравнества меньше для двух чисел - проверка если первое число будет больше
+ */
+void test_less_great()
+{
+    printf("test_less_great: ");
+    int first1 = 2;
+    int second1 = 1;
+    object_t *list = new_pair(object_new(NUMBER, &first1),
+			      new_pair(object_new(NUMBER, &second1), NULL));
+    object_t *res = less(list);
+    ASSERT(res, NULL);
+}
+
+/**
+ * Тест сравнения неравнества меньше для двух чисел - проверка на отсутствие агрументов
+ */
+void test_less_no_arguments()
+{
+    printf("test_less_no_arguments: ");
+    object_t *list = NULL;
+    object_t *res = less(list);
+    ASSERT(res, ERROR);
+}
+
+/**
+ * Тест сравнения неравнества меньше для двух чисел - проверка на только один аргумент
+ */
+void test_less_one_argument()
+{
+    printf("test_less_one_argument: ");
+    int first1 = 1;
+    object_t *list = new_pair(object_new(NUMBER, &first1), NULL);
+    object_t *res = less(list);
+    ASSERT(res, ERROR);
+}
+
 int main()
 {
     printf("------------test_arith---------\n");
@@ -415,5 +467,9 @@ int main()
     test_shift_right_empty_list();
     test_shift_right_no_second_param();
     test_equal();
+    test_less();
+    test_less_great();
+    test_less_no_arguments();
+    test_less_one_argument();
     return 0;
 }
