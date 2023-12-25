@@ -20,6 +20,7 @@ object_t *shift_left(object_t *list);
 object_t *shift_right(object_t *list);
 object_t *equal(object_t *list);
 object_t *less(object_t *list);
+object_t *gt(object_t *list);
 
 void error(char *str)
 {
@@ -430,6 +431,40 @@ void test_less_one_argument()
     ASSERT(res, ERROR);
 }
 
+/**
+ * Тест сравнения чисел на больше
+ */
+void test_gt(int num1, int num2, object_t *token) 
+{
+    printf("test_gt:");
+    object_t *list = new_pair(object_new(NUMBER, &num1), 
+                       new_pair(object_new(NUMBER, &num2), NULL));
+    object_t *res = gt(list);
+    ASSERT(res, token);
+}
+
+/**
+ * Тест сравнения чисел на больше при пустом входном списке 
+ */
+void test_gt_list_is_null()
+{
+    printf("test_gt_list_is_null:");
+    object_t *list = NULL;
+    object_t *res = gt(list);
+    ASSERT(res, ERROR);
+}
+
+/**
+ * Тест сравнения чисел на больше при одном аргументе в списке 
+ */
+void test_gt_one_arg(int num1)
+{
+    printf("test_gt_one_arg:");
+    object_t *list = new_pair(object_new(NUMBER, &num1), NULL);
+    object_t *res = gt(list);
+    ASSERT(res, ERROR);
+}
+
 int main()
 {
     printf("------------test_arith---------\n");
@@ -471,5 +506,9 @@ int main()
     test_less_great();
     test_less_no_arguments();
     test_less_one_argument();
+    test_gt(5, 3, t);
+    test_gt(3, 5, nil);
+    test_gt_list_is_null();
+    test_gt_one_arg(3);
     return 0;
 }
