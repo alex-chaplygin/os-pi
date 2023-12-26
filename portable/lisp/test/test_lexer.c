@@ -293,8 +293,7 @@ void test_symbol_overflow()
     char str[MAX_SYMBOL];
     
     write_file(src);
-    get_cur_char();
-    get_symbol(str);
+    get_token();
 
     ASSERT(token_error, 1);    
 }

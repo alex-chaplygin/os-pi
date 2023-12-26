@@ -147,23 +147,24 @@ int hex_num()
     const int msb_shr = CHAR_BIT * sizeof(int);
   
     do {
-	get_cur_char();
-	if (is_delimeter(cur_symbol))
-	    break;
-	if (is_digit(cur_symbol)) {
-	    cur_num = cur_num * 16 + cur_symbol - '0';
-	} else if (is_hex_symbol(cur_symbol)) {
-	    cur_symbol = toupper(cur_symbol);
-	    cur_num = cur_num * 16 + cur_symbol - 'A' + 10;
-	} else if ((cur_num >> msb_shr) & 1) {
-	    token_error = 1;
-	    printf("hex number overflow\n");
-	    return 0;	
-	} else {
-	    token_error = 1;
-	    printf("invalid hex num\n");
-	    return 0;
-	}
+		get_cur_char();
+		if (is_delimeter(cur_symbol))
+			break;
+		if (is_digit(cur_symbol)) {
+			cur_num = cur_num * 16 + cur_symbol - '0';
+		} else if (is_hex_symbol(cur_symbol)) {
+			cur_symbol = toupper(cur_symbol);
+			cur_num = cur_num * 16 + cur_symbol - 'A' + 10;
+		} else {
+			token_error = 1;
+			printf("invalid hex num\n");
+			return 0;
+		}
+		if ((cur_num >> msb_shr) & 1) {
+			token_error = 1;
+			printf("hex number overflow\n");
+			return 0;	
+		} 
     } while (is_digit(cur_symbol) || is_hex_symbol(cur_symbol));
   
     unget_cur_char();
@@ -177,37 +178,36 @@ int hex_num()
 int get_num()
 {
     int fl = 0;
-    long long cur_num = 0;
+    int cur_num = 0;
     if (cur_symbol == '0') {
-	get_cur_char();
-	if (cur_symbol == 'x')
-	    return hex_num();
+		get_cur_char();
+		if (cur_symbol == 'x')
+			return hex_num();
     } else if (cur_symbol == '-') {
         fl = 1;
         get_cur_char();
     }
-    const int sgn_shr = CHAR_BIT * sizeof(int);
+    const int sgn_shr = CHAR_BIT * sizeof(int) - 1;
+    int sgn = fl ? -1 : 1;
     int msb;
     while (is_alpha(cur_symbol) || is_digit(cur_symbol) || is_symbol(cur_symbol)) 
     {
-	if (is_digit(cur_symbol)) {
-	    cur_num = cur_num * 10 + cur_symbol - '0';
-	    msb = (cur_num >> sgn_shr) & 1;
-	    /*	    if (msb != fl) {
-		token_error = 1;
-		printf("number overflow\n");
-		return 0;
-		}*/
-	    get_cur_char();
-	} else {
-	    token_error = 1;
-	    printf("invalid num\n");
-	    return 0;
-	}
+		if (is_digit(cur_symbol)) {
+			cur_num = cur_num * 10 + sgn * (cur_symbol - '0');
+			msb = (cur_num >> sgn_shr) & 1;
+			if (msb != fl) {
+				token_error = 1;
+				printf("number overflow\n");
+				return 0;
+			}
+			get_cur_char();
+		} else {
+			token_error = 1;
+			printf("invalid num\n");
+			return 0;
+		}
     }
     unget_cur_char();
-    if (fl == 1)
-        cur_num *= -1;
     return cur_num;
 }
 
