@@ -46,3 +46,15 @@
 (struct-fields struct arr 0)
 ;(with-struct struct arr 0
 ;	     c)
+(defvar sec0(ata-read-sectors 0 0 1))
+(defun show-mbr-info (xxx)
+  (eval (with-struct partition-entry sec0 +partition-table-ofs+
+  '(- +FAT32-type+ (aref sec0 (+ +partition-table-ofs+ 4)))
+  '(list (cons 'CHS-start CHS-start) (cons 'type  type) (cons 'CHS-last CHS-last) (cons 'start-sector  start-sector) (cons 'num-sectors  num-sectors)))))
+(show-mbr-info 0)
+;Чтение disk.qcow2; 
+(defun load-partition (disk-num part-num)
+(let ((sec (ata-read-sectors disk-num 0 1)))
+  (eval (with-struct partition-entry sec (+ (* 16 part-num) +partition-table-ofs+)
+     '(ata-read-sectors disk-num start-sector 1) ))))
+(load-partition 0 0)
