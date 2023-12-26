@@ -108,6 +108,12 @@
   "(for i 0 10 (seta arr i i))"
   `(inner-for ,(intern (concat "for-" (symbol-name var))) ,var ,start ,end ,@body))
 
+(defmacro while (test &rest body)
+  "Цикл while"
+  `(cond ((not ,test) 'end)
+    (t (progn ,@body
+        (while ,test ,@body)))))
+
 (defmacro let (vars &rest body)
   "Блок локальных переменных"
   "(let ((x 0)
@@ -207,3 +213,7 @@
   (if (equal size 0) 0
     (let ((it (- size 1)))
       (+ (<< (aref arr (+ ofs it)) (* it 8)) (arr-get-num arr ofs it)))))
+
+(defun abs (x)
+  "Абсолютное значение"
+  (if (< x 0) (- 0 x) x))
