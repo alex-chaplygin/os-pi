@@ -20,6 +20,7 @@ object_t *atom(object_t *params);
 object_t *defvar(object_t *params);
 object_t *cons(object_t *list);
 object_t *progn(object_t *list);
+object_t *quote(object_t *list);
 object_t *backquote(object_t *list);
 
 void error(char *str)
@@ -570,6 +571,19 @@ void test_atom_many_args()
     ASSERT(res, ERROR);
 }
 
+/**
+ * Попытка вернуть элемент из списка нескольких параметров  
+ */
+void test_quote_error()
+{
+    printf("test_quote_error: ");
+    int number = 5;
+    object_t *num_obj = object_new(NUMBER, &number);
+    object_t *list = new_pair(num_obj, new_pair(num_obj, NULL));
+    object_t *res = quote(list);
+    ASSERT(res, ERROR);
+}
+
 /*
 eval_int
 +---------------------------+------------------------------------------------+------------------------------------------------------+
@@ -725,6 +739,7 @@ int main()
     test_atom_null();//52
     test_atom_list();
     test_atom_many_args();//131
+    test_quote_error();//53
     return 0;
 }
 
