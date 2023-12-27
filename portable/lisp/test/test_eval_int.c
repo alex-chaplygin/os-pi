@@ -21,6 +21,7 @@ object_t *defvar(object_t *params);
 object_t *cons(object_t *list);
 object_t *progn(object_t *list);
 object_t *quote(object_t *list);
+object_t *eq(object_t *list);
 object_t *backquote(object_t *list);
 
 void error(char *str)
@@ -584,6 +585,41 @@ void test_quote_error()
     ASSERT(res, ERROR);
 }
 
+/**
+ * Создать объекты для выражения 
+ * Вызвать функцию eq
+ * Проверить результат
+ * (eq )            -> error
+ * (eq 'a)          -> error
+ * (eq 'a 'a 'a)    -> error
+ * (eq 'a 'a)       -> t
+ * (eq 'a 'b)       -> nil
+ */
+void test_eq()
+{
+    printf("test_eq: ");
+    object_t *p1 = object_new(SYMBOL, "a");
+    object_t *p2 = object_new(SYMBOL, "b");
+
+    object_t *listnull = NULL;
+    object_t *list1 = new_pair(p1, NULL);
+    object_t *list2 = new_pair(p1, new_pair(p1, new_pair(p1, NULL)));
+    object_t *list3 = new_pair(p1, new_pair(p1, NULL));
+    object_t *list4 = new_pair(p1, new_pair(p2, NULL));
+
+    object_t *resnull = eq(listnull);
+    object_t *res1 = eq(list1);
+    object_t *res2 = eq(list2);
+    object_t *res3 = eq(list3);
+    object_t *res4 = eq(list4);
+    
+    ASSERT(resnull, ERROR);
+    ASSERT(res1, ERROR);
+    ASSERT(res2, ERROR);
+    ASSERT(res3, t);
+    ASSERT(res4, nil);
+}
+
 /*
 eval_int
 +---------------------------+------------------------------------------------+------------------------------------------------------+
@@ -740,6 +776,7 @@ int main()
     test_atom_list();
     test_atom_many_args();//131
     test_quote_error();//53
+    test_eq(); //9, 55, 56, 57
     return 0;
 }
 
