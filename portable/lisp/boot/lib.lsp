@@ -164,3 +164,7 @@
   (cond ((atom var) `(setq ,var ,val))
 	((eq (car var) 'slot) `(set-hash ,(cadr var) ,(caddr var) ,val))
 	(t "setf: invalid var")))
+
+(defmacro defvar (&rest params)
+  "Создаёт новый глобальный символ (defvar имя значение)"  
+  `(setq ,@params))

@@ -22,8 +22,6 @@ symbol_t *cond_sym;
 symbol_t *defun_sym;
 /// символ "DEFMACRO"
 symbol_t *defmacro_sym;
-/// символ "DEFVAR"
-symbol_t *defvar_sym; 
 /// символ "SETQ"
 symbol_t *setq_sym;
 /// символ "OR"
@@ -259,23 +257,6 @@ object_t *defmacro(object_t *obj)
     name->macro = new_pair(object_new(SYMBOL, "LAMBDA"), TAIL(obj));
     return object_new(SYMBOL, name->str);
 }
-
-/** 
- * Создаёт новый глобальный символ (defvar имя значение)
- *
- * @param params (имя значение)
- *
- * @return объект переменной
- */
-object_t *defvar(object_t *params)
-{
-    symbol_t *name = find_symbol(FIRST(params)->u.symbol->str);
-    if (TAIL(params) == NULL)
-        name->value = NULL;
-    else
-        name->value = eval(SECOND(params), NULL);
-    return FIRST(params);
-}    
 
 /**
  * (progn e1 e2 .. en)
@@ -520,7 +501,7 @@ object_t *eval_args(object_t *args, object_t *env)
 int is_special_form(symbol_t *s)
 {
     return s == quote_sym || s == defun_sym || s == defmacro_sym ||
-	s == defvar_sym || s == setq_sym || s == backquote_sym ||
+        s == setq_sym || s == backquote_sym ||
 	s == cond_sym || s == or_sym || s == and_sym;
 }
 
@@ -845,7 +826,6 @@ void init_eval()
     register_func("COND", cond);
     register_func("DEFUN", defun);
     register_func("DEFMACRO", defmacro);
-    register_func("DEFVAR", defvar);
     register_func("PROGN", progn);
     register_func("SETQ", setq);
     register_func("OR", or);
@@ -862,7 +842,6 @@ void init_eval()
     cond_sym = find_symbol("COND");
     defun_sym = find_symbol("DEFUN");
     defmacro_sym = find_symbol("DEFMACRO");
-    defvar_sym = find_symbol("DEFVAR");
     setq_sym = find_symbol("SETQ");
     or_sym = find_symbol("OR");
     and_sym = find_symbol("AND");

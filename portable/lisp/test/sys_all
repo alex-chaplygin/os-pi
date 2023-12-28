@@ -131,16 +131,16 @@ sh sys_test "(< 3 3)" "NIL"
 sh sys_test "(progn (+ 2 3) (* 3 4))" "12"
 sh sys_test "(defun test (x) (+ x 10) (* x 20)) (test 5)" "TEST
 100" # 18
-sh sys_test "(defvar a 10) (A)A" "A
+sh sys_test "(setq a 10) (A)A" "10
 Unknown func: A
 10" # 23 24
-sh sys_test "(defvar a 10) A" "A
+sh sys_test "(setq  a 10) A" "10
 10" # 23 24
 sh sys_test "T NIL" "T
 NIL"
-sh sys_test "(defvar +bgr-index+ 0x1ce) \
-(defvar +bgr-data+ 0x1cf) +BGR-INDEX+ +BGR-DATA+ X ABC" "+BGR-INDEX+
-+BGR-DATA+
+sh sys_test "(setq +bgr-index+ 0x1ce) \
+(setq +bgr-data+ 0x1cf) +BGR-INDEX+ +BGR-DATA+ X ABC" "462
+463
 462
 463
 Unknown SYMBOL: X
@@ -178,7 +178,12 @@ BGR-SET-RES
 2
 GRAPH-SEND-BUFFER
 NIL" # 18
-sh sys_test "(defvar str  \"1234567890111111qwertyu\\nuiop111\\n1111111111111111\\nqqqqqqqqqqqqqqqqqqqq\\nqqqqqqqqqqqqqqqqqqqqq\\nwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww\") str" "STR
+sh sys_test "(setq str  \"1234567890111111qwertyu\\nuiop111\\n1111111111111111\\nqqqqqqqqqqqqqqqqqqqq\\nqqqqqqqqqqqqqqqqqqqqq\\nwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww\") str" "\"1234567890111111qwertyu
+uiop111
+1111111111111111
+qqqqqqqqqqqqqqqqqqqq
+qqqqqqqqqqqqqqqqqqqqq
+wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww\"
 \"1234567890111111qwertyu
 uiop111
 1111111111111111
@@ -190,9 +195,9 @@ sh sys_test "(setq a 1 b 2 c 3)a b c" "3
 2
 3" # 25 26 27
 sh sys_test "(setq a 1 b)" "setq: no value" # 25 27 87
-sh sys_test "(defvar a #(1 2 3)) a" "A
+sh sys_test "(setq a #(1 2 3)) a" "#(1 2 3)
 #(1 2 3)" # 23 24 
-sh sys_test "(defvar a #(1 #(a b c) 2 3)) a" "A
+sh sys_test "(setq a #(1 #(a b c) 2 3)) a" "#(1 #(A B C) 2 3)
 #(1 #(A B C) 2 3)" # 23 24
 sh sys_test "\`(1 2 3 4)" "(1 2 3 4)"
 sh sys_test "\`(A B C D 1 2 3 4)" "(A B C D 1 2 3 4)"
@@ -201,44 +206,44 @@ sh sys_test "\`a" "A"
 sh sys_test "\`(\"abcdefg\")" "(\"abcdefg\")"
 sh sys_test "\`#(1 2 3 4)" "#(1 2 3 4)"
 sh sys_test "\`(#(1 2 (3) 4 b #(b c)) a (1) \"ab\")" "(#(1 2 (3) 4 B #(B C)) A (1) \"ab\")"
-sh sys_test "(defvar x 1) \`(a ,x 2)" "X
+sh sys_test "(setq x 1) \`(a ,x 2)" "1
 (A 1 2)" # 23 24
-sh sys_test "(defvar x 1) (defvar y \`(,x a b)) \`(a ,x 2 ,y)" "X
-Y
+sh sys_test "(setq x 1) (setq y \`(,x a b)) \`(a ,x 2 ,y)" "1
+(1 A B)
 (A 1 2 (1 A B))" # 23 24
-sh sys_test "(defvar x 1) \`(a ,x (,x #(,x)) 2)" "X
+sh sys_test "(setq x 1) \`(a ,x (,x #(,x)) 2)" "1
 (A 1 (1 #(1)) 2)" # 23 24
-sh sys_test "(defvar a '(1 2 3 (4 5))) \`(b ,@a c)" "A
+sh sys_test "(setq a '(1 2 3 (4 5))) \`(b ,@a c)" "(1 2 3 (4 5))
 (B 1 2 3 (4 5) C)" # 23 24
 sh sys_test "(defmacro macro (x) 
                  \`(+ ,x 1))
-             (defvar a 4)
+             (setq a 4)
              (macro a)" "MACRO
-A
+4
 5" # 41 23 24
 sh sys_test "(defmacro if (test true false) 
                  \`(cond (,test ,true)
                          (t ,false)))
-             (defvar a 4)
+             (setq a 4)
              (if (= a 4) 
                  (+ a 1)
                  (- a 1))" "IF
-A
+4
 5" # 41 23 24
 sh sys_test "(defmacro macro (x) 
                  \`(+ ,x 1)\`(* ,x 2))
-             (defvar a 4)
+             (setq a 4)
              (macro a)" "MACRO
-A
+4
 8" # 41 23 24
 sh sys_test "(concat \"for-\" (symbol-name 'var))" "\"for-VAR\"" # 28 29
 sh sys_test "\`(,(concat \"for-\" (symbol-name 'var)))" "(\"for-VAR\")" # 28 29
 sh sys_test "
-(defvar x 10)
+(setq x 10)
 (defun change-local-x (x)
 (setq x 5) x) 
 (change-local-x x) 
-x" "X
+x" "10
 CHANGE-LOCAL-X
 5
 10" # 23 24 18 26 27
@@ -253,11 +258,11 @@ sh sys_test "
 (defmacro for (var start end body)
   \`(inner-for ,(intern (concat \"for-\" (symbol-name var))) ,var ,start ,end ,body))
 
-(defvar arr (make-array 3))
-(defvar arr2 (make-array 12))
+(setq arr (make-array 3))
+(setq arr2 (make-array 12))
 (for row 0 3
      (progn
-	(defvar a (make-array 3))
+	(setq a (make-array 3))
 	(for col 0 3
 	     (seta a col row))		
 	(seta arr row a)))
@@ -270,8 +275,8 @@ sh sys_test "
 arr2
 " "INNER-FOR
 FOR
-ARR
-ARR2
+#(NIL NIL NIL)
+#(NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL)
 END
 #(#(0 0 0) #(1 1 1) #(2 2 2))
 END

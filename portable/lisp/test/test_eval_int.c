@@ -348,7 +348,7 @@ void test_setq_global_set()
     obj_val.u.symbol = &s1;
 
     object_t *params = new_pair(&obj_val, new_pair(object_new(NUMBER, &num), NULL));
-    object_t *new_var = defvar(params);
+    object_t *new_var = setq(params);
 
     int num2 = 992;
     object_t *params2 = new_pair(object_new(SYMBOL, "test_var"),
