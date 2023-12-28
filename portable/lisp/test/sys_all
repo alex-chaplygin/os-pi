@@ -390,6 +390,30 @@ sh sys_test "(intern 1)" "intern: not string in params
 sh sys_test "(intern 'a 'd)" "intern: not string in params
 " #93
 
+echo "---Тесты STRING-SIZE---"
+#отсутствие аргументов
+sh sys_test "(string-size)" "string-size: no arguments
+"
+#больше 1 аргумента
+sh sys_test "(string-size \"1 2 3\" \"abc\")" "string-size: too many arguments
+"
+#аргумент не строка
+sh sys_test "(string-size 1)" "string-size: not string in params
+"
+#аргумент строка
+sh sys_test "(string-size \"123 a\")" 5
+#аргумент пустая строка
+sh sys_test "(string-size \"\")" 0
+
+echo "---Тесты STR-CHAR---"
+sh sys_test "(char \"0\" 0)" 48
+sh sys_test "(char \"\" 0)" 48
+sh sys_test "(char \"abc\" 4)" 48
+sh sys_test "(char 'abc 4)" 48
+sh sys_test "(char \"0\")" 48
+sh sys_test "(char \"abc\" 'a)" 48
+sh sys_test "(char \"abc\" 4 5)" 48
+
 echo  "---Тесты SETA---"
 # три аргумента
 sh sys_test "(seta #(1 2 3 4) 0 10)" "#(10 2 3 4)"  #35 36 37

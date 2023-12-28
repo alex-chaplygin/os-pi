@@ -50,6 +50,50 @@ int is_params_string(object_t *list)
 }
 
 /**
+ * Возвращает длину строки
+ * @param list (строка)
+ * @return длина строки
+**/
+object_t *string_size(object_t *list)
+{
+    if (list == NULL) {
+	error("string-size: no arguments\n");
+	return ERROR;
+    }
+    if (TAIL(list) != NULL) {
+	error("string-size: too many arguments\n");
+	return ERROR;
+    }
+    if (is_params_string(list) == 0) {
+	error("string-size: not string in params\n");
+	return ERROR;
+    }
+    return object_new(NUMBER, &(FIRST(list)->u.str->length)); 
+}
+
+object_t *str_char(object_t *list)
+{
+    if (list == NULL) {
+	error("str_char: no arguments\n");
+	return ERROR;
+    }
+    if (TAIL(list) == NULL) {
+	error("str_char: not all arguments\n");
+	return ERROR;
+    }
+
+    object_t* str = FIRST(list);
+    int ind = SECOND(list)->u.value;
+    
+    // if (is_params_string(list) == 0) {
+    //	error("string-size: not string in params\n");
+    //	return ERROR;
+    // }
+
+    return object_new(NUMBER, &(str->u.str->data[ind]));
+}
+
+/**
  * Объединение 2-х строк
  * @param list (строка_1 строка_2)
  * @return объединившая строка
@@ -108,4 +152,6 @@ void init_strings()
     register_func("INTERN", intern);
     register_func("CONCAT" ,concat);
     register_func("SYMBOL-NAME", symbol_name);
+    register_func("STRING-SIZE", string_size);
+    register_func("CHAR", str_char);
 }
