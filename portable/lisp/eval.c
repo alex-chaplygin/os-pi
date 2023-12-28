@@ -338,7 +338,7 @@ int is_lambda(object_t *list)
  * @param args - список аргументов (x y)
  * @param values - список значений (1 2)
  *
- * @return окружение ((X 1) (Y 2))
+ * @return окружение ((X.1) (Y.2))
  */
 object_t *make_env(object_t *args, object_t *values)
 {
@@ -364,10 +364,10 @@ object_t *make_env(object_t *args, object_t *values)
             error("Too many parameters after &rest");
             return ERROR;
         }
-        return new_pair(new_pair(SECOND(args), new_pair(values, nil)), nil);
+        return new_pair(new_pair(SECOND(args), values), nil);
     }
     object_t *val = FIRST(values);
-    object_t *pair = new_pair(param, new_pair(val, nil));
+    object_t *pair = new_pair(param, val);
     object_t *new_env = make_env(TAIL(args), TAIL(values));
     if (new_env == ERROR)
         return ERROR;
@@ -390,7 +390,7 @@ int find_in_env(object_t *env, object_t *sym, object_t **res)
     object_t *pair = FIRST(env);
     object_t *var = FIRST(pair);
     if (var->u.symbol  == sym->u.symbol){
-	*res = SECOND(pair);
+	*res = TAIL(pair);
 	return 1;
     } else
 	return find_in_env(TAIL(env), sym, res);
@@ -613,7 +613,7 @@ void set_in_env(object_t *env, object_t *sym, object_t *val)
     object_t *pair = FIRST(env);
     object_t *var = FIRST(pair);
     if (var->u.symbol  == sym->u.symbol)
-        SECOND(pair) = val;
+        TAIL(pair) = val;
     else
         set_in_env(TAIL(env), sym, val);
 }
