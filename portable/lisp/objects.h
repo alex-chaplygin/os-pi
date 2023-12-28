@@ -20,8 +20,9 @@
 
 #define PRINT(o) print_obj(o); printf("\n");
 #define ERROR (-1)
+#define NULLOBJ 3
 /// Отсутствие значения у переменных
-#define NOVALUE ((void *)1)
+#define NOVALUE (ERROR)
 /// Метка региона
 #define MAGIC 0xABCD1234
 /// Число бит на тип объекта
@@ -103,7 +104,7 @@ typedef struct array_s
     int free; // Если 1 - массив свободен
 } array_t;
 
-typedef  object_t *(*func_t)(object_t *);
+typedef  object_t (*func_t)(object_t);
 
 //структура символа
 typedef struct symbol_s
@@ -113,11 +114,11 @@ typedef struct symbol_s
     //указатель на следующий символ в цепочке хеш таблице
     struct symbol_s *next;
     // указатель на объект - значение переменной
-    object_t *value;
+    object_t value;
     // указатель на объект для функций (lambda выражение)
-    object_t *lambda;
+    object_t lambda;
     // указатель на объект для макроса
-    object_t *macro;
+    object_t macro;
     //указатель на функцию для примитивов
     func_t func;
 } symbol_t;

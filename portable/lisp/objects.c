@@ -118,7 +118,7 @@ void free_bignumber(bignumber_t *o)
  * -1 11111111111111111111111...
  * GET_ADDR -> 00001111111111111111...
  * -MAX_NUM 11111000000000000000...
- * GET_ADDR -> 000010000000000...
+ * GET_ADDR -> 0000100000000000...
  *
  * @param num целое число
  * 
@@ -209,7 +209,7 @@ symbol_t *new_symbol(char *str)
 {
     if (last_symbol == MAX_SYMBOLS) {
 	error("Error: out of memory: symbols");
-	return (symbol_t*)ERROR;
+	return (symbol_t *)ERROR;
     }
     if (*str == 0)
 	return NULL;
@@ -223,11 +223,11 @@ symbol_t *new_symbol(char *str)
     return symbol;
 }
 
-/* /\** */
+/* /\**  */
 /*  * Создание нового объекта строки */
-/*  * */
+/*  *  */
 /*  * @param str - строка */
-/*  * */
+/*  *  */
 /*  * @return указатель на объект строки */
 /*  *\/ */
 /* string_t *new_string(char *str) */
@@ -250,9 +250,9 @@ symbol_t *new_symbol(char *str)
 /*     return string; */
 /* } */
 
-/* /\** */
+/* /\**  */
 /*  * Освобождение памяти для строки */
-/*  * */
+/*  *  */
 /*  * @param s объект для освобождения */
 /*  *\/ */
 /* void free_string(string_t *s) */
@@ -354,25 +354,20 @@ symbol_t *new_symbol(char *str)
 /*     free_region(a->data); */
 /* } */
 
-/* /\**  */
-/*  * Пометить объект как используемый */
-/*  *  */
-/*  * @param obj - помечаемый объект */
-/*  *\/ */
-/* void mark_object(object_t *obj) */
-/* { */
-/*     if (obj == NULL || obj == NOVALUE || obj->mark == 1) */
-/* 	return; */
-/*     obj->mark = 1; */
-/*     if (obj->type == PAIR) { */
-/* 	mark_object(obj->u.pair->left); */
-/* 	mark_object(obj->u.pair->right); */
-/*     } else if (obj->type == ARRAY) { */
-/* 	array_t *arr = obj->u.arr; */
-/* 	for (int i = 0; i < arr->length; i++) */
-/* 	    mark_object(arr->data[i]); */
-/*     } */
-/* } */
+/* Пометить объект как используемый */
+
+/* @param obj - помечаемый объект */
+/*  */
+void mark_object(object_t obj)
+{
+    if (obj == NULLOBJ || obj == NOVALUE || GET_MARK(obj) == 1)
+	return;
+    SET_MARK(obj);    
+    if (TYPE(obj) == PAIR) {
+	mark_object(((pair_t *)(GET_ADDR(obj)))->left);
+	mark_object(((pair_t *)(GET_ADDR(obj)))->right);
+    }
+}
 
 /* /\**  */
 /*  * Освобождаем все непомеченные объекты, снимаем пометки */
@@ -406,12 +401,11 @@ symbol_t *new_symbol(char *str)
 /*     sweep(); */
 /* } */
 
-/**
- * Печать списка пар (5 . 7)
- */
-
 /* int print_counter = 0; */
 
+/* /\** */
+/*  * Печать списка пар (5 . 7) */
+/*  *\/ */
 /* void print_list(object_t *obj) */
 /* { */
 /*     if (obj == NULL) */
@@ -543,80 +537,82 @@ symbol_t *new_symbol(char *str)
 /*     } */
 /* } */
 
-/* /\**  */
-/*  * Инициализация свободного региона */
-/*  *\/ */
-/* void init_regions() */
-/* { */
-/*     regions = (struct region *)region_data; */
-/*     regions->free = 1; */
-/*     regions->next = NULL; */
-/*     regions->prev = NULL; */
-/*     regions->size = MAX_REGION_SIZE - sizeof(struct region) + sizeof(char *); */
-/*     //for(int i =0;i < regions->size;i++)regions->data[i] = 0; */
-/* } */
+/**
+ * Инициализация свободного региона
+ */
+void init_regions()
+{
+    printf("init regions\n");
+    regions = (struct region *)region_data;
+    regions->free = 1;
+    regions->next = NULL;
+    regions->prev = NULL;
+    regions->size = MAX_REGION_SIZE - sizeof(struct region) + sizeof(char *);
+    for (int i = 0; i < regions->size; i++)
+    	regions->data[i] = 0;
+}
 
-/* /\** */
-/*  * Выделение нового региона */
-/*  * @param size размер выделенного региона в байтах */
-/*  *  */
-/*  * @return указатель на данные выделенного региона */
-/*  *\/ */
-/* void *alloc_region(int size) */
-/* { */
-/*     /// найти первый свободный регион подходящего размера */
-/*     struct region *r = regions; */
-/*     if ((size & 3) != 0) */
-/* 	size = ((size >> 2) + 1) << 2; */
-/*     int offset_markup = 3 * sizeof(int) + 2 * sizeof(struct region *); */
-/*     int size2 = size + offset_markup; */
-/*     while (r != NULL) { */
-/*         if (r->free == 1 && r->size >= size2) { */
-/*             struct region *free_reg = (struct region *)(r->data + size); */
-/*             free_reg->free = 1; */
-/*             free_reg->next = r->next; */
-/*             free_reg->prev = r; */
-/*             free_reg->size = r->size - size2; */
-/*             r->next = free_reg; */
-/*             r->size = size; */
-/*             r->magic = MAGIC; */
-/*             r->free = 0; */
-/*             return r->data; */
-/*         } */
-/* 	    r = r->next; */
-/*     } */
-/*     error("Alloc region: out of memory\n"); */
-/*     return ERROR; */
-/* } */
+/**
+ * Выделение нового региона
+ * @param size размер выделенного региона в байтах
+ *
+ * @return указатель на данные выделенного региона
+ */
+void *alloc_region(int size)
+{
+    /// найти первый свободный регион подходящего размера
+    struct region *r = regions;
+    if ((size & 3) != 0)
+	size = ((size >> 2) + 1) << 2;
+    int offset_markup = 3 * sizeof(int) + 2 * sizeof(struct region *);
+    int size2 = size + offset_markup;
+    while (r != NULL) {
+        if (r->free == 1 && r->size >= size2) {
+            struct region *free_reg = (struct region *)(r->data + size);
+            free_reg->free = 1;
+            free_reg->next = r->next;
+            free_reg->prev = r;
+            free_reg->size = r->size - size2;
+            r->next = free_reg;
+            r->size = size;
+            r->magic = MAGIC;
+            r->free = 0;
+            return r->data;
+        }
+	    r = r->next;
+    }
+    error("Alloc region: out of memory\n");
+    return (void *)ERROR;
+}
 
-/* /\** */
-/*  * Освобождение памяти региона */
-/*  * @param data адрес данных освобождаемой  области памяти */
-/*  *  */
-/*  *\/ */
-/* void free_region(void *data) */
-/* { */
-/*     struct region *r, *rprev, *rnext; */
-/*     int offset = 3 * sizeof(int) + 2 * sizeof(struct region *); */
-/*     r = (struct region *)((char *)data - offset); */
-/*     if (r->magic != MAGIC) { */
-/* 	error("Free region: no magic\n"); */
-/* 	return; */
-/*     } */
-/*     rnext = r->next; */
-/*     rprev = r->prev; */
-/*     r->free = 1; */
-/*     r->magic = 0; */
-/*     if (rnext != NULL && rnext->free == 1) { */
-/*         r->size += offset + rnext->size; */
-/*         r->next = rnext->next; */
-/* 	if (r->next != NULL) */
-/* 	    r->next->prev = r; */
-/*     } */
-/*     if (rprev != NULL && rprev->free == 1) { */
-/*         rprev->size += offset + r->size; */
-/* 	rprev->next = r->next; */
-/* 	if (rprev->next != NULL) */
-/* 	    rprev->next->prev = rprev; */
-/*     }  */
-/* } */
+/**
+ * Освобождение памяти региона
+ * @param data адрес данных освобождаемой  области памяти
+ *
+ */
+void free_region(void *data)
+{
+    struct region *r, *rprev, *rnext;
+    int offset = 3 * sizeof(int) + 2 * sizeof(struct region *);
+    r = (struct region *)((char *)data - offset);
+    if (r->magic != MAGIC) {
+	error("Free region: no magic\n");
+	return;
+    }
+    rnext = r->next;
+    rprev = r->prev;
+    r->free = 1;
+    r->magic = 0;
+    if (rnext != NULL && rnext->free == 1) {
+        r->size += offset + rnext->size;
+        r->next = rnext->next;
+	if (r->next != NULL)
+	    r->next->prev = r;
+    }
+    if (rprev != NULL && rprev->free == 1) {
+        rprev->size += offset + r->size;
+	rprev->next = r->next;
+	if (rprev->next != NULL)
+	    rprev->next->prev = rprev;
+    }
+}

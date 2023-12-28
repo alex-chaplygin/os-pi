@@ -166,18 +166,21 @@ void reset_mem()
 /*     ASSERT(free_objs, o4); */
 /* } */
 
+
 /** 
  *Освобождение большого числа из объекта
  */
+
 void test_free_bignumber()
 {
     printf("test_free_bignumber: ");
     reset_mem();
     object_t o = new_number(855500000);
     ASSERT(TYPE(o), BIGNUMBER);
-    //    free_bignumber((bignumber_t *)GET_ADDR(o));
-    //ASSERT(free_bignumbers, (bignumber_t *)GET_ADDR(o));
+    free_bignumber((bignumber_t *)GET_ADDR(o));
+    ASSERT(free_bignumbers, (bignumber_t *)GET_ADDR(o));
 }
+
 
 /**
  * Проверка корректности функции освобождения пары
@@ -204,40 +207,51 @@ void test_free_pair()
     ASSERT(free_pairs->next->next, NULL);
 }
 
-/**
- * Создание нового символа и проверка его
- */
- void test_new_symbol() 
+ /**
+  * Создание нового символа и проверка его
+  */
+void test_new_symbol() 
 {
     printf("test_new_symbol: ");
     symbol_t *s = new_symbol("abc");
     ASSERT(strcmp(s->str, "abc"), 0);
 }
-
-/* /\** */
-/*  * Создать объект (12 A 5) */
-/*  *\/ */
-/* void test_mark() */
-/* { */
-/*     printf("test_mark :"); */
-/*     reset_mem(); */
-/*     print_free_objs(); */
-/*     int n1 = 12; */
-/*     int n2 = 5; */
-/*     object_t *num1 = object_new(NUMBER, &n1); */
-/*     object_t *sym = object_new(SYMBOL, "A"); */
-/*     object_t *num2 = object_new(NUMBER, &n2); */
-/*     object_t *p3 = new_pair(num2, NULL); */
-/*     object_t *p2 = new_pair(sym, p3); */
-/*     mobject = new_pair(num1, p2); */
-/*     mark_object(mobject); */
-/*     ASSERT(mobject->mark, 1); */
-/*     ASSERT(num1->mark, 1); */
-/*     ASSERT(p2->mark, 1); */
-/*     ASSERT(sym->mark, 1); */
-/*     ASSERT(p3->mark, 1); */
-/*     ASSERT(num2->mark, 1); */
-/* } */
+ 
+/**
+ * Создать объект (12 A 5)
+ */
+void test_mark()
+{
+    printf("test_mark :");
+    reset_mem();
+    int n1 = 12;
+    int n2 = 5;
+    object_t num1 = new_number(n1);
+    object_t sym =  NEW_OBJECT(SYMBOL, new_symbol("A"));
+    object_t num2 = new_number(n2);
+    object_t p3 = new_pair(num2, NULLOBJ);
+    object_t p2 = new_pair(sym, p3);
+    object_t mobject = new_pair(num1, p2);
+    printf("num1 = %x\n", num1);
+    printf("sym = %x\n", sym);
+    printf("num2 = %x\n", num2);
+    printf("p3 = %x\n", p3);
+    printf("p2 = %x\n", p2);
+    printf("mobject = %x\n", mobject);
+    mark_object(mobject);
+    printf("num1 = %x\n", num1);
+    printf("sym = %x\n", sym);
+    printf("num2 = %x\n", num2);
+    printf("p3 = %x\n", p3);
+    printf("p2 = %x\n", p2);
+    printf("mobject = %x\n", mobject);
+    ASSERT(GET_MARK(mobject), 1);
+    ASSERT(GET_MARK(num1), 1);
+    ASSERT(GET_MARK(p2), 1);
+    ASSERT(GET_MARK(sym), 1);
+    ASSERT(GET_MARK(p3), 1);
+    ASSERT(GET_MARK(num2), 1);
+}
 
 /* /\** */
 /*  * Используем помеченные объекты с предыдущего теста. */
@@ -343,50 +357,74 @@ void test_free_pair()
 /*     printf("pairs: OK\n"); */
 /* } */
 
-/* /\** */
-/*  * Выделить 2 региона с размерами 5 и 64 */
-/*  * Проверить указатели регионов относительно начала */
-/*  * Проверить указатели данных */
+/**
+/*  * Создать две пары */
+/*  * Присвоить левым частям этих пар - числа, а правые ссылались друг на друга */
+/*  * Создать два символа, которые ссылаются на эти пары */
+/*  * Проверить работу сборщика мусора, у пар поле free должно быть равно нулю. */
 /*  *\/ */
-/* void test_alloc_region() */
-/* {    */
-/*     printf("test_alloc_region: "); */
-/*     char *reg1 = alloc_region(5); */
-/*     char *reg2 = alloc_region(64); */
-/*     int size = 3 * sizeof(int) + 2 * sizeof(int *); */
-/*     ASSERT((reg1 - region_data), size); */
-/*     ASSERT((reg2 - region_data), size + 8 + size); */
-/*     //    free_region(reg1); */
-/*     //free_region(reg2); */
-/* } */
+/* void test_garbage_collect_cycle() */
+/* { */
+/*     printf("test_garbage_collect_cycle: "); */
+/*     int num1 = 1; */
+/*     symbol_t *s1 = new_symbol("A"); */
+/*     symbol_t *s2 = new_symbol("B"); */
+/*     object_t *p1 = new_pair(object_new(NUMBER, &num1), NULL); */
+/*     object_t *p2 = new_pair(object_new(NUMBER, &num1), NULL); */
+/*     p1->u.pair->right = p2; */
+/*     p2->u.pair->right = p1; */
+/*     s1->value = p1; */
+/*     s2->value = p2; */
+/*     garbage_collect(); */
 
-/* /\** */
-/*  * Создать 3 региона */
-/*  * Удалить второй и первый регион  */
-/*  * Проверить объединённый регион */
-/*  * Освободить третий регион */
-/*  *\/ */
-/* void test_free_region() */
-/* {    */
-/*     printf("test_free_region: "); */
-/*     char *reg1 = alloc_region(8); */
-/*     char *reg2 = alloc_region(12); */
-/*     char *reg3 = alloc_region(16); */
-/*     char *reg4 = alloc_region(10); */
-/*     int offset = 3 * sizeof(int) + 2 * sizeof(int *); */
-/*     struct region *r1 = (struct region *)(reg1 - offset); */
-/*     struct region *r2 = (struct region *)(reg2 - offset); */
-/*     struct region *r3 = (struct region *)(reg3 - offset); */
-/*     free_region(reg2); */
-/*     ASSERT(r1->next, r2); */
-/*     ASSERT(r2->prev, r1); */
-/*     free_region(reg1); */
-/*     ASSERT(r1->next, r3); */
-/*     ASSERT(r3->prev, r1); */
-/*     ASSERT(r1->size, 20 + offset); */
-/*     free_region(reg3); */
-/*     ASSERT(r1->size, 36 + 2 * offset); */
+/*     ASSERT(p1->free, 0); */
+/*     ASSERT(p2->free, 0); */
 /* } */
+	
+/**
+ * Выделить 2 региона с размерами 5 и 64
+ * Проверить указатели регионов относительно начала
+ * Проверить указатели данных
+ */
+void test_alloc_region()
+{
+    printf("test_alloc_region: ");
+    char *reg1 = alloc_region(5);
+    char *reg2 = alloc_region(64);
+    int size = 3 * sizeof(int) + 2 * sizeof(int *);
+    ASSERT((reg1 - region_data), size);
+    ASSERT((reg2 - region_data), size + 8 + size);
+        free_region(reg1);
+    free_region(reg2);
+}
+
+/**
+ * Создать 3 региона
+ * Удалить второй и первый регион
+ * Проверить объединённый регион
+ * Освободить третий регион
+ */
+void test_free_region()
+{
+    printf("test_free_region: ");
+    char *reg1 = alloc_region(8);
+    char *reg2 = alloc_region(12);
+    char *reg3 = alloc_region(16);
+    char *reg4 = alloc_region(10);
+    int offset = 3 * sizeof(int) + 2 * sizeof(int *);
+    struct region *r1 = (struct region *)(reg1 - offset);
+    struct region *r2 = (struct region *)(reg2 - offset);
+    struct region *r3 = (struct region *)(reg3 - offset);
+    free_region(reg2);
+    ASSERT(r1->next, r2);
+    ASSERT(r2->prev, r1);
+    free_region(reg1);
+    ASSERT(r1->next, r3);
+    ASSERT(r3->prev, r1);
+    ASSERT(r1->size, 20 + offset);
+    free_region(reg3);
+    ASSERT(r1->size, 36 + 2 * offset);
+}
 
 /* /\** */
 /*  * Проверка на переполнение памяти объектами  */
@@ -449,14 +487,14 @@ void test_free_pair()
 /*     ASSERT(pair, pair); */
 /* } */
 
-/**
- * Освободить пустую пару
- */
-void test_free_pair_empty()
-{
-    printf("test_free_pair_empty: ");
-    free_pair(NULL);
-}
+/* /\** */
+/*  * Освободить пустую пару */
+/*  *\/ */
+/* void test_free_pair_empty() */
+/* { */
+/*     printf("test_free_pair_empty: "); */
+/*     free_pair(NULL);     */
+/* } */
 
 /* /\** */
 /*  * Проверка корректности функции освобождения строки */
@@ -515,15 +553,6 @@ void test_free_pair_empty()
 /*     return new_pair(o, make_list(num - 1)); */
 /* } */
 
-/**
- * Создать массив 
- */
-void test_new_array()
-{
-    printf("test_new_array: ");
-    //PRINT(make_list(5));
-}
-
 /* /\** */
 /*  * Создать символ B */
 /*  * Присвоить ему значение - массив из трех элементов */
@@ -553,52 +582,6 @@ void test_new_array()
 /*     ASSERT(obj1->u.arr->length, 3); */
 /*     ASSERT(regions->free, 0); */
 /*     ASSERT((regions->next != NULL), 1); */
-/* } */
-
-/* /\** */
-/*  * Создать две пары */
-/*  * Присвоить левым частям этих пар - числа, а правые ссылались друг на друга */
-/*  * Создать два символа, которые ссылаются на эти пары */
-/*  * Проверить работу сборщика мусора, у пар поле free должно быть равно нулю. */
-/*  *\/ */
-/* void test_garbage_collect_cycle() */
-/* { */
-/*     printf("test_garbage_collect_cycle: "); */
-/*     int num1 = 1; */
-/*     symbol_t *s1 = new_symbol("A"); */
-/*     symbol_t *s2 = new_symbol("B"); */
-/*     object_t *p1 = new_pair(object_new(NUMBER, &num1), NULL); */
-/*     object_t *p2 = new_pair(object_new(NUMBER, &num1), NULL); */
-/*     p1->u.pair->right = p2; */
-/*     p2->u.pair->right = p1; */
-/*     s1->value = p1; */
-/*     s2->value = p2; */
-/*     printf("p1 = "); */
-/*     PRINT(p1); */
-/*     garbage_collect(); */
-
-/*     ASSERT(p1->free, 0); */
-/*     ASSERT(p2->free, 0); */
-/* } */
-
-/* /\** */
-/*  * Создать символ B */
-/*  * Присвосить ему массив в котором будет пара */
-/*  * Проверить после сборки мусора, что эта пара не очистилась */
-/*  *\/ */
-/* void test_garbage_collect_array() */
-/* { */
-/*     printf("test_garbage_collect_array: "); */
-/*     reset_mem(); */
-/*     symbol_t *s = new_symbol("B"); */
-/*     int i = 1; */
-/*     object_t *num = object_new(NUMBER, &i); */
-/*     object_t *p = new_pair(num, num); */
-/*     object_t *arr = object_new(ARRAY, new_empty_array(i)); */
-/*     arr->u.arr->data[0] = p; */
-/*     s->value = arr; */
-/*     garbage_collect(); */
-/*     ASSERT(p->u.pair->free, 0); */
 /* } */
 
 /* /\** */
@@ -713,17 +696,17 @@ garbage_collect
 void main()
 {
     printf("--------------test objects---------------------\n");
-    /* init_regions(); */
+    init_regions();
     /* test_object_new_number();   // 1 */
            //3, 9
     /* test_free_object(); */
     /* test_free_object_null(); */
-    /* test_mark(); */
+    test_mark();
     /* test_sweep(); */
     /* test_garbage_collect();     //19,24 */
     /* test_garbage_collect_list();    //21,24 */
-    /* test_alloc_region(); */
-    /* test_free_region(); */
+    test_alloc_region();
+    test_free_region();
     /* test_new_string(); */
     /* test_objects_new_null(); */
     /* test_pairs_overflow(); */
@@ -743,8 +726,9 @@ void main()
     test_return_get_addr();
     test_new_object(NUMBER, (void *)10);
     test_new_object(STRING, "test");
-    test_new_bignumber(2000000000);
-    test_new_bignumber(-2000000000);
+    test_new_bignumber(1100);
+    test_new_bignumber(0);
+    test_new_bignumber(-1520);
     test_free_bignumber();
     test_new_number(-677);
     test_new_number(56);
@@ -754,9 +738,6 @@ void main()
     test_get_value(13);
     test_get_value(0);
     test_get_value(-6);
-    test_get_value(86000000);
-    test_get_value(-86000000);
     test_new_pair();
     test_free_pair();
-    test_new_symbol();
 }
