@@ -288,13 +288,9 @@ void test_symbol_max()
 void test_symbol_overflow()
 {
     printf("test_symbol_overflow :");
-    char *src = generate_string(MAX_SYMBOL + 1, 'a');
-    //Буфер
-    char str[MAX_SYMBOL];
-    
+    char *src = generate_raw_string(MAX_SYMBOL + 1, 'a');
     write_file(src);
     get_token();
-
     ASSERT(token_error, 1);    
 }
 

@@ -242,10 +242,14 @@ void get_symbol(char *cur_str)
 	    printf("ERROR: lexer.c: Unsupported character in input: %c(#%x)", cur_symbol, cur_symbol);
 	    token_error = 1;
 	    return;
-	}
-	
+	}	
         cur_str[c++] = cur_symbol;
         get_cur_char();
+	if (c > MAX_SYMBOL) {
+	    printf("ERROR: lexer.c: MAX_SYMBOL");
+	    token_error = 1;
+	    return;
+	}
     }
     unget_cur_char();
     cur_str[c] = 0;
