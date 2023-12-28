@@ -34,12 +34,11 @@
 
 (defun fill-column (x y count char)
   "Печатает вертикальную линию из символов char длиной count, начиная с позиции x,y"
-  (if (equal count 0) nil
-    (progn
-      (set-cursor x y)
-      (putchar char)
-      (fill-column x (+ y 1) (- count 1) char)))) 
-  
+  (let ((hh (if (> (+ y count) *screen-height*)
+		*screen-height* (+ y count))))
+    (for row y hh
+	 (set-cursor x row)
+	 (putchar char))))
 
 (defun fill-rect (x y w h char)
     "Заполняет область символом char"
@@ -57,16 +56,20 @@
   "Отрисовывет рамку окна"
   "x,y - координаты левого верхнего угла"
   "w - ширина рамки, h - высота рамки"
-  (set-cursor x y)
-  (putchar +ul-char+)
-  (fill-row (- w 2) +h-char+)
-  (putchar +ur-char+)
-  (fill-column x (+ y 1) (- h 2) +v-char+)
-  (fill-column (+ x (- w 1)) (+ y 1) (- h 2) +v-char+)
-  (set-cursor x (+ y (- h 1)))
-  (putchar +bl-char+)
-  (fill-row (- w 2) +h-char+)
-  (putchar +br-char+))
+  (let* ((w-overflow (> (+ x (- w 2)) *screen-width*))
+	(ww (if w-overflow
+		(- (- *screen-width* x) 2) (- w 2))))
+    (set-cursor x y)
+    (putchar +ul-char+)
+    (fill-row ww +h-char+)
+    (putchar (if w-overflow +h-char+ +ur-char+))
+    (fill-column x (+ y 1) (- h 2) +v-char+)
+    (unless w-overflow
+      (fill-column (+ x (+ ww 1)) (+ y 1) (- h 2) +v-char+))
+    (set-cursor x (+ y (- h 1)))
+    (putchar +bl-char+)
+    (fill-row ww +h-char+)
+    (putchar +br-char+)))
 
 (defclass element ()
   (x ; Координата x (относительно левого верхнего угла родительского элемента)
@@ -80,7 +83,8 @@
    parent ; Родительский элемент
    children ; Список дочерних элементов
    max-children-bottom ; Максимальное расстояние от верхней границы родительского элемента до нижней границы дочерних элементов
-   current-element-pos)) ; Позиция для добавления нового дочернего элемента, например (22 . 5)
+   current-element-pos ; Позиция для добавления нового дочернего элемента, например (22 . 5)
+   padding)) ; Массив с информацией об отступах с четырех сторон между рамкой окна и его дочерними элементами
 
 (defmacro gen/calc-coord (name coord)
   `(defun ,name (elem)
@@ -111,8 +115,7 @@
   (setf (slot child 'parent) self)
   (let* ((cur-x (car (slot self 'current-element-pos)))
 	 (cur-y (cdr (slot self 'current-element-pos)))
-	 (cur-width (+ cur-x (slot child 'width))))
-    ;(when (> cur-width (slot self 'width)) (setf (slot self 'width) cur-width))
+	 (cur-width (+ cur-x (slot child 'width) (aref (slot self 'padding) 1))))
     (update-width self cur-width)
     (setf (slot child 'x) cur-x)
     (setf (slot child 'y) cur-y)
@@ -147,5 +150,10 @@
   (setf (slot self 'active-color) +white+)
   (setf (slot self 'current-element-pos) (cons 0 0))
   (setf (slot self 'max-children-bottom) 0))
+
+(defmethod set-padding ((self element) padding)
+  (setf (slot self 'current-element-pos)
+	(cons (aref padding 0) (aref padding 2)))
+  (setf (slot self 'padding) padding))
   
   
