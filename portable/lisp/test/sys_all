@@ -1,5 +1,15 @@
 echo "------------SYSTEM TEST-------------------"
 sh sys_test "\"\xFFF\"" "get_string: invalid symbol code"
+#Проверка точечной пары
+sh sys_test "'(1.1)" "(1 . 1)"
+#Тест для самого большого числа int
+sh sys_test "2147483647" "2147483647"
+##Тест для самого большого числа int+1
+sh sys_test "2147483648" "number overflow"
+#самого маленького int
+sh sys_test "-2147483648" "-2147483648"
+#самого маленького int-1
+sh sys_test "-2147483649" "number overflow"
 
 echo "---Тесты PARSER ---"
 #PARSER 2 Неправильный символ
