@@ -407,12 +407,18 @@ sh sys_test "(string-size \"\")" 0
 
 echo "---Тесты STR-CHAR---"
 sh sys_test "(char \"0\" 0)" 48
-sh sys_test "(char \"\" 0)" 48
-sh sys_test "(char \"abc\" 4)" 48
-sh sys_test "(char 'abc 4)" 48
-sh sys_test "(char \"0\")" 48
-sh sys_test "(char \"abc\" 'a)" 48
-sh sys_test "(char \"abc\" 4 5)" 48
+sh sys_test "(char \"\" 0)" "str-char: invalid index
+"
+sh sys_test "(char \"abc\" 4)" "str-char: invalid index
+"
+sh sys_test "(char 'abc 4)" "str-char: not string in params
+"
+sh sys_test "(char \"0\")" "str-char: not all arguments
+"
+sh sys_test "(char \"abc\" 'a)" "str-char: not number in params
+"
+sh sys_test "(char \"abc\" 4 5)" "str-size: too many arguments
+"
 
 echo  "---Тесты SETA---"
 # три аргумента

@@ -71,25 +71,41 @@ object_t *string_size(object_t *list)
     return object_new(NUMBER, &(FIRST(list)->u.str->length)); 
 }
 
+/**
+ * Получает символ по индексу
+ * @param list (строка индекс)
+ * @return код символа - число
+**/
 object_t *str_char(object_t *list)
 {
     if (list == NULL) {
-	error("str_char: no arguments\n");
+	error("str-char: no arguments\n");
 	return ERROR;
     }
     if (TAIL(list) == NULL) {
-	error("str_char: not all arguments\n");
+	error("str-char: not all arguments\n");
 	return ERROR;
     }
-
+    if (SECOND(list)->type != NUMBER) {
+    	error("str-char: not number in params\n");
+    	return ERROR;
+    }
+    if (TAIL(TAIL(list)) != NULL) {
+	error("str-size: too many arguments\n");
+	return ERROR;
+    }
+    
     object_t* str = FIRST(list);
     int ind = SECOND(list)->u.value;
-    
-    // if (is_params_string(list) == 0) {
-    //	error("string-size: not string in params\n");
-    //	return ERROR;
-    // }
 
+    if (str->type != STRING) {
+    	error("str-char: not string in params\n");
+    	return ERROR;
+    }
+    if (ind >= str->u.str->length || ind < 0) {
+	error("str-char: invalid index\n");
+	return ERROR;
+    }
     return object_new(NUMBER, &(str->u.str->data[ind]));
 }
 
