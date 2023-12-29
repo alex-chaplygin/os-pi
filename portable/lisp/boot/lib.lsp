@@ -168,3 +168,8 @@
 (defmacro defvar (&rest params)
   "Создаёт новый глобальный символ (defvar имя значение)"  
   `(setq ,@params))
+
+(defun putstring (s)
+  "Печать строки"
+  (for i 0 (string-size s) 
+       (putchar (char s i))))
