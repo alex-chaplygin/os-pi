@@ -99,6 +99,7 @@ void test_print_obj(object_t obj, const char *expected_output)
     
     int outdes = dup(1);
     FILE *file = freopen("/tmp/test.txt", "w", stdout);
+    print_counter++;
     print_obj(obj);
     fclose(file);
 
@@ -459,17 +460,17 @@ void test_free_region()
 /*     ASSERT(pair, ERROR); */
 /* } */
 
-/* /\** */
-/*  * Создать новую строку */
-/*  * Проверить длину строи и данные */
-/*  *\/ */
-/* void test_new_string() */
-/* { */
-/*     printf("test_new_string: "); */
-/*     string_t *s = new_string("abc"); */
-/*     ASSERT(s->length, 3); */
-/*     ASSERT(strcmp(s->data, "abc"), 0); */
-/* } */
+/**
+ * Создать новую строку
+ * Проверить длину строи и данные
+ */
+void test_new_string()
+{
+    printf("test_new_string: ");
+    string_t *s = new_string("abc");
+    ASSERT(s->length, 3);
+    ASSERT(strcmp(s->data, "abc"), 0);
+}
 
 /* /\** */
 /*  * Переполнить память пар */
@@ -541,17 +542,17 @@ void test_free_region()
 /*     ASSERT((regions->next != NULL), 1); */
 /* } */
 
-/* /\** */
-/*  * Создать список с числом элементов num */
-/*  *  */
-/*  *\/ */
-/* object_t *make_list(int num) */
-/* { */
-/*     object_t *o = object_new(NUMBER, &num); */
-/*     if (num == 1) */
-/* 	return new_pair(o, NULL); */
-/*     return new_pair(o, make_list(num - 1)); */
-/* } */
+/**
+ * Создать список с числом элементов num
+ *
+ */
+object_t make_list(int num)
+{
+    object_t o = new_number(num);
+    if (num == 1)
+	return new_pair(o, NULLOBJ);
+    return new_pair(o, make_list(num - 1));
+}
 
 /* /\** */
 /*  * Создать символ B */
@@ -707,7 +708,7 @@ void main()
     /* test_garbage_collect_list();    //21,24 */
     test_alloc_region();
     test_free_region();
-    /* test_new_string(); */
+    test_new_string();
     /* test_objects_new_null(); */
     /* test_pairs_overflow(); */
     /* test_free_pair_max_memory(); */
@@ -739,5 +740,11 @@ void main()
     test_get_value(-6);
     test_new_pair();
     test_free_pair();
-    test_print_obj(new_number(10), "10");
+    reset_mem();
+    PRINT(new_number(10));
+    PRINT(new_bignumber(2000000000));
+    PRINT(make_list(4));
+    PRINT(NEW_ARRAY(make_list(2)));
+    PRINT(NEW_SYMBOL("asd"));
+    PRINT(NEW_STRING("Pasha"));
 }

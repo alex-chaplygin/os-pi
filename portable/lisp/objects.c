@@ -137,7 +137,7 @@ object_t new_number(int num)
 }
 
 /**
- * Возвращает значение числа из объекта
+ * Возвращает значение маленького числа из объекта
  * @param obj объект
  * 
  * @return число
@@ -223,32 +223,32 @@ symbol_t *new_symbol(char *str)
     return symbol;
 }
 
-/* /\**  */
-/*  * Создание нового объекта строки */
-/*  *  */
-/*  * @param str - строка */
-/*  *  */
-/*  * @return указатель на объект строки */
-/*  *\/ */
-/* string_t *new_string(char *str) */
-/* { */
-/*     string_t *string; */
-/*     if (last_string == MAX_STRINGS) { */
-/* 	if (free_strings == NULL) { */
-/* 	    error("Error: out of memory: strings"); */
-/* 	    return (string_t *)ERROR; */
-/* 	} */
-/* 	string = free_strings; */
-/* 	free_strings = free_strings->next; */
-/*     } else */
-/* 	string = &strings[last_string++]; */
-/*     string->length = strlen(str); */
-/*     string->data = alloc_region(string->length + 1); */
-/*     strcpy(string->data, str); */
-/*     string->next = NULL; */
-/*     string->free = 0; */
-/*     return string; */
-/* } */
+/**
+ * Создание нового объекта строки
+ *
+ * @param str - строка
+ *
+ * @return указатель на объект строки
+ */
+string_t *new_string(char *str)
+{
+    string_t *string;
+    if (last_string == MAX_STRINGS) {
+	if (free_strings == NULL) {
+	    error("Error: out of memory: strings");
+	    return (string_t *)ERROR;
+	}
+	string = free_strings;
+	free_strings = free_strings->next;
+    } else
+	string = &strings[last_string++];
+    string->length = strlen(str);
+    string->data = alloc_region(string->length + 1);
+    strcpy(string->data, str);
+    string->next = NULL;
+    string->free = 0;
+    return string;
+}
 
 /* /\**  */
 /*  * Освобождение памяти для строки */
@@ -269,44 +269,44 @@ symbol_t *new_symbol(char *str)
 /*     free_region(s->data); */
 /* } */
 
-/* /\** */
-/*  * Создание нового объекта массива */
-/*  * */
-/*  * @param list - список */
-/*  * */
-/*  * @return указатель на объект массива */
-/*  *\/ */
-/* array_t *new_array(object_t list) */
-/* { */
-/*     array_t *array; */
-/*     if (last_array == MAX_ARRAYS) { */
-/* 	if (free_arrays == NULL) { */
-/* 	    error("Error: out of memory: arrays"); */
-/* 	    return (array_t *)ERROR; */
-/* 	} */
-/* 	array = free_arrays; */
-/* 	free_arrays = free_arrays->next; */
-/*     } else */
-/* 	array = &arrays[last_array++]; */
-/*     array->length = 0; */
-/*     array->next = NULL; */
-/*     array->free = 0; */
-/*     object_t *a = list; */
-/*     while (a != NULL) { */
-/* 	array->length++; */
-/* 	a = TAIL(a); */
-/*     } */
-/*     array->data = alloc_region(array->length * sizeof(object_t *)); */
-/*     object_t **d = array->data; */
-/*     a = list; */
-/*     while (a != NULL) { */
-/* 	*d++ = FIRST(a); */
-/* 	a = TAIL(a); */
-/*     } */
-/*     return array; */
-/* } */
+/** Создание нового объекта массива
+ *
+ * @param list - список 
+ *
+ * @return указатель на объект
+ */  
+array_t *new_array(object_t list) 
+{
+    pair_t *pairs;
+    array_t *array; 
+    if (last_array == MAX_ARRAYS) {
+	if (free_arrays == NULL) {
+	    error("Error: out of memory: arrays");
+	    return (array_t *)ERROR;
+	}
+	array = free_arrays;
+	free_arrays = free_arrays->next;
+    } else
+	array = &arrays[last_array++];
+    array->length = 0;
+    array->next = NULL;
+    array->free = 0;
+    object_t a = list;
+    while (a != NULLOBJ) {
+	array->length++;
+	a = TAIL(a);
+    }
+    array->data = alloc_region(array->length * sizeof(object_t));
+    object_t *d = array->data;
+    a = list;
+    while (a != NULLOBJ) {
+	*d++ = FIRST(a);
+	a = TAIL(a);
+    }
+    return array;
+}
 
-/* /\** */
+/* /**
 /*  * Создание нового объекта пустого массива  */
 /*  * */
 /*  * @param length - длина массива */
@@ -335,38 +335,54 @@ symbol_t *new_symbol(char *str)
 /*     return array; */
 /* } */
 
-/* /\**  */
-/*  * Освобождение памяти для массива */
-/*  *  */
-/*  * @param s объект для освобождения */
-/*  *\/ */
-/* void free_array(array_t *a) */
-/* { */
-/*     if (a == NULL) { */
-/*     	error("free_array: null pointer"); */
-/*     	return; */
-/*     } */
-/*     if (a->free) */
-/* 	return; */
-/*     a->next = free_arrays; */
-/*     free_arrays = a; */
-/*     a->free = 1; */
-/*     free_region(a->data); */
-/* } */
-
-/* Пометить объект как используемый */
-
-/* @param obj - помечаемый объект */
-/*  */
+/**
+ * Освобождение памяти для массива
+ *
+ * @param s объект для освобождения
+ */
+void free_array(array_t *a)
+{
+    if (a == NULL) {
+    	error("free_array: null pointer");
+    	return;
+    }
+    if (a->free)
+	return;
+    a->next = free_arrays;
+    free_arrays = a;
+    a->free = 1;
+    free_region(a->data);
+}
+/**
+ *Пометить объект как используемый 
+ * Для маленьких чисел - не хранится 
+ * Для больших чисел - старший бит в free 
+ * Для символов - нет 
+ * Для пар - markbit в left 
+ * Для строк - старший бит в length 
+ * Для массивов - старший бит в length 
+ * @param obj - помечаемый объект 
+ */
 void mark_object(object_t obj)
 {
     if (obj == NULLOBJ || obj == NOVALUE || GET_MARK(obj) == 1)
-	return;
-    SET_MARK(obj);    
+	return;    
     if (TYPE(obj) == PAIR) {
-	mark_object(((pair_t *)(GET_ADDR(obj)))->left);
-	mark_object(((pair_t *)(GET_ADDR(obj)))->right);
+	SET_MARK(GET_PAIR(obj)->left);
+	mark_object(GET_PAIR(obj)->left);
+	mark_object(GET_PAIR(obj)->right);
     }
+    else if (TYPE(obj) == BIGNUMBER) {
+
+    }
+    else if (TYPE(obj) == STRING) {
+        
+    }
+    else if (TYPE(obj) == ARRAY) {
+        
+    }
+    
+    
 }
 
 /* /\**  */
@@ -450,6 +466,8 @@ void print_obj(object_t obj)
  	printf("NIL");
     else if (TYPE(obj) == NUMBER)
  	printf("%d", get_value(obj));
+    else if (TYPE(obj) == BIGNUMBER)
+	printf("%d", GET_BIGNUMBER(obj)->value);
     else if (TYPE(obj) == STRING)
  	printf("\"%s\"", ((string_t *)GET_ADDR(obj))->data);
     else if (TYPE(obj) == SYMBOL)
@@ -550,8 +568,8 @@ void init_regions()
     regions->next = NULL;
     regions->prev = NULL;
     regions->size = MAX_REGION_SIZE - sizeof(struct region) + sizeof(char *);
-    for (int i = 0; i < regions->size; i++)
-    	regions->data[i] = 0;
+    //    for (int i = 0; i < regions->size; i++)
+    //	regions->data[i] = 0;
 }
 
 /**
