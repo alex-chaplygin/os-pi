@@ -248,7 +248,7 @@ object_t *create_env()
  * Создать окружение
  * аргументы (x y)
  * значения (1 2)
- * Проверить результат = ((X 1) (Y 2))
+ * Проверить результат = ((X.1) (Y.2))
  */
 void test_make_env()
 {
@@ -259,9 +259,9 @@ void test_make_env()
   ASSERT(p1->type, PAIR);
   ASSERT(p2->type, PAIR);
   ASSERT(FIRST(p1)->u.symbol, find_symbol("X"));
-  ASSERT(SECOND(p1)->u.value, 1);
+  ASSERT(TAIL(p1)->u.value, 1);
   ASSERT(FIRST(p2)->u.symbol, find_symbol("Y"));
-  ASSERT(SECOND(p2)->u.value, 2);      
+  ASSERT(TAIL(p2)->u.value, 2);      
 }
 
 /**
@@ -275,6 +275,7 @@ void test_find_in_env()
   printf("test_find_in_env: ");
   object_t *env = create_env();
   object_t *res;
+  PRINT(env);
   int result = find_in_env(env, object_new(SYMBOL, "Y"), &res);
   ASSERT(result, 1);
   ASSERT(res->type, NUMBER);
