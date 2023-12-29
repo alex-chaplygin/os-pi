@@ -188,11 +188,14 @@ object_t *PUTCHAR(object_t *args)
 	return ERROR;
     }
     object_t *str = FIRST(args);
-    if (str->type != STRING) {
-	error("PUTCHAR: not string\n");
+    if (str->type != STRING && str->type != NUMBER) {
+	error("PUTCHAR: not string and no number\n");
 	return ERROR;
     }
-    putchar(*str->u.str->data);
+    if (str->type == STRING)
+	putchar(*str->u.str->data);
+    else
+	putchar(str->u.value);
     return NULL;
 }
 
