@@ -18,7 +18,7 @@
 /// Всего больших чисел
 #define MAX_NUMBERS 1000
 
-#define PRINT(o) print_obj(o); printf("\n");
+#define PRINT(o) print_counter++; print_obj(o); printf("\n");
 #define ERROR (-1)
 #define NULLOBJ 3
 /// Отсутствие значения у переменных
@@ -43,6 +43,16 @@
 #define GET_ADDR(obj) ((obj) >> (TYPE_BITS + 1))
 //макрос, который строит указатель, состоящий из типа в младших битах и значения в остальных
 #define NEW_OBJECT(type, val)  ((object_t )((((unsigned int)val) << (TYPE_BITS + 1)) | (type)))
+//Получение пары из объекта
+#define GET_PAIR(obj) ((pair_t *)(GET_ADDR(obj)))
+//Получение 32-х битного числа
+#define GET_BIGNUMBER(num) ((bignumber_t *)(GET_ADDR(num)))
+//Создание массива
+#define NEW_ARRAY(a) (NEW_OBJECT(ARRAY, new_array(a)))
+//Создание символа
+#define NEW_SYMBOL(s) (NEW_OBJECT(SYMBOL, new_symbol(s)))
+//Создание строки
+#define NEW_STRING(s) (NEW_OBJECT(STRING, new_string(s)))
 
 #pragma pack(4)
 /// создаваемый или свободный регион памяти
@@ -57,8 +67,8 @@ struct region {
 
 /// перечисление типов объектов
 typedef enum {
-    NUMBER, /// целое число
-    BIGNUMBER, /// большое целое число
+    NUMBER, /// целое число, которое умещается в ADDR_BITS
+    BIGNUMBER, /// целое число - 32 бита
     SYMBOL, ///символ
     PAIR,    ///пара
     STRING,  ///строка
