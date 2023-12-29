@@ -113,13 +113,14 @@
   "Добавление дочернего элемента child"
   (setf (slot self 'children) (append (slot self 'children) (list child)))
   (setf (slot child 'parent) self)
-  (let* ((cur-x (car (slot self 'current-element-pos)))
+  (let* ((cur-x (car (slot self 'current-element-pos))) ;Позиция куда добавляется элемент
 	 (cur-y (cdr (slot self 'current-element-pos)))
-	 (cur-width (+ cur-x (slot child 'width) (aref (slot self 'padding) 1))))
-    (update-width self cur-width)
+	 (new-cur-x (+ cur-x (slot child 'width))) ;Новая позиция для добавления
+	 (total-width (+ new-cur-x (aref (slot self 'padding) 1))))
+    (update-width self total-width)
     (setf (slot child 'x) cur-x)
     (setf (slot child 'y) cur-y)
-    (setf (slot self 'current-element-pos) (cons cur-width cur-y))) 
+    (setf (slot self 'current-element-pos) (cons new-cur-x cur-y))) 
   nil)
 
 (defun update-width (elem width)
@@ -127,21 +128,24 @@
   "Повторяет это для родительского элемента"
   (unless (null elem)
     (let ((x (slot elem 'x))
-	  (w (slot elem 'width)))
+	  (w (slot elem 'width))
+	  (parent (slot elem 'parent)))
       (when (> width w) (setf (slot elem 'width) width))
-      (update-width (slot elem 'parent) (+ width x)))))
+      (unless (null parent)
+	(update-width parent (+ width x (aref (slot parent 'padding) 1)))))))
 
 (defmethod align ((self element) name-pos)
   "Выровнять элемент относительно родителя или экрана для окна"
   (let* ((parent (slot self 'parent))
-	 (parent-x (slot parent 'x))
+	 (left-x (aref (slot parent 'padding) 0))
+	 (pad-right (aref (slot parent 'padding) 1))
 	 (parent-width (slot parent 'width))
 	 (self-width (slot self 'width)))
     (setf (slot self 'x) 
 	  (case name-pos
-	    ('left parent-x)
-	    ('right (- (+ parent-x parent-width) self-width))
-	    ('center (- (+ parent-x (/ parent-width 2)) (/ self-width 2)))))))
+	    ('left left-x)
+	    ('right (- parent-width self-width pad-right))
+	    ('center (- (/ parent-width 2) (/ self-width 2)))))))
 
 (defmethod set-defaults ((self element))
   "Устанавливает цвета по умолчанию, позицию для дочерних элементов, максимальное расстояние"
