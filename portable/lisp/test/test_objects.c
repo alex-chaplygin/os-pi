@@ -90,27 +90,27 @@ void test_new_pair()
    
 }
 
-/* /\**  */
-/*  * Проверка правильной печати объекта (1 2) */
-/*  *\/ */
-/* void test_print_obj(object_t *obj, const char *expected_output) */
-/* { */
-/*     printf("test_print_obj: "); */
+/**
+ * Проверка правильной печати объекта (1 2)
+ */
+void test_print_obj(object_t obj, const char *expected_output)
+{
+    printf("test_print_obj: ");
     
-/*     int outdes = dup(1); */
-/*     FILE *file = freopen("/tmp/test.txt", "w", stdout); */
-/*     print_obj(obj); */
-/*     fclose(file); */
+    int outdes = dup(1);
+    FILE *file = freopen("/tmp/test.txt", "w", stdout);
+    print_obj(obj);
+    fclose(file);
 
-/*     stdout = fdopen(outdes, "w"); */
+    stdout = fdopen(outdes, "w");
     
-/*     FILE *output_file = fopen("/tmp/test.txt", "r"); */
-/*     char output_buffer[20]; */
-/*     fgets(output_buffer, sizeof(output_buffer), output_file); */
-/*     fclose(output_file); */
+    FILE *output_file = fopen("/tmp/test.txt", "r");
+    char output_buffer[20];
+    fgets(output_buffer, sizeof(output_buffer), output_file);
+    fclose(output_file);
 
-/*     ASSERT(strcmp(output_buffer, expected_output), 0); */
-/* } */
+    ASSERT(strcmp(output_buffer, expected_output), 0);
+}
 
 /**
  * Сброс памяти в начальное состояние
@@ -718,7 +718,6 @@ void main()
     /* test_garbage_collect_cycle(); */
     /* test_print(); */
     /* int i = 10; */
-    /* test_print_obj(object_new(NUMBER, &i), "10"); */
     test_return_type();
     test_return_set_mark();
     test_return_get_mark();
@@ -740,4 +739,5 @@ void main()
     test_get_value(-6);
     test_new_pair();
     test_free_pair();
+    test_print_obj(new_number(10), "10");
 }

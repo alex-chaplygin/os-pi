@@ -132,7 +132,7 @@ object_t new_pair(object_t left, object_t right);
 struct symbol_s *new_symbol(char *str);
 void garbage_collect();
 object_t *dump_free(object_t *);
-void print_obj(object_t *obj);
+void print_obj(object_t obj);
 void free_object(object_t *obj);
 void free_bignumber(bignumber_t *o);
 void free_pair(pair_t *p);

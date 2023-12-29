@@ -401,68 +401,70 @@ void mark_object(object_t obj)
 /*     sweep(); */
 /* } */
 
-/* int print_counter = 0; */
+int print_counter = 0;
 
-/* /\** */
-/*  * Печать списка пар (5 . 7) */
-/*  *\/ */
-/* void print_list(object_t *obj) */
-/* { */
-/*     if (obj == NULL) */
-/* 	return; */
-/*     if(obj->u.pair->print_counter == print_counter){ */
-/* 	printf("..."); */
-/* 	return; */
-/*     }    */
-/*     obj->u.pair->print_counter = print_counter; //помечаем на текущем  */
-/*     print_obj(obj->u.pair->left); */
-/*     if (obj->u.pair->right == NULL) */
-/* 	return; */
-/*     if (obj->u.pair->right->type != PAIR) { */
-/* 	printf(" . "); */
-/* 	print_obj(obj->u.pair->right); */
-/*     } else { */
-/* 	printf(" "); */
-/* 	print_list(obj->u.pair->right); */
-/*     } */
-/* } */
+/**
+ * Печать списка пар (5 . 7)
+ */
+void print_list(object_t obj)
+{
+    if (obj == NULLOBJ)
+	return;
+    pair_t *list = (pair_t*)(GET_ADDR(obj));
+    if(list->print_counter == print_counter){
+	printf("...");
+	return;
+    }
+    list->print_counter = print_counter; //помечаем на текущем
+    print_obj(list->left);
+    if (list->right == NULLOBJ)
+	return;
+    if (TYPE(list->right) != PAIR) {
+	printf(" . ");
+	print_obj(list->right);
+    } else {
+	printf(" ");
+	print_list(list->right);
+    }
+}
 
-/* /\** */
-/*  * Печать массива */
-/*  *\/ */
-/* void print_array(object_t *obj) */
-/* { */
-/*     array_t *a = obj->u.arr; */
-/*     for (int i = 0; i < a->length; i++) { */
-/* 	print_obj(a->data[i]); */
-/* 	if (i < a->length - 1) */
-/* 	    printf(" "); */
-/*     }    */
-/* } */
+/**
+ * Печать массива
+ */
+void print_array(object_t obj)
+{
+    array_t *a = (array_t*)(GET_ADDR(obj));
+    for (int i = 0; i < a->length; i++) {
+    	print_obj(a->data[i]);
+    	if (i < a->length - 1)
+    	    printf(" ");
+    }
+}
     
-/* /\** */
-/*  * Печать объекта */
-/*  *\/ */
-/* void print_obj(object_t *obj) */
-/* { */
-/*     if (obj == NULL) */
-/* 	printf("NIL"); */
-/*     else if (obj->type == NUMBER) */
-/* 	printf("%d", obj->u.value); */
-/*     else if (obj->type == STRING) */
-/* 	printf("\"%s\"", obj->u.str->data); */
-/*     else if (obj->type == SYMBOL) */
-/* 	printf("%s", obj->u.symbol->str); */
-/*     else if (obj->type == PAIR) { */
-/* 	printf("("); */
-/* 	print_list(obj); */
-/* 	printf(")"); */
-/*     } else if (obj->type == ARRAY) { */
-/* 	printf("#("); */
-/* 	print_array(obj); */
-/* 	printf(")"); */
-/*     } */
-/* } */
+/**
+ * Печать объекта
+ */
+void print_obj(object_t obj)
+{
+    if (obj == NULLOBJ)
+ 	printf("NIL");
+    else if (TYPE(obj) == NUMBER)
+ 	printf("%d", get_value(obj));
+    else if (TYPE(obj) == STRING)
+ 	printf("\"%s\"", ((string_t *)GET_ADDR(obj))->data);
+    else if (TYPE(obj) == SYMBOL)
+ 	printf("%s", ((symbol_t *)GET_ADDR(obj))->str);
+    else if (TYPE(obj) == PAIR) {
+ 	    printf("(");
+ 	    print_list(obj);
+ 	    printf(")");
+    } 
+    else if (TYPE(obj) == ARRAY) {
+ 	    printf("#(");
+ 	    print_array(obj);
+ 	    printf(")");
+    }
+}
 
 /* /\** */
 /*  * Печать списка свободных объектов */
