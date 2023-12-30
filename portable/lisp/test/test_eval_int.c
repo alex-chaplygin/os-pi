@@ -19,6 +19,7 @@ object_t *setq(object_t *params);
 object_t *atom(object_t *params);
 object_t *defvar(object_t *params);
 object_t *cons(object_t *list);
+object_t *car(object_t *list);
 object_t *cond(object_t *list);
 object_t *progn(object_t *list);
 object_t *quote(object_t *list);
@@ -64,6 +65,35 @@ void test_invalid_car()
     object_t *o = new_pair(object_new(SYMBOL, "CAR"),new_pair(q,NULL));// (car (quote 5))
     object_t *res = eval(o, NULL);
     ASSERT(res, ERROR);
+}
+
+/**
+ * Попытка вернуть элемент из пустого объекта 
+ */
+void test_car_null()
+{
+    printf("test_car_null: ");
+
+    object_t *res = car(NULL);
+    ASSERT(res, ERROR);
+}
+
+/**
+ * Попытка вернуть элемент из списка объектов 
+ */
+void test_car_many_args()
+{
+    printf("test_car_many_args: ");
+
+    int num1 = 1;
+    int num2 = 2;
+    object_t *num_obj1 = object_new(NUMBER, &num1);
+    object_t *num_obj2 = object_new(NUMBER, &num2);
+
+    object_t *list_with_two_args = new_pair(num_obj1, new_pair(num_obj2, NULL));
+    object_t *result = car(list_with_two_args);
+    
+    ASSERT(result, ERROR); 
 }
 
 /**
@@ -774,6 +804,8 @@ int main()
     init_eval();
     init_regions();
     test_car();//10
+    test_car_null();//59
+    test_car_many_args();//60
     test_invalid_car();//58
     test_cons();//12
     test_is_lambda();//14
