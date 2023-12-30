@@ -19,6 +19,7 @@ object_t *setq(object_t *params);
 object_t *atom(object_t *params);
 object_t *defvar(object_t *params);
 object_t *cons(object_t *list);
+object_t *cond(object_t *list);
 object_t *progn(object_t *list);
 object_t *quote(object_t *list);
 object_t *eq(object_t *list);
@@ -162,6 +163,30 @@ void test_cond()
     object_t *res = eval(l, NULL);
     ASSERT(res->type, NUMBER);
     ASSERT(res->u.value, 2);
+}
+
+/**
+ * Попытка обработать null функцией cond
+*/
+void test_cond_null()
+{
+    printf("test_cond_null: ");
+    object_t *res = cond(NULL);
+    ASSERT(res, ERROR);
+}
+
+/**
+ * Попытка обработать объект с одним элементом функцией cond
+*/
+void test_cond_tail_null()
+{
+    printf("test_cond_tail_null: ");
+    int num1 = 1;
+    object_t *single_param_list = new_pair(object_new(NUMBER, &num1), NULL);
+    object_t *cond_expr = new_pair(single_param_list, NULL);
+
+    object_t *result = cond(cond_expr);
+    ASSERT(result, ERROR);
 }
 
 /**
@@ -754,6 +779,8 @@ int main()
     test_is_lambda();//14
     test_is_lambda_not_symbol();//124
     test_cond();//13
+    test_cond_null();//67
+    test_cond_tail_null();//69    
     test_cond_many_params();
     test_make_env();
     test_find_in_env();
