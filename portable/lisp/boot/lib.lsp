@@ -173,3 +173,26 @@
   "Печать строки"
   (for i 0 (string-size s) 
        (putchar (char s i))))
+
+(defmacro with-struct (struct ar ofs &rest body)
+  "Выполнить вычисление body и установить значения переменных структуры struct из массива arr по смещению ofs"
+  `(let ,(struct-fields (eval struct) (eval ar) (eval ofs)) ,@body))
+
+(defun struct-fields (struct arr ofs)
+  "Преобразовывает структуру в список для let"
+					;  (let ((attr (arr-get-num arr ofs num))
+					;       ((type .. ))
+   (car (foldl '(lambda (acc elem)
+	    (let ((list (car acc))
+		  (ofs (cdr acc))
+		  (field (car elem))
+		  (size (cdr elem)))
+	      (cons (append list (list `(,field (arr-get-num ,arr ,ofs ,size))))
+		    (+ ofs size))))
+	  (cons nil ofs) struct)))
+
+(defun arr-get-num (arr ofs size)
+  "Прочесть из массива arr по смещению ofs size байт"
+  (if (equal size 0) 0
+    (let ((it (- size 1)))
+      (+ (<< (aref arr (+ ofs it)) (* it 8)) (arr-get-num arr ofs it)))))

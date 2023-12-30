@@ -11,33 +11,10 @@
 			  (start-sector . 4)
 			  (num-sectors . 4)))
 
+(defvar s '((a . 1)(b . 2)(c . 1)))
+(defvar arr #(0 1 1 3))
 
-(defun arr-get-num (arr ofs size)
-  "Прочесть из массива arr по смещению ofs size байт"
-  (if (equal size 0) 0
-    (let ((it (- size 1)))
-      (+ (<< (aref arr (+ ofs it)) (* it 8)) (arr-get-num arr ofs it)))))
 
-(defun struct-fields (struct arr ofs)
-   (car (foldl '(lambda (acc elem)
-	    (let ((list (car acc))
-		  (ofs (cdr acc))
-		  (field (car elem))
-		  (size (cdr elem)))
-	      (cons (append list (list `(,field (arr-get-num ,arr ,ofs ,size))))
-		    (+ ofs size))))
-	  (cons nil ofs) struct)))
-					; (with-struct struct arr ofs body)
-					; (let ((attr (arr-get-num arr ofs num))
-					;       (type .. ))
-					;         body)
-(defun with-struct (struct arr ofs &rest body)
-  "Выполнить вычисление body и установить значения переменных структуры struct из массива arr по смещению ofs"
-  `(let ,(struct-fields struct arr ofs) ,@body))
-
-(setq struct '((a . 1)(b . 2)(c . 1)))
-(setq arr #(0 1 1 3))
-
-(eval (with-struct struct arr 0
-	'(+ a b c)
-	'a))
+(with-struct s arr (+ 0 0)
+      a
+      (+ a b c))
