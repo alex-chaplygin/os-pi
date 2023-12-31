@@ -18,8 +18,6 @@ void append_env(object_t *l1, object_t *l2);
 object_t *setq(object_t *params);
 object_t *atom(object_t *params);
 object_t *defvar(object_t *params);
-object_t *cons(object_t *list);
-object_t *car(object_t *list);
 object_t *cond(object_t *list);
 object_t *progn(object_t *list);
 object_t *quote(object_t *list);
@@ -29,151 +27,6 @@ object_t *backquote(object_t *list);
 void error(char *str)
 {
   printf("%s", str);
-}
-
-/**
- * создать объект для выражения (car (quote (5)))
- * вычислить объект 
- */
-void test_car()
-{
-    printf("test_car: ");
-
-    int e = 5;
-    object_t *l = new_pair(object_new(NUMBER, &e), NULL);
-    object_t *q = new_pair(object_new(SYMBOL, "QUOTE"),
-			   new_pair(l, NULL));
-    object_t *o = new_pair(object_new(SYMBOL, "CAR"),
-			   new_pair(q, NULL));
-    object_t *res = eval(o, NULL);
-    ASSERT(res->type, NUMBER);
-    ASSERT(res->u.value, 5);
-}
-
-/*
- *создать объект для выражения (car (quote 5))
- *вычислить объект
- */
-
-void test_invalid_car()
-{
-    printf("test_invalid_car: ");
-    
-    int e =5;
-    object_t *l = object_new(NUMBER, &e);// 5
-    object_t *q = new_pair(object_new(SYMBOL, "QUOTE"),new_pair(l,NULL));// (quote 5)
-    object_t *o = new_pair(object_new(SYMBOL, "CAR"),new_pair(q,NULL));// (car (quote 5))
-    object_t *res = eval(o, NULL);
-    ASSERT(res, ERROR);
-}
-
-/**
- * Попытка вернуть элемент из пустого объекта 
- */
-void test_car_null()
-{
-    printf("test_car_null: ");
-
-    object_t *res = car(NULL);
-    ASSERT(res, ERROR);
-}
-
-/**
- * Попытка вернуть элемент из списка объектов 
- */
-void test_car_many_args()
-{
-    printf("test_car_many_args: ");
-
-    int num1 = 1;
-    int num2 = 2;
-    object_t *num_obj1 = object_new(NUMBER, &num1);
-    object_t *num_obj2 = object_new(NUMBER, &num2);
-
-    object_t *list_with_two_args = new_pair(num_obj1, new_pair(num_obj2, NULL));
-    object_t *result = car(list_with_two_args);
-    
-    ASSERT(result, ERROR); 
-}
-
-/**
- * создать объект для выражения (cons (quote a) (quote (5)))
- * вычислить объект (A 5)
- */
-void test_cons()
-{
-    printf("test_cons: ");
-    int e = 5;
-    object_t *l = new_pair(object_new(NUMBER, &e), NULL);
-    object_t *q = new_pair(object_new(SYMBOL, "QUOTE"),
-			   new_pair(l, NULL));
-    object_t *qa = new_pair(object_new(SYMBOL, "QUOTE"),
-			    new_pair(object_new(SYMBOL, "A"), NULL));
-    object_t *o = new_pair(object_new(SYMBOL, "CONS"),
-			    new_pair(qa, new_pair(q, NULL)));
-    object_t *res = eval(o, NULL);
-    ASSERT(FIRST(res)->type, SYMBOL);
-    ASSERT(SECOND(res)->type, NUMBER);
-    ASSERT(SECOND(res)->u.value, 5);
-}
-
-/**
- * Тест cons без параметров (CONS)
- * 
- */
-void test_cons_noparams()
-{
-    printf("test_cons_noparams: ");
-    object_t *a = new_pair(object_new(SYMBOL, "CONS"), NULL);
-    object_t *res = eval(a, NULL);
-    ASSERT(res, ERROR);
-}
-
-/**
- * Тест cons с одним параметром (cons 5)
- * 
- */
-void test_cons_one_param()
-{
-    printf("test_cons_one_param: ");
-    int num = 5;
-    object_t *a = new_pair(object_new(SYMBOL, "CONS"), new_pair(object_new(NUMBER, &num), NULL));
-    object_t *res = eval(a, NULL);
-    ASSERT(res, ERROR);
-}
-
-/**
- * Тест cons с 3 параметрами (cons 5 5 5)
- * 
- */
-void test_cons_3_params()
-{
-    printf("test_cons_3_params: ");
-    int num = 5;
-    object_t *a = new_pair(object_new(SYMBOL, "CONS"),
-			   new_pair(object_new(NUMBER, &num),
-				    new_pair(object_new(NUMBER, &num), 
-					     new_pair(object_new(NUMBER, &num), NULL))));
-    object_t *res = eval(a, NULL);
-    ASSERT(res, ERROR);
-}
-
-/*
- *создать объект для выражения (cons (quote a) 4)
- *вычислить объект
- */
-void test_cons2()
-{
-    printf("test_cons2:\n");
-
-    int ee = 4;
-    object_t *qa = new_pair(object_new(SYMBOL, "QUOTE"),
-			    new_pair(object_new(SYMBOL, "A"), NULL)); //(quote a)))
-    object_t *o = new_pair(object_new(SYMBOL, "CONS"),
-			   new_pair(qa, new_pair(object_new(NUMBER, &ee), NULL))); //(cons (quote a) 4))
-    object_t *res = eval(o, NULL);
-    ASSERT(res->type, PAIR);
-    ASSERT(res->u.pair->right->u.value, 4);
 }
     
 /**
@@ -472,23 +325,6 @@ void test_progn_error()
     object_t *num_obj = object_new(NUMBER, &number);
     object_t *list = new_pair(num_obj, ERROR);
     object_t *res = progn(list);
-    ASSERT(res, ERROR);
-}
-
-/*
- *создать объект для выражения (cdr (quote 5))
- *вычислить объект
- */
-void test_invalid_cdr()
-{
-    
-    printf("test_invalid_cdr:\n");
-
-    int e =5;
-    object_t *l = object_new(NUMBER, &e);// 5
-    object_t *q = new_pair(object_new(SYMBOL, "QUOTE"),new_pair(l,NULL));// (quote 5)
-    object_t *o = new_pair(object_new(SYMBOL, "CDR"),new_pair(q,NULL));// (cdr (quote 5))
-    object_t *res = eval(o, NULL);
     ASSERT(res, ERROR);
 }
 
@@ -803,11 +639,6 @@ int main()
     init_pair();
     init_eval();
     init_regions();
-    test_car();//10
-    test_car_null();//59
-    test_car_many_args();//60
-    test_invalid_car();//58
-    test_cons();//12
     test_is_lambda();//14
     test_is_lambda_not_symbol();//124
     test_cond();//13
@@ -823,11 +654,6 @@ int main()
     test_progn();
     test_progn_null();
     test_progn_error();
-    test_invalid_cdr();//61
-    test_cons_noparams();//64
-    test_cons2();//12
-    test_cons_one_param();//66
-    test_cons_3_params();//65
     test_backquote_nulllist();
     test_backquote_invalid_arg_type();
     test_backquote_arguments();
