@@ -380,6 +380,44 @@ void test_equal()
     ASSERT(res, t);
 }
 
+/** 
+ * Сравнение объектов, передача пустого списка
+ */
+void test_equal_empty_list()
+{
+    printf("test_equal_empty_list: ");
+    object_t *list = NULL;
+    object_t *res = equal(list);
+    ASSERT(res, ERROR);
+}
+
+/** 
+ * Сравнение объектов, список из одного объекта
+ */
+void test_equal_no_second_param()
+{
+    printf("test_equal_no_second_param: ");
+    int first1 = 1;
+    object_t *list = new_pair(object_new(NUMBER, &first1), NULL);
+    object_t *res = equal(list);
+    ASSERT(res, ERROR);
+}
+
+/** 
+ * Сравнение объектов, недопустимая длина списка
+ */
+void test_equal_invalid_list_length()
+{
+    printf("test_equal_invalid_list_length: ");
+    int first1 = 1;
+    int second1 = 1;
+    object_t *list = new_pair(object_new(NUMBER, &first1),
+			      new_pair(object_new(NUMBER, &second1), 
+			      new_pair(object_new(NUMBER, &second1), NULL)));
+    object_t *res = equal(list);
+    ASSERT(res, ERROR);
+}
+
 /**
  * Тест сравнения неравнества меньше для двух чисел
  */
@@ -502,6 +540,9 @@ int main()
     test_shift_right_empty_list();
     test_shift_right_no_second_param();
     test_equal();
+    test_equal_empty_list();
+    test_equal_no_second_param();
+    test_equal_invalid_list_length();
     test_less();
     test_less_great();
     test_less_no_arguments();
