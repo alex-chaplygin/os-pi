@@ -65,6 +65,38 @@ void test_seta()
 }
 
 /**
+ * Проверка присваивания значения объекту и NULL
+*/
+void test_seta_invalid_arguments() {
+    printf("test_seta_invalid_arguments: ");
+
+    int num = 42;
+    object_t *obj = object_new(NUMBER, &num);
+    object_t *result = seta(new_pair(obj, NULL));
+    ASSERT(result, ERROR);
+    
+    result = seta(NULL);
+    ASSERT(result, ERROR);
+
+}
+
+/**
+ * Проверка присваивания значения массиву неверной структуры
+*/
+void test_seta_not_array() {
+    printf("test_seta_not_array: ");
+
+    int num = 42;
+    int index = 0;
+    object_t *obj = object_new(NUMBER, &num);
+    object_t *value = object_new(NUMBER, &num);
+    object_t *list = new_pair(obj, new_pair(object_new(NUMBER, &index), new_pair(value, NULL)));
+
+    object_t *result = seta(list);
+    ASSERT(result, ERROR);
+}
+
+/**
  * Тестирование чтени элемента массива
  * Создать массив на 3 элемента 
  * Присвоить во 2 ячейку число 4 
@@ -163,6 +195,8 @@ int main()
     init_regions();
     test_make_array();
     test_seta();
+    test_seta_invalid_arguments();
+    test_seta_not_array();
     test_aref();
     test_aref_invalid_index(10);
     test_aref_invalid_index(-1);
