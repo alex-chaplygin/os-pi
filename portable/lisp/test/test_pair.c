@@ -6,6 +6,7 @@
 #include "eval.h"
 
 object_t *rplaca(object_t *list);
+object_t *rplacd(object_t *list);
 object_t *cons(object_t *list);
 object_t *car(object_t *list);
 object_t *cdr(object_t *list);
@@ -300,6 +301,76 @@ void test_rplaca_empty_list()
     ASSERT(res, ERROR);
 }
 
+// Попытка замены пустой пары
+void test_rplacd_null()
+{
+    printf("test_rplacd_null: ");
+    object_t *res = rplacd(NULL);
+    ASSERT(res, ERROR);
+}
+
+// Попытка замены пары без параметра
+void test_rplacd_no_params()
+{
+    printf("test_rplacd_no_params: ");
+    int num = 1;
+    object_t *num_obj = object_new(NUMBER, &num);
+    object_t *list = new_pair(num_obj, NULL);
+    object_t *res = rplacd(list);
+    ASSERT(res, ERROR);
+}
+
+// Попытка замены при нескольких параметрах
+void test_rplacd_many_params()
+{
+    printf("test_rplacd_many_params: ");
+    int num = 1;
+    object_t *num_obj = object_new(NUMBER, &num);
+    object_t *list = new_pair(num_obj, new_pair(num_obj, new_pair(num_obj, NULL)));
+    object_t *res = rplacd(list);
+    ASSERT(res, ERROR);
+}
+
+// Попытка замены для пустой первой пары
+void test_rplacd_empty_list()
+{
+    printf("test_rplacd_empty_list: ");
+    int num = 1;
+    object_t *num_obj = object_new(NUMBER, &num);
+    object_t *list = new_pair(NULL, new_pair(num_obj, NULL));
+    object_t *res = rplacd(list);
+    ASSERT(res, ERROR);
+}
+
+// Попытка замены для не пары
+void test_rplacd_not_pair()
+{
+    printf("test_rplacd_not_pair: ");
+    int num = 1;
+    object_t *num_obj = object_new(NUMBER, &num);
+    object_t *list = new_pair(num_obj, new_pair(num_obj, NULL));
+    object_t *res = rplacd(list);
+    ASSERT(res, ERROR);
+}
+
+// Создание пары ((1 NULL) (2 NULL)) и замена правой части пары (1 2)
+void test_rplacd()
+{
+    printf("test_rplacd: ");
+    int num1 = 1, num2 = 2;
+    object_t *left_obj = object_new(NUMBER, &num1);
+    object_t *right_obj = object_new(NUMBER, &num2);
+    object_t *pair = new_pair(left_obj, NULL);
+    object_t *params = new_pair(pair, new_pair(right_obj, NULL));
+
+    object_t *res = rplacd(params);
+    
+    ASSERT(res->type, PAIR);
+    ASSERT(FIRST(res)->type, NUMBER);
+    ASSERT(FIRST(res)->u.value, num1);
+    ASSERT(TAIL(res)->type, NUMBER);
+    ASSERT(TAIL(res)->u.value, num2);
+}
 
 int main()
 {
@@ -324,6 +395,12 @@ int main()
     test_rplaca_too_many_params();
     test_rplaca_first_param_is_not_pair();
     test_rplaca_empty_list();
+    test_rplacd();//21
+    test_rplacd_null();//79
+    test_rplacd_no_params();//81
+    test_rplacd_many_params();//80
+    test_rplacd_empty_list();//81
+    test_rplacd_not_pair();//82
     return 0;
 }
 
