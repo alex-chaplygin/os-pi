@@ -418,6 +418,147 @@ void test_equal_invalid_list_length()
     ASSERT(res, ERROR);
 }
 
+/** 
+ * Сравнение символов
+ */
+void test_equal_symbols()
+{
+    printf("test_equal_symbols: ");
+    object_t *list = new_pair(object_new(SYMBOL, "A"),
+			      new_pair(object_new(SYMBOL, "A"), NULL));
+    object_t *res = equal(list);
+    ASSERT(res, t);
+}
+
+/** 
+ * Сравнение строк
+ */
+void test_equal_strings()
+{
+    printf("test_equal_strings: ");
+    object_t *list = new_pair(object_new(STRING, "abc"),
+			      new_pair(object_new(STRING, "abc"), NULL));
+    object_t *res = equal(list);
+    ASSERT(res, t);
+}
+
+/** 
+ * Сравнение пар
+ */
+void test_equal_pairs()
+{
+    printf("test_equal_pairs: ");
+    object_t *pair = new_pair(object_new(SYMBOL, "A"), NULL);
+    object_t *list = new_pair(pair,
+                    new_pair(pair, NULL));
+    object_t *res = equal(list);
+    ASSERT(res, t);
+}
+
+/** 
+ * Сравнение пар с разными значениями
+ */
+void test_equal_pairs_with_different_values()
+{
+    printf("test_equal_pairs_with_different_values: ");
+    object_t *pair1 = new_pair(object_new(SYMBOL, "A"), NULL);
+    object_t *pair2 = new_pair(object_new(SYMBOL, "B"), NULL);
+    object_t *list = new_pair(pair1,
+                    new_pair(pair2, NULL));
+    object_t *res = equal(list);
+    ASSERT(res, t);
+}
+
+/** 
+ * Сравнение массивов
+ */
+void test_equal_array()
+{
+    printf("test_equal_array: ");
+    int num = 1;
+    array_t *arr = new_empty_array(2);
+    arr->data[0] = object_new(NUMBER, &num);
+    arr->data[1] = object_new(NUMBER, &num);
+    object_t *list = new_pair(object_new(ARRAY, arr),
+			      new_pair(object_new(ARRAY, arr), NULL));
+    object_t *res = equal(list);
+    ASSERT(res, t);
+}
+
+/** 
+ * Сравнение массивов с неравными значениями элементов
+ */
+void test_equal_arrays_with_different_values()
+{
+    printf("test_equal_arrays_with_different_values: ");
+    int num1 = 1;
+    int num2 = 2;
+    array_t *arr1 = new_empty_array(2);
+    arr1->data[0] = object_new(NUMBER, &num1);
+    array_t *arr2 = new_empty_array(2);
+    arr2->data[0] = object_new(NUMBER, &num2);
+    object_t *list = new_pair(object_new(ARRAY, arr1),
+			      new_pair(object_new(ARRAY, arr2), NULL));
+    object_t *res = equal(list);
+    ASSERT(res, t);
+}
+
+/** 
+ * Сравнение массивов разной длины
+ */
+void test_equal_arrays_with_different_length()
+{
+    printf("test_equal_arrays_with_different_length: ");
+    int num = 1;
+    array_t *arr1 = new_empty_array(1);
+    arr1->data[0] = object_new(NUMBER, &num);
+    array_t *arr2 = new_empty_array(2);
+    arr2->data[0] = object_new(NUMBER, &num);
+    arr2->data[1] = object_new(NUMBER, &num);
+    object_t *list = new_pair(object_new(ARRAY, arr1),
+			      new_pair(object_new(ARRAY, arr2), NULL));
+    object_t *res = equal(list);
+    ASSERT(res, t);
+}
+
+/** 
+ * Сравнение пустых объектов
+ */
+void test_equal_null_objects()
+{
+    printf("test_equal_array: ");
+    object_t *list = new_pair(NULL,
+			      new_pair(NULL, NULL));
+    object_t *res = equal(list);
+    ASSERT(res, t);
+}
+
+/** 
+ * Сравнение объектов, один из объектов пустой
+ */
+void test_equal_one_object_is_null()
+{
+    printf("test_equal_one_object_is_null: ");
+    int num = 1;
+    object_t *list = new_pair(object_new(NUMBER, &num),
+			      new_pair(NULL, NULL));
+    object_t *res = equal(list);
+    ASSERT(res, t);
+}
+
+/** 
+ * Сравнение объектов разных типов
+ */
+void test_equal_different_types()
+{
+    printf("test_equal_different_types: ");
+    int num = 1;
+    object_t *list = new_pair(object_new(NUMBER, &num),
+			      new_pair(object_new(SYMBOL, "A"), NULL));
+    object_t *res = equal(list);
+    ASSERT(res, t);
+}
+
 /**
  * Тест сравнения неравнества меньше для двух чисел
  */
@@ -506,6 +647,7 @@ void test_gt_one_arg(int num1)
 int main()
 {
     printf("------------test_arith---------\n");
+    init_regions();
     test_add();
     test_add_null();
     test_add_no_number();
@@ -543,6 +685,16 @@ int main()
     test_equal_empty_list();
     test_equal_no_second_param();
     test_equal_invalid_list_length();
+    test_equal_symbols();
+    test_equal_strings();
+    test_equal_pairs();
+    test_equal_pairs_with_different_values();
+    test_equal_array();
+    test_equal_arrays_with_different_length();
+    test_equal_arrays_with_different_values();
+    test_equal_null_objects();
+    test_equal_one_object_is_null();
+    test_equal_different_types();
     test_less();
     test_less_great();
     test_less_no_arguments();
