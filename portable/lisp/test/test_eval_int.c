@@ -22,6 +22,8 @@ object_t *cond(object_t *list);
 object_t *progn(object_t *list);
 object_t *quote(object_t *list);
 object_t *eq(object_t *list);
+object_t *and(object_t *list);
+object_t *or(object_t *list);
 object_t *backquote(object_t *list);
 
 void error(char *str)
@@ -512,6 +514,113 @@ void test_eq()
     ASSERT(res4, nil);
 }
 
+/**
+ * отсутсвие аргумента  
+ */
+void test_and_null()
+{
+    printf("test_and_null: \n");
+    object_t *res = and(NULL);
+    ASSERT(res, ERROR);
+}
+
+/**
+ * некорректный аргумент  
+ */
+void test_and_invalid()
+{
+    printf("test_and_invalid: \n");
+    int number = 1;
+    object_t *p1 = object_new(NUMBER, &number);
+    object_t *l1 = new_pair(p1, NULL);
+    object_t *res = and(l1);
+    ASSERT(res, ERROR);
+}
+
+/**
+ * корректный аргумент  true
+ */
+void test_and()
+{
+    printf("test_and: \n");
+    object_t *l1 = new_pair(t, new_pair(t, NULL));
+    object_t *res = and(l1);
+    ASSERT(res, t);
+}
+
+/**
+ * корректный аргумент  nil
+ */
+void test_and_nil()
+{
+    printf("test_and_nil: \n");
+    object_t *l1 = new_pair(t, new_pair(nil, NULL));
+    object_t *res = and(l1);
+    ASSERT(res, nil);
+}
+
+/**
+ * Тестирование функции or
+ * передаём NULL вместо списка
+ */
+void test_or_null()
+{
+    printf("test_or_null: \n");
+    object_t *res = or(NULL);
+    ASSERT(res, ERROR);
+}
+
+ /**
+ * Тестирование функции or
+ * передаём список с некорректными данными
+ */
+void test_or_invalid()
+{
+    printf("test_or_invalid: \n");
+    int number = 1;
+    object_t *p1 = object_new(NUMBER, &number);
+    object_t *l1 = new_pair(p1, NULL);
+    object_t *res = or(l1);
+    ASSERT(res, ERROR);
+}
+
+ /**
+ * Тестирование функции or
+ * Первый элемент - t
+ */
+void test_or_first()
+{
+    printf("test_or_first: \n");
+    object_t *l1 = new_pair(t, new_pair(t, NULL));
+    object_t *res = or(l1);
+    ASSERT(res, t);
+}
+
+/**
+ * Тестирование функции or
+ * Первый элемент - nil, второй - t
+ */
+void test_or_tail()
+{
+    printf("test_or_tail: \n");
+    object_t *l1 = new_pair(nil, new_pair(t, NULL));
+    object_t *res = or(l1);
+    ASSERT(res, t);
+}
+
+
+/**
+ * Тестирование функции or
+ * Первый элемент - nil, второй - nil
+ */ 
+void test_or_nil()
+{
+    printf("test_or_nil: \n");
+    object_t *l1 = new_pair(nil, new_pair(nil, NULL));
+    object_t *res = or(l1);
+    ASSERT(res, nil);
+}
+
 /*
 eval_int
 +---------------------------+------------------------------------------------+------------------------------------------------------+
@@ -663,6 +772,15 @@ int main()
     test_atom_many_args();//131
     test_quote_error();//53
     test_eq(); //9, 55, 56, 57
+    test_and_null();
+    test_and_invalid();
+    test_and();
+    test_and_nil();
+    test_or_null();
+    test_or_invalid();
+    test_or_first();
+    test_or_tail();
+    test_or_nil();
     return 0;
 }
 
