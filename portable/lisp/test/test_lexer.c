@@ -246,6 +246,18 @@ void test_string(char* str, char* exp_str)
 }
 
 /*
+* Проверка получения ошибки, если номер hex символа строки в "" больше 255
+*/
+void test_invalid_string(char* str)
+{
+    printf("test_invalid_symbol_code %s ", str);
+    write_file(str);
+    reset_buffer();
+    token_t *tok = get_token();
+    ASSERT(token_error, 1);
+}
+
+/*
 * Тестирование строки максимального размера
 */
 void test_string_max()
@@ -364,6 +376,7 @@ int main()
     test_string("\"\\x31\\x32\"", "12");
     test_string("\"a b\\n\"", "a b\n"); // 9
     test_string("\"a b\\n\\n\"", "a b\n\n"); // 9
+    test_invalid_string("\"\\x299\\x230\"");//
     test_string("\"\"", ""); // граничный тест на пустую строку
     test_string_max(); // граничный тест на максимальную строку
     test_string_overflow(); // граничный тест на превышение допустимого размера строки
