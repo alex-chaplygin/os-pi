@@ -213,6 +213,21 @@ token_t str_tokens[] = {
 token_t end_tokens[] = {
     {END}
 };
+
+token_t tok_list_expected_rparen[] = {
+    {LPAREN},
+    {T_NUMBER, 1},
+    {DOT},
+    {T_NUMBER, 1},
+    {T_NUMBER, 1},
+    {END}
+};
+
+token_t tok_list_invalid_token[] = {
+    {LPAREN},
+    {INVALID},
+    {RPAREN}
+};
     
 token_t *tokens;
 
@@ -640,6 +655,32 @@ void test_parse_end()
     ASSERT(ERROR,o);
 }
 
+/**
+ * Тестирование неверной точечной пары (1 . )
+ */
+void test_parse_list_expected_rparen()
+{
+    printf("test_parse_list_expected_rparen: ");
+    count = 0;
+    cur_token = &token;
+    tokens = tok_list_expected_rparen;
+    object_t *res = parse();
+    ASSERT(res, ERROR);
+}
+
+/**
+ * Тестирование токена кторого нет в возможных токенах
+ */
+void test_parse_list_invalid_token()
+{
+    printf("test_parse_list_invalid_token: ");
+    count = 0;
+    cur_token = &token;
+    tokens = tok_list_invalid_token;
+    object_t *res = parse();
+    ASSERT(res, ERROR);
+}
+
 /** 
  * Тест ошибки лексера
  */
@@ -651,6 +692,7 @@ void test_parse_token_error()
     tokens = end_tokens;
     token_error = 1;
     object_t *o = parse();
+    token_error = 0;
     ASSERT(ERROR,o);
 }
 
@@ -719,5 +761,7 @@ int main()
     test_parse_string();
     test_parse_end();
     test_parse_token_error();
+    test_parse_list_expected_rparen();
+    test_parse_list_invalid_token();
     return 0;
 }
