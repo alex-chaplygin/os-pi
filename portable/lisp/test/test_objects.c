@@ -4,6 +4,7 @@
 #include "test.h"
 #include "objects.h"
 #include "parser.h"
+#include "alloc.h"
 
 extern bignumber_t bignumbers[];
 extern bignumber_t *free_bignumbers;

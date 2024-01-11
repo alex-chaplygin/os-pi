@@ -23,8 +23,6 @@
 #define NULLOBJ 3
 /// Отсутствие значения у переменных
 #define NOVALUE (ERROR)
-/// Метка региона
-#define MAGIC 0xABCD1234
 /// Число бит на тип объекта
 #define TYPE_BITS 3
 /// Номер бита пометки для сборщика мусора
@@ -53,17 +51,6 @@
 #define NEW_SYMBOL(s) (NEW_OBJECT(SYMBOL, new_symbol(s)))
 //Создание строки
 #define NEW_STRING(s) (NEW_OBJECT(STRING, new_string(s)))
-
-#pragma pack(4)
-/// создаваемый или свободный регион памяти
-struct region {
-    int magic; /// метка своих регионов
-    int free; /// свободен ли регион
-    struct region *next; /// указатель на следующий регион
-    struct region *prev; /// указатель на предыдущий регион
-    int size; /// размер региона в байтах
-    char data[1]; /// Данные региона
-};
 
 /// перечисление типов объектов
 typedef enum {
@@ -148,9 +135,6 @@ void free_bignumber(bignumber_t *o);
 void free_pair(pair_t *p);
 void print_free_objs();
 void print_free_pairs();
-void init_regions();
-void *alloc_region(int size);
-void free_region(void *data);
 string_t *new_string(char *str);
 void free_string(string_t *s);
 array_t *new_array(object_t list);
