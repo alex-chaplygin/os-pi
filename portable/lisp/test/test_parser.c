@@ -205,6 +205,14 @@ token_t no_rparen_tokens_arrays[] = {
     {RPAREN},
     {END}
 };
+
+token_t str_tokens[] = {
+    {T_STRING,0,"Str"}
+};
+
+token_t end_tokens[] = {
+    {END}
+};
     
 token_t *tokens;
 
@@ -605,6 +613,46 @@ void test_parse_number_dot_number()
     ASSERT(o->u.pair->right->u.value, 2);
 }
 
+/** 
+ * Тест строки
+ */
+void test_parse_string()
+{
+    printf("test_parse_string:");
+    count = 0;
+    cur_token = &token;
+    tokens = str_tokens;
+    object_t *o = parse();
+    ASSERT(o->type, STRING);
+    ASSERT(strcmp(o->u.str->data,"Str"),0);
+}
+
+/** 
+ * Тест конец потока, без объектов
+ */
+void test_parse_end()
+{
+    printf("test_parse_end:");
+    count = 0;
+    cur_token = &token;
+    tokens = end_tokens;
+    object_t *o = parse();
+    ASSERT(ERROR,o);
+}
+
+/** 
+ * Тест ошибки лексера
+ */
+void test_parse_token_error()
+{
+    printf("test_parse_token_error:");
+    count = 0;
+    cur_token = &token;
+    tokens = end_tokens;
+    token_error = 1;
+    object_t *o = parse();
+    ASSERT(ERROR,o);
+}
 
 /*
  * условие   | правильный класс       | неправильный класс
@@ -667,6 +715,9 @@ int main()
     test_parse_backquote_comma(); //17
     test_parse_quote_number(); //13
     test_parse_backquote_comma_at(); //25
-    test_parse_number_dot_number(); 
+    test_parse_number_dot_number();
+    test_parse_string();
+    test_parse_end();
+    test_parse_token_error();
     return 0;
 }
