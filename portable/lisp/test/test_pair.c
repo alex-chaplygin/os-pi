@@ -10,6 +10,7 @@ object_t *rplacd(object_t *list);
 object_t *cons(object_t *list);
 object_t *car(object_t *list);
 object_t *cdr(object_t *list);
+object_t *list(object_t *list);
 
 void error(char *str)
 {
@@ -372,6 +373,25 @@ void test_rplacd()
     ASSERT(TAIL(res)->u.value, num2);
 }
 
+/** 
+ * Тест функции list
+ */
+void test_list()
+{
+    printf("test_list: ");
+    int num1 = 1;
+    int num2 = 2;
+    object_t *p = new_pair(object_new(NUMBER, &num1), 
+                new_pair(object_new(NUMBER, &num2), NULL));
+    //PRINT(p);
+    object_t *res = list(p);
+    
+    ASSERT(FIRST(res)->type, NUMBER);
+    ASSERT(FIRST(res)->u.value, num1);
+    ASSERT(FIRST(TAIL(res))->type, NUMBER);
+    ASSERT(FIRST(TAIL(res))->u.value, num2);
+}
+
 int main()
 {
     printf("------------test_pair---------\n");
@@ -401,6 +421,7 @@ int main()
     test_rplacd_many_params();//80
     test_rplacd_empty_list();//81
     test_rplacd_not_pair();//82
+    test_list();
     return 0;
 }
 
