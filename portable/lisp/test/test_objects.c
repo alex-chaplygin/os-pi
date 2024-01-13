@@ -226,33 +226,22 @@ void test_mark()
 {
     printf("test_mark :");
     reset_mem();
-    int n1 = 12;
-    int n2 = 5;
+    int n1 = 1;
+    int n2 = 1;
+    int n3 = 2;
+	
     object_t num1 = new_number(n1);
-    object_t sym =  NEW_OBJECT(SYMBOL, new_symbol("A"));
     object_t num2 = new_number(n2);
-    object_t p3 = new_pair(num2, NULLOBJ);
-    object_t p2 = new_pair(sym, p3);
-    object_t mobject = new_pair(num1, p2);
-    printf("num1 = %x\n", num1);
-    printf("sym = %x\n", sym);
-    printf("num2 = %x\n", num2);
-    printf("p3 = %x\n", p3);
-    printf("p2 = %x\n", p2);
-    printf("mobject = %x\n", mobject);
-    mark_object(mobject);
-    printf("num1 = %x\n", num1);
-    printf("sym = %x\n", sym);
-    printf("num2 = %x\n", num2);
-    printf("p3 = %x\n", p3);
-    printf("p2 = %x\n", p2);
-    printf("mobject = %x\n", mobject);
-    ASSERT(GET_MARK(mobject), 1);
-    ASSERT(GET_MARK(num1), 1);
-    ASSERT(GET_MARK(p2), 1);
-    ASSERT(GET_MARK(sym), 1);
-    ASSERT(GET_MARK(p3), 1);
-    ASSERT(GET_MARK(num2), 1);
+    object_t num3 = new_number(n3);
+    object_t inp2 = new_pair(num3, NULLOBJ);
+    object_t inp1 = new_pair(num2, inp2);
+    object_t p2 = new_pair(inp1, NULLOBJ);
+    object_t p1 = new_pair(num1, p2);
+    mark_object(p1);
+    ASSERT(GET_MARK(GET_PAIR(inp1)->left), 1);
+    ASSERT(GET_MARK(GET_PAIR(inp2)->left), 1);
+    ASSERT(GET_MARK(GET_PAIR(p1)->left), 1);
+    ASSERT(GET_MARK(GET_PAIR(p2)->left), 1);
 }
 
 /* /\** */

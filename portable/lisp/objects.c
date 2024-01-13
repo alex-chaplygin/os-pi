@@ -360,7 +360,7 @@ void free_array(array_t *a)
  */
 void mark_object(object_t obj)
 {
-    if (obj == NULLOBJ || obj == NOVALUE || GET_MARK(obj) == 1)
+    if (obj == NULLOBJ || obj == NOVALUE/* || GET_MARK(obj) == 1*/)
 	return;    
     if (TYPE(obj) == PAIR) {
 	SET_MARK(GET_PAIR(obj)->left);
