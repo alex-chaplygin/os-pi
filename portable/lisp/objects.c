@@ -363,6 +363,8 @@ void mark_object(object_t obj)
     if (obj == NULLOBJ || obj == NOVALUE/* || GET_MARK(obj) == 1*/)
 	return;    
     if (TYPE(obj) == PAIR) {
+	if (GET_MARK(GET_PAIR(obj)->left) == 1)
+	    return;
 	SET_MARK(GET_PAIR(obj)->left);
 	mark_object(GET_PAIR(obj)->left);
 	mark_object(GET_PAIR(obj)->right);
