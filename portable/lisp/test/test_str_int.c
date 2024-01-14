@@ -8,6 +8,7 @@
 object_t *intern(object_t *list);
 object_t *concat(object_t *list);
 object_t *symbol_name(object_t *list);
+object_t *string_size(object_t *list);
 
 void error(char *str)
 {
@@ -196,6 +197,55 @@ void test_symbol_name_no_params()
     ASSERT(res, ERROR);
 }
 
+/**
+ * Тест функции получения длинны строки
+ */
+void test_string_size() {
+    printf("test_string_size: ");
+    char *str = "Hello";
+    object_t *string_obj = object_new(STRING, str);
+    object_t *params = new_pair(string_obj, NULL);
+    object_t *res = string_size(params);
+    ASSERT(res->type, NUMBER);
+    ASSERT(res->u.value, strlen(str));
+}
+
+/**
+ * Тест функции получения длинны строки
+ * Ошибка: без параметра
+ */
+void test_string_size_no_arguments() {
+    printf("test_string_size_no_arguments: ");
+    object_t *result = string_size(NULL);
+    ASSERT(result, ERROR);
+}
+
+/**
+ * Тест функции получения длинны строки
+ * Ошибка: несколько аргументов
+ */
+void test_string_size_too_many_arguments() {
+    printf("test_string_size_too_many_arguments: ");
+    int num = 5;
+    object_t *number_obj = object_new(NUMBER, &num);
+    object_t *params = new_pair(number_obj, new_pair(number_obj, NULL));
+    object_t *result = string_size(params);
+    ASSERT(result, ERROR);
+}
+
+/**
+ * Тест функции получения длинны строки
+ * Ошибка: аргумент не строка
+ */
+void test_string_size_not_string() {
+    printf("test_string_size_not_string: ");
+    int num = 5;
+    object_t *number_obj = object_new(NUMBER, &num);
+    object_t *params = new_pair(number_obj, NULL);
+    object_t *result = string_size(params);
+    ASSERT(result, ERROR);
+}
+
 int main()
 {
     printf("------------test_str_int---------\n");
@@ -215,5 +265,9 @@ int main()
     test_symbol_name_many_params();
     test_symbol_name_null_first_param();
     test_symbol_name_no_params();
+    test_string_size();
+    test_string_size_no_arguments();
+    test_string_size_too_many_arguments();
+    test_string_size_not_string();
     return 0;
 }
