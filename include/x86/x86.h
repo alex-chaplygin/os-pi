@@ -15,3 +15,8 @@ extern void enable_interrupts();
 extern void load_idt(void *);
 extern void *get_sp();
 extern ushort kernel_code;
+// тип для хранения состояния стека, используемый
+//   функциями setjmp, longjmp
+typedef long int jmp_buf[8];
+extern int setjmp(jmp_buf env);
+extern void longjmp(jmp_buf env, int code);

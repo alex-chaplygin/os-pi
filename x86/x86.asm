@@ -37,6 +37,7 @@ global a_interrupt_handler
 global disable_interrupts, enable_interrupts
 global a_keyboard_interrupt
 global get_sp
+global setjmp, longjmp
 extern kmain, exception_handler, sys_call, timer_event,end_of_interrupt		;this is defined in the c file
 extern interrupt_handler
 extern current_proc
@@ -98,6 +99,49 @@ save_regs:
 restore_regs:
 	ret
 				; переключаем контекст
+
+; сохранение состояния стека
+setjmp:
+    push ebp
+    mov ebp, esp
+    ; параметр env - для сохр. состояния стека
+    mov eax, [ebp + 8]
+    mov [eax], ebx      ; [0]|ebx
+    mov [eax + 4], esi  ; [1]|esi
+    mov [eax + 8], edi  ; [2]|edi
+    mov ecx, [ebp]
+    mov [eax + 12], ecx ; [3]|ebp
+    lea ecx, [ebp + 8]
+    mov [eax + 16], ecx ; [4]|esp
+    mov ecx, [ebp + 4]
+    mov [eax + 20], ecx ; [5]|eip
+    pop ebp
+    mov eax, 0
+    ret
+
+; восстановление состояния стека
+longjmp:
+    push ebp
+    mov ebp, esp
+    ; параметр env - состояние стека
+    mov edx, [ebp + 8]
+    ; параметр code - возвращаемое
+    ;   значение функции setjmp
+    mov eax, [ebp + 12]
+    ; если eax !=0, перейти на метку mov_
+    ; иначе eax += 1
+    test eax, eax
+    jnz mov_
+    inc eax
+    mov_:
+    mov ebx, [edx]
+    mov esi, [edx + 4]
+    mov edi, [edx + 8]
+    mov ebp, [edx + 12]
+    mov esp, [edx + 16]
+    mov ecx, [edx + 20]
+    mov [esp], ecx
+    ret
 
 disable_interrupts:
 	cli

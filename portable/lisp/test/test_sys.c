@@ -12,8 +12,12 @@
 #include "pair.h"
 #include "predicates.h"
 #include "../init.c"
+#include <x86/x86.h>
 
 extern token_t token;
+
+// состояние стека
+jmp_buf jmp_env;
 
 char *itoa(int num, char *str, int rad)
 {
@@ -38,10 +42,21 @@ char *itoa(int num, char *str, int rad)
     return p;
 }
 
+// Вывод сообщения об ошибке и выход из программы
+// str - сообщение об ошибке
+void error(char *str)
+{
+    printf("%s\n", str);
+    longjmp(jmp_env, 1);
+}
+
 int main()
 {
     init_all();
     
+    int jmp_code = setjmp(jmp_env);
+    if (jmp_code == 1)
+        return jmp_code;
     do {
 	object_t *o = parse();
         //printf("parse: "); PRINT(o);

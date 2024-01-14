@@ -10,13 +10,6 @@ extern int token_error;
 
 token_t *cur_token; // текущий токен
 
-// Вывод сообщения об ошибке и выход из программы
-// str - сообщение об ошибке
-void error(char *str)
-{
-    printf("%s", str);
-}
-
 // преобразует строку в верхний регистр
 char *strupr(char *str)
 {
