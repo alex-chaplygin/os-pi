@@ -45,6 +45,10 @@
 #define GET_PAIR(obj) ((pair_t *)(GET_ADDR(obj)))
 //Получение 32-х битного числа
 #define GET_BIGNUMBER(num) ((bignumber_t *)(GET_ADDR(num)))
+//Получение строки
+#define GET_STRING(str) ((string_t *)(GET_ADDR(str)))
+//Получение массива
+#define GET_ARRAY(arr) ((array_t *)(GET_ADDR(arr)))
 //Создание массива
 #define NEW_ARRAY(a) (NEW_OBJECT(ARRAY, new_array(a)))
 //Создание символа
