@@ -43,7 +43,7 @@ object_t *parse_quote(char *quote_sym)
     //printf("quote: ");
     //PRINT(o);
     if (o == ERROR){
-	error("quote: no args\n");
+	error("quote: no args");
 	return ERROR;
     }
     object_t *p = new_pair(o, NULL);
@@ -97,7 +97,7 @@ object_t *parse_list()
     if (token_error == 1)
 	return ERROR;
     if (cur_tok->type == END) {
-	error("expected )\n");
+	error("expected )");
 	return ERROR;
     }
     if (cur_tok->type == RPAREN)
@@ -119,7 +119,7 @@ object_t *parse_list()
 	object_t *res = parse();
 	cur_tok = get_token();       
 	if (cur_tok->type != RPAREN) { 
-	    error("expected )\n");
+	    error("expected )");
 	    return ERROR;
 	}
 	return res;
@@ -140,7 +140,7 @@ object_t *parse_array()
     if (o == ERROR)
 	return ERROR;
     if (o != NULL && o->type != PAIR) {
-	error("invalid array\n");
+	error("invalid array");
 	return ERROR;
     }
     return object_new(ARRAY, new_array(o));
@@ -159,8 +159,10 @@ object_t *parse()
     token_t *cur_token = get_token(); // считывается левая скобка
     // printf("parse: ");
     // print_token(cur_token);
-    if (token_error == 1)
-	return ERROR;
+    if (token_error == 1) {
+        error("parse: token_error");
+        return ERROR;
+    }
     if (cur_token->type == T_NUMBER) // считывается число
 	return object_new(NUMBER, &cur_token->value);
     else if (cur_token->type == T_SYMBOL)//считывается символ
@@ -177,12 +179,16 @@ object_t *parse()
 	return parse_array();
     else if (cur_token->type == T_STRING)
 	return object_new(STRING, cur_token->str);
-    else if (cur_token->type == END)
-	return ERROR;
-    else if (cur_token->type == INVALID)
-	return ERROR;
+    else if (cur_token->type == END) {
+        error("");
+        return ERROR;
+    }
+    else if (cur_token->type == INVALID) {
+        error("parse: invalid token");
+        return ERROR;
+    }
     else {
-	error("invalid expression\n");
+	error("invalid expression");
 	return ERROR;
     }
 }

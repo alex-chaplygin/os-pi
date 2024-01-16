@@ -406,7 +406,7 @@ token_t *get_token()
 	        get_symbol(token.str);
 	} else {
 	    token.type = INVALID;
-	    error("ERROR: lexer.c: INVALID SYMBOL\n");
+	    error("ERROR: lexer.c: INVALID SYMBOL");
 	}
     }
     return &token;

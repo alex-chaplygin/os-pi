@@ -558,7 +558,10 @@ object_t *eval(object_t *obj, object_t *env)
     else if (obj->type == SYMBOL) {
         object_t *symbol = eval_symbol(obj);
         if (symbol == ERROR) {
-	    printf("Unknown SYMBOL: %s", obj->u.symbol->str);
+            char str[128];
+            snprintf(str, 128, "Unknown SYMBOL: %s", obj->u.symbol->str);
+            error(str);
+	    // printf("Unknown SYMBOL: %s", obj->u.symbol->str);
 	    return ERROR;
 	}
         return symbol;
@@ -567,8 +570,10 @@ object_t *eval(object_t *obj, object_t *env)
 	if (first->type == PAIR)
 	    if(is_lambda(first) == 1)
 		return eval_func(first, eval_args(TAIL(obj), env), env);
-	    else
-		return ERROR;
+	    else {
+	        error("");
+	        return ERROR;
+	    }
 	symbol_t *s = find_symbol(first->u.symbol->str);
 	object_t *args;
 	if (is_special_form(s) || s->macro != NULL)
@@ -578,6 +583,7 @@ object_t *eval(object_t *obj, object_t *env)
 	if (args == ERROR){
 	    printf("Error in args: ");
 	    PRINT(obj);
+	    error("");
 	    return ERROR;
 	}
 	if (s->lambda != NULL)
@@ -587,7 +593,10 @@ object_t *eval(object_t *obj, object_t *env)
 	else if (s->macro != NULL)
 	    return macro_call(s->macro, args, env);
 	else {
-	    printf("Unknown func: %s", s->str);
+	    char str[128];
+	    snprintf(str, 128, "Unknown func: %s", s->str);
+	    error(str);
+	    // printf("Unknown func: %s", s->str);
 	    return ERROR;
 	}
     } else { 

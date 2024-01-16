@@ -46,7 +46,8 @@ char *itoa(int num, char *str, int rad)
 // str - сообщение об ошибке
 void error(char *str)
 {
-    printf("%s\n", str);
+    if (str[0] != '\0')
+        printf("%s\n", str);
     longjmp(jmp_env, 1);
 }
 
