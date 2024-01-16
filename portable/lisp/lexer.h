@@ -2,7 +2,8 @@
 #define MAX_SYMBOL 25
 
 typedef enum {
-    T_NUMBER, //число
+    T_NUMBER, // целое число
+    T_FLOAT, // вещественное число
     T_SYMBOL, // строка +a4s6d7fd23
     LPAREN, //левая скобка (
     RPAREN, // правая скобка )

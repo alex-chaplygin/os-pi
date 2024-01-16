@@ -175,20 +175,11 @@ int hex_num()
  * Разбирает число с плавающей точкой. 
  * Цифры идут уже после запятой.
  *
- * @return число с плавающей точкой
+ * @param in_num целая часть числа
+ * @return число с плавающей точкой в формате int
  */
-float get_float_num()
+int get_float_num(int int_num)
 {
-    long long cur_num =  0;
-    int float_value;
-    const int msb_shr = CHAR_BIT * sizeof(int);
-  
-    while (is_digit(cur_symbol) || is_symbol(cur_symbol)) 
-    {
-	    //	    cur_num = cur_num * 10 + sgn * (cur_symbol - '0');
-	    //msb = (cur_num >> sgn_shr) & 1;
-	 get_cur_char();
-    }
 }
 
 /** 
@@ -203,8 +194,6 @@ int get_num()
 	get_cur_char();
 	if (cur_symbol == 'x')
 	    return hex_num();
-	else if (cur_symbol=='.')
-	    return get_float_num();
     } else if (cur_symbol == '-') {
         fl = 1;
         get_cur_char();
@@ -222,6 +211,9 @@ int get_num()
 		return 0;
 	    }
 	    get_cur_char();
+	} else if (cur_symbol=='.') {
+	    token.type = T_FLOAT;
+	    return get_float_num(cur_num);
 	} else {
 	    token_error = 1;
 	    printf("invalid num\n");
