@@ -12,7 +12,7 @@
 #include "pair.h"
 #include "predicates.h"
 #include "../init.c"
-#include <x86/x86.h>
+#include <setjmp.h>
 
 extern token_t token;
 
@@ -54,19 +54,20 @@ int main()
 {
     init_all();
     
-    int jmp_code = setjmp(jmp_env);
-    if (jmp_code == 1)
-        return jmp_code;
+    //    int jmp_code = setjmp(jmp_env);
+    //    if (jmp_code == 1)
+    //        return jmp_code;
     do {
-	object_t *o = parse();
+	if (setjmp(jmp_env) == 0) {
+	    object_t *o = parse();
         //printf("parse: "); PRINT(o);
-	if (o != ERROR) {
+	//	if (o != ERROR) {
 	    object_t *res = eval(o, NULL);
 	    //printf("res: "); PRINT(res);
-	    if (res != ERROR) {
-		print_counter++;
-		print_obj(res);
-	    }
+	    //  if (res != ERROR) {
+	    print_counter++;
+	    print_obj(res);
+	    //}
 	    printf("\n");
 	}
 	garbage_collect();

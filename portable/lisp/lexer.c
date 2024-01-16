@@ -31,6 +31,8 @@ int buffer_write_pos = 0;
 /// текущая позиция чтения из буфера symbol_buffer
 int buffer_read_pos = 0;
 
+void error(char *str);
+
 /** 
  * Считываем символ, помещаем его в буфер.
  * Когда буфер заполняется, то делаем сдвиг указателей
@@ -404,7 +406,7 @@ token_t *get_token()
 	        get_symbol(token.str);
 	} else {
 	    token.type = INVALID;
-	    printf("ERROR: lexer.c: INVALID SYMBOL\n");
+	    error("ERROR: lexer.c: INVALID SYMBOL\n");
 	}
     }
     return &token;
