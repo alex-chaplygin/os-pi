@@ -371,17 +371,17 @@ void mark_object(object_t obj)
 	mark_object(GET_PAIR(obj)->right);
     }
     else if (TYPE(obj) == BIGNUMBER) {
-	if ((GET_BIGNUMBER(obj)->free) & mask != 0)
+	if (((GET_BIGNUMBER(obj)->free) & mask) != 0)
 	    return;
 	GET_BIGNUMBER(obj)->free |= mask;
     }
     else if (TYPE(obj) == STRING) {
-        if ((GET_STRING(obj)->length) & mask != 0)
+        if (((GET_STRING(obj)->length) & mask) != 0)
 	    return;
 	GET_STRING(obj)->length |= mask;
     }
     else if (TYPE(obj) == ARRAY) {
-        if ((GET_ARRAY(obj)->length) & mask != 0)
+        if (((GET_ARRAY(obj)->length) & mask) != 0)
 	    return;
 	GET_ARRAY(obj)->length |= mask;
     }

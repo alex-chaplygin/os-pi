@@ -22,12 +22,10 @@ extern int last_string;
 object_t *mobject;
 
 void mark_object(object_t *obj);
-
 void sweep();
-
 void garbage_collect();
-
 void free_string(string_t *s);
+object_t make_list(int num);
 
 void error(char *str, ...)
 {
@@ -227,21 +225,22 @@ void test_mark()
 {
     printf("test_mark :");
     reset_mem();
-    int n1 = 1;
-    int n2 = 1;
-    int n3 = 2;
+    int mask = 1 << 31;
+    object_t n = new_bignumber(2147483658);
+    object_t s = NEW_STRING("abc");
+    object_t a = NEW_ARRAY(make_list(3));
 	
-    object_t num1 = new_number(n1);
-    object_t num2 = new_number(n2);
-    object_t num3 = new_number(n3);
-    object_t inp2 = new_pair(num3, NULLOBJ);
-    object_t inp1 = new_pair(num2, inp2);
+    object_t inp2 = new_pair(a, NULLOBJ);
+    object_t inp1 = new_pair(s, inp2);
     object_t p2 = new_pair(inp1, NULLOBJ);
-    object_t p1 = new_pair(num1, p2);
+    object_t p1 = new_pair(n, p2);
     mark_object(p1);
     ASSERT(GET_MARK(GET_PAIR(inp1)->left), 1);
+    ASSERT((GET_STRING(GET_PAIR(inp1)->left)->length) & mask, mask);
     ASSERT(GET_MARK(GET_PAIR(inp2)->left), 1);
+    ASSERT((GET_ARRAY(GET_PAIR(inp2)->left)->length) & mask, mask);
     ASSERT(GET_MARK(GET_PAIR(p1)->left), 1);
+    ASSERT((GET_BIGNUMBER(GET_PAIR(p1)->left)->free) & mask, mask);
     ASSERT(GET_MARK(GET_PAIR(p2)->left), 1);
 }
 
@@ -696,7 +695,7 @@ void main()
            //3, 9
     /* test_free_object(); */
     /* test_free_object_null(); */
-    //    test_mark();
+    //test_mark();
     /* test_sweep(); */
     /* test_garbage_collect();     //19,24 */
     /* test_garbage_collect_list();    //21,24 */
