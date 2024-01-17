@@ -32,14 +32,18 @@ void init_regions()
 void *alloc_region(int size)
 {
     /// найти первый свободный регион подходящего размера
+    char *p;
     struct region *r = regions;
-    if ((size & 3) != 0)
-	size = ((size >> 2) + 1) << 2;
-    int offset_markup = 3 * sizeof(int) + 2 * sizeof(struct region *);
+    if ((size & 0xf) != 0)
+	size = ((size >> 4) + 1) << 4;
+    int offset_markup = 4 * sizeof(int) + 2 * sizeof(struct region *);
     int size2 = size + offset_markup;
     while (r != NULL) {
         if (r->free == 1 && r->size >= size2) {
-            struct region *free_reg = (struct region *)(r->data + size);
+	    p = r->data;
+	    // if (((int)p & 0xf) != 0)
+	    // p = (((long long)p >> 4) + 1) << 4;
+            struct region *free_reg = (struct region *)(p + size);
             free_reg->free = 1;
             free_reg->next = r->next;
             free_reg->prev = r;
@@ -48,7 +52,7 @@ void *alloc_region(int size)
             r->size = size;
             r->magic = MAGIC;
             r->free = 0;
-            return r->data;
+            return p;
         }
 	    r = r->next;
     }
@@ -64,7 +68,7 @@ void *alloc_region(int size)
 void free_region(void *data)
 {
     struct region *r, *rprev, *rnext;
-    int offset = 3 * sizeof(int) + 2 * sizeof(struct region *);
+    int offset = sizeof(struct region) - 4;
     r = (struct region *)((char *)data - offset);
     if (r->magic != MAGIC) {
 	error("Free region: no magic\n");

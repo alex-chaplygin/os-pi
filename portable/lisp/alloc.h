@@ -15,6 +15,11 @@ struct region {
     struct region *next; /// указатель на следующий регион
     struct region *prev; /// указатель на предыдущий регион
     int size; /// размер региона в байтах
+#ifdef X64
+    int pad;
+#else
+    int pad[3];
+#endif
     char data[1]; /// Данные региона
 };
 
