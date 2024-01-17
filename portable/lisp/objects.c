@@ -245,24 +245,24 @@ string_t *new_string(char *str)
     return string;
 }
 
-/* /\**  */
-/*  * Освобождение памяти для строки */
-/*  *  */
-/*  * @param s объект для освобождения */
-/*  *\/ */
-/* void free_string(string_t *s) */
-/* { */
-/*     if (s == NULL) { */
-/*     	error("free_string: null pointer"); */
-/*     	return; */
-/*     } */
-/*     if (s->free) */
-/* 	return; */
-/*     s->next = free_strings; */
-/*     free_strings = s; */
-/*     s->free = 1; */
-/*     free_region(s->data); */
-/* } */
+/**
+ * Освобождение памяти для строки
+ *
+ * @param s объект для освобождения
+ */
+void free_string(string_t *s)
+{
+    if (s == NULL) {
+    	error("free_string: null pointer");
+    	return;
+    }
+    if (s->free)
+	return;
+    s->next = free_strings;
+    free_strings = s;
+    s->free = 1;
+    free_region(s->data);
+}
 
 /** Создание нового объекта массива
  *

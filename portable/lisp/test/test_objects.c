@@ -492,19 +492,19 @@ void test_new_string()
 /*     free_pair(NULL);     */
 /* } */
 
-/* /\** */
-/*  * Проверка корректности функции освобождения строки */
-/*  * Создать строку, освободить её, проверить список свбодных строк */
-/*  *\/ */
-/* void test_free_string() */
-/* { */
-/*     printf("test_free_string: "); */
-/*     reset_mem(); */
-/*     string_t *str = new_string("ffffff"); */
-/*     free_string(str); */
-/*     ASSERT(free_strings, str); */
-/*     ASSERT(free_strings->next, NULL); */
-/* } */
+/**
+ * Проверка корректности функции освобождения строки
+ * Создать строку, освободить её, проверить список свбодных строк
+ */
+void test_free_string()
+{
+    printf("test_free_string: ");
+    reset_mem();
+    string_t *str = new_string("ffffff");
+    free_string(str);
+    ASSERT(free_strings, str);
+    ASSERT(free_strings->next, NULL);
+}
 
 /* /\** */
 /*  * Создать символ B */
@@ -702,12 +702,12 @@ void main()
     /* test_garbage_collect_list();    //21,24 */
     test_alloc_region();
     test_free_region();
-    //    test_new_string();
+    test_new_string();
+    test_free_string();
     /* test_objects_new_null(); */
     /* test_pairs_overflow(); */
     /* test_free_pair_max_memory(); */
     /* test_free_pair_empty(); */
-    /* test_free_string(); */
     /* test_garbage_collect_strings(); //22,24 */
     /* test_garbage_collect_arrays();  //23,24 */
     /* test_garbage_collect_cycle(); */
