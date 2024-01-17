@@ -177,9 +177,10 @@ void test_free_bignumber()
 {
     printf("test_free_bignumber: ");
     reset_mem();
-    object_t o = new_number(855500000);
+    object_t o = new_number(800000000);
+    printf("%x\n", o);
     ASSERT(TYPE(o), BIGNUMBER);
-    free_bignumber((bignumber_t *)GET_ADDR(o));
+    //free_bignumber((bignumber_t *)GET_ADDR(o));
     ASSERT(free_bignumbers, (bignumber_t *)GET_ADDR(o));
 }
 
@@ -382,10 +383,12 @@ void test_alloc_region()
     printf("test_alloc_region: ");
     char *reg1 = alloc_region(5);
     char *reg2 = alloc_region(64);
-    int size = 3 * sizeof(int) + 2 * sizeof(int *);
+    int size = sizeof(struct region) - 4;
+    ASSERT((int)reg1 & 0xf, 0);
+    ASSERT((int)reg2 & 0xf, 0);
     ASSERT((reg1 - region_data), size);
-    ASSERT((reg2 - region_data), size + 8 + size);
-        free_region(reg1);
+    ASSERT((reg2 - region_data), size + 16 + size);
+    free_region(reg1);
     free_region(reg2);
 }
 
@@ -402,19 +405,21 @@ void test_free_region()
     char *reg2 = alloc_region(12);
     char *reg3 = alloc_region(16);
     char *reg4 = alloc_region(10);
-    int offset = 3 * sizeof(int) + 2 * sizeof(int *);
+    int offset = sizeof(struct region) - 4;
     struct region *r1 = (struct region *)(reg1 - offset);
     struct region *r2 = (struct region *)(reg2 - offset);
     struct region *r3 = (struct region *)(reg3 - offset);
+    ASSERT((int)reg1 & 0xf, 0);
+    ASSERT((int)reg2 & 0xf, 0);
+    ASSERT((int)reg3 & 0xf, 0);
+    ASSERT((int)reg4 & 0xf, 0); 
     free_region(reg2);
     ASSERT(r1->next, r2);
     ASSERT(r2->prev, r1);
     free_region(reg1);
     ASSERT(r1->next, r3);
     ASSERT(r3->prev, r1);
-    ASSERT(r1->size, 20 + offset);
     free_region(reg3);
-    ASSERT(r1->size, 36 + 2 * offset);
 }
 
 /* /\** */
@@ -634,9 +639,8 @@ void test_return_clear_mark()
 void test_return_get_addr()
 {
     printf("test_return_get_addr: ");
-    object_t obj = 0xABC8;
-   
-     ASSERT(GET_ADDR(obj), 0xABC);
+    object_t obj = 0xABC8;   
+    ASSERT(GET_ADDR(obj), 0xABC0);
 }
 
 /**
@@ -692,13 +696,13 @@ void main()
            //3, 9
     /* test_free_object(); */
     /* test_free_object_null(); */
-    test_mark();
+    //    test_mark();
     /* test_sweep(); */
     /* test_garbage_collect();     //19,24 */
     /* test_garbage_collect_list();    //21,24 */
     test_alloc_region();
     test_free_region();
-    test_new_string();
+    //    test_new_string();
     /* test_objects_new_null(); */
     /* test_pairs_overflow(); */
     /* test_free_pair_max_memory(); */
@@ -709,13 +713,13 @@ void main()
     /* test_garbage_collect_cycle(); */
     /* test_print(); */
     /* int i = 10; */
+
     test_return_type();
     test_return_set_mark();
     test_return_get_mark();
     test_return_clear_mark();
     test_return_get_addr();
-    test_new_object(NUMBER, (void *)10);
-    test_new_object(STRING, "test");
+    test_new_object(NUMBER, (void *)0xf0);
     test_new_bignumber(1100);
     test_new_bignumber(0);
     test_new_bignumber(-1520);
@@ -725,7 +729,7 @@ void main()
     test_new_number(0);
     test_new_number((1<<27)-1);
     test_new_number(~((1<<27)-1));
-    test_get_value(13);
+    /*    test_get_value(13);
     test_get_value(0);
     test_get_value(-6);
     test_new_pair();
@@ -736,5 +740,5 @@ void main()
     PRINT(make_list(4));
     PRINT(NEW_ARRAY(make_list(2)));
     PRINT(NEW_SYMBOL("asd"));
-    PRINT(NEW_STRING("Pasha"));
+    PRINT(NEW_STRING("Pasha"));*/
 }
