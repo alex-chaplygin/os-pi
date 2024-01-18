@@ -116,23 +116,30 @@
   (let* ((cur-x (car (slot self 'current-element-pos))) ;Позиция куда добавляется элемент
 	 (cur-y (cdr (slot self 'current-element-pos)))
 	 (new-cur-x (+ cur-x (slot child 'width))) ;Новая позиция для добавления
-	 (total-width (+ new-cur-x (aref (slot self 'padding) 1))))
+	 (total-width (+ new-cur-x (aref (slot self 'padding) 1)))
+	 (height (+ (slot child 'height) (aref (slot self 'padding) 3))))
     (update-width self total-width)
+    (update-height self height)
     (setf (slot child 'x) cur-x)
     (setf (slot child 'y) cur-y)
     (setf (slot self 'current-element-pos) (cons new-cur-x cur-y))) 
   nil)
+     
+(defmacro mk/update (name coord param pad)
+  "Макрос, создающий функцию name для обновления ширины/высоты"
+  "которая выбирается как координата coord и параметр param"
+  "используя смещение pad в массиве padding элемента"
+  `(defun ,name (elem ,param)
+     (unless (null elem)
+       (let ((,coord (slot elem ',coord))
+	     (siz (slot elem ',param))
+	     (parent (slot elem 'parent)))
+	 (when (> ,param siz) (setf (slot elem ',param) ,param))
+	 (unless (null parent)
+	   (,name  parent (+ ,param ,coord (aref (slot parent 'padding) ,pad))))))))
 
-(defun update-width (elem width)
-  "Изменяет ширину элемента elem на width, если width больше ширины элемента"
-  "Повторяет это для родительского элемента"
-  (unless (null elem)
-    (let ((x (slot elem 'x))
-	  (w (slot elem 'width))
-	  (parent (slot elem 'parent)))
-      (when (> width w) (setf (slot elem 'width) width))
-      (unless (null parent)
-	(update-width parent (+ width x (aref (slot parent 'padding) 1)))))))
+(mk/update update-width x width 1)
+(mk/update update-height y height 3)
 
 (defmethod align ((self element) name-pos)
   "Выровнять элемент относительно родителя или экрана для окна"
