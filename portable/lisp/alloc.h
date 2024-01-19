@@ -2,7 +2,7 @@
 #define REGIONS
 
 /// Всего байт для регионов 
-#define MAX_REGION_SIZE 500000
+#define MAX_REGION_SIZE 50000000
 
 /// Метка региона
 #define MAGIC 0xABCD1234
