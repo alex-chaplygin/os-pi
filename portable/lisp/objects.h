@@ -7,8 +7,6 @@
 #define MAX_PAIRS 2000000
 /// Всего символов
 #define MAX_SYMBOLS 2000
-/// Всего байт для регионов 
-#define MAX_REGION_SIZE 500000
 /// Всего строк
 #define MAX_STRINGS 2000
 /// Всего массивов
@@ -85,6 +83,7 @@ typedef struct pair_s
     struct pair_s *next; // указатель на следующую свободную пару
     int free; // Если 1 - пара свободна
     int print_counter; // счетчик печати
+    int pad[3];
 } pair_t;
 
 /// Структура строки
@@ -126,6 +125,7 @@ typedef struct symbol_s
 
 extern int print_counter;
 
+void init_objects();
 object_t new_bignumber(int num);
 object_t new_number(int num);
 int get_value(object_t obj);

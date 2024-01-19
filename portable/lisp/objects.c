@@ -11,14 +11,14 @@
 /// Индекс последнего большого числа
 int last_bignumber = 0;
 /// Хранилище больших чисел
-bignumber_t bignumbers[MAX_NUMBERS];
+bignumber_t *bignumbers;
 /// Список свободных больших чисел
 bignumber_t *free_bignumbers = NULL;
 
 /// Индекс последней пары
 int last_pair = 0;
 /// Массив или хранилище пар
-pair_t pairs[MAX_PAIRS];
+pair_t *pairs;
 /// Список свободных пар
 pair_t *free_pairs = NULL;
 
@@ -30,18 +30,27 @@ symbol_t symbols[MAX_SYMBOLS];
 /// Индекс последней строки
 int last_string = 0;
 /// Хранилище строк
-string_t strings[MAX_STRINGS];
+string_t *strings;
 /// Список свободных строк
 string_t *free_strings = NULL;
 
 /// Индекс последнего массива
 int last_array = 0;
 /// Хранилище массивов
-array_t arrays[MAX_ARRAYS];
+array_t *arrays;
 /// Список свободных массивов
 array_t *free_arrays = NULL;
 
-
+/**
+ * Инициализация объектов
+ */
+void init_objects()
+{
+    bignumbers = (bignumber_t *)alloc_region(MAX_NUMBERS * sizeof(bignumber_t));
+    pairs = (pair_t *)alloc_region(MAX_PAIRS * sizeof(pair_t));
+    strings = (string_t *)alloc_region(MAX_STRINGS * sizeof(string_t));
+    arrays = (array_t *)alloc_region(MAX_ARRAYS * sizeof(array_t));
+}
 /* /\**  */
 /*  * Освобождение памяти объекта */
 /*  *  */
