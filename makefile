@@ -11,7 +11,7 @@ $(SUBDIRS):
 .PHONY:	/bin/kernel $(SUBDIRS)
 
 run: bin/kernel
-	qemu-system-i386 -hda test.img -kernel bin/kernel
+	qemu-system-i386 -hda disk.qcow2 -kernel bin/kernel
 
 debug:
 	qemu-system-i386 -hda test.img -kernel bin/kernel -s -S
