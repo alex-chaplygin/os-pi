@@ -18,7 +18,7 @@ void init_regions()
     regions->free = 1;
     regions->next = NULL;
     regions->prev = NULL;
-    regions->size = MAX_REGION_SIZE - sizeof(struct region) + sizeof(char *);
+    regions->size = MAX_REGION_SIZE - sizeof(struct region) + 4;
     //    for (int i = 0; i < regions->size; i++)
     //	regions->data[i] = 0;
 }
@@ -41,8 +41,6 @@ void *alloc_region(int size)
     while (r != NULL) {
         if (r->free == 1 && r->size >= size2) {
 	    p = r->data;
-	    // if (((int)p & 0xf) != 0)
-	    // p = (((long long)p >> 4) + 1) << 4;
             struct region *free_reg = (struct region *)(p + size);
             free_reg->free = 1;
             free_reg->next = r->next;
