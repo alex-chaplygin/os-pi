@@ -7,21 +7,21 @@
   "Установка пикселя"
   "x y - координаты пикселя, colour - цвет"
   (if (< x +screen-width+)
-    (if (< y +screen-height+)
-      (seta *gr-buf* (+ x (* y +screen-width+)) colour) nil) nil))
+    (if (> x -1)
+      (if (< y +screen-height+)
+        (if (> y -1)
+          (seta *gr-buf* (+ x (* y +screen-width+)) colour)
+          nil) nil) nil) nil))
 
 (defun draw-line (x1 y1 x2 y2 colour)
   "Рисование линии"
   "x1 y1 x2 y2 - координаты начала и конца линии, colour - цвет"
-    (setq dx (abs (- x2 x1)))
-    (setq dy (abs (- y2 y1)))
-    (if (< x1 x2)
-      (setq signx 1)
-      (setq signx (- 0 1)))
-    (if (< y1 y2)
-      (setq signy 1)
-      (setq signy (- 0 1)))
-    (setq error1 (- dx dy))
+  (let* ((dx (abs (- x2 x1)))
+         (dy (abs (- y2 y1)))
+         (signx (if (< x1 x2) 1 (- 0 1)))
+         (signy (if (< y1 y2) 1 (- 0 1)))
+         (error1 (- (abs (- x2 x1)) (abs (- y2 y1))))
+         (error2 0))
     (set-pixel x2 y2 colour)
     (while (or (not (= x1 x2)) (not (= y1 y2)))
       (progn
@@ -36,7 +36,7 @@
           (progn
             (setq error1 (+ error1 dx))
             (setq y1 (+ y1 signy)))
-        nil))))
+        nil)))))
 
 (defun draw-rect (x y w h colour)
   "Рисование полого прямоугольника"
@@ -53,41 +53,59 @@
     (for j 0 w
       (set-pixel (+ x j) (+ y i) colour))))
 
-(defun draw-circle (xi yi r colour)
+(defun draw-sym-pixels (cx cy x y colour)
+  (set-pixel (+ cx x) (+ cy y) colour)
+  (set-pixel (- cx x) (+ cy y) colour)
+  (set-pixel (+ cx x) (- cy y) colour)
+  (set-pixel (- cx x) (- cy y) colour))
+
+(defun draw-circle (cx cy r colour)
   "Рисование окружности (не доделано)"
   "x y - координаты центра, r - радиус, colour - цвет"
-  (defun intern-circle (f x y x0 y0 ddf_x ddf_y colour)
-    (if (>= f 0)
+  (defun inner-draw-circle (cx cy r colour x y delta error)
+    (draw-sym-pixels cx cy x y colour)
+    (draw-sym-pixels cx cy y x colour)
+    (setq error (- (* 2 (+ delta y)) 1))
+    (if (and (< delta 0) (<= error 0))
       (progn
-        (setq y (- y 1))
-        (setq ddf_y (+ ddf_y 2))
-        (setq f (+ f ddf_y)))
-      nil)
-    (setq x (+ x 1))
-    (setq ddf_x (+ ddf_x 2))
-    (setq f (+ f ddf_x))
-    (set-pixel (+ x0 x) (+ y0 y) colour)
-    (set-pixel (+ x0 x) (- y0 y) colour)
-    (set-pixel (- x0 x) (+ y0 y) colour)
-    (set-pixel (- x0 x) (- y0 y) colour)
-    (set-pixel (+ x0 y) (+ y0 x) colour)
-    (set-pixel (+ x0 y) (- y0 x) colour)
-    (set-pixel (- x0 y) (+ y0 x) colour)
-    (set-pixel (- x0 y) (- y0 x) colour)
-    (if (< x y) (intern-circle f x y x0 y0 ddf_x ddf_y colour) nil))
-  (setq x0 xi)
-  (setq y0 yi)
-  (setq radius r)
-  (setq f (- 1 radius))
-  (setq ddf_x 1)
-  (setq ddf_y (- (* 2 radius)))
-  (setq x 0)
-  (setq y radius)
-  (set-pixel x0 (+ y0 radius) colour)
-  (set-pixel x0 (- y0 radius) colour)
-  (set-pixel (+ x0 radius) y0 colour)
-  (set-pixel (- x0 radius) y0 colour)
-  (intern-circle f x y x0 y0 ddf_x ddf_y colour))
+        (setq delta (+ delta (+ (* 2 (+ x 1)) 1)))
+        (setq x (+ x 1)))
+      (progn
+        (setq error (- (* 2 (- delta x)) 1))
+        (if (and (> delta 0) (> error 0))
+          (progn
+            (setq delta (+ delta (- 1 (* 2 (- y 1)))))
+            (setq y (- y 1)))
+          (progn
+            (setq delta (+ delta (* 2 (+ 1 (- x y)))))
+            (setq x (+ x 1))
+            (setq y (- y 1))))))
+    (if (>= y x)
+      (inner-draw-circle cx cy r colour x y delta error) nil))
+  (let* ((x 0)
+         (y r)
+         (delta (- (* 2 r)))
+         (error 0))
+    (inner-draw-circle cx cy r colour x y delta error)))
+
+(defun bezier-curve (control-points ti)
+  (let* ((b (make-array 4))
+         (curve-point (make-array 2)))
+    (for i 0 1 (seta curve-point i 0))
+    (for i 0 3
+      (progn
+        (seta b i (/ (fac 3) (* (fac i) (fac (- 3 i)))))
+        (seta curve-point 0 (+ (aref curve-point 0) (/ (* (aref b i) (expt (- 10 ti) (- 3 i)) (expt ti i) (aref (aref control-points i) 0)) 1000)))
+        (seta curve-point 1 (+ (aref curve-point 1) (/ (* (aref b i) (expt (- 10 ti) (- 3 i)) (expt ti i) (aref (aref control-points i) 1)) 1000)))))
+    curve-point))
+
+(defun draw-bezier-curve (x1 y1 x2 y2 x3 y3 x4 y4 colour)
+  "Рисование кривой Безье"
+  "x1 y1 x2 y2 x3 y3 x4 y4 - координаты точек, colour - цвет"
+  (let* ((control-points `#(#(,x1 ,y1) #(,x2 ,y2) #(,x3 ,y3) #(,x4 ,y4))))
+    (for ti 0 10
+      (let* ((curve-point (bezier-curve control-points ti)))
+        (set-pixel (aref curve-point 0) (aref curve-point 1) colour)))))
 
 (defun gr-test ()
   "Тест графики"
@@ -118,4 +136,9 @@
 (defun circle-test ()
   (bgr-set-res +screen-width+ +screen-height+ +screen-depth+)
   (draw-circle 100 100 20 1)
+  (graph-send-buffer *gr-buf*))
+
+(defun bezier-test ()
+  (bgr-set-res +screen-width+ +screen-height+ +screen-depth+)
+  (draw-bezier-curve 10 10 100 100 200 100 300 10 1)
   (graph-send-buffer *gr-buf*))

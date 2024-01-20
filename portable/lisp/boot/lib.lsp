@@ -42,7 +42,7 @@
 
 (defun fac(x)
   (cond
-    ((= x 1) 1)
+    ((< x 2) 1)
     (t (* x (fac (- x 1))))))
 
 (defun not(x)
@@ -217,3 +217,11 @@
 (defun abs (x)
   "Абсолютное значение"
   (if (< x 0) (- 0 x) x))
+
+(defun expt (x y)
+  "Возведение в степень"
+  (if (equal y 0) 1
+    (progn
+      (for xx 1 y
+        (setq x (* x x)))
+      x)))
