@@ -15,6 +15,29 @@ void error(char *str)
   printf("%s", str);
 }
 
+char *itoa(int num, char *str, int rad)
+{
+    int i = 15;
+    int neg = 0;
+    str[i - 1] = 0;
+    char *p = &str[i - 1];
+    if (num == 0)
+	    *--p = '0';
+    if (num < 0) {
+        neg = 1;
+        num *= -1;
+    }
+    while (num > 0) {
+        int currchar = num % rad;
+        p--;
+        *p = '0' + currchar;
+        num = num / rad;
+    }
+    if (neg)
+        *--p = '-';
+    return p;
+}
+
 /**
  * Тест создания символа на основе строки
  */
