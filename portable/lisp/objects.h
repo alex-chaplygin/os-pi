@@ -63,9 +63,13 @@ typedef enum {
     STRING,  ///строка
     ARRAY, ///массив
 } type_t;
-
+#define X64
 /// Тип для объекта
-typedef unsigned int object_t;  
+#ifdef X64
+typedef long long object_t;
+#else
+typedef unsigned int object_t;
+#endif
 
 /// Структура большого целого числа
 typedef struct bignumber_s
@@ -73,6 +77,9 @@ typedef struct bignumber_s
     int value; // значение числа
     struct bignumber_s *next; // указатель на следующее свободное число
     int free; // Если 1 - число свободно
+#ifndef X64
+    int pad;
+#endif
 } bignumber_t;
 
 /// Структура пары
@@ -83,7 +90,9 @@ typedef struct pair_s
     struct pair_s *next; // указатель на следующую свободную пару
     int free; // Если 1 - пара свободна
     int print_counter; // счетчик печати
+#ifndef X64
     int pad[3];
+#endif
 } pair_t;
 
 /// Структура строки
