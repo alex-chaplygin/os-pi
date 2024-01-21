@@ -5,6 +5,8 @@
 #include "eval.h"
 #include "parser.h"
 
+char *itoa(int num, char *str, int rad);
+
 /**
  * Создание символа на основе строки
  * @param list (строка)
@@ -208,6 +210,30 @@ object_t *subseq(object_t *list)
     return object_new(STRING, res);
 }
 
+/**
+ * Перевод целочисленного числа в строку
+ * @param list (число)
+ * @return строка из числа
+ */
+object_t *int_to_str(object_t *list)
+{
+    if (list == NULL) {
+	error("inttostr: no args\n");
+	return ERROR;
+    }
+    if (TAIL(list) != NULL) {
+	error("inttostr: many args\n");
+	return ERROR;
+    }
+    if (FIRST(list)->type != NUMBER) {
+	error("inttostr: invalid arg\n");
+	return ERROR;
+    }    
+    char str[14];
+    char *s = itoa(FIRST(list)->u.value, str, 10);    
+    return object_new(STRING, s);
+}
+
 void init_strings()
 {
     register_func("INTERN", intern);
@@ -216,4 +242,5 @@ void init_strings()
     register_func("STRING-SIZE", string_size);
     register_func("CHAR", str_char);
     register_func("SUBSEQ", subseq);
+    register_func("INTTOSTR", int_to_str);
 }
