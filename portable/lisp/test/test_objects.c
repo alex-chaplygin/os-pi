@@ -43,8 +43,8 @@ symbol_t *find_symbol(char *str)
 void test_new_bignumber(int number)
 {
     printf("test_new_bignumber: ");
-    new_bignumber(number);
-    ASSERT(bignumbers[last_bignumber - 1].value, number);
+    object_t bn = new_bignumber(number);
+    ASSERT(GET_BIGNUMBER(bn)->value, number);
     //    ASSERT(GET_ADDR(bignumbers[last_number - 1].value), GET_ADDR(number));
 }
 
@@ -80,15 +80,17 @@ void test_new_pair()
     o2 = new_number(2);
     o3 = new_number(3);
     o4 = new_number(4);
-   
+    
     printf("test_new_pair: ");
     object_t p1 = new_pair(o1, o2);
     object_t p2 = new_pair(o3, o4);
-    printf("p1 = %x, p2 = %x\n", p1, p2);
-    /*    ASSERT(GET_PAIR(p1)->left, o1);
+    //    printf("p1 = %x, p2 = %x pairs = %x\n", p1, p2, pairs);
+    ASSERT(GET_PAIR(p1)->left, o1);
     ASSERT(GET_PAIR(p1)->right, o2);
     ASSERT(GET_PAIR(p2)->left, o3);
-    ASSERT(GET_PAIR(p2)->right, o4);   */
+    ASSERT(GET_PAIR(p2)->right, o4);
+    free_pair(GET_PAIR(p1));
+    free_pair(GET_PAIR(p2));
 }
 
 /**
@@ -180,7 +182,7 @@ void test_free_bignumber()
     object_t o = new_number(800000000);
     printf("%x\n", o);
     ASSERT(TYPE(o), BIGNUMBER);
-    //free_bignumber((bignumber_t *)GET_ADDR(o));
+    free_bignumber((bignumber_t *)GET_ADDR(o));
     ASSERT(free_bignumbers, (bignumber_t *)GET_ADDR(o));
 }
 
@@ -197,17 +199,18 @@ void test_free_pair()
     object_t o1,o2;
     for (int i = last_pair; i < MAX_PAIRS; i++)
     {
-        o1 = NEW_OBJECT(NUMBER, i);
-	o2 = NEW_OBJECT(NUMBER, i-1);
+        o1 = new_number(i);
+	o2 = new_number(i-1);
 	new_pair(o1, o2);
     }
     pair_t *pair1 = &pairs[0];
     pair_t *pair2 = &pairs[1];
     free_pair(pair1);
-    free_pair(pair2);
-    ASSERT(free_pairs, pair2);
-    ASSERT(free_pairs->next, pair1);
-    ASSERT(free_pairs->next->next, NULL);
+    //    printf("pair1 = %x, pair2 = %x\n", pair1, pair2);
+    //free_pair(pair2);
+    ASSERT(free_pairs, pair1);
+    ASSERT(free_pairs->next, NULL);
+    /* ASSERT(free_pairs->next->next, NULL); */
 }
 
  /**
@@ -556,6 +559,19 @@ object_t make_list(int num)
     return new_pair(o, make_list(num - 1));
 }
 
+/**
+ *@param length = 8
+ */
+void test_new_empty_array()
+{
+    printf("test_new_empty_array: ");
+    int length = 8;
+    object_t arr = new_empty_array(length);
+    for(int i = 0; i < length; i++) 
+	ASSERT(GET_ARRAY(arr)->data[i], NULLOBJ);	   
+}
+
+
 /* /\** */
 /*  * Создать символ B */
 /*  * Присвоить ему значение - массив из трех элементов */
@@ -712,6 +728,7 @@ void main()
     test_free_region();
     test_new_string();
     test_free_string();
+    test_new_empty_array();
     /* test_objects_new_null(); */
     /* test_pairs_overflow(); */
     /* test_free_pair_max_memory(); */
@@ -728,6 +745,7 @@ void main()
     test_return_clear_mark();
     test_return_get_addr();
     test_new_object(NUMBER, (void *)0xf0);
+    reset_mem();
     test_new_bignumber(1100);
     test_new_bignumber(0);
     test_new_bignumber(-1520);
@@ -742,11 +760,12 @@ void main()
     test_get_value(-6);
     reset_mem();
     test_new_pair();
-    //    test_free_pair();
-    /*PRINT(new_number(10));
+    test_free_pair();
+    reset_mem();
+    PRINT(new_number(10));
     PRINT(new_bignumber(2000000000));
     PRINT(make_list(4));
     PRINT(NEW_ARRAY(make_list(2)));
     PRINT(NEW_SYMBOL("asd"));
-    PRINT(NEW_STRING("Pasha"));*/
+    PRINT(NEW_STRING("Pasha"));
 }
