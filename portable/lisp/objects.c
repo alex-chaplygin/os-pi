@@ -46,6 +46,7 @@ array_t *free_arrays = NULL;
  */
 void init_objects()
 {
+    alloc_region(1);
     bignumbers = (bignumber_t *)alloc_region(MAX_NUMBERS * sizeof(bignumber_t));
     pairs = (pair_t *)alloc_region(MAX_PAIRS * sizeof(pair_t));
     strings = (string_t *)alloc_region(MAX_STRINGS * sizeof(string_t));
@@ -310,34 +311,34 @@ array_t *new_array(object_t list)
     return array;
 }
 
-/* /**
-/*  * Создание нового объекта пустого массива  */
-/*  * */
-/*  * @param length - длина массива */
-/*  * */
-/*  * @return указатель на объект массива */
-/*  *\/ */
-/* array_t *new_empty_array(int length) */
-/* { */
-/*     array_t *array; */
-/*     if (last_array == MAX_ARRAYS) { */
-/* 	if (free_arrays == NULL) { */
-/* 	    error("Error: out of memory: arrays"); */
-/* 	    return (array_t *)ERROR; */
-/* 	} */
-/* 	array = free_arrays; */
-/* 	free_arrays = free_arrays->next; */
-/*     } else */
-/* 	array = &arrays[last_array++]; */
-/*     array->length = length; */
-/*     array->next = NULL; */
-/*     array->free = 0;    */
-/*     array->data = alloc_region(array->length * sizeof(object_t *)); */
-/*     object_t **d = array->data; */
-/*     for (int i = 0; i < length; i++) */
-/* 	*d++ = NULL; */
-/*     return array; */
-/* } */
+/**
+/*  * Создание нового объекта пустого массива
+ *
+ * @param length - длина массива
+ *
+ * @return указатель на объект массива
+ */
+array_t *new_empty_array(int length)
+{
+    array_t *array;
+    if (last_array == MAX_ARRAYS) {
+	if (free_arrays == NULL) {
+	    error("Error: out of memory: arrays");
+	    return (array_t *)ERROR;
+	}
+	array = free_arrays;
+	free_arrays = free_arrays->next;
+    } else
+	array = &arrays[last_array++];
+    array->length = length;
+    array->next = NULL;
+    array->free = 0;
+    array->data = alloc_region(array->length * sizeof(object_t));
+    object_t *d = array->data;
+    for (int i = 0; i < length; i++)
+	*d++ = NULLOBJ;
+    return array;
+}
 
 /**
  * Освобождение памяти для массива
