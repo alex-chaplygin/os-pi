@@ -353,6 +353,7 @@ int main()
     test_get_num("2147483647", 2147483647); // граничный тест максимальное число
     test_get_num("0xFFFFFFFF", 0xFFFFFFFF); // граничный тест максимальное число
     test_get_num("0x00000000", 0x00000000); // граничный тест минимальное число
+    test_get_num("112.", 112.0f);
     test_get_symbol("Hello 12", "Hello"); // 14
     test_get_symbol("* 1 2", "*"); // 14
     test_get_token("lparen", "(", LPAREN); // 1

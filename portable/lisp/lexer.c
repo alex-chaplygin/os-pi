@@ -180,6 +180,15 @@ int hex_num()
  */
 int get_float_num(int int_num)
 {
+    int cnt = 0;
+    while (int_num != 1) {
+	cnt++;
+	int_num >>= 1;
+    }
+    int exp = cnt + 127;
+    int mantissa = int_num & ((1 << cnt) - 1);
+    int result = (exp << 23) | (mantissa << (23 - cnt));
+    return result;
 }
 
 /** 
