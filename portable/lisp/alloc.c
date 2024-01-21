@@ -1,10 +1,9 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "alloc.h"
 #include "objects.h"
 #include "parser.h"
 
-/// Хранилище для регионов
-char region_data[MAX_REGION_SIZE];
 /// Список регионов
 struct region *regions;
 
@@ -14,7 +13,9 @@ struct region *regions;
 void init_regions()
 {
     printf("init regions\n");
-    regions = (struct region *)region_data;
+#ifndef OS
+    regions = (struct region *)malloc(MAX_REGION_SIZE);
+#endif   
     regions->free = 1;
     regions->next = NULL;
     regions->prev = NULL;

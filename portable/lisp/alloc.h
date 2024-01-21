@@ -2,11 +2,12 @@
 #define REGIONS
 
 /// Всего байт для регионов 
-#define MAX_REGION_SIZE 50000000
+#define MAX_REGION_SIZE 100000000
 
 /// Метка региона
 #define MAGIC 0xABCD1234
 
+#define X64
 #pragma pack(4)
 /// создаваемый или свободный регион памяти
 struct region {
