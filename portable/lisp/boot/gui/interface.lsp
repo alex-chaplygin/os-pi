@@ -31,7 +31,7 @@
   (app '(lambda (w) (draw w)) windows))
 
 ;(setq elem2 (make-element 0 0 3 4 "test" +blue+ +red+ +green+ nil nil 0 '(0 . 0) #(0 0 0 0)))
-;(setq elem (make-window 5 5 2 6 "test12" +cyan+ +magenta+ +green+ nil nil 0 '(0 . 0) #(0 0 0 0)))
+(setq elem (make-text 5 5 12 6 "test 12 test test 111111111 222222222 33333333 444444444" +cyan+ +magenta+ +green+ nil nil 0 '(0 . 0) #(0 0 0 0)))
 ;(setq elem3 (make-element 0 0 3 5 "test" +green+ +yellow+ +green+ nil nil 0 '(0 . 0) #(0 0 0 0)))
 ;(setq elem4 (make-element 0 0 3 15 "test" +blue+ +dark-gray+ +green+ nil nil 0 '(0 . 0) #(0 0 0 0)))
 ;(setq elem5 (make-element 0 0 3 10 "test" +blue+ +light-green+ +green+ nil nil 0 '(0 . 0) #(0 0 0 0)))
@@ -53,3 +53,4 @@
  (window "test111111111111111111111111111111111111111111")
  (window "test3"(height 15) (back-color +green+))
  (window "test4"(width 20) (height 10)))
+(draw elem)
