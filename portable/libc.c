@@ -67,31 +67,6 @@ void print_hex_num(unsigned int num)
 }
 
 /**
- * @brief Печать целого числа
- * 
- * @param n Входное число
- */
-void print_num(int num)
-{
-    char str[15];
-    str[14] = 0;
-    char *p = &str[14];
-    if (num == 0)
-	*--p = '0'; //для вывода числа 0 в виде строки
-    if (num < 0) {
-        putchar('-');
-        num *= -1;
-    }
-    while (num > 0) {
-        int currchar = num % 10;
-        p--;
-        *p = '0' + currchar;
-        num = num/10;        
-    }
-    printf(p);
-}
-
-/**
  * @brief Заполняет нулями указанную область памяти.
  * 
  * @param buffer указатель на область памяти для очистки.
@@ -147,6 +122,50 @@ unsigned int str_hex_to_int(char* s)
 
     return number;
 }
+
+/**
+ * @brief Перевод числа в строку
+ *
+ * @param Входное число num
+ * @param Входной массив символов str
+ *
+ * @return char p
+ */
+char *itoa(int num, char *str, int rad)
+{
+    int i = 14;
+    int neg = 0;
+    str[i - 1] = 0;
+    char *p = &str[i - 1];
+    if (num == 0)
+	    *--p = '0';
+    if (num < 0) {
+        neg = 1;
+        num *= -1;
+    }
+    while (num > 0) {
+        int currchar = num % rad;
+        p--;
+        *p = '0' + currchar;
+        num = num / rad;
+    }
+    if (neg)
+        *--p = '-';
+    return p;
+}
+
+/**
+ * @brief Печать целого числа
+ * 
+ * @param n Входное число
+ */
+void print_num(int num)
+{
+    char a[14];
+    char *s = itoa(num, a, 10);
+    printf(s);
+}
+
 
 /**
  * @brief Посимвольный анализ строки для печати типа printf - вывод значения многих переменных
@@ -251,3 +270,5 @@ char toupper(char ch)
         return ch - 32;
     return ch;
 }
+
+
