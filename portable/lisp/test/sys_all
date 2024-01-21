@@ -404,6 +404,7 @@ sh sys_test "(string-size 1)" "string-size: not string in params
 sh sys_test "(string-size \"123 a\")" 5
 #аргумент пустая строка
 sh sys_test "(string-size \"\")" 0
+sh sys_test "(string-size \"test 12 test test\")" 17
 
 echo "---Тесты STR-CHAR---"
 sh sys_test "(char \"0\" 0)" 48
@@ -419,6 +420,42 @@ sh sys_test "(char \"abc\" 'a)" "str-char: not number in params
 "
 sh sys_test "(char \"abc\" 4 5)" "str-size: too many arguments
 "
+
+echo "---Тесты SUBSEQ---"
+#Отсутствие аргументов
+sh sys_test "(subseq)" "subseq: no arguments
+"
+#Недостаточно аргументов
+sh sys_test "(subseq \"tst\")" "subseq: not all arguments
+"
+sh sys_test "(subseq \"tst\" 1)" "subseq: not all arguments
+"
+#Больше 3 аргументов
+sh sys_test "(subseq \"tst\" 0 2 4)" "subseq: too many arguments
+"
+#Некорректные аргументы
+sh sys_test "(subseq 123 \"tst\" 1)" "subseq: invalid args
+"
+sh sys_test "(subseq \"tst\" 'f 6)" "subseq: invalid args
+"
+sh sys_test "(subseq \"tst\" 0 'g)" "subseq: invalid args
+"
+#Стартовый индекс больше конечного
+sh sys_test "(subseq \"Hello\" 3 1)" "subseq: invalid index
+"
+#Стартовый индекс выходит за пределы строки
+sh sys_test "(subseq \"Test\" 4 5)" "subseq: invalid index
+"
+#Конечный индекс выходит за пределы строки
+sh sys_test "(subseq \"Test\" 0 5)" "subseq: invalid index
+"
+#Отрицательный индекс
+sh sys_test "(subseq \"Test\" -1 2)" "subseq: index can not be negative
+"
+#Корректные аргументы
+sh sys_test "(subseq \"Hello, world!\" 7 13)" "\"world!\""
+sh sys_test "(subseq \"Hello, world!\" 7 7)" "\"\""
+sh sys_test "(subseq \"Hello, world!\" 0 7)" "\"Hello, \""
 
 echo  "---Тесты SETA---"
 # три аргумента

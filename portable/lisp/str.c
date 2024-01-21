@@ -163,6 +163,51 @@ object_t *symbol_name(object_t *list)
     return object_new(STRING, str);
 }
 
+/** 
+ * Получение подстроки из строки
+ *
+ * @param list (строка начальный_индекс конечный_индекс(не включается))
+ *
+ * @return объект-строка
+ */
+object_t *subseq(object_t *list)
+{
+    if (list == NULL) {
+        error("subseq: no arguments\n");
+        return ERROR;
+    }
+    if (TAIL(list) == NULL || TAIL(TAIL(list)) == NULL) {
+	error("subseq: not all arguments\n");
+	return ERROR;
+    }
+    if (TAIL(TAIL(TAIL(list))) != NULL) {
+	error("subseq: too many arguments\n");
+	return ERROR;
+    }
+    if (FIRST(list)->type != STRING || SECOND(list)->type != NUMBER || THIRD(list)->type != NUMBER) {
+        error("subseq: invalid args\n");
+        return ERROR;
+    }
+    object_t *string = FIRST(list);
+    int start_ind = SECOND(list)->u.value;
+    int end_ind = THIRD(list)->u.value;
+
+    if(start_ind < 0 || end_ind < 0){
+	error("subseq: index can not be negative\n");
+	return ERROR;
+    }
+    if(end_ind - start_ind < 0 || string->u.str->length <= start_ind || end_ind > string->u.str->length ){
+	error("subseq: invalid index\n");
+        return ERROR;
+    }
+    char *res = alloc_region(end_ind - start_ind + 1);
+    int curr_ind = 0;    
+    for(int i = start_ind; i < end_ind; i++)
+	res[curr_ind++] = string->u.str->data[i];
+    res[curr_ind] = 0;
+    return object_new(STRING, res);
+}
+
 void init_strings()
 {
     register_func("INTERN", intern);
@@ -170,4 +215,5 @@ void init_strings()
     register_func("SYMBOL-NAME", symbol_name);
     register_func("STRING-SIZE", string_size);
     register_func("CHAR", str_char);
+    register_func("SUBSEQ", subseq);
 }
