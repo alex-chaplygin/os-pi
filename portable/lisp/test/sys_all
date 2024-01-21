@@ -473,6 +473,19 @@ sh sys_test "(seta #(1 2 3 4) 'd 10)" "seta: index out of range" #102
 # первый аргумент не объект массив
 sh sys_test "(seta 2 1 1)" "seta: not array" #103
 
+echo  "---Тесты INTTOSTR---"
+# отсутствие аргументов
+sh sys_test "(inttostr)" "inttostr: no args
+"
+sh sys_test "(inttostr 1 2)" "inttostr: many args
+"
+sh sys_test "(inttostr 'a)" "inttostr: invalid arg
+"
+# аргумент - число
+sh sys_test "(inttostr 234)" "\"234\""
+sh sys_test "(inttostr -234)" "\"-234\""
+sh sys_test "(inttostr 0)" "\"0\""
+
 echo  "---Тесты AREF---"
 # два аргумента
 sh sys_test "(aref #(1 2 3 4) 1)" 2  #38
