@@ -164,7 +164,7 @@
 
 (defmacro >= (x y)
   "Больше или равно"
-  `(or (> ,x ,y) (equal ,x ,y))
+  `(or (> ,x ,y) (equal ,x ,y)))
 
 (defmacro setf (var val)
   "Если var - символ, то устанавливает его значение"
