@@ -162,9 +162,9 @@
   "Декремент значения"
   `(- ,x 1))
 
-(defmacro >= (x y)
+(defmacro >= (g1 g2)
   "Больше или равно"
-  `(or (> ,x ,y) (equal ,x ,y)))
+  `(or (> ,g1 ,g2) (equal ,g1 ,g2)))
 
 (defmacro setf (var val)
   "Если var - символ, то устанавливает его значение"
