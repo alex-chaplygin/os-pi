@@ -93,11 +93,10 @@
          (curve-point (make-array 2)))
     (for i 0 1 (seta curve-point i 0))
     (for i 0 3
-      (progn
-        (seta b i (/ (fac 3) (* (fac i) (fac (- 3 i)))))
-        (seta curve-point 0 (+ (aref curve-point 0) (/ (* (aref b i) (expt (- 10 ti) (- 3 i)) (expt ti i) (aref (aref control-points i) 0)) 1000)))
-        (seta curve-point 1 (+ (aref curve-point 1) (/ (* (aref b i) (expt (- 10 ti) (- 3 i)) (expt ti i) (aref (aref control-points i) 1)) 1000)))))
-    curve-point))
+      (seta b i (/ (fac 3) (* (fac i) (fac (- 3 i)))))
+      (seta curve-point 0 (+ (aref curve-point 0) (/ (* (aref b i) (expt (- 10 ti) (- 3 i)) (expt ti i) (aref (aref control-points i) 0)) 1000)))
+      (seta curve-point 1 (+ (aref curve-point 1) (/ (* (aref b i) (expt (- 10 ti) (- 3 i)) (expt ti i) (aref (aref control-points i) 1)) 1000)))))
+    curve-point)
 
 (defun draw-bezier-curve (x1 y1 x2 y2 x3 y3 x4 y4 colour)
   "Рисование кривой Безье"
