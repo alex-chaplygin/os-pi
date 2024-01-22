@@ -24,9 +24,9 @@ char *strupr(char *str)
     return str;
 }
 
-object_t *parse();
-object_t *parse_list();
-object_t *parse_array();
+object_t parse();
+object_t parse_list();
+object_t parse_array();
 
 /**
  *  Обработка кавычки, обратной кавычки, запятой
@@ -36,18 +36,18 @@ object_t *parse_array();
  * @param quote_sym символ функции цитирования
  * @return указатель на список с quote
  */
-object_t *parse_quote(char *quote_sym)
+object_t parse_quote(char *quote_sym)
 {
     //printf("parse_quote: ");
-    object_t *o = parse();
+    object_t o = parse();
     //printf("quote: ");
     //PRINT(o);
     if (o == NOVALUE){
 	error("quote: no args");
 	return ERROR;
     }
-    object_t *p = new_pair(o, NULL);
-    return new_pair(object_new(SYMBOL, quote_sym), p);
+    object_t p = new_pair(o, NULL);
+    return new_pair(NEW_SYMBOL(quote_sym), p);
 }
 
 /** 
@@ -56,9 +56,9 @@ object_t *parse_quote(char *quote_sym)
  *  
  * @return указатель на объект списка
  */
-object_t *parse_element(type_t type, void *data, tokentype_t t_type)
+object_t parse_element(type_t type, void *data, tokentype_t t_type)
 {
-    object_t *obj;
+    object_t obj;
     if (t_type == QUOTE)
 	obj = parse_quote("QUOTE");
     else if (t_type == SHARP)
@@ -72,8 +72,8 @@ object_t *parse_element(type_t type, void *data, tokentype_t t_type)
     else if (t_type == LPAREN)
 	obj = parse_list();
     else
-	obj = object_new(type, data);
-    object_t *tail = parse_list();
+	obj = NEW_OBJECT(type, data);
+    object_t tail = parse_list();
     if (tail == ERROR)
 	return ERROR;
     return new_pair(obj, tail);
@@ -87,7 +87,7 @@ object_t *parse_element(type_t type, void *data, tokentype_t t_type)
  *  
  * @return указатель на объект списка
  */
-object_t *parse_list()
+object_t parse_list()
 {
     int val;
     char str[MAX_STR];
@@ -116,7 +116,7 @@ object_t *parse_list()
 	       || cur_tok->type == COMMA_AT || cur_tok->type == SHARP)
 	return parse_element(SYMBOL, NULL, cur_tok->type);
     else if (cur_tok->type == DOT) {
-	object_t *res = parse();
+	object_t res = parse();
 	cur_tok = get_token();       
 	if (cur_tok->type != RPAREN) { 
 	    error("expected )");
@@ -134,16 +134,16 @@ object_t *parse_list()
  *  
  * @return объект списка
  */
-object_t *parse_array()
+object_t parse_array()
 {
-    object_t *o = parse();
+    object_t o = parse();
     if (o == ERROR)
 	return ERROR;
-    if (o != NULL && o->type != PAIR) {
+    if (o != NULLOBJ && TYPE(o) != PAIR) {
 	error("invalid array");
 	return ERROR;
     }
-    return object_new(ARRAY, new_array(o));
+    return NEW_ARRAY(o);
 }
 
 /**
@@ -153,9 +153,9 @@ object_t *parse_array()
  * ABC
  * @return указатель на объект
  */
-object_t *parse()
+object_t parse()
 {   
-    object_t *el; // создаем новый элемент
+    object_t el; // создаем новый элемент
     token_t *cur_token = get_token(); // считывается левая скобка
     // printf("parse: ");
     // print_token(cur_token);
@@ -164,9 +164,9 @@ object_t *parse()
         return ERROR;
     }
     if (cur_token->type == T_NUMBER) // считывается число
-	return object_new(NUMBER, &cur_token->value);
+	return new_number(cur_token->value);
     else if (cur_token->type == T_SYMBOL)//считывается символ
-	return object_new(SYMBOL, find_symbol(strupr(cur_token->str)));
+	return NEW_OBJECT(SYMBOL, find_symbol(strupr(cur_token->str)));
     else if (cur_token->type == LPAREN)
 	return parse_list();
     else if (cur_token->type == QUOTE)
@@ -178,7 +178,7 @@ object_t *parse()
     else if (cur_token->type == SHARP)
 	return parse_array();
     else if (cur_token->type == T_STRING)
-	return object_new(STRING, cur_token->str);
+	return NEW_STRING(cur_token->str);
     else if (cur_token->type == END)
         return NOVALUE;
     else if (cur_token->type == INVALID) {
