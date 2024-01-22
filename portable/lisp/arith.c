@@ -202,65 +202,6 @@ object_t *num_eq(object_t *list)
 	return NULL;
 }
 
-
-/**
- * Сравнение числовых аргументов (>= 1 2)
- * 
- * @param list - список чисел (1 2)
- * 
- * @return T - если больше или равно, иначе NIL
- */
-object_t *num_ge(object_t *list)
-{
-    if (list == NULL) {
-        error("num_ge: no arguments\n");
-        return ERROR;
-    }
-    if (TAIL(list) == NULL) {
-        error("num_ge: no second param\n");
-        return ERROR;
-    }
-    if (FIRST(list)->type != NUMBER || SECOND(list)->type != NUMBER) {
-        error("num_ge: not a number\n");
-        return ERROR;
-    }
-    object_t *n1 = FIRST(list);
-    object_t *n2 = SECOND(list);
-    if (n1->u.value >= n2->u.value)
-        return t;
-    else
-        return NULL;
-}
-
-/**
- * Сравнение числовых аргументов (<= 1 2)
- * 
- * @param list - список чисел (1 2)
- * 
- * @return T - если меньше или равно, иначе NIL
- */
-object_t *num_le(object_t *list)
-{
-    if (list == NULL) {
-        error("num_le: no arguments\n");
-        return ERROR;
-    }
-    if (TAIL(list) == NULL) {
-        error("num_le: no second param\n");
-        return ERROR;
-    }
-    if (FIRST(list)->type != NUMBER || SECOND(list)->type != NUMBER) {
-        error("num_le: not a number\n");
-        return ERROR;
-    }
-    object_t *n1 = FIRST(list);
-    object_t *n2 = SECOND(list);
-    if (n1->u.value <= n2->u.value)
-        return t;
-    else
-        return NULL;
-}
-
 /**
  * Функция сравнения объектов
  * возвращает 1 если значения объектов равны, иначе 0
@@ -447,6 +388,4 @@ void init_arith()
     register_func(">>", shift_right);
     register_func(">", gt);
     register_func("<", less);
-    register_func(">=", num_ge);
-    register_func("<=", num_le);
 }
