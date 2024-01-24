@@ -60,7 +60,7 @@
   (set-pixel (- cx x) (- cy y) colour))
 
 (defun draw-circle (cx cy r colour)
-  "Рисование окружности (не доделано)"
+  "Рисование окружности"
   "x y - координаты центра, r - радиус, colour - цвет"
   (defun inner-draw-circle (cx cy r colour x y delta error)
     (draw-sym-pixels cx cy x y colour)
@@ -88,23 +88,16 @@
          (error 0))
     (inner-draw-circle cx cy r colour x y delta error)))
 
-(defun bezier-curve (control-points ti)
-  (let* ((b (make-array 4))
-         (curve-point (make-array 2)))
-    (for i 0 1 (seta curve-point i 0))
-    (for i 0 3
-      (seta b i (/ (fac 3) (* (fac i) (fac (- 3 i)))))
-      (seta curve-point 0 (+ (aref curve-point 0) (/ (* (aref b i) (expt (- 10 ti) (- 3 i)) (expt ti i) (aref (aref control-points i) 0)) 1000)))
-      (seta curve-point 1 (+ (aref curve-point 1) (/ (* (aref b i) (expt (- 10 ti) (- 3 i)) (expt ti i) (aref (aref control-points i) 1)) 1000)))))
-    curve-point)
+(defun bezier-curve (p0 p1 p2 p3 ti)
+  (cons (/ (+ (* (expt (- 100 ti) 3) (car p0)) (* 3 ti (expt (- 100 ti) 2) (car p1)) (* 3 (expt ti 2) (- 100 ti) (car p2)) (* (expt ti 3) (car p3))) 1000000)
+        (/ (+ (* (expt (- 100 ti) 3) (cdr p0)) (* 3 ti (expt (- 100 ti) 2) (cdr p1)) (* 3 (expt ti 2) (- 100 ti) (cdr p2)) (* (expt ti 3) (cdr p3))) 1000000)))
 
 (defun draw-bezier-curve (x1 y1 x2 y2 x3 y3 x4 y4 colour)
   "Рисование кривой Безье"
   "x1 y1 x2 y2 x3 y3 x4 y4 - координаты точек, colour - цвет"
-  (let* ((control-points `#(#(,x1 ,y1) #(,x2 ,y2) #(,x3 ,y3) #(,x4 ,y4))))
-    (for ti 0 10
-      (let* ((curve-point (bezier-curve control-points ti)))
-        (set-pixel (aref curve-point 0) (aref curve-point 1) colour)))))
+  (for ti 0 100
+    (let ((curve-point (bezier-curve (cons ,x1 ,y1) (cons ,x2 ,y2) (cons ,x3 ,y3) (cons ,x4 ,y4) ti)))
+      (set-pixel (car curve-point) (cdr curve-point) colour))))
 
 (defun gr-test ()
   "Тест графики"

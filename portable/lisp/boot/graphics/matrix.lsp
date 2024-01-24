@@ -40,3 +40,12 @@
 (defun mat-scale (m1 x y)
     "Применение масштабирования"
     (mat-mul m1 (mat-make x 0 0 y 0 0)))
+
+(defun mat-mul-vec (m v)
+    "Произведение матрицы на вектор"
+    (cons (+ (* (aref m 0) (car v))
+              (* (aref m 2) (cdr v))
+              (aref m 4))
+          (+ (* (aref m 1) (car v))
+              (* (aref m 3) (cdr v))
+              (aref m 5))))
