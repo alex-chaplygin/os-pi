@@ -1,5 +1,3 @@
-#include <stdio.h>
-#include <string.h>
 #include <unistd.h>
 #include "lexer.h"
 #include "objects.h"
@@ -13,6 +11,7 @@
 #include "predicates.h"
 #include "../init.c"
 #include <setjmp.h>
+#include <portable/libc.h>
 
 extern token_t token;
 
