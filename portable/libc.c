@@ -166,6 +166,34 @@ void print_num(int num)
     printf(s);
 }
 
+/**
+ * @brief Печать вещественного числа
+ *  sign(1) exp(8) mant(23)
+ * 
+ * @param n Входное число
+ */
+void print_float_num(float num)
+{
+    int n = *(int *)&num;
+    int s = n >> 31; // знак
+    int e = ((n >> 23) & 0xff) - 127; // порядок
+    int m = n & 0x7fffff; // мантисса
+    int num_bits = 23 - e; // число используемых (значащих) бит в мантиссе
+    int int_part = (m + (1 << 23)) >> num_bits; // целая часть числа
+    int float_part = (m + (1 << 23)) & (1 << num_bits) - 1; // вещественная часть в степенях 2
+    long long float_res = 0; // полученная вещественная часть * 10^num_bits
+    long long power2 = 5;
+    printf("S = %d E = %d num = %d, float = %x\n", s, e, int_part, float_part);
+    while (float_part != 0) {
+	// printf("power2 = %lld n = %d\n", power2, num_bits);
+	float_res += power2 * ((float_part >> (num_bits - 1)) & 1);
+	float_res *= 10;
+	power2 = power2 * 5;
+	float_part &= (1 << num_bits - 1) - 1;
+	num_bits--;
+    }
+    printf("float_res = %lld\n", float_res);
+}
 
 /**
  * @brief Посимвольный анализ строки для печати типа printf - вывод значения многих переменных
