@@ -42,7 +42,7 @@ object_t *parse_quote(char *quote_sym)
     object_t *o = parse();
     //printf("quote: ");
     //PRINT(o);
-    if (o == ERROR){
+    if (o == NOVALUE){
 	error("quote: no args");
 	return ERROR;
     }
@@ -179,10 +179,8 @@ object_t *parse()
 	return parse_array();
     else if (cur_token->type == T_STRING)
 	return object_new(STRING, cur_token->str);
-    else if (cur_token->type == END) {
-        error("");
-        return ERROR;
-    }
+    else if (cur_token->type == END)
+        return NOVALUE;
     else if (cur_token->type == INVALID) {
         error("parse: invalid token");
         return ERROR;

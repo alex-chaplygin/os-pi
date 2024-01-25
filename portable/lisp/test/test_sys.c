@@ -1,3 +1,6 @@
+#include <stdio.h>
+#include <string.h>
+#include <setjmp.h>
 #include <unistd.h>
 #include "lexer.h"
 #include "objects.h"
@@ -10,8 +13,6 @@
 #include "pair.h"
 #include "predicates.h"
 #include "../init.c"
-#include <setjmp.h>
-#include <portable/libc.h>
 
 extern token_t token;
 
@@ -62,6 +63,8 @@ int main()
     do {
 	if (setjmp(jmp_env) == 0) {
 	    object_t *o = parse();
+        if (o == NOVALUE)
+            longjmp(jmp_env, 1);
         //printf("parse: "); PRINT(o);
 	//	if (o != ERROR) {
 	    object_t *res = eval(o, NULL);
