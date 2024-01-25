@@ -28,7 +28,7 @@ void garbage_collect();
 
 void free_string(string_t *s);
 
-void error(char *str)
+void error(char *str, ...)
 {
     printf("%s\n", str);
 }

@@ -10,7 +10,7 @@ object_t *concat(object_t *list);
 object_t *symbol_name(object_t *list);
 object_t *string_size(object_t *list);
 
-void error(char *str)
+void error(char *str, ...)
 {
   printf("%s", str);
 }

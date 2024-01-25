@@ -558,11 +558,8 @@ object_t *eval(object_t *obj, object_t *env)
     else if (obj->type == SYMBOL) {
         object_t *symbol = eval_symbol(obj);
         if (symbol == ERROR) {
-            char str[128];
-            snprintf(str, 128, "Unknown SYMBOL: %s", obj->u.symbol->str);
-            error(str);
-	    // printf("Unknown SYMBOL: %s", obj->u.symbol->str);
-	    return ERROR;
+            error("Unknown SYMBOL: %s", obj->u.symbol->str);
+            return ERROR;
 	}
         return symbol;
     } else if (obj->type == PAIR) {
@@ -593,10 +590,7 @@ object_t *eval(object_t *obj, object_t *env)
 	else if (s->macro != NULL)
 	    return macro_call(s->macro, args, env);
 	else {
-	    char str[128];
-	    snprintf(str, 128, "Unknown func: %s", s->str);
-	    error(str);
-	    // printf("Unknown func: %s", s->str);
+	    error("Unknown func: %s", s->str);
 	    return ERROR;
 	}
     } else { 

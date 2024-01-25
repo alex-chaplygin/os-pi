@@ -22,7 +22,7 @@ object_t *equal(object_t *list);
 object_t *less(object_t *list);
 object_t *gt(object_t *list);
 
-void error(char *str)
+void error(char *str, ...)
 {
   printf("%s", str);
 }

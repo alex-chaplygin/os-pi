@@ -12,7 +12,7 @@ object_t *car(object_t *list);
 object_t *cdr(object_t *list);
 object_t *list(object_t *list);
 
-void error(char *str)
+void error(char *str, ...)
 {
   printf("%s", str);
 }

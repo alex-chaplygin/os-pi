@@ -37,7 +37,7 @@ object_t *eq(object_t *list);
 object_t *atom(object_t *obj);
 object_t *quote(object_t *list);
 
-void error(char *str)
+void error(char *str, ...)
 {
   printf("%s", str);
 }

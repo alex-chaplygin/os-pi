@@ -43,10 +43,12 @@ char *itoa(int num, char *str, int rad)
 
 // Вывод сообщения об ошибке и выход из программы
 // str - сообщение об ошибке
-void error(char *str)
+void error(char *str, ...)
 {
-    if (str[0] != '\0')
-        printf("%s\n", str);
+    if (str[0] != '\0') {
+        printf(str);
+        printf("\n");
+    }
     longjmp(jmp_env, 1);
 }
 

@@ -31,7 +31,7 @@ int buffer_write_pos = 0;
 /// текущая позиция чтения из буфера symbol_buffer
 int buffer_read_pos = 0;
 
-void error(char *str);
+void error(char *str, ...);
 
 /** 
  * Считываем символ, помещаем его в буфер.

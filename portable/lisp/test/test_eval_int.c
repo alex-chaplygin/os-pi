@@ -28,7 +28,7 @@ object_t *backquote(object_t *list);
 object_t *macro_call(object_t *macro, object_t *args, object_t *env);
 object_t *eval_func(object_t *lambda, object_t *args, object_t *env);
 
-void error(char *str)
+void error(char *str, ...)
 {
   printf("%s", str);
 }
