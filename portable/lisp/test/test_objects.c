@@ -222,7 +222,9 @@ void test_new_symbol()
     symbol_t *s = new_symbol("abc");
     ASSERT(strcmp(s->str, "abc"), 0);
 }
- 
+
+object_t p1;
+
 /**
  * Создать объект (12 A 5)
  */
@@ -244,7 +246,7 @@ void test_mark()
     object_t inp2 = new_pair(a, NULLOBJ);
     object_t inp1 = new_pair(s, inp2);
     object_t p2 = new_pair(inp1, NULLOBJ);
-    object_t p1 = new_pair(n, p2);
+    p1 = new_pair(n, p2);
     mark_object(p1);
     ASSERT(GET_MARK(GET_PAIR(inp1)->left), 1);
     ASSERT((GET_STRING(GET_PAIR(inp1)->left)->length) & mask, mask);
@@ -260,35 +262,25 @@ void test_mark()
 /*  * Проверить снятие пометок */
 /*  * Проверить, что помеченные ранее объекты не находятся в списке свободных */
 /*  *\/ */
-/* void test_sweep() */
-/* { */
-/*     printf("test_sweep: "); */
-/*     print_free_objs(); */
-/*     object_t *num1 = mobject->u.pair->left; */
-/*     object_t *p2 = mobject->u.pair->right; */
-/*     object_t *sym = p2->u.pair->left; */
-/*     object_t *p3 = p2->u.pair->right; */
-/*     object_t *num2 = p3->u.pair->left; */
-/*     sweep(); */
-/*     printf("after_sweep: "); */
-/*     print_free_objs(); */
-/*     ASSERT(mobject->mark, 0); */
-/*     ASSERT(num1->mark, 0); */
-/*     ASSERT(p2->mark, 0); */
-/*     ASSERT(sym->mark, 0); */
-/*     ASSERT(p3->mark, 0); */
-/*     ASSERT(num2->mark, 0);  */
-/*     object_t *f = free_objs; */
-/*     while (f != NULL) { */
-/* 	//	printf("f type =%d\n", f->type); */
-/* 	if (f == mobject || f == num1 || f == p2 || f == sym || f == p3 || f == num2) { */
-/* 	    printf("fail_object\n"); */
-/* 	    return; */
-/* 	} */
-/* 	f = f->next; */
-/*     } */
-/*     printf("objects: OK\n"); */
-/* } */
+void test_sweep() 
+{ 
+    printf("test_sweep: "); 
+    sweep();
+    int mask = 1 << 31;
+    object_t n = GET_PAIR(p1)->left;
+    object_t p2 = GET_PAIR(p1)->right;
+    object_t inp1 = GET_PAIR(p2)->left;
+    object_t s = GET_PAIR(inp1)->left;
+    object_t inp2 = GET_PAIR(inp1)->right;
+    object_t a = GET_PAIR(inp2)->right;
+    ASSERT(GET_MARK(GET_PAIR(inp1)->left), 0);
+    ASSERT((GET_STRING(GET_PAIR(inp1)->left)->length) & mask, 0);
+    ASSERT(GET_MARK(GET_PAIR(inp2)->left), 0);
+    ASSERT((GET_ARRAY(GET_PAIR(inp2)->left)->length) & mask, 0);
+    ASSERT(GET_MARK(GET_PAIR(p1)->left), 0);
+    ASSERT((GET_BIGNUMBER(GET_PAIR(p1)->left)->free) & mask, 0);
+    ASSERT(GET_MARK(GET_PAIR(p2)->left), 0);
+} 
 
 /* /\** */
 /*  * Создать символ A */
@@ -720,8 +712,8 @@ void main()
            //3, 9
     /* test_free_object(); */
     /* test_free_object_null(); */
-    //    test_mark();
-    /* test_sweep(); */
+    test_mark();
+    test_sweep();
     /* test_garbage_collect();     //19,24 */
     /* test_garbage_collect_list();    //21,24 */
     test_alloc_region();

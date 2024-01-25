@@ -397,24 +397,37 @@ void mark_object(object_t obj)
     }
 }
 
-/* /\**  */
-/*  * Освобождаем все непомеченные объекты, снимаем пометки */
-/*  *\/ */
-/* void sweep() */
-/* { */
-/*     object_t *obj = objects; */
-
-/*     for (int i = 0; i < last_object; i++) { */
-/* 	if (!obj->mark) { */
-/* 	    if (obj->type == PAIR) */
-/* 		free_pair(obj->u.pair); */
-/* 	    free_object(obj); */
-/* 	} */
-/* 	else */
-/* 	    obj->mark = 0; */
-/* 	obj++; */
-/*     } */
-/* } */
+/**
+ * Освобождаем все непомеченные объекты, снимаем пометки
+ */
+void sweep()
+{
+    int mask = 1 << 31;
+    for (int i = 0; i < last_bignumber; i++) {
+        bignumber_t *big_num = &bignumbers[i];
+        if (big_num->free & mask == 0)
+	    free_bignumber(big_num);
+	else big_num->free &= ~mask;
+    }
+    for (int i = 0; i < last_pair; i++) {
+        pair_t *pair = &pairs[i];
+	if (GET_MARK(pair->left) != 1)
+	    free_pair(pair);
+	else CLEAR_MARK(pair->left);
+    }
+    for (int i = 0; i < last_string; i++) {
+	string_t *str = &strings[i];
+	if (str->length & mask == 0)
+	    free_string(str);
+	else str->length &= ~mask;
+    }
+    for (int i = 0; i < last_array; i++) {
+	array_t *arr = &arrays[i];
+	if (arr->length & mask == 0)
+	    free_array(arr);
+	else arr->length &= ~mask;
+    }
+}
 
 /* /\** */
 /*  * Сборка мусора */
