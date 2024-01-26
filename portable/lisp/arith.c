@@ -14,25 +14,25 @@ extern object_t *t;
  *
  * @return сумму
  */
-object_t *add(object_t *list)
+object_t add(object_t list)
 {
     int num = 0;
-    if (list == NULL) {
-	error("add: no arguments\n");
-	return ERROR;
-    }
-    while (list != NULL) {
-	object_t *first = FIRST(list);
-	if (first->type == NUMBER) {  
-	    num += first->u.value;
-	    list = TAIL(list);
-	}
-	else {
-	    error("add: Not number\n");
+    if (list == NULLOBJ) {
+	    error("add: no arguments\n");
 	    return ERROR;
-	}
     }
-    return object_new(NUMBER, &num);
+    while (list != NULLOBJ) {
+	    object_t first = FIRST(list);
+	    if (TYPE(first) == NUMBER || TYPE(first) == BIGNUMBER) {  
+	        num += get_value(first);
+	        list = TAIL(list);
+	    }
+	    else {
+	        error("add: Not number\n");
+	        return ERROR;
+	    }
+    }
+    return new_number(num);
 }
 
 /** 
@@ -42,7 +42,7 @@ object_t *add(object_t *list)
  *
  * @return разность
  */
-object_t *sub(object_t *list)
+/*object_t *sub(object_t *list)
 {
     if (list == NULL) {
         error("sub: no arguments\n");
@@ -71,7 +71,7 @@ object_t *sub(object_t *list)
  *
  * @return произведение
  */
-object_t *mul(object_t *list)
+/*object_t *mul(object_t *list)
 {
     if (list == NULL) {
 	error("mul: no arguments\n");
@@ -102,7 +102,7 @@ object_t *mul(object_t *list)
  * @return результат от деления
  */
 
-object_t *int_div(object_t *list)
+/*object_t *int_div(object_t *list)
 {
     if (list == NULL) {
         error("div: no arguments\n");
@@ -130,7 +130,7 @@ object_t *int_div(object_t *list)
  *
  * @return результат от сравнения
  */
-object_t *gt(object_t *list)
+/*object_t *gt(object_t *list)
 {
     if (list == NULL) {
         error(">: no arguments\n");
@@ -155,7 +155,7 @@ object_t *gt(object_t *list)
  *
  * @return результат от сравнения
  */
-object_t *less(object_t *list)
+/*object_t *less(object_t *list)
 {
     if (list == NULL) {
         error("<: no arguments\n");
@@ -180,7 +180,7 @@ object_t *less(object_t *list)
  *
  * @return T - если равно, иначе NIL
  */
-object_t *num_eq(object_t *list)
+/*object_t *num_eq(object_t *list)
 {
     if (list == NULL) {
         error("num_eq: no arguments\n");
@@ -206,7 +206,7 @@ object_t *num_eq(object_t *list)
  * Функция сравнения объектов
  * возвращает 1 если значения объектов равны, иначе 0
  */
-int compare_obj(object_t *obj1, object_t *obj2)
+/*int compare_obj(object_t *obj1, object_t *obj2)
 {
     if (obj1 == NULL && obj2 == NULL)
 	return 1;
@@ -242,7 +242,7 @@ int compare_obj(object_t *obj1, object_t *obj2)
  *
  * @return T - если равно, иначе NIL
  */
-object_t *equal(object_t *list)
+/*object_t *equal(object_t *list)
 {
     if (list == NULL) {
         error("equal: no arguments\n");
@@ -268,7 +268,7 @@ object_t *equal(object_t *list)
  *
  * @return побитовое И
  */
-object_t *bitwise_and(object_t *list)
+/*object_t *bitwise_and(object_t *list)
 {
     if (list == NULL) {
 	error("bitwise_and: no arguments\n");
@@ -301,7 +301,7 @@ object_t *bitwise_and(object_t *list)
  *
  * @return побитовое ИЛИ
  */
-object_t *bitwise_or(object_t *list)
+/*object_t *bitwise_or(object_t *list)
 {
     if (list == NULL) {
 	error("bitwise_or: no arguments\n");
@@ -331,7 +331,7 @@ object_t *bitwise_or(object_t *list)
  * @return результат сдвига
  */
 
-object_t *shift_left(object_t *list)
+/*object_t *shift_left(object_t *list)
 {
     if (list == NULL) {
         error("shift_left: no arguments\n");
@@ -355,7 +355,7 @@ object_t *shift_left(object_t *list)
  * @return результат сдвига
  */
 
-object_t *shift_right(object_t *list)
+/*object_t *shift_right(object_t *list)
 {
     if (list == NULL) {
         error("shift_right: no arguments\n");
@@ -374,18 +374,20 @@ object_t *shift_right(object_t *list)
 /** 
  * Инициализация арифметических функций
  */
+ 
+
 void init_arith()
 {
     register_func("+", add);
-    register_func("-", sub);
-    register_func("*", mul);
-    register_func("=", num_eq);
-    register_func("EQUAL", equal);
-    register_func("/", int_div);
-    register_func("&", bitwise_and);
-    register_func("BITOR", bitwise_or);
-    register_func("<<", shift_left);
-    register_func(">>", shift_right);
-    register_func(">", gt);
-    register_func("<", less);
+    //register_func("-", sub);
+    //register_func("*", mul);
+    //register_func("=", num_eq);
+    //register_func("EQUAL", equal);
+    //register_func("/", int_div);
+    //register_func("&", bitwise_and);
+    //register_func("BITOR", bitwise_or);
+    //register_func("<<", shift_left);
+    //register_func(">>", shift_right);
+    //register_func(">", gt);
+    //register_func("<", less);
 }

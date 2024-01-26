@@ -5,12 +5,13 @@
 #include "test.h"
 #include "parser.h"
 #include "string.h"
+#include "alloc.h"
 
 extern object_t *t;
 extern object_t *nil;
 
-object_t *add(object_t *list);
-object_t *sub(object_t *list);
+object_t add(object_t list);
+/*object_t *sub(object_t *list);
 object_t *mul(object_t *list);
 object_t *int_div(object_t *list);
 object_t *num_eq(object_t *list);
@@ -20,7 +21,7 @@ object_t *shift_left(object_t *list);
 object_t *shift_right(object_t *list);
 object_t *equal(object_t *list);
 object_t *less(object_t *list);
-object_t *gt(object_t *list);
+object_t *gt(object_t *list);*/
 
 void error(char *str, ...)
 {
@@ -36,11 +37,11 @@ void test_add()
     int num1 = 1;
     int num2 = 2;
     int num3 = 3;
-    object_t *list = new_pair(object_new(NUMBER, &num1),
-                        new_pair(object_new(NUMBER, &num2), 
-                            new_pair(object_new(NUMBER, &num3), NULL)));
-    object_t *res = add(list);
-    ASSERT(res->u.value, 6);
+    object_t list = new_pair(new_number(num1),
+                        new_pair(new_number(num2), 
+                            new_pair(new_number(num3), NULLOBJ)));
+    object_t res = add(list);
+    ASSERT(get_value(res), 6);
 }
 
 /**
@@ -49,8 +50,8 @@ void test_add()
 void test_add_null()
 {
     printf("test_add_null: ");
-    object_t *list = NULL;
-    object_t *res = add(list);
+    object_t list = NULLOBJ;
+    object_t res = add(list);
     ASSERT(res, ERROR);
 }
 
@@ -62,16 +63,16 @@ void test_add_no_number()
     printf("test_add_no_number: ");
 
     int num = 2;
-    object_t *list = new_pair(object_new(NUMBER, &num),
-			      new_pair(new_pair(NULL, NULL), NULL));
-    object_t *res = add(list);
+    object_t list = new_pair(new_number(num),
+                        new_pair(new_pair(NULL, NULL), NULL));
+    object_t res = add(list);
     ASSERT(res, ERROR);
 }
 
 /**
  * Тест вычитания 
  */
-void test_sub()
+/*void test_sub()
 {
     printf("test_sub: ");
     int num1 = 10;
@@ -87,7 +88,7 @@ void test_sub()
 /**
  * Тест вычитания - проверка на NULL.
  */
-void test_sub_null()
+/*void test_sub_null()
 {
     printf("test_sub_null: ");
     object_t *list = NULL;
@@ -98,7 +99,7 @@ void test_sub_null()
 /**
  * Тест вычитания передача значения не число
  */
-void test_sub_no_number()
+/*void test_sub_no_number()
 {
     printf("test_sub_no_number: ");
 
@@ -112,7 +113,7 @@ void test_sub_no_number()
 /**
  * Тест умножения.
  */
-void test_mul()
+/*void test_mul()
 {
     printf ("test_mul:");
     int num1 = 1;
@@ -130,7 +131,7 @@ void test_mul()
 /**
  * Тест умножения, передача пустого списка.
  */
-void test_mul_empty_list()
+/*void test_mul_empty_list()
 {
     printf ("test_mul_empty_list:");
     object_t *empty_list = NULL;
@@ -141,7 +142,7 @@ void test_mul_empty_list()
 /**
  * Тест умножения, передача списка содержащего символ.
  */
-void test_mul_list_with_symbol()
+/*void test_mul_list_with_symbol()
 {
     printf ("test_mul_list_with_symbol :");
     int num = 1;
@@ -154,7 +155,7 @@ void test_mul_list_with_symbol()
 /**
  * Тест сравнения чисел
  */
-void test_num_eq(int num1, int num2, object_t *token)
+/*void test_num_eq(int num1, int num2, object_t *token)
 {
 
     printf ("test_num_eq:");
@@ -169,7 +170,7 @@ void test_num_eq(int num1, int num2, object_t *token)
 /**
  * Тест деления
  */
-void test_div()
+/*void test_div()
 {
     printf("test_div: \n");
     int num1 = 8;
@@ -184,7 +185,7 @@ void test_div()
 /**
  * Тест пустого списка деления
  */
-void test_div_nulllist()
+/*void test_div_nulllist()
 {
     printf("test_div_nulllist: \n");
     object_t *list = NULL;
@@ -195,7 +196,7 @@ void test_div_nulllist()
 /**
  * Тест нулевого делителя
  */
-void test_div_zerodivisor()
+/*void test_div_zerodivisor()
 {
     printf("test_div_zerodivisor: \n");
     int num1 = 8;
@@ -209,7 +210,7 @@ void test_div_zerodivisor()
 /**
  * Тест пустого делителя
  */
-void test_div_nulldivisor()
+/*void test_div_nulldivisor()
 {
     printf("test_div_nulldivisor: \n");
     int num1 = 8;
@@ -221,7 +222,7 @@ void test_div_nulldivisor()
 /**
  * Тест побитового И
  */
-void test_bitwise_and(int num1, int num2, int res)
+/*void test_bitwise_and(int num1, int num2, int res)
 {
     printf("test_bitwise_and: %d %d", num1, num2);
     object_t *list = new_pair(object_new(NUMBER, &num1),
@@ -233,7 +234,7 @@ void test_bitwise_and(int num1, int num2, int res)
 /**
 * Тест проверка на NULL.
 */
-void test_bitwise_and_null()
+/*void test_bitwise_and_null()
 {
     printf("test_bitwise_and_null: ");
     object_t *list = NULL;
@@ -244,7 +245,7 @@ void test_bitwise_and_null()
 /**1
  * Тест передача значения не число
  */
-void test_bitwise_and_no_number()
+/*void test_bitwise_and_no_number()
 {
     printf("test_bitwise_and_no_number: ");
     object_t *list = new_pair(object_new(SYMBOL, "G"), NULL);
@@ -265,7 +266,7 @@ void test_bitwise_and_number_sym()
 /**
  * Тест побитового ИЛИ
  */
-void test_bitwise_or(int num1, int num2, int res)
+/*void test_bitwise_or(int num1, int num2, int res)
 {
     printf("test_bitwise_or: %d %d", num1, num2);
     object_t *list = new_pair(object_new(NUMBER, &num1),
@@ -277,7 +278,7 @@ void test_bitwise_or(int num1, int num2, int res)
 /**
  * Тест побитового ИЛИ для пустого ввода
  */
-void test_bitwise_or_null()
+/*void test_bitwise_or_null()
 {
     printf("test_bitwise_or_null:");
     object_t *list = NULL;
@@ -288,7 +289,7 @@ void test_bitwise_or_null()
 /**
  * Тест побитового ИЛИ для неверного ввода
  */
-void test_bitwise_or_no_number()
+/*void test_bitwise_or_no_number()
 {
     printf("test_bitwise_or_no_number:");
     int num1 = 8;
@@ -301,7 +302,7 @@ void test_bitwise_or_no_number()
 /**
  * Тест сдвига влево
  */
-void test_shift_left(int num1, int num2, int res)
+/*void test_shift_left(int num1, int num2, int res)
 {
     printf("test_shift_left: %d %d", num1, num2);
     object_t *list = new_pair(object_new(NUMBER, &num1),
@@ -313,7 +314,7 @@ void test_shift_left(int num1, int num2, int res)
 /**
  * Тест сдвига влево, передача пустого списка
  */
-void test_shift_left_empty_list()
+/*void test_shift_left_empty_list()
 {
     printf("test_shift_left_empty_list: ");
     object_t *res = shift_left(NULL);
@@ -323,7 +324,7 @@ void test_shift_left_empty_list()
 /**
  * Тест сдвига влево, передача списка без второго параметра
  */
-void test_shift_left_no_second_param()
+/*void test_shift_left_no_second_param()
 {
     printf("test_shift_left_no_second_param: ");
     int num = 1;
@@ -335,7 +336,7 @@ void test_shift_left_no_second_param()
 /**
  * Тест сдвига вправо
  */
-void test_shift_right(int num1, int num2, int res)
+/*void test_shift_right(int num1, int num2, int res)
 {
     printf("test_shift_right: %d %d", num1, num2);
     object_t *list = new_pair(object_new(NUMBER, &num1),
@@ -347,7 +348,7 @@ void test_shift_right(int num1, int num2, int res)
 /**
  * Тест сдвига вправо, передача списка без второго параметра
  */
-void test_shift_right_no_second_param()
+/*void test_shift_right_no_second_param()
 {
     printf("test_shift_right_no_second_param: ");
     int num = 1;
@@ -359,7 +360,7 @@ void test_shift_right_no_second_param()
 /**
  * Тест сдвига вправо, передача пустого списка
  */
-void test_shift_right_empty_list()
+/*void test_shift_right_empty_list()
 {
     printf("test_shift_right_empty_list: ");
     object_t *res = shift_right(NULL);
@@ -369,7 +370,7 @@ void test_shift_right_empty_list()
 /** 
  * Сравнение чисел
  */
-void test_equal()
+/*void test_equal()
 {
     printf("test_equal: ");
     int first1 = 1;
@@ -383,7 +384,7 @@ void test_equal()
 /** 
  * Сравнение объектов, передача пустого списка
  */
-void test_equal_empty_list()
+/*void test_equal_empty_list()
 {
     printf("test_equal_empty_list: ");
     object_t *list = NULL;
@@ -394,7 +395,7 @@ void test_equal_empty_list()
 /** 
  * Сравнение объектов, список из одного объекта
  */
-void test_equal_no_second_param()
+/*void test_equal_no_second_param()
 {
     printf("test_equal_no_second_param: ");
     int first1 = 1;
@@ -406,7 +407,7 @@ void test_equal_no_second_param()
 /** 
  * Сравнение объектов, недопустимая длина списка
  */
-void test_equal_invalid_list_length()
+/*void test_equal_invalid_list_length()
 {
     printf("test_equal_invalid_list_length: ");
     int first1 = 1;
@@ -421,7 +422,7 @@ void test_equal_invalid_list_length()
 /** 
  * Сравнение символов
  */
-void test_equal_symbols()
+/*void test_equal_symbols()
 {
     printf("test_equal_symbols: ");
     object_t *list = new_pair(object_new(SYMBOL, "A"),
@@ -433,7 +434,7 @@ void test_equal_symbols()
 /** 
  * Сравнение строк
  */
-void test_equal_strings()
+/*void test_equal_strings()
 {
     printf("test_equal_strings: ");
     object_t *list = new_pair(object_new(STRING, "abc"),
@@ -445,7 +446,7 @@ void test_equal_strings()
 /** 
  * Сравнение пар
  */
-void test_equal_pairs()
+/*void test_equal_pairs()
 {
     printf("test_equal_pairs: ");
     object_t *pair = new_pair(object_new(SYMBOL, "A"), NULL);
@@ -458,7 +459,7 @@ void test_equal_pairs()
 /** 
  * Сравнение пар с разными значениями
  */
-void test_equal_pairs_with_different_values()
+/*void test_equal_pairs_with_different_values()
 {
     printf("test_equal_pairs_with_different_values: ");
     object_t *pair1 = new_pair(object_new(SYMBOL, "A"), NULL);
@@ -472,7 +473,7 @@ void test_equal_pairs_with_different_values()
 /** 
  * Сравнение массивов
  */
-void test_equal_array()
+/*void test_equal_array()
 {
     printf("test_equal_array: ");
     int num = 1;
@@ -488,7 +489,7 @@ void test_equal_array()
 /** 
  * Сравнение массивов с неравными значениями элементов
  */
-void test_equal_arrays_with_different_values()
+/*void test_equal_arrays_with_different_values()
 {
     printf("test_equal_arrays_with_different_values: ");
     int num1 = 1;
@@ -506,7 +507,7 @@ void test_equal_arrays_with_different_values()
 /** 
  * Сравнение массивов разной длины
  */
-void test_equal_arrays_with_different_length()
+/*void test_equal_arrays_with_different_length()
 {
     printf("test_equal_arrays_with_different_length: ");
     int num = 1;
@@ -524,7 +525,7 @@ void test_equal_arrays_with_different_length()
 /** 
  * Сравнение пустых объектов
  */
-void test_equal_null_objects()
+/*void test_equal_null_objects()
 {
     printf("test_equal_array: ");
     object_t *list = new_pair(NULL,
@@ -536,7 +537,7 @@ void test_equal_null_objects()
 /** 
  * Сравнение объектов, один из объектов пустой
  */
-void test_equal_one_object_is_null()
+/*void test_equal_one_object_is_null()
 {
     printf("test_equal_one_object_is_null: ");
     int num = 1;
@@ -549,7 +550,7 @@ void test_equal_one_object_is_null()
 /** 
  * Сравнение объектов разных типов
  */
-void test_equal_different_types()
+/*void test_equal_different_types()
 {
     printf("test_equal_different_types: ");
     int num = 1;
@@ -562,7 +563,7 @@ void test_equal_different_types()
 /**
  * Тест сравнения неравнества меньше для двух чисел
  */
-void test_less()
+/*void test_less()
 {
     printf("test_less: ");
     int first1 = 1;
@@ -576,7 +577,7 @@ void test_less()
 /**
  * Тест сравнения неравнества меньше для двух чисел - проверка если первое число будет больше
  */
-void test_less_great()
+/*void test_less_great()
 {
     printf("test_less_great: ");
     int first1 = 2;
@@ -590,7 +591,7 @@ void test_less_great()
 /**
  * Тест сравнения неравнества меньше для двух чисел - проверка на отсутствие агрументов
  */
-void test_less_no_arguments()
+/*void test_less_no_arguments()
 {
     printf("test_less_no_arguments: ");
     object_t *list = NULL;
@@ -601,7 +602,7 @@ void test_less_no_arguments()
 /**
  * Тест сравнения неравнества меньше для двух чисел - проверка на только один аргумент
  */
-void test_less_one_argument()
+/*void test_less_one_argument()
 {
     printf("test_less_one_argument: ");
     int first1 = 1;
@@ -613,7 +614,7 @@ void test_less_one_argument()
 /**
  * Тест сравнения чисел на больше
  */
-void test_gt(int num1, int num2, object_t *token) 
+/*void test_gt(int num1, int num2, object_t *token) 
 {
     printf("test_gt:");
     object_t *list = new_pair(object_new(NUMBER, &num1), 
@@ -625,7 +626,7 @@ void test_gt(int num1, int num2, object_t *token)
 /**
  * Тест сравнения чисел на больше при пустом входном списке 
  */
-void test_gt_list_is_null()
+/*void test_gt_list_is_null()
 {
     printf("test_gt_list_is_null:");
     object_t *list = NULL;
@@ -636,22 +637,23 @@ void test_gt_list_is_null()
 /**
  * Тест сравнения чисел на больше при одном аргументе в списке 
  */
-void test_gt_one_arg(int num1)
+/*void test_gt_one_arg(int num1)
 {
     printf("test_gt_one_arg:");
     object_t *list = new_pair(object_new(NUMBER, &num1), NULL);
     object_t *res = gt(list);
     ASSERT(res, ERROR);
-}
+}*/
 
 int main()
 {
     printf("------------test_arith---------\n");
     init_regions();
+    init_objects();
     test_add();
     test_add_null();
     test_add_no_number();
-    test_sub();
+    /*test_sub();
     test_sub_null();
     test_sub_no_number();
     test_mul();
@@ -702,6 +704,6 @@ int main()
     test_gt(5, 3, t);
     test_gt(3, 5, nil);
     test_gt_list_is_null();
-    test_gt_one_arg(3);
+    test_gt_one_arg(3);*/
     return 0;
 }
