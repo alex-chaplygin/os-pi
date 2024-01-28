@@ -306,6 +306,24 @@ void test_symbol_overflow()
     ASSERT(token_error, 1);    
 }
 
+/** 
+ * Тест нескольких токенов
+ *
+ * @param name_test имя теста
+ * @param str  исходная строка
+ * @param expected_tokens массив ожидаемых типов токенов
+ * @param expected_tokens_size размер массива
+ */
+void test_get_tokens(const char* name_test, char* str, token_t* expected_tokens, int expected_tokens_size) 
+{
+    printf("test_get_tokens_%s : ", name_test); // вывод имени теста
+    write_file(str); // запись в файл
+    reset_buffer();
+    for (int i = 0; i < expected_tokens_size; i++) {
+        token_t res = *get_token();
+        ASSERT(res.type, expected_tokens[i].type);
+    }
+}
 
 /*
 get_token
@@ -372,7 +390,8 @@ int main()
     test_get_token("sharp", "#(1 2 3)", SHARP); // 8
     test_get_token("dot", ".", DOT); //21
     test_get_token("symbol", "abc", T_SYMBOL);  // 14
-    test_get_token2("setq_rec", "setq_rec setq_rec ", T_SYMBOL, T_SYMBOL); // 14
+    token_t expected_tokens[] = { {T_SYMBOL}, {T_SYMBOL} };
+    test_get_tokens("test", "setq_rec setq_rec", expected_tokens, 2); // 14
     test_string("\"1 2 3\"", "1 2 3"); // 9
     test_string("\"\\x31\\x32\"", "12");
     test_string("\"a b\\n\"", "a b\n"); // 9
@@ -381,8 +400,7 @@ int main()
     test_string("\"\"", ""); // граничный тест на пустую строку
     test_string_max(); // граничный тест на максимальную строку
     test_string_overflow(); // граничный тест на превышение допустимого размера строки
-    test_invalid_token("valid num", "11 dd", 0); // 11
-    
+    test_invalid_token("valid num", "11 dd", 0); // 11    
     // Неправильные классы
     test_invalid_token("invalid num", "-2147483649", 1); // граничный тест минимальное число - 1
     test_invalid_token("invalid num", "2147483648", 1); // граничный тест максимальное число + 1
