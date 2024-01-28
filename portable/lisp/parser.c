@@ -46,7 +46,7 @@ object_t parse_quote(char *quote_sym)
 	error("quote: no args");
 	return ERROR;
     }
-    object_t p = new_pair(o, NULL);
+    object_t p = new_pair(o, NULLOBJ);
     return new_pair(NEW_SYMBOL(quote_sym), p);
 }
 
@@ -71,6 +71,12 @@ object_t parse_element(type_t type, void *data, tokentype_t t_type)
 	obj = parse_quote("COMMA-AT");
     else if (t_type == LPAREN)
 	obj = parse_list();
+    else if (t_type == T_NUMBER)
+	obj = new_number(*(int *)data);
+    else if (t_type == T_SYMBOL)
+	obj = NEW_OBJECT(SYMBOL, find_symbol(data));
+    else if (t_type == T_STRING)
+	obj = NEW_STRING((char *)data);
     else
 	obj = NEW_OBJECT(type, data);
     object_t tail = parse_list();
@@ -101,7 +107,7 @@ object_t parse_list()
 	return ERROR;
     }
     if (cur_tok->type == RPAREN)
-	return NULL;
+	return NULLOBJ;
     if (cur_tok->type == T_NUMBER) {
         val = cur_tok->value;
 	return parse_element(NUMBER, &val, cur_tok->type);
@@ -114,7 +120,7 @@ object_t parse_list()
     } else if (cur_tok->type == LPAREN || cur_tok->type == QUOTE
 	       || cur_tok->type == BACKQUOTE || cur_tok->type == COMMA
 	       || cur_tok->type == COMMA_AT || cur_tok->type == SHARP)
-	return parse_element(SYMBOL, NULL, cur_tok->type);
+	return parse_element(SYMBOL, NULLOBJ, cur_tok->type);
     else if (cur_tok->type == DOT) {
 	object_t res = parse();
 	cur_tok = get_token();       

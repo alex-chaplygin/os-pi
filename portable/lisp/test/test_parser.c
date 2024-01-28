@@ -275,13 +275,13 @@ void print_token(token_t *token)
     }
 }
 
-symbol_t *find_symbol(char *str)
+/*symbol_t *find_symbol(char *str)
 {
     for (int i = 0; i < sizeof(test_symbols) / sizeof(symbol_t); i++)
 	if (strcmp(test_symbols[i].str, str) == 0)
 	    return &test_symbols[i];
     return NULL;
-} 
+    } */
 
 void test_strupr ()
 {
@@ -310,53 +310,55 @@ void test_parse_list_atoms()
     cur_token = &token;
     tokens = atoms_tokens;
     object_t o = parse_list();
+    printf("o = ");
+    PRINT(o);
 
     ASSERT(TYPE(o), PAIR);
+  
+    ASSERT(TYPE(TAIL(o)), PAIR);
+    ASSERT(TYPE(FIRST(o)), NUMBER);
+    ASSERT(get_value(FIRST(o)), 45);
+    ASSERT(TYPE(SECOND(o)), NUMBER);
+    ASSERT(get_value(SECOND(o)), 65);
     
-/*     ASSERT(TAIL(o)->type, PAIR); */
-/*     ASSERT(FIRST(o)->type, NUMBER); */
-/*     ASSERT(FIRST(o)->u.value, 45); */
-/*     ASSERT(SECOND(o)->type, NUMBER); */
-/*     ASSERT(SECOND(o)->u.value, 65); */
-
-/*     o = TAIL(TAIL(o)); */
+    o = TAIL(TAIL(o));
     
-/*     ASSERT(TAIL(o)->type, PAIR); */
-/*     ASSERT(FIRST(o)->type, SYMBOL); */
-/*     ASSERT(strcmp(FIRST(o)->u.symbol->str, "A"), 0); */
-/*     ASSERT(SECOND(o)->type, SYMBOL); */
-/*     ASSERT(strcmp(SECOND(o)->u.symbol->str, "B"), 0); */
-
-/*     o = TAIL(TAIL(o)); */
+    ASSERT(TYPE(TAIL(o)), PAIR);
+    ASSERT(TYPE(FIRST(o)), SYMBOL);
+    ASSERT(strcmp(GET_SYMBOL(FIRST(o))->str, "A"), 0);
+    ASSERT(TYPE(SECOND(o)), SYMBOL);
+    ASSERT(strcmp(GET_SYMBOL(SECOND(o))->str, "B"), 0);
     
-/*     ASSERT(TAIL(o)->type, PAIR); */
-/*     ASSERT(FIRST(o)->type, STRING); */
-/*     ASSERT(strcmp(FIRST(o)->u.str->data, "StrA"), 0); */
-/*     ASSERT(SECOND(o)->type, STRING); */
-/*     ASSERT(strcmp(SECOND(o)->u.str->data, "StrB"), 0); */
+    o = TAIL(TAIL(o));
+    
+    ASSERT(TYPE(TAIL(o)), PAIR);
+    ASSERT(TYPE(FIRST(o)), STRING);
+    ASSERT(strcmp(GET_STRING(FIRST(o))->data, "StrA"), 0);
+    ASSERT(TYPE(SECOND(o)), STRING);
+    ASSERT(strcmp(GET_STRING(SECOND(o))->data, "StrB"), 0);
 
-/*     ASSERT(TAIL(TAIL(o)), NULL); */
+    ASSERT(TAIL(TAIL(o)), NULLOBJ);
 }
 
-/* /\**  */
-/*  * Создать список "1 (2))" и проверить корректность создания пар */
-/*  *\/ */
-/* void test_parse_list_list() */
-/* { */
-/*     printf("test_parse_list_list: "); */
-/*     count = 0; */
-/*     cur_token = &token; */
-/*     tokens = list_tokens; */
-/*     object_t o = parse_list(); */
-/*     ASSERT(o->type, PAIR); */
-/*     ASSERT(o->u.pair->right->type, PAIR); */
-/*     ASSERT(o->u.pair->left->type, NUMBER); */
-/*     ASSERT(o->u.pair->left->u.value, 1); */
-/*     ASSERT(o->u.pair->right->u.pair->left->type, PAIR); */
-/*     ASSERT(o->u.pair->right->u.pair->left->u.pair->left->u.value, 2); */
-/*     ASSERT(o->u.pair->right->u.pair->left->u.pair->right, NULL); */
-/*     ASSERT(o->u.pair->right->u.pair->right, NULL); */
-/* } */
+/**
+ * Создать список "1 (2))" и проверить корректность создания пар
+ */
+void test_parse_list_list()
+{
+    printf("test_parse_list_list: ");
+    count = 0;
+    cur_token = &token;
+    tokens = list_tokens;
+    object_t o = parse_list();
+    ASSERT(TYPE(o), PAIR);
+    ASSERT(TYPE(GET_PAIR(o)->right), PAIR);
+    ASSERT(TYPE(GET_PAIR(o)->left), NUMBER);
+    ASSERT(get_value(GET_PAIR(o)->left), 1);
+    ASSERT(TYPE(GET_PAIR(GET_PAIR(o)->right)->left), PAIR);
+    ASSERT(get_value(GET_PAIR(GET_PAIR(GET_PAIR(o)->right)->left)->left), 2);
+    ASSERT(GET_PAIR(GET_PAIR(GET_PAIR(o)->right)->left)->right, NULLOBJ);
+    ASSERT(GET_PAIR(GET_PAIR(o)->right)->right, NULLOBJ);
+}
 
 
 /* /\**  */
@@ -737,10 +739,11 @@ int main()
 {
     printf("------------test_parser------------\n");
     init_regions();
+    init_objects();
     test_strupr();
     test_parse_list_atoms(); // 1, 3, 4, 5
-    /*test_parse_list_list();    //7
-    test_parse_quote(quote_tokens, "QUOTE"); //12
+    test_parse_list_list();  
+    /* test_parse_quote(quote_tokens, "QUOTE"); //12
     test_parse_quote(backquote_tokens, "BACKQUOTE");//12
     test_parse_quote(comma_tokens, "COMMA"); //17
     test_parse_list_quote(); //16
