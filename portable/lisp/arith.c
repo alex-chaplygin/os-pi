@@ -35,55 +35,53 @@ object_t add(object_t list)
     return new_number(num);
 }
 
-/** 
- * Вычитание аргументов (- 1 2 3)
- *
- * @param list - список чисел (1 2 3)
- *
- * @return разность
- */
-/*object_t *sub(object_t *list)
+//Вычитание аргументов (- 1 2 3)
+
+//@param list - список чисел (1 2 3)
+
+//@return разность
+object_t sub(object_t list)
 {
-    if (list == NULL) {
+   
+    if (list == NULLOBJ) {
         error("sub: no arguments\n");
         return ERROR;
     }
-    object_t *first = FIRST(list);
-    int num = first->u.value;
+    object_t first = FIRST(list);
+    int num = get_value(FIRST(list));  
     list = TAIL(list);
-    while (list != NULL) {
-        object_t *first = FIRST(list);
-        if (first->type == NUMBER) {
-            num -= first->u.value;
-            list = TAIL(list);
-        } else {
+    while (list != NULLOBJ) {
+        object_t first = FIRST(list);
+        if  (TYPE(first) == NUMBER || TYPE(first) == BIGNUMBER) {  
+	        num -= get_value(first);
+	        list = TAIL(list);
+	}
+	else {
             error("sub: Not number\n");
             return ERROR;
         }
     }
-    return object_new(NUMBER, &num);
+    return new_number(num);
 }
 
-/** 
- * Умножение аргументов (* 1 2 3)
- *
- * @param list - список чисел (1 2 3)
- *
- * @return произведение
- */
-/*object_t *mul(object_t *list)
+//Умножение аргументов (* 1 2 3)
+
+//@param list - список чисел (1 2 3)
+
+//@return произведение
+object_t mul(object_t list)
 {
-    if (list == NULL) {
+    if (list == NULLOBJ) {
 	error("mul: no arguments\n");
 	return ERROR;
     }
-    object_t *first = FIRST(list);
-    int num = first->u.value;
+    object_t first = FIRST(list);
+    int num = get_value(FIRST(list));
     list = TAIL(list);
-    while(list != NULL){
-	object_t *first = FIRST(list);
-	if(first->type == NUMBER){
-	    num *= first->u.value;
+    while(list != NULLOBJ){
+	object_t first = FIRST(list);
+	if(TYPE(first) == NUMBER || TYPE(first) == BIGNUMBER){
+	    num *= get_value(first);
 	    list = TAIL(list);
 	}
 	else{
@@ -91,7 +89,7 @@ object_t add(object_t list)
 	    return ERROR;
 	}
     }
-    return object_new(NUMBER, &num);
+    return new_number(num);
 }
 
 /**
@@ -101,76 +99,80 @@ object_t add(object_t list)
  *
  * @return результат от деления
  */
+object_t int_div(object_t list){
 
-/*object_t *int_div(object_t *list)
-{
-    if (list == NULL) {
+    if (list == NULLOBJ) {
         error("div: no arguments\n");
         return ERROR;
     }
-    if (TAIL(list) == NULL) {
+    if (TAIL(list) == NULLOBJ) {
         error("div: no divisor\n");
         return ERROR;
     }
-    object_t *first = FIRST(list);
-    object_t *second = SECOND(list);
-    if (second->u.value != 0) {
-        int num = first->u.value / second->u.value;
-        return object_new(NUMBER, &num);
+    object_t first = FIRST(list);
+    if (TYPE(first) != NUMBER && TYPE(first) != BIGNUMBER){
+	 error("mul: Not number\n");
+	 return ERROR;
+    }
+    object_t second = SECOND(list);
+    if (TYPE(second) != NUMBER && TYPE(second) != BIGNUMBER){
+	 error("mul: Not number\n");
+	 return ERROR;
+    }
+    if (get_value(second) != 0) {
+        int num = get_value(first) / get_value(second);
+        return new_number(num);
     } else {
         error("div: divisor = 0 \n");
         return ERROR;
     }
 }
 
-/**
- * Сравнение на больше (> 8 2)
- * 
- * @param list - список чисел (8 2)
- *
- * @return результат от сравнения
- */
-/*object_t *gt(object_t *list)
+/* Сравнение на больше (> 8 2) */
+
+/* @param list - список чисел (8 2) */
+
+/* @return результат от сравнения */
+
+object_t gt(object_t list)
 {
-    if (list == NULL) {
+    if (list == NULLOBJ) {
         error(">: no arguments\n");
         return ERROR;
     }
-    if (TAIL(list) == NULL) {
+    if (TAIL(list) == NULLOBJ) {
         error(">: one argument\n");
         return ERROR;
     }
-    object_t *first = FIRST(list);
-    object_t *second = SECOND(list);
-    if (first->u.value > second->u.value)
+    object_t first = FIRST(list);
+    object_t second = SECOND(list);
+    if (get_value(first) > get_value(second))
         return t;
     else 
-        return NULL;
+        return NULLOBJ;
 }
 
-/**
- * Сравнение на меньше (< 8 2)
- * 
- * @param list - список чисел (8 2)
- *
- * @return результат от сравнения
- */
-/*object_t *less(object_t *list)
+/* Сравнение на меньше (< 8 2) */
+
+/* @param list - список чисел (8 2) */
+
+/* @return результат от сравнения */
+object_t less(object_t list)
 {
-    if (list == NULL) {
+    if (list == NULLOBJ) {
         error("<: no arguments\n");
         return ERROR;
     }
-    if (TAIL(list) == NULL) {
+    if (TAIL(list) == NULLOBJ) {
         error("<: one argument\n");
         return ERROR;
     }
-    object_t *first = FIRST(list);
-    object_t *second = SECOND(list);
-    if (first->u.value < second->u.value)
+    object_t first = FIRST(list);
+    object_t second = SECOND(list);
+    if ( get_value(first) <  get_value(second))
         return t;
     else 
-        return NULL;
+        return NULLOBJ;
 }
 
 /** 
@@ -179,21 +181,8 @@ object_t add(object_t list)
  * @param list - список чисел (1 2)
  *
  * @return T - если равно, иначе NIL
- */
 /*object_t *num_eq(object_t *list)
 {
-    if (list == NULL) {
-        error("num_eq: no arguments\n");
-        return ERROR;
-    }
-    if (TAIL(list) == NULL) {
-        error("num_eq: no second param\n");
-        return ERROR;
-    }
-    if (FIRST(list)->type != NUMBER || SECOND(list)->type != NUMBER) {
-        error("num_eq: not a number\n");
-        return ERROR;
-    }
     object_t *n1 = FIRST(list);
     object_t *n2 = SECOND(list);
     if (n1->u.value == n2->u.value)
@@ -202,10 +191,10 @@ object_t add(object_t list)
 	return NULL;
 }
 
+
 /**
  * Функция сравнения объектов
  * возвращает 1 если значения объектов равны, иначе 0
- */
 /*int compare_obj(object_t *obj1, object_t *obj2)
 {
     if (obj1 == NULL && obj2 == NULL)
@@ -268,22 +257,22 @@ object_t add(object_t list)
  *
  * @return побитовое И
  */
-/*object_t *bitwise_and(object_t *list)
+object_t bitwise_and(object_t list)
 {
-    if (list == NULL) {
+    if (list == NULLOBJ) {
 	error("bitwise_and: no arguments\n");
 	return ERROR;
     }
-    if (FIRST(list)->type != NUMBER) {
+    if (TYPE(FIRST(list)) != NUMBER) {
 	error("bitwise_and: Not a number\n");
 	return ERROR;
     }
-    int num = FIRST(list)->u.value;
+    int num = get_value(FIRST(list));
     list = TAIL(list);
-    while (list != NULL) {
-	object_t *first = FIRST(list);
-	if (first->type == NUMBER) {  
-	    num &= first->u.value;
+    while (list != NULLOBJ) {
+	object_t first = FIRST(list);
+	if (TYPE(first) == NUMBER) {  
+	    num &= get_value(first);
 	    list = TAIL(list);
 	}
 	else {
@@ -291,7 +280,7 @@ object_t add(object_t list)
 	    return ERROR;
 	}
     }
-    return object_new(NUMBER, &num);
+    return new_number(num);
 }
 
 /** 
@@ -301,18 +290,18 @@ object_t add(object_t list)
  *
  * @return побитовое ИЛИ
  */
-/*object_t *bitwise_or(object_t *list)
+object_t bitwise_or(object_t list)
 {
-    if (list == NULL) {
+    if (list == NULLOBJ) {
 	error("bitwise_or: no arguments\n");
 	return ERROR;
     }
-    int num = FIRST(list)->u.value;
+    int num = get_value(FIRST(list));
     list = TAIL(list);
-    while (list != NULL) {
-	object_t *first = FIRST(list);
-	if (first->type == NUMBER) {  
-	    num |= first->u.value;
+    while (list != NULLOBJ) {
+	object_t first = FIRST(list);
+	if (TYPE(first) == NUMBER) {  
+	    num |= get_value(first);
 	    list = TAIL(list);
 	}
 	else {
@@ -320,7 +309,7 @@ object_t add(object_t list)
 	    return ERROR;
 	}
     }
-    return object_new(NUMBER, &num);
+    return new_number(num);
 }
 
 /**
@@ -329,7 +318,6 @@ object_t add(object_t list)
  * @param list - список (<Любое число> <Число бит>)
  *
  * @return результат сдвига
- */
 
 /*object_t *shift_left(object_t *list)
 {
