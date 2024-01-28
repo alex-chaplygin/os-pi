@@ -286,26 +286,29 @@ void test_sweep()
 /*  * Создать символ A */
 /*  * Присвоить ему значение - объект 52 */
 /*  * Проверить, что объект не в списке свободных */
-/*  *\/ */
-/* void test_garbage_collect() */
-/* { */
-/*     printf("test_garbage_collect: "); */
-/*     int num1 = 52; */
-/*     symbol_t *s = new_symbol("A"); */
-/*     object_t *obj1 = object_new(NUMBER, &num1); */
-/*     s->value = obj1; */
-/*     garbage_collect(); */
+void test_garbage_collect()
+{
+    printf("test_garbage_collect: ");
 
-/*     object_t *f = free_objs; */
-/*     while (f != NULL) { */
-/* 	if (f == obj1) { */
-/* 	    printf("fail_object\n"); */
-/* 	    return; */
-/* 	} */
-/* 	f = f->next; */
-/*     } */
-/*     printf("OK\n"); */
-/* } */
+    int num1 = 52;
+    symbol_t *s = new_symbol("A");
+    object_t obj1 = new_bignumber(num1);
+    s->value = obj1;
+    garbage_collect();
+
+    // Проверяем наличие obj1 в списке свободных объектов
+    bignumber_t *f = free_bignumbers;
+    while (f != NULL) {
+        if ((object_t)f == obj1) {
+            printf("fail_object\n");
+            return;
+        }
+        f = f->next;
+    }
+    printf("OK\n");
+}
+
+
 
 /* /\** */
 /*  * Создать символ B */
@@ -713,8 +716,9 @@ void main()
     /* test_free_object(); */
     /* test_free_object_null(); */
     test_mark();
-    test_sweep();
-    /* test_garbage_collect();     //19,24 */
+    test_sweep();    //19,24 */
+    test_garbage_collect();     //19,24
+   
     /* test_garbage_collect_list();    //21,24 */
     test_alloc_region();
     test_free_region();
@@ -760,4 +764,5 @@ void main()
     PRINT(NEW_ARRAY(make_list(2)));
     PRINT(NEW_SYMBOL("asd"));
     PRINT(NEW_STRING("Pasha"));
+    
 }

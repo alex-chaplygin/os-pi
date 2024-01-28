@@ -432,21 +432,22 @@ void sweep()
 /* /\** */
 /*  * Сборка мусора */
 /*  *\/ */
-/* void garbage_collect() */
-/* { */
-/*     for (int i = 0; i < last_symbol; i++) { */
-/*         mark_object(symbols[i].value); */
-/*         mark_object(symbols[i].lambda); */
-/*         mark_object(symbols[i].macro); */
-/*     } */
-/*     sweep(); */
-/* } */
+void garbage_collect()
+{
+    for (int i = 0; i < last_symbol; i++) { 
+         mark_object(symbols[i].value); 
+         mark_object(symbols[i].lambda);
+         mark_object(symbols[i].macro);
+     }
+     sweep();
+} 
 
 int print_counter = 0;
 
 /**
  * Печать списка пар (5 . 7)
  */
+
 void print_list(object_t obj)
 {
     if (obj == NULLOBJ)
