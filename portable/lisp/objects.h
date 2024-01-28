@@ -45,6 +45,8 @@
 #define GET_BIGNUMBER(num) ((bignumber_t *)(GET_ADDR(num)))
 //Получение строки
 #define GET_STRING(str) ((string_t *)(GET_ADDR(str)))
+//Получение символа
+#define GET_SYMBOL(sym) ((symbol_t *)(GET_ADDR(sym)))
 //Получение массива
 #define GET_ARRAY(arr) ((array_t *)(GET_ADDR(arr)))
 //Создание массива
@@ -53,6 +55,14 @@
 #define NEW_SYMBOL(s) (NEW_OBJECT(SYMBOL, new_symbol(s)))
 //Создание строки
 #define NEW_STRING(s) (NEW_OBJECT(STRING, new_string(s)))
+// Первый элемент списка
+#define FIRST(o) (GET_PAIR(o)->left)
+// Второй элемент списка
+#define SECOND(o) (GET_PAIR(GET_PAIR(o)->right)->left)
+// Третий элемент списка
+#define THIRD(o) (GET_PAIR(GET_PAIR(GET_PAIR(o)->right)->right)->left)
+// Хвост списка
+#define TAIL(o) (GET_PAIR(o)->right)
 
 /// перечисление типов объектов
 typedef enum {
