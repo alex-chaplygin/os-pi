@@ -73,7 +73,13 @@
 
 (defmacro super (method-name obj &rest args)
   "Вызов метода method-name родителя экземпляра класса obj с аргументами args"
-  `(funcall (get-method (slot (slot *class-table* (slot ,obj 'class)) 'parent) ',method-name) ,obj ,@args))
+  `(let ((origclass (slot ,obj 'class)) (res nil))
+     (setf (slot ,obj 'class) (slot (slot *class-table* (slot ,obj 'class)) 'parent))
+     (setq res (funcall (get-method (slot ,obj 'class) ',method-name) ,obj ,@args))
+     (setf (slot ,obj 'class) origclass)
+     res))
+     
+  ;`(funcall (get-method (slot (slot *class-table* (slot ,obj 'class)) 'parent) ',method-name) ,obj ,@args))
 
 ;(defclass point () (x y)) 
 ;(defclass line point (x2 y2))
