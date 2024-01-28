@@ -4,7 +4,7 @@
 (defmethod set-defaults ((self text))
   (super set-defaults self)
   (setf (slot self 'color) +black+)
-  (setf (slot self 'back-color) +white+)
+  (setf (slot self 'back-color) +blue+)
   (setf (slot self 'height) 1)
   (setf (slot self 'width) (string-size (slot self 'text)))
   (set-padding self #(0 0 0 0)))
@@ -41,7 +41,7 @@
 	(putstring (subseq str 0 lastind))
 	(lasttext  (subseq text lastind len))))
         
-    (when (>= len w)
+    (when (> len w)
 	(print-text lasttext x (+ y 1) w))))
     
         
@@ -55,5 +55,5 @@
 	 ;(idx w));(if (equal sym 32) (find-last-space str (- len 1)) w)))
     (set-cursor x y)
     (putstring str)
-    (when (>= len w)
+    (when (> len w)
       (print-text (subseq txt w len) x (+ y 1) w))))
