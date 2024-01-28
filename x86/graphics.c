@@ -1,5 +1,6 @@
 #include <objects.h>
 #include <eval.h>
+#include <symbols.h>
 #include <portable/libc.h>
 #include <parser.h>
 
@@ -18,19 +19,12 @@ object_t *graph_send_buffer(object_t *params)
         *dst++ = (*src)->u.value;
         src++;
     }
-    memcpy(0xA0000, buf, s->length);
+    memcpy((void *)0xA0000, buf, s->length);
     free_region(buf);
     return NULL;
 }
 
-object_t *text_send_buffer(object_t *params)
-{
-    string_t *s = FIRST(params)->u.str;
-    memcpy(0xB8000, s->data, s->length);
-    return NULL;
-}
-
-graph_init()
+void graph_init()
 {
     register_func("GRAPH-SEND-BUFFER", graph_send_buffer);
 }
