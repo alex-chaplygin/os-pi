@@ -74,6 +74,8 @@
 (defclass element ()
   (x ; Координата x (относительно левого верхнего угла родительского элемента)
    y ; Координата y (относительно левого верхнего угла родительского элемента)
+   ofs-x ; Смещение для дочерних элементов
+   ofs-y
    width ; Ширина элемента
    height ; Высота элемента
    text ; Текст элемента
@@ -95,19 +97,23 @@
 (gen/calc-coord calc-x x)
 (gen/calc-coord calc-y y)
 
-(defmethod draw-offset ((self element) offs-x offs-y)
-  "Отрисовка элемента со смещением offs-x offs-y"
+(defmethod draw ((self element))
+  "Отрисовка элемента"
   (set-color (slot self 'color))
   (set-back-color (slot self 'back-color))
-  (let ((new-x (+ (slot self 'x) offs-x))
-	(new-y (+ (slot self 'y) offs-y))
-	(w (slot self 'width))
-	(h (slot self 'height)))
+  (let* ((ofs-x (slot self 'ofs-x))
+	 (ofs-y (slot self 'ofs-y))
+	 (new-x (+ (slot self 'x) ofs-x))
+	 (new-y (+ (slot self 'y) ofs-y))
+	 (w (slot self 'width))
+	 (h (slot self 'height)))
     (fill-rect new-x new-y w h " ")
-    (app '(lambda (el) (draw-offset el new-x new-y)) (slot self 'children))))
-
-(defmethod draw ((self element))
-  (draw-offset self 0 0))
+    (app '(lambda (el)
+	   (setf (slot self 'ofs-x) new-x) ;устанавливаем новое смещение для дочерних элементов
+	   (setf (slot self 'ofs-y) new-y)
+	   (draw el)
+	   (setf (slot self 'ofs-x) ofs-x) ;восстанавливаем смещение
+	   (setf (slot self 'ofs-y) ofs-y)) (slot self 'children))))
 
 (defmethod add-child ((self element) child)
   "Добавление дочернего элемента child"
@@ -159,6 +165,10 @@
   (setf (slot self 'color) +black+)
   (setf (slot self 'back-color) +light-gray+)
   (setf (slot self 'active-color) +white+)
+  (setf (slot self 'x) 0)
+  (setf (slot self 'y) 0)
+  (setf (slot self 'ofs-x) 0) ; смещение для отрисовки дочерних элементов
+  (setf (slot self 'ofs-y) 0)
   (setf (slot self 'current-element-pos) (cons 0 0))
   (setf (slot self 'max-children-bottom) 0))
 
