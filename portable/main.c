@@ -37,6 +37,7 @@ const void *_lisp_start;
 
 /// последний прочитанный токен
 extern token_t token;
+void graph_init();
 
 void init_all();
 
