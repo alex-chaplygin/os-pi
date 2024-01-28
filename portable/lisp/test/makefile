@@ -21,7 +21,7 @@ all: $(TESTS)
 	gcc $(CFLAGS) $(LDFLAGS) -o $@ $^
 /tmp/test_parser: test_parser.c ../parser.c ../objects.c ../alloc.c
 	gcc $(CFLAGS) $(LDFLAGS) -o $@ $^
-/tmp/test_arrays: test_arrays.c ../symbols.c ../objects.c ../array.c
+/tmp/test_arrays: test_arrays.c ../symbols.c ../objects.c ../array.c ../alloc.c
 	gcc $(CFLAGS) $(LDFLAGS) -o $@ $^
 /tmp/test_str_int: test_str_int.c ../symbols.c ../objects.c ../str.c
 	gcc $(CFLAGS) $(LDFLAGS) -o $@ $^

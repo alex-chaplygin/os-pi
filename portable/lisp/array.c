@@ -11,10 +11,10 @@
  * 
  * @return объект массива
 */
-object_t *make_array(object_t *list)
+object_t make_array(object_t list)
 {
-    array_t *new_arr = new_empty_array(FIRST(list)->u.value);
-    object_t *new_obj = object_new(ARRAY, new_arr);
+    array_t *new_arr = new_empty_array(get_value(FIRST(list)));
+    object_t new_obj = NEW_OBJECT(ARRAY, new_arr);
     return new_obj;
 }
 
@@ -25,29 +25,29 @@ object_t *make_array(object_t *list)
  * 
  * @return объект изменённого массива
 */
-object_t *seta(object_t *list)
+object_t seta(object_t list)
 {
-    if (list == NULL || TAIL(list) == NULL || TAIL(TAIL(list)) == NULL) {
+    if (list == NULLOBJ || TAIL(list) == NULLOBJ || TAIL(TAIL(list)) == NULLOBJ) {
 	error("seta: invalid arguments");
 	return ERROR;
     }
-    if (TAIL(TAIL(TAIL(list))) != NULL)
+    if (TAIL(TAIL(TAIL(list))) != NULLOBJ)
     {
         error("seta: many args");
 	    return ERROR;
     }
-    object_t *arr_o = FIRST(list);
-    if (arr_o->type != ARRAY){
+    object_t arr_o = FIRST(list);
+    if (TYPE(arr_o) != ARRAY) {
 	error("seta: not array");
 	return ERROR;
     }	
-    int index = SECOND(list)->u.value;
-    if (index >= arr_o->u.arr->length || index < 0) {
+    int index = get_value(SECOND(list));
+    if (index >= GET_ARRAY(arr_o)->length || index < 0) {
 	error("seta: index out of range");
 	return ERROR;
     }
-    object_t *obj = THIRD(list);
-    arr_o->u.arr->data[index] = obj;
+    object_t obj = THIRD(list);
+    GET_ARRAY(arr_o)->data[index] = obj;
     return arr_o;
 }
 
@@ -58,28 +58,28 @@ object_t *seta(object_t *list)
  * 
  * @return объект по указанному индексу массива
 */
-object_t *aref(object_t *list)
+object_t aref(object_t list)
 {
-    if (list == NULL || TAIL(list) == NULL) {
+    if (list == NULLOBJ || TAIL(list) == NULLOBJ) {
         error("aref: invalid arguments");
         return ERROR;
     }
-    object_t *arr_o = FIRST(list);
-    if (arr_o->type != ARRAY) {
+    object_t arr_o = FIRST(list);
+    if (TYPE(arr_o) != ARRAY) {
 	error("aref: not an array");
 	return ERROR;
     }
-    object_t *index_obj = SECOND(list);
-    if (index_obj->type != NUMBER) {
+    object_t index_obj = SECOND(list);
+    if (TYPE(index_obj) != NUMBER && TYPE(index_obj) != BIGNUMBER) {
         error("aref: index should be a number");
         return ERROR;
     }    
-    int index = index_obj->u.value;
-    if (index >= arr_o->u.arr->length || index < 0) {
+    int index = get_value(index_obj);
+    if (index >= GET_ARRAY(arr_o)->length || index < 0) {
 	error("aref: index out of range");
 	return ERROR;
     }
-    return arr_o->u.arr->data[index];
+    return GET_ARRAY(arr_o)->data[index];
 }
 
 void init_arrays()
