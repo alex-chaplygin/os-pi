@@ -175,20 +175,42 @@ int hex_num()
  * Разбирает число с плавающей точкой. 
  * Цифры идут уже после запятой.
  *
- * @param in_num целая часть числа
+ * @param int_num целая часть числа
  * @return число с плавающей точкой в формате int
  */
-int get_float_num(int int_num)
+int get_float_num(int int_num, int sign)
 {
     int cnt = 0;
-    while (int_num != 1) {
-	cnt++;
-	int_num >>= 1;
+    float float_num = 0;
+    int floatbits = 0;
+    int num = int_num;
+    int temp;
+    get_cur_char();
+    float count = 1;
+    while(is_digit(cur_symbol)) {
+	float_num = float_num * 10 + (cur_symbol - '0');
+	temp = float_num;
+	temp /= 10;
+	count *= 10;
+	get_cur_char();
     }
+    float res_float = int_num + (float_num / count);
+    printf("res = %f\n", res_float);
+    if (sign == -1)
+	res_float = -res_float;
+    return *(int *)&res_float;
+    /*    printf("res = %f\n", res_float);
+    while (num != 1) {
+	cnt++;
+	num >>= 1;
+    }
+    printf("cnt = %d\n", cnt);
     int exp = cnt + 127;
+    printf("int = %d exp = %x\n", int_num, exp);
     int mantissa = int_num & ((1 << cnt) - 1);
+    printf("man = %x\n", mantissa);
     int result = (exp << 23) | (mantissa << (23 - cnt));
-    return result;
+    return result;*/
 }
 
 /** 
@@ -210,7 +232,7 @@ int get_num()
     const int sgn_shr = CHAR_BIT * sizeof(int) - 1;
     int sgn = fl ? -1 : 1;
     int msb;
-    while (is_alpha(cur_symbol) || is_digit(cur_symbol) || is_symbol(cur_symbol))  {
+    while (is_alpha(cur_symbol) || is_digit(cur_symbol) || is_symbol(cur_symbol) || cur_symbol == '.')  {
 	if (is_digit(cur_symbol)) {
 	    cur_num = cur_num * 10 + sgn * (cur_symbol - '0');
 	    msb = (cur_num >> sgn_shr) & 1;
@@ -220,9 +242,9 @@ int get_num()
 		return 0;
 	    }
 	    get_cur_char();
-	} else if (cur_symbol=='.') {
+	} else if (cur_symbol == '.') {
 	    token.type = T_FLOAT;
-	    return get_float_num(cur_num);
+	    return get_float_num(cur_num, sgn);
 	} else {
 	    token_error = 1;
 	    printf("invalid num\n");
