@@ -26,6 +26,7 @@ typedef struct {
 
 token_t *get_token();
 void print_token(token_t *token);
+void reset_buffer();
 
 extern char *boot_code;
 extern int boot_load;
