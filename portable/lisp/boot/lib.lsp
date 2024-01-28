@@ -229,3 +229,10 @@
       (for xx 1 y
         (setq x (* x x)))
       x)))
+
+(defvar *gensym-counter* 0) ;счетчик уникальных символов
+
+(defun gensym ()
+  "Возвращает уникальный символ типа G<n>, где n - новое число"
+  (setf *gensym-counter* (++ *gensym-counter*))
+  (intern (concat "G" (inttostr *gensym-counter*))))
