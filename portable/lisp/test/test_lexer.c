@@ -134,7 +134,7 @@ void test_get_float_num(char* src, float expect)
     reset_buffer();
     token_t *t = get_token();
     int curnum = t->value;
-    printf("%x\n", curnum);
+    ASSERT(t->type, T_FLOAT);
     ASSERT(curnum, *(int *)&expect);
 }
 
@@ -375,8 +375,7 @@ int main()
     test_get_float_num("0.0", 0.0f);
     test_get_float_num("10.567", 10.567f);
     test_get_float_num("1024.1024", 1024.1024f);
-    float f = -1023.1024f;
-    test_get_float_num("-1024.1024", *(unsigned int *)&f);
+    test_get_float_num("-1024.1024", -1024.1024f);
     test_get_symbol("Hello 12", "Hello"); // 14
     test_get_symbol("* 1 2", "*"); // 14
     test_get_token("lparen", "(", LPAREN); // 1
