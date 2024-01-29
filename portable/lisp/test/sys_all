@@ -1,7 +1,7 @@
 echo "------------SYSTEM TEST-------------------"
 sh sys_test "\"\xFFF\"" "get_string: invalid symbol code"
 #Проверка точечной пары
-sh sys_test "'(1.1)" "(1 . 1)"
+sh sys_test "'(1 . 1)" "(1 . 1)"
 #Тест для самого большого числа int
 sh sys_test "2147483647" "2147483647"
 ##Тест для самого большого числа int+1
@@ -298,8 +298,8 @@ NIL"
 
 echo "---Тесты точечных пар----"
 sh sys_test "'(4 . 5)" "(4 . 5)"
-sh sys_test "'(4.(3.(5.())))" "(4 3 5)"
-sh sys_test "'(4.5"  "expected )
+sh sys_test "'(4 .(3 .(5 .())))" "(4 3 5)"
+sh sys_test "'(4 .5"  "expected )
 quote: no args"
 
 echo "---Тесты OR----"
@@ -485,6 +485,16 @@ sh sys_test "(inttostr 'a)" "inttostr: invalid arg
 sh sys_test "(inttostr 234)" "\"234\""
 sh sys_test "(inttostr -234)" "\"-234\""
 sh sys_test "(inttostr 0)" "\"0\""
+
+echo  "---Тесты CODE-CHAR---"
+sh sys_test "(code-char 0x20)" "\" \""
+sh sys_test "(code-char 0x39)" "\"9\""
+sh sys_test "(code-char)" "code-char: no arguments
+"
+sh sys_test "(code-char 1 2)" "code-char: many arguments
+"
+sh sys_test "(code-char 'a)" "code-char: not number in params
+"
 
 echo  "---Тесты AREF---"
 # два аргумента

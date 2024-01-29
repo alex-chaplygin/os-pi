@@ -234,6 +234,32 @@ object_t *int_to_str(object_t *list)
     return object_new(STRING, s);
 }
 
+/**
+ * Создаёт символ-строку по коду
+ * @param list (индекс)
+ * @return код символа - число
+**/
+object_t *code_char(object_t *list)
+{
+    if (list == NULL) {
+	error("code-char: no arguments\n");
+	return ERROR;
+    }
+    if (TAIL(list) != NULL) {
+	error("code-char: many arguments\n");
+	return ERROR;
+    }
+    if (FIRST(list)->type != NUMBER) {
+    	error("code-char: not number in params\n");
+    	return ERROR;
+    }
+    int code = FIRST(list)->u.value;
+    char* str = alloc_region(2);
+    *str = code;
+    *(str + 1) = 0;
+    return object_new(STRING, str);
+}
+
 void init_strings()
 {
     register_func("INTERN", intern);
@@ -243,4 +269,5 @@ void init_strings()
     register_func("CHAR", str_char);
     register_func("SUBSEQ", subseq);
     register_func("INTTOSTR", int_to_str);
+    register_func("CODE-CHAR",code_char);
 }
