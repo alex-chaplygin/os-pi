@@ -11,20 +11,20 @@
  * 
  * @return указатель на значиение первого элемента списка
  */
-object_t *car(object_t *list)
+object_t car(object_t list)
 {
-    if (list == NULL)
+    if (list == NULLOBJ)
     {
 	error("car: No args");
 	return ERROR;
     }
-    if (TAIL(list) != NULL)
+    if (TAIL(list) != NULLOBJ)
     {
         error("car: Too many args");
         return ERROR;
     }
-    object_t *arg = FIRST(list);
-    if (arg->type != PAIR){
+    object_t arg = FIRST(list);
+    if (TYPE(arg) != PAIR){
         error("Not list in car");
 	return ERROR;
     }
@@ -39,20 +39,20 @@ object_t *car(object_t *list)
  * 
  * @return указатель на второй элемент списка
  */
-object_t *cdr(object_t *list)
+object_t cdr(object_t list)
 {
-    if (list == NULL)
+    if (list == NULLOBJ)
     {
 	error("cdr: No args");
 	return ERROR;
     }
-    if (TAIL(list) != NULL)
+    if (TAIL(list) != NULLOBJ)
     {
         error("cdr: Too many args");
         return ERROR;
     }
-    object_t *arg = FIRST(list);
-    if (arg->type != PAIR){
+    object_t arg = FIRST(list);
+    if (TYPE(arg) != PAIR){
         error("Not list in cdr");
     	return ERROR;
     }
@@ -66,14 +66,14 @@ object_t *cdr(object_t *list)
  *
  * @return список который содержит 1 параметр, и продолжается с элементами 2 параметра.
  */
-object_t *cons(object_t *list)
+object_t cons(object_t list)
 {			
-    if (list == NULL || TAIL(list) == NULL || TAIL(TAIL(list)) != NULL) {
+    if (list == NULLOBJ || TAIL(list) == NULLOBJ || TAIL(TAIL(list)) != NULLOBJ) {
 	error("CONS: invalid params");
 	return ERROR;
     }
-    object_t *p1 = FIRST(list);
-    object_t *p2 = SECOND(list);
+    object_t p1 = FIRST(list);
+    object_t p2 = SECOND(list);
     return new_pair(p1, p2);
 }
 
@@ -82,30 +82,30 @@ object_t *cons(object_t *list)
  * @param params параметры (пара, любой объект)
  * @return возвращает список с изменённой левой частью
  */
-object_t *rplaca(object_t *params)
+object_t rplaca(object_t params)
 {
-    if (params == NULL) {
+    if (params == NULLOBJ) {
 	error("RPLACA: no params");
 	return ERROR;
     }
-    if (TAIL(params) == NULL) {
+    if (TAIL(params) == NULLOBJ) {
 	error("RPLACA: not enough params");
 	return ERROR;
     }
-    if (TAIL(TAIL(params)) != NULL) {
+    if (TAIL(TAIL(params)) != NULLOBJ) {
 	error("RPLACA: too many params");
 	return ERROR;
     }
-    if (FIRST(params) == NULL) {
+    if (FIRST(params) == NULLOBJ) {
 	error("RPLACA: empty list");
 	return ERROR;
     }
-    if (FIRST(params)->type != PAIR) {
+    if (TYPE(FIRST(params)) != PAIR) {
 	error("RPLACA: first param is not pair");
 	return ERROR;
     }
-    object_t *list = FIRST(params);
-    list->u.pair->left = SECOND(params);
+    object_t list = FIRST(params);
+    GET_PAIR(list)->left = SECOND(params);
     return list;
 }
 
@@ -114,30 +114,30 @@ object_t *rplaca(object_t *params)
  * @params params параметры (пара, любой объект)
  * @return возвращает список с изменённой правой частью
  */
-object_t *rplacd(object_t *params)
+object_t rplacd(object_t params)
 {
-    if (params == NULL) {
+    if (params == NULLOBJ) {
 	error("RPLACD: no params");
 	return ERROR;
     }
-    if (TAIL(params) == NULL) {
+    if (TAIL(params) == NULLOBJ) {
 	error("RPLACD: not enough params");
 	return ERROR;
     }
-    if (TAIL(TAIL(params)) != NULL) {
+    if (TAIL(TAIL(params)) != NULLOBJ) {
 	error("RPLACD: too many params");
 	return ERROR;
     }
-    if (FIRST(params) == NULL) {
+    if (FIRST(params) == NULLOBJ) {
 	error("RPLACD: empty list");
 	return ERROR;
     }
-    if (FIRST(params)->type != PAIR) {
+    if (TYPE(FIRST(params)) != PAIR) {
 	error("RPLACD: first param is not pair");
 	return ERROR;
     }
-    object_t *list = FIRST(params);
-    list->u.pair->right = SECOND(params);
+    object_t list = FIRST(params);
+    GET_PAIR(list)->right = SECOND(params);
     return list;
 }
 
