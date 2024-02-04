@@ -102,30 +102,30 @@ void test_car_many_args()
 /* /\* */
 /*  * Попытка вычисления объекта NULLOBJ для cdr */
 /*  *\/ */
-/* void test_cdr_null() */
-/* { */
-/*     printf("test_cdr_null:\n"); */
+ void test_cdr_null() 
+ { 
+     printf("test_cdr_null:\n"); 
 
-/*     object_t res = cdr(NULLOBJ); */
-/*     ASSERT(res, ERROR); */
-/* } */
+     object_t res = cdr(NULLOBJ); 
+     ASSERT(res, ERROR); 
+ } 
 
 /* /\* */
 /*  * Попытка вычисления объекта из нескольких элеемнтов для cdr */
 /*  *\/ */
-/* void test_cdr_many_args() */
-/* { */
-/*     printf("test_cdr_many_args:\n"); */
+ void test_cdr_many_args() 
+ { 
+  printf("test_cdr_many_args:\n"); 
     
-/*     int num1 = 1; */
-/*     int num2 = 2; */
-/*     object_t num_obj1 = new_number(num1); */
-/*     object_t num_obj2 = new_number(num2); */
+    int num1 = 1; 
+    int num2 = 2; 
+     object_t num_obj1 = new_number(num1); 
+    object_t num_obj2 = new_number(num2); 
 
-/*     object_t list_with_two_args = new_pair(num_obj1, new_pair(num_obj2, NULLOBJ)); */
-/*     object_t res = cdr(list_with_two_args); */
-/*     ASSERT(res, ERROR); */
-/* } */
+     object_t list_with_two_args = new_pair(num_obj1, new_pair(num_obj2, NULLOBJ)); 
+     object_t res = cdr(list_with_two_args); 
+     ASSERT(res, ERROR); 
+ } 
 
 /* /\** */
 /*  * создать объект для выражения (cons (quote a) (quote (5))) */
@@ -404,11 +404,11 @@ int main()
     test_car_null();//59
     test_car_many_args();//60
     //test_invalid_car();//58
-    /*    test_cons();//12
-    test_invalid_cdr();//61
+    //test_cons();//12
+    //test_invalid_cdr();//61
     test_cdr_null();//62
     test_cdr_many_args();//63    test_rplaca();
-    test_cons_noparams();//64
+    /*test_cons_noparams();//64
     test_cons2();//12
     test_cons_one_param();//66
     test_cons_3_params();//65
@@ -427,4 +427,3 @@ int main()
     test_list();*/
     return 0;
 }
-
