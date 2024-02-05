@@ -25,6 +25,8 @@ object_t *eq(object_t *list);
 object_t *and(object_t *list);
 object_t *or(object_t *list);
 object_t *backquote(object_t *list);
+object_t *macro_call(object_t *macro, object_t *args, object_t *env);
+object_t *eval_func(object_t *lambda, object_t *args, object_t *env);
 
 void error(char *str)
 {
@@ -693,6 +695,41 @@ void test_is_lambda_no_body()
     ASSERT(i, 0);
 }
 
+/** 
+ * Вызов (macrocall (lambda (x) (list x)))
+ */
+void test_macro_call()
+{
+    printf("test_macro_call: \n");
+    int num = 10;
+    object_t *p1 = object_new(SYMBOL, "x");
+    object_t *q = new_pair(object_new(SYMBOL, "LIST"),
+        new_pair(p1, NULL));
+    object_t *list = new_pair(object_new(SYMBOL, "LAMBDA"), new_pair(p1, new_pair(q, NULL)));
+    object_t *args = new_pair(object_new(NUMBER, &num), NULL);
+    object_t *res = macro_call(list, args, NULL);
+    ASSERT(res->u.value, 10);
+}
+
+/** 
+ * Тест вызова функции ((lambda (x) x) 10)
+ */
+void test_eval_func()
+{
+    printf("test_eval_func: ");
+
+    object_t *x1 = object_new(SYMBOL, "x"); // x
+    object_t *param1 = new_pair(x1, NULL); // (x)
+    object_t *list = new_pair(object_new(SYMBOL, "LAMBDA"), new_pair(param1, param1)); // (lambda (x) x)
+    
+    int numX = 10;
+    object_t *arg_x = object_new(NUMBER, &numX); // 10
+    object_t *args = new_pair(arg_x, NULL); //(10)
+    
+    object_t *res = eval_func(list, args, NULL);
+    ASSERT(res->type, NUMBER);
+    ASSERT(res->u.value, 10);
+}
 /*
 eval_int
 +---------------------------+------------------------------------------------+------------------------------------------------------+
@@ -857,5 +894,7 @@ int main()
     test_is_lambda_invalid_params();
     test_is_lambda_not_symbol();
     test_is_lambda_no_body();
+    //    test_macro_call();
+    test_eval_func();
     return 0;
 }
