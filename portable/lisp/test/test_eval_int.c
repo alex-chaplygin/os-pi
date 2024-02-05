@@ -123,23 +123,6 @@ void test_is_lambda()
  * Вызвать функцию is_lambda
  * Проверить результат = 0
  */
-void test_is_lambda_not_symbol()
-{
-    printf("test_is_lambda_not_symbol: ");
-    int num = 5;
-    object_t *p1 = object_new(SYMBOL, "a");
-    object_t *p2 = object_new(NUMBER, &num);
-    object_t *params = new_pair(p1, new_pair(p2, NULL));
-
-    object_t *q = new_pair(object_new(SYMBOL, "ATOM"),
-        new_pair(object_new(SYMBOL, "CAR"), new_pair(params, NULL)));
-    
-    object_t *list = new_pair(object_new(SYMBOL, "LAMBDA"), new_pair(params, new_pair(q, NULL)));
-
-    int i = is_lambda(list);
-    ASSERT(i, 0);
-}
-
 object_t *create_env()
 {
   int num1 = 1;
@@ -621,6 +604,95 @@ void test_or_nil()
     ASSERT(res, nil);
 }
 
+/** 
+ * Тест на неправильный символ LAMBDA
+ */
+void test_is_lambda_invalid_symbol()
+{
+    printf("test_is_lambda_invalid_symbol (lambda->type != SYMBOL) \n");
+    int num = 5;
+    object_t *p1 = object_new(SYMBOL, "a");
+    object_t *p2 = object_new(NUMBER, &num);
+    object_t *params = new_pair(p1, new_pair(p2, NULL));
+
+    object_t *q = new_pair(object_new(SYMBOL, "ATOM"),
+        new_pair(object_new(SYMBOL, "CAR"), new_pair(params, NULL)));
+    
+    object_t *list = new_pair(object_new(NUMBER, &num), new_pair(params, new_pair(q, NULL)));
+
+    int i = is_lambda(list);
+    ASSERT(i, 0);
+}
+
+/** 
+ * LAMBDA без параметров
+ */
+void test_is_lambda_no_params()
+{
+    printf("test_is_lambda_no_params \n");
+    
+    object_t *list = new_pair(object_new(SYMBOL, "LAMBDA"), NULL);
+
+    int i = is_lambda(list);
+    ASSERT(i, 0);
+}
+
+/** 
+ * Неправильный список аргументов в функции
+ */
+void test_is_lambda_invalid_params()
+{
+    printf("test_is_lambda_invalid_params \n");
+
+    object_t *p1 = object_new(SYMBOL, "a");
+
+    object_t *q = new_pair(object_new(SYMBOL, "ATOM"),
+        new_pair(object_new(SYMBOL, "CAR"), new_pair(p1, NULL)));
+    
+    object_t *list = new_pair(object_new(SYMBOL, "LAMBDA"), new_pair(p1, new_pair(q, NULL)));
+
+    int i = is_lambda(list);
+    ASSERT(i, 0);
+}
+
+/** 
+ * Не символ в параметрах
+ */
+void test_is_lambda_not_symbol()
+{
+    printf("test_is_lambda_not_symbol: \n");
+    
+    int num = 5;
+    object_t *p1 = object_new(SYMBOL, "a");
+    object_t *p2 = object_new(NUMBER, &num);
+    object_t *params = new_pair(p1, new_pair(p2, NULL));
+
+    object_t *q = new_pair(object_new(SYMBOL, "ATOM"),
+        new_pair(object_new(SYMBOL, "CAR"), new_pair(params, NULL)));
+    
+    object_t *list = new_pair(object_new(SYMBOL, "LAMBDA"), new_pair(params, new_pair(q, NULL)));
+
+    int i = is_lambda(list);
+    ASSERT(i, 0);
+}
+
+/** 
+ * Нет тела в функции
+ */
+void test_is_lambda_no_body()
+{
+    printf("test_is_lambda_no_body \n");
+
+    object_t *p1 = object_new(SYMBOL, "a");
+    object_t *p2 = object_new(SYMBOL, "b");
+    object_t *params = new_pair(p1, new_pair(p2, NULL));
+    
+    object_t *list = new_pair(object_new(SYMBOL, "LAMBDA"), new_pair(params, NULL));
+
+    int i = is_lambda(list);
+    ASSERT(i, 0);
+}
+
 /*
 eval_int
 +---------------------------+------------------------------------------------+------------------------------------------------------+
@@ -749,7 +821,6 @@ int main()
     init_eval();
     init_regions();
     test_is_lambda();//14
-    test_is_lambda_not_symbol();//124
     test_cond();//13
     test_cond_null();//67
     test_cond_tail_null();//69    
@@ -781,6 +852,10 @@ int main()
     test_or_first();
     test_or_tail();
     test_or_nil();
+    test_is_lambda_invalid_symbol();
+    test_is_lambda_no_params();
+    test_is_lambda_invalid_params();
+    test_is_lambda_not_symbol();
+    test_is_lambda_no_body();
     return 0;
 }
-
