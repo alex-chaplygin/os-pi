@@ -10,5 +10,5 @@
 // Хвост списка
 #define TAIL(o) (GET_PAIR(o)->right)
 
-object_t *eval(object_t *obj, object_t *env);
+object_t eval(object_t obj, object_t env);
 void init_eval();
