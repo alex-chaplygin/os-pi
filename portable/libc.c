@@ -201,36 +201,41 @@ void print_float_num(float num)
  * %d - вывод десятичного числа
  * %x - вывод шестнадцатеричного числа
  * %s - вывод строки 
- * @param *str указатель на строку
+ * @param *format указатель на форматную строку
+ * @param args вариативные аргументы
  *
  */
-void printf(char *str,...)
+void vprintf(char *format, va_list args)
 {
-  int i = 0;
-    
-  int *param = (int *)&str;
-  for (i = 0; str[i]!='\0'; i++) {
-      char symbol = str[i];
-      char next_symbol = str[i + 1];
- 
-      if (symbol == '%' && next_symbol == 'i') {
-	  print_num(*++param);      
-	  i++;
-      } else if (symbol=='%' && next_symbol=='d') {
-	  print_num(*++param);      
-	  i++;
-      } else if (symbol=='%' && next_symbol=='x') {
-	  print_hex_num(*++param);
-	  i++;
-      } else if (symbol=='%' && next_symbol=='s') {
-	  printf((char *)*++param);
-	  i++;
-      } else if (symbol=='%' && next_symbol=='c') {
-	  putchar((char)*++param);
-	  i++;
-      } else
-	  putchar(symbol);
-  }
+    for (int i = 0; format[i] != '\0'; i++) {
+        char symbol = format[i];
+        char next_symbol = format[i + 1];
+        if (symbol == '%' && next_symbol == 'i') {
+            print_num(va_arg(args, int));
+            i++;
+        } else if (symbol == '%' && next_symbol == 'd') {
+            print_num(va_arg(args, int));
+            i++;
+        } else if (symbol == '%' && next_symbol == 'x') {
+            print_hex_num(va_arg(args, unsigned int));
+            i++;
+        } else if (symbol == '%' && next_symbol == 's') {
+            vprintf(va_arg(args, char *), args);
+            i++;
+        } else if (symbol == '%' && next_symbol == 'c') {
+            putchar(va_arg(args, int));
+            i++;
+        } else
+            putchar(symbol);
+    }
+}
+
+void printf(char *str, ...)
+{
+    va_list args;
+    va_start(args, str);
+    vprintf(str, args);
+    va_end(args);
 }
 
 void puts(char *str)

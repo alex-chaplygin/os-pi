@@ -303,8 +303,7 @@ NIL"
 echo "---Тесты точечных пар----"
 sh sys_test "'(4 . 5)" "(4 . 5)"
 sh sys_test "'(4 .(3 .(5 .())))" "(4 3 5)"
-sh sys_test "'(4 .5"  "expected )
-quote: no args"
+sh sys_test "'(4 .5"  "expected )"
 
 echo "---Тесты OR----"
 # случай TRUE

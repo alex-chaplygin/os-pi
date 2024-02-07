@@ -2,6 +2,7 @@
 #include <string.h>
 #include <setjmp.h>
 #include <unistd.h>
+#include <stdarg.h>
 #include "lexer.h"
 #include "objects.h"
 #include "eval.h"
@@ -47,8 +48,11 @@ char *itoa(int num, char *str, int rad)
 void error(char *str, ...)
 {
     if (str[0] != '\0') {
-        printf(str);
-        printf("\n");
+        va_list vals;
+        va_start(vals, str);
+        vprintf(str, vals);
+        va_end(vals);
+        putchar('\n');
     }
     longjmp(jmp_env, 1);
 }
