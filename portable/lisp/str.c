@@ -108,7 +108,8 @@ object_t *str_char(object_t *list)
 	error("str-char: invalid index\n");
 	return ERROR;
     }
-    return object_new(NUMBER, &(str->u.str->data[ind]));
+    int c = str->u.str->data[ind];
+    return object_new(NUMBER, &c);
 }
 
 /**
