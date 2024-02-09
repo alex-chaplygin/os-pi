@@ -12,7 +12,7 @@
 /// Всего массивов
 #define MAX_ARRAYS 100
 /// Максимальная длина символа
-#define MAX_STR 500
+#define MAX_SYM_STR 32
 /// Всего больших чисел
 #define MAX_NUMBERS 1000
 
@@ -129,7 +129,7 @@ typedef  object_t (*func_t)(object_t);
 typedef struct symbol_s
 {
     //имя символа
-    char str[MAX_STR];
+    char str[MAX_SYM_STR];
     //указатель на следующий символ в цепочке хеш таблице
     struct symbol_s *next;
     // указатель на объект - значение переменной
@@ -140,6 +140,9 @@ typedef struct symbol_s
     object_t macro;
     //указатель на функцию для примитивов
     func_t func;
+#ifndef X64
+    int pad[3];
+#endif
 } symbol_t;
 
 extern int print_counter;
