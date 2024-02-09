@@ -754,6 +754,18 @@ void test_eval_func2()
     ASSERT(res->u.value, 10);
 }
 
+/** 
+ * Тест создания окружения с числом аргументов большим чем параметров
+ */
+void test_er_num_arg_make_env()
+{
+    printf("test_er_num_arg_make_env: \n");
+    int num = 1;
+    object_t *args = NULL;
+    object_t *val = object_new(NUMBER, &num);
+    object_t *res = make_env(args, val);
+    ASSERT(res, ERROR);
+}
 /*
 eval_int
 +---------------------------+------------------------------------------------+------------------------------------------------------+
@@ -921,5 +933,6 @@ int main()
     test_macro_call();
     test_eval_func();
     test_eval_func2();
+    test_er_num_arg_make_env();
     return 0;
 }
