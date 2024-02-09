@@ -42,10 +42,8 @@ object_t parse_quote(char *quote_sym)
     object_t o = parse();
     //printf("quote: ");
     //PRINT(o);
-    if (o == NOVALUE){
+    if (o == NOVALUE)
 	error("quote: no args");
-	return ERROR;
-    }
     object_t p = new_pair(o, NULLOBJ);
     return new_pair(NEW_SYMBOL(quote_sym), p);
 }
@@ -80,8 +78,6 @@ object_t parse_element(type_t type, void *data, tokentype_t t_type)
     else
 	obj = NEW_OBJECT(type, data);
     object_t tail = parse_list();
-    if (tail == ERROR)
-	return ERROR;
     return new_pair(obj, tail);
 }
 
@@ -102,10 +98,8 @@ object_t parse_list()
     //   print_token(cur_tok);
     if (token_error == 1)
 	return ERROR;
-    if (cur_tok->type == END) {
+    if (cur_tok->type == END)
 	error("expected )");
-	return ERROR;
-    }
     if (cur_tok->type == RPAREN)
 	return NULLOBJ;
     if (cur_tok->type == T_NUMBER) {
@@ -124,15 +118,13 @@ object_t parse_list()
     else if (cur_tok->type == DOT) {
 	object_t res = parse();
 	cur_tok = get_token();       
-	if (cur_tok->type != RPAREN) { 
+	if (cur_tok->type != RPAREN)
 	    error("expected )");
-	    return ERROR;
-	}
 	return res;
-    } else if (cur_tok->type == INVALID)
-	return ERROR;
-    else
-	return ERROR;
+    } else if (cur_token->type == INVALID)
+        error("parse: invalid token");
+    else 
+	error("invalid expression");
 }
 
 /** 
@@ -143,12 +135,8 @@ object_t parse_list()
 object_t parse_array()
 {
     object_t o = parse();
-    if (o == ERROR)
-	return ERROR;
-    if (o != NULLOBJ && TYPE(o) != PAIR) {
+    if (o != NULLOBJ && TYPE(o) != PAIR)
 	error("invalid array");
-	return ERROR;
-    }
     return NEW_ARRAY(o);
 }
 
@@ -165,10 +153,8 @@ object_t parse()
     token_t *cur_token = get_token(); // считывается левая скобка
     // printf("parse: ");
     // print_token(cur_token);
-    if (token_error == 1) {
+    if (token_error == 1)
         error("parse: token_error");
-        return ERROR;
-    }
     if (cur_token->type == T_NUMBER) // считывается число
 	return new_number(cur_token->value);
     else if (cur_token->type == T_SYMBOL)//считывается символ
@@ -187,12 +173,8 @@ object_t parse()
 	return NEW_STRING(cur_token->str);
     else if (cur_token->type == END)
         return NOVALUE;
-    else if (cur_token->type == INVALID) {
+    else if (cur_token->type == INVALID)
         error("parse: invalid token");
-        return ERROR;
-    }
-    else {
+    else 
 	error("invalid expression");
-	return ERROR;
-    }
 }

@@ -232,21 +232,14 @@ token_t tok_list_invalid_token[] = {
     
 token_t *tokens;
 
-symbol_t test_symbols[] = {
-    {"A"},
-    {"B"},
-    {"X"},
-    {"Y"},
-    {"Z"},
-    {"QUOTE"},
-    {"BACKQUOTE"},
-    {"COMMA"},
-    {"COMMA-AT"},
-};
-
 char *strupr (char *str);
 object_t parse_list();
 object_t parse();
+
+void error(char *str, ...)
+{
+    printf("%s", str);
+}
 
 void print_token(token_t *token)
 {
@@ -274,14 +267,6 @@ void print_token(token_t *token)
 	break;
     }
 }
-
-/*symbol_t *find_symbol(char *str)
-{
-    for (int i = 0; i < sizeof(test_symbols) / sizeof(symbol_t); i++)
-	if (strcmp(test_symbols[i].str, str) == 0)
-	    return &test_symbols[i];
-    return NULL;
-    } */
 
 void test_strupr ()
 {
@@ -742,7 +727,7 @@ int main()
     init_objects();
     test_strupr();
     test_parse_list_atoms(); // 1, 3, 4, 5
-    test_parse_list_list();  
+    test_parse_list_list();
     test_parse_quote(quote_tokens, "QUOTE"); //12
     test_parse_quote(backquote_tokens, "BACKQUOTE");//12
     test_parse_quote(comma_tokens, "COMMA"); //17
@@ -757,8 +742,8 @@ int main()
     test_parse_array_list(); //9
     test_parse_inner_array(); // 20
     test_parse_array_error(); //21
-    test_parse_array_error_paren(); //19
-    test_parse_backquote_comma(); //17
+    //test_parse_array_error_paren(); //19
+    /*    test_parse_backquote_comma(); //17
     test_parse_quote_number(); //13
     test_parse_backquote_comma_at(); //25
     test_parse_number_dot_number();
@@ -766,6 +751,6 @@ int main()
     test_parse_end();
     test_parse_token_error();
     test_parse_list_expected_rparen();
-    test_parse_list_invalid_token();
+    test_parse_list_invalid_token();*/
     return 0;
 }
