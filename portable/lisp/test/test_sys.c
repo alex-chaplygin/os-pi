@@ -67,17 +67,13 @@ int main()
     do {
 	if (setjmp(jmp_env) == 0) {
 	    object_t *o = parse();
-        if (o == NOVALUE)
-            longjmp(jmp_env, 1);
-        //printf("parse: "); PRINT(o);
-	//	if (o != ERROR) {
+	    if (o == NOVALUE)
+		longjmp(jmp_env, 1);
+	    //printf("parse: "); PRINT(o);
 	    object_t *res = eval(o, NULL);
 	    //printf("res: "); PRINT(res);
-	    //  if (res != ERROR) {
 	    print_counter++;
-	    print_obj(res);
-	    //}
-	    printf("\n");
+	    PRINT(res);
 	}
 	garbage_collect();
     } while (token.type != END);
