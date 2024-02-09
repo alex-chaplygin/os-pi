@@ -411,6 +411,7 @@ sh sys_test "(string-size \"test 12 test test\")" 17
 
 echo "---Тесты STR-CHAR---"
 sh sys_test "(char \"0\" 0)" 48
+sh sys_test "(char \"4321\" 3)" 49
 sh sys_test "(char \"\" 0)" "str-char: invalid index
 "
 sh sys_test "(char \"abc\" 4)" "str-char: invalid index

@@ -9,6 +9,7 @@ object_t *intern(object_t *list);
 object_t *concat(object_t *list);
 object_t *symbol_name(object_t *list);
 object_t *string_size(object_t *list);
+object_t *str_char(object_t *list);
 
 void error(char *str, ...)
 {
@@ -269,6 +270,105 @@ void test_string_size_not_string() {
     ASSERT(result, ERROR);
 }
 
+/**
+ * Тест функции получения символа по индексу в строке
+ * Получение 2 символа строки
+ */
+void test_str_char() {
+    printf("test_str_char: ");
+    char *str = "Hello";
+    int ind = 1;
+    object_t *string_obj = object_new(STRING, str);
+    object_t *index_obj = object_new(NUMBER, &ind);
+    object_t *params = new_pair(string_obj, new_pair(index_obj, NULL));
+    object_t *result = str_char(params);
+    ASSERT(result->type, NUMBER);
+    ASSERT(result->u.value, 'e');
+}
+
+/**
+ * Тест функции получения символа по индексу в строке
+ * Ошибка: без параметра
+ */
+void test_str_char_null() {
+    printf("test_str_char_null: ");
+    object_t *result = str_char(NULL);
+    ASSERT(result, ERROR);
+}
+
+/**
+ * Тест функции получения символа по индексу в строке
+ * Ошибка: не хватает одного параметра
+ */
+void test_str_char_not_all_arguments() {
+    printf("test_str_char_not_all_arguments: ");
+    char *str = "Hello";
+    object_t *string_obj = object_new(STRING, str);
+    object_t *params = new_pair(string_obj, NULL);
+    object_t *result = str_char(params);
+    ASSERT(result, ERROR);
+}
+
+/**
+ * Тест функции получения символа по индексу в строке
+ * Ошибка: второй аргумент не число
+ */
+void test_str_char_second_not_number() {
+    printf("test_str_char_second_not_number: ");
+    char *str = "Hello";
+    object_t *string_obj = object_new(STRING, str);
+    object_t *not_number = object_new(STRING, "abc");
+    object_t *params = new_pair(string_obj, new_pair(not_number, NULL));
+    object_t *result = str_char(params);
+    ASSERT(result, ERROR);
+}
+
+/**
+ * Тест функции получения символа по индексу в строке
+ * Ошибка: аргументов больше чем 2
+ */
+void test_str_char_too_many_arguments() {
+    printf("test_str_char_too_many_arguments: ");
+    char *str = "Hello";
+    int ind = 0;
+    object_t *string_obj = object_new(STRING, str);
+    object_t *index_obj = object_new(NUMBER, &ind);
+    object_t *extra_arg = object_new(NUMBER, &ind);
+    object_t *params = new_pair(string_obj, new_pair(index_obj, new_pair(extra_arg, NULL)));
+    object_t *result = str_char(params);
+    ASSERT(result, ERROR);
+}
+
+/**
+ * Тест функции получения символа по индексу в строке
+ * Ошибка: первый аргумент не строка
+ */
+void test_str_char_first_not_string() {
+    printf("test_str_char_first_not_string: ");
+    int ind = 0;
+    object_t *not_string = object_new(NUMBER, &ind);
+    object_t *index_obj = object_new(NUMBER, &ind);
+    object_t *params = new_pair(not_string, new_pair(index_obj, NULL));
+    object_t *result = str_char(params);
+    ASSERT(result, ERROR);
+}
+
+/**
+ * Тест функции получения символа по индексу в строке
+ * Ошибка: неверный индекс символа
+ */
+void test_str_char_invalid_index() {
+    printf("test_str_char_invalid_index: ");
+    char *str = "Hello";
+    int ind = 10;
+    object_t *string_obj = object_new(STRING, str);
+    object_t *index_obj = object_new(NUMBER, &ind);
+    object_t *params = new_pair(string_obj, new_pair(index_obj, NULL));
+    object_t *result = str_char(params);
+    ASSERT(result, ERROR);
+}
+
+
 int main()
 {
     printf("------------test_str_int---------\n");
@@ -292,5 +392,12 @@ int main()
     test_string_size_no_arguments();
     test_string_size_too_many_arguments();
     test_string_size_not_string();
+    test_str_char();
+    test_str_char_null();
+    test_str_char_not_all_arguments();
+    test_str_char_second_not_number();
+    test_str_char_too_many_arguments();
+    test_str_char_first_not_string();
+    test_str_char_invalid_index();
     return 0;
 }
