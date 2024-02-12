@@ -20,6 +20,11 @@ extern int token_error;
 
 FILE *oldstdin;
 
+void error(char *str, ...)
+{
+  printf("%s", str);
+}
+
 /** 
  * Функция перенаправления стандартного ввода в файл.
  * Записывает строку в файл
