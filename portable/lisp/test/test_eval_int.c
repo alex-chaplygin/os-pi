@@ -25,6 +25,7 @@ object_t *eq(object_t *list);
 object_t *and(object_t *list);
 object_t *or(object_t *list);
 object_t *backquote(object_t *list);
+object_t *defmacro(object_t *list);
 object_t *macro_call(object_t *macro, object_t *args, object_t *env);
 object_t *eval_func(object_t *lambda, object_t *args, object_t *env);
 
@@ -766,6 +767,26 @@ void test_er_num_arg_make_env()
     object_t *res = make_env(args, val);
     ASSERT(res, ERROR);
 }
+
+/** 
+ * Определение нового макроса
+ */
+void test_defmacro()
+{
+    printf("test_defmacro: ");
+    
+    object_t *arg1 = object_new(SYMBOL, "test");
+    object_t *arg2 = new_pair(nil, new_pair(nil, NULL));
+    int num = 1;
+    object_t *arg3 = object_new(NUMBER, &num);
+    
+    object_t *args = new_pair(arg1, new_pair(arg2, new_pair(arg3, NULL)));
+    
+    object_t *result = defmacro(args);
+    
+    ASSERT(result->type, SYMBOL);
+    ASSERT(strcmp(result->u.symbol->str, "test"), 0);
+}
 /*
 eval_int
 +---------------------------+------------------------------------------------+------------------------------------------------------+
@@ -934,5 +955,6 @@ int main()
     test_eval_func();
     test_eval_func2();
     test_er_num_arg_make_env();
+    test_defmacro();
     return 0;
 }
