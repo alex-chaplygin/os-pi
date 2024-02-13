@@ -4,3 +4,5 @@
     else {\
 	printf("%d != %d fail\n", (int)v1, (int)v2);	\
     }
+#define OK ASSERT(0,0)
+#define FAIL ASSERT(0,1)
