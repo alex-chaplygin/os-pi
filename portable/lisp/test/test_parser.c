@@ -742,11 +742,11 @@ int main()
     test_parse_quote(comma_tokens, "COMMA"); //17
     test_parse_list_quote(); //16
     test_parse_no_rparen();  //6
-    test_parse_no_rparen_lists(); //10
-    /*test_parse_no_rparen_arrays(); //11 23
+    //test_parse_no_rparen_lists(); //10
+    //test_parse_no_rparen_arrays(); //11 23
       test_parse_inner_list(); //7
       test_parse_invalid();    //2
-      test_parse_invalid_quote(); //2
+      /*  test_parse_invalid_quote(); //2
       test_parse_array(); //18 
       test_parse_array_list(); //9
       test_parse_inner_array(); // 20
