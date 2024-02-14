@@ -10,6 +10,7 @@ object_t *concat(object_t *list);
 object_t *symbol_name(object_t *list);
 object_t *string_size(object_t *list);
 object_t *str_char(object_t *list);
+object_t *code_char(object_t *list);
 
 void error(char *str, ...)
 {
@@ -368,6 +369,55 @@ void test_str_char_invalid_index() {
     ASSERT(result, ERROR);
 }
 
+/**
+ * Тест функции создания символа-строки по коду
+ * Получение 1го символа строки
+ */
+void test_code_char() {
+    printf("test_code_char: ");
+    int ind = 110; // 110 - код символа 'n'
+
+    object_t *params = new_pair(object_new(NUMBER, &ind), NULL);
+    object_t *res = code_char(params);
+
+    ASSERT(res->type, STRING);
+    ASSERT(res->u.str->data[0], 'n');
+}
+
+/**
+ * Тест функции создания символа-строки по коду
+ * Ошибка: нет аргументов
+ */
+void test_code_char_no_arguments() {
+    printf("test_code_char_no_arguments: ");
+    object_t *result = code_char(NULL);
+    ASSERT(result, ERROR);
+}
+
+/**
+ * Тест функции создания символа-строки по коду
+ * Ошибка: слишком много аргументов
+ */
+void test_code_char_too_many_arguments() {
+    printf("test_code_char_too_many_arguments: ");
+    int num = 2;
+    object_t *number_obj = object_new(NUMBER, &num);
+    object_t *params = new_pair(number_obj, new_pair(number_obj, NULL));
+    object_t *result = code_char(params);
+    ASSERT(result, ERROR);
+}
+
+/**
+ * Тест функции создания символа-строки по коду
+ * Ошибка: передано не число
+ */
+void test_code_char_not_number() {
+    printf("test_code_char_not_number: ");
+    char *str = "Hello";
+    object_t *not_number = object_new(STRING, str);
+    object_t *result = code_char(not_number);
+    ASSERT(result, ERROR);
+}
 
 int main()
 {
@@ -399,5 +449,9 @@ int main()
     test_str_char_too_many_arguments();
     test_str_char_first_not_string();
     test_str_char_invalid_index();
+    test_code_char();
+    test_code_char_no_arguments();
+    test_code_char_too_many_arguments();
+    test_code_char_not_number();
     return 0;
 }
