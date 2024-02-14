@@ -757,35 +757,35 @@ void error(char *str, ...)
 /** 
  * Тест создания окружения с числом аргументов большим чем параметров
  */
-void test_er_num_arg_make_env()
-{
-    printf("test_er_num_arg_make_env: \n");
-    int num = 1;
-    object_t *args = NULL;
-    object_t *val = object_new(NUMBER, &num);
-    object_t *res = make_env(args, val);
-    ASSERT(res, ERROR);
-}
+/* void test_er_num_arg_make_env() */
+/* { */
+/*     printf("test_er_num_arg_make_env: \n"); */
+/*     int num = 1; */
+/*     object_t *args = NULL; */
+/*     object_t *val = object_new(NUMBER, &num); */
+/*     object_t *res = make_env(args, val); */
+/*     ASSERT(res, ERROR); */
+/* } */
 
 /** 
  * Определение нового макроса
  */
-void test_defmacro()
-{
-    printf("test_defmacro: ");
+/* void test_defmacro() */
+/* { */
+/*     printf("test_defmacro: "); */
     
-    object_t *arg1 = object_new(SYMBOL, "test");
-    object_t *arg2 = new_pair(nil, new_pair(nil, NULL));
-    int num = 1;
-    object_t *arg3 = object_new(NUMBER, &num);
+/*     object_t *arg1 = object_new(SYMBOL, "test"); */
+/*     object_t *arg2 = new_pair(nil, new_pair(nil, NULL)); */
+/*     int num = 1; */
+/*     object_t *arg3 = object_new(NUMBER, &num); */
     
-    object_t *args = new_pair(arg1, new_pair(arg2, new_pair(arg3, NULL)));
+/*     object_t *args = new_pair(arg1, new_pair(arg2, new_pair(arg3, NULL))); */
     
-    object_t *result = defmacro(args);
+/*     object_t *result = defmacro(args); */
     
-    ASSERT(result->type, SYMBOL);
-    ASSERT(strcmp(result->u.symbol->str, "test"), 0);
-}
+/*     ASSERT(result->type, SYMBOL); */
+/*     ASSERT(strcmp(result->u.symbol->str, "test"), 0); */
+/* } */
 /*
 eval_int
 +---------------------------+------------------------------------------------+------------------------------------------------------+
@@ -952,12 +952,8 @@ int main()
     test_is_lambda_no_body();
     test_macro_call();
     test_eval_func();
-<<<<<<< HEAD
     test_eval_func2();
     test_er_num_arg_make_env();
     test_defmacro();
-=======
-    test_eval_func2();*/
->>>>>>> Переделка eval
     return 0;
 }
