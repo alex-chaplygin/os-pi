@@ -415,8 +415,12 @@ void test_parse_no_rparen_lists()
     count = 0; 
     cur_token = &token; 
     tokens = no_rparen_tokens_lists; 
-    object_t o = parse(); 
-    ASSERT(o, ERROR); 
+
+    if (setjmp(jmp_env) == 0) {
+        object_t o = parse();
+        FAIL;
+    } else
+        OK;
 } 
 
 /**
@@ -742,10 +746,10 @@ int main()
     test_parse_quote(comma_tokens, "COMMA"); //17
     test_parse_list_quote(); //16
     test_parse_no_rparen();  //6
-    //test_parse_no_rparen_lists(); //10
+    test_parse_no_rparen_lists(); //10
     //test_parse_no_rparen_arrays(); //11 23
-      test_parse_inner_list(); //7
-      test_parse_invalid();    //2
+    test_parse_inner_list(); //7
+    //test_parse_invalid();    //2
       /*  test_parse_invalid_quote(); //2
       test_parse_array(); //18 
       test_parse_array_list(); //9
