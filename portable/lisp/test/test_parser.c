@@ -467,8 +467,13 @@ void test_parse_invalid()
     printf("test_parse_invalid: "); 
     count = 0; 
     tokens = tok_inv; 
-    object_t o = parse(); 
-    ASSERT(ERROR, o); 
+
+    if (setjmp(jmp_env) == 0) {
+        object_t o = parse();
+        FAIL;
+    } else {
+        OK;
+    }
 } 
 
 /**
@@ -749,7 +754,7 @@ int main()
     test_parse_no_rparen_lists(); //10
     //test_parse_no_rparen_arrays(); //11 23
     test_parse_inner_list(); //7
-    //test_parse_invalid();    //2
+    test_parse_invalid();    //2
       /*  test_parse_invalid_quote(); //2
       test_parse_array(); //18 
       test_parse_array_list(); //9
