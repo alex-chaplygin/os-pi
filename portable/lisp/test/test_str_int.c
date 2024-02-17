@@ -416,7 +416,8 @@ void test_code_char_not_number() {
     printf("test_code_char_not_number: ");
     char *str = "Hello";
     object_t *not_number = object_new(STRING, str);
-    object_t *result = code_char(not_number);
+    object_t *params = new_pair(not_number, NULL); 
+    object_t *result = code_char(params);
     ASSERT(result, ERROR);
 }
 
