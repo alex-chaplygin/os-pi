@@ -82,6 +82,29 @@ void test_seta_invalid_arguments() {
 }
 
 /**
+* Проверка присваивания значения с лишними аргументами
+*/
+void test_seta_many_args()
+{
+    printf("test_seta_many_args: ");
+
+    int num1 = 42;
+    int num2 = 42;
+    int num3 = 42;
+    int num4 = 42;
+
+    object_t obj1 = new_number(num1);
+    object_t obj2 = new_number(num2);
+    object_t obj3 = new_number(num3);
+    object_t obj4 = new_number(num4);
+    
+    object_t list = new_pair(obj1, new_pair(obj2, new_pair(obj3, new_pair(obj4, NULLOBJ))));
+
+    object_t result = seta(list);
+    ASSERT(result, ERROR);
+}
+
+/**
  * Проверка присваивания значения массиву неверной структуры
 */
 void test_seta_not_array() {
@@ -199,6 +222,7 @@ int main()
     test_seta();
     test_seta_invalid_arguments();
     test_seta_not_array();
+    test_seta_many_args();
     test_aref();
     test_aref_invalid_index(10);
     test_aref_invalid_index(-1);
