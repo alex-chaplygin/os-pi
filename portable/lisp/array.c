@@ -27,25 +27,16 @@ object_t make_array(object_t list)
 */
 object_t seta(object_t list)
 {
-    if (list == NULLOBJ || TAIL(list) == NULLOBJ || TAIL(TAIL(list)) == NULLOBJ) {
+    if (list == NULLOBJ || TAIL(list) == NULLOBJ || TAIL(TAIL(list)) == NULLOBJ)
 	error("seta: invalid arguments");
-	return ERROR;
-    }
     if (TAIL(TAIL(TAIL(list))) != NULLOBJ)
-    {
         error("seta: many args");
-	    return ERROR;
-    }
     object_t arr_o = FIRST(list);
-    if (TYPE(arr_o) != ARRAY) {
+    if (TYPE(arr_o) != ARRAY)
 	error("seta: not array");
-	return ERROR;
-    }	
     int index = get_value(SECOND(list));
-    if (index >= GET_ARRAY(arr_o)->length || index < 0) {
+    if (index >= GET_ARRAY(arr_o)->length || index < 0)
 	error("seta: index out of range");
-	return ERROR;
-    }
     object_t obj = THIRD(list);
     GET_ARRAY(arr_o)->data[index] = obj;
     return arr_o;
