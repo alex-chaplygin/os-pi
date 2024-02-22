@@ -171,9 +171,11 @@ void test_aref_invalid_index(int index)
     object_t arr = make_array(list);
     object_t obj = new_number(num);
     GET_ARRAY(arr)->data[2] = obj;
-
-    object_t elem = aref(new_pair(arr, new_pair(new_number(index), NULLOBJ)));
-    ASSERT(elem, ERROR);
+    if (setjmp(jmp_env) == 0) {
+        object_t elem = aref(new_pair(arr, new_pair(new_number(index), NULLOBJ)));
+        FAIL;
+    } else
+        OK;
 }
 
 /**
@@ -184,8 +186,11 @@ void test_aref_invalid_array()
     printf("test_aref_invalid_array: ");
     int idx = 2;
     object_t obj = new_number(idx);
-    object_t elem = aref(new_pair(obj, new_pair(new_number(idx), NULLOBJ)));
-    ASSERT(elem, ERROR);
+    if (setjmp(jmp_env) == 0) {
+        object_t elem = aref(new_pair(obj, new_pair(new_number(idx), NULLOBJ)));
+        FAIL;
+    } else
+        OK;
 }
 
 /**
@@ -194,8 +199,11 @@ void test_aref_invalid_array()
 void test_aref_no_args()
 {
     printf("test_aref_no_args: ");
-    object_t elem = aref(NULLOBJ);
-    ASSERT(elem, ERROR);
+    if (setjmp(jmp_env) == 0) {
+        object_t elem = aref(NULLOBJ);
+        FAIL;
+    } else
+        OK;
 }
 
 /**
@@ -206,8 +214,11 @@ void test_aref_only_array()
     printf("test_aref_only_array: ");
     int length = 3;
     object_t list = new_pair(new_number(length), NULLOBJ);
-    object_t elem = aref(list);    
-    ASSERT(elem, ERROR);
+    if (setjmp(jmp_env) == 0) {
+        object_t elem = aref(list);    
+        FAIL;
+    } else
+        OK;
 }
 
 /**
@@ -222,9 +233,11 @@ void test_aref_invalid_index_type()
     object_t arr = make_array(list);
     object_t obj = new_number(num);
     GET_ARRAY(arr)->data[2] = obj;
-
-    object_t elem = aref(new_pair(arr, new_pair(NEW_OBJECT(PAIR, new_pair(NULLOBJ, NULLOBJ)), NULLOBJ)));
-    ASSERT(elem, ERROR);
+    if (setjmp(jmp_env) == 0) {
+        object_t elem = aref(new_pair(arr, new_pair(NEW_OBJECT(PAIR, new_pair(NULLOBJ, NULLOBJ)), NULLOBJ)));
+        FAIL;
+    } else
+        OK;
 }
 
 int main()
@@ -238,11 +251,11 @@ int main()
     test_seta_not_array();
     test_seta_many_args();
     test_aref();
-    /*test_aref_invalid_index(10);
+    test_aref_invalid_index(10);
     test_aref_invalid_index(-1);
     test_aref_invalid_index_type();
     test_aref_no_args();
     test_aref_only_array();
-    test_aref_invalid_array();*/
+    test_aref_invalid_array();
     return 0;
 }

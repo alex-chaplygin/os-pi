@@ -51,25 +51,17 @@ object_t seta(object_t list)
 */
 object_t aref(object_t list)
 {
-    if (list == NULLOBJ || TAIL(list) == NULLOBJ) {
+    if (list == NULLOBJ || TAIL(list) == NULLOBJ)
         error("aref: invalid arguments");
-        return ERROR;
-    }
     object_t arr_o = FIRST(list);
-    if (TYPE(arr_o) != ARRAY) {
+    if (TYPE(arr_o) != ARRAY)
 	error("aref: not an array");
-	return ERROR;
-    }
     object_t index_obj = SECOND(list);
-    if (TYPE(index_obj) != NUMBER && TYPE(index_obj) != BIGNUMBER) {
+    if (TYPE(index_obj) != NUMBER && TYPE(index_obj) != BIGNUMBER)
         error("aref: index should be a number");
-        return ERROR;
-    }    
     int index = get_value(index_obj);
-    if (index >= GET_ARRAY(arr_o)->length || index < 0) {
+    if (index >= GET_ARRAY(arr_o)->length || index < 0)
 	error("aref: index out of range");
-	return ERROR;
-    }
     return GET_ARRAY(arr_o)->data[index];
 }
 
