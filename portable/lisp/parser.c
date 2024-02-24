@@ -97,7 +97,7 @@ object_t parse_list()
     //   printf("parselist: ");
     //   print_token(cur_tok);
     if (token_error == 1)
-	return ERROR;
+        error("parse: token_error");
     if (cur_tok->type == END)
 	error("expected )");
     if (cur_tok->type == RPAREN)
