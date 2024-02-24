@@ -356,9 +356,9 @@ void test_parse_list_list()
 void test_parse_quote(token_t *toks, char* sym) 
 { 
     printf("test_parse_quote: %s ", sym); 
-    count = 0; 
+    count = 0;
     cur_token = &token; 
-    tokens = toks; 
+    tokens = toks;
     object_t o = parse(); 
     ASSERT(TYPE(o), PAIR); 
     ASSERT(TYPE(GET_PAIR(o)->right), PAIR); 
@@ -400,8 +400,8 @@ void test_parse_no_rparen()
     if (setjmp(jmp_env) == 0) {
         // Попробуем выполнить парсинг
         object_t o = parse();
-	// Если нет ошибки - тест провален
-	FAIL;
+        // Если нет ошибки - тест провален
+        FAIL;
     } else // Ошибка была - тест прошел
         OK; 
 } 
@@ -415,13 +415,13 @@ void test_parse_no_rparen_lists()
     count = 0; 
     cur_token = &token; 
     tokens = no_rparen_tokens_lists; 
-
     if (setjmp(jmp_env) == 0) {
         object_t o = parse();
         FAIL;
     } else
         OK;
 } 
+
 
 /**
  * Создать "((a b #(1 #(2 (3 4) 5)) c d )" и проверить ошибку при создании многоуровневых массивов
@@ -470,13 +470,11 @@ void test_parse_invalid()
     printf("test_parse_invalid: "); 
     count = 0; 
     tokens = tok_inv; 
-
     if (setjmp(jmp_env) == 0) {
         object_t o = parse();
         FAIL;
-    } else {
+    } else
         OK;
-    }
 } 
 
 /**
@@ -488,8 +486,11 @@ void test_parse_invalid_quote()
     count = 0; 
     cur_token = &token; 
     tokens = tok_inv_quote; 
-    object_t o = parse(); 
-    ASSERT(ERROR, o); 
+    if (setjmp(jmp_env) == 0) {
+        object_t o = parse();
+        FAIL;
+    } else
+        OK;
 } 
 
 /**
@@ -518,8 +519,11 @@ void test_parse_array_error()
     printf("test_parse_array_error: "); 
     count = 0; 
     tokens = tok_array_error; 
-    object_t o = parse(); 
-    ASSERT(ERROR, o); 
+    if (setjmp(jmp_env) == 0) {
+        object_t o = parse();
+        FAIL;
+    } else
+        OK;
 } 
 
 /**
@@ -531,8 +535,11 @@ void test_parse_array_error_paren()
     printf("test_parse_array_error_paren: "); 
     count = 0; 
     tokens = tok_array_error_paren; 
-    object_t o = parse(); 
-    ASSERT(ERROR, o); 
+    if (setjmp(jmp_env) == 0) {
+        object_t o = parse();
+        FAIL;
+    } else
+        OK;
 } 
 
 /**
@@ -660,8 +667,12 @@ void test_parse_end()
     count = 0; 
     cur_token = &token; 
     tokens = end_tokens; 
-    object_t o = parse(); 
-    ASSERT(ERROR,o); 
+    if (setjmp(jmp_env) == 0) {
+        object_t o = parse();
+	printf("type = %d %x\n", TYPE(o), o);
+        FAIL;
+    } else
+        OK;
 } 
 
 /**
@@ -673,8 +684,11 @@ void test_parse_list_expected_rparen()
     count = 0; 
     cur_token = &token; 
     tokens = tok_list_expected_rparen; 
-    object_t res = parse(); 
-    ASSERT(res, ERROR); 
+    if (setjmp(jmp_env) == 0) {
+        object_t res = parse(); 
+        FAIL;
+    } else
+        OK;
 } 
 
 /**
@@ -686,8 +700,11 @@ void test_parse_list_invalid_token()
     count = 0; 
     cur_token = &token; 
     tokens = tok_list_invalid_token; 
-    object_t res = parse(); 
-    ASSERT(res, ERROR); 
+    if (setjmp(jmp_env) == 0) {
+        object_t res = parse(); 
+        FAIL;
+    } else
+        OK;
 } 
 
 /**
@@ -700,9 +717,12 @@ void test_parse_token_error()
     cur_token = &token; 
     tokens = end_tokens; 
     token_error = 1; 
-    object_t o = parse(); 
+    if (setjmp(jmp_env) == 0) {
+        object_t o = parse();
+        FAIL;
+    } else
+        OK;
     token_error = 0; 
-    ASSERT(ERROR,o); 
 } 
 
 /*
@@ -758,20 +778,20 @@ int main()
     test_parse_no_rparen_arrays(); //11 23
     test_parse_inner_list(); //7
     test_parse_invalid();    //2
-    /*test_parse_invalid_quote(); //2
-      test_parse_array(); //18 
-      test_parse_array_list(); //9
-      test_parse_inner_array(); // 20
-      test_parse_array_error(); //21*/
-    //test_parse_array_error_paren(); //19
-    /*    test_parse_backquote_comma(); //17
-	  test_parse_quote_number(); //13
-	  test_parse_backquote_comma_at(); //25
-	  test_parse_number_dot_number();
-	  test_parse_string();
-	  test_parse_end();
-	  test_parse_token_error();
-	  test_parse_list_expected_rparen();
-	  test_parse_list_invalid_token();*/
+    test_parse_invalid_quote(); //2
+    test_parse_array(); //18 
+    test_parse_array_list(); //9
+    test_parse_inner_array(); // 20
+    test_parse_array_error(); //21*/
+    test_parse_array_error_paren(); //19
+    test_parse_backquote_comma(); //17
+    test_parse_quote_number(); //13
+    test_parse_backquote_comma_at(); //25
+    test_parse_number_dot_number();
+    test_parse_string();
+    test_parse_end();
+    test_parse_token_error();
+    test_parse_list_expected_rparen();
+    test_parse_list_invalid_token();
     return 0;
 }
