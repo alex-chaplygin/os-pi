@@ -667,12 +667,8 @@ void test_parse_end()
     count = 0; 
     cur_token = &token; 
     tokens = end_tokens; 
-    if (setjmp(jmp_env) == 0) {
-        object_t o = parse();
-	printf("type = %d %x\n", TYPE(o), o);
-        FAIL;
-    } else
-        OK;
+    object_t o = parse();
+    ASSERT(o, NOVALUE);
 } 
 
 /**
