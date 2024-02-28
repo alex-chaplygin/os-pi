@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <setjmp.h>
 #include "objects.h"
 #include "symbols.h"
 #include "eval.h"
@@ -6,6 +7,7 @@
 #include "parser.h"
 #include "pair.h"
 #include "string.h"
+#include "alloc.h"
 
 extern object_t t;
 extern object_t nil;
@@ -28,9 +30,12 @@ object_t backquote(object_t list);
 object_t macro_call(object_t macro, object_t args, object_t env);
 object_t eval_func(object_t lambda, object_t args, object_t env);
 
+jmp_buf jmp_env;
+
 void error(char *str, ...)
 {
-  printf("%s", str);
+    printf("%s", str);
+    longjmp(jmp_env, 1);
 }
     
 /**
@@ -397,59 +402,61 @@ void error(char *str, ...)
 /*     ASSERT(FIRST(TAIL(TAIL(TAIL(TAIL(TAIL(TAIL(TAIL(TAIL(resultlist)))))))))->type, ARRAY); */
 /* } */
 
-/* /\** */
-/*  * Проверка объекта на то, является ли аргумент неделимым */
-/*  * Объект неделимый - результат истинна */
-/*  *\/ */
-/* void test_atom() */
-/* { */
-/*     printf("test_atom: "); */
-/*     int number = 5; */
-/*     object_t num_obj = object_new(NUMBER, &number); */
-/*     object_t pair = new_pair(num_obj, NULL); */
-/*     object_t res = atom(pair); */
-/*     ASSERT(res, t); */
-/* } */
+/**
+ * Проверка объекта на то, является ли аргумент неделимым
+ * Объект неделимый - результат истинна
+ */
+void test_atom()
+{
+    printf("test_atom: ");
+    object_t num_obj = new_number(5);
+    object_t pair = new_pair(num_obj, NULLOBJ);
+    object_t res = atom(pair);
+    ASSERT(res, t);
+}
 
-/* /\** */
-/*  * Попытка проверки на неделимость объекта NULL  */
-/*  *\/ */
-/* void test_atom_null() */
-/* { */
-/*     printf("test_atom_null: "); */
-/*     object_t res = atom(NULL); */
-/*     ASSERT(res, ERROR); */
-/* } */
+/**
+ * Попытка проверки на неделимость объекта NULLOBJ
+ */
+void test_atom_null()
+{
+    printf("test_atom_null: ");
+    if (setjmp(jmp_env) == 0) {
+        object_t res = atom(NULLOBJ);
+        FAIL;
+    } else
+        OK;
+}
 
-/* /\** */
-/*  * Попытка проверки списка на неделимость  */
-/*  * Объект список - результат nil */
-/*  *\/ */
-/* void test_atom_list() */
-/* { */
-/*     printf("test_atom_list: "); */
-/*     int number = 5; */
-/*     char *symbol = "X"; */
-/*     object_t sym_obj = object_new(SYMBOL, symbol); */
-/*     object_t num_obj = object_new(NUMBER, &number); */
-/*     object_t list = new_pair(num_obj, new_pair(sym_obj, NULL)); */
-/*     object_t temp = new_pair(list, NULL); */
-/*     object_t res = atom(temp); */
-/*     ASSERT(res, nil); */
-/* } */
+/**
+ * Попытка проверки списка на неделимость
+ * Объект список - результат nil
+ */
+void test_atom_list()
+{
+    printf("test_atom_list: ");
+    object_t sym_obj = NEW_STRING("X");
+    object_t num_obj = new_number(5);
+    object_t list = new_pair(num_obj, new_pair(sym_obj, NULLOBJ));
+    object_t temp = new_pair(list, NULLOBJ);
+    object_t res = atom(temp);
+    ASSERT(res, nil);
+}
 
-/* /\** */
-/*  * Попытка проверки на неделимость нескольких элементов  */
-/*  *\/ */
-/* void test_atom_many_args() */
-/* { */
-/*     printf("test_atom_many_args: "); */
-/*     int number = 5; */
-/*     object_t num_obj = object_new(NUMBER, &number); */
-/*     object_t list = new_pair(num_obj, new_pair(num_obj, NULL)); */
-/*     object_t res = atom(list); */
-/*     ASSERT(res, ERROR); */
-/* } */
+/**
+ * Попытка проверки на неделимость нескольких элементов
+ */
+void test_atom_many_args()
+{
+    printf("test_atom_many_args: ");
+    object_t num_obj = new_number(5);
+    object_t list = new_pair(num_obj, new_pair(num_obj, NULLOBJ));
+    if (setjmp(jmp_env) == 0) {
+        object_t res = atom(list);
+        FAIL;
+    } else
+        OK;
+}
 
 /* /\** */
 /*  * Попытка вернуть элемент из списка нескольких параметров   */
@@ -459,7 +466,7 @@ void error(char *str, ...)
 /*     printf("test_quote_error: "); */
 /*     int number = 5; */
 /*     object_t num_obj = object_new(NUMBER, &number); */
-/*     object_t list = new_pair(num_obj, new_pair(num_obj, NULL)); */
+/*     object_t list = new_pair(num_obj, new_pair(num_obj, NULLOBJ)); */
 /*     object_t res = quote(list); */
 /*     ASSERT(res, ERROR); */
 /* } */
@@ -474,17 +481,31 @@ void error(char *str, ...)
 /*  * (eq 'a 'a)       -> t */
 /*  * (eq 'a 'b)       -> nil */
 /*  *\/ */
+void test_eq() 
+{ 
+     printf("test_eq: "); 
+     object_t p1 = new_number(1); 
+     object_t p2 = new_number(1); 
+     object_t s1 = NEW_SYMBOL("a");
+     object_t s2 = NEW_SYMBOL("a");
+     object_t list3 = new_pair(p1, new_pair(p2, NULLOBJ)); 
+     object_t list4 = new_pair(s1, new_pair(s2, NULLOBJ)); 
+     object_t res3 = eq(list3); 
+     object_t res4 = eq(list4); 
+     ASSERT(res3, t); 
+     ASSERT(res4, t);
+}
 /* void test_eq() */
 /* { */
 /*     printf("test_eq: "); */
 /*     object_t p1 = object_new(SYMBOL, "a"); */
 /*     object_t p2 = object_new(SYMBOL, "b"); */
 
-/*     object_t listnull = NULL; */
-/*     object_t list1 = new_pair(p1, NULL); */
-/*     object_t list2 = new_pair(p1, new_pair(p1, new_pair(p1, NULL))); */
-/*     object_t list3 = new_pair(p1, new_pair(p1, NULL)); */
-/*     object_t list4 = new_pair(p1, new_pair(p2, NULL)); */
+/*     object_t listnull = NULLOBJ; */
+/*     object_t list1 = new_pair(p1, NULLOBJ); */
+/*     object_t list2 = new_pair(p1, new_pair(p1, new_pair(p1, NULLOBJ))); */
+/*     object_t list3 = new_pair(p1, new_pair(p1, NULLOBJ)); */
+/*     object_t list4 = new_pair(p1, new_pair(p2, NULLOBJ)); */
 
 /*     object_t resnull = eq(listnull); */
 /*     object_t res1 = eq(list1); */
@@ -505,7 +526,7 @@ void error(char *str, ...)
 /* void test_and_null() */
 /* { */
 /*     printf("test_and_null: \n"); */
-/*     object_t res = and(NULL); */
+/*     object_t res = and(NULLOBJ); */
 /*     ASSERT(res, ERROR); */
 /* } */
 
@@ -517,7 +538,7 @@ void error(char *str, ...)
 /*     printf("test_and_invalid: \n"); */
 /*     int number = 1; */
 /*     object_t p1 = object_new(NUMBER, &number); */
-/*     object_t l1 = new_pair(p1, NULL); */
+/*     object_t l1 = new_pair(p1, NULLOBJ); */
 /*     object_t res = and(l1); */
 /*     ASSERT(res, ERROR); */
 /* } */
@@ -528,7 +549,7 @@ void error(char *str, ...)
 /* void test_and() */
 /* { */
 /*     printf("test_and: \n"); */
-/*     object_t l1 = new_pair(t, new_pair(t, NULL)); */
+/*     object_t l1 = new_pair(t, new_pair(t, NULLOBJ)); */
 /*     object_t res = and(l1); */
 /*     ASSERT(res, t); */
 /* } */
@@ -539,19 +560,19 @@ void error(char *str, ...)
 /* void test_and_nil() */
 /* { */
 /*     printf("test_and_nil: \n"); */
-/*     object_t l1 = new_pair(t, new_pair(nil, NULL)); */
+/*     object_t l1 = new_pair(t, new_pair(nil, NULLOBJ)); */
 /*     object_t res = and(l1); */
 /*     ASSERT(res, nil); */
 /* } */
 
 /* /\** */
 /*  * Тестирование функции or */
-/*  * передаём NULL вместо списка */
+/*  * передаём NULLOBJ вместо списка */
 /*  *\/ */
 /* void test_or_null() */
 /* { */
 /*     printf("test_or_null: \n"); */
-/*     object_t res = or(NULL); */
+/*     object_t res = or(NULLOBJ); */
 /*     ASSERT(res, ERROR); */
 /* } */
 
@@ -564,7 +585,7 @@ void error(char *str, ...)
 /*     printf("test_or_invalid: \n"); */
 /*     int number = 1; */
 /*     object_t p1 = object_new(NUMBER, &number); */
-/*     object_t l1 = new_pair(p1, NULL); */
+/*     object_t l1 = new_pair(p1, NULLOBJ); */
 /*     object_t res = or(l1); */
 /*     ASSERT(res, ERROR); */
 /* } */
@@ -576,7 +597,7 @@ void error(char *str, ...)
 /* void test_or_first() */
 /* { */
 /*     printf("test_or_first: \n"); */
-/*     object_t l1 = new_pair(t, new_pair(t, NULL)); */
+/*     object_t l1 = new_pair(t, new_pair(t, NULLOBJ)); */
 /*     object_t res = or(l1); */
 /*     ASSERT(res, t); */
 /* } */
@@ -588,7 +609,7 @@ void error(char *str, ...)
 /* void test_or_tail() */
 /* { */
 /*     printf("test_or_tail: \n"); */
-/*     object_t l1 = new_pair(nil, new_pair(t, NULL)); */
+/*     object_t l1 = new_pair(nil, new_pair(t, NULLOBJ)); */
 /*     object_t res = or(l1); */
 /*     ASSERT(res, t); */
 /* } */
@@ -601,7 +622,7 @@ void error(char *str, ...)
 /* void test_or_nil() */
 /* { */
 /*     printf("test_or_nil: \n"); */
-/*     object_t l1 = new_pair(nil, new_pair(nil, NULL)); */
+/*     object_t l1 = new_pair(nil, new_pair(nil, NULLOBJ)); */
 /*     object_t res = or(l1); */
 /*     ASSERT(res, nil); */
 /* } */
@@ -615,12 +636,12 @@ void error(char *str, ...)
 /*     int num = 5; */
 /*     object_t p1 = object_new(SYMBOL, "a"); */
 /*     object_t p2 = object_new(NUMBER, &num); */
-/*     object_t params = new_pair(p1, new_pair(p2, NULL)); */
+/*     object_t params = new_pair(p1, new_pair(p2, NULLOBJ)); */
 
 /*     object_t q = new_pair(object_new(SYMBOL, "ATOM"), */
-/*         new_pair(object_new(SYMBOL, "CAR"), new_pair(params, NULL))); */
+/*         new_pair(object_new(SYMBOL, "CAR"), new_pair(params, NULLOBJ))); */
     
-/*     object_t list = new_pair(object_new(NUMBER, &num), new_pair(params, new_pair(q, NULL))); */
+/*     object_t list = new_pair(object_new(NUMBER, &num), new_pair(params, new_pair(q, NULLOBJ))); */
 
 /*     int i = is_lambda(list); */
 /*     ASSERT(i, 0); */
@@ -633,7 +654,7 @@ void error(char *str, ...)
 /* { */
 /*     printf("test_is_lambda_no_params \n"); */
     
-/*     object_t list = new_pair(object_new(SYMBOL, "LAMBDA"), NULL); */
+/*     object_t list = new_pair(object_new(SYMBOL, "LAMBDA"), NULLOBJ); */
 
 /*     int i = is_lambda(list); */
 /*     ASSERT(i, 0); */
@@ -649,9 +670,9 @@ void error(char *str, ...)
 /*     object_t p1 = object_new(SYMBOL, "a"); */
 
 /*     object_t q = new_pair(object_new(SYMBOL, "ATOM"), */
-/*         new_pair(object_new(SYMBOL, "CAR"), new_pair(p1, NULL))); */
+/*         new_pair(object_new(SYMBOL, "CAR"), new_pair(p1, NULLOBJ))); */
     
-/*     object_t list = new_pair(object_new(SYMBOL, "LAMBDA"), new_pair(p1, new_pair(q, NULL))); */
+/*     object_t list = new_pair(object_new(SYMBOL, "LAMBDA"), new_pair(p1, new_pair(q, NULLOBJ))); */
 
 /*     int i = is_lambda(list); */
 /*     ASSERT(i, 0); */
@@ -667,12 +688,12 @@ void error(char *str, ...)
 /*     int num = 5; */
 /*     object_t p1 = object_new(SYMBOL, "a"); */
 /*     object_t p2 = object_new(NUMBER, &num); */
-/*     object_t params = new_pair(p1, new_pair(p2, NULL)); */
+/*     object_t params = new_pair(p1, new_pair(p2, NULLOBJ)); */
 
 /*     object_t q = new_pair(object_new(SYMBOL, "ATOM"), */
-/*         new_pair(object_new(SYMBOL, "CAR"), new_pair(params, NULL))); */
+/*         new_pair(object_new(SYMBOL, "CAR"), new_pair(params, NULLOBJ))); */
     
-/*     object_t list = new_pair(object_new(SYMBOL, "LAMBDA"), new_pair(params, new_pair(q, NULL))); */
+/*     object_t list = new_pair(object_new(SYMBOL, "LAMBDA"), new_pair(params, new_pair(q, NULLOBJ))); */
 
 /*     int i = is_lambda(list); */
 /*     ASSERT(i, 0); */
@@ -687,9 +708,9 @@ void error(char *str, ...)
 
 /*     object_t p1 = object_new(SYMBOL, "a"); */
 /*     object_t p2 = object_new(SYMBOL, "b"); */
-/*     object_t params = new_pair(p1, new_pair(p2, NULL)); */
+/*     object_t params = new_pair(p1, new_pair(p2, NULLOBJ)); */
     
-/*     object_t list = new_pair(object_new(SYMBOL, "LAMBDA"), new_pair(params, NULL)); */
+/*     object_t list = new_pair(object_new(SYMBOL, "LAMBDA"), new_pair(params, NULLOBJ)); */
 
 /*     int i = is_lambda(list); */
 /*     ASSERT(i, 0); */
@@ -702,14 +723,14 @@ void error(char *str, ...)
 /* { */
 /*     printf("test_macro_call: \n"); */
 /*     int num = 10; */
-/*     object_t env = NULL; */
+/*     object_t env = NULLOBJ; */
 /*     object_t p1 = object_new(SYMBOL, "x"); // x */
 /*     object_t q = new_pair(object_new(SYMBOL, "LIST"), //(list x) */
-/*     new_pair(p1, NULL)); */
-/*         object_t lx = new_pair(object_new(SYMBOL, "LAMBDA"), new_pair(new_pair(p1, NULL), new_pair(new_pair(object_new(SYMBOL, "LIST"), NULL), */
-/*         new_pair(p1, NULL)))); */
+/*     new_pair(p1, NULLOBJ)); */
+/*         object_t lx = new_pair(object_new(SYMBOL, "LAMBDA"), new_pair(new_pair(p1, NULLOBJ), new_pair(new_pair(object_new(SYMBOL, "LIST"), NULLOBJ), */
+/*         new_pair(p1, NULLOBJ)))); */
 /*     // (lambda (x) (list x)); */
-/*     object_t args = new_pair(object_new(NUMBER, &num), NULL); */
+/*     object_t args = new_pair(object_new(NUMBER, &num), NULLOBJ); */
 /*     object_t res = macro_call(lx, args, env); */
 /*     ASSERT(res->u.value, 10); */
 /* } */
@@ -722,14 +743,14 @@ void error(char *str, ...)
 /*     printf("test_eval_func: "); */
 
 /*     object_t x1 = object_new(SYMBOL, "x"); // x */
-/*     object_t param1 = new_pair(x1, NULL); // (x) */
+/*     object_t param1 = new_pair(x1, NULLOBJ); // (x) */
 /*     object_t list = new_pair(object_new(SYMBOL, "LAMBDA"), new_pair(param1, param1)); // (lambda (x) x) */
     
 /*     int numX = 10; */
 /*     object_t arg_x = object_new(NUMBER, &numX); // 10 */
-/*     object_t args = new_pair(arg_x, NULL); //(10) */
+/*     object_t args = new_pair(arg_x, NULLOBJ); //(10) */
     
-/*     object_t res = eval_func(list, args, NULL); */
+/*     object_t res = eval_func(list, args, NULLOBJ); */
 /*     ASSERT(res->type, NUMBER); */
 /*     ASSERT(res->u.value, 10); */
 /* } */
@@ -743,13 +764,13 @@ void error(char *str, ...)
     
 /*     int numX = 10; */
 /*     object_t arg_x = object_new(NUMBER, &numX);// 10 */
-/*     object_t args = new_pair(arg_x, NULL); //(10) */
+/*     object_t args = new_pair(arg_x, NULLOBJ); //(10) */
 /*     object_t x1 = object_new(SYMBOL, "x"); // x */
-/*     object_t param1 = new_pair(x1, NULL); // (x) */
+/*     object_t param1 = new_pair(x1, NULLOBJ); // (x) */
 /*     object_t param2 = new_pair(arg_x, param1); */
 /*     object_t list = new_pair(object_new(SYMBOL, "LAMBDA"), new_pair(param1, param2));  */
        
-/*     object_t res = eval_func(list, args, NULL); */
+/*     object_t res = eval_func(list, args, NULLOBJ); */
 /*     ASSERT(res->type, NUMBER); */
 /*     ASSERT(res->u.value, 10); */
 /* } */
@@ -761,7 +782,7 @@ void error(char *str, ...)
 /* { */
 /*     printf("test_er_num_arg_make_env: \n"); */
 /*     int num = 1; */
-/*     object_t *args = NULL; */
+/*     object_t *args = NULLOBJ; */
 /*     object_t *val = object_new(NUMBER, &num); */
 /*     object_t *res = make_env(args, val); */
 /*     ASSERT(res, ERROR); */
@@ -775,11 +796,11 @@ void error(char *str, ...)
 /*     printf("test_defmacro: "); */
     
 /*     object_t *arg1 = object_new(SYMBOL, "test"); */
-/*     object_t *arg2 = new_pair(nil, new_pair(nil, NULL)); */
+/*     object_t *arg2 = new_pair(nil, new_pair(nil, NULLOBJ)); */
 /*     int num = 1; */
 /*     object_t *arg3 = object_new(NUMBER, &num); */
     
-/*     object_t *args = new_pair(arg1, new_pair(arg2, new_pair(arg3, NULL))); */
+/*     object_t *args = new_pair(arg1, new_pair(arg2, new_pair(arg3, NULLOBJ))); */
     
 /*     object_t *result = defmacro(args); */
     
@@ -910,50 +931,51 @@ eval_int
 int main()
 {
     printf("------------test_eval_int---------\n");
-    /*    init_pair();
+    init_pair();
     init_eval();
     init_regions();
-    test_is_lambda();//14
-    test_cond();//13
-    test_cond_null();//67
-    test_cond_tail_null();//69    
-    test_cond_many_params();
-    test_make_env();
-    test_find_in_env();
-    test_defun();//18
-    test_setq_set_env();
-    test_setq_global_set();
-    test_append();
-    test_progn();
-    test_progn_null();
-    test_progn_error();
-    test_backquote_nulllist();
-    test_backquote_invalid_arg_type();
-    test_backquote_arguments();
+    init_objects();
+    /* test_is_lambda();//14 */
+    /* test_cond();//13 */
+    /* test_cond_null();//67 */
+    /* test_cond_tail_null();//69     */
+    /* test_cond_many_params(); */
+    /* test_make_env(); */
+    /* test_find_in_env(); */
+    /* test_defun();//18 */
+    /* test_setq_set_env(); */
+    /* test_setq_global_set(); */
+    /* test_append(); */
+    /* test_progn(); */
+    /* test_progn_null(); */
+    /* test_progn_error(); */
+    /* test_backquote_nulllist(); */
+    /* test_backquote_invalid_arg_type(); */
+    /* test_backquote_arguments(); */
     test_atom();//1
     test_atom_null();//52
     test_atom_list();
     test_atom_many_args();//131
-    test_quote_error();//53
+    //test_quote_error();//53
     test_eq(); //9, 55, 56, 57
-    test_and_null();
-    test_and_invalid();
-    test_and();
-    test_and_nil();
-    test_or_null();
-    test_or_invalid();
-    test_or_first();
-    test_or_tail();
-    test_or_nil();
-    test_is_lambda_invalid_symbol();
-    test_is_lambda_no_params();
-    test_is_lambda_invalid_params();
-    test_is_lambda_not_symbol();
-    test_is_lambda_no_body();
-    test_macro_call();
-    test_eval_func();
-    test_eval_func2();
-    test_er_num_arg_make_env();
-    test_defmacro();
+    /* test_and_null(); */
+    /* test_and_invalid(); */
+    /* test_and(); */
+    /* test_and_nil(); */
+    /* test_or_null(); */
+    /* test_or_invalid(); */
+    /* test_or_first(); */
+    /* test_or_tail(); */
+    /* test_or_nil(); */
+    /* test_is_lambda_invalid_symbol(); */
+    /* test_is_lambda_no_params(); */
+    /* test_is_lambda_invalid_params(); */
+    /* test_is_lambda_not_symbol(); */
+    /* test_is_lambda_no_body(); */
+    /* test_macro_call(); */
+    /* test_eval_func(); */
+    /* test_eval_func2(); */
+    /* test_er_num_arg_make_env(); */
+    /* test_defmacro(); */
     return 0;
 }

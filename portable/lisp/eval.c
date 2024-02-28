@@ -48,8 +48,8 @@ object_t current_env;
   */ 
  object_t eq(object_t list) 
  { 
-     //printf("eq: "); 
-     //PRINT(list); 
+     printf("eq: "); 
+     PRINT(list); 
      if (list == NULLOBJ) { 
  	error("eq: no args"); 
  	return ERROR; 
@@ -62,18 +62,10 @@ object_t current_env;
  	error("eq: too many args"); 
  	return ERROR; 
      } 
-         object_t p1 = FIRST(list); 
+     object_t p1 = FIRST(list); 
      object_t p2 = SECOND(list); 
-     //printf("p1: "); 
-     //PRINT(p1); 
-     //printf("p2: "); 
-     //PRINT(p2); 
-         if (p1 != NULLOBJ && TYPE(p1) != SYMBOL || p2 != NULLOBJ && TYPE(p2) != SYMBOL){ 
-         error("not symbol in eq"); 
- 	return ERROR; 
- 	} 
-     if (p1 == NULLOBJ && p2 == NULLOBJ || p1 != NULLOBJ && p2 != NULLOBJ && GET_SYMBOL(p1) == GET_SYMBOL(p2) && TYPE(p1) == SYMBOL && TYPE(p2) == SYMBOL) 
-         return t; 
+     if (p1 == p2)
+	 return t; 
      else 
          return nil; 
  } 
@@ -87,19 +79,15 @@ object_t current_env;
   */ 
  object_t atom(object_t list) 
  { 
-     if (list == NULLOBJ) { 
- 	error("atom: no args"); 
- 	return ERROR; 
-     } 
-     else if (TAIL(list) != NULLOBJ) { 
- 	error("atom: many args"); 
- 	return ERROR; 
-     } 
+     if (list == NULLOBJ)
+	 error("atom: no args");
+     else if (TAIL(list) != NULLOBJ)
+	 error("atom: many args"); 
      object_t obj = FIRST(list); 
      if (obj == NULLOBJ || TYPE(obj) != PAIR) 
          return t; 
      else 
-         return nil; 
+         return nil;
  } 
 
  /*  
@@ -111,10 +99,8 @@ object_t current_env;
   */ 
  object_t quote(object_t list) 
  { 
-     if (TAIL(list) != NULLOBJ) { 
+     if (TAIL(list) != NULLOBJ)
  	error("quote: many args"); 
- 	return ERROR; 
-     } 
      return FIRST(list); 
  } 
 
@@ -551,8 +537,8 @@ object_t eval(object_t obj, object_t env)
     //printf("env: ");
     //PRINT(env);
     current_env = env;
-    if (obj == NULL)
-        return NULL;
+    if (obj == NULLOBJ)
+        return NULLOBJ;
     else if (TYPE(obj) == NUMBER || TYPE(obj) == STRING || TYPE(obj) == ARRAY)
 	return obj;
     else if (TYPE(obj) == SYMBOL) {
@@ -564,7 +550,7 @@ object_t eval(object_t obj, object_t env)
         return symbol;
     } else if (TYPE(obj) == PAIR) {
 	object_t first = FIRST(obj);
-	if (first->type == PAIR)
+	if (TYPE(first) == PAIR)
 	    if(is_lambda(first) == 1)
 		return eval_func(first, eval_args(TAIL(obj), env), env);
 	    else {
@@ -573,7 +559,7 @@ object_t eval(object_t obj, object_t env)
 	    }
 	symbol_t *s = find_symbol(GET_SYMBOL(first)->str);
 	object_t args;
-	if (is_special_form(s) || s->macro != NULL)
+	if (is_special_form(s) || s->macro != NULLOBJ)
 	    args = TAIL(obj);
 	else
 	    args = eval_args(TAIL(obj), env);
@@ -583,11 +569,11 @@ object_t eval(object_t obj, object_t env)
 	    error("");
 	    return ERROR;
 	}
-	if (s->lambda != NULL)
+	if (s->lambda != NULLOBJ)
 	    return eval_func(s->lambda, args, env);
 	else if (s->func != NULL)
 	    return s->func(args);
-	else if (s->macro != NULL)
+	else if (s->macro != NULLOBJ)
 	    return macro_call(s->macro, args, env);
 	else {
 	    error("Unknown func: %s", s->str);
