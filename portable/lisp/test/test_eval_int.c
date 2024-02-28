@@ -458,18 +458,32 @@ void test_atom_many_args()
         OK;
 }
 
-/* /\** */
-/*  * Попытка вернуть элемент из списка нескольких параметров   */
-/*  *\/ */
-/* void test_quote_error() */
-/* { */
-/*     printf("test_quote_error: "); */
-/*     int number = 5; */
-/*     object_t num_obj = object_new(NUMBER, &number); */
-/*     object_t list = new_pair(num_obj, new_pair(num_obj, NULLOBJ)); */
-/*     object_t res = quote(list); */
-/*     ASSERT(res, ERROR); */
-/* } */
+/**
+ * Попытка вернуть элемент из списка нескольких параметров
+ */
+void test_quote_error()
+{
+    printf("test_quote_error: ");
+    object_t num_obj = new_number(5);
+     object_t list = new_pair(num_obj, new_pair(num_obj, NULLOBJ));
+     if (setjmp(jmp_env) == 0) {
+        object_t res = quote(list);
+        FAIL;
+     } else
+        OK;
+}
+
+/**
+ * Тест цитирования символа
+ */
+void test_quote()
+{
+     printf("test_quote: ");
+     object_t obj = NEW_SYMBOL("a");
+     object_t list = new_pair(obj, NULLOBJ);
+     object_t res = quote(list);
+     ASSERT(res, obj);
+}
 
 /* /\** */
 /*  * Создать объекты для выражения  */
@@ -956,7 +970,8 @@ int main()
     test_atom_null();//52
     test_atom_list();
     test_atom_many_args();//131
-    //test_quote_error();//53
+    test_quote();
+    test_quote_error();//53
     test_eq(); //9, 55, 56, 57
     /* test_and_null(); */
     /* test_and_invalid(); */
