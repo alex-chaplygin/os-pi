@@ -497,17 +497,25 @@ void test_quote()
 /*  *\/ */
 void test_eq() 
 { 
-     printf("test_eq: "); 
-     object_t p1 = new_number(1); 
-     object_t p2 = new_number(1); 
-     object_t s1 = NEW_SYMBOL("a");
-     object_t s2 = NEW_SYMBOL("a");
-     object_t list3 = new_pair(p1, new_pair(p2, NULLOBJ)); 
-     object_t list4 = new_pair(s1, new_pair(s2, NULLOBJ)); 
-     object_t res3 = eq(list3); 
-     object_t res4 = eq(list4); 
-     ASSERT(res3, t); 
-     ASSERT(res4, t);
+    printf("test_eq: "); 
+    object_t n1 = new_number(1); 
+    object_t n2 = new_number(1);
+    object_t s1 = NEW_STRING("String");
+    object_t s2 = NEW_STRING("String");
+    object_t s3 = NEW_SYMBOL("a");
+    object_t s4 = NEW_SYMBOL("a");
+    
+    object_t list1 = new_pair(n1, new_pair(n2, NULLOBJ)); 
+    object_t list2 = new_pair(s1, new_pair(s2, NULLOBJ)); 
+    object_t list3 = new_pair(s3, new_pair(s4, NULLOBJ)); 
+    
+    object_t res1 = eq(list1); 
+    object_t res2 = eq(list2); 
+    object_t res3 = eq(list3); 
+    
+    ASSERT(res1, t); 
+    ASSERT(res2, nil);
+    ASSERT(res3, t); 
 }
 /* void test_eq() */
 /* { */

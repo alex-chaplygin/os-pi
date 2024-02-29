@@ -48,22 +48,16 @@ object_t current_env;
   */ 
  object_t eq(object_t list) 
  { 
-     printf("eq: "); 
-     PRINT(list); 
-     if (list == NULLOBJ) { 
- 	error("eq: no args"); 
- 	return ERROR; 
-     } 
-     if (TAIL(list) == NULLOBJ) { 
- 	error("eq: one arg"); 
- 	return ERROR; 
-     } 
-     if (TAIL(TAIL(list)) != NULLOBJ) { 
- 	error("eq: too many args"); 
- 	return ERROR; 
-     } 
+     //printf("eq: "); 
+     //PRINT(list); 
+     if (list == NULLOBJ)
+	 error("eq: no args"); 
+     if (TAIL(list) == NULLOBJ)
+	 error("eq: one arg"); 
+     if (TAIL(TAIL(list)) != NULLOBJ) 
+	 error("eq: too many args"); 
      object_t p1 = FIRST(list); 
-     object_t p2 = SECOND(list); 
+     object_t p2 = SECOND(list);  
      if (p1 == p2)
 	 return t; 
      else 
