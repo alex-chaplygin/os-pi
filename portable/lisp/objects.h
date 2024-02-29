@@ -52,7 +52,7 @@
 //Создание массива
 #define NEW_ARRAY(a) (NEW_OBJECT(ARRAY, new_array(a)))
 //Создание символа
-#define NEW_SYMBOL(s) (NEW_OBJECT(SYMBOL, new_symbol(s)))
+#define NEW_SYMBOL(s) (NEW_OBJECT(SYMBOL, find_symbol(s)))
 //Создание строки
 #define NEW_STRING(s) (NEW_OBJECT(STRING, new_string(s)))
 // Первый элемент списка
