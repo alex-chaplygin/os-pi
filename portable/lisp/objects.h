@@ -28,7 +28,7 @@
 /// Число бит в адресе
 #define ADDR_BITS 28
 /// Возвращение типа объекта в младших битах
-#define TYPE(obj) ((obj) & ((1 << TYPE_BITS) - 1))
+#define TYPE(obj) (((object_t)(obj)) & ((1 << TYPE_BITS) - 1))
 /// Установить бит пометки
 #define SET_MARK(obj) ((obj) |= (1 << TYPE_BITS))
 /// Возврат значения бита пометки
@@ -36,7 +36,7 @@
 /// Очистка бита пометки
 #define CLEAR_MARK(obj) ((obj) &= ~(1 << TYPE_BITS))
 /// Получить адрес объекта
-#define GET_ADDR(obj) (((obj) >> MARK_BIT) << MARK_BIT)
+#define GET_ADDR(obj) (((object_t)(obj) >> MARK_BIT) << MARK_BIT)
 //макрос, который строит указатель, состоящий из типа в младших битах и значения в остальных
 #define NEW_OBJECT(type, val) ((object_t)(val) + (type))
 //Получение пары из объекта

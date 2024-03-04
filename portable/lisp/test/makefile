@@ -2,7 +2,6 @@ SHELL=bash
 CFLAGS=-I. -I../ -I../../../include --coverage -g -Wno-pointer-to-int-cast -Wno-int-to-pointer-cast -Wno-int-conversion
 LDFLAGS="-lgcov"
 TESTS=/tmp/test_lexer /tmp/test_eval /tmp/test_symbols /tmp/test_objects /tmp/test_parser /tmp/test_eval_int /tmp/test_arrays /tmp/test_arith /tmp/test_str_int /tmp/test_pair
-
 all: $(TESTS)
 
 /tmp/test_lexer: test_lexer.c ../lexer.c
@@ -25,7 +24,7 @@ all: $(TESTS)
 	gcc $(CFLAGS) $(LDFLAGS) -o $@ $^
 /tmp/test_str_int: test_str_int.c ../symbols.c ../objects.c ../str.c
 	gcc $(CFLAGS) $(LDFLAGS) -o $@ $^
-/tmp/test_sys: test_sys.c ../eval.c ../symbols.c ../objects.c ../parser.c ../lexer.c ../arith.c ../str.c ../array.c ../pair.c ../predicates.c
+/tmp/test_sys: test_sys.c ../eval.c ../symbols.c ../objects.c ../parser.c ../lexer.c ../arith.c ../str.c ../array.c ../pair.c ../predicates.c ../alloc.c
 	gcc $(CFLAGS) $(LDFLAGS) -o $@ $^
 
 test: $(TESTS) /tmp/test_sys
