@@ -18,8 +18,8 @@ object_t *symbolp(object_t *params)
     }
     object_t *symbol = FIRST(params);
     
-    if (symbol->type == SYMBOL)
-	return object_new(SYMBOL, "T");
+    if (TYPE(symbol) == SYMBOL)
+	return NEW_OBJECT(SYMBOL, new_symbol("T"));
     else
 	return NULL;
 }
