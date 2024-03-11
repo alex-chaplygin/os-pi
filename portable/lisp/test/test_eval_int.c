@@ -125,23 +125,23 @@ void error(char *str, ...)
 /*     ASSERT(i, 1); */
 /* } */
 
-/* /\** */
-/*  * Создать объект для некорректного выражения (lambda (a, 5) (atom (car (a, 5)))) */
-/*  * Вызвать функцию is_lambda */
-/*  * Проверить результат = 0 */
-/*  *\/ */
-/* object_t create_env() */
-/* { */
-/*   int num1 = 1; */
-/*   int num2 = 2; */
-/*   object_t arg_y = object_new(SYMBOL, "Y"); */
-/*   object_t arg_x = object_new(SYMBOL, "X"); */
-/*   object_t arg_1 = object_new(NUMBER, &num1); */
-/*   object_t arg_2 = object_new(NUMBER, &num2); */
-/*   object_t args = new_pair(arg_x, new_pair(arg_y, NULL)); */
-/*   object_t values = new_pair(arg_1, new_pair(arg_2, NULL)); */
-/*   return make_env(args,values); */
-/* } */
+/**
+ * Создать объект для некорректного выражения (lambda (a, 5) (atom (car (a, 5))))
+ * Вызвать функцию is_lambda
+ * Проверить результат = 0
+ */
+object_t create_env()
+{
+    int num1 = 1;
+    int num2 = 2;
+    object_t arg_y = NEW_SYMBOL("Y"); 
+    object_t arg_x = NEW_SYMBOL("X"); 
+    object_t arg_1 = new_number(num1); 
+    object_t arg_2 = new_number(num2); 
+    object_t args = new_pair(arg_x, new_pair(arg_y, NULLOBJ)); 
+    object_t values = new_pair(arg_1, new_pair(arg_2, NULLOBJ)); 
+    return make_env(args, values); 
+}
 
 
 /**
@@ -170,17 +170,17 @@ void error(char *str, ...)
  * значения (1 2)
  * Проверить переменную Y
  */
-/* void test_find_in_env() */
-/* { */
-/*   printf("test_find_in_env: "); */
-/*   object_t env = create_env(); */
-/*   object_t res; */
-/*   PRINT(env); */
-/*   int result = find_in_env(env, object_new(SYMBOL, "Y"), &res); */
-/*   ASSERT(result, 1); */
-/*   ASSERT(res->type, NUMBER); */
-/*   ASSERT(res->u.value, 2); */
-/* } */
+void test_find_in_env()
+{
+    printf("test_find_in_env: ");
+    object_t env = create_env();
+    object_t res;
+    PRINT(env);
+    int result = find_in_env(env, NEW_SYMBOL("Y"), &res);
+    ASSERT(result, 1);
+    ASSERT(TYPE(res), NUMBER);
+    ASSERT(get_value(res), 2);
+}
 
 /**
  * Создать функцию (defun null (x) (eq x '()))
@@ -963,7 +963,7 @@ int main()
     /* test_cond_tail_null();//69     */
     /* test_cond_many_params(); */
     /* test_make_env(); */
-    /* test_find_in_env(); */
+    test_find_in_env();
     /* test_defun();//18 */
     /* test_setq_set_env(); */
     /* test_setq_global_set(); */
