@@ -24,7 +24,7 @@ extern int last_array;
 
 object_t *mobject;
 
-void mark_object(object_t *obj);
+void mark_object(object_t obj);
 void sweep();
 void garbage_collect();
 void free_string(string_t *s);
@@ -199,10 +199,10 @@ void test_free_array()
     ASSERT(free_arrays, a2);
     ASSERT(free_arrays->next, a1);
     ASSERT(free_arrays->next->next, NULL);
-    array_t *a_1 = new_array(make_list(2));
-    array_t *a_2 = new_array(make_list(2));
-    ASSERT(a2, GET_ARRAY(a_1));
-    ASSERT(a1, GET_ARRAY(a_2));
+    array_t *a_1 = new_array(make_list(3));
+    array_t *a_2 = new_array(make_list(3));
+    ASSERT(a2, a_1);
+    ASSERT(a1, a_2);
 }
 
 /**
@@ -338,26 +338,26 @@ void test_garbage_collect_list()
 {
     printf("test_garbage_collect_list: ");
     symbol_t *s = new_symbol("B");
-    object_t *obj1 = new_number(1);
-    object_t *obj2 = new_number(2);
-    object_t *p1 = new_pair(obj1, new_pair(obj2, NULLOBJ));
+    object_t obj1 = new_number(1);
+    object_t obj2 = new_number(2);
+    object_t p1 = new_pair(obj1, new_pair(obj2, NULLOBJ));
     s->value = p1;
-    printf("before gc: \n");
+    printf("\nbefore gc: ");
     print_obj(free_pairs);
     garbage_collect();
-    printf("after gc: ");
+    printf("\nafter gc: ");
     print_obj(free_pairs);
     pair_t *p = free_pairs;
     while (p != NULL)
     {
         if (p == GET_PAIR(p1) || p == GET_PAIR(GET_PAIR(p1)->right))
         {
-            printf("fail_pair\n");
+            printf("\nfail_pair\n");
             return;
         }
         p = p->next;
     }
-    printf("pairs: OK\n");
+    printf("\npairs: OK\n");
 }
 
 /*
@@ -518,7 +518,7 @@ void test_garbage_collect_strings()
     string_t *obj1 = new_string("abc"); 
     string_t *obj2 = new_string("ff"); 
     string_t *obj3 = new_string("cc"); 
-    s->value = obj1; 
+    s->value = NEW_OBJECT(STRING, obj1);
     garbage_collect(); 
     string_t *fs = free_strings; 
     while (fs != NULL) { 
@@ -574,12 +574,12 @@ void test_garbage_collect_arrays()
     array_t *obj1 = new_array(make_list(3));
     array_t *obj2 = new_array(make_list(10));
     array_t *obj3 = new_array(make_list(20));
-    s->value = obj1;
+    s->value = NEW_OBJECT(ARRAY, obj1);
     garbage_collect();
     array_t *fa = free_arrays;
     while (fa != NULL)
     {
-        if (fa == GET_ARRAY(obj1))
+        if (fa == GET_ARRAY(s->value))
         {
             printf("fail_array\n");
             return;
@@ -587,7 +587,7 @@ void test_garbage_collect_arrays()
         fa = fa->next;
     }
     printf("array_OK\n");
-    ASSERT(GET_ARRAY(obj1)->length, 3);
+    ASSERT(GET_ARRAY(s->value)->length, 3);
     ASSERT(regions->free, 0);
     ASSERT((regions->next != NULL), 1);
 }
