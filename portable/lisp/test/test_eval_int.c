@@ -150,19 +150,20 @@ object_t create_env()
  * значения (1 2)
  * Проверить результат = ((X.1) (Y.2))
  */
-/* void test_make_env() */
-/* { */
-/*   printf("test_make_env: "); */
-/*   object_t env = create_env(); */
-/*   object_t p1 = FIRST(env); */
-/*   object_t p2 = SECOND(env);   */
-/*   ASSERT(p1->type, PAIR); */
-/*   ASSERT(p2->type, PAIR); */
-/*   ASSERT(FIRST(p1)->u.symbol, find_symbol("X")); */
-/*   ASSERT(TAIL(p1)->u.value, 1); */
-/*   ASSERT(FIRST(p2)->u.symbol, find_symbol("Y")); */
-/*   ASSERT(TAIL(p2)->u.value, 2);       */
-/* } */
+void test_make_env()
+{
+    printf("test_make_env: "); 
+    object_t env = create_env(); 
+    object_t p1 = FIRST(env); 
+    object_t p2 = SECOND(env);   
+    PRINT(env);
+    ASSERT(TYPE(p1), PAIR); 
+    ASSERT(TYPE(p2), PAIR); 
+    ASSERT(GET_SYMBOL(FIRST(p1)), find_symbol("X")); 
+    ASSERT(get_value(TAIL(p1)), 1); 
+    ASSERT(GET_SYMBOL(FIRST(p2)), find_symbol("Y")); 
+    ASSERT(get_value(TAIL(p2)), 2); 
+}
 
 /**
  * Создать окружение
@@ -962,7 +963,7 @@ int main()
     /* test_cond_null();//67 */
     /* test_cond_tail_null();//69     */
     /* test_cond_many_params(); */
-    /* test_make_env(); */
+    test_make_env();
     test_find_in_env();
     /* test_defun();//18 */
     /* test_setq_set_env(); */

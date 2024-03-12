@@ -322,35 +322,23 @@ object_t current_env;
   */ 
  object_t make_env(object_t args, object_t values) 
  { 
-     if (args != NULLOBJ && values == NULLOBJ && GET_SYMBOL(FIRST(args)) != rest_sym){ 
- 	error("Not enough values for params"); 
- 	return ERROR; 
-     } 
-     if (args == NULLOBJ && values != NULLOBJ) { 
- 	error("Invalid number of arguments"); 
- 	return ERROR; 
-     } 
+     if (args != NULLOBJ && values == NULLOBJ && GET_SYMBOL(FIRST(args)) != rest_sym)
+	 error("Not enough values for params"); 
+     if (args == NULLOBJ && values != NULLOBJ)
+	 error("Invalid number of arguments"); 
      if (args == NULLOBJ) 
- 	return NULLOBJ; 
-     if (values == ERROR) 
- 	return ERROR; 
+	 return NULLOBJ;
      object_t param = FIRST(args); 
      if (GET_SYMBOL(param) == rest_sym) { 
-         if (TAIL(args) == NULLOBJ) { 
+         if (TAIL(args) == NULLOBJ)
              error("Missing parameter after &rest"); 
-             return ERROR; 
-         } 
-         if (TAIL(TAIL(args)) != NULLOBJ) { 
+         if (TAIL(TAIL(args)) != NULLOBJ)
              error("Too many parameters after &rest"); 
-             return ERROR; 
-         } 
          return new_pair(new_pair(SECOND(args), values), nil); 
      } 
      object_t val = FIRST(values); 
      object_t pair = new_pair(param, val); 
      object_t new_env = make_env(TAIL(args), TAIL(values)); 
-     if (new_env == ERROR) 
-         return ERROR; 
      return new_pair(pair, new_env); 
  } 
 
