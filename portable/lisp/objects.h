@@ -142,6 +142,8 @@ typedef struct symbol_s
     func_t func;
 #ifndef X64
     int pad[3];
+#else
+    int pad[2];
 #endif
 } symbol_t;
 
