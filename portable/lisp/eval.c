@@ -249,11 +249,8 @@ object_t current_env;
   */ 
  object_t progn(object_t params) 
  { 
-     if (params == NULLOBJ) { 
+     if (params == NULLOBJ)
  	error("progn: params = NULLOBJ"); 
- 	return ERROR; 
-     } else if (params == ERROR) 
- 	return ERROR; 
      else if (TAIL(params) == NULLOBJ) 
  	return FIRST(params); 
      return progn(TAIL(params)); 

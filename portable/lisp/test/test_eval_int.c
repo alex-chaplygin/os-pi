@@ -279,47 +279,33 @@ void test_find_in_env()
 /*     ASSERT(l1->u.pair->right->u.pair->left->u.value, 2); */
 /* } */
 
-/* /\** */
-/*  * Создать список (progn 1 2 3) */
-/*  * Проверить результат 3 */
-/*  *\/ */
-/* void test_progn() */
-/* { */
-/*     printf("test_progn: "); */
-/*     int num1 = 1; */
-/*     int num2 = 2; */
-/*     int num3 = 3; */
-/*     object_t obj = new_pair(object_new(SYMBOL, "PROGN"), */
-/* 			     new_pair(object_new(NUMBER, &num1), */
-/* 				      new_pair(object_new(NUMBER, &num2), */
-/* 					       new_pair(object_new(NUMBER, &num3), NULL)))); */
-/*     object_t res = eval(obj, NULL); */
-/*     ASSERT(res->type, NUMBER); */
-/*     ASSERT(res->u.value, 3); */
-/* } */
+/**
+ * Создать список (progn 1 2 3)
+ * Проверить результат 3
+ */
+void test_progn()
+{
+    printf("test_progn: ");
+    object_t obj = new_pair(new_number(1), 
+			    new_pair(new_number(2), 
+				     new_pair(new_number(3), NULLOBJ)));
+    object_t res = progn(obj); 
+    ASSERT(TYPE(res), NUMBER);
+    ASSERT(get_value(res), 3);
+}
 
-/* /\** */
-/*  * Попытка вычисления пустого списка выражений */
-/*  *\/ */
-/* void test_progn_null() */
-/* { */
-/*     printf("test_progn_null: "); */
-/*     object_t res = progn(NULL); */
-/*     ASSERT(res, ERROR); */
-/* } */
-
-/* /\** */
-/*  * Попытка вычисления выражения ошибки  */
-/*  *\/ */
-/* void test_progn_error() */
-/* { */
-/*     printf("test_progn_error: "); */
-/*     int number = 5; */
-/*     object_t num_obj = object_new(NUMBER, &number); */
-/*     object_t list = new_pair(num_obj, ERROR); */
-/*     object_t res = progn(list); */
-/*     ASSERT(res, ERROR); */
-/* } */
+/**
+ * Попытка вычисления пустого списка выражений
+ */
+void test_progn_null()
+{
+    printf("test_progn_null: ");
+    if (setjmp(jmp_env) == 0) {
+        object_t res = progn(NULLOBJ);
+        FAIL;
+    } else
+        OK;
+}
 
 /* /\* */
 /*  *создать объект list = NULL и  */
@@ -969,9 +955,8 @@ int main()
     /* test_setq_set_env(); */
     /* test_setq_global_set(); */
     /* test_append(); */
-    /* test_progn(); */
-    /* test_progn_null(); */
-    /* test_progn_error(); */
+    test_progn();
+    test_progn_null();
     /* test_backquote_nulllist(); */
     /* test_backquote_invalid_arg_type(); */
     /* test_backquote_arguments(); */
