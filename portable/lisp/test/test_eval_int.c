@@ -307,87 +307,71 @@ void test_progn_null()
         OK;
 }
 
-/* /\* */
-/*  *создать объект list = NULL и  */
-/*  отправить его в метод backquote() */
-/*  *\/ */
-/* void test_backquote_nulllist() */
-/* { */
-/*     printf("test_backquote_nulllist:\n"); */
-/*     object_t li = NULL; */
-/*     object_t res = backquote(li); */
-/*     ASSERT(res, ERROR); */
-/* } */
+/*
+ *создать объект list = NULL и
+ отправить его в метод backquote()
+ */
+void test_backquote_nulllist()
+{
+    printf("test_backquote_nulllist:\n");
+    object_t li = NULLOBJ;
+    if (setjmp(jmp_env) == 0) {
+        object_t res = backquote(li);
+        FAIL;
+    } else
+        OK;
+}
 
-/* /\* */
-/*  *Тест backquote с неверным типом аргумента */
-/*  *\/ */
-/* void test_backquote_invalid_arg_type() */
-/* { */
-/*     int num = 5; */
-/*     printf("test_backquote_invalid_arg_type:\n"); */
-/*     object_t res = backquote(new_pair(new_pair(object_new(NUMBER, &num), new_pair((object_t )&num, NULL)), NULL)); */
-/*     ASSERT(res, ERROR); */
-/* } */
-
-/* /\** */
-/*  * Входящий аргумент с вычислением -> выходящий аргумент */
-/*  * b = 7 `(a ,b c) -> (a 7 c) */
-/*  * (a (COMMA b) c) */
-/*  * b = (1 2) `(a ,b c) -> (a (1 2) c) */
-/*  * b = (1 2) `(a ,b c) -> (list 'a '(1 2) 'c) */
-/*  * b = (1 2) `(a (,b) c) -> (a ((1 2)) c) */
-/*  * b = (1 2) `(a ,@b c) -> (a 1 2 c) */
-/*  * (A (COMMA-AT B) C) */
-/*  * */
-/*  * abc = (5 8 6) */
-/*  * a = 9 */
-/*  * Тестовый список - (1 (comma-at abc) (backquote abc) (comma-at nil) nil ((comma a)) "a" #(1 (comma a) 2)) */
-/*  * (1 5 8 6 (backquote abc) nil (9) "a" #(1 9 2)) */
-/*  *\/ */
-/* void test_backquote_arguments() */
-/* { */
-/*     printf("test_backquote_arguments:\n"); */
-/*     int length = 3; */
-/*     int a = 5; */
-/*     int b = 8; */
-/*     int c = 6; */
-/*     int aa = 9; */
-/*     int s1 = 1; */
-/*     int s2 = 2; */
-/*     object_t abc = new_pair(object_new(NUMBER, &a), */
-/* 	                    new_pair(object_new(NUMBER, &b), */
-/* 		                     new_pair(object_new(NUMBER, &c),NULL))); //Переменная-список abc */
-/*     find_symbol("ABC")->value = abc; */
-/*     object_t CAabc= new_pair(object_new(SYMBOL, "COMMA-AT"), */
-/* 			      new_pair(object_new(SYMBOL,"ABC"),NULL)); // (COMMA-AT abc) */
-/*     object_t CA= new_pair(object_new(SYMBOL, "COMMA-AT"), */
-/* 			      new_pair(NULL, NULL)); // (COMMA-AT NIL) */
-/*     object_t BQabc= new_pair(object_new(SYMBOL, "BACKQUOTE"), */
-/* 			      new_pair(object_new(SYMBOL,"ABC"),NULL)); // (BACKQUOTE abc) */
-/*     find_symbol("A")->value = object_new(NUMBER,&aa);		       */
-/*     object_t obj1 = object_new(NUMBER, &s1); */
-/*     object_t obj2 = new_pair(object_new(SYMBOL, "COMMA"), */
-/* 		            new_pair(object_new(SYMBOL, "A"),NULL)); */
-/*     object_t obj3 = object_new(NUMBER, &s2); */
-/*     array_t *arr = new_empty_array(length); */
-/*     arr->data[0] = obj1; */
-/*     arr->data[1] = obj2; */
-/*     arr->data[2] = obj3; //здесь создаём массив с элементами 1 (COMMA A) 2 */
-/*     object_t Ca = new_pair(obj2, NULL); // ((COMMA A)) */
-/*     object_t inputlist = new_pair(object_new(NUMBER, &s1),  //1 */
-/*         new_pair(CAabc, //(COMMA-AT abc) *\\/ *\/ */
-/*             new_pair(BQabc, //(BACKQUOTE abc) *\\/ *\/ */
-/*                 new_pair(CA, //(BACKQUOTE abc) *\\/ *\/ */
-/*                     new_pair(NULL, */
-/*                         new_pair(Ca, //((COMMA-AT NIL)) *\\/ *\/ */
-/*                             new_pair(object_new(STRING, "a"), */
-/*                                 new_pair(object_new(ARRAY, arr), NULL)))))))); // Наш массив *\\/ *\/ */
-/*     object_t resultlist = backquote(new_pair(inputlist, NULL)); */
-/*     PRINT(inputlist); */
-/*     PRINT(resultlist); */
-/*     ASSERT(FIRST(TAIL(TAIL(TAIL(TAIL(TAIL(TAIL(TAIL(TAIL(resultlist)))))))))->type, ARRAY); */
-/* } */
+/**
+ * Входящий аргумент с вычислением -> выходящий аргумент
+ * b = 7 `(a ,b c) -> (a 7 c)
+ * (a (COMMA b) c)
+ * b = (1 2) `(a ,b c) -> (a (1 2) c)
+ * b = (1 2) `(a ,b c) -> (list 'a '(1 2) 'c)
+ * b = (1 2) `(a (,b) c) -> (a ((1 2)) c)
+ * b = (1 2) `(a ,@b c) -> (a 1 2 c)
+ * (A (COMMA-AT B) C)
+ *
+ * abc = (5 8 6)
+ * a = 9
+ * Тестовый список - (1 (comma-at abc) (backquote abc) (comma-at nil) nil ((comma a)) "a" #(1 (comma a) 2))
+ * (1 5 8 6 (backquote abc) nil (9) "a" #(1 9 2))
+ */
+void test_backquote_arguments()
+{
+    printf("test_backquote_arguments:\n");
+    int length = 3; 
+    int a = 5;
+    int b = 8;
+    int c = 6;
+    int aa = 9;
+    int s1 = 1;
+    int s2 = 2;
+    object_t abc = new_pair(new_number(a), new_pair(new_number(b), new_pair(new_number(c), NULLOBJ))); //Переменная-список abc
+    find_symbol("ABC")->value = abc;
+    object_t CAabc = new_pair(NEW_SYMBOL("COMMA-AT"), new_pair(NEW_SYMBOL("ABC"), NULLOBJ)); // (COMMA-AT abc)
+    object_t CA = new_pair(NEW_SYMBOL("COMMA-AT"), new_pair(NULLOBJ, NULLOBJ)); // (COMMA-AT NIL) 
+    object_t BQabc = new_pair(NEW_SYMBOL("BACKQUOTE"), new_pair(NEW_SYMBOL("ABC"), NULLOBJ)); // (BACKQUOTE abc) 
+    find_symbol("A")->value = new_number(aa);		       
+    object_t obj1 = new_number(s1); 
+    object_t obj2 = new_pair(NEW_SYMBOL("COMMA"), new_pair(NEW_SYMBOL("A"), NULLOBJ)); 
+    object_t obj3 = new_number(s2); 
+    object_t p = new_pair(obj1, new_pair(obj2, new_pair(obj3, NULLOBJ))); 
+    array_t *arr = NEW_ARRAY(p);
+    object_t Ca = new_pair(obj2, NULLOBJ); // ((COMMA A)) 
+    object_t inputlist = new_pair(obj1,  //1 
+        new_pair(CAabc, //(COMMA-AT abc) *\\/ *\/ 
+            new_pair(BQabc, //(BACKQUOTE abc) *\\/ *\/ 
+                new_pair(CA, //(BACKQUOTE abc) *\\/ *\/ 
+                    new_pair(NULLOBJ,
+                        new_pair(Ca, //((COMMA-AT NIL)) *\\/ *\/ 
+                            new_pair(NEW_STRING("a"),
+                                new_pair(arr, NULLOBJ)))))))); // Наш массив *\\/ *\/
+    PRINT(inputlist);
+    object_t resultlist = backquote(new_pair(inputlist, NULLOBJ));
+    PRINT(resultlist);
+    ASSERT(TYPE(FIRST(TAIL(TAIL(TAIL(TAIL(TAIL(TAIL(TAIL(TAIL(resultlist)))))))))), ARRAY);
+}
 
 /**
  * Проверка объекта на то, является ли аргумент неделимым
@@ -957,9 +941,8 @@ int main()
     /* test_append(); */
     test_progn();
     test_progn_null();
-    /* test_backquote_nulllist(); */
-    /* test_backquote_invalid_arg_type(); */
-    /* test_backquote_arguments(); */
+    test_backquote_nulllist();
+    //    test_backquote_arguments();
     test_atom();//1
     test_atom_null();//52
     test_atom_list();
