@@ -37,7 +37,7 @@ void *alloc_region(int size)
     struct region *r = regions;
     if ((size & 0xf) != 0)
 	size = ((size >> 4) + 1) << 4;
-    int offset_markup = 4 * sizeof(int) + 2 * sizeof(struct region *);
+    int offset_markup = sizeof(struct region) - 4;
     int size2 = size + offset_markup;
     while (r != NULL) {
         if (r->free == 1 && r->size >= size2) {
