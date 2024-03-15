@@ -762,7 +762,6 @@ void main()
     PRINT(new_bignumber(2000000000));
     PRINT(make_list(4));
     PRINT(NEW_ARRAY(make_list(2)));
-    PRINT(NEW_SYMBOL("asd"));
-    PRINT(NEW_STRING("Pasha"));
-    
+    PRINT(NEW_OBJECT(SYMBOL, new_symbol("asd")));
+    PRINT(NEW_STRING("Pasha"));    
 }
