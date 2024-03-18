@@ -234,8 +234,8 @@ object_t current_env;
  object_t defmacro(object_t obj) 
  { 
      symbol_t *name = find_symbol(GET_SYMBOL(FIRST(obj))->str); 
-     name->macro = new_pair(NEW_OBJECT(SYMBOL, find_symbol("LAMBDA")), TAIL(obj)); 
-     return NEW_OBJECT(SYMBOL, find_symbol(name->str)); 
+     name->macro = new_pair(NEW_SYMBOL("LAMBDA"), TAIL(obj)); 
+     return NEW_SYMBOL(name->str);
  } 
 
  /* 
@@ -285,28 +285,17 @@ object_t current_env;
  int is_lambda(object_t list) 
  { 
      object_t lambda = FIRST(list); 
-     if (TYPE(lambda) != SYMBOL || GET_SYMBOL(lambda) != lambda_sym){ 
- 	error("Invalid lambda symbol"); 
- 	return 0; 
-     } 
-     if (TAIL(list) == NULLOBJ){ 
- 	error("No params in lambda"); 
- 	return 0; 
-     } 
+     if (TYPE(lambda) != SYMBOL || GET_SYMBOL(lambda) != lambda_sym)
+	 error("Invalid lambda symbol"); 
+     if (TAIL(list) == NULLOBJ)
+	 error("No params in lambda"); 
      object_t params = SECOND(list); 
-     if (params != NULLOBJ && TYPE(params) != PAIR){ 
- 	error("Invalid params in lambda"); 
- 	return 0; 
-     } 
-     if (!check_params(params)){ 
+     if (params != NULLOBJ && TYPE(params) != PAIR)
+	 error("Invalid params in lambda"); 
+     if (!check_params(params))
          error("Not symbol in lambda attrs"); 
-         return 0; 
-     } 
-     if (TAIL(TAIL(list)) == NULLOBJ) { 
- 	error("No body in lambda"); 
- 	return 0; 
-     } else 
- 	return 1; 
+     if (TAIL(TAIL(list)) == NULLOBJ)
+	 error("No body in lambda"); 
  } 
 
  /* 
@@ -529,13 +518,10 @@ object_t eval(object_t obj, object_t env)
         return symbol;
     } else if (TYPE(obj) == PAIR) {
 	object_t first = FIRST(obj);
-	if (TYPE(first) == PAIR)
-	    if(is_lambda(first) == 1)
-		return eval_func(first, eval_args(TAIL(obj), env), env);
-	    else {
-	        error("");
-	        return ERROR;
-	    }
+	if (TYPE(first) == PAIR) {
+	    is_lambda(first);
+	    return eval_func(first, eval_args(TAIL(obj), env), env);
+	}
 	symbol_t *s = find_symbol(GET_SYMBOL(first)->str);
 	object_t args;
 	if (is_special_form(s) || s->macro != NULLOBJ)
@@ -574,10 +560,8 @@ object_t eval(object_t obj, object_t env)
   */ 
  void set_in_env(object_t env, object_t sym, object_t val) 
  { 
-     if (env == NULLOBJ) { 
+     if (env == NULLOBJ)
          error("ERROR: NULLOBJ as env in set_in_env"); 
-         return; 
-     } 
      object_t pair = FIRST(env); 
      object_t var = FIRST(pair); 
      if (GET_SYMBOL(var) == GET_SYMBOL(sym)) 
