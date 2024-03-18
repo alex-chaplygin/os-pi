@@ -206,27 +206,33 @@ void test_find_in_env()
 /*     ASSERT(null->lambda->u.pair->left->u.symbol, find_symbol("LAMBDA")); */
 /* } */
 
-/* /\** */
-/*  * Создать окружение с числовыми переменными X, Y */
-/*  * Вызвать функцию setq для изменения значения Y на 1010 */
-/*  * Проверить что значение Y = 1010 */
-/*  *\/ */
-/* void test_setq_set_env() */
-/* { */
-/*     printf("test_setq_set_env: "); */
-/*     object_t env = create_env(); */
-/*     object_t p2 = SECOND(env); */
-/*     int num = 1010; */
-/*     object_t num_obj = object_new(NUMBER, &num); */
-/*     object_t params = new_pair(FIRST(p2), new_pair(num_obj, NULL)); */
-/*     current_env = env; */
-/*     object_t setq_res = setq(params); */
-/*     object_t obj_in_env; */
-/*     find_in_env(current_env, FIRST(p2), &obj_in_env); */
-/*     ASSERT(setq_res->u.value, num); */
-/*     ASSERT(setq_res, num_obj); */
-/*     ASSERT(setq_res->u.value, obj_in_env->u.value); */
-/* } */
+/**
+ * Создать окружение с числовыми переменными X, Y
+ * Вызвать функцию setq для изменения значения Y на 1010
+ * Проверить что значение Y = 1010
+ */
+void test_setq_set_env()
+{
+    printf("test_setq_set_env: ");
+    object_t env = create_env();
+    object_t p2 = SECOND(env);
+    int num = 1010;
+    object_t num_obj = new_number(num);
+    object_t params = new_pair(FIRST(p2), new_pair(num_obj, NULLOBJ));
+    current_env = env;
+    object_t setq_res = setq(params);
+    object_t obj_in_env;
+    find_in_env(current_env, FIRST(p2), &obj_in_env);
+    ASSERT(get_value(setq_res), num);
+    ASSERT(setq_res, num_obj);
+    ASSERT(get_value(setq_res), get_value(obj_in_env));
+    
+    if (setjmp(jmp_env) == 0) { //проверка выхода из error при подаче неверных данных
+        object_t obj_null = setq(NULLOBJ);
+        FAIL;
+    } else 
+        OK;
+}
 
 /* /\** */
 /*  * Создать глобальную числовую переменную test_var */
@@ -936,7 +942,7 @@ int main()
     test_make_env();
     test_find_in_env();
     /* test_defun();//18 */
-    /* test_setq_set_env(); */
+    test_setq_set_env();
     /* test_setq_global_set(); */
     /* test_append(); */
     test_progn();
