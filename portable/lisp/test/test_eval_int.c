@@ -104,32 +104,26 @@ void error(char *str, ...)
 /*     ASSERT(res, ERROR); */
 /* } */
 
-/* /\** */
-/*  * Создать объект для выражения (lambda (a, b) (atom (car (a, b)))) */
-/*  * Вызвать функцию is_lambda */
-/*  * Проверить результат = 1 */
-/*  *\/ */
-/* void test_is_lambda() */
-/* { */
-/*     printf("test_is_lambda: "); */
-/*     object_t p1 = object_new(SYMBOL, "a"); */
-/*     object_t p2 = object_new(SYMBOL, "b"); */
-/*     object_t params = new_pair(p1, new_pair(p2, NULL)); */
-
-/*     object_t q = new_pair(object_new(SYMBOL, "ATOM"), */
-/*         new_pair(object_new(SYMBOL, "CAR"), new_pair(params, NULL))); */
-    
-/*     object_t list = new_pair(object_new(SYMBOL, "LAMBDA"), new_pair(params, new_pair(q, NULL))); */
-
-/*     int i = is_lambda(list); */
-/*     ASSERT(i, 1); */
-/* } */
-
 /**
- * Создать объект для некорректного выражения (lambda (a, 5) (atom (car (a, 5))))
+ * Создать объект для выражения (lambda (a, b) (atom (car (a, b))))
  * Вызвать функцию is_lambda
- * Проверить результат = 0
+ * Проверить результат = 1
  */
+void test_is_lambda()
+{
+    printf("test_is_lambda: "); 
+    object_t p1 = NEW_SYMBOL("a"); 
+    object_t p2 = NEW_SYMBOL("b"); 
+    object_t params = new_pair(p1, new_pair(p2, NULLOBJ)); 
+    object_t q = new_pair(NEW_SYMBOL("ATOM"), new_pair(NEW_SYMBOL("CAR"), new_pair(params, NULLOBJ))); 
+    object_t list = new_pair(NEW_SYMBOL("LAMBDA"), new_pair(params, new_pair(q, NULLOBJ))); 
+    if (setjmp(jmp_env) == 0) {
+        object_t i = is_lambda(list); 
+        OK;
+    } else
+        FAIL;
+}
+
 object_t create_env()
 {
     int num1 = 1;
@@ -626,94 +620,92 @@ void test_eq()
 /*     ASSERT(res, nil); */
 /* } */
 
-/* /\**  */
-/*  * Тест на неправильный символ LAMBDA */
-/*  *\/ */
-/* void test_is_lambda_invalid_symbol() */
-/* { */
-/*     printf("test_is_lambda_invalid_symbol (lambda->type != SYMBOL) \n"); */
-/*     int num = 5; */
-/*     object_t p1 = object_new(SYMBOL, "a"); */
-/*     object_t p2 = object_new(NUMBER, &num); */
-/*     object_t params = new_pair(p1, new_pair(p2, NULLOBJ)); */
+/**
+ * Тест на неправильный символ LAMBDA
+ */
+void test_is_lambda_invalid_symbol()
+{
+    printf("test_is_lambda_invalid_symbol (lambda->type != SYMBOL) \n"); 
+    int num = 5; 
+    object_t p1 = NEW_SYMBOL("a"); 
+    object_t p2 = new_number(num); 
+    object_t params = new_pair(p1, new_pair(p2, NULLOBJ)); 
+    object_t q = new_pair(NEW_SYMBOL("ATOM"), new_pair(NEW_SYMBOL("CAR"), new_pair(params, NULLOBJ))); 
+    object_t list = new_pair(new_number(num), new_pair(params, new_pair(q, NULLOBJ))); 
 
-/*     object_t q = new_pair(object_new(SYMBOL, "ATOM"), */
-/*         new_pair(object_new(SYMBOL, "CAR"), new_pair(params, NULLOBJ))); */
+    if (setjmp(jmp_env) == 0) {
+        int i = is_lambda(list); 
+        FAIL;
+    } else
+        OK;
+}
+
+/**
+ * LAMBDA без параметров
+ */
+void test_is_lambda_no_params()
+{
+    printf("test_is_lambda_no_params \n"); 
     
-/*     object_t list = new_pair(object_new(NUMBER, &num), new_pair(params, new_pair(q, NULLOBJ))); */
+    object_t list = new_pair(NEW_SYMBOL("LAMBDA"), NULLOBJ); 
+    if (setjmp(jmp_env) == 0) {
+        int i = is_lambda(list); 
+        FAIL;
+    } else
+        OK;
+}
 
-/*     int i = is_lambda(list); */
-/*     ASSERT(i, 0); */
-/* } */
+/**
+ * Неправильный список аргументов в функции
+ */
+void test_is_lambda_invalid_params()
+{
+    printf("test_is_lambda_invalid_params \n"); 
+    object_t p1 = NEW_SYMBOL("a"); 
+    object_t q = new_pair(NEW_SYMBOL("ATOM"), new_pair(NEW_SYMBOL("CAR"), new_pair(p1, NULLOBJ))); 
+    object_t list = new_pair(NEW_SYMBOL("LAMBDA"), new_pair(p1, new_pair(q, NULLOBJ))); 
+    if (setjmp(jmp_env) == 0) {
+        int i = is_lambda(list); 
+        FAIL;
+    } else
+        OK;
+}
 
-/* /\**  */
-/*  * LAMBDA без параметров */
-/*  *\/ */
-/* void test_is_lambda_no_params() */
-/* { */
-/*     printf("test_is_lambda_no_params \n"); */
-    
-/*     object_t list = new_pair(object_new(SYMBOL, "LAMBDA"), NULLOBJ); */
+/**
+ * Не символ в параметрах
+ */
+void test_is_lambda_not_symbol()
+{
+    printf("test_is_lambda_not_symbol: \n"); 
+    int num = 5; 
+    object_t p1 = NEW_SYMBOL("a"); 
+    object_t p2 = new_number(num); 
+    object_t params = new_pair(p1, new_pair(p2, NULLOBJ)); 
+    object_t q = new_pair(NEW_SYMBOL("ATOM"), new_pair(NEW_SYMBOL("CAR"), new_pair(params, NULLOBJ))); 
+    object_t list = new_pair(NEW_SYMBOL("LAMBDA"), new_pair(params, new_pair(q, NULLOBJ))); 
+    if (setjmp(jmp_env) == 0) {
+        int i = is_lambda(list); 
+        FAIL;
+    } else
+        OK;
+}
 
-/*     int i = is_lambda(list); */
-/*     ASSERT(i, 0); */
-/* } */
-
-/* /\**  */
-/*  * Неправильный список аргументов в функции */
-/*  *\/ */
-/* void test_is_lambda_invalid_params() */
-/* { */
-/*     printf("test_is_lambda_invalid_params \n"); */
-
-/*     object_t p1 = object_new(SYMBOL, "a"); */
-
-/*     object_t q = new_pair(object_new(SYMBOL, "ATOM"), */
-/*         new_pair(object_new(SYMBOL, "CAR"), new_pair(p1, NULLOBJ))); */
-    
-/*     object_t list = new_pair(object_new(SYMBOL, "LAMBDA"), new_pair(p1, new_pair(q, NULLOBJ))); */
-
-/*     int i = is_lambda(list); */
-/*     ASSERT(i, 0); */
-/* } */
-
-/* /\**  */
-/*  * Не символ в параметрах */
-/*  *\/ */
-/* void test_is_lambda_not_symbol() */
-/* { */
-/*     printf("test_is_lambda_not_symbol: \n"); */
-    
-/*     int num = 5; */
-/*     object_t p1 = object_new(SYMBOL, "a"); */
-/*     object_t p2 = object_new(NUMBER, &num); */
-/*     object_t params = new_pair(p1, new_pair(p2, NULLOBJ)); */
-
-/*     object_t q = new_pair(object_new(SYMBOL, "ATOM"), */
-/*         new_pair(object_new(SYMBOL, "CAR"), new_pair(params, NULLOBJ))); */
-    
-/*     object_t list = new_pair(object_new(SYMBOL, "LAMBDA"), new_pair(params, new_pair(q, NULLOBJ))); */
-
-/*     int i = is_lambda(list); */
-/*     ASSERT(i, 0); */
-/* } */
-
-/* /\**  */
-/*  * Нет тела в функции */
-/*  *\/ */
-/* void test_is_lambda_no_body() */
-/* { */
-/*     printf("test_is_lambda_no_body \n"); */
-
-/*     object_t p1 = object_new(SYMBOL, "a"); */
-/*     object_t p2 = object_new(SYMBOL, "b"); */
-/*     object_t params = new_pair(p1, new_pair(p2, NULLOBJ)); */
-    
-/*     object_t list = new_pair(object_new(SYMBOL, "LAMBDA"), new_pair(params, NULLOBJ)); */
-
-/*     int i = is_lambda(list); */
-/*     ASSERT(i, 0); */
-/* } */
+/**
+ * Нет тела в функции
+ */
+void test_is_lambda_no_body()
+{
+    printf("test_is_lambda_no_body \n"); 
+    object_t p1 = NEW_SYMBOL("a"); 
+    object_t p2 = NEW_SYMBOL("b"); 
+    object_t params = new_pair(p1, new_pair(p2, NULLOBJ)); 
+    object_t list = new_pair(NEW_SYMBOL("LAMBDA"), new_pair(params, NULLOBJ)); 
+    if (setjmp(jmp_env) == 0) {
+        int i = is_lambda(list); 
+        FAIL;
+    } else
+        OK;
+}
 
 /* /\**  */
 /*  * Вызов (macrocall (lambda (x) (list x))) */
@@ -934,7 +926,7 @@ int main()
     init_eval();
     init_regions();
     init_objects();
-    /* test_is_lambda();//14 */
+    test_is_lambda();//14
     /* test_cond();//13 */
     /* test_cond_null();//67 */
     /* test_cond_tail_null();//69     */
@@ -965,11 +957,11 @@ int main()
     /* test_or_first(); */
     /* test_or_tail(); */
     /* test_or_nil(); */
-    /* test_is_lambda_invalid_symbol(); */
-    /* test_is_lambda_no_params(); */
-    /* test_is_lambda_invalid_params(); */
-    /* test_is_lambda_not_symbol(); */
-    /* test_is_lambda_no_body(); */
+    test_is_lambda_invalid_symbol();
+    test_is_lambda_no_params();
+    test_is_lambda_invalid_params();
+    test_is_lambda_not_symbol();
+    test_is_lambda_no_body();
     /* test_macro_call(); */
     /* test_eval_func(); */
     /* test_eval_func2(); */
