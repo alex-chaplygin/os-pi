@@ -22,6 +22,7 @@ object_t atom(object_t params);
 object_t defvar(object_t params);
 object_t cond(object_t list);
 object_t progn(object_t list);
+object_t defun(object_t list);
 object_t quote(object_t list);
 object_t eq(object_t list);
 object_t and(object_t list);
@@ -182,24 +183,18 @@ void test_find_in_env()
  * Создать функцию (defun null (x) (eq x '()))
  * Проверить значение символа null
  */
-/* void test_defun() */
-/* { */
-/*     printf("test_defun: "); */
-/*     object_t body = new_pair(object_new(SYMBOL, "EQ"), */
-/* 			      new_pair(object_new(SYMBOL, "X"), */
-/* 				       new_pair(NULL, NULL))); */
-/*     object_t args = new_pair(object_new(SYMBOL, "X"), NULL); */
-/*     object_t func = new_pair(object_new(SYMBOL, "DEFUN"), */
-/* 			      new_pair(object_new(SYMBOL, "NULL"), */
-/* 				       new_pair(args, */
-/* 						new_pair(body, NULL)))); */
-/*     object_t res = eval(func, NULL); */
-/*     ASSERT(res->type, SYMBOL); */
-/*     symbol_t *null = find_symbol("NULL"); */
-/*     ASSERT(res->u.symbol, null); */
-/*     ASSERT(null->lambda->type, PAIR); */
-/*     ASSERT(null->lambda->u.pair->left->u.symbol, find_symbol("LAMBDA")); */
-/* } */
+void test_defun()
+{
+    printf("test_defun: "); 
+    object_t body = new_pair(NEW_SYMBOL("EQ"), new_pair(NEW_SYMBOL("X"), new_pair(NULLOBJ, NULLOBJ))); 
+    object_t args = new_pair(NEW_SYMBOL("X"), NULLOBJ); 
+    object_t res = defun(new_pair(NEW_SYMBOL("NULL"), new_pair(args, new_pair(body, NULLOBJ)))); 
+    ASSERT(TYPE(res), SYMBOL); 
+    symbol_t *null = find_symbol("NULL"); 
+    ASSERT(GET_SYMBOL(res), null); 
+    ASSERT(TYPE(null->lambda), PAIR); 
+    ASSERT(GET_SYMBOL(FIRST(null->lambda)), find_symbol("LAMBDA"));
+}
 
 /**
  * Создать окружение с числовыми переменными X, Y
@@ -930,7 +925,7 @@ int main()
     /* test_cond_many_params(); */
     test_make_env();
     test_find_in_env();
-    /* test_defun();//18 */
+    test_defun();//18
     test_setq_set_env();
     /* test_setq_global_set(); */
     /* test_append(); */

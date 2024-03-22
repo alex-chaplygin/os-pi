@@ -220,8 +220,8 @@ object_t current_env;
  object_t defun(object_t obj) 
  { 
      symbol_t *name = find_symbol(GET_SYMBOL(FIRST(obj))->str); 
-     name->lambda = new_pair(NEW_OBJECT(SYMBOL, find_symbol("LAMBDA")), TAIL(obj)); 
-     return NEW_OBJECT(SYMBOL, find_symbol(name->str)); 
+     name->lambda = new_pair(NEW_SYMBOL("LAMBDA"), TAIL(obj));
+     return NEW_SYMBOL(name->str);
  } 
 
  /*  
@@ -480,7 +480,7 @@ object_t current_env;
          if (res_sym != NULL && res_sym->value != NOVALUE) 
             return res_sym->value; 
          else 
-            return ERROR; 
+            error("Unknown SYMBOL: %s", GET_SYMBOL(obj)->str);
      } 
  } 
 
@@ -509,14 +509,9 @@ object_t eval(object_t obj, object_t env)
         return NULLOBJ;
     else if (TYPE(obj) == NUMBER || TYPE(obj) == STRING || TYPE(obj) == ARRAY)
 	return obj;
-    else if (TYPE(obj) == SYMBOL) {
-        object_t symbol = eval_symbol(obj);
-        if (symbol == ERROR) {
-            error("Unknown SYMBOL: %s", GET_SYMBOL(obj)->str);
-            return ERROR;
-	}
-        return symbol;
-    } else if (TYPE(obj) == PAIR) {
+    else if (TYPE(obj) == SYMBOL)
+        return eval_symbol(obj);
+    else if (TYPE(obj) == PAIR) {
 	object_t first = FIRST(obj);
 	if (TYPE(first) == PAIR) {
 	    is_lambda(first);
