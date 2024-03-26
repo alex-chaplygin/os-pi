@@ -507,7 +507,7 @@ object_t eval(object_t obj, object_t env)
     current_env = env;
     if (obj == NULLOBJ)
         return NULLOBJ;
-    else if (TYPE(obj) == NUMBER || TYPE(obj) == STRING || TYPE(obj) == ARRAY)
+    else if (TYPE(obj) == NUMBER || TYPE(obj) == BIGNUMBER || TYPE(obj) == STRING || TYPE(obj) == ARRAY)
 	return obj;
     else if (TYPE(obj) == SYMBOL)
         return eval_symbol(obj);
@@ -523,26 +523,16 @@ object_t eval(object_t obj, object_t env)
 	    args = TAIL(obj);
 	else
 	    args = eval_args(TAIL(obj), env);
-	if (args == ERROR){
-	    printf("Error in args: ");
-	    PRINT(obj);
-	    error("");
-	    return ERROR;
-	}
 	if (s->lambda != NULLOBJ)
 	    return eval_func(s->lambda, args, env);
 	else if (s->func != NULL)
 	    return s->func(args);
 	else if (s->macro != NULLOBJ)
 	    return macro_call(s->macro, args, env);
-	else {
+	else
 	    error("Unknown func: %s", s->str);
-	    return ERROR;
-	}
-    } else {
+    } else
         error("Unknown object_type");
-	return ERROR;
-    }
     current_env = env;
 }
 
