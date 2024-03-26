@@ -259,21 +259,19 @@ void test_setq_set_env()
 /*     ASSERT(sym->value->u.value, num2); */
 /* } */
 
-/* /\** */
-/*  * Объединить два списка (1) (2) */
-/*  * Проверить список */
-/*  *\/ */
-/* void test_append() */
-/* { */
-/*     int num1 = 1; */
-/*     int num2 = 2; */
-/*     printf("test_append: "); */
-/*     object_t l1 = new_pair(object_new(NUMBER, &num1), NULL); */
-/*     object_t l2 = new_pair(object_new(NUMBER, &num2), NULL); */
-/*     append_env(l1, l2); */
-/*     ASSERT(l1->u.pair->left->u.value, 1); */
-/*     ASSERT(l1->u.pair->right->u.pair->left->u.value, 2); */
-/* } */
+/**
+ * Объединить два списка (1) (2)
+ * Проверить список
+ */
+void test_append()
+{
+    printf("test_append: "); 
+    object_t l1 = new_pair(new_number(1), NULLOBJ); 
+    object_t l2 = new_pair(new_number(2), NULLOBJ); 
+    append_env(l1, l2); 
+    ASSERT(get_value(FIRST(l1)), 1); 
+    ASSERT(get_value(SECOND(l1)), 2); 
+}
 
 /**
  * Создать список (progn 1 2 3)
@@ -928,7 +926,7 @@ int main()
     test_defun();//18
     test_setq_set_env();
     /* test_setq_global_set(); */
-    /* test_append(); */
+    test_append();
     test_progn();
     test_progn_null();
     test_backquote_nulllist();
