@@ -29,6 +29,7 @@ object_t and(object_t list);
 object_t or(object_t list);
 object_t backquote(object_t list);
 object_t defmacro(object_t list);
+object_t eval_symbol(object_t list);
 object_t macro_call(object_t macro, object_t args, object_t env);
 object_t eval_func(object_t lambda, object_t args, object_t env);
 
@@ -788,6 +789,49 @@ void test_defmacro()
     ASSERT(TYPE(result), SYMBOL); 
     ASSERT(strcmp(GET_SYMBOL(result)->str, "test"), 0); 
 }
+
+/**
+ * Проверка значения созданной переменной
+ */
+void test_eval_symbol_with_defined_variable()
+{
+    printf("test_eval_symbol_with_defined_variable:");
+    find_symbol("A")->value = new_number(10);
+    object_t myVar = NEW_SYMBOL("A");
+
+    object_t result = eval(myVar, NULLOBJ);
+    
+    ASSERT(TYPE(result), NUMBER); 
+    ASSERT(get_value(result), 10); 
+}
+
+/**
+ * Проверка значения созданной переменной в созданном окружении
+ */
+void test_eval_symbol_environment_variable()
+{
+    printf("test_eval_symbol_environment_variable: ");
+    current_env = create_env();
+    if (setjmp(jmp_env) == 0) {
+        object_t result = eval(NEW_SYMBOL("X"), current_env);
+        ASSERT(get_value(result), 1);
+    } else
+        FAIL;
+}
+
+/**
+ * Проверка вычисления несуществующей переменной
+ */
+void test_eval_symbol_undefined_variable()
+{
+    printf("test_eval_symbol_undefined_variable: ");
+    object_t var = NEW_SYMBOL("undefinedVar");
+    if (setjmp(jmp_env) == 0) {
+        eval(var, NULLOBJ);
+        FAIL;
+    } else
+        OK;
+}
 /*
 eval_int
 +---------------------------+------------------------------------------------+------------------------------------------------------+
@@ -957,5 +1001,8 @@ int main()
     /* test_eval_func2(); */
     /* test_er_num_arg_make_env(); */
     test_defmacro();
+    test_eval_symbol_with_defined_variable();
+    test_eval_symbol_environment_variable();
+    test_eval_symbol_undefined_variable();
     return 0;
 }
