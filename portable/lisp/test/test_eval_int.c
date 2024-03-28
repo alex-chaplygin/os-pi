@@ -967,7 +967,7 @@ int main()
     test_progn();
     test_progn_null();
     test_backquote_nulllist();
-    //    test_backquote_arguments();
+    test_backquote_arguments();
     test_atom();//1
     test_atom_null();//52
     test_atom_list();
