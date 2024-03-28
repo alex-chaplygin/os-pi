@@ -376,15 +376,11 @@ object_t current_env;
  object_t eval_func(object_t lambda, object_t args, object_t env) 
  { 
      object_t new_env = make_env(SECOND(lambda), args); 
-     if (new_env == ERROR) 
- 	return ERROR; 
      object_t body; 
      if (GET_PAIR(TAIL(TAIL(lambda)))->right == NULLOBJ) 
  	body = THIRD(lambda); 
      else 
  	body = new_pair(NEW_SYMBOL("PROGN"), TAIL(TAIL(lambda))); 
-     if (body == ERROR) 
- 	return ERROR; 
      if (new_env == NULLOBJ) 
  	new_env = env; 
      else 

@@ -721,45 +721,38 @@ void test_is_lambda_no_body()
 /*     ASSERT(res->u.value, 10); */
 /* } */
 
-/* /\**  */
-/*  * Тест вызова функции ((lambda (x) x) 10) */
-/*  *\/ */
-/* void test_eval_func() */
-/* { */
-/*     printf("test_eval_func: "); */
+/**
+ * Тест вызова функции ((lambda (x) x) 10)
+ */
+void test_eval_func()
+{
+    printf("test_eval_func: ");
+    object_t x1 = NEW_SYMBOL("x"); // x 
+    object_t param1 = new_pair(x1, NULLOBJ); // (x) 
+    object_t list = new_pair(NEW_SYMBOL("LAMBDA"), new_pair(param1, param1)); // (lambda (x) x) 
+    object_t arg_x = new_number(10); // 10
+    object_t args = new_pair(arg_x, NULLOBJ); //(
+    object_t res = eval_func(list, args, NULLOBJ); 
+    ASSERT(TYPE(res), NUMBER); 
+    ASSERT(get_value(res), 10); 
+}
 
-/*     object_t x1 = object_new(SYMBOL, "x"); // x */
-/*     object_t param1 = new_pair(x1, NULLOBJ); // (x) */
-/*     object_t list = new_pair(object_new(SYMBOL, "LAMBDA"), new_pair(param1, param1)); // (lambda (x) x) */
-    
-/*     int numX = 10; */
-/*     object_t arg_x = object_new(NUMBER, &numX); // 10 */
-/*     object_t args = new_pair(arg_x, NULLOBJ); //(10) */
-    
-/*     object_t res = eval_func(list, args, NULLOBJ); */
-/*     ASSERT(res->type, NUMBER); */
-/*     ASSERT(res->u.value, 10); */
-/* } */
-
-/* /\**  */
-/*  * Тест вызова функции ((lambda (x) 10 x) 10) */
-/*  *\/ */
-/* void test_eval_func2() */
-/* { */
-/*     printf("test_eval_func2: "); */
-    
-/*     int numX = 10; */
-/*     object_t arg_x = object_new(NUMBER, &numX);// 10 */
-/*     object_t args = new_pair(arg_x, NULLOBJ); //(10) */
-/*     object_t x1 = object_new(SYMBOL, "x"); // x */
-/*     object_t param1 = new_pair(x1, NULLOBJ); // (x) */
-/*     object_t param2 = new_pair(arg_x, param1); */
-/*     object_t list = new_pair(object_new(SYMBOL, "LAMBDA"), new_pair(param1, param2));  */
-       
-/*     object_t res = eval_func(list, args, NULLOBJ); */
-/*     ASSERT(res->type, NUMBER); */
-/*     ASSERT(res->u.value, 10); */
-/* } */
+/**
+ * Тест вызова функции ((lambda (x) 10 x) 10)
+ */
+void test_eval_func2()
+{
+    printf("test_eval_func2: ");
+    object_t arg_x = new_number(10);// 10 
+    object_t args = new_pair(arg_x, NULLOBJ); //(10) 
+    object_t x1 = NEW_SYMBOL("x"); // x 
+    object_t param1 = new_pair(x1, NULLOBJ); // (x) 
+    object_t param2 = new_pair(arg_x, param1); 
+    object_t list = new_pair(NEW_SYMBOL("LAMBDA"), new_pair(param1, param2));  
+    object_t res = eval_func(list, args, NULLOBJ); 
+    ASSERT(TYPE(res), NUMBER); 
+    ASSERT(get_value(res), 10);
+}
 
 /** 
  * Тест создания окружения с числом аргументов большим чем параметров
@@ -997,8 +990,8 @@ int main()
     test_is_lambda_not_symbol();
     test_is_lambda_no_body();
     /* test_macro_call(); */
-    /* test_eval_func(); */
-    /* test_eval_func2(); */
+    test_eval_func();
+    test_eval_func2();
     /* test_er_num_arg_make_env(); */
     test_defmacro();
     test_eval_symbol_with_defined_variable();
