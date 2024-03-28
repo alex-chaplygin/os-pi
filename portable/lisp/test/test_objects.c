@@ -6,16 +6,16 @@
 #include "parser.h"
 #include "alloc.h"
 
-extern bignumber_t bignumbers[];
+extern bignumber_t *bignumbers;
 extern bignumber_t *free_bignumbers;
-extern pair_t pairs[];
+extern pair_t *pairs;
 extern string_t *strings;
 extern array_t *arrays;
 extern int last_bignumber;
 extern int last_pair;
 extern int last_symbol;
 extern pair_t *free_pairs;
-extern char region_data[];
+extern char *region_data;
 extern string_t *free_strings;
 extern array_t *free_arrays;
 extern struct region *regions;
@@ -158,24 +158,24 @@ void test_free_bignumber()
  * создать два больших числа, проверить
  * что адреса новых и освобождённых идентичны
  */
-// void test_free_bignumber()
-// {
-//     printf("test_free_bignumber: ");
-//     reset_mem();
-//     for (int i = last_bignumber; i < MAX_NUMBERS; i++)
-//         new_bignumber(i);
-//     bignumber_t *o1 = &bignumbers[0];
-//     bignumber_t *o2 = &bignumbers[5];
-//     free_bignumber(o1);
-//     free_bignumber(o2);
-//     ASSERT(free_bignumbers, o2);
-//     ASSERT(free_bignumbers->next, o1);
-//     ASSERT(free_bignumbers->next->next, NULL);
-//     object_t r_o1 = new_bignumber(1);
-//     object_t r_o2 = new_bignumber(2);
-//     ASSERT(o2, GET_BIGNUMBER(r_o1));
-//     ASSERT(o1, GET_BIGNUMBER(r_o2));
-// }
+void test_free_bignumber2()
+{
+    printf("test_free_bignumber2: ");
+    reset_mem();
+    for (int i = last_bignumber; i < MAX_NUMBERS; i++)
+        new_bignumber(i);
+    bignumber_t *o1 = &bignumbers[0];
+    bignumber_t *o2 = &bignumbers[5];
+    free_bignumber(&bignumbers[0]);
+    free_bignumber(&bignumbers[5]);
+    ASSERT(free_bignumbers, &bignumbers[5]);
+    ASSERT(free_bignumbers->next, &bignumbers[0]);
+    ASSERT(free_bignumbers->next->next, NULL);
+    object_t r_o1 = new_bignumber(1);
+    object_t r_o2 = new_bignumber(2);
+    ASSERT(o2, GET_BIGNUMBER(r_o1));
+    ASSERT(o1, GET_BIGNUMBER(r_o2));
+}
 
 /**
  * Проверка корректности работы сборщика мусора
@@ -706,9 +706,8 @@ void main()
     init_regions();
     init_objects();
     test_mark();
-    test_sweep();    //19,24 */
-    test_garbage_collect();     //19,24
-   
+    test_sweep();    //19,24
+    test_garbage_collect();     //19,24   
     test_garbage_collect_list();    //21,24
     test_alloc_region();
     test_free_region();
@@ -722,20 +721,17 @@ void main()
     test_garbage_collect_strings(); //22,24
     test_garbage_collect_arrays();  //23,24
     test_garbage_collect_cycle();
-    /* test_print(); */
-    /* int i = 10; */
-
     test_return_type();
     test_return_set_mark();
     test_return_get_mark();
     test_return_clear_mark();
     test_return_get_addr();
-    test_new_object(NUMBER, (void *)0xf0);
     reset_mem();
     test_new_bignumber(1100);
     test_new_bignumber(0);
     test_new_bignumber(-1520);
     test_free_bignumber();
+    test_free_bignumber2();
     test_new_number(-677);
     test_new_number(56);
     test_new_number(0);
@@ -753,5 +749,5 @@ void main()
     PRINT(make_list(4));
     PRINT(NEW_ARRAY(make_list(2)));
     PRINT(NEW_OBJECT(SYMBOL, new_symbol("asd")));
-    PRINT(NEW_STRING("Pasha"));    
+    PRINT(NEW_STRING("Pasha"));
 }
