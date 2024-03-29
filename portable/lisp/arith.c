@@ -259,14 +259,10 @@ object_t less(object_t list)
  */
 object_t bitwise_and(object_t list)
 {
-    if (list == NULLOBJ) {
+    if (list == NULLOBJ)
 	error("bitwise_and: no arguments\n");
-	return ERROR;
-    }
-    if (TYPE(FIRST(list)) != NUMBER) {
+    if (TYPE(FIRST(list)) != NUMBER)
 	error("bitwise_and: Not a number\n");
-	return ERROR;
-    }
     int num = get_value(FIRST(list));
     list = TAIL(list);
     while (list != NULLOBJ) {
@@ -275,10 +271,8 @@ object_t bitwise_and(object_t list)
 	    num &= get_value(first);
 	    list = TAIL(list);
 	}
-	else {
+	else
 	    error("bitwise_and: Not number\n");
-	    return ERROR;
-	}
     }
     return new_number(num);
 }
