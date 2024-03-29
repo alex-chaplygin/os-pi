@@ -47,65 +47,63 @@ void error(char *str, ...)
         (T 2)  )
  * Обработать их функцией cond и проверить результат
 */
-/* void test_cond() */
-/* { */
-/*     printf("test_cond: "); */
-/*     int n1 = 1; */
-/*     int n2 = 2; */
-/*     object_t p1 = new_pair(nil, new_pair(object_new(NUMBER, &n1), NULL)); */
-/*     object_t p2 = new_pair(t, new_pair(object_new(NUMBER, &n2), NULL)); */
-/*     object_t l = new_pair(object_new(SYMBOL, "COND"), new_pair(p1, new_pair(p2, NULL))); */
-/*     object_t res = eval(l, NULL); */
-/*     ASSERT(res->type, NUMBER); */
-/*     ASSERT(res->u.value, 2); */
-/* } */
+void test_cond()
+{
+    printf("test_cond: ");
+    object_t p1 = new_pair(nil, new_pair(new_number(1), NULLOBJ)); 
+    object_t p2 = new_pair(t, new_pair(new_number(2), NULLOBJ)); 
+    object_t l = new_pair(p1, new_pair(p2, NULLOBJ)); 
+    object_t res = cond(l); 
+    ASSERT(TYPE(res), NUMBER); 
+    ASSERT(get_value(res), 2); 
+}
 
 /**
- * Попытка обработать null функцией cond
+ * cond без параметров
 */
-/* void test_cond_null() */
-/* { */
-/*     printf("test_cond_null: "); */
-/*     object_t res = cond(NULL); */
-/*     ASSERT(res, ERROR); */
-/* } */
+void test_cond_null()
+{
+    printf("test_cond_null: ");
+    if (setjmp(jmp_env) == 0) {
+        object_t res = cond(NULLOBJ); 
+        FAIL;
+    } else 
+        OK;
+}
 
-/* /\** */
-/*  * Попытка обработать объект с одним элементом функцией cond */
-/* *\/ */
-/* void test_cond_tail_null() */
-/* { */
-/*     printf("test_cond_tail_null: "); */
-/*     int num1 = 1; */
-/*     object_t single_param_list = new_pair(object_new(NUMBER, &num1), NULL); */
-/*     object_t cond_expr = new_pair(single_param_list, NULL); */
+/**
+ * cond с неправильным параметром (1)
+*/
+void test_cond_tail_null()
+{
+    printf("test_cond_tail_null: ");
+    object_t single_param_list = new_pair(new_number(1), NULLOBJ); 
+    object_t cond_expr = new_pair(single_param_list, NULLOBJ); 
+    if (setjmp(jmp_env) == 0) { 
+        object_t result = cond(cond_expr); 
+        FAIL;
+    } else 
+        OK;
+}
 
-/*     object_t result = cond(cond_expr); */
-/*     ASSERT(result, ERROR); */
-/* } */
-
-/* /\** */
-/*  * Создать выражение (cond ((eq 'a 'a) (eq 'a 'a) 'first)) */
-/*  * Вычислить его и проверить результат на ошибку */
-/* *\/ */
-/* void test_cond_many_params() */
-/* { */
-/*     printf("test_cond_many_params: \n"); */
-/*     object_t a = new_pair(object_new(SYMBOL, "QUOTE"), new_pair( */
-/*         object_new(SYMBOL, "A"), NULL)); */
-/*     object_t eq_pair = new_pair( */
-/*         object_new(SYMBOL, "EQ"), new_pair( */
-/*             a, new_pair( */
-/*                 a, NULL))); */
-/*     object_t first = new_pair(object_new(SYMBOL, "QUOTE"), new_pair( */
-/*         object_new(SYMBOL, "FIRST"), NULL)); */
-/*     object_t args = new_pair(eq_pair, new_pair( */
-/*         eq_pair, new_pair( */
-/*             first, NULL))); */
-/*     object_t cond_pair = new_pair(object_new(SYMBOL, "COND"), new_pair(args, NULL)); */
-/*     object_t res = eval(cond_pair, NULL); */
-/*     ASSERT(res, ERROR); */
-/* } */
+/**
+ * Создать выражение (cond ((eq 'a 'a) (eq 'a 'a) 'first))
+ * Вычислить его и проверить результат на ошибку
+*/
+void test_cond_many_params()
+{
+    printf("test_cond_many_params: \n");
+    object_t a = new_pair(NEW_SYMBOL("QUOTE"), new_pair(NEW_SYMBOL("A"), NULLOBJ)); 
+    object_t eq_pair = new_pair(NEW_SYMBOL("EQ"), new_pair(a, new_pair(a, NULLOBJ))); 
+    object_t first = new_pair(NEW_SYMBOL("QUOTE"), new_pair(NEW_SYMBOL("FIRST"), NULLOBJ)); 
+    object_t args = new_pair(eq_pair, new_pair(eq_pair, new_pair(first, NULLOBJ))); 
+    object_t cond_pair = new_pair(NEW_SYMBOL("COND"), new_pair(args, NULLOBJ));
+    if (setjmp(jmp_env) == 0) { 
+        object_t res = eval(cond_pair, NULLOBJ); 
+        FAIL;
+    } else 
+        OK;
+}
 
 /**
  * Создать объект для выражения (lambda (a, b) (atom (car (a, b))))
@@ -954,10 +952,10 @@ int main()
     init_regions();
     init_objects();
     test_is_lambda();//14
-    /* test_cond();//13 */
-    /* test_cond_null();//67 */
-    /* test_cond_tail_null();//69     */
-    /* test_cond_many_params(); */
+    test_cond();//13
+    test_cond_null();//67
+    test_cond_tail_null();//69
+    test_cond_many_params();
     test_make_env();
     test_find_in_env();
     test_defun();//18
