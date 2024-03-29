@@ -551,67 +551,72 @@ void test_eq()
 /*     ASSERT(res, nil); */
 /* } */
 
-/* /\** */
-/*  * Тестирование функции or */
-/*  * передаём NULLOBJ вместо списка */
-/*  *\/ */
-/* void test_or_null() */
-/* { */
-/*     printf("test_or_null: \n"); */
-/*     object_t res = or(NULLOBJ); */
-/*     ASSERT(res, ERROR); */
-/* } */
+/**
+ * Тестирование функции or
+ * передаём NULLOBJ вместо списка
+ */
+void test_or_null()
+{
+    printf("test_or_null: \n");
+    if (setjmp(jmp_env) == 0) {
+        object_t res = or(NULLOBJ);
+        FAIL;
+    } else
+        OK;
+}
 
-/*  /\** */
-/*  * Тестирование функции or */
-/*  * передаём список с некорректными данными */
-/*  *\/ */
-/* void test_or_invalid() */
-/* { */
-/*     printf("test_or_invalid: \n"); */
-/*     int number = 1; */
-/*     object_t p1 = object_new(NUMBER, &number); */
-/*     object_t l1 = new_pair(p1, NULLOBJ); */
-/*     object_t res = or(l1); */
-/*     ASSERT(res, ERROR); */
-/* } */
+ /**
+ * Тестирование функции or
+ * передаём список с некорректными данными
+ */
+void test_or_invalid()
+{
+    printf("test_or_invalid: \n");
+    object_t p1 = new_number(1);
+    object_t l1 = new_pair(p1, NULLOBJ);
+    if (setjmp(jmp_env) == 0) {
+        object_t res = or(l1);
+        FAIL;
+    } else
+        OK;
+}
 
-/*  /\** */
-/*  * Тестирование функции or */
-/*  * Первый элемент - t */
-/*  *\/ */
-/* void test_or_first() */
-/* { */
-/*     printf("test_or_first: \n"); */
-/*     object_t l1 = new_pair(t, new_pair(t, NULLOBJ)); */
-/*     object_t res = or(l1); */
-/*     ASSERT(res, t); */
-/* } */
+ /**
+ * Тестирование функции or
+ * Первый элемент - t
+ */
+void test_or_first()
+{
+    printf("test_or_first: \n");
+    object_t l1 = new_pair(t, new_pair(t, NULLOBJ));
+    object_t res = or(l1);
+    ASSERT(res, t);
+}
 
-/* /\** */
-/*  * Тестирование функции or */
-/*  * Первый элемент - nil, второй - t */
-/*  *\/ */
-/* void test_or_tail() */
-/* { */
-/*     printf("test_or_tail: \n"); */
-/*     object_t l1 = new_pair(nil, new_pair(t, NULLOBJ)); */
-/*     object_t res = or(l1); */
-/*     ASSERT(res, t); */
-/* } */
+/**
+ * Тестирование функции or
+ * Первый элемент - nil, второй - t
+ */
+void test_or_tail()
+{
+    printf("test_or_tail: \n");
+    object_t l1 = new_pair(nil, new_pair(t, NULLOBJ));
+    object_t res = or(l1);
+    ASSERT(res, t);
+}
 
 
-/* /\** */
-/*  * Тестирование функции or */
-/*  * Первый элемент - nil, второй - nil */
-/*  *\/  */
-/* void test_or_nil() */
-/* { */
-/*     printf("test_or_nil: \n"); */
-/*     object_t l1 = new_pair(nil, new_pair(nil, NULLOBJ)); */
-/*     object_t res = or(l1); */
-/*     ASSERT(res, nil); */
-/* } */
+/**
+ * Тестирование функции or
+ * Первый элемент - nil, второй - nil
+ */
+void test_or_nil()
+{
+    printf("test_or_nil: \n");
+    object_t l1 = new_pair(nil, new_pair(nil, NULLOBJ));
+    object_t res = or(l1);
+    ASSERT(res, nil);
+}
 
 /**
  * Тест на неправильный символ LAMBDA
@@ -977,11 +982,11 @@ int main()
     /* test_and_invalid(); */
     /* test_and(); */
     /* test_and_nil(); */
-    /* test_or_null(); */
-    /* test_or_invalid(); */
-    /* test_or_first(); */
-    /* test_or_tail(); */
-    /* test_or_nil(); */
+    test_or_null();
+    test_or_invalid();
+    test_or_first();
+    test_or_tail();
+    test_or_nil();
     test_is_lambda_invalid_symbol();
     test_is_lambda_no_params();
     test_is_lambda_invalid_params();

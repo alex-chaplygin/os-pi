@@ -619,10 +619,8 @@ object_t and(object_t params)
  */ 
 object_t or(object_t params) 
 { 
-    if (params == NULLOBJ) { 
+    if (params == NULLOBJ)
  	error("or: no params"); 
- 	return ERROR; 
-    } 
     while (params != NULLOBJ) { 
  	object_t first = FIRST(params); 
  	object_t res = eval(first, current_env); 
@@ -630,10 +628,8 @@ object_t or(object_t params)
  	    return t; 
  	else if (res == nil) 
  	    params = TAIL(params); 
- 	else { 
+ 	else
  	    error("or: invalid param"); 
- 	    return ERROR; 
- 	} 
     } 
     return nil; 
 } 
