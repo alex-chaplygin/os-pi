@@ -591,23 +591,19 @@ object_t setq(object_t params)
  */ 
 object_t and(object_t params) 
 { 
-    if (params == NULLOBJ) { 
- 	error("and: no params"); 
- 	return ERROR; 
-    } 
+    if (params == NULLOBJ)
+	error("and: no params"); 
     while (params != NULLOBJ) { 
- 	object_t first = FIRST(params); 
- 	object_t res = eval(first, current_env); 
- 	if (res == nil) 
- 	    return nil; 
- 	else if (res == t) 
- 	    params = TAIL(params); 
- 	else { 
- 	    error("and: invalid param"); 
- 	    return ERROR; 
- 	} 
+	object_t first = FIRST(params); 
+	object_t res = eval(first, current_env); 
+	if (res == nil) 
+	    return nil; 
+	else if (res == t) 
+	    params = TAIL(params); 
+	else 
+	    error("and: invalid param"); 
     } 
-    return t; 
+    return t;
 } 
 
 /* 
