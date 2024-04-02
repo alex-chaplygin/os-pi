@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <setjmp.h>
 #include "objects.h"
 #include "symbols.h"
 #include "eval.h"
@@ -23,9 +24,12 @@ object_t *equal(object_t *list);
 object_t *less(object_t *list);*/
 object_t gt(object_t list);
 
+jmp_buf jmp_env;
+
 void error(char *str, ...)
 {
   printf("%s", str);
+  longjmp(jmp_env, 1);
 }
 
 /**
@@ -50,9 +54,12 @@ void test_add()
 void test_add_null()
 {
     printf("test_add_null: ");
-    object_t list = NULLOBJ;
-    object_t res = add(list);
-    ASSERT(res, ERROR);
+    if (setjmp(jmp_env) == 0) {
+        object_t list = NULLOBJ;
+        object_t res = add(list);
+        FAIL;
+    } else 
+        OK;
 }
 
 /**
@@ -61,12 +68,14 @@ void test_add_null()
 void test_add_no_number()
 {
     printf("test_add_no_number: ");
-
     int num = 2;
-    object_t list = new_pair(new_number(num),
-                        new_pair(new_pair(NULL, NULL), NULL));
-    object_t res = add(list);
-    ASSERT(res, ERROR);
+    if (setjmp(jmp_env) == 0) {
+        object_t list = new_pair(new_number(num),
+                            new_pair(new_pair(NULL, NULL), NULL));
+        object_t res = add(list);
+        FAIL;
+    } else
+        OK;
 }
 
 /**
@@ -89,21 +98,26 @@ void test_sub()
 void test_sub_null()
 {
     printf("test_sub_null: ");
-    object_t list = NULLOBJ;
-    object_t res = sub(list);
-    ASSERT(res, ERROR);
+    if (setjmp(jmp_env) == 0) {
+        object_t list = NULLOBJ;
+        object_t res = sub(list);
+        FAIL;
+    } else
+        OK;
 }
 
 //Тест вычитания передача значения не число
 void test_sub_no_number()
 {
     printf("test_sub_no_number: ");
-
     int num = 2;
-    object_t list = new_pair(new_number(num),
-			      new_pair(new_pair(NULLOBJ, NULLOBJ), NULLOBJ));
-    object_t res = sub(list);
-    ASSERT(res, ERROR);
+    if (setjmp(jmp_env) == 0) {
+        object_t list = new_pair(new_number(num),
+			         new_pair(new_pair(NULLOBJ, NULLOBJ), NULLOBJ));
+        object_t res = sub(list);
+        FAIL;
+    } else 
+        OK;
 }
 
 //Тест умножения.
@@ -127,9 +141,12 @@ void test_mul()
 void test_mul_empty_list()
 {
     printf ("test_mul_empty_list:");
-    object_t empty_list = NULLOBJ;
-    object_t res = mul(empty_list);
-    ASSERT(res, ERROR);
+    if (setjmp(jmp_env) == 0) {
+        object_t empty_list = NULLOBJ;
+        object_t res = mul(empty_list);
+        FAIL;
+    } else 
+        OK;
 }
 
 
@@ -138,10 +155,13 @@ void test_mul_list_with_symbol()
 {
     printf ("test_mul_list_with_symbol :");
     int num = 1;
-    object_t list_with_symbol = new_pair(new_number(num),
+    if (setjmp(jmp_env) == 0) {
+        object_t list_with_symbol = new_pair(new_number(num),
                                          new_pair(NEW_SYMBOL("a"), NULLOBJ));
-    object_t res = mul(list_with_symbol);
-    ASSERT(res, ERROR);
+        object_t res = mul(list_with_symbol);
+        FAIL;
+    } else 
+        OK;
 }
 
 /**
@@ -178,9 +198,12 @@ void test_div()
 void test_div_nulllist()
 {
     printf("test_div_nulllist: \n");
-    object_t list = NULLOBJ;
-    object_t res = int_div(list);
-    ASSERT(res,ERROR);
+    if (setjmp(jmp_env) == 0) {
+        object_t list = NULLOBJ;
+        object_t res = int_div(list); 
+        FAIL;
+    } else 
+        OK;
 }
 
 /**
@@ -192,10 +215,13 @@ void test_div_zerodivisor()
     printf("test_div_zerodivisor: \n");
     int num1 = 8;
     int num2 = 0;
-    object_t list =  new_pair(new_number(num1),
+    if (setjmp(jmp_env) == 0) {
+        object_t list =  new_pair(new_number(num1),
 			      new_pair(new_number(num2),NULLOBJ));
-    object_t res =  int_div(list);
-    ASSERT(res,ERROR);
+        object_t res =  int_div(list);
+        FAIL;
+    } else 
+        OK;
 }
 
 
@@ -205,9 +231,12 @@ void test_div_nulldivisor()
 {
     printf("test_div_nulldivisor: \n");
     int num1 = 8;
-    object_t list = new_pair(new_number(num1), NULLOBJ);
-    object_t res =  int_div(list);
-    ASSERT(res,ERROR);
+    if (setjmp(jmp_env) == 0) {
+        object_t list = new_pair(new_number(num1), NULLOBJ);
+        object_t res =  int_div(list);
+        FAIL;
+    } else 
+        OK;
 }
 
 /**
@@ -228,9 +257,12 @@ void test_bitwise_and(int num1, int num2, int res)
 void test_bitwise_and_null()
 {
     printf("test_bitwise_and_null: ");
-    object_t list = NULLOBJ;
-    object_t res = bitwise_and(list);
-    ASSERT(res, ERROR);
+    if (setjmp(jmp_env) == 0) {
+        object_t list = NULLOBJ;
+        object_t res = bitwise_and(list);
+        FAIL;
+    } else 
+        OK;
 }
 
 /**1
@@ -239,19 +271,25 @@ void test_bitwise_and_null()
 void test_bitwise_and_no_number()
 {
     printf("test_bitwise_and_no_number: ");
-    object_t list = new_pair(NEW_SYMBOL("G"), NULLOBJ);
-    object_t res = bitwise_and(list);
-    ASSERT(res, ERROR);
+    if (setjmp(jmp_env) == 0) {
+        object_t list = new_pair(NEW_SYMBOL("G"), NULLOBJ);
+        object_t res = bitwise_and(list);
+        FAIL;
+    } else 
+        OK;
 }
 
 void test_bitwise_and_number_sym()
 {
     printf("test_bitwise_and_number_sym: ");
     int num1 = 2;
-    object_t list = new_pair(new_number(num1),
+    if (setjmp(jmp_env) == 0) {
+        object_t list = new_pair(new_number(num1),
 			     new_pair(NEW_SYMBOL("C"), NULLOBJ));
-    object_t res = bitwise_and(list);
-    ASSERT(res, ERROR);
+        object_t res = bitwise_and(list);
+        FAIL;
+    } else 
+        OK;
 }
 
 /**
@@ -272,9 +310,12 @@ void test_bitwise_or(int num1, int num2, int res)
 void test_bitwise_or_null()
 {
     printf("test_bitwise_or_null:");
-    object_t list = NULLOBJ;
-    object_t obj_res = bitwise_or(list);
-    ASSERT(obj_res, ERROR);
+    if (setjmp(jmp_env) == 0) {
+        object_t list = NULLOBJ;
+        object_t obj_res = bitwise_or(list);
+        FAIL;
+    } else 
+        OK;
 }
 
 /**
@@ -284,10 +325,13 @@ void test_bitwise_or_no_number()
 {
     printf("test_bitwise_or_no_number:");
     int num1 = 8;
-    object_t list = new_pair(new_number(num1),
+    if (setjmp(jmp_env) == 0) {
+        object_t list = new_pair(new_number(num1),
 			     new_pair(NEW_SYMBOL("T"), NULLOBJ));
-    object_t obj_res = bitwise_or(list);
-    ASSERT(obj_res, ERROR);
+        object_t obj_res = bitwise_or(list);
+        FAIL;
+    } else 
+        OK;
 }
 
 /**
@@ -616,18 +660,24 @@ void test_gt(int num1, int num2, object_t token)
 void test_gt_list_is_null()
 {
     printf("test_gt_list_is_null:");
-    object_t list = NULLOBJ;
-    object_t res = gt(list);
-    ASSERT(res, ERROR);
+    if (setjmp(jmp_env) == 0) {
+        object_t list = NULLOBJ;
+        object_t res = gt(list);
+        FAIL;
+    } else 
+        OK;
 }
 
 //Тест сравнения чисел на больше при одном аргументе в списке 
 void test_gt_one_arg(int num1)
 {
     printf("test_gt_one_arg:");
-    object_t list = new_pair(new_number(num1), NULLOBJ);
-    object_t res = gt(list);
-    ASSERT(res, ERROR);
+    if (setjmp(jmp_env) == 0) {
+        object_t list = new_pair(new_number(num1), NULLOBJ);
+        object_t res = gt(list);
+        FAIL;
+    } else 
+        OK;
 }
 
 int main()

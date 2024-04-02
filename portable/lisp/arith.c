@@ -17,20 +17,16 @@ extern object_t *t;
 object_t add(object_t list)
 {
     int num = 0;
-    if (list == NULLOBJ) {
-	    error("add: no arguments\n");
-	    return ERROR;
-    }
+    if (list == NULLOBJ)
+	error("add: no arguments\n");
     while (list != NULLOBJ) {
 	    object_t first = FIRST(list);
 	    if (TYPE(first) == NUMBER || TYPE(first) == BIGNUMBER) {  
 	        num += get_value(first);
 	        list = TAIL(list);
 	    }
-	    else {
+	    else
 	        error("add: Not number\n");
-	        return ERROR;
-	    }
     }
     return new_number(num);
 }
@@ -43,10 +39,8 @@ object_t add(object_t list)
 object_t sub(object_t list)
 {
    
-    if (list == NULLOBJ) {
+    if (list == NULLOBJ)
         error("sub: no arguments\n");
-        return ERROR;
-    }
     object_t first = FIRST(list);
     int num = get_value(FIRST(list));  
     list = TAIL(list);
@@ -56,10 +50,8 @@ object_t sub(object_t list)
 	        num -= get_value(first);
 	        list = TAIL(list);
 	}
-	else {
+	else
             error("sub: Not number\n");
-            return ERROR;
-        }
     }
     return new_number(num);
 }
@@ -71,10 +63,8 @@ object_t sub(object_t list)
 //@return произведение
 object_t mul(object_t list)
 {
-    if (list == NULLOBJ) {
+    if (list == NULLOBJ)
 	error("mul: no arguments\n");
-	return ERROR;
-    }
     object_t first = FIRST(list);
     int num = get_value(FIRST(list));
     list = TAIL(list);
@@ -84,10 +74,8 @@ object_t mul(object_t list)
 	    num *= get_value(first);
 	    list = TAIL(list);
 	}
-	else{
+	else
 	    error("mul: Not number\n");
-	    return ERROR;
-	}
     }
     return new_number(num);
 }
@@ -101,31 +89,21 @@ object_t mul(object_t list)
  */
 object_t int_div(object_t list){
 
-    if (list == NULLOBJ) {
+    if (list == NULLOBJ)
         error("div: no arguments\n");
-        return ERROR;
-    }
-    if (TAIL(list) == NULLOBJ) {
+    if (TAIL(list) == NULLOBJ)
         error("div: no divisor\n");
-        return ERROR;
-    }
     object_t first = FIRST(list);
-    if (TYPE(first) != NUMBER && TYPE(first) != BIGNUMBER){
+    if (TYPE(first) != NUMBER && TYPE(first) != BIGNUMBER)
 	 error("mul: Not number\n");
-	 return ERROR;
-    }
     object_t second = SECOND(list);
-    if (TYPE(second) != NUMBER && TYPE(second) != BIGNUMBER){
+    if (TYPE(second) != NUMBER && TYPE(second) != BIGNUMBER)
 	 error("mul: Not number\n");
-	 return ERROR;
-    }
     if (get_value(second) != 0) {
         int num = get_value(first) / get_value(second);
         return new_number(num);
-    } else {
+    } else 
         error("div: divisor = 0 \n");
-        return ERROR;
-    }
 }
 
 /* Сравнение на больше (> 8 2) */
@@ -136,14 +114,10 @@ object_t int_div(object_t list){
 
 object_t gt(object_t list)
 {
-    if (list == NULLOBJ) {
+    if (list == NULLOBJ)
         error(">: no arguments\n");
-        return ERROR;
-    }
-    if (TAIL(list) == NULLOBJ) {
+    if (TAIL(list) == NULLOBJ)
         error(">: one argument\n");
-        return ERROR;
-    }
     object_t first = FIRST(list);
     object_t second = SECOND(list);
     if (get_value(first) > get_value(second))
@@ -159,14 +133,10 @@ object_t gt(object_t list)
 /* @return результат от сравнения */
 object_t less(object_t list)
 {
-    if (list == NULLOBJ) {
+    if (list == NULLOBJ)
         error("<: no arguments\n");
-        return ERROR;
-    }
-    if (TAIL(list) == NULLOBJ) {
+    if (TAIL(list) == NULLOBJ)
         error("<: one argument\n");
-        return ERROR;
-    }
     object_t first = FIRST(list);
     object_t second = SECOND(list);
     if ( get_value(first) <  get_value(second))
@@ -286,10 +256,8 @@ object_t bitwise_and(object_t list)
  */
 object_t bitwise_or(object_t list)
 {
-    if (list == NULLOBJ) {
+    if (list == NULLOBJ)
 	error("bitwise_or: no arguments\n");
-	return ERROR;
-    }
     int num = get_value(FIRST(list));
     list = TAIL(list);
     while (list != NULLOBJ) {
@@ -361,13 +329,12 @@ object_t bitwise_or(object_t list)
 void init_arith()
 {
     register_func("+", add);
-    //register_func("-", sub);
-    //register_func("*", mul);
-    //register_func("=", num_eq);
+    register_func("-", sub);
+    register_func("*", mul);
     //register_func("EQUAL", equal);
-    //register_func("/", int_div);
-    //register_func("&", bitwise_and);
-    //register_func("BITOR", bitwise_or);
+    register_func("/", int_div);
+    register_func("&", bitwise_and);
+    register_func("BITOR", bitwise_or);
     //register_func("<<", shift_left);
     //register_func(">>", shift_right);
     //register_func(">", gt);
