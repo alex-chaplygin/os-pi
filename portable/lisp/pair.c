@@ -14,20 +14,12 @@
 object_t car(object_t list)
 {
     if (list == NULLOBJ)
-    {
 	error("car: No args");
-	return ERROR;
-    }
     if (TAIL(list) != NULLOBJ)
-    {
         error("car: Too many args");
-        return ERROR;
-    }
     object_t arg = FIRST(list);
-    if (TYPE(arg) != PAIR){
+    if (TYPE(arg) != PAIR)
         error("Not list in car");
-	return ERROR;
-    }
     return FIRST(arg);
 }
 

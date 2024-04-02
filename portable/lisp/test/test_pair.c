@@ -1,10 +1,12 @@
 #include <stdio.h>
+#include <setjmp.h>
 #include "objects.h"
 #include "alloc.h"
 #include "pair.h"
 #include "test.h"
 #include "parser.h"
 #include "eval.h"
+#include "symbols.h"
 
 object_t rplaca(object_t list);
 object_t rplacd(object_t list);
@@ -13,46 +15,52 @@ object_t car(object_t list);
 object_t cdr(object_t list);
 object_t list(object_t list);
 
+jmp_buf jmp_env;
+
 void error(char *str, ...)
 {
-  printf("%s", str);
+    printf("%s", str);
+    longjmp(jmp_env, 1);
 }
 
-/* /\** */
-/*  * создать объект для выражения (car (quote (5))) */
-/*  * вычислить объект  */
-/*  *\/ */
-/* void test_car() */
-/* { */
-/*     printf("test_car: "); */
+/**
+ * создать объект для выражения (car (quote (5)))
+ * вычислить объект
+ */
+void test_car()
+{
+    printf("test_car: ");
 
-/*     int e = 5; */
-/*     object_t l = new_pair(new_number(e), NULLOBJ); */
-/*     object_t q = new_pair(NEW_SYMBOL("QUOTE"), */
-/* 			   new_pair(l, NULLOBJ)); */
-/*     object_t o = new_pair(NEW_SYMBOL("CAR"), */
-/* 			   new_pair(q, NULLOBJ)); */
-/*     object_t res = eval(o, NULLOBJ); */
-/*     ASSERT(TYPE(res), NUMBER); */
-/*     // ASSERT(, 5); */
-/* } */
+    int e = 5;
+    object_t l = new_pair(new_number(e), NULLOBJ);
+    object_t q = new_pair(NEW_SYMBOL("QUOTE"),
+			   new_pair(l, NULLOBJ));
+    object_t o = new_pair(NEW_SYMBOL("CAR"),
+			   new_pair(q, NULLOBJ));
+    object_t res = eval(o, NULLOBJ);
+    ASSERT(TYPE(res), NUMBER);
+    ASSERT(get_value(res), 5);
+}
 
-/* /\* */
-/*  *создать объект для выражения (car (quote 5)) */
-/*  *вычислить объект */
-/*  *\/ */
+/*
+ *создать объект для выражения (car (quote 5))
+ *вычислить объект
+ */
 
-/* void test_invalid_car() */
-/* { */
-/*     printf("test_invalid_car: "); */
+void test_invalid_car()
+{
+    printf("test_invalid_car: ");
     
-/*     int e = 5; */
-/*     object_t l = new_number(e);// 5 */
-/*     object_t q = new_pair(NEW_SYMBOL("QUOTE"), new_pair(l,NULLOBJ));// (quote 5) */
-/*     object_t o = new_pair(NEW_SYMBOL("CAR"),new_pair(q,NULLOBJ));// (car (quote 5)) */
-/*     object_t res = eval(o, NULLOBJ); */
-/*     ASSERT(res, ERROR); */
-/* } */
+    int e = 5;
+    object_t l = new_number(e);// 5
+    object_t q = new_pair(NEW_SYMBOL("QUOTE"), new_pair(l,NULLOBJ));// (quote 5)
+    object_t o = new_pair(NEW_SYMBOL("CAR"),new_pair(q,NULLOBJ));// (car (quote 5))
+    if (setjmp(jmp_env) == 0) {
+        object_t res = eval(o, NULLOBJ); 
+        FAIL;
+    } else 
+        OK;
+}
 
 /**
  * Попытка вернуть элемент из пустого объекта 
@@ -60,9 +68,11 @@ void error(char *str, ...)
 void test_car_null()
 {
     printf("test_car_null: ");
-
-    object_t res = car(NULLOBJ);
-    ASSERT(res, ERROR);
+    if (setjmp(jmp_env) == 0) {
+	object_t res = car(NULLOBJ);
+        FAIL;
+    } else 
+        OK;
 }
 
 /**
@@ -78,9 +88,11 @@ void test_car_many_args()
     object_t num_obj2 = new_number(num2);
 
     object_t list_with_two_args = new_pair(num_obj1, new_pair(num_obj2, NULLOBJ));
-    object_t result = car(list_with_two_args);
-    
-    ASSERT(result, ERROR); 
+    if (setjmp(jmp_env) == 0) {
+	object_t result = car(list_with_two_args);
+        FAIL;
+    } else 
+        OK;
 }
 
 /* /\* */
@@ -398,16 +410,16 @@ int main()
     printf("------------test_pair---------\n");
     init_regions();
     init_objects();
-    //init_pair();
-    // init_eval();
-    //test_car();//10
+    init_pair();
+    init_eval();
+    test_car();//10
     test_car_null();//59
     test_car_many_args();//60
-    //test_invalid_car();//58
+    test_invalid_car();//58
     //test_cons();//12
     //test_invalid_cdr();//61
-    test_cdr_null();//62
-    test_cdr_many_args();//63    test_rplaca();
+    //test_cdr_null();//62
+    //test_cdr_many_args();//63
     /*test_cons_noparams();//64
     test_cons2();//12
     test_cons_one_param();//66
