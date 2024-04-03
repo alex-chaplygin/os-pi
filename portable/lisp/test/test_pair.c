@@ -15,6 +15,8 @@ object_t car(object_t list);
 object_t cdr(object_t list);
 object_t list(object_t list);
 
+extern object_t nil;
+
 jmp_buf jmp_env;
 
 void error(char *str, ...)
@@ -95,21 +97,38 @@ void test_car_many_args()
         OK;
 }
 
-/* /\* */
-/*  *создать объект для выражения (cdr (quote 5)) */
-/*  *вычислить объект */
-/*  *\/ */
-/* void test_invalid_cdr() */
-/* {     */
-/*     printf("test_invalid_cdr:\n"); */
+/**
+ * создать объект для выражения (cdr (quote (5)))
+ * вычислить объект
+ */
+void test_cdr()
+{
+    printf("test_cdr: ");
+    object_t l = new_pair(new_number(5), NULLOBJ);
+    object_t q = new_pair(NEW_SYMBOL("QUOTE"),
+			   new_pair(l, NULLOBJ));
+    object_t o = new_pair(NEW_SYMBOL("CDR"),
+			   new_pair(q, NULLOBJ));
+    object_t res = eval(o, NULLOBJ);
+    ASSERT(res, nil);
+}
 
-/*     int e =5; */
-/*     object_t l = new_number(e);// 5 */
-/*     object_t q = new_pair(NEW_SYMBOL("QUOTE"),new_pair(l,NULLOBJ));// (quote 5) */
-/*     object_t o = new_pair(NEW_SYMBOL("CDR"),new_pair(q,NULLOBJ));// (cdr (quote 5)) */
-/*     object_t res = eval(o, NULLOBJ); */
-/*     ASSERT(res, ERROR); */
-/* } */
+/*
+ *создать объект для выражения (cdr (quote 5))
+ *вычислить объект
+ */
+void test_invalid_cdr()
+{
+    printf("test_invalid_cdr:\n");
+    object_t l = new_number(5);// 5
+    object_t q = new_pair(NEW_SYMBOL("QUOTE"),new_pair(l,NULLOBJ));// (quote 5)
+    object_t o = new_pair(NEW_SYMBOL("CDR"),new_pair(q,NULLOBJ));// (cdr (quote 5))
+    if (setjmp(jmp_env) == 0) {
+	object_t res = eval(o, NULLOBJ);
+        FAIL;
+    } else 
+        OK;
+}
 
 /* /\* */
 /*  * Попытка вычисления объекта NULLOBJ для cdr */
@@ -117,9 +136,11 @@ void test_car_many_args()
  void test_cdr_null() 
  { 
      printf("test_cdr_null:\n"); 
-
-     object_t res = cdr(NULLOBJ); 
-     ASSERT(res, ERROR); 
+     if (setjmp(jmp_env) == 0) {
+	 object_t res = cdr(NULLOBJ); 
+	 FAIL;
+     } else 
+	 OK;
  } 
 
 /* /\* */
@@ -127,16 +148,15 @@ void test_car_many_args()
 /*  *\/ */
  void test_cdr_many_args() 
  { 
-  printf("test_cdr_many_args:\n"); 
-    
-    int num1 = 1; 
-    int num2 = 2; 
-     object_t num_obj1 = new_number(num1); 
-    object_t num_obj2 = new_number(num2); 
-
+     printf("test_cdr_many_args:\n"); 
+     object_t num_obj1 = new_number(1); 
+     object_t num_obj2 = new_number(2); 
      object_t list_with_two_args = new_pair(num_obj1, new_pair(num_obj2, NULLOBJ)); 
-     object_t res = cdr(list_with_two_args); 
-     ASSERT(res, ERROR); 
+     if (setjmp(jmp_env) == 0) {
+	 object_t res = cdr(list_with_two_args); 
+	 FAIL;
+     } else 
+	 OK;
  } 
 
 /* /\** */
@@ -416,12 +436,13 @@ int main()
     test_car_null();//59
     test_car_many_args();//60
     test_invalid_car();//58
-    //test_cons();//12
-    //test_invalid_cdr();//61
-    //test_cdr_null();//62
-    //test_cdr_many_args();//63
+    test_cdr();
+    test_invalid_cdr();//61
+    test_cdr_null();//62
+    test_cdr_many_args();//63
     /*test_cons_noparams();//64
     test_cons2();//12
+    //test_cons();//12
     test_cons_one_param();//66
     test_cons_3_params();//65
     test_rplaca();

@@ -34,20 +34,12 @@ object_t car(object_t list)
 object_t cdr(object_t list)
 {
     if (list == NULLOBJ)
-    {
 	error("cdr: No args");
-	return ERROR;
-    }
     if (TAIL(list) != NULLOBJ)
-    {
         error("cdr: Too many args");
-        return ERROR;
-    }
     object_t arg = FIRST(list);
-    if (TYPE(arg) != PAIR){
-        error("Not list in cdr");
-    	return ERROR;
-    }
+    if (TYPE(arg) != PAIR)
+        error("cdr: Not list in cdr");
     return TAIL(arg);
 }
 
