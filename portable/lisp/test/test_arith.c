@@ -18,8 +18,8 @@ object_t int_div(object_t list);
 /*object_t *num_eq(object_t *list);*/
 object_t bitwise_and(object_t list);
 object_t bitwise_or(object_t list);
-/*object_t *shift_left(object_t *list);
-object_t *shift_right(object_t *list);
+object_t shift_left(object_t list);
+/*object_t *shift_right(object_t *list);
 object_t *equal(object_t *list);
 object_t *less(object_t *list);*/
 object_t gt(object_t list);
@@ -337,35 +337,40 @@ void test_bitwise_or_no_number()
 /**
  * Тест сдвига влево
  */
-/*void test_shift_left(int num1, int num2, int res)
+void test_shift_left(int num1, int num2, int res)
 {
     printf("test_shift_left: %d %d", num1, num2);
-    object_t *list = new_pair(object_new(NUMBER, &num1),
-			      new_pair(object_new(NUMBER, &num2), NULL));
-    object_t *obj_res = shift_left(list);
-    ASSERT(obj_res->u.value, res);
+    object_t list = new_pair(new_number(num1),
+			     new_pair(new_number(num2), NULLOBJ));
+    object_t obj_res = shift_left(list);
+    ASSERT(get_value(obj_res), res);
 }
 
 /**
  * Тест сдвига влево, передача пустого списка
  */
-/*void test_shift_left_empty_list()
+void test_shift_left_empty_list()
 {
     printf("test_shift_left_empty_list: ");
-    object_t *res = shift_left(NULL);
-    ASSERT(res, ERROR);
+    if (setjmp(jmp_env) == 0) {
+        object_t res = shift_left(NULLOBJ);
+        FAIL;
+    } else 
+        OK;
 }
 
 /**
  * Тест сдвига влево, передача списка без второго параметра
  */
-/*void test_shift_left_no_second_param()
+void test_shift_left_no_second_param()
 {
     printf("test_shift_left_no_second_param: ");
-    int num = 1;
-    object_t *list = new_pair(object_new(NUMBER, &num), NULL);
-    object_t *res = shift_left(list);
-    ASSERT(res, ERROR);
+    object_t list = new_pair(new_number(1), NULLOBJ);
+    if (setjmp(jmp_env) == 0) {
+        object_t res = shift_left(list);
+        FAIL;
+    } else 
+        OK;
 }
 
 /**
@@ -711,11 +716,11 @@ int main()
     test_bitwise_or_null();
     test_bitwise_or_no_number();
 
-    /*test_shift_left(1, 2, 4); //100
+    test_shift_left(1, 2, 4); //100
     test_shift_left(2, 3, 16); //10000
     test_shift_left_empty_list();
     test_shift_left_no_second_param();
-    test_shift_right(1, 1, 0);
+    /*test_shift_right(1, 1, 0);
     test_shift_right(10, 2, 2);
     test_shift_right_empty_list();
     test_shift_right_no_second_param();

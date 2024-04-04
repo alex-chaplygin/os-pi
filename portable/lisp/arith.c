@@ -5,7 +5,8 @@
 #include "symbols.h"
 #include "parser.h"
 
-extern object_t *t;
+extern object_t t;
+extern object_t nil;
 
 /** 
  * Сложение аргументов (+ 1 2 3)
@@ -165,30 +166,33 @@ object_t less(object_t list)
 /**
  * Функция сравнения объектов
  * возвращает 1 если значения объектов равны, иначе 0
-/*int compare_obj(object_t *obj1, object_t *obj2)
+ */
+int compare_obj(object_t obj1, object_t obj2)
 {
-    if (obj1 == NULL && obj2 == NULL)
+    if (obj1 == NULLOBJ && obj2 == NULLOBJ)
 	return 1;
-    else if (obj1 == NULL || obj2 == NULL)
+    else if (obj1 == NULLOBJ || obj2 == NULLOBJ)
 	return 0;
-    if (obj1->type != obj2->type)
+    if (TYPE(obj1) != TYPE(obj2))
 	return 0;
-    else if (obj1->type == SYMBOL)
-	return obj1->u.symbol == obj2->u.symbol;
-    else if (obj1->type == STRING)
-	return strcmp(obj1->u.str->data, obj2->u.str->data) == 0;
-    else if (obj1->type == NUMBER)
-	return obj1->u.value == obj2->u.value;
-    else if (obj1->type == PAIR) {
+    else if (TYPE(obj1) == SYMBOL)
+	return GET_SYMBOL(obj1)->value == GET_SYMBOL(obj2)->value;
+    else if (TYPE(obj1) == STRING)
+	return strcmp(GET_STRING(obj1)->data, GET_STRING(obj2)->data) == 0;
+    else if (TYPE(obj1) == NUMBER)
+	return get_value(obj1) == get_value(obj2);
+    else if (TYPE(obj1) == PAIR) {
 	if (!compare_obj(FIRST(obj1), FIRST(obj2)))
 	    return 0;
 	else
 	    return compare_obj(TAIL(obj1), TAIL(obj2));
-    } else if (obj1->type == ARRAY) {
-	if (obj1->u.arr->length != obj2->u.arr->length)
+    } else if (TYPE(obj1) == ARRAY) {
+    array_t *arr1 = GET_ARRAY(obj1);
+    array_t *arr2 = GET_ARRAY(obj2);
+	if (arr1->length != arr2->length)
 	    return 0;
-	for (int i = 0; i < obj1->u.arr->length; i++)
-	    if (!compare_obj(obj1->u.arr->data[i], obj2->u.arr->data[i]))
+	for (int i = 0; i < arr1->length; i++)
+	    if (!compare_obj(arr1->data[i], arr2->data[i]))
 		return 0;	    
 	return 1;
     }
@@ -201,23 +205,17 @@ object_t less(object_t list)
  *
  * @return T - если равно, иначе NIL
  */
-/*object_t *equal(object_t *list)
+object_t equal(object_t list)
 {
-    if (list == NULL) {
+    if (list == NULLOBJ)
         error("equal: no arguments\n");
-        return ERROR;
-    }
-    object_t *obj1 = FIRST(list);
-    if (TAIL(list) == NULL) {
+    object_t obj1 = FIRST(list);
+    if (TAIL(list) == NULLOBJ)
         error("equal: no second argument\n");
-        return ERROR;
-    }
-    object_t *obj2 = SECOND(list);
-    if (TAIL(TAIL(list)) != NULL) {
+    object_t obj2 = SECOND(list);
+    if (TAIL(TAIL(list)) != NULLOBJ)
         error("equal: too many arguments\n");
-        return ERROR;
-    }
-    return compare_obj(obj1, obj2) ? t : NULL;
+    return compare_obj(obj1, obj2) ? t : nil;
 }
 
 /** 
@@ -280,21 +278,17 @@ object_t bitwise_or(object_t list)
  * @param list - список (<Любое число> <Число бит>)
  *
  * @return результат сдвига
-
-/*object_t *shift_left(object_t *list)
+ */
+object_t shift_left(object_t list)
 {
-    if (list == NULL) {
+    if (list == NULLOBJ)
         error("shift_left: no arguments\n");
-        return ERROR;
-    }
-    if (TAIL(list) == NULL) {
+    if (TAIL(list) == NULLOBJ)
         error("shift_left: no second param\n");
-        return ERROR;
-    }
-    object_t *first = FIRST(list);
-    object_t *second = SECOND(list);
-    int num = first->u.value << second->u.value;
-    return object_new(NUMBER, &num);
+    object_t first = FIRST(list);
+    object_t second = SECOND(list);
+    int num = get_value(first) << get_value(second);
+    return new_number(num);
 }
 
 /**
@@ -304,7 +298,6 @@ object_t bitwise_or(object_t list)
  *
  * @return результат сдвига
  */
-
 /*object_t *shift_right(object_t *list)
 {
     if (list == NULL) {
