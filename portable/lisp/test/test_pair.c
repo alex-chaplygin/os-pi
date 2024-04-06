@@ -159,85 +159,90 @@ void test_invalid_cdr()
 	 OK;
  } 
 
-/* /\** */
-/*  * создать объект для выражения (cons (quote a) (quote (5))) */
-/*  * вычислить объект (A 5) */
-/*  *\/ */
-/* void test_cons() */
-/* { */
-/*     printf("test_cons: "); */
-/*     int e = 5; */
-/*     object_t l = new_pair(new_number(&e), NULLOBJ); */
-/*     object_t q = new_pair(NEW_SYMBOL("QUOTE"), */
-/* 			   new_pair(l, NULLOBJ)); */
-/*     object_t qa = new_pair(NEW_SYMBOL("QUOTE"), */
-/* 			   new_pair(NEW_SYMBOL("A"), NULLOBJ)); */
-/*     object_t o = new_pair(NEW_SYMBOL("CONS"), */
-/* 			    new_pair(qa, new_pair(q, NULLOBJ))); */
-/*     object_t res = eval(o, NULLOBJ); */
-/*     ASSERT(FIRST(TYPE(res)), SYMBOL); */
-/*     ASSERT(SECOND(TYPE(res)), NUMBER); */
-/*     ASSERT(SECOND(TYPE(res)), 5); */
-/* } */
+/**
+ * создать объект для выражения (cons (quote a) (quote (5)))
+ * вычислить объект (A 5)
+ */
+void test_cons()
+{
+    printf("test_cons: ");
+    object_t l = new_pair(new_number(5), NULLOBJ); 
+    object_t q = new_pair(NEW_SYMBOL("QUOTE"), 
+			  new_pair(l, NULLOBJ)); 
+    object_t qa = new_pair(NEW_SYMBOL("QUOTE"), 
+ 			   new_pair(NEW_SYMBOL("A"), NULLOBJ)); 
+    object_t o = new_pair(NEW_SYMBOL("CONS"), 
+			  new_pair(qa, new_pair(q, NULLOBJ))); 
+    object_t res = eval(o, NULLOBJ); 
+    ASSERT(TYPE(FIRST(res)), SYMBOL); 
+    ASSERT(TYPE(SECOND(res)), NUMBER); 
+    ASSERT(get_value(SECOND(res)), 5);
+}
 
-/* /\** */
-/*  * Тест cons без параметров (CONS) */
-/*  *  */
-/*  *\/ */
-/* void test_cons_noparams() */
-/* { */
-/*     printf("test_cons_noparams: "); */
-/*     object_t a = new_pair(NEW_SYMBOL("CONS"), NULLOBJ); */
-/*     object_t res = eval(a, NULLOBJ); */
-/*     ASSERT(res, ERROR); */
-/* } */
+/**
+ * Тест cons без параметров (CONS)
+ *
+ */
+void test_cons_noparams()
+{
+    printf("test_cons_noparams: ");
+    object_t a = new_pair(NEW_SYMBOL("CONS"), NULLOBJ); 
+    if (setjmp(jmp_env) == 0) {
+        object_t res = eval(a, NULLOBJ); 
+	FAIL;
+    } else 
+	OK;
+}
 
-/* /\** */
-/*  * Тест cons с одним параметром (cons 5) */
-/*  *  */
-/*  *\/ */
-/* void test_cons_one_param() */
-/* { */
-/*     printf("test_cons_one_param: "); */
-/*     int num = 5; */
-/*     object_t a = new_pair(NEW_SYMBOL("CONS"), new_pair(new_number(num), NULLOBJ)); */
-/*     object_t res = eval(a, NULLOBJ); */
-/*     ASSERT(res, ERROR); */
-/* } */
+/**
+ * Тест cons с одним параметром (cons 5)
+ *
+ */
+void test_cons_one_param()
+{
+    printf("test_cons_one_param: ");
+    object_t a = new_pair(NEW_SYMBOL("CONS"), new_pair(new_number(5), NULLOBJ)); 
+    if (setjmp(jmp_env) == 0) {
+        object_t res = eval(a, NULLOBJ); 
+	FAIL;
+    } else 
+	OK;
+}
 
-/* /\** */
-/*  * Тест cons с 3 параметрами (cons 5 5 5) */
-/*  *  */
-/*  *\/ */
-/* void test_cons_3_params() */
-/* { */
-/*     printf("test_cons_3_params: "); */
-/*     int num = 5; */
-/*     object_t a = new_pair(NEW_SYMBOL("CONS"), */
-/* 			  new_pair(new_number(num), */
-/* 				   new_pair(new_number(num),  */
-/* 					    new_pair(new_number(num), NULLOBJ)))); */
-/*     object_t res = eval(a, NULLOBJ); */
-/*     ASSERT(res, ERROR); */
-/* } */
+/**
+ * Тест cons с 3 параметрами (cons 5 5 5)
+ *
+ */
+void test_cons_3_params()
+{
+    printf("test_cons_3_params: ");
+    int num = 5; 
+    object_t a = new_pair(NEW_SYMBOL("CONS"), 
+ 			  new_pair(new_number(num), 
+ 				   new_pair(new_number(num),  
+ 					    new_pair(new_number(num), NULLOBJ)))); 
+    if (setjmp(jmp_env) == 0) {
+        object_t res = eval(a, NULLOBJ); 
+	FAIL;
+    } else 
+	OK;
+}
 
-/* /\* */
-/*  *создать объект для выражения (cons (quote a) 4) */
-/*  *вычислить объект */
-/*  *\/ */
-/* void test_cons2() */
-/* { */
-/*     printf("test_cons2:\n"); */
-
-/*     int ee = 4; */
-/*     object_t qa = new_pair(NEW_SYMBOL("QUOTE"), */
-/* 				      new_pair(NEW_SYMBOL("A"), NULLOBJ)); //(quote a))) */
-/*     object_t o = new_pair(NEW_SYMBOL("CONS"), */
-/* 			  new_pair(qa, new_pair(new_number(ee), NULLOBJ))); //(cons (quote a) 4)) */
-/*     object_t res = eval(o, NULLOBJ); */
-/*     ASSERT(TYPE(res), PAIR); */
-/*     ASSERT(res->u.pair->right->u.value, 4); */
-/* } */
+/*
+ *создать объект для выражения (cons (quote a) 4)
+ *вычислить объект
+ */
+void test_cons2()
+{
+    printf("test_cons2:\n");
+    object_t qa = new_pair(NEW_SYMBOL("QUOTE"), 
+			   new_pair(NEW_SYMBOL("A"), NULLOBJ)); //(quote a))) 
+    object_t o = new_pair(NEW_SYMBOL("CONS"), 
+ 			  new_pair(qa, new_pair(new_number(4), NULLOBJ))); //(cons (quote a) 4)) 
+    object_t res = eval(o, NULLOBJ); 
+    ASSERT(TYPE(res), PAIR); 
+    ASSERT(get_value(TAIL(res)), 4);
+}
 
 /* // ( (5(3 NULLOBJ)) (2 NULLOBJ) ) -> (2(3 NULLOBJ)) */
 /* void test_rplaca() */
@@ -440,12 +445,12 @@ int main()
     test_invalid_cdr();//61
     test_cdr_null();//62
     test_cdr_many_args();//63
-    /*test_cons_noparams();//64
+    test_cons_noparams();//64
     test_cons2();//12
-    //test_cons();//12
+    test_cons();//12
     test_cons_one_param();//66
     test_cons_3_params();//65
-    test_rplaca();
+    /*test_rplaca();
     test_rplaca_no_params();
     test_rplaca_not_enought_params();
     test_rplaca_too_many_params();

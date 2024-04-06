@@ -52,10 +52,8 @@ object_t cdr(object_t list)
  */
 object_t cons(object_t list)
 {			
-    if (list == NULLOBJ || TAIL(list) == NULLOBJ || TAIL(TAIL(list)) != NULLOBJ) {
+    if (list == NULLOBJ || TAIL(list) == NULLOBJ || TAIL(TAIL(list)) != NULLOBJ)
 	error("CONS: invalid params");
-	return ERROR;
-    }
     object_t p1 = FIRST(list);
     object_t p2 = SECOND(list);
     return new_pair(p1, p2);
