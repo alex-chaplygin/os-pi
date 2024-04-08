@@ -8,8 +8,8 @@
 #include "string.h"
 #include "alloc.h"
 
-extern object_t *t;
-extern object_t *nil;
+extern object_t t;
+extern object_t nil;
 
 object_t add(object_t list);
 object_t sub(object_t list);
@@ -19,8 +19,8 @@ object_t int_div(object_t list);
 object_t bitwise_and(object_t list);
 object_t bitwise_or(object_t list);
 object_t shift_left(object_t list);
-/*object_t *shift_right(object_t *list);
 object_t *equal(object_t *list);
+/*object_t *shift_right(object_t *list);
 object_t *less(object_t *list);*/
 object_t gt(object_t list);
 
@@ -410,194 +410,191 @@ void test_shift_left_no_second_param()
 /** 
  * Сравнение чисел
  */
-/*void test_equal()
+void test_equal()
 {
     printf("test_equal: ");
-    int first1 = 1;
-    int second1 = 1;
-    object_t *list = new_pair(object_new(NUMBER, &first1),
-			      new_pair(object_new(NUMBER, &second1), NULL));
-    object_t *res = equal(list);
+    object_t list = new_pair(new_number(1),
+			     new_pair(new_number(1), NULLOBJ));
+    object_t res = equal(list);
     ASSERT(res, t);
 }
 
 /** 
  * Сравнение объектов, передача пустого списка
  */
-/*void test_equal_empty_list()
+void test_equal_empty_list()
 {
     printf("test_equal_empty_list: ");
-    object_t *list = NULL;
-    object_t *res = equal(list);
-    ASSERT(res, ERROR);
+    if (setjmp(jmp_env) == 0) {
+        object_t res = equal(NULLOBJ);
+        FAIL;
+    } else 
+        OK;
 }
 
 /** 
  * Сравнение объектов, список из одного объекта
  */
-/*void test_equal_no_second_param()
+void test_equal_no_second_param()
 {
     printf("test_equal_no_second_param: ");
-    int first1 = 1;
-    object_t *list = new_pair(object_new(NUMBER, &first1), NULL);
-    object_t *res = equal(list);
-    ASSERT(res, ERROR);
+    if (setjmp(jmp_env) == 0) {
+        object_t list = new_pair(new_number(1), NULLOBJ);
+        object_t res = equal(list);
+        FAIL;
+    } else 
+        OK;
 }
 
 /** 
  * Сравнение объектов, недопустимая длина списка
  */
-/*void test_equal_invalid_list_length()
+void test_equal_invalid_list_length()
 {
     printf("test_equal_invalid_list_length: ");
-    int first1 = 1;
-    int second1 = 1;
-    object_t *list = new_pair(object_new(NUMBER, &first1),
-			      new_pair(object_new(NUMBER, &second1), 
-			      new_pair(object_new(NUMBER, &second1), NULL)));
-    object_t *res = equal(list);
-    ASSERT(res, ERROR);
+    if (setjmp(jmp_env) == 0) {
+        object_t list = new_pair(new_number(1),
+				 new_pair(new_number(1), 
+					  new_pair(new_number(1), NULLOBJ)));
+        object_t res = equal(list);
+        FAIL;
+    } else 
+        OK;
 }
 
 /** 
  * Сравнение символов
  */
-/*void test_equal_symbols()
+void test_equal_symbols()
 {
     printf("test_equal_symbols: ");
-    object_t *list = new_pair(object_new(SYMBOL, "A"),
-			      new_pair(object_new(SYMBOL, "A"), NULL));
-    object_t *res = equal(list);
-    ASSERT(res, t);
+    object_t list = new_pair(NEW_SYMBOL("A"),
+			     new_pair(NEW_SYMBOL("A"), NULLOBJ));
+    object_t res = equal(list);
+    ASSERT(res, t)
 }
 
 /** 
  * Сравнение строк
  */
-/*void test_equal_strings()
+void test_equal_strings()
 {
     printf("test_equal_strings: ");
-    object_t *list = new_pair(object_new(STRING, "abc"),
-			      new_pair(object_new(STRING, "abc"), NULL));
-    object_t *res = equal(list);
+    object_t list = new_pair(NEW_STRING("abc"),
+			     new_pair(NEW_STRING("abc"), NULLOBJ));
+    object_t res = equal(list);
     ASSERT(res, t);
 }
 
 /** 
  * Сравнение пар
  */
-/*void test_equal_pairs()
+void test_equal_pairs()
 {
     printf("test_equal_pairs: ");
-    object_t *pair = new_pair(object_new(SYMBOL, "A"), NULL);
-    object_t *list = new_pair(pair,
-                    new_pair(pair, NULL));
-    object_t *res = equal(list);
+    object_t pair = new_pair(NEW_SYMBOL("A"), NULLOBJ);
+    object_t list = new_pair(pair,
+			     new_pair(pair, NULLOBJ));
+    object_t res = equal(list);
     ASSERT(res, t);
 }
 
 /** 
  * Сравнение пар с разными значениями
  */
-/*void test_equal_pairs_with_different_values()
+void test_equal_pairs_with_different_values()
 {
     printf("test_equal_pairs_with_different_values: ");
-    object_t *pair1 = new_pair(object_new(SYMBOL, "A"), NULL);
-    object_t *pair2 = new_pair(object_new(SYMBOL, "B"), NULL);
-    object_t *list = new_pair(pair1,
-                    new_pair(pair2, NULL));
-    object_t *res = equal(list);
-    ASSERT(res, t);
+    object_t pair1 = new_pair(NEW_SYMBOL("A"), NULLOBJ);
+    object_t pair2 = new_pair(NEW_SYMBOL("B"), NULLOBJ);
+    object_t list = new_pair(pair1,
+			     new_pair(pair2, NULLOBJ));
+    object_t res = equal(list);
+    ASSERT(res, nil);
 }
 
 /** 
  * Сравнение массивов
  */
-/*void test_equal_array()
+void test_equal_array()
 {
     printf("test_equal_array: ");
-    int num = 1;
     array_t *arr = new_empty_array(2);
-    arr->data[0] = object_new(NUMBER, &num);
-    arr->data[1] = object_new(NUMBER, &num);
-    object_t *list = new_pair(object_new(ARRAY, arr),
-			      new_pair(object_new(ARRAY, arr), NULL));
-    object_t *res = equal(list);
+    arr->data[0] = new_number(1);
+    arr->data[1] = new_number(1);
+    object_t list = new_pair(NEW_OBJECT(ARRAY, arr),
+			     new_pair(NEW_OBJECT(ARRAY, arr), NULLOBJ));
+    object_t res = equal(list);
     ASSERT(res, t);
 }
 
 /** 
  * Сравнение массивов с неравными значениями элементов
  */
-/*void test_equal_arrays_with_different_values()
+void test_equal_arrays_with_different_values()
 {
     printf("test_equal_arrays_with_different_values: ");
-    int num1 = 1;
-    int num2 = 2;
     array_t *arr1 = new_empty_array(2);
-    arr1->data[0] = object_new(NUMBER, &num1);
+    arr1->data[0] = new_number(1);
     array_t *arr2 = new_empty_array(2);
-    arr2->data[0] = object_new(NUMBER, &num2);
-    object_t *list = new_pair(object_new(ARRAY, arr1),
-			      new_pair(object_new(ARRAY, arr2), NULL));
-    object_t *res = equal(list);
-    ASSERT(res, t);
+    arr2->data[0] = new_number(2);
+    object_t list = new_pair(NEW_OBJECT(ARRAY, arr1),
+			     new_pair(NEW_OBJECT(ARRAY, arr2), NULLOBJ));
+    object_t res = equal(list);
+    ASSERT(res, nil);
 }
 
 /** 
  * Сравнение массивов разной длины
  */
-/*void test_equal_arrays_with_different_length()
+void test_equal_arrays_with_different_length()
 {
     printf("test_equal_arrays_with_different_length: ");
-    int num = 1;
     array_t *arr1 = new_empty_array(1);
-    arr1->data[0] = object_new(NUMBER, &num);
+    arr1->data[0] = new_number(1);
     array_t *arr2 = new_empty_array(2);
-    arr2->data[0] = object_new(NUMBER, &num);
-    arr2->data[1] = object_new(NUMBER, &num);
-    object_t *list = new_pair(object_new(ARRAY, arr1),
-			      new_pair(object_new(ARRAY, arr2), NULL));
-    object_t *res = equal(list);
-    ASSERT(res, t);
+    arr2->data[0] = new_number(1);
+    arr2->data[1] = new_number(1);
+    object_t list = new_pair(NEW_OBJECT(ARRAY, arr1),
+			     new_pair(NEW_OBJECT(ARRAY, arr2), NULLOBJ));
+    object_t res = equal(list);
+    ASSERT(res, nil);
 }
 
 /** 
  * Сравнение пустых объектов
  */
-/*void test_equal_null_objects()
+void test_equal_null_objects()
 {
     printf("test_equal_array: ");
-    object_t *list = new_pair(NULL,
-			      new_pair(NULL, NULL));
-    object_t *res = equal(list);
-    ASSERT(res, t);
+    object_t list = new_pair(NULLOBJ,
+		      new_pair(NULLOBJ, NULLOBJ));
+    object_t res = equal(list);
+    ASSERT(res, t)
 }
 
 /** 
  * Сравнение объектов, один из объектов пустой
  */
-/*void test_equal_one_object_is_null()
+void test_equal_one_object_is_null()
 {
     printf("test_equal_one_object_is_null: ");
-    int num = 1;
-    object_t *list = new_pair(object_new(NUMBER, &num),
-			      new_pair(NULL, NULL));
-    object_t *res = equal(list);
-    ASSERT(res, t);
+    object_t list = new_pair(new_number(1),
+			     new_pair(NULLOBJ, NULLOBJ));
+    object_t res = equal(list);
+    ASSERT(res, nil);
 }
 
 /** 
  * Сравнение объектов разных типов
  */
-/*void test_equal_different_types()
+void test_equal_different_types()
 {
     printf("test_equal_different_types: ");
-    int num = 1;
-    object_t *list = new_pair(object_new(NUMBER, &num),
-			      new_pair(object_new(SYMBOL, "A"), NULL));
-    object_t *res = equal(list);
-    ASSERT(res, t);
+    object_t list = new_pair(new_number(1),
+			     new_pair(NEW_SYMBOL("A"), NULLOBJ));
+    object_t res = equal(list);
+    ASSERT(res, nil);
 }
 
 /* /\** */
@@ -723,7 +720,7 @@ int main()
     /*test_shift_right(1, 1, 0);
     test_shift_right(10, 2, 2);
     test_shift_right_empty_list();
-    test_shift_right_no_second_param();
+    test_shift_right_no_second_param();*/
     test_equal();
     test_equal_empty_list();
     test_equal_no_second_param();
@@ -738,7 +735,7 @@ int main()
     test_equal_null_objects();
     test_equal_one_object_is_null();
     test_equal_different_types();
-    test_less();
+    /*    test_less();
     test_less_great();
     test_less_no_arguments();
     test_less_one_argument();*/
