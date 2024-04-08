@@ -66,26 +66,16 @@ object_t cons(object_t list)
  */
 object_t rplaca(object_t params)
 {
-    if (params == NULLOBJ) {
-	error("RPLACA: no params");
-	return ERROR;
-    }
-    if (TAIL(params) == NULLOBJ) {
-	error("RPLACA: not enough params");
-	return ERROR;
-    }
-    if (TAIL(TAIL(params)) != NULLOBJ) {
-	error("RPLACA: too many params");
-	return ERROR;
-    }
-    if (FIRST(params) == NULLOBJ) {
-	error("RPLACA: empty list");
-	return ERROR;
-    }
-    if (TYPE(FIRST(params)) != PAIR) {
-	error("RPLACA: first param is not pair");
-	return ERROR;
-    }
+    if (params == NULLOBJ)
+	    error("RPLACA: no params");
+    if (TAIL(params) == NULLOBJ)
+	    error("RPLACA: not enough params");
+    if (TAIL(TAIL(params)) != NULLOBJ)
+	    error("RPLACA: too many params");
+    if (FIRST(params) == NULLOBJ)
+	    error("RPLACA: empty list");
+    if (TYPE(FIRST(params)) != PAIR)
+	    error("RPLACA: first param is not pair");
     object_t list = FIRST(params);
     GET_PAIR(list)->left = SECOND(params);
     return list;
@@ -98,26 +88,16 @@ object_t rplaca(object_t params)
  */
 object_t rplacd(object_t params)
 {
-    if (params == NULLOBJ) {
+    if (params == NULLOBJ)
 	error("RPLACD: no params");
-	return ERROR;
-    }
-    if (TAIL(params) == NULLOBJ) {
+    if (TAIL(params) == NULLOBJ)
 	error("RPLACD: not enough params");
-	return ERROR;
-    }
-    if (TAIL(TAIL(params)) != NULLOBJ) {
+    if (TAIL(TAIL(params)) != NULLOBJ)
 	error("RPLACD: too many params");
-	return ERROR;
-    }
-    if (FIRST(params) == NULLOBJ) {
+    if (FIRST(params) == NULLOBJ)
 	error("RPLACD: empty list");
-	return ERROR;
-    }
-    if (TYPE(FIRST(params)) != PAIR) {
+    if (TYPE(FIRST(params)) != PAIR)
 	error("RPLACD: first param is not pair");
-	return ERROR;
-    }
     object_t list = FIRST(params);
     GET_PAIR(list)->right = SECOND(params);
     return list;
