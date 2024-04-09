@@ -20,8 +20,8 @@ object_t bitwise_and(object_t list);
 object_t bitwise_or(object_t list);
 object_t shift_left(object_t list);
 object_t *equal(object_t *list);
-/*object_t *shift_right(object_t *list);
-object_t *less(object_t *list);*/
+object_t *shift_right(object_t *list);
+object_t *less(object_t *list);
 object_t gt(object_t list);
 
 jmp_buf jmp_env;
@@ -163,21 +163,6 @@ void test_mul_list_with_symbol()
     } else 
         OK;
 }
-
-/**
- * Тест сравнения чисел
- void test_num_eq(int num1, int num2, object_t *token)
-{
-
-    printf ("test_num_eq:");
-
-    object_t *list = new_pair(object_new(NUMBER, &num1),
-			      new_pair(object_new(NUMBER, &num2), NULL));
-    
-    object_t *res = num_eq(list);
-    ASSERT(res, token);   
-}
-*/
 
  //Тест деления
 void test_div()
@@ -376,35 +361,40 @@ void test_shift_left_no_second_param()
 /**
  * Тест сдвига вправо
  */
-/*void test_shift_right(int num1, int num2, int res)
+void test_shift_right(int num1, int num2, int res)
 {
     printf("test_shift_right: %d %d", num1, num2);
-    object_t *list = new_pair(object_new(NUMBER, &num1),
-			      new_pair(object_new(NUMBER, &num2), NULL));
-    object_t *obj_res = shift_right(list);
-    ASSERT(obj_res->u.value, res);
+    object_t list = new_pair(new_number(num1),
+			     new_pair(new_number(num2), NULLOBJ));
+    object_t obj_res = shift_right(list);
+    ASSERT(get_value(obj_res), res);
 }
 
 /**
  * Тест сдвига вправо, передача списка без второго параметра
  */
-/*void test_shift_right_no_second_param()
+void test_shift_right_no_second_param()
 {
     printf("test_shift_right_no_second_param: ");
-    int num = 1;
-    object_t *list = new_pair(object_new(NUMBER, &num), NULL);
-    object_t *res = shift_right(list);
-    ASSERT(res, ERROR);
+    if (setjmp(jmp_env) == 0) {
+        object_t list = new_pair(new_number(1), NULLOBJ);
+        object_t res = shift_right(list);
+        FAIL;
+    } else 
+        OK;
 }
 
 /**
  * Тест сдвига вправо, передача пустого списка
  */
-/*void test_shift_right_empty_list()
+void test_shift_right_empty_list()
 {
     printf("test_shift_right_empty_list: ");
-    object_t *res = shift_right(NULL);
-    ASSERT(res, ERROR);
+    if (setjmp(jmp_env) == 0) {
+        object_t res = shift_right(NULLOBJ);
+        FAIL;
+    } else 
+        OK;
 }
 
 /** 
@@ -597,33 +587,33 @@ void test_equal_different_types()
     ASSERT(res, nil);
 }
 
-/* /\** */
-/*  * Тест сравнения неравнества меньше для двух чисел */
-/*  *\/ */
-/* void test_less() */
-/* { */
-/*     printf("test_less: "); */
-/*     int first1 = 1; */
-/*     int second1 = 2; */
-/*     object_t list = new_pair(new_number(first1), */
-/* 			      new_pair(new_number(second1), NULLOBJ)); */
-/*     object_t res = less(list); */
-/*     ASSERT(res, t); */
-/* } */
+/**
+ * Тест сравнения неравнества меньше для двух чисел
+ */
+void test_less()
+{
+    printf("test_less: ");
+    int first1 = 1;
+    int second1 = 2;
+    object_t list = new_pair(new_number(first1),
+			      new_pair(new_number(second1), NULLOBJ));
+    object_t res = less(list);
+    ASSERT(res, t);
+}
 
-/* /\** */
-/*  * Тест сравнения неравнества меньше для двух чисел - проверка если первое число будет больше */
-/*  *\/ */
-/* void test_less_great() */
-/* { */
-/*     printf("test_less_great: "); */
-/*     int first1 = 2; */
-/*     int second1 = 1; */
-/*     object_t list = new_pair(new_number(first1), */
-/* 			     new_pair(new_number(second1), NULLOBJ)); */
-/*     object_t res = less(list); */
-/*     ASSERT(res, NULLOBJ); */
-/* } */
+/**
+ * Тест сравнения неравнества меньше для двух чисел - проверка если первое число будет больше
+ */
+void test_less_great()
+{
+    printf("test_less_great: ");
+    int first1 = 2;
+    int second1 = 1;
+    object_t list = new_pair(new_number(first1),
+			     new_pair(new_number(second1), NULLOBJ));
+    object_t res = less(list);
+    ASSERT(res, NULLOBJ);
+}
 
 /* /\** */
 /*  * Тест сравнения неравнества меньше для двух чисел - проверка на отсутствие агрументов */
@@ -700,8 +690,6 @@ int main()
     test_div_nulllist();
     test_div_zerodivisor();
     test_div_nulldivisor();
-    /*test_num_eq(1, 2, nil);
-      test_num_eq(10, 10, t);*/
     test_bitwise_and(0xA, 2, 2);
     test_bitwise_and(0xB, 2, 2);
     test_bitwise_and(0xA, 5, 0);
@@ -712,15 +700,14 @@ int main()
     test_bitwise_or(0, 0, 0);
     test_bitwise_or_null();
     test_bitwise_or_no_number();
-
     test_shift_left(1, 2, 4); //100
     test_shift_left(2, 3, 16); //10000
     test_shift_left_empty_list();
     test_shift_left_no_second_param();
-    /*test_shift_right(1, 1, 0);
+    test_shift_right(1, 1, 0);
     test_shift_right(10, 2, 2);
     test_shift_right_empty_list();
-    test_shift_right_no_second_param();*/
+    test_shift_right_no_second_param();
     test_equal();
     test_equal_empty_list();
     test_equal_no_second_param();
@@ -735,9 +722,9 @@ int main()
     test_equal_null_objects();
     test_equal_one_object_is_null();
     test_equal_different_types();
-    /*    test_less();
+    test_less();
     test_less_great();
-    test_less_no_arguments();
+    /*test_less_no_arguments();
     test_less_one_argument();*/
     test_gt(5, 3, t);
     test_gt(3, 5, NULLOBJ);

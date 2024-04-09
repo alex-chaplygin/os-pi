@@ -146,23 +146,6 @@ object_t less(object_t list)
         return NULLOBJ;
 }
 
-/** 
- * Сравнение числовых аргументов (= 1 2)
- *
- * @param list - список чисел (1 2)
- *
- * @return T - если равно, иначе NIL
-/*object_t *num_eq(object_t *list)
-{
-    object_t *n1 = FIRST(list);
-    object_t *n2 = SECOND(list);
-    if (n1->u.value == n2->u.value)
-	return t;
-    else
-	return NULL;
-}
-
-
 /**
  * Функция сравнения объектов
  * возвращает 1 если значения объектов равны, иначе 0
@@ -298,38 +281,32 @@ object_t shift_left(object_t list)
  *
  * @return результат сдвига
  */
-/*object_t *shift_right(object_t *list)
+object_t shift_right(object_t list)
 {
-    if (list == NULL) {
+    if (list == NULLOBJ)
         error("shift_right: no arguments\n");
-        return ERROR;
-    }
-    if (TAIL(list) == NULL) {
+    if (TAIL(list) == NULLOBJ)
         error("shift_right: no second param\n");
-        return ERROR;
-    }
-    object_t *first = FIRST(list);
-    object_t *second = SECOND(list);
-    int num = first->u.value >> second->u.value;
-    return object_new(NUMBER, &num);
+    object_t first = FIRST(list);
+    object_t second = SECOND(list);
+    int num = get_value(first) >> get_value(second);
+    return new_number(num);
 }
 
 /** 
  * Инициализация арифметических функций
  */
- 
-
 void init_arith()
 {
     register_func("+", add);
     register_func("-", sub);
     register_func("*", mul);
-    //register_func("EQUAL", equal);
+    register_func("EQUAL", equal);
     register_func("/", int_div);
     register_func("&", bitwise_and);
     register_func("BITOR", bitwise_or);
-    //register_func("<<", shift_left);
-    //register_func(">>", shift_right);
-    //register_func(">", gt);
-    //register_func("<", less);
+    register_func("<<", shift_left);
+    register_func(">>", shift_right);
+    register_func(">", gt);
+    register_func("<", less);
 }
