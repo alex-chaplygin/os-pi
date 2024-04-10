@@ -15,13 +15,12 @@ object_t add(object_t list);
 object_t sub(object_t list);
 object_t mul(object_t list);
 object_t int_div(object_t list);
-/*object_t *num_eq(object_t *list);*/
 object_t bitwise_and(object_t list);
 object_t bitwise_or(object_t list);
 object_t shift_left(object_t list);
-object_t *equal(object_t *list);
-object_t *shift_right(object_t *list);
-object_t *less(object_t *list);
+object_t equal(object_t list);
+object_t shift_right(object_t list);
+object_t less(object_t list);
 object_t gt(object_t list);
 
 jmp_buf jmp_env;
@@ -615,28 +614,32 @@ void test_less_great()
     ASSERT(res, NULLOBJ);
 }
 
-/* /\** */
-/*  * Тест сравнения неравнества меньше для двух чисел - проверка на отсутствие агрументов */
-/*  *\/ */
-/* void test_less_no_arguments() */
-/* { */
-/*     printf("test_less_no_arguments: "); */
-/*     object_t list = NULLOBJ; */
-/*     object_t res = less(list); */
-/*     ASSERT(res, ERROR); */
-/* } */
+/**
+ * Тест сравнения неравнества меньше для двух чисел - проверка на отсутствие агрументов
+ */
+void test_less_no_arguments()
+{
+    printf("test_less_no_arguments: ");
+    if (setjmp(jmp_env) == 0) {
+        object_t res = less(NULLOBJ); 
+        FAIL;
+    } else 
+        OK;
+}
 
-/* /\** */
-/*  * Тест сравнения неравнества меньше для двух чисел - проверка на только один аргумент */
-/*  *\/ */
-/* void test_less_one_argument() */
-/* { */
-/*     printf("test_less_one_argument: "); */
-/*     int first1 = 1; */
-/*     object_t list = new_pair(new_number(first1), NULLOBJ); */
-/*     object_t res = less(list); */
-/*     ASSERT(res, ERROR); */
-/* } */
+/**
+ * Тест сравнения неравнества меньше для двух чисел - проверка на только один аргумент
+ */
+void test_less_one_argument()
+{
+    printf("test_less_one_argument: ");
+    object_t list = new_pair(new_number(1), NULLOBJ); 
+    if (setjmp(jmp_env) == 0) {
+        object_t res = less(list); 
+        FAIL;
+    } else 
+        OK;
+}
 
 /*Тест сравнения чисел на больше*/
 void test_gt(int num1, int num2, object_t token) 
@@ -724,8 +727,8 @@ int main()
     test_equal_different_types();
     test_less();
     test_less_great();
-    /*test_less_no_arguments();
-    test_less_one_argument();*/
+    test_less_no_arguments();
+    test_less_one_argument();
     test_gt(5, 3, t);
     test_gt(3, 5, NULLOBJ);
     test_gt_list_is_null();
