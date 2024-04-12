@@ -106,68 +106,74 @@ char *itoa(int num, char *str, int rad)
 /*     ASSERT(res, ERROR); */
 /* } */
 
-/* /\** */
-/*  * Тест функции объединения строк */
-/*  * Передаём одну строку */
-/*  *\/ */
-/* void test_concat_one_str() */
-/* { */
-/*     printf("test_concat_one_str: "); */
-/*     object_t obj = new_pair(object_new(STRING, "ab "), NULL); */
-/*     object_t res = concat(obj); */
-/*     ASSERT(res->type, STRING); */
-/*     ASSERT(strcmp(res->u.str->data, "ab "), 0); */
-/* } */
+/**
+ * Тест функции объединения строк
+ * Передаём одну строку
+ */
+void test_concat_one_str()
+{
+    printf("test_concat_one_str: ");
+    object_t obj = new_pair(NEW_STRING("ab "), NULLOBJ); 
+    object_t res = concat(obj); 
+    ASSERT(TYPE(res), STRING); 
+    ASSERT(strcmp(GET_STRING(res)->data, "ab "), 0);
+}
 
 
-/* /\** */
-/*  * Тест функции объединения строк */
-/*  * Передаём две строки */
-/*  *\/ */
-/* void test_concat_two_str() */
-/* { */
-/*     printf("test_concat_two_str: "); */
-/*     object_t obj = new_pair(object_new(STRING, "ab "), new_pair(object_new(STRING, "cd"), NULL)); */
-/*     object_t res = concat(obj); */
-/*     ASSERT(res->type, STRING); */
-/*     ASSERT(strcmp(res->u.str->data, "ab cd"), 0); */
-/* } */
+/**
+ * Тест функции объединения строк
+ * Передаём две строки
+ */
+void test_concat_two_str()
+{
+    printf("test_concat_two_str: ");
+    object_t obj = new_pair(NEW_STRING("ab "), new_pair(NEW_STRING("cd"), NULLOBJ)); 
+    object_t res = concat(obj); 
+    ASSERT(TYPE(res), STRING); 
+    ASSERT(strcmp(GET_STRING(res)->data, "ab cd"), 0);
+}
 
-/* /\** */
-/*  * Тест функции объединения строк */
-/*  * Передаём три строки */
-/*  *\/ */
-/* void test_concat_three_str() */
-/* { */
-/*     printf("test_concat_three_str: "); */
-/*     object_t obj = new_pair(object_new(STRING, ""), new_pair(object_new(STRING, "cd"), new_pair(object_new(STRING, "_ef"), NULL))); */
-/*     object_t res = concat(obj); */
-/*     ASSERT(res->type, STRING); */
-/*     ASSERT(strcmp(res->u.str->data, "cd_ef"), 0); */
-/* } */
+/**
+ * Тест функции объединения строк
+ * Передаём три строки
+ */
+void test_concat_three_str()
+{
+    printf("test_concat_three_str: ");
+    object_t obj = new_pair(NEW_STRING(""), new_pair(NEW_STRING("cd"), new_pair(NEW_STRING("_ef"), NULLOBJ))); 
+    object_t res = concat(obj); 
+    ASSERT(TYPE(res), STRING); 
+    ASSERT(strcmp(GET_STRING(res)->data, "cd_ef"), 0);
+}
 
-/* /\** */
-/*  * Тест функции объединения строк */
-/*  * Ошибка: некорректный тип параметра */
-/*  *\/ */
-/* void test_concat_incorrect_type() */
-/* { */
-/*     printf("test_concat_incorrect_type: "); */
-/*     object_t obj = new_pair(object_new(SYMBOL, "ab "), new_pair(object_new(STRING, "cd"), NULL)); */
-/*     object_t res = concat(obj); */
-/*     ASSERT(res, ERROR); */
-/* } */
+/**
+ * Тест функции объединения строк
+ * Ошибка: некорректный тип параметра
+ */
+void test_concat_incorrect_type()
+{
+    printf("test_concat_incorrect_type: ");
+    object_t obj = new_pair(NEW_SYMBOL("ab "), new_pair(NEW_STRING("cd"), NULLOBJ)); 
+    if (setjmp(jmp_env) == 0) {
+        object_t res = concat(obj); 
+        FAIL;
+    } else 
+        OK;
+}
 
-/* /\** */
-/*  * Тест функции объединения строк */
-/*  * Ошибка: без параметра */
-/*  *\/ */
-/* void test_concat_no_params() */
-/* { */
-/*     printf("test_concat_no_params: "); */
-/*     object_t res = concat(NULL); */
-/*     ASSERT(res, ERROR); */
-/* } */
+/**
+ * Тест функции объединения строк
+ * Ошибка: без параметра
+ */
+void test_concat_no_params()
+{
+    printf("test_concat_no_params: ");
+    if (setjmp(jmp_env) == 0) {
+        object_t res = concat(NULLOBJ); 
+        FAIL;
+    } else 
+        OK;
+}
 
 /* /\** */
 /*  * Тест функции получения имени символа */
@@ -633,11 +639,11 @@ int main()
     /* test_intern_two_param(); */
     /* test_intern_no_params(); */
     /* test_intern_empty_string(); */
-    /* test_concat_one_str(); */
-    /* test_concat_two_str(); */
-    /* test_concat_three_str(); */
-    /* test_concat_incorrect_type(); */
-    /* test_concat_no_params(); */
+    test_concat_one_str();
+    test_concat_two_str();
+    test_concat_three_str();
+    test_concat_incorrect_type();
+    test_concat_no_params();
     /* test_symbol_name(); */
     /* test_symbol_name_incorrect_type(); */
     /* test_symbol_name_many_params(); */

@@ -17,24 +17,16 @@ char *itoa(int num, char *str, int rad);
  */
 object_t intern(object_t list)
 {
-    if (list == NULLOBJ) {
+    if (list == NULLOBJ)
         error("intern: no arguments\n");
-        return ERROR;
-    }
-    if (FIRST(list) == NULLOBJ || TYPE(FIRST(list)) != STRING) {
+    if (FIRST(list) == NULLOBJ || TYPE(FIRST(list)) != STRING)
         error("intern: not string in params\n");
-        return ERROR;
-    }
-    if (TAIL(list) != NULLOBJ) {
+    if (TAIL(list) != NULLOBJ)
         error("intern: too many parameters\n");
-        return ERROR;
-    }
     char *str = GET_STRING(FIRST(list))->data;
     symbol_t *sym = new_symbol(str);
-    if (sym == NULL) {
+    if (sym == NULL)
 	error("intern: empty string\n");
-	return ERROR;
-    }
     return NEW_OBJECT(SYMBOL, sym);
 }
 
@@ -102,14 +94,10 @@ object_t str_char(object_t list)
  */
 object_t concat(object_t list)
 {
-    if (list == NULLOBJ) {
+    if (list == NULLOBJ)
         error("concat: no arguments\n");
-        return ERROR;
-    }
-    if (FIRST(list) == NULLOBJ || is_params_string(list) != 1) {
+    if (FIRST(list) == NULLOBJ || is_params_string(list) != 1)
         error("concat: not string in params\n");
-        return ERROR;
-    }
     object_t temp_o = list;
     int len = GET_STRING(FIRST(temp_o))->length;
     while ((temp_o = TAIL(temp_o)) != NULLOBJ)
@@ -119,7 +107,7 @@ object_t concat(object_t list)
     temp_o = list;
     while ((temp_o = TAIL(temp_o)) != NULLOBJ)
         strcat(res, GET_STRING(FIRST(temp_o))->data);
-    object_t new_o = NEW_OBJECT(STRING, new_string(res));
+    object_t new_o = NEW_STRING(res);
     free_region(res);
     return new_o;
 }
