@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "objects.h"
+#include "alloc.h"
 #include "symbols.h"
 #include "eval.h"
 #include "parser.h"
@@ -30,7 +31,7 @@ object_t intern(object_t list)
     }
     char *str = GET_STRING(FIRST(list))->data;
     symbol_t *sym = new_symbol(str);
-    if (sym == NULLOBJ) {
+    if (sym == NULL) {
 	error("intern: empty string\n");
 	return ERROR;
     }
@@ -60,18 +61,12 @@ int is_params_string(object_t list)
 **/
 object_t string_size(object_t list)
 {
-    if (list == NULLOBJ) {
+    if (list == NULLOBJ)
 	error("string-size: no arguments\n");
-	return ERROR;
-    }
-    if (TAIL(list) != NULLOBJ) {
+    if (TAIL(list) != NULLOBJ)
 	error("string-size: too many arguments\n");
-	return ERROR;
-    }
-    if (is_params_string(list) == 0) {
+    if (is_params_string(list) == 0)
 	error("string-size: not string in params\n");
-	return ERROR;
-    }
     return new_number(GET_STRING(FIRST(list))->length);
 }
 
@@ -82,34 +77,20 @@ object_t string_size(object_t list)
 **/
 object_t str_char(object_t list)
 {
-    if (list == NULLOBJ) {
+    if (list == NULLOBJ)
 	error("str-char: no arguments\n");
-	return ERROR;
-    }
-    if (TAIL(list) == NULLOBJ) {
+    if (TAIL(list) == NULLOBJ)
 	error("str-char: not all arguments\n");
-	return ERROR;
-    }
-    if (TYPE(SECOND(list)) != NUMBER) {
+    if (TYPE(SECOND(list)) != NUMBER)
     	error("str-char: not number in params\n");
-    	return ERROR;
-    }
-    if (TAIL(TAIL(list)) != NULLOBJ) {
+    if (TAIL(TAIL(list)) != NULLOBJ)
 	error("str-size: too many arguments\n");
-	return ERROR;
-    }
-    
     object_t str = FIRST(list);
     int ind = get_value(SECOND(list));
-
-    if (TYPE(str) != STRING) {
+    if (TYPE(str) != STRING)
     	error("str-char: not string in params\n");
-    	return ERROR;
-    }
-    if (ind >= GET_STRING(str)->length || ind < 0) {
+    if (ind >= GET_STRING(str)->length || ind < 0)
 	error("str-char: invalid index\n");
-	return ERROR;
-    }
     int c = GET_STRING(str)->data[ind];
     return new_number(c);
 }
