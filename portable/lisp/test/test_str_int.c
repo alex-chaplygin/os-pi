@@ -47,64 +47,76 @@ char *itoa(int num, char *str, int rad)
     return p;
 }
 
-/* /\** */
-/*  * Тест создания символа на основе строки */
-/*  *\/ */
-/* void test_intern() */
-/* { */
-/*     printf("test_intern: "); */
-/*     object_t obj = new_pair(object_new(STRING, "ABC"), NULL); */
-/*     object_t res = intern(obj); */
-/*     ASSERT(res->type, SYMBOL); */
-/*     ASSERT(strcmp(res->u.symbol->str, "ABC"), 0); */
-/* } */
+/**
+ * Тест создания символа на основе строки
+ */
+void test_intern()
+{
+    printf("test_intern: ");
+    object_t obj = new_pair(NEW_STRING("ABC"), NULLOBJ);
+    object_t res = intern(obj);
+    ASSERT(TYPE(res), SYMBOL);
+    ASSERT(GET_STRING(res)->length, 0);
+}
 
-/* /\** */
-/*  * Тест создания символа на основе строки */
-/*  * Ошибка: некорректный тип параметра */
-/*  *\/ */
-/* void test_intern_incorrect_type() */
-/* { */
-/*     printf("test_intern_incorrect_type: "); */
-/*     object_t obj = new_pair(object_new(SYMBOL, "ABC"), NULL); */
-/*     object_t res = intern(obj); */
-/*     ASSERT(res, ERROR); */
-/* } */
+/**
+ * Тест создания символа на основе строки
+ * Ошибка: некорректный тип параметра
+ */
+void test_intern_incorrect_type()
+{
+    printf("test_intern_incorrect_type: ");
+    object_t obj = new_pair(NEW_SYMBOL("ABC"), NULLOBJ);
+    if (setjmp(jmp_env) == 0) {
+        object_t res = intern(obj);
+        FAIL;
+    } else 
+        OK;
+}
 
-/* /\** */
-/*  * Тест создания символа на основе строки */
-/*  * Ошибка: лишний параметр */
-/*  *\/ */
-/* void test_intern_two_param() */
-/* { */
-/*     printf("test_intern_two_param: "); */
-/*     object_t obj = new_pair(object_new(STRING, "ABC"), new_pair(object_new(STRING, "ABC"), NULL)); */
-/*     object_t res = intern(obj); */
-/*     ASSERT(res, ERROR); */
-/* } */
+/**
+ * Тест создания символа на основе строки
+ * Ошибка: лишний параметр
+ */
+void test_intern_two_param()
+{
+    printf("test_intern_two_param: ");
+    object_t obj = new_pair(NEW_STRING("ABC"), new_pair(NEW_STRING("ABC"), NULLOBJ));
+    if (setjmp(jmp_env) == 0) {
+        object_t res = intern(obj);
+        FAIL;
+    } else 
+        OK;
+}
 
-/* /\** */
-/*  * Тест создания символа на основе строки */
-/*  * Ошибка: без параметра */
-/*  *\/ */
-/* void test_intern_no_params() */
-/* { */
-/*     printf("test_intern_no_params: "); */
-/*     object_t res = intern(NULL); */
-/*     ASSERT(res, ERROR); */
-/* } */
+/**
+ * Тест создания символа на основе строки
+ * Ошибка: без параметра
+ */
+void test_intern_no_params()
+{
+    printf("test_intern_no_params: ");
+    if (setjmp(jmp_env) == 0) {
+        object_t res = intern(NULLOBJ);
+        FAIL;
+    } else 
+        OK;
+}
 
-/* /\** */
-/*  * Тест создания символа на основе пустой строки */
-/*  * Ошибка: пустая строка */
-/*  *\/ */
-/* void test_intern_empty_string() */
-/* { */
-/*     printf("test_intern_empty_string: "); */
-/*     object_t obj = new_pair(object_new(STRING, ""), NULL); */
-/*     object_t res = intern(obj); */
-/*     ASSERT(res, ERROR); */
-/* } */
+/**
+ * Тест создания символа на основе пустой строки
+ * Ошибка: пустая строка
+ */
+void test_intern_empty_string()
+{
+    printf("test_intern_empty_string: ");
+    object_t obj = new_pair(NEW_STRING(""), NULLOBJ);
+    if (setjmp(jmp_env) == 0) {
+        object_t res = intern(obj);
+        FAIL;
+    } else 
+        OK;
+}
 
 /**
  * Тест функции объединения строк
@@ -634,11 +646,11 @@ int main()
     printf("------------test_str_int---------\n");
     init_regions();
     init_objects();
-    /* test_intern(); */
-    /* test_intern_incorrect_type(); */
-    /* test_intern_two_param(); */
-    /* test_intern_no_params(); */
-    /* test_intern_empty_string(); */
+    test_intern();
+    test_intern_incorrect_type();
+    test_intern_two_param();
+    test_intern_no_params();
+    test_intern_empty_string();
     test_concat_one_str();
     test_concat_two_str();
     test_concat_three_str();
