@@ -65,10 +65,8 @@ object_t new_bignumber(int num)
     bignumber_t *number;
     if (last_bignumber == MAX_NUMBERS)
     {
-	if (free_bignumbers == NULL) {
+	if (free_bignumbers == NULL)
 	    error("Error: out of memory: numbers");
-	    return ERROR;
-	}
 	number = free_bignumbers;
 	free_bignumbers = free_bignumbers -> next;
     } else
@@ -147,10 +145,8 @@ object_t new_pair(object_t left, object_t right)
 { 
     pair_t *pair; 
     if (last_pair == MAX_PAIRS) { 
- 	if (free_pairs == NULL) { 
+ 	if (free_pairs == NULL)
  	    error("Error: out of memory: pairs"); 
- 	    return ERROR; 
- 	} 
  	pair = free_pairs; 
  	free_pairs = free_pairs->next; 
     } else 
@@ -191,10 +187,8 @@ void free_pair(pair_t *p)
  */
 symbol_t *new_symbol(char *str)
 {
-    if (last_symbol == MAX_SYMBOLS) {
+    if (last_symbol == MAX_SYMBOLS)
 	error("Error: out of memory: symbols");
-	return (symbol_t *)ERROR;
-    }
     if (*str == 0)
 	return NULL;
     symbol_t *symbol = &symbols[last_symbol++];
@@ -218,10 +212,8 @@ string_t *new_string(char *str)
 {
     string_t *string;
     if (last_string == MAX_STRINGS) {
-	if (free_strings == NULL) {
+	if (free_strings == NULL)
 	    error("Error: out of memory: strings");
-	    return (string_t *)ERROR;
-	}
 	string = free_strings;
 	free_strings = free_strings->next;
     } else
@@ -264,10 +256,8 @@ array_t *new_array(object_t list)
     pair_t *pairs;
     array_t *array; 
     if (last_array == MAX_ARRAYS) {
-	if (free_arrays == NULL) {
+	if (free_arrays == NULL)
 	    error("Error: out of memory: arrays");
-	    return (array_t *)ERROR;
-	}
 	array = free_arrays;
 	free_arrays = free_arrays->next;
     } else
@@ -301,10 +291,8 @@ array_t *new_empty_array(int length)
 {
     array_t *array;
     if (last_array == MAX_ARRAYS) {
-	if (free_arrays == NULL) {
+	if (free_arrays == NULL)
 	    error("Error: out of memory: arrays");
-	    return (array_t *)ERROR;
-	}
 	array = free_arrays;
 	free_arrays = free_arrays->next;
     } else
