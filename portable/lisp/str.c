@@ -140,40 +140,28 @@ object_t symbol_name(object_t list)
  */
 object_t subseq(object_t list)
 {
-    if (list == NULLOBJ) {
+    if (list == NULLOBJ)
         error("subseq: no arguments\n");
-        return ERROR;
-    }
-    if (TAIL(list) == NULLOBJ || TAIL(TAIL(list)) == NULLOBJ) {
+    if (TAIL(list) == NULLOBJ || TAIL(TAIL(list)) == NULLOBJ)
 	error("subseq: not all arguments\n");
-	return ERROR;
-    }
-    if (TAIL(TAIL(TAIL(list))) != NULLOBJ) {
+    if (TAIL(TAIL(TAIL(list))) != NULLOBJ)
 	error("subseq: too many arguments\n");
-	return ERROR;
-    }
-    if (TYPE(FIRST(list)) != STRING || TYPE(SECOND(list)) != NUMBER || TYPE(THIRD(list)) != NUMBER) {
+    if (TYPE(FIRST(list)) != STRING || TYPE(SECOND(list)) != NUMBER || TYPE(THIRD(list)) != NUMBER)
         error("subseq: invalid args\n");
-        return ERROR;
-    }
     object_t string = FIRST(list);
     int start_ind = get_value(SECOND(list));
     int end_ind = get_value(THIRD(list));
 
-    if(start_ind < 0 || end_ind < 0){
+    if(start_ind < 0 || end_ind < 0)
 	error("subseq: index can not be negative\n");
-	return ERROR;
-    }
-    if(end_ind - start_ind < 0 || GET_STRING(string)->length <= start_ind || end_ind > GET_STRING(string)->length ){
+    if(end_ind - start_ind < 0 || GET_STRING(string)->length <= start_ind || end_ind > GET_STRING(string)->length)
 	error("subseq: invalid index\n");
-        return ERROR;
-    }
     char *res = alloc_region(end_ind - start_ind + 1);
-    int curr_ind = 0;    
+    int curr_ind = 0;
     for(int i = start_ind; i < end_ind; i++)
 	res[curr_ind++] = GET_STRING(string)->data[i];
     res[curr_ind] = 0;
-    return NEW_OBJECT(STRING, new_string(res));
+    return NEW_STRING(res);
 }
 
 /**

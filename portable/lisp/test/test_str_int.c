@@ -475,116 +475,124 @@ void test_str_char_invalid_index()
 /*     ASSERT(result, ERROR); */
 /* } */
 
-/* /\** */
-/*  * Тест функции получения подстроки из строки */
-/*  * Ошибка: без параметров */
-/*  *\/ */
-/* void test_subseq_no_arguments() { */
-/*     printf("test_subseq_no_arguments: "); */
-/*     object_t result = subseq(NULL); */
-/*     ASSERT(result, ERROR); */
-/* } */
+/**
+ * Тест функции получения подстроки из строки
+ * Ошибка: без параметров
+ */
+void test_subseq_no_arguments()
+{
+    printf("test_subseq_no_arguments: ");
+    if (setjmp(jmp_env) == 0) {
+        object_t result = subseq(NULLOBJ); 
+        FAIL;
+    } else 
+        OK;
+}
 
-/* /\** */
-/*  * Тест функции получения подстроки из строки */
-/*  * Ошибка: не хватает аргументов */
-/*  *\/ */
-/* void test_subseq_not_all_arguments() { */
-/*     printf("test_subseq_not_all_arguments: "); */
-/*     char *str = "Hello"; */
-/*     object_t string_obj = object_new(STRING, str); */
-/*     object_t params = new_pair(string_obj, NULL); */
-/*     object_t result = subseq(params); */
-/*     ASSERT(result, ERROR); */
-/* } */
+/**
+ * Тест функции получения подстроки из строки
+ * Ошибка: не хватает аргументов
+ */
+void test_subseq_not_all_arguments()
+{
+    printf("test_subseq_not_all_arguments: ");
+    object_t string_obj = NEW_STRING("Hello"); 
+    object_t params = new_pair(string_obj, NULLOBJ); 
+    if (setjmp(jmp_env) == 0) {
+        object_t result = subseq(params); 
+        FAIL;
+    } else 
+        OK;
+}
 
-/* /\** */
-/*  * Тест функции получения подстроки из строки */
-/*  * Ошибка: аргументов больше чем требуется */
-/*  *\/ */
-/* void test_subseq_too_many_arguments() { */
-/*     printf("test_subseq_too_many_arguments: "); */
-/*     char *str = "Hello"; */
-/*     int start = 1; */
-/*     int end = 4; */
-/*     int extra = 5; */
-/*     object_t string_obj = object_new(STRING, str); */
-/*     object_t start_index = object_new(NUMBER, &start); */
-/*     object_t end_index = object_new(NUMBER, &end); */
-/*     object_t extra_arg = object_new(NUMBER, &extra); */
-/*     object_t params = new_pair(string_obj, new_pair(start_index, new_pair(end_index, new_pair(extra_arg, NULL)))); */
-/*     object_t result = subseq(params); */
-/*     ASSERT(result, ERROR); */
-/* } */
+/**
+ * Тест функции получения подстроки из строки
+ * Ошибка: аргументов больше чем требуется
+ */
+void test_subseq_too_many_arguments()
+{
+    printf("test_subseq_too_many_arguments: ");
+    object_t string_obj = NEW_STRING("Hello"); 
+    object_t start_index = new_number(1); 
+    object_t end_index = new_number(4); 
+    object_t extra_arg = new_number(5); 
+    object_t params = new_pair(string_obj, new_pair(start_index, new_pair(end_index, new_pair(extra_arg, NULLOBJ)))); 
+    if (setjmp(jmp_env) == 0) {
+        object_t result = subseq(params); 
+        FAIL;
+    } else 
+        OK;
+}
 
-/* /\** */
-/*  * Тест функции получения подстроки из строки */
-/*  * Ошибка: неверный аргумент */
-/*  *\/ */
-/* void test_subseq_invalid_args() { */
-/*     printf("test_subseq_invalid_args: "); */
-/*     int temp = 123; */
-/*     int start = 1; */
-/*     int end = 4; */
-/*     object_t not_string = object_new(NUMBER, &temp); */
-/*     object_t start_index = object_new(NUMBER, &start); */
-/*     object_t end_index = object_new(NUMBER, &end); */
-/*     object_t params = new_pair(not_string, new_pair(start_index, new_pair(end_index, NULL))); */
-/*     object_t result = subseq(params); */
-/*     ASSERT(result, ERROR); */
-/* } */
+/**
+ * Тест функции получения подстроки из строки
+ * Ошибка: неверный аргумент
+ */
+void test_subseq_invalid_args()
+{
+    printf("test_subseq_invalid_args: ");
+    object_t not_string = new_number(123); 
+    object_t start_index = new_number(1); 
+    object_t end_index = new_number(4); 
+    object_t params = new_pair(not_string, new_pair(start_index, new_pair(end_index, NULLOBJ))); 
+    if (setjmp(jmp_env) == 0) {
+        object_t result = subseq(params); 
+        FAIL;
+    } else 
+        OK;
+}
 
-/* /\** */
-/*  * Тест функции получения подстроки из строки */
-/*  * Ошибка: неверный индекс */
-/*  *\/ */
-/* void test_subseq_negative_index() { */
-/*     printf("test_subseq_negative_index: "); */
-/*     char *str = "Hello"; */
-/*     int start = -1; */
-/*     int end = 4; */
-/*     object_t string_obj = object_new(STRING, &str); */
-/*     object_t start_index = object_new(NUMBER, &start); */
-/*     object_t end_index = object_new(NUMBER, &end); */
-/*     object_t params = new_pair(string_obj, new_pair(start_index, new_pair(end_index, NULL))); */
-/*     object_t result = subseq(params); */
-/*     ASSERT(result, ERROR); */
-/* } */
+/**
+ * Тест функции получения подстроки из строки
+ * Ошибка: неверный индекс
+ */
+void test_subseq_negative_index()
+{
+    printf("test_subseq_negative_index: ");
+    object_t string_obj = NEW_STRING("Hello"); 
+    object_t start_index = new_number(-1); 
+    object_t end_index = new_number(4); 
+    object_t params = new_pair(string_obj, new_pair(start_index, new_pair(end_index, NULLOBJ))); 
+    if (setjmp(jmp_env) == 0) {
+        object_t result = subseq(params); 
+        FAIL;
+    } else 
+        OK;
+}
 
-/* /\** */
-/*  * Тест функции получения подстроки из строки */
-/*  * Ошибка: индекс за границами длины строки */
-/*  *\/ */
-/* void test_subseq_invalid_index_range() { */
-/*     printf("test_subseq_invalid_index_range: "); */
-/*     char *str = "Hello"; */
-/*     int start = 1; */
-/*     int end = 10; */
-/*     object_t string_obj = object_new(STRING, str); */
-/*     object_t start_index = object_new(NUMBER, &start); */
-/*     object_t end_index = object_new(NUMBER, &end); */
-/*     object_t params = new_pair(string_obj, new_pair(start_index, new_pair(end_index, NULL))); */
-/*     object_t result = subseq(params); */
-/*     ASSERT(result, ERROR); */
-/* } */
+/**
+ * Тест функции получения подстроки из строки
+ * Ошибка: индекс за границами длины строки
+ */
+void test_subseq_invalid_index_range()
+{
+    printf("test_subseq_invalid_index_range: ");
+    object_t string_obj = NEW_STRING("Hello"); 
+    object_t start_index = new_number(1); 
+    object_t end_index = new_number(10); 
+    object_t params = new_pair(string_obj, new_pair(start_index, new_pair(end_index, NULLOBJ))); 
+    if (setjmp(jmp_env) == 0) {
+        object_t result = subseq(params); 
+        FAIL;
+    } else 
+        OK;
+}
 
-/* /\** */
-/*  * Тест функции получения подстроки из строки */
-/*  * Получение требуемой подстроки */
-/*  *\/ */
-/* void test_subseq() { */
-/*     printf("test_subseq: "); */
-/*     char *str = "Hello"; */
-/*     int start = 1; */
-/*     int end = 3; */
-/*     object_t string_obj = object_new(STRING, str); */
-/*     object_t start_index = object_new(NUMBER, &start); */
-/*     object_t end_index = object_new(NUMBER, &end); */
-/*     object_t params = new_pair(string_obj, new_pair(start_index, new_pair(end_index, NULL))); */
-/*     object_t result = subseq(params); */
-/*     ASSERT(result->type, STRING); */
-/*     ASSERT(strcmp(result->u.str->data, "el"), 0); */
-/* } */
+/**
+ * Тест функции получения подстроки из строки
+ * Получение требуемой подстроки
+ */
+void test_subseq()
+{
+    printf("test_subseq: ");
+    object_t string_obj = NEW_STRING("Hello"); 
+    object_t start_index = new_number(1); 
+    object_t end_index = new_number(3); 
+    object_t params = new_pair(string_obj, new_pair(start_index, new_pair(end_index, NULLOBJ))); 
+    object_t result = subseq(params); 
+    ASSERT(TYPE(result), STRING); 
+    ASSERT(strcmp(GET_STRING(result)->data, "el"), 0);
+}
 
 /* /\** */
 /*  * Тест функции перевода целочисленного числа в строку */
@@ -685,13 +693,13 @@ int main()
     /* test_code_char_no_arguments(); */
     /* test_code_char_too_many_arguments(); */
     /* test_code_char_not_number(); */
-    /* test_subseq_no_arguments(); */
-    /* test_subseq_not_all_arguments(); */
-    /* test_subseq_too_many_arguments(); */
-    /* test_subseq_invalid_args(); */
-    /* test_subseq_negative_index(); */
-    /* test_subseq_invalid_index_range(); */
-    /* test_subseq(); */
+    test_subseq_no_arguments();
+    test_subseq_not_all_arguments();
+    test_subseq_too_many_arguments();
+    test_subseq_invalid_args();
+    test_subseq_negative_index();
+    test_subseq_invalid_index_range();
+    test_subseq();
     /* test_int_to_str_no_args(); */
     /* test_int_to_str_many_args(); */
     /* test_int_to_str_invalid_arg(); */
