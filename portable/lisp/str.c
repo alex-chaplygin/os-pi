@@ -119,22 +119,16 @@ object_t concat(object_t list)
  */
 object_t symbol_name(object_t list)
 {
-    if (list == NULLOBJ) {
+    if (list == NULLOBJ)
         error("symbol-name: no arguments\n");
-        return ERROR;
-    }
     if (FIRST(list) == NULLOBJ)
-    return NEW_OBJECT(STRING, new_string("NIL"));
-    if (TYPE(FIRST(list)) != SYMBOL) {
+        return NEW_STRING("NIL");
+    if (TYPE(FIRST(list)) != SYMBOL)
         error("symbol-name: not symbol in params\n");
-        return ERROR;
-    }
-    if(TAIL(list) != NULLOBJ) {
+    if (TAIL(list) != NULLOBJ)
         error("symbol-name: too many parameters\n");
-        return ERROR;
-    }
     char *str = GET_SYMBOL(FIRST(list))->str;
-    return NEW_OBJECT(STRING, new_string(str));
+    return NEW_STRING(str);
 }
 
 /** 

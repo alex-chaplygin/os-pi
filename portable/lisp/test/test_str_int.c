@@ -187,65 +187,74 @@ void test_concat_no_params()
         OK;
 }
 
-/* /\** */
-/*  * Тест функции получения имени символа */
-/*  *\/ */
-/* void test_symbol_name() */
-/* { */
-/*     printf("test_symbol_name: "); */
-/*     object_t obj = new_pair(object_new(SYMBOL, "abcd"), NULL); */
-/*     object_t res = symbol_name(obj); */
-/*     ASSERT(res->type, STRING); */
-/*     ASSERT(strcmp(res->u.str->data, "abcd"), 0); */
-/* } */
+/**
+ * Тест функции получения имени символа
+ */
+void test_symbol_name()
+{
+    printf("test_symbol_name: ");
+    object_t obj = new_pair(NEW_SYMBOL("abcd"), NULLOBJ); 
+    object_t res = symbol_name(obj); 
+    ASSERT(TYPE(res), STRING); 
+    ASSERT(strcmp(GET_STRING(res)->data, "abcd"), 0);
+}
 
-/* /\** */
-/*  * Тест функции получения имени символа */
-/*  * Ошибка: некорректный тип параметра */
-/*  *\/ */
-/* void test_symbol_name_incorrect_type() */
-/* { */
-/*     printf("test_symbol_name_incorrect_type: "); */
-/*     object_t obj = new_pair(object_new(STRING, "abcd"), NULL); */
-/*     object_t res = symbol_name(obj); */
-/*     ASSERT(res, ERROR); */
-/* } */
+/**
+ * Тест функции получения имени символа
+ * Ошибка: некорректный тип параметра
+ */
+void test_symbol_name_incorrect_type()
+{
+    printf("test_symbol_name_incorrect_type: ");
+    object_t obj = new_pair(NEW_STRING("abcd"), NULLOBJ); 
+    if (setjmp(jmp_env) == 0) {
+        object_t res = symbol_name(obj); 
+        FAIL;
+    } else 
+        OK;
+}
 
-/* /\** */
-/*  * Тест функции получения имени символа */
-/*  * Ошибка: лишний параметр */
-/*  *\/ */
-/* void test_symbol_name_many_params() */
-/* { */
-/*     printf("test_symbol_name_many_params: "); */
-/*     object_t obj = new_pair(object_new(SYMBOL, "abcd"), new_pair(object_new(SYMBOL, "ef"), NULL)); */
-/*     object_t res = symbol_name(obj); */
-/*     ASSERT(res, ERROR); */
-/* } */
+/**
+ * Тест функции получения имени символа
+ * Ошибка: лишний параметр
+ */
+void test_symbol_name_many_params()
+{
+    printf("test_symbol_name_many_params: ");
+    object_t obj = new_pair(NEW_SYMBOL("abcd"), new_pair(NEW_SYMBOL("ef"), NULLOBJ)); 
+    if (setjmp(jmp_env) == 0) {
+        object_t res = symbol_name(obj); 
+        FAIL;
+    } else 
+        OK;
+}
 
-/* /\** */
-/*  * Тест функции получения имени символа */
-/*  * Ошибка: NULL в параметре-списке */
-/*  *\/ */
-/* void test_symbol_name_null_first_param() */
-/* { */
-/*     printf("test_symbol_name_null_first_param: "); */
-/*     object_t obj = new_pair(NULL, NULL); */
-/*     object_t res = symbol_name(obj); */
-/*     ASSERT(res->type, STRING); */
-/*     ASSERT(strcmp(res->u.str->data, "NIL"), 0); */
-/* } */
+/**
+ * Тест функции получения имени символа
+ * Ошибка: NULL в параметре-списке
+ */
+void test_symbol_name_null_first_param()
+{
+    printf("test_symbol_name_null_first_param: ");
+    object_t obj = new_pair(NULLOBJ, NULLOBJ); 
+    object_t res = symbol_name(obj); 
+    ASSERT(TYPE(res), STRING); 
+    ASSERT(strcmp(GET_STRING(res)->data, "NIL"), 0);
+}
 
-/* /\** */
-/*  * Тест функции получения имени символа */
-/*  * Ошибка: без параметра */
-/*  *\/ */
-/* void test_symbol_name_no_params() */
-/* { */
-/*     printf("test_symbol_name_no_params: "); */
-/*     object_t res = symbol_name(NULL); */
-/*     ASSERT(res, ERROR); */
-/* } */
+/**
+ * Тест функции получения имени символа
+ * Ошибка: без параметра
+ */
+void test_symbol_name_no_params()
+{
+    printf("test_symbol_name_no_params: ");
+    if (setjmp(jmp_env) == 0) {
+        object_t res = symbol_name(NULLOBJ); 
+        FAIL;
+    } else 
+        OK;
+}
 
 /* /\** */
 /*  * Тест функции получения длинны строки */
@@ -656,11 +665,11 @@ int main()
     test_concat_three_str();
     test_concat_incorrect_type();
     test_concat_no_params();
-    /* test_symbol_name(); */
-    /* test_symbol_name_incorrect_type(); */
-    /* test_symbol_name_many_params(); */
-    /* test_symbol_name_null_first_param(); */
-    /* test_symbol_name_no_params(); */
+    test_symbol_name();
+    test_symbol_name_incorrect_type();
+    test_symbol_name_many_params();
+    test_symbol_name_null_first_param();
+    test_symbol_name_no_params();
     /* test_string_size(); */
     /* test_string_size_no_arguments(); */
     /* test_string_size_too_many_arguments(); */
