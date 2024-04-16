@@ -9,10 +9,10 @@
  */
 object_t symbolp(object_t params)
 {   
-    if (params == NULL) {
+    if (params == NULLOBJ) {
 	error("SYMBOLP: no params");
 	return ERROR;
-    } else if (TAIL(params) != NULL) {
+    } else if (TAIL(params) != NULLOBJ) {
 	error("SYMBOLP: many params");
 	return ERROR;
     }
@@ -21,7 +21,7 @@ object_t symbolp(object_t params)
     if (TYPE(symbol) == SYMBOL)
 	return NEW_OBJECT(SYMBOL, find_symbol("T"));
     else
-	return NULL;
+	return NULLOBJ;
 }
 
 
