@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <stdarg.h>
 #include "lexer.h"
+#include "alloc.h"
 #include "objects.h"
 #include "eval.h"
 #include "test.h"
@@ -66,13 +67,12 @@ int main()
     //        return jmp_code;
     do {
 	if (setjmp(jmp_env) == 0) {
-	    object_t *o = parse();
+	    object_t o = parse();
 	    if (o == NOVALUE)
 		longjmp(jmp_env, 1);
 	    //printf("parse: "); PRINT(o);
-	    object_t *res = eval(o, NULL);
+	    object_t res = eval(o, NULLOBJ);
 	    //printf("res: "); PRINT(res);
-	    print_counter++;
 	    PRINT(res);
 	}
 	garbage_collect();
