@@ -12,7 +12,6 @@ struct region *regions;
  */
 void init_regions()
 {
-    printf("init regions\n");
 #ifndef OS
     regions = (struct region *)malloc(MAX_REGION_SIZE);
 #endif   
