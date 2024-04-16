@@ -171,21 +171,15 @@ object_t subseq(object_t list)
  */
 object_t int_to_str(object_t list)
 {
-    if (list == NULLOBJ) {
+    if (list == NULLOBJ)
 	error("inttostr: no args\n");
-	return ERROR;
-    }
-    if (TAIL(list) != NULLOBJ) {
+    if (TAIL(list) != NULLOBJ)
 	error("inttostr: many args\n");
-	return ERROR;
-    }
-    if (TYPE(FIRST(list)) != NUMBER) {
+    if (TYPE(FIRST(list)) != NUMBER)
 	error("inttostr: invalid arg\n");
-	return ERROR;
-    }    
     char str[14];
     char *s = itoa(get_value(FIRST(list)), str, 10);    
-    return NEW_OBJECT(STRING, new_string(s));
+    return NEW_STRING(s);
 }
 
 /**

@@ -594,69 +594,79 @@ void test_subseq()
     ASSERT(strcmp(GET_STRING(result)->data, "el"), 0);
 }
 
-/* /\** */
-/*  * Тест функции перевода целочисленного числа в строку */
-/*  * Ошибка: без параметров */
-/*  *\/ */
-/* void test_int_to_str_no_args() { */
-/*     printf("test_int_to_str_no_args: "); */
-/*     object_t result = int_to_str(NULL); */
-/*     ASSERT(result, ERROR); */
-/* } */
+/**
+ * Тест функции перевода целочисленного числа в строку
+ * Ошибка: без параметров
+ */
+void test_int_to_str_no_args()
+{
+    printf("test_int_to_str_no_args: ");
+    if (setjmp(jmp_env) == 0) {
+        object_t result = int_to_str(NULLOBJ); 
+        FAIL;
+    } else 
+        OK;
+}
 
-/* /\** */
-/*  * Тест функции перевода целочисленного числа в строку */
-/*  * Ошибка: больше 1 параметра */
-/*  *\/ */
-/* void test_int_to_str_many_args() { */
-/*     printf("test_int_to_str_many_args: "); */
-/*     int number = 123; */
-/*     object_t number_obj = object_new(NUMBER, &number); */
-/*     object_t params = new_pair(number_obj, new_pair(number_obj, NULL)); */
-/*     object_t result = int_to_str(params); */
-/*     ASSERT(result, ERROR); */
-/* } */
+/**
+ * Тест функции перевода целочисленного числа в строку
+ * Ошибка: больше 1 параметра
+ */
+void test_int_to_str_many_args()
+{
+    printf("test_int_to_str_many_args: ");
+    object_t number_obj = new_number(123); 
+    object_t params = new_pair(number_obj, new_pair(number_obj, NULLOBJ)); 
+    if (setjmp(jmp_env) == 0) {
+        object_t result = int_to_str(params); 
+        FAIL;
+    } else 
+        OK;
+}
 
-/* /\** */
-/*  * Тест функции перевода целочисленного числа в строку */
-/*  * Ошибка: неверный параметр */
-/*  *\/ */
-/* void test_int_to_str_invalid_arg() { */
-/*     printf("test_int_to_str_invalid_arg: "); */
-/*     char *str = "Number"; */
-/*     object_t string_obj = object_new(STRING, str); */
-/*     object_t params = new_pair(string_obj, NULL); */
-/*     object_t result = int_to_str(params); */
-/*     ASSERT(result, ERROR); */
-/* } */
+/**
+ * Тест функции перевода целочисленного числа в строку
+ * Ошибка: неверный параметр
+ */
+void test_int_to_str_invalid_arg()
+{
+    printf("test_int_to_str_invalid_arg: ");
+    object_t string_obj = NEW_STRING("Number"); 
+    object_t params = new_pair(string_obj, NULLOBJ); 
+    if (setjmp(jmp_env) == 0) {
+        object_t result = int_to_str(params); 
+        FAIL;
+    } else 
+        OK;
+}
 
-/* /\** */
-/*  * Тест функции перевода целочисленного числа в строку */
-/*  * Перевод положительного числа в строку */
-/*  *\/ */
-/* void test_int_to_str_positive() { */
-/*     printf("test_int_to_str_positive: "); */
-/*     int number = 123; */
-/*     object_t number_obj = object_new(NUMBER, &number); */
-/*     object_t params = new_pair(number_obj, NULL); */
-/*     object_t result = int_to_str(params); */
-/*     ASSERT(result->type, STRING); */
-/*     ASSERT(strcmp(result->u.str->data, "123"), 0); */
-/* } */
+/**
+ * Тест функции перевода целочисленного числа в строку
+ * Перевод положительного числа в строку
+ */
+void test_int_to_str_positive()
+{
+    printf("test_int_to_str_positive: ");
+    object_t number_obj = new_number(123); 
+    object_t params = new_pair(number_obj, NULLOBJ); 
+    object_t result = int_to_str(params); 
+    ASSERT(TYPE(result), STRING); 
+    ASSERT(strcmp(GET_STRING(result)->data, "123"), 0);
+}
 
-/* /\** */
-/*  * Тест функции перевода целочисленного числа в строку */
-/*  * Перевод отрицательного числа в строку */
-/*  *\/ */
-/* void test_int_to_str_negative() { */
-/*     printf("test_int_to_str_negative: "); */
-/*     int number = -123; */
-/*     object_t number_obj = object_new(NUMBER, &number); */
-/*     object_t params = new_pair(number_obj, NULL); */
-/*     object_t result = int_to_str(params); */
-/*     ASSERT(result->type, STRING); */
-/*     ASSERT(strcmp(result->u.str->data, "-123"), 0); */
-/* } */
+/**
+ * Тест функции перевода целочисленного числа в строку
+ * Перевод отрицательного числа в строку
+ */
+void test_int_to_str_negative()
+{
+    printf("test_int_to_str_negative: ");
+    object_t number_obj = new_number(-123);
+    object_t params = new_pair(number_obj, NULLOBJ); 
+    object_t result = int_to_str(params); 
+    ASSERT(TYPE(result), STRING); 
+    ASSERT(strcmp(GET_STRING(result)->data, "-123"), 0);
+}
 
 int main()
 {
@@ -700,10 +710,10 @@ int main()
     test_subseq_negative_index();
     test_subseq_invalid_index_range();
     test_subseq();
-    /* test_int_to_str_no_args(); */
-    /* test_int_to_str_many_args(); */
-    /* test_int_to_str_invalid_arg(); */
-    /* test_int_to_str_positive(); */
-    /* test_int_to_str_negative(); */
+    test_int_to_str_no_args();
+    test_int_to_str_many_args();
+    test_int_to_str_invalid_arg();
+    test_int_to_str_positive();
+    test_int_to_str_negative();
     return 0;
 }
