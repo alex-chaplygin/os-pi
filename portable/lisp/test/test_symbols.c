@@ -136,9 +136,9 @@ void test_check_symbol_max_string_length()
     ASSERT(strcmp(result->str, str), 0);
 }
 
-object_t *test(object_t *list)
+object_t test(object_t list)
 {
-    return NULL;
+    return NULLOBJ;
 }
 
 /**
