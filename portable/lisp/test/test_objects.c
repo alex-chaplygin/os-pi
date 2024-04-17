@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
+#include <setjmp.h>
 #include "test.h"
 #include "objects.h"
 #include "parser.h"
@@ -22,17 +23,18 @@ extern struct region *regions;
 extern int last_string;
 extern int last_array;
 
-object_t *mobject;
-
 void mark_object(object_t obj);
 void sweep();
 void garbage_collect();
 void free_string(string_t *s);
 object_t make_list(int num);
 
+jmp_buf jmp_env;
+
 void error(char *str, ...)
 {
     printf("%s\n", str);
+    longjmp(jmp_env, 1);
 }
 
 symbol_t *find_symbol(char *str)
@@ -442,30 +444,45 @@ void test_objects_new_null()
     printf("test_objects_new_null: ");
     reset_mem();
     int i;
-    for (i = 0; i < MAX_NUMBERS; i++)
-        new_bignumber(i);
-    object_t bn = new_bignumber(i);
-    ASSERT(bn, ERROR);
+    if (setjmp(jmp_env) == 0) {
+        for (i = 0; i < MAX_NUMBERS; i++)
+            new_bignumber(i);
+        object_t bn = new_bignumber(i);
+        FAIL;
+    } else 
+        OK;
     reset_mem();
-    for (i = last_pair; i < MAX_PAIRS; i++)
-        new_pair(new_number(i), NULLOBJ);
-    object_t p = new_pair(new_number(1), NULLOBJ);
-    ASSERT(p, ERROR);
+    if (setjmp(jmp_env) == 0) {
+        for (i = last_pair; i < MAX_PAIRS; i++)
+            new_pair(new_number(i), NULLOBJ);
+        object_t p = new_pair(new_number(1), NULLOBJ);
+        FAIL;
+    } else 
+        OK;
     reset_mem();
-    for (i = last_symbol; i < MAX_SYMBOLS; i++)
-        new_symbol("s");
-    symbol_t *s = new_symbol("s");
-    ASSERT((int)s, ERROR);
+    if (setjmp(jmp_env) == 0) {
+        for (i = last_symbol; i < MAX_SYMBOLS; i++)
+            new_symbol("s");
+        symbol_t *s = new_symbol("s");
+        FAIL;
+    } else 
+        OK;
     reset_mem();
-    for (i = last_string; i < MAX_STRINGS; i++)
-        new_string("s");
-    string_t *str = new_string("s");
-    ASSERT((int)str, ERROR);
+    if (setjmp(jmp_env) == 0) {
+        for (i = last_string; i < MAX_STRINGS; i++)
+            new_string("s");
+        string_t *str = new_string("s");
+        FAIL;
+    } else 
+        OK;
     reset_mem();
-    for (i = last_array; i < MAX_ARRAYS; i++)
-        new_array(make_list(2));
-    array_t *arr = new_array("s");
-    ASSERT((int)arr, ERROR);
+    if (setjmp(jmp_env) == 0) {
+        for (i = last_array; i < MAX_ARRAYS; i++)
+            new_array(make_list(2));
+        array_t *arr = new_array("s");
+        FAIL;
+    } else 
+	OK;
 }
 
 /**
@@ -486,7 +503,11 @@ void test_new_string()
 void test_free_pair_empty()
 {
     printf("test_free_pair_empty: ");
-    free_pair(NULL);
+    if (setjmp(jmp_env) == 0) {
+	free_pair(NULL);
+        FAIL;
+    } else 
+        OK;
 }
 
 /**

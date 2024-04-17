@@ -165,11 +165,8 @@ object_t new_pair(object_t left, object_t right)
  */
 void free_pair(pair_t *p)
 {
-    if (p == NULL) {
+    if (p == NULL)
     	error("free_pair: null pointer: obj");
-    	return;
-    }
-
     //printf("free pair: %d %x \n ", p - pairs, p->next);
     if (p->free)
 	return;
