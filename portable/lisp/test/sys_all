@@ -68,10 +68,10 @@ sh sys_test "(cond ((eq 'a 'a) 'first)
 sh sys_test "(cond ((eq 'a 'b) 'first) 
 		   ((eq 'a 'a) 'second))" "SECOND"  #13
 # отсутствие аргументов
-sh sys_test "(cond  )" "NULL in COND" #67
+sh sys_test "(cond  )" "NULLOBJ in COND" #67
 # отсутствие аргумента, приводящего к истине
 sh sys_test "(cond ((eq 'a 'b) 'first) 
-		   ((eq 'a 'b) 'second))" "NULL in COND" #68
+		   ((eq 'a 'b) 'second))" "NULLOBJ in COND" #68
 # лишнее выражение в паре
 sh sys_test "(cond ((eq 'a 'a)(eq 'a 'b) 'first))" "cond: too many params"
 # отсутствие выражения после предикат
@@ -86,7 +86,7 @@ sh sys_test "(car '(a b c) '(n h r))" "car: Too many args" #60
 		   
 echo "---Тесты cdr ---"
 sh sys_test "(cdr '(a b c))" "(B C)" #11
-sh sys_test "(cdr \"dsfsd\")" "Not list in cdr" #61
+sh sys_test "(cdr \"dsfsd\")" "cdr: Not list in cdr" #61
 sh sys_test "(cdr)" "cdr: No args" #62
 sh sys_test  "(cdr '(a b c) '(d e f))" "cdr: Too many args" #63 
 
