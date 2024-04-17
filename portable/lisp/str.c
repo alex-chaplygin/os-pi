@@ -189,23 +189,17 @@ object_t int_to_str(object_t list)
 **/
 object_t code_char(object_t list)
 {
-    if (list == NULLOBJ) {
+    if (list == NULLOBJ)
 	error("code-char: no arguments\n");
-	return ERROR;
-    }
-    if (TAIL(list) != NULLOBJ) {
+    if (TAIL(list) != NULLOBJ)
 	error("code-char: many arguments\n");
-	return ERROR;
-    }
-    if (TYPE(FIRST(list)) != NUMBER) {
+    if (TYPE(FIRST(list)) != NUMBER)
     	error("code-char: not number in params\n");
-    	return ERROR;
-    }
     int code = get_value(FIRST(list));
     char* str = alloc_region(2);
     *str = code;
     *(str + 1) = 0;
-    return NEW_OBJECT(STRING, new_string(str));
+    return NEW_STRING(str);
 }
 
 void init_strings()

@@ -424,56 +424,64 @@ void test_str_char_invalid_index()
         OK;
 }
 
-/* /\** */
-/*  * Тест функции создания символа-строки по коду */
-/*  * Получение 1го символа строки */
-/*  *\/ */
-/* void test_code_char() { */
-/*     printf("test_code_char: "); */
-/*     int ind = 110; // 110 - код символа 'n' */
+/**
+ * Тест функции создания символа-строки по коду
+ * Получение 1го символа строки
+ */
+void test_code_char()
+{
+    printf("test_code_char: ");
+    object_t params = new_pair(new_number(110), NULLOBJ); 
+    object_t res = code_char(params); 
+    ASSERT(TYPE(res), STRING); 
+    ASSERT(GET_STRING(res)->data[0], 'n');
+}
 
-/*     object_t params = new_pair(object_new(NUMBER, &ind), NULL); */
-/*     object_t res = code_char(params); */
+/**
+ * Тест функции создания символа-строки по коду
+ * Ошибка: нет аргументов
+ */
+void test_code_char_no_arguments()
+{
+    printf("test_code_char_no_arguments: ");
+    if (setjmp(jmp_env) == 0) {
+	object_t result = code_char(NULLOBJ); 
+	FAIL;
+    } else 
+	OK;
+}
 
-/*     ASSERT(res->type, STRING); */
-/*     ASSERT(res->u.str->data[0], 'n'); */
-/* } */
+/**
+ * Тест функции создания символа-строки по коду
+ * Ошибка: слишком много аргументов
+ */
+void test_code_char_too_many_arguments()
+{
+    printf("test_code_char_too_many_arguments: ");
+    object_t number_obj = new_number(2); 
+    object_t params = new_pair(number_obj, new_pair(number_obj, NULLOBJ)); 
+    if (setjmp(jmp_env) == 0) {
+        object_t result = code_char(params); 
+        FAIL;
+    } else 
+        OK;
+}
 
-/* /\** */
-/*  * Тест функции создания символа-строки по коду */
-/*  * Ошибка: нет аргументов */
-/*  *\/ */
-/* void test_code_char_no_arguments() { */
-/*     printf("test_code_char_no_arguments: "); */
-/*     object_t result = code_char(NULL); */
-/*     ASSERT(result, ERROR); */
-/* } */
-
-/* /\** */
-/*  * Тест функции создания символа-строки по коду */
-/*  * Ошибка: слишком много аргументов */
-/*  *\/ */
-/* void test_code_char_too_many_arguments() { */
-/*     printf("test_code_char_too_many_arguments: "); */
-/*     int num = 2; */
-/*     object_t number_obj = object_new(NUMBER, &num); */
-/*     object_t params = new_pair(number_obj, new_pair(number_obj, NULL)); */
-/*     object_t result = code_char(params); */
-/*     ASSERT(result, ERROR); */
-/* } */
-
-/* /\** */
-/*  * Тест функции создания символа-строки по коду */
-/*  * Ошибка: передано не число */
-/*  *\/ */
-/* void test_code_char_not_number() { */
-/*     printf("test_code_char_not_number: "); */
-/*     char *str = "Hello"; */
-/*     object_t not_number = object_new(STRING, str); */
-/*     object_t params = new_pair(not_number, NULL);  */
-/*     object_t result = code_char(params); */
-/*     ASSERT(result, ERROR); */
-/* } */
+/**
+ * Тест функции создания символа-строки по коду
+ * Ошибка: передано не число
+ */
+void test_code_char_not_number()
+{
+    printf("test_code_char_not_number: ");
+    object_t not_number = NEW_STRING("Hello"); 
+    object_t params = new_pair(not_number, NULLOBJ);  
+    if (setjmp(jmp_env) == 0) {
+        object_t result = code_char(params); 
+        FAIL;
+    } else 
+        OK;
+}
 
 /**
  * Тест функции получения подстроки из строки
@@ -699,10 +707,10 @@ int main()
     test_str_char_too_many_arguments();
     test_str_char_first_not_string();
     test_str_char_invalid_index();
-    /* test_code_char(); */
-    /* test_code_char_no_arguments(); */
-    /* test_code_char_too_many_arguments(); */
-    /* test_code_char_not_number(); */
+    test_code_char();
+    test_code_char_no_arguments();
+    test_code_char_too_many_arguments();
+    test_code_char_not_number();
     test_subseq_no_arguments();
     test_subseq_not_all_arguments();
     test_subseq_too_many_arguments();
