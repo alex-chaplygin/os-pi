@@ -255,18 +255,12 @@ void test_mark()
     int mask = 1 << 31;
     object_t n = new_bignumber(2147483658);
     object_t s = NEW_STRING("abc");
-    printf("list=");
-    PRINT(make_list(3));
-    printf("s=");
-    PRINT(s);
-    printf("n=");
-    PRINT(n);
-    object_t a = NEW_ARRAY(make_list(3));
-	
+    object_t a = NEW_ARRAY(make_list(3));	
     object_t inp2 = new_pair(a, NULLOBJ);
     object_t inp1 = new_pair(s, inp2);
     object_t p2 = new_pair(inp1, NULLOBJ);
     p1 = new_pair(n, p2);
+    printf("p1="); PRINT(p1);
     mark_object(p1);
     ASSERT(GET_MARK(GET_PAIR(inp1)->left), 1);
     ASSERT((GET_STRING(GET_PAIR(inp1)->left)->length) & mask, mask);

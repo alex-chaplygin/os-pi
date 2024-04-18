@@ -334,7 +334,7 @@ void free_array(array_t *a)
  */
 void mark_object(object_t obj)
 {
-    if (obj == NULLOBJ || obj == NOVALUE || GET_MARK(obj) == 1)
+    if (obj == NULLOBJ || obj == NOVALUE || obj == NULLOBJ + (1 << MARK_BIT))
 	return;
     int mask = 1 << 31;
     if (TYPE(obj) == PAIR) {
