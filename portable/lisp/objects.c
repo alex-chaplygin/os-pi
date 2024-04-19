@@ -192,7 +192,7 @@ symbol_t *new_symbol(char *str)
     strcpy(symbol->str, str);
     symbol->next = NULL;
     symbol->value = NOVALUE;
-    symbol->func = NULLOBJ;
+    symbol->func = NULL;
     symbol->lambda = NULLOBJ;
     symbol->macro = NULLOBJ;
     return symbol;
@@ -334,7 +334,7 @@ void free_array(array_t *a)
  */
 void mark_object(object_t obj)
 {
-    if (obj == NULLOBJ || obj == NOVALUE || obj == NULLOBJ + (1 << MARK_BIT))
+    if (obj == NULLOBJ || obj == NOVALUE || obj == NULLOBJ + (1 << TYPE_BITS))
 	return;
     int mask = 1 << 31;
     if (TYPE(obj) == PAIR) {
