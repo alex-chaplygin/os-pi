@@ -472,3 +472,16 @@ void print_obj(object_t obj)
  	    printf(")");
     }
 }
+
+/** 
+ * Печать статистики сборки мусора и памяти
+ */
+void print_gc_stat()
+{
+    printf("\n\n\nbignumbers: %d of %d\n", last_bignumber, MAX_NUMBERS);
+    printf("pairs: %d of %d\n", last_pair, MAX_PAIRS);
+    printf("symbols: %d of %d\n", last_symbol, MAX_SYMBOLS);
+    printf("strings: %d of %d\n", last_string, MAX_STRINGS);
+    printf("arrays: %d of %d\n", last_array, MAX_ARRAYS);
+    printf("used mem: %d of %d\n", regions_mem(), MAX_REGION_SIZE);
+}
