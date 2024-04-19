@@ -59,19 +59,19 @@ void boot_lisp()
     printf("boot = %x\n", &_lisp_start);
     do {
 	if (setjmp(jmp_env) == 0) {
-	    object_t *o = parse();
+	    object_t o = parse();
 	    if (o == NOVALUE)
 		longjmp(jmp_env, 1);
 	    //printf("parse: "); PRINT(o);
-	    object_t *res = eval(o, NULL);
+	    object_t res = eval(o, NULLOBJ);
 	    //printf("res: "); PRINT(res);
-	    print_counter++;
 	    PRINT(res);
 	}
+	garbage_collect();
     } while (token.type != END);
     boot_load = 0;
     reset_buffer();
-    printf("Total memory used: %d\n", boot_code);
+    print_gc_stat();
 }
 
 /** 
@@ -91,13 +91,11 @@ void kmain(void)
     while(1) {
 	if (setjmp(jmp_env) == 0) {
 	    printf("> ");
-	    object_t *o = parse();
+	    object_t o = parse();
 	    if (o == NOVALUE)
 		longjmp(jmp_env, 1);
 	    //printf("parse: "); PRINT(o);
-	    object_t *res = eval(o, NULL);
-	    //printf("res: "); PRINT(res);
-	    print_counter++;
+	    object_t res = eval(o, NULLOBJ);
 	    PRINT(res);
 	}
 	garbage_collect();
