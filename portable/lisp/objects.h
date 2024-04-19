@@ -1,20 +1,18 @@
 #ifndef OBJECTS
 #define OBJECTS
 
-/// Всего объектов
-#define MAX_OBJECTS 2000000
 /// Всего пар
-#define MAX_PAIRS 2000000
+#define MAX_PAIRS 10000
 /// Всего символов
-#define MAX_SYMBOLS 2000
+#define MAX_SYMBOLS 1000
 /// Всего строк
-#define MAX_STRINGS 2000
+#define MAX_STRINGS 100
 /// Всего массивов
 #define MAX_ARRAYS 100
 /// Максимальная длина символа
 #define MAX_SYM_STR 32
 /// Всего больших чисел
-#define MAX_NUMBERS 1000
+#define MAX_NUMBERS 100
 
 #define PRINT(o) print_counter++; print_obj(o); printf("\n");
 #define ERROR (-1)
@@ -168,4 +166,5 @@ void free_string(string_t *s);
 array_t *new_array(object_t list);
 array_t *new_empty_array(int length);
 void free_array(array_t *a);
+void print_gc_stat();
 #endif
