@@ -14,6 +14,8 @@ void init_regions()
 {
 #ifndef OS
     regions = (struct region *)malloc(MAX_REGION_SIZE);
+#else
+    regions = (struct region *)MEM_START;
 #endif   
     regions->free = 1;
     regions->next = NULL;
@@ -90,3 +92,19 @@ void free_region(void *data)
     }
 }
 
+/** 
+ * Вычисление используемой памяти
+ *
+ * @return значение в байтах
+ */
+int regions_mem()
+{
+    int m = 0;
+    struct region *r = regions;
+    while (r != NULL) {
+	if (r->free == 0)
+	    m += r->size + sizeof(struct region);
+	r = r->next;
+    }
+    return m;
+}
