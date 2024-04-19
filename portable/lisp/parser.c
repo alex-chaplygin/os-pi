@@ -114,7 +114,7 @@ object_t parse_list()
     } else if (cur_tok->type == LPAREN || cur_tok->type == QUOTE
 	       || cur_tok->type == BACKQUOTE || cur_tok->type == COMMA
 	       || cur_tok->type == COMMA_AT || cur_tok->type == SHARP)
-	return parse_element(SYMBOL, NULLOBJ, cur_tok->type);
+	return parse_element(SYMBOL, NULL, cur_tok->type);
     else if (cur_tok->type == DOT) {
 	object_t res = parse();
 	cur_tok = get_token();       
