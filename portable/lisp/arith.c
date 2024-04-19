@@ -159,7 +159,7 @@ int compare_obj(object_t obj1, object_t obj2)
     if (TYPE(obj1) != TYPE(obj2))
 	return 0;
     else if (TYPE(obj1) == SYMBOL)
-	return GET_SYMBOL(obj1)->value == GET_SYMBOL(obj2)->value;
+	return GET_SYMBOL(obj1) == GET_SYMBOL(obj2);
     else if (TYPE(obj1) == STRING)
 	return strcmp(GET_STRING(obj1)->data, GET_STRING(obj2)->data) == 0;
     else if (TYPE(obj1) == NUMBER)
