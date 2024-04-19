@@ -1,8 +1,10 @@
 #ifndef REGIONS
 #define REGIONS
 
+/// Начальный адрес памяти
+#define MEM_START 0x200000 
 /// Всего байт для регионов 
-#define MAX_REGION_SIZE 100000000
+#define MAX_REGION_SIZE 1000000
 
 /// Метка региона
 #define MAGIC 0xABCD1234
@@ -27,5 +29,6 @@ struct region {
 void init_regions();
 void *alloc_region(int size);
 void free_region(void *data);
+int regions_mem();
 
 #endif
