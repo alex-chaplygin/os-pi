@@ -287,7 +287,8 @@ int is_lambda(object_t list)
     if (!check_params(params))
 	error("Not symbol in lambda attrs"); 
     if (TAIL(TAIL(list)) == NULLOBJ)
-	error("No body in lambda"); 
+	error("No body in lambda");
+    return 1;
 } 
 
 /* 
