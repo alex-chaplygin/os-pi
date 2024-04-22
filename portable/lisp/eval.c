@@ -120,7 +120,7 @@ object_t backquote_rec(object_t list)
  	return NULLOBJ; 
     //PRINT(list); 
     object_t o; 
-    if (TYPE(list) == NUMBER) 
+    if (TYPE(list) == NUMBER || TYPE(list) == BIGNUMBER) 
 	return new_number(get_value(list)); 
     else if (TYPE(list) == SYMBOL) 
 	return NEW_SYMBOL(GET_SYMBOL(list)->str); 
@@ -141,29 +141,23 @@ object_t backquote_rec(object_t list)
  	if (TYPE(el) == SYMBOL && !strcmp(GET_SYMBOL(el)->str, "COMMA")) 
  	    return eval(SECOND(list), current_env); 
  	object_t first = backquote_rec(el); 
- 	if (first == ERROR) 
- 	    return ERROR; 
  	if (first != NULLOBJ && TYPE(first) == PAIR) {  // first = (COMMA-AT B) 
  	    object_t comma_at = FIRST(first); 
  	    if (comma_at != NULLOBJ && TYPE(comma_at) == SYMBOL && !strcmp(GET_SYMBOL(comma_at)->str, "COMMA-AT")) { 
  		object_t l = eval(SECOND(first), current_env); 
  		if (l == NULLOBJ) 
  		    return backquote_rec(TAIL(list)); 
- 		if (TYPE(l) != PAIR) { 
+ 		if (TYPE(l) != PAIR)
 		    error("COMMA-AT: not list"); 
-		    return ERROR; 
-		} 
  		object_t new_comma = backquote_rec(l); 
  		append_env(new_comma, backquote_rec(TAIL(list))); 
  		return new_comma; 
  	    } 
  	} 
  	object_t tail = backquote_rec(TAIL(list)); 
- 	if (tail == ERROR) 
- 	    return ERROR; 
  	return new_pair(first, tail); 
     } 
-    return ERROR;    
+    error("backqoute: unknown type: %d\n", TYPE(list));    
 } 
 
 /* 
@@ -533,11 +527,14 @@ object_t eval(object_t obj, object_t env)
  * @param val - устанавливаемое значение 
  */ 
 void set_in_env(object_t env, object_t sym, object_t val) 
-{ 
+{
     if (env == NULLOBJ)
 	error("ERROR: NULLOBJ as env in set_in_env"); 
     object_t pair = FIRST(env); 
     object_t var = FIRST(pair); 
+    //    printf("set_in_env: var = ");PRINT(var);
+    //    printf("sym = ");PRINT(sym);
+    //    printf("val = ");PRINT(val);
     if (GET_SYMBOL(var) == GET_SYMBOL(sym)) 
 	TAIL(pair) = val; 
     else 
