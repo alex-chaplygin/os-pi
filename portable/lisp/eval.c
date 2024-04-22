@@ -558,13 +558,9 @@ object_t setq_rec(object_t params)
     int find_res = find_in_env(current_env, FIRST(params), &res); 
     if (!find_res) 
 	sym = find_symbol(GET_SYMBOL(FIRST(params))->str); 
-    if (TAIL(params) == NULLOBJ) { 
+    if (TAIL(params) == NULLOBJ)
  	error("setq: no value"); 
- 	return ERROR; 
-    } 
     object_t obj = eval(SECOND(params), current_env); 
-    if (obj == ERROR) 
- 	return ERROR; 
     if (find_res) 
 	set_in_env(current_env, FIRST(params), obj); 
     else 
@@ -576,10 +572,8 @@ object_t setq_rec(object_t params)
 
 object_t setq(object_t params) 
 { 
-    if (params == NULLOBJ) { 
+    if (params == NULLOBJ)
  	error("setq: params = NULLOBJ"); 
-	return ERROR; 
-    } 
     return setq_rec(params); 
 } 
 
