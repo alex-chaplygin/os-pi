@@ -40,14 +40,22 @@
 	     (setf s (concat s (code-char (aref arr i)))))
 	s)))
 
-;(defun write-struct (arr offs struct values)
+(defun arr-set-str (arr ofs str size)
+  "Записать в массив arr по смещению ofs строку str но не превышая размер size"
+  (let ((size2 (string-size str)))
+    (for i 0 size2
+	 (when (< i size) (seta arr (+ i ofs) (char str i))))))
+
+(defun write-struct (arr offs struct values)
   "Записать в массив arr по смещению ofs значения из хеш объекта values,"
   "используя структуру struct"
- ; (foldl '(lambda (a elem)
-;	   (let ((name (car elem))
-;		 (size (cdr elem)))
-;	     )) offs struct))
-
+  (foldl '(lambda (ofs elem)
+	   (let ((name (car elem))
+		 (size (cdr elem)))
+	     (if (eq name 'str)
+		 (arr-set-str arr ofs (get-hash values (cadr elem)) (cdr size))
+		 (arr-set-num arr ofs (get-hash values name) size))
+	     (+ ofs (if (eq name 'str) (cdr size) size)))) offs struct))
 ; тесты
 (defun with-struct-test ()
   (let ((s '((str name . 10) ; строковое поле из 10 байт
@@ -60,7 +68,7 @@
   (let ((s '((str name . 10) ; строковое поле из 10 байт
 	     (f2 . 4)))
 	(arr #(0 0 0x30 0x31 0x32 0x33 0x34 0x35 0x36 0x37 0x38 0x39 1 0 0 0)))
-    (arr-set-num arr 1 0x1 4)
+    (write-struct arr 2 s '((f2 . 10)(name . "abc")(test . 10)))
     arr))
 
 (write-struct-test)
