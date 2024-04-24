@@ -17,4 +17,7 @@
 	(part-ofs (+ (* +partition-rec-size+ part-num) +partition-table-ofs+)))
     (with-struct partition-entry sec part-ofs
       (case type
-	(+FAT32-type+ (load-fat32 disk-num start-sector num-sectors))))))
+	(+FAT32-type+ (setq *file-system* (make-instance Fat32FileSystem))))
+      (init *file-system* disk-num start-sector num-sectors))))
+
+(load-partition 0 0)
