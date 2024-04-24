@@ -2,11 +2,11 @@
 #define OBJECTS
 
 /// Всего пар
-#define MAX_PAIRS 10000
+#define MAX_PAIRS 60000
 /// Всего символов
 #define MAX_SYMBOLS 1000
 /// Всего строк
-#define MAX_STRINGS 100
+#define MAX_STRINGS 400
 /// Всего массивов
 #define MAX_ARRAYS 100
 /// Максимальная длина символа
@@ -15,10 +15,10 @@
 #define MAX_NUMBERS 100
 
 #define PRINT(o) print_counter++; print_obj(o); printf("\n");
-#define ERROR (-1)
+#define ERROR (object_t)(-1)
 #define NULLOBJ 3
 /// Отсутствие значения у переменных
-#define NOVALUE (ERROR)
+#define NOVALUE (0xF)
 /// Число бит на тип объекта
 #define TYPE_BITS 3
 /// Номер бита пометки для сборщика мусора
@@ -71,9 +71,8 @@ typedef enum {
     STRING,  ///строка
     ARRAY, ///массив
 } type_t;
-#define X64
 /// Тип для объекта
-#ifdef X64
+#ifndef X32
 typedef long long object_t;
 #else
 typedef unsigned int object_t;
@@ -85,7 +84,7 @@ typedef struct bignumber_s
     int value; // значение числа
     struct bignumber_s *next; // указатель на следующее свободное число
     int free; // Если 1 - число свободно
-#ifndef X64
+#ifdef X32
     int pad;
 #endif
 } bignumber_t;
@@ -98,7 +97,7 @@ typedef struct pair_s
     struct pair_s *next; // указатель на следующую свободную пару
     int free; // Если 1 - пара свободна
     int print_counter; // счетчик печати
-#ifndef X64
+#ifdef X32
     int pad[3];
 #endif
 } pair_t;
@@ -138,7 +137,7 @@ typedef struct symbol_s
     object_t macro;
     //указатель на функцию для примитивов
     func_t func;
-#ifndef X64
+#ifdef X32
     int pad[3];
 #else
     int pad[2];
