@@ -747,8 +747,11 @@ void main()
     test_new_bignumber(-1520);
     test_free_bignumber();
     test_free_bignumber2();
+    reset_mem();
     test_new_number(-677);
     test_new_number(56);
+    test_new_bignumber(0xfffffff);
+    test_new_number(0xffffff8);
     test_new_number(0);
     test_new_number((1<<27)-1);
     test_new_number(~((1<<27)-1));
