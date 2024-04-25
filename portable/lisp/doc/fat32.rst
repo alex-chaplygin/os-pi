@@ -109,7 +109,7 @@
  
 Инициализация FAT32
 -------------------
-При инициализации загружается BPB(\*block-sectors\*, \*block-size\*, \*fat-start-sector\*, \*fat-sectors\*, \*block-sector-offset\*, \*root-cluster\*), загружается корневой каталог. Таблица FAT - пустой хеш-объект. Из FSInfo читается \*free-cluster-count\* и \*last-free-cluster\*.
+При инициализации загружается BPB(\*block-sectors\*, \*block-size\*, \*fat-start-sector\*, \*fat-sectors\*, \*block-sector-offset\*, \*root-block\*), загружается корневой каталог. Таблица FAT - пустой хеш-объект. Из FSInfo читается \*free-cluster-count\* и \*last-free-cluster\*.
 
 Таблицу FAT удобно хранить как хеш-объект с ключом - номер первого кластера в цепочке и значением -- список оставшихся кластеров:
 ::
