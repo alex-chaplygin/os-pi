@@ -61,6 +61,8 @@
 #define THIRD(o) (GET_PAIR(GET_PAIR(GET_PAIR(o)->right)->right)->left)
 // Хвост списка
 #define TAIL(o) (GET_PAIR(o)->right)
+// Проверка объекта на число
+#define IS_NUMBER(o) (TYPE(o) == NUMBER || TYPE(o) == BIGNUMBER)
 
 /// перечисление типов объектов
 typedef enum {

@@ -22,7 +22,7 @@ object_t add(object_t list)
 	error("add: no arguments\n");
     while (list != NULLOBJ) {
 	    object_t first = FIRST(list);
-	    if (TYPE(first) == NUMBER || TYPE(first) == BIGNUMBER) {  
+	    if (IS_NUMBER(first)) {  
 	        num += get_value(first);
 	        list = TAIL(list);
 	    }
@@ -47,7 +47,7 @@ object_t sub(object_t list)
     list = TAIL(list);
     while (list != NULLOBJ) {
         object_t first = FIRST(list);
-        if  (TYPE(first) == NUMBER || TYPE(first) == BIGNUMBER) {  
+        if  (IS_NUMBER(first)) {  
 	        num -= get_value(first);
 	        list = TAIL(list);
 	}
@@ -71,7 +71,7 @@ object_t mul(object_t list)
     list = TAIL(list);
     while(list != NULLOBJ){
 	object_t first = FIRST(list);
-	if(TYPE(first) == NUMBER || TYPE(first) == BIGNUMBER){
+	if(IS_NUMBER(first)){
 	    num *= get_value(first);
 	    list = TAIL(list);
 	}
@@ -95,10 +95,10 @@ object_t int_div(object_t list){
     if (TAIL(list) == NULLOBJ)
         error("div: no divisor\n");
     object_t first = FIRST(list);
-    if (TYPE(first) != NUMBER && TYPE(first) != BIGNUMBER)
+    if (!IS_NUMBER(first))
 	 error("mul: Not number\n");
     object_t second = SECOND(list);
-    if (TYPE(second) != NUMBER && TYPE(second) != BIGNUMBER)
+    if (!IS_NUMBER(first))
 	 error("mul: Not number\n");
     if (get_value(second) != 0) {
         int num = get_value(first) / get_value(second);
@@ -162,7 +162,7 @@ int compare_obj(object_t obj1, object_t obj2)
 	return GET_SYMBOL(obj1) == GET_SYMBOL(obj2);
     else if (TYPE(obj1) == STRING)
 	return strcmp(GET_STRING(obj1)->data, GET_STRING(obj2)->data) == 0;
-    else if (TYPE(obj1) == NUMBER)
+    else if (IS_NUMBER(obj1))
 	return get_value(obj1) == get_value(obj2);
     else if (TYPE(obj1) == PAIR) {
 	if (!compare_obj(FIRST(obj1), FIRST(obj2)))
@@ -212,7 +212,7 @@ object_t bitwise_and(object_t list)
 {
     if (list == NULLOBJ)
 	error("bitwise_and: no arguments\n");
-    if (TYPE(FIRST(list)) != NUMBER)
+    if (!IS_NUMBER(FIRST(list)) && !IS_NUMBER(SECOND(list)))
 	error("bitwise_and: Not a number\n");
     int num = get_value(FIRST(list));
     list = TAIL(list);
@@ -243,7 +243,7 @@ object_t bitwise_or(object_t list)
     list = TAIL(list);
     while (list != NULLOBJ) {
 	object_t first = FIRST(list);
-	if (TYPE(first) == NUMBER) {  
+	if (IS_NUMBER(first)) {  
 	    num |= get_value(first);
 	    list = TAIL(list);
 	}
