@@ -30,7 +30,7 @@
 (hiddsec         .4     ) ;// Cекторов перед началом раздела
 (totsec32        .4     ) ;// Всего секторов на диске
 (fatsz32         .4     ) ;// Размер таблицы FAT-32 в секторах
-(extflags        .4     ) ;// Флаги файловой системы(Номер активной ФС,зеркалирована ли )
+(extflags        .2     ) ;// Флаги файловой системы(Номер активной ФС,зеркалирована ли )
 (fsver           .2     ) ;// Версия ФС
 (rootclus        .4     ) ;// Номер корневого кластера(обычно 2)
 (fsinfo          .2     ) ;// Сектор структуры FSinfo
@@ -49,4 +49,6 @@
        *fat-start-sector* rsvdseccounter
        *fat-sectors* fatsz32
        *block-sector-offset* (+ *fat-start-sector* *fat-sectors* *fat-sectors*)
-       *root-block* rootclus))))
+       *root-block* rootclus)))
+  (setq *fat* (make-hash)))
+;  (setq *root-directory* (load-dir (get-fat-chain *root-block*))))
