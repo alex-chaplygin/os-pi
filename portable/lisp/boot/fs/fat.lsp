@@ -9,7 +9,7 @@
 (defconst +reserved-block-end+ 0xffffff6) ; 
 (defconst +bad-block+ 0xffffff7) ; поврежденный блок
 (defconst +end-block-start+ 0xffffff8) ; метки окончания цепочки
-(defconst +end-block-end+ 0xffffffd) ; 
+(defconst +end-block-end+ 0xfffffff) ; 
 
 (defun get-fat-chain (start)
   "Загрузить цепочку блоков из FAT, начиная с start"
