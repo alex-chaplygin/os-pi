@@ -32,6 +32,7 @@ object_t defmacro(object_t list);
 object_t eval_symbol(object_t list);
 object_t macro_call(object_t macro, object_t args, object_t env);
 object_t eval_func(object_t lambda, object_t args, object_t env);
+object_t eval_args(object_t args, object_t env);
 
 jmp_buf jmp_env;
 
@@ -833,6 +834,31 @@ void test_eval_symbol_undefined_variable()
     } else
         OK;
 }
+
+/**
+ * Проверка функции eval_args (1 2)
+ */
+void test_eval_args()
+{
+    printf("test_eval_args: ");
+    object_t num1 = new_number(1);
+    object_t num2 = new_number(2);
+    object_t list = new_pair(num1, new_pair(num2, NULLOBJ));
+    object_t res = eval_args(list, NULLOBJ);
+    ASSERT(TYPE(res), PAIR); 
+    ASSERT(get_value(FIRST(res)), 1); 
+    ASSERT(get_value(SECOND(res)), 2); 
+}
+
+/**
+ * Проверка функции eval_args с пустым списком
+ */
+void test_eval_args_null()
+{
+    printf("test_eval_args_null: ");
+    object_t res = eval_args(NULLOBJ, NULLOBJ);
+    ASSERT(res, NULLOBJ); 
+}
 /*
 eval_int
 +---------------------------+------------------------------------------------+------------------------------------------------------+
@@ -1005,5 +1031,7 @@ int main()
     test_eval_symbol_with_defined_variable();
     test_eval_symbol_environment_variable();
     test_eval_symbol_undefined_variable();
+    test_eval_args();
+    test_eval_args_null();
     return 0;
 }
