@@ -110,7 +110,7 @@ object_t new_number(int num)
 {
     unsigned int mask = (1 << ADDR_BITS) - 1;
     int min_val = ((1 << (TYPE_BITS + 2)) - 1) << ADDR_BITS - 1;
-    if (num >= 0 && num <= mask)
+    if (num >= 0 && num < mask)
 	return NEW_OBJECT(NUMBER, num << MARK_BIT);
     else if (num >= min_val && num < 0)
 	return NEW_OBJECT(NUMBER, num << MARK_BIT);
@@ -126,6 +126,8 @@ object_t new_number(int num)
  */
 int get_value(object_t obj)
 {
+    if (TYPE(obj) == BIGNUMBER)
+	return GET_BIGNUMBER(obj)->value;
     if ((int)obj < 0)
 	return (obj >> MARK_BIT) | (((1 << TYPE_BITS + 1) - 1) << ADDR_BITS);
     else
