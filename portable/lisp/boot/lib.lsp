@@ -195,6 +195,10 @@
       (if (not (null (cdr value))) ''error
 	  `(setf ,name ,(car value))))) 
 
+(defmacro defconst (name val)
+  "Создать константу"
+  `(defvar ,name ,val))
+
 (defun putstring (s)
   "Печать строки"
   (for i 0 (string-size s) 
