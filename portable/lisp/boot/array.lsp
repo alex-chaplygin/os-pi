@@ -71,4 +71,4 @@
     (write-struct arr 2 s '((f2 . 10)(name . "abc")(test . 10)))
     arr))
 
-(write-struct-test)
+;(write-struct-test)
