@@ -38,6 +38,18 @@
 ; класс для системы FAT32
 (defclass Fat32FileSystem FileSystem ())
 
+; класс для файла FAT32
+(defclass Fat32File File
+  (dir-block ; номер блока каталога
+   dir-offset ; смещение в блоке каталога;
+   attributes ; атрибуты;
+   start-block ; номер первого блока в цепочке;
+   ctime  ;время создания файла
+   cdate  ;дата создания файла
+   adate  ;дата последнего обращения к файлу
+   wdate  ;дата последней записи файла
+   wtime))  ;время последней записи файла
+
 (defmethod init ((self Fat32FileSystem) disk start end)
   "Инициализация ФС на диске disk, начиная с сектора start, заканчивая end"
   (setq *disk* disk)
@@ -52,3 +64,9 @@
        *root-block* rootclus)))
   (setq *fat* (make-hash)))
 ;  (setq *root-directory* (load-dir (get-fat-chain *root-block*))))
+
+(defmethod load-dir((self Fat32FileSystem) block-list)
+  "Загрузить каталог, находящийся в блоках из списка block-list"
+  (if (null block-list) nil
+      (append (make-dir (car block-list)) (load-dir (cdr block-list)))))
+
