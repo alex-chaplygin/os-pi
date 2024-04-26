@@ -60,13 +60,14 @@
        *block-size* (* bytepersector *block-sectors*)
        *fat-start-sector* rsvdseccounter
        *fat-sectors* fatsz32
-       *block-sector-offset* (+ *fat-start-sector* *fat-sectors* *fat-sectors*)
+       *block-sector-offset* (+ *fat-start-sector* (* *fat-sectors* numfats)
+				(- 0 secpercluster secpercluster))
        *root-block* rootclus)))
-  (setq *fat* (make-hash)))
-;  (setq *root-directory* (load-dir (get-fat-chain *root-block*))))
+  (setq *fat* (make-hash))
+  (setq *root-directory* (load-dir self (get-fat-chain *root-block*))))
 
 (defmethod load-dir((self Fat32FileSystem) block-list)
   "Загрузить каталог, находящийся в блоках из списка block-list"
   (if (null block-list) nil
-      (append (make-dir (car block-list)) (load-dir (cdr block-list)))))
+      (append (make-dir (car block-list)) (load-dir self (cdr block-list)))))
 
