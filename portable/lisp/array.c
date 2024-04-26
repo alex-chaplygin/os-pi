@@ -36,7 +36,7 @@ object_t seta(object_t list)
 	error("seta: not array");
     int index = get_value(SECOND(list));
     if (index >= GET_ARRAY(arr_o)->length || index < 0)
-	error("seta: index out of range");
+	error("seta: index out of range %d of %d", index, GET_ARRAY(arr_o)->length);
     object_t obj = THIRD(list);
     GET_ARRAY(arr_o)->data[index] = obj;
     return arr_o;
@@ -65,9 +65,23 @@ object_t aref(object_t list)
     return GET_ARRAY(arr_o)->data[index];
 }
 
+/**
+ * Размер массива
+ * 
+ * @param list <массив>
+ * 
+ * @return число элементов
+*/
+object_t array_size(object_t list)
+{
+    array_t *a = GET_ARRAY(FIRST(list));
+    return new_number(a->length);
+}
+
 void init_arrays()
 {
     register_func("MAKE-ARRAY", make_array);
+    register_func("ARRAY-SIZE", array_size);
     register_func("SETA", seta);
     register_func("AREF", aref);
 }
