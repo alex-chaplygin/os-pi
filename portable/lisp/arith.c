@@ -212,13 +212,13 @@ object_t bitwise_and(object_t list)
 {
     if (list == NULLOBJ)
 	error("bitwise_and: no arguments\n");
-    if (!IS_NUMBER(FIRST(list)) && !IS_NUMBER(SECOND(list)))
+    if (!IS_NUMBER(FIRST(list))) 
 	error("bitwise_and: Not a number\n");
     int num = get_value(FIRST(list));
     list = TAIL(list);
     while (list != NULLOBJ) {
 	object_t first = FIRST(list);
-	if (TYPE(first) == NUMBER) {  
+	if (IS_NUMBER(first)) {  
 	    num &= get_value(first);
 	    list = TAIL(list);
 	}
