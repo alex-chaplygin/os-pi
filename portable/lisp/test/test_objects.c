@@ -57,11 +57,11 @@ void test_new_bignumber(int number)
 /**
  * Создать объект маленькое число и проверить, что оно правильно записалось
  */
-void test_new_number(int number)
+void test_new_number(int number, int type)
 {
     printf("test_new_number: ");
     object_t o = new_number(number);
-    ASSERT(TYPE(o), NUMBER);
+    ASSERT(TYPE(o), type);
     ASSERT(get_value(o), number);
 }
 
@@ -748,13 +748,13 @@ void main()
     test_free_bignumber();
     test_free_bignumber2();
     reset_mem();
-    test_new_number(-677);
-    test_new_number(56);
-    test_new_bignumber(0xfffffff);
-    test_new_number(0xffffff8);
-    test_new_number(0);
-    test_new_number((1<<27)-1);
-    test_new_number(~((1<<27)-1));
+    test_new_number(-677, NUMBER);
+    test_new_number(56, NUMBER);
+    test_new_number(0xfffffff, BIGNUMBER);
+    test_new_number(0xffffff8, BIGNUMBER);
+    test_new_number(0, NUMBER);
+    test_new_number((1<<27)-1, NUMBER);
+    test_new_number(-((1<<27)-1), NUMBER);
     test_get_value(13);
     test_get_value(0);
     test_get_value(-6);
