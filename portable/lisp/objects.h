@@ -2,13 +2,13 @@
 #define OBJECTS
 
 /// Всего пар
-#define MAX_PAIRS 60000
+#define MAX_PAIRS 400000
 /// Всего символов
 #define MAX_SYMBOLS 1000
 /// Всего строк
-#define MAX_STRINGS 400
+#define MAX_STRINGS 800
 /// Всего массивов
-#define MAX_ARRAYS 100
+#define MAX_ARRAYS 200
 /// Максимальная длина символа
 #define MAX_SYM_STR 32
 /// Всего больших чисел
@@ -167,5 +167,5 @@ void free_string(string_t *s);
 array_t *new_array(object_t list);
 array_t *new_empty_array(int length);
 void free_array(array_t *a);
-void print_gc_stat();
+object_t print_gc_stat(object_t o);
 #endif

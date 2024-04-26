@@ -51,6 +51,7 @@ void init_objects()
     pairs = (pair_t *)alloc_region(MAX_PAIRS * sizeof(pair_t));
     strings = (string_t *)alloc_region(MAX_STRINGS * sizeof(string_t));
     arrays = (array_t *)alloc_region(MAX_ARRAYS * sizeof(array_t));
+    register_func("GC", print_gc_stat);
 }
 
 /**
@@ -478,12 +479,13 @@ void print_obj(object_t obj)
 /** 
  * Печать статистики сборки мусора и памяти
  */
-void print_gc_stat()
+object_t print_gc_stat(object_t o)
 {
-    printf("\n\n\nbignumbers: %d of %d\n", last_bignumber, MAX_NUMBERS);
+    printf("bignumbers: %d of %d\n", last_bignumber, MAX_NUMBERS);
     printf("pairs: %d of %d\n", last_pair, MAX_PAIRS);
     printf("symbols: %d of %d\n", last_symbol, MAX_SYMBOLS);
     printf("strings: %d of %d\n", last_string, MAX_STRINGS);
     printf("arrays: %d of %d\n", last_array, MAX_ARRAYS);
     printf("used mem: %d of %d\n", regions_mem(), MAX_REGION_SIZE);
+    return NULLOBJ;
 }

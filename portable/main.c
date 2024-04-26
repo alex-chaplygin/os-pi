@@ -71,7 +71,7 @@ void boot_lisp()
     } while (token.type != END);
     boot_load = 0;
     reset_buffer();
-    print_gc_stat();
+    print_gc_stat(1);
 }
 
 /** 
