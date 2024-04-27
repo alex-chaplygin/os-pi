@@ -4,15 +4,15 @@
 /// Всего пар
 #define MAX_PAIRS 400000
 /// Всего символов
-#define MAX_SYMBOLS 1000
+#define MAX_SYMBOLS 500
 /// Всего строк
-#define MAX_STRINGS 800
+#define MAX_STRINGS 1600
 /// Всего массивов
 #define MAX_ARRAYS 200
 /// Максимальная длина символа
 #define MAX_SYM_STR 32
 /// Всего больших чисел
-#define MAX_NUMBERS 100
+#define MAX_NUMBERS 50
 
 #define PRINT(o) print_counter++; print_obj(o); printf("\n");
 #define ERROR (object_t)(-1)
