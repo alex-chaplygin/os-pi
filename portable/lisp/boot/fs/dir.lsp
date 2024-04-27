@@ -4,8 +4,10 @@
 (defconst +entry-size+ 32) ; размер записи каталога
 ; атрибуты
 (defconst +long-name+ 0xf)
+(defconst +directory+ 0x10)
 ;(make-bit-flags +read-only+ +hidden+ +system+ +volume-id+ +directory+ +archive+)
 (defvar *root-directory*) ; дерево корневого каталога
+(defvar *working-directory*) ; дерево рабочего каталога
 (defvar directory-entry ; базовая запись каталога
   '((str name . 11) ; имя + расширение
     (attrib . 1) ; атрибуты
@@ -48,3 +50,27 @@
     (when (not (null fspace)) (setq fname (subseq fname 0 fspace)))
     (when (not (null extspace)) (setq ext (subseq ext 0 extspace)))
     (concat fname (if (= ext "") "" ".") ext)))
+
+(defun load-path (path)
+  "Загрузка дерева каталога по абслоютному или относительному пути path"
+  (if (= path "/") *root-directory*
+      (let ((list (split "/" path)))
+	(if (= (car list) "") (load-path* (cdr list) *root-directory*)
+	    (load-path* list *working-directory*)))))
+
+(defun load-path* (list dir)
+  "Загрузка списка каталогов list относительно каталога dir"
+  (if (null list) dir
+      (let ((name (car list))) ; имя каталога
+	(if (not (check-key dir name)) nil ; если нет такого имени в каталоге
+	    (let ((d (get-hash dir name))) ;объект файл/каталог
+	      (if (not (is-directory d)) nil ; ошибка - не каталог
+		  (progn
+		    (when (null (slot d 'blocks))
+		      (setf (slot d 'blocks) ; загружаем цепочку FAT если нужно
+			    (get-fat-chain (slot d 'start-block))))
+		    (when (null (slot d 'dir)) ; загружаем каталог, если его нет
+		      (setf (slot d 'dir)
+			    (load-dir *file-system* (slot d 'blocks))))
+		    (load-path* (cdr list) (slot d 'dir)))))))))
+		      
