@@ -8,3 +8,7 @@
    position ; позиция чтения/записи
    blocks ;   список номеров блоков, например (14 15 16)
    dir)) ;      для каталогов - дерево
+
+(defmacro listdir (path)
+  "Просмотр содержимого папки по пути path"
+  `(listdir* *file-system* ,path))
