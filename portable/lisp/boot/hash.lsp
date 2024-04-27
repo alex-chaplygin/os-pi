@@ -20,14 +20,14 @@
 (defun get-hash (hash key)
   "Возвращает значение по ключу key из таблицы hash"
   (if (or (null hash) (null (car hash))) (concat "no key " (symbol-name key))
-    (if (eq key (caar hash))
+    (if (equal key (caar hash))
 	(cdar hash)
       (get-hash (cdr hash) key))))
 
 (defun check-key (hash key)
   "Проверяет есть ли ключ key в таблице hash"
   (if (or (null hash) (null (car hash))) nil
-    (if (eq key (caar hash))
+    (if (equal key (caar hash))
 	t
       (check-key (cdr hash) key))))
 			
