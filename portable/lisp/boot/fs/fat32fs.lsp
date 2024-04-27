@@ -64,10 +64,27 @@
 				(- 0 secpercluster secpercluster))
        *root-block* rootclus)))
   (setq *fat* (make-hash))
-  (setq *root-directory* (load-dir self (get-fat-chain *root-block*))))
+  (setq *root-directory* (load-dir self (get-fat-chain *root-block*)))
+  (setq *working-directory* *root-directory*))
 
 (defmethod load-dir((self Fat32FileSystem) block-list)
   "Загрузить каталог, находящийся в блоках из списка block-list"
-  (if (null block-list) nil
-      (append (make-dir (car block-list)) (load-dir self (cdr block-list)))))
+  (let ((h (make-hash)))
+    (app '(lambda (f) (set-hash h (slot f 'name) f)) (load-dir* block-list))
+    h))
 
+(defun load-dir*(block-list)
+  "Загрузить каталог, находящийся в блоках из списка block-list"
+  (if (null block-list) nil
+      (append (make-dir (car block-list)) (load-dir* (cdr block-list)))))
+
+(defmethod is-directory((self Fat32File))
+  "Предикат: является ли файловый объект каталогом"
+  (not (= (& (slot self 'attributes) +directory+) 0)))
+
+(defmethod listdir*((self Fat32FileSystem) path)
+  "Просмотр содержимого папки по пути path"
+  (let ((d (load-path path)))
+    (if (null d) '(error "Invalid path")
+	(map '(lambda (f)
+	       (if (is-directory (cdr f)) (list 'dir (car f)) (car f))) d))))
