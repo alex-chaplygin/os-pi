@@ -82,9 +82,6 @@
   "Предикат: является ли файловый объект каталогом"
   (not (= (& (slot self 'attributes) +directory+) 0)))
 
-(defmethod listdir*((self Fat32FileSystem) path)
-  "Просмотр содержимого папки по пути path"
-  (let ((d (load-path path)))
-    (if (null d) '(error "Invalid path")
-	(map '(lambda (f)
-	       (if (is-directory (cdr f)) (list 'dir (car f)) (car f))) d))))
+(defmethod get-blocks ((self Fat32File))
+  "Получить список блоков файла"
+  (get-fat-chain (slot self 'start-block)))
