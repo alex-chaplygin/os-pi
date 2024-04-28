@@ -8,6 +8,15 @@
 	   (setq pos (- size i 1))))
     pos))
 
+(defun search-back (c str)
+  "Найти в строке str позицию последнего вхождения символа c"
+  (let ((pos nil)
+	(size (string-size str)))
+    (for i 0 size
+	 (when (= (code-char (char str i)) c)
+	   (setq pos i)))
+    pos))
+
 (defun split (del str)
   "Разделить строку str на элементы по символу разделителю del"
   (let ((f (search del str)))
