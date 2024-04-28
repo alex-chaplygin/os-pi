@@ -72,7 +72,12 @@ void putchar(char c)
 	print_ptr = next_row << 1;
 	move_cursor();
 	return;
-    } 
+    } else if (c == '\b') {
+	print_ptr -= 2;
+	videoptr[print_ptr] = ' ';
+	move_cursor();
+	return;
+    }
     videoptr[print_ptr] = c;
     videoptr[print_ptr + 1] = (back_color << 4) + symbol_color;
     print_ptr += 2;
