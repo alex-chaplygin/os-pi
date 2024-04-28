@@ -267,6 +267,11 @@ void get_symbol(char *cur_str)
     int c = 0;
     while (!is_delimeter(cur_symbol))
     {
+	if (cur_symbol == '\b') {
+	    cur_str[--c] = ' ';
+	    get_cur_char();
+	    continue;
+	}
 	if (!(is_alpha(cur_symbol) || is_digit(cur_symbol) || is_symbol(cur_symbol))){
 	    printf("ERROR: lexer.c: Unsupported character in input: %c(#%x)", cur_symbol, cur_symbol);
 	    token_error = 1;
