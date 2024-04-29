@@ -19,3 +19,8 @@
 (defun block-write (num buf)
   "Записать буфер buf в блок с номером num"
   (ata-write-sectors *disk* (+ *block-sector-offset* (* num *block-sectors*)) *block-sectors* buf))
+
+(defun get-blocks-pos (blocks pos)
+  "Получить номер блока и смещение по позиции pos в списке блоков blocks"
+  (if (< pos *block-size*) (cons (car blocks) pos)
+      (get-blocks-pos (cdr blocks) (- pos *block-size*))))
