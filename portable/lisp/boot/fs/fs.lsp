@@ -28,7 +28,7 @@
 	      (if (not (is-directory d)) nil ; ошибка - не каталог
 		  (progn
 		    (when (null (slot d 'blocks))
-		      (setf (slot d 'blocks) ; загружаем цепочку FAT если нужно
+		      (setf (slot d 'blocks) ; загружаем список блоков если нужно
 			  (get-blocks d)))
 		    (when (null (slot d 'dir)) ; загружаем каталог, если его нет
 		      (setf (slot d 'dir)
@@ -63,3 +63,31 @@
     (if (null d) '(error "Invalid path")
 	(if (not (check-key d file-name)) '(error "File not found")
 	    (get-hash d file-name)))))
+
+(defmacro fopen (path)
+  "Открытие файла, возвращает объект-файл"
+  `(fopen* *file-system* ,path))
+(defmethod fopen*((self FileSystem) path)
+  (let ((f (clone (fstat* self path))))
+    (setf (slot f 'position) 0)
+    f))
+
+(defmethod fclose ((self File))
+  "Закрытие файла"
+  nil)
+
+(defmethod fread ((f File) size)
+  "Чтение из файла file количество байт size"
+  (let ((p (slot f 'position)))
+    (if (>= p (slot f 'size)) nil
+	(progn
+	  (when (null (slot f 'blocks)) (setf (slot f 'blocks) (get-blocks f)))
+	  (let* ((pos (get-blocks-pos (slot f 'blocks) p))
+		 (bl (block-read (car pos)))
+		 (buf (make-array size)))
+	    (when (>= (+ (cdr pos) size) *block-size*)
+	      (setq size (- *block-size* (cdr pos))))
+	    (for i 0 size (seta buf i (aref bl (+ i (cdr pos)))))
+	    (setf (slot f 'position) (+ p size))
+	    buf)))))
+    
