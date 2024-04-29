@@ -222,3 +222,9 @@
   "Возвращает уникальный символ типа G<n>, где n - новое число"
   (setf *gensym-counter* (++ *gensym-counter*))
   (intern (concat "G" (inttostr *gensym-counter*))))
+
+(defun clone (obj)
+  "Делает копию объекта (кроме чисел, массивов и строк)"
+  (cond ((null obj) nil)
+	((atom obj) obj)
+	(t (cons (clone (car obj)) (clone (cdr obj))))))
