@@ -20,11 +20,8 @@
 /// нажата ли клавиша shift
 int lshiftpress = 0;
 char cur_key = 0;
-/** 
- * проверка подключения клавиатуры
- * 
- */
-
+/// если 0 - строка накапливается, если 1 - строка отдается в getchar
+int line_mode = 0;
 extern void a_keyboard_interrupt();
 
 /**
@@ -183,15 +180,14 @@ char key_map(int scan_code)
 char getchar()
 {
     char cur_char;
-    //printf("getchar %x\n", cur_key);
-    // Ждать, пока в буфер не поступит скан-код клавиши.
-    while (cur_key == 0)
+    while (!line_mode)
 	;
     disable_interrupts();
-    cur_char = cur_key;//keyboard_buffer[keybuffer_read_pos++];
-    if (keybuffer_read_pos >= MAX_KEYBUFFER)
-	keybuffer_read_pos = 0;
-    cur_key = 0;
+    cur_char = keyboard_buffer[keybuffer_read_pos++];
+    if (keybuffer_read_pos == keybuffer_pos) {
+	line_mode = 0;
+	keybuffer_read_pos = keybuffer_pos = 0;
+    }
     enable_interrupts();
     return cur_char;
 }
@@ -227,11 +223,15 @@ void keyboard_interrupt()
       }
       char symbol = key_map(key_code);
 
-      if (key_code == ENTER_CODE)
+      if (key_code == ENTER_CODE) {
         symbol = '\n';
-      else if (key_code == BACKSPACE_CODE)
-        symbol = '\b';
-      
+	line_mode = 1;
+      }
+      else if (key_code == BACKSPACE_CODE) {
+	  keybuffer_pos -= 2;
+	  keyboard_buffer[keybuffer_pos] = 0;
+	  symbol = '\b';
+      }
       cur_key = symbol;
       
       if (symbol != '\0') {
