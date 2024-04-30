@@ -89,5 +89,34 @@
 	      (setq size (- *block-size* (cdr pos))))
 	    (for i 0 size (seta buf i (aref bl (+ i (cdr pos)))))
 	    (setf (slot f 'position) (+ p size))
+	    ; прочитать следующий блок и объединить массивы
 	    buf)))))
-    
+
+(defmethod fseek ((f File) offset dir)
+  "Перемещение указателя чтения/записи в файле"
+  (setf (slot f 'position) (case dir
+			     ('begin offset)
+			     ('end (+ (slot f 'size) offset))
+			     ('cur (+ (slot f 'position) offset)))))
+
+(defmethod fwrite ((f File) buf)
+  "Записать в файл file массив байт buf"
+  (fwrite* f buf 0 (array-size buf)))
+(defun fwrite (f buf bpos size)
+  "bpos - текущий индекс в буфере"
+  (if (= size 0) nil
+      (let ((p (slot f 'position)))
+	(when (null (slot f 'blocks)) (setf (slot f 'blocks) (get-blocks f)))
+	(let* ((pos (get-blocks-pos (slot f 'blocks) p))
+	       (bl (block-read (car pos)))
+	       (ofs (cdr pos))
+	       (len (- size pos)))
+	  (when (> len (- *block-size* ofs))
+	    (setq len (- *block-size* ofs))
+					; выделить новый блок)
+	    )
+	  (for i 0 len (seta bl (+ ofs i) (aref buf (+ bpos i))))
+	  (fseek f len 'cur)
+	  (block-write (car pos) bl)
+	  (fwrite* f buf (+ bpos len) (- size len))))))
+  
