@@ -2,7 +2,7 @@
 #define OBJECTS
 
 /// Всего пар
-#define MAX_PAIRS 400000
+#define MAX_PAIRS 600000
 /// Всего символов
 #define MAX_SYMBOLS 500
 /// Всего строк
