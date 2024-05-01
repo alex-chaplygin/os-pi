@@ -21,7 +21,7 @@
 int lshiftpress = 0;
 char cur_key = 0;
 /// если 0 - строка накапливается, если 1 - строка отдается в getchar
-int line_mode = 0;
+volatile int line_mode = 0;
 extern void a_keyboard_interrupt();
 
 /**
@@ -179,7 +179,7 @@ char key_map(int scan_code)
  */
 char getchar()
 {
-    char cur_char;
+    volatile char cur_char;
     while (!line_mode)
 	;
     disable_interrupts();
