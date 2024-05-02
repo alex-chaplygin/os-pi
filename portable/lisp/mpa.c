@@ -9,13 +9,14 @@ Write your code in this editor and press "Run" button to compile and execute it.
 #include <stdio.h>
 #include <stdlib.h>
 
+#define MAX_BIGNUM_SIZE 100
 
 /// Структура вещественного числа, запсисанного в виде символов
 typedef struct bign
 {
     int size; // количество цифр в числе
     int sign; // знак числа
-    char *data; //указатель на массив цифр числа от младшей к старшей 
+    char data[MAX_BIGNUM_SIZE]; //указатель на массив цифр числа от младшей к старшей 
     int exponent; // позиция плавающей точки, начиная справа
 } *bignum_t;
 
@@ -31,7 +32,6 @@ bignum_t new_bignum(int size)
     bignum_t bignum = (bignum_t)malloc(sizeof(struct bign));
     bignum->size = size;
     bignum->sign = 0;
-    bignum->data = (char *)malloc(size);
     for(int i = 0; i < size; i++) 
         bignum->data[i] = 0;
     bignum->exponent = 0;
