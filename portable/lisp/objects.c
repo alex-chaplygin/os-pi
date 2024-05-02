@@ -384,13 +384,13 @@ void sweep()
     }
     for (int i = 0; i < last_string; i++) {
 	string_t *str = &strings[i];
-	if (str->length & mask == 0)
+	if ((str->length & mask) == 0)
 	    free_string(str);
 	else str->length &= ~mask;
     }
     for (int i = 0; i < last_array; i++) {
 	array_t *arr = &arrays[i];
-	if (arr->length & mask == 0)
+	if ((arr->length & mask) == 0)
 	    free_array(arr);
 	else arr->length &= ~mask;
     }
@@ -476,16 +476,32 @@ void print_obj(object_t obj)
     }
 }
 
+#define MK_FREE(name, type) \
+int name##_count()\
+{\
+    type *f = name;\
+    int c = 0;\
+    while (f) {\
+	f = f->next;\
+	c++;\
+    }\
+    return c;\
+}
+MK_FREE(free_bignumbers, bignumber_t)
+MK_FREE(free_pairs, pair_t)
+MK_FREE(free_strings, string_t)
+MK_FREE(free_arrays, array_t)
+
 /** 
  * Печать статистики сборки мусора и памяти
  */
 object_t print_gc_stat(object_t o)
 {
-    printf("bignumbers: %d of %d\n", last_bignumber, MAX_NUMBERS);
-    printf("pairs: %d of %d\n", last_pair, MAX_PAIRS);
+    printf("bignumbers: %d(-%d) of %d\n", last_bignumber, free_bignumbers_count(), MAX_NUMBERS);
+    printf("pairs: %d(-%d) of %d\n", last_pair, free_pairs_count(), MAX_PAIRS);
     printf("symbols: %d of %d\n", last_symbol, MAX_SYMBOLS);
-    printf("strings: %d of %d\n", last_string, MAX_STRINGS);
-    printf("arrays: %d of %d\n", last_array, MAX_ARRAYS);
+    printf("strings: %d(-%d) of %d\n", last_string, free_strings_count(), MAX_STRINGS);
+    printf("arrays: %d(-%d) of %d\n", last_array, free_arrays_count(), MAX_ARRAYS);
     printf("used mem: %d of %d\n", regions_mem(), MAX_REGION_SIZE);
     return NULLOBJ;
 }
