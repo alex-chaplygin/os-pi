@@ -56,6 +56,16 @@
 		 (arr-set-str arr ofs (get-hash values (cadr elem)) (cdr size))
 		 (arr-set-num arr ofs (get-hash values name) size))
 	     (+ ofs (if (eq name 'str) (cdr size) size)))) offs struct))
+
+(defun array-cat (ar1 ar2)
+  "Объединить массивы ar1 и ar2"
+  (let* ((s1 (array-size ar1))
+	 (s2 (array-size ar2))
+	 (ar (make-array (+ s1 s2))))
+    (for i 0 s1 (seta ar i (aref ar1 i)))
+    (for i 0 s2 (seta ar (+ s1 i) (aref ar2 i)))
+    ar))
+
 ; тесты
 (defun with-struct-test ()
   (let ((s '((str name . 10) ; строковое поле из 10 байт
