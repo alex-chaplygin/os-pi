@@ -14,10 +14,12 @@
 
 (defun load-path (path)
   "Загрузка дерева каталога по абслоютному или относительному пути path"
-  (if (= path "/") *root-directory*
-      (let ((list (split "/" path)))
-	(if (= (car list) "") (load-path* (cdr list) *root-directory*)
-	    (load-path* list *working-directory*)))))
+  (case path
+    ("/" *root-directory*)
+    ("" *working-directory*)
+    (otherwise (let ((list (split "/" path)))
+		 (if (= (car list) "") (load-path* (cdr list) *root-directory*)
+		     (load-path* list *working-directory*))))))
 
 (defun load-path* (list dir)
   "Загрузка списка каталогов list относительно каталога dir"
@@ -42,7 +44,7 @@
   (let ((d (load-path path)))
     (if (null d) '(error "Invalid path")
 	(map '(lambda (f)
-	       (if (is-directory (cdr f)) (list 'dir (car f)) (car f))) d))))
+	       (if (is-directory (cdr f)) (list 'dir (car f)) (car f))) d)))))
 
 (defmacro chdir (path)
   "Смена рабочего каталога для относительных путей"
@@ -78,19 +80,27 @@
 
 (defmethod fread ((f File) size)
   "Чтение из файла file количество байт size"
+  (fread* f size))
+(defun fread* (f size)
   (let ((p (slot f 'position)))
-    (if (>= p (slot f 'size)) nil
+    (if (>= p (slot f 'size)) #()
 	(progn
 	  (when (null (slot f 'blocks)) (setf (slot f 'blocks) (get-blocks f)))
 	  (let* ((pos (get-blocks-pos (slot f 'blocks) p))
 		 (bl (block-read (car pos)))
-		 (buf (make-array size)))
-	    (when (>= (+ (cdr pos) size) *block-size*)
-	      (setq size (- *block-size* (cdr pos))))
-	    (for i 0 size (seta buf i (aref bl (+ i (cdr pos)))))
-	    (setf (slot f 'position) (+ p size))
-	    ; прочитать следующий блок и объединить массивы
-	    buf)))))
+		 (wsize (if (>= (+ (cdr pos) size) *block-size*)
+			    (- *block-size* (cdr pos))
+			    size))
+		 (buf (make-array wsize)))
+	    (for i 0 wsize (seta buf i (aref bl (+ i (cdr pos)))))
+	    (fseek f wsize 'cur)
+	    (if (= size wsize) buf
+		; прочитать следующий блок и объединить массивы
+		(array-cat buf (fread* f (- size wsize)))))))))
+
+(defun read-text (f size)
+  "Чтение файла в текстовом режиме"
+  (arr-get-str (fread f size) 0 size))
 
 (defmethod fseek ((f File) offset dir)
   "Перемещение указателя чтения/записи в файле"
@@ -102,7 +112,7 @@
 (defmethod fwrite ((f File) buf)
   "Записать в файл file массив байт buf"
   (fwrite* f buf 0 (array-size buf)))
-(defun fwrite (f buf bpos size)
+(defun fwrite* (f buf bpos size)
   "bpos - текущий индекс в буфере"
   (if (= size 0) nil
       (let ((p (slot f 'position)))
