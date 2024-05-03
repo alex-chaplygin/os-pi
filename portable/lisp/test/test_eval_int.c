@@ -711,24 +711,21 @@ void test_is_lambda_no_body()
         OK;
 }
 
-/* /\**  */
-/*  * Вызов (macrocall (lambda (x) (list x))) */
-/*  *\/ */
-/* void test_macro_call() */
-/* { */
-/*     printf("test_macro_call: \n"); */
-/*     int num = 10; */
-/*     object_t env = NULLOBJ; */
-/*     object_t p1 = object_new(SYMBOL, "x"); // x */
-/*     object_t q = new_pair(object_new(SYMBOL, "LIST"), //(list x) */
-/*     new_pair(p1, NULLOBJ)); */
-/*         object_t lx = new_pair(object_new(SYMBOL, "LAMBDA"), new_pair(new_pair(p1, NULLOBJ), new_pair(new_pair(object_new(SYMBOL, "LIST"), NULLOBJ), */
-/*         new_pair(p1, NULLOBJ)))); */
-/*     // (lambda (x) (list x)); */
-/*     object_t args = new_pair(object_new(NUMBER, &num), NULLOBJ); */
-/*     object_t res = macro_call(lx, args, env); */
-/*     ASSERT(res->u.value, 10); */
-/* } */
+/**
+ * Вызов (macrocall (lambda (x) (list x)))
+ */
+void test_macro_call()
+{
+    printf("test_macro_call: \n");
+    object_t p1 = NEW_SYMBOL("x"); // x 
+    object_t q = new_pair(NEW_SYMBOL("LIST"), //(list x) 
+			  new_pair(p1, NULLOBJ)); 
+    object_t lx = new_pair(NEW_SYMBOL("LAMBDA"), new_pair(new_pair(p1, NULLOBJ), new_pair(new_pair(NEW_SYMBOL("LIST"), NULLOBJ), new_pair(p1, NULLOBJ)))); 
+    // (lambda (x) (list x)); 
+    object_t args = new_pair(new_number(10), NULLOBJ); 
+    object_t res = macro_call(lx, args, NULLOBJ); 
+    ASSERT(get_value(res), 10);
+}
 
 /**
  * Тест вызова функции ((lambda (x) x) 10)
@@ -1023,7 +1020,7 @@ int main()
     test_is_lambda_invalid_params();
     test_is_lambda_not_symbol();
     test_is_lambda_no_body();
-    /* test_macro_call(); */
+    test_macro_call();
     test_eval_func();
     test_eval_func2();
     /* test_er_num_arg_make_env(); */

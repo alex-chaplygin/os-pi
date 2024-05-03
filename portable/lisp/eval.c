@@ -166,10 +166,8 @@ object_t backquote_rec(object_t list)
  */ 
 object_t backquote(object_t list) 
 { 
-    if (list == NULLOBJ){ 
+    if (list == NULLOBJ)
  	error("backquote: NULLOBJ"); 
- 	return ERROR; 
-    } 
     //PRINT(list); 
     return backquote_rec(FIRST(list)); 
 } 
@@ -388,14 +386,10 @@ object_t macro_call(object_t macro, object_t args, object_t env)
     object_t new_env = make_env(SECOND(macro), args); 
     object_t body; 
     object_t eval_res; 
-    if (new_env == ERROR) 
- 	return ERROR; 
     body = TAIL(TAIL(macro)); 
     append_env(new_env, env); 
     while (body != NULLOBJ) { 
  	eval_res = eval(FIRST(body), new_env); 
- 	if (eval_res == ERROR) 
- 	    return ERROR; 
  	//printf("macro = "); 
  	//PRINT(eval_res); 
  	eval_res = eval(eval_res, new_env); 
@@ -422,11 +416,7 @@ object_t eval_args(object_t args, object_t env)
     //printf("f = %x pair = %x", f, f->u.pair); 
     //PRINT(f); 
     object_t arg = eval(f, env); 
-    if (arg == ERROR) 
- 	return ERROR; 
     object_t tail = eval_args(TAIL(args), env); 
-    if (tail == ERROR) 
- 	return ERROR; 
     return new_pair(arg, tail);  
 } 
 
@@ -629,30 +619,20 @@ object_t or(object_t params)
  */ 
 object_t macroexpand(object_t params) 
 { 
-    if (params == NULLOBJ) { 
+    if (params == NULLOBJ)
  	error("macroexpand: no params"); 
- 	return ERROR; 
-    } 
-    if (TAIL(params) != NULLOBJ) { 
+    if (TAIL(params) != NULLOBJ)
  	error("macroexpand: many params"); 
- 	return ERROR; 
-    } 
-    object_t macro_c = FIRST(params); 
-    if (TYPE(macro_c) != PAIR) { 
+    object_t macro_c = FIRST(params);
+    if (TYPE(macro_c) != PAIR)
  	error("macroexpand: invalid macro call"); 
- 	return ERROR; 
-    } 
     object_t macro_name = FIRST(macro_c); 
     object_t macro; 
-    if (macro_name == NULLOBJ || TYPE(macro_name) != SYMBOL || GET_SYMBOL(macro_name)->macro == NULLOBJ) { 
+    if (macro_name == NULLOBJ || TYPE(macro_name) != SYMBOL || GET_SYMBOL(macro_name)->macro == NULLOBJ)
  	error("macroexpand: invalid macro"); 
- 	return ERROR; 
-    } 
     macro = GET_SYMBOL(macro_name)->macro; 
     object_t args = TAIL(macro_c); 
     object_t new_env = make_env(SECOND(macro), args); 
-    if (new_env == ERROR) 
- 	return ERROR; 
     append_env(new_env, current_env); 
     object_t body = TAIL(TAIL(macro)); 
     object_t eval_res; 
