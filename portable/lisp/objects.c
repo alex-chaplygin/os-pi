@@ -372,7 +372,7 @@ void sweep()
     int mask = 1 << 31;
     for (int i = 0; i < last_bignumber; i++) {
         bignumber_t *big_num = &bignumbers[i];
-        if (big_num->free & mask == 0)
+        if ((big_num->free & mask) == 0)
 	    free_bignumber(big_num);
 	else big_num->free &= ~mask;
     }
