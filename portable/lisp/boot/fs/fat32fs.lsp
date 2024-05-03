@@ -35,8 +35,6 @@
 (rootclus        .4     ) ;// Номер корневого кластера(обычно 2)
 (fsinfo          .2     ) ;// Сектор структуры FSinfo
 ))
-(defvar *free-cluster-count*) ; число свободных блоков
-(defvar *last-free-cluster*)  ; последний свободный блок
 
 ; класс для системы FAT32
 (defclass Fat32FileSystem FileSystem ())
@@ -68,8 +66,8 @@
 				(* *fat-sectors* numfats)
 				(- 0 secpercluster secpercluster))
        *root-block* rootclus))
-    (setq *free-cluster-count* (arr-get-num fs 0x1e8 4)
-	  *last-free-cluster* (arr-get-num fs 0x1ec 4)
+    (setq *free-blocks-count* (arr-get-num fs 0x1e8 4)
+	  *last-free-block* (arr-get-num fs 0x1ec 4)
 	  *fat* (make-hash)
 	  *root-directory* (load-dir self (get-fat-chain *root-block*))
 	  *working-directory* *root-directory*)))
