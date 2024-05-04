@@ -6,7 +6,7 @@
 /// Всего символов
 #define MAX_SYMBOLS 500
 /// Всего строк
-#define MAX_STRINGS 1600
+#define MAX_STRINGS 10000
 /// Всего массивов
 #define MAX_ARRAYS 200
 /// Максимальная длина символа

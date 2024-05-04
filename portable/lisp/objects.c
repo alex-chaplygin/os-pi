@@ -51,7 +51,6 @@ void init_objects()
     pairs = (pair_t *)alloc_region(MAX_PAIRS * sizeof(pair_t));
     strings = (string_t *)alloc_region(MAX_STRINGS * sizeof(string_t));
     arrays = (array_t *)alloc_region(MAX_ARRAYS * sizeof(array_t));
-    register_func("GC", print_gc_stat);
 }
 
 /**
