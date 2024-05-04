@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <setjmp.h>
 #include "objects.h"
 #include "symbols.h"
 #include "parser.h"
@@ -36,6 +37,8 @@ symbol_t *nil_sym;
 symbol_t *rest_sym;
 /// текущее окружение
 object_t current_env = NULLOBJ;
+/// точка для возврата в цикл REPL
+jmp_buf repl_buf;
 
 // (eq 'a 'a) -> T 
 // (eq 'a 'b) -> () 
@@ -703,6 +706,17 @@ object_t lisp_eval(object_t args)
     return eval(FIRST(args), current_env); 
 } 
 
+/* 
+ * Функция прерывания вычислений и вывода сообщения об ошибке 
+ * @param args (выражение) 
+ */ 
+object_t error_func(object_t args)
+{
+    printf("ERROR: ");
+    PRINT(FIRST(args));
+    longjmp(repl_buf, 1);
+}
+
 /*  
  * инициализация примитивов  
  */ 
@@ -722,7 +736,9 @@ void init_eval()
     register_func("MACROEXPAND", macroexpand); 
     register_func("FUNCALL", funcall); 
     register_func("LIST", list); 
-    register_func("EVAL", lisp_eval); 
+    register_func("EVAL", lisp_eval);
+    register_func("GC", print_gc_stat);
+    register_func("ERROR", error_func);
     t = NEW_SYMBOL("T"); 
     nil = NULLOBJ;
     quote_sym = find_symbol("QUOTE"); 

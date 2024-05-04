@@ -18,8 +18,8 @@
 
 extern token_t token;
 
-// состояние стека
-jmp_buf jmp_env;
+// точка начала цикла REPL
+extern jmp_buf repl_buf;
 
 char *itoa(int num, char *str, int rad)
 {
@@ -55,21 +55,18 @@ void error(char *str, ...)
         va_end(vals);
         putchar('\n');
     }
-    longjmp(jmp_env, 1);
+    longjmp(repl_buf, 1);
 }
 
 int main()
 {
     init_all();
     
-    //    int jmp_code = setjmp(jmp_env);
-    //    if (jmp_code == 1)
-    //        return jmp_code;
     do {
-	if (setjmp(jmp_env) == 0) {
+	if (setjmp(repl_buf) == 0) {
 	    object_t o = parse();
 	    if (o == NOVALUE)
-		longjmp(jmp_env, 1);
+		longjmp(repl_buf, 1);
 	    //printf("parse: "); PRINT(o);
 	    object_t res = eval(o, NULLOBJ);
 	    //printf("res: "); PRINT(res);

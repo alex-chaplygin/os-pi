@@ -42,16 +42,16 @@
   `(listdir* *file-system* ,path))
 (defmethod listdir*((self FileSystem) path)
   (let ((d (load-path path)))
-    (if (null d) '(error "Invalid path")
+    (if (null d) (error "Invalid path")
 	(map '(lambda (f)
-	       (if (is-directory (cdr f)) (list 'dir (car f)) (car f))) d)))))
+	       (if (is-directory (cdr f)) (list 'dir (car f)) (car f))) d))))
 
 (defmacro chdir (path)
   "Смена рабочего каталога для относительных путей"
   `(chdir* *file-system* ,path))
 (defmethod chdir*((self FileSystem) path)
   (let ((d (load-path path)))
-    (if (null d) '(error "Invalid path")
+    (if (null d) (error "Invalid path")
 	(setq *working-directory* d))))
 
 (defmacro fstat (path)
@@ -62,8 +62,8 @@
 	 (dir-path (if (null p) "" (subseq path 0 p)))
 	 (file-name (if (null p) path (subseq path (+ p 1) (string-size path))))
 	 (d (load-path dir-path)))
-    (if (null d) '(error "Invalid path")
-	(if (not (check-key d file-name)) '(error "File not found")
+    (if (null d) (error "Invalid path")
+	(if (not (check-key d file-name)) (error "File not found")
 	    (get-hash d file-name)))))
 
 (defmacro fopen (path)

@@ -23,7 +23,7 @@
 /// Адрес начала секции .lisp
 const void *_lisp_start;
 /// состояние стека
-jmp_buf jmp_env;
+extern jmp_buf repl_buf;
 
 /// последний прочитанный токен
 extern token_t token;
@@ -45,7 +45,7 @@ void error(char *str, ...)
         va_end(vals);
         putchar('\n');
     }
-    longjmp(jmp_env, 1);
+    longjmp(repl_buf, 1);
 }
 
 /** 
@@ -57,18 +57,18 @@ void boot_lisp()
     boot_load = 1;
     boot_code = (char *)&_lisp_start;
     printf("boot = %x\n", &_lisp_start);
-    do {
-	if (setjmp(jmp_env) == 0) {
+    if (setjmp(repl_buf) == 0) {
+	do {
 	    object_t o = parse();
 	    if (o == NOVALUE)
-		longjmp(jmp_env, 1);
+		longjmp(repl_buf, 1);
 	    //printf("parse: "); PRINT(o);
 	    object_t res = eval(o, NULLOBJ);
 	    //printf("res: "); PRINT(res);
 	    PRINT(res);
-	}
-	garbage_collect();
-    } while (token.type != END);
+	    garbage_collect();
+	} while (token.type != END);
+    }
     boot_load = 0;
     reset_buffer();
     print_gc_stat(1);
@@ -89,11 +89,11 @@ void kmain(void)
     graph_init();
     boot_lisp();
     while(1) {
-	if (setjmp(jmp_env) == 0) {
+	if (setjmp(repl_buf) == 0) {
 	    printf("> ");
 	    object_t o = parse();
 	    if (o == NOVALUE)
-		longjmp(jmp_env, 1);
+		longjmp(repl_buf, 1);
 	    //printf("parse: "); PRINT(o);
 	    object_t res = eval(o, NULLOBJ);
 	    PRINT(res);
