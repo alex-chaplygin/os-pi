@@ -64,22 +64,14 @@
   "Установить команду контроллера"
   (outb +ata-command+ cmd))
 
-(defun ata-read-old (arr i)
-  "Чтение данных жесткого диска и запись в массив, начиная с позиции i"
-  (ata-wait)
-  (if (ata-check-error) '(read error)
-      (let ((d (inw +ata-data+)))
-	(progn
-	   (seta arr i (& d 0xff))
-	   (seta arr (++ i) (>> d 8))
-	   (if (= (ata-has-data) 0) arr
-	       (ata-read arr (+ i 2)))))))
-
 (defun ata-read (size)
   "Чтение данных жесткого диска, size байт"
-  (ata-wait-data)
-  (if (ata-check-error) (error "ATA read error")
-      (insw +ata-data+ (>> size 1))))
+  (if (= size 0) #()
+      (progn
+	(ata-wait-data)
+	(if (ata-check-error) (error "ATA read error")
+	    (array-cat (insw +ata-data+ (>> +sector-size+ 1))
+		       (ata-read (- size +sector-size+)))))))
 
 (defun ata-write (arr)
   "Чтение данных жесткого диска, size байт"
