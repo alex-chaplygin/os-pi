@@ -38,6 +38,12 @@
     ((= (ata-get-command-ready) 1) nil)
     (t (ata-wait-command-ready))))
 
+(defun ata-wait-data ()
+  "Ожидание буфера секторов"
+  (cond
+    ((> (ata-has-data) 0) nil)
+    (t (ata-wait-data))))
+
 (defun ata-set-dev (dev)
   "Установка номера устройства"
   (outb +ata-device+ (bitor +ata-lba+ 0)));(<< dev 4)))) ;режим LBA + номер устройства
@@ -71,14 +77,14 @@
 
 (defun ata-read (size)
   "Чтение данных жесткого диска, size байт"
-  (ata-wait)
-  (if (ata-check-error) '(read error)
+  (ata-wait-data)
+  (if (ata-check-error) (error "ATA read error")
       (insw +ata-data+ (>> size 1))))
 
 (defun ata-write (arr)
   "Чтение данных жесткого диска, size байт"
-  (ata-wait)
-  (if (ata-check-error) '(read error)
+  (ata-wait-data)
+  (if (ata-check-error) (error "ATA write error")
       (outsw +ata-data+ arr)))
 
 (defun ata-identify ()
