@@ -7,7 +7,7 @@
 (defconst +directory+ 0x10)
 ;(make-bit-flags +read-only+ +hidden+ +system+ +volume-id+ +directory+ +archive+)
 (defvar directory-entry ; базовая запись каталога
-  '((str name . 11) ; имя + расширение
+  '((str dname . 11) ; имя + расширение
     (attrib . 1) ; атрибуты
     (reserved . 1)
     (ctime-mil . 1) ;  Сотые доли секунды времени создания
@@ -36,7 +36,10 @@
 	   (make-dir* block block-num (+ offset +entry-size+))
 	   (with-struct directory-entry block offset
 	     (cons
-	      (make-fat32file (fat-file-name name) size 0 nil nil block-num offset attrib (+ block-low (<< block-hi 16)) ctime cdate adate wdate wtime)
+	      (make-fat32file (fat-file-name dname) size 0 nil nil dname
+			      block-hi block-low block-num offset attrib
+			      (+ block-low (<< block-hi 16))
+			      ctime cdate adate wdate wtime)
 	  (make-dir* block block-num (+ offset +entry-size+)))))))))
 
 (defun fat-file-name (name)
@@ -49,3 +52,10 @@
     (when (not (null extspace)) (setq ext (subseq ext 0 extspace)))
     (concat fname (if (= ext "") "" ".") ext)))
 		      
+(defun update-dir-entry (file)
+  "Обновить запись каталога для файла file"
+  (let* ((num (slot file 'dir-block))
+	 (bl (block-read num)))
+    (write-struct bl (slot file 'dir-offset) directory-entry file)
+    (block-write num bl)))
+	
