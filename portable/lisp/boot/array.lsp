@@ -53,8 +53,10 @@
 	   (let ((name (car elem))
 		 (size (cdr elem)))
 	     (if (eq name 'str)
-		 (arr-set-str arr ofs (get-hash values (cadr elem)) (cdr size))
-		 (arr-set-num arr ofs (get-hash values name) size))
+		 (when (check-key values (cadr elem))
+		   (arr-set-str arr ofs (get-hash values (cadr elem)) (cdr size)))
+		 (when (check-key values name)
+		   (arr-set-num arr ofs (get-hash values name) size)))
 	     (+ ofs (if (eq name 'str) (cdr size) size)))) offs struct))
 
 (defun array-cat (ar1 ar2)
@@ -76,9 +78,8 @@
 
 (defun write-struct-test ()
   (let ((s '((str name . 10) ; строковое поле из 10 байт
+	     (res . 1)
 	     (f2 . 4)))
-	(arr #(0 0 0x30 0x31 0x32 0x33 0x34 0x35 0x36 0x37 0x38 0x39 1 0 0 0)))
+	(arr #(0 0 0x30 0x31 0x32 0x33 0x34 0x35 0x36 0x37 0x38 0x39 0x20 1 0 0 0)))
     (write-struct arr 2 s '((f2 . 10)(name . "abc")(test . 10)))
     arr))
-
-;(write-struct-test)
