@@ -152,6 +152,7 @@ object_t OUTSW(object_t args)
     for (int i = 0; i < a->length; i++)
 	*dst++ = get_value(*src++);
     outw_arr(port, a->length >> 1, buf);
+    free_region(buf);
     return NULLOBJ;
 }
 
