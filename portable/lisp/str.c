@@ -24,7 +24,7 @@ object_t intern(object_t list)
     if (TAIL(list) != NULLOBJ)
         error("intern: too many parameters\n");
     char *str = GET_STRING(FIRST(list))->data;
-    symbol_t *sym = new_symbol(str);
+    symbol_t *sym = find_symbol(str);
     if (sym == NULL)
 	error("intern: empty string\n");
     return NEW_OBJECT(SYMBOL, sym);
