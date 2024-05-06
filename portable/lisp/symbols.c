@@ -101,10 +101,14 @@ void print_table()
     for(int i = 0; i < HASH_SIZE; i++)
     {
         symbol_t *cur;
-        printf("%d ", i);
-        for (cur = hash_table[i]; cur->next != 0; cur = cur->next) 
-            printf("%s->", cur->str);
-        printf("%s->", cur->str);    
-        printf("\n");
+	cur = hash_table[i];
+	if (cur != NULL) {
+	    printf("%d ", i);
+	    while (cur->next != NULL) {
+		printf("%s -> ", cur->str);
+		cur = cur->next;
+	    }
+	    printf("%s\n", cur->str);
+	}
     }
 }
