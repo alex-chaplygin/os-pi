@@ -68,6 +68,13 @@
     (for i 0 s2 (seta ar (+ s1 i) (aref ar2 i)))
     ar))
 
+(defun array-seq (ar i1 i2)
+  "Получить часть массива ar, начальный индекс i1, конечный индекс(не включая) i2"
+  (let* ((size (- i2 i1))
+	 (a (make-array size)))
+    (for i 0 size (seta a i (aref ar (+ i i1))))
+    a))
+
 ; тесты
 (defun with-struct-test ()
   (let ((s '((str name . 10) ; строковое поле из 10 байт
