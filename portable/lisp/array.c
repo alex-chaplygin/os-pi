@@ -36,7 +36,7 @@ object_t seta(object_t list)
 	error("seta: not array");
     int index = get_value(SECOND(list));
     if (index >= GET_ARRAY(arr_o)->length || index < 0)
-	error("seta: index out of range %d of %d", index, GET_ARRAY(arr_o)->length);
+	error("seta: index out of range");
     object_t obj = THIRD(list);
     GET_ARRAY(arr_o)->data[index] = obj;
     return arr_o;
