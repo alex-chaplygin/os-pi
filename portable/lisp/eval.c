@@ -642,8 +642,6 @@ object_t macroexpand(object_t params)
     object_t res = NULLOBJ; 
     while (body != NULLOBJ) { 
  	eval_res = eval(FIRST(body), new_env); 
- 	if (eval_res == ERROR) 
- 	    return ERROR; 
  	if (res == NULLOBJ) 
  	    res = eval_res; 
  	else if (TYPE(res) == STRING) 
@@ -662,16 +660,12 @@ object_t macroexpand(object_t params)
  */ 
 object_t funcall(object_t params) 
 { 
-    if (params == NULLOBJ) { 
+    if (params == NULLOBJ)
 	error("funcall: no arguments"); 
-	return ERROR; 
-    } 
     object_t func = FIRST(params); 
     if (func == NULLOBJ || TYPE(func) != SYMBOL && 
-	!(TYPE(func) == PAIR && is_lambda(func) == 1)) { 
+	!(TYPE(func) == PAIR && is_lambda(func) == 1))
 	error("funcall: invalid func"); 
-	return ERROR; 
-    } 
     object_t args = TAIL(params); 
     if (TYPE(func) == PAIR) 
 	return eval_func(func, args, current_env); 
@@ -680,10 +674,8 @@ object_t funcall(object_t params)
 	return eval_func(s->lambda, args, current_env); 
     else if (s->func != NULL) 
  	return s->func(args); 
-    else { 
- 	printf("Unknown func: %s", s->str); 
- 	return ERROR; 
-    } 
+    else 
+ 	error("Unknown func: %s", s->str); 
 } 
 
 /* 
