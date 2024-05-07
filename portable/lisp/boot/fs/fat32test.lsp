@@ -17,3 +17,6 @@
     (for i 0 512 (seta s i (& i 0xff)))
     (ata-write-sectors *disk* num 1 s)
     (ata-read-sectors *disk* num 1)))
+
+(defun dn-test ()
+  (fat-dname "test.txt"))
