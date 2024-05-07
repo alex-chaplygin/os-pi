@@ -51,11 +51,25 @@
     (when (not (null fspace)) (setq fname (subseq fname 0 fspace)))
     (when (not (null extspace)) (setq ext (subseq ext 0 extspace)))
     (concat fname (if (= ext "") "" ".") ext)))
+
+(defun fat-dname (name)
+  "Сформировать в формате 8+3 имя для записи каталога"
+  (let ((dot (search "." name)))
+    (if (null dot) (concat name (str-repl (- 11 (string-size name)) " "))
+	(let ((nam (subseq name 0 dot))
+	      (ext (subseq name (+ 1 dot) (string-size name))))
+	  (concat nam (str-repl (- 8 dot) " ")
+		  ext (str-repl (- 3 (string-size ext)) " "))))))
 		      
 (defun update-dir-entry (file)
   "Обновить запись каталога для файла file"
   (let* ((num (slot file 'dir-block))
 	 (bl (block-read num)))
+    ; для создания нового файла
+;    (setf (slot file 'dname) (fat-dname (slot file 'name)))
+    (let ((sb (slot file 'start-block)))
+      (setf (slot file 'block-hi) (>> sb 8))
+      (setf (slot file 'block-low) (& sb 0xff)))
     (write-struct bl (slot file 'dir-offset) directory-entry file)
     (block-write num bl)))
 	
