@@ -24,3 +24,10 @@
 	(cons (subseq str 0 f)
 	      (if (= f (- (string-size str) 1)) (list "")
 		  (split del (subseq str (+ f 1) (string-size str))))))))
+
+(defun str-repl (size ch)
+  "Создает строку, где символ ch повторяется size раз"
+  (cond
+    ((= size 0) "")
+    ((= size 1) ch)
+    (t (concat ch (str-repl (- size 1) ch)))))
