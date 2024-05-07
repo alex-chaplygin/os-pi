@@ -93,3 +93,13 @@
 (defmethod get-blocks ((self Fat32File))
   "Получить список блоков файла"
   (get-fat-chain (slot self 'start-block)))
+
+(defmethod new-block ((self Fat32File))
+  "Добавить новый блок к файлу, обновить FAT"
+  (let ((bl (fat-get-free-block))
+	(blocks (slot self 'blocks)))
+    (when (null blocks) ; новый файл
+	  (setf (slot self 'start-block) bl)
+	  (update-dir-entry self))
+    (setf (slot self 'blocks) (append blocks (list bl)))
+    (fat-append-chain (slot self 'start-block) bl)))
