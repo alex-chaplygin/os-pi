@@ -10,6 +10,7 @@ Write your code in this editor and press "Run" button to compile and execute it.
 #include <stdlib.h>
 
 #define MAX_BIGNUM_SIZE 100
+#define MAX_BIGNUMS 100
 
 /// Структура вещественного числа, запсисанного в виде символов
 typedef struct bign
@@ -20,6 +21,9 @@ typedef struct bign
     int exponent; // позиция плавающей точки, начиная справа
 } *bignum_t;
 
+static struct bign bignums[MAX_BIGNUMS];
+static int last_bignum = 0;
+
 /**
  * @brief Инициализация структуры вещественного числа
  *
@@ -29,7 +33,11 @@ typedef struct bign
  */
 bignum_t new_bignum(int size)
 {
-    bignum_t bignum = (bignum_t)malloc(sizeof(struct bign));
+    if (last_bignum >= MAXSIZE) {
+        printf("MAX bignum");
+        return NULL;
+    }
+    bignum_t bignum = &bignums[last_bignum++];
     bignum->size = size;
     bignum->sign = 0;
     for(int i = 0; i < size; i++) 
