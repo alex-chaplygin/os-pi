@@ -20,3 +20,9 @@
 
 (defun dn-test ()
   (fat-dname "test.txt"))
+
+(defun fs-info-test ()
+  "Тест изменения параметров FSInfo"
+  (update-last-free-block (++ *last-free-block*))
+  (update-free-blocks-count (-- *free-blocks-count*))
+  `(,*last-free-block* ,*free-blocks-count*))
