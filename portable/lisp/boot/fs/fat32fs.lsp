@@ -36,6 +36,8 @@
 (fsinfo          .2     ) ;// Сектор структуры FSinfo
 ))
 
+(defvar *fs-info-sec*) ; сектор структуры FSInfo
+
 ; класс для системы FAT32
 (defclass Fat32FileSystem FileSystem ())
 
@@ -63,14 +65,15 @@
       (setq
        *block-sectors* secpercluster
        *block-size* (* bytepersector *block-sectors*)
-       *fat-start-sector* rsvdseccounter
+       *fat-start-sector* (+ start rsvdseccounter)
        *fat-sectors* fatsz32
-       *block-sector-offset* (+ start *fat-start-sector*
+       *block-sector-offset* (+ *fat-start-sector*
 				(* *fat-sectors* numfats)
 				(- 0 secpercluster secpercluster))
-       *root-block* rootclus))
-    (setq *free-blocks-count* (arr-get-num fs 0x1e8 4)
-	  *last-free-block* (arr-get-num fs 0x1ec 4)
+       *root-block* (+ start rootclus)))
+    (setq *free-blocks-count* (arr-get-num fs +free-blocks-count-pos+ 4)
+	  *last-free-block* (arr-get-num fs +last-free-block-pos+ 4)
+	  *fs-info-sec* (++ start)
 	  *fat* (make-hash)
 	  *root-directory* (load-dir self (get-fat-chain *root-block*))
 	  *working-directory* *root-directory*)))
@@ -101,5 +104,5 @@
     (when (null blocks) ; новый файл
 	  (setf (slot self 'start-block) bl)
 	  (update-dir-entry self))
-    (setf (slot self 'blocks) (append blocks (list bl)))
-    (fat-append-chain (slot self 'start-block) bl)))
+    (fat-append-chain (slot self 'start-block) bl)
+    (setf (slot self 'blocks) (append blocks (list bl)))))
