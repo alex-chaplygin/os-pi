@@ -58,12 +58,13 @@
 
 (defun fat-append-chain (start bl)
   "Добавить новый блок bl в цепочку, начиная со start"
-  (let ((chain (get-fat-chain start)))
-    (update-fat (last chain) bl)
+  (let ((chain (if (null start) nil (get-fat-chain start))))
+    (unless (null start) (update-fat (last chain) bl))
     (update-fat bl +end-block-end+) ;занимаем свободный блок
     (update-last-free-block (fat-get-free-block)) ;ищем новый свободный
     (update-free-blocks-count (-- *free-blocks-count*)) ;уменьшаем число свободных блоков
-    (set-hash *fat* start (append (cdr chain) (list bl)))))
+    (if (null start) (set-hash *fat* bl nil)
+	(set-hash *fat* start (append (cdr chain) (list bl))))))
 
 (defmacro mk/update-fs (name var pos)
   `(defun ,name (b)
