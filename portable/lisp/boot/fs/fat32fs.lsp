@@ -99,10 +99,11 @@
 
 (defmethod new-block ((self Fat32File))
   "Добавить новый блок к файлу, обновить FAT"
+  (when (= *free-blocks-count* 0) (error "No free space"))
   (let ((bl (fat-get-free-block))
-	(blocks (slot self 'blocks)))
-    (when (null blocks) ; новый файл
-	  (setf (slot self 'start-block) bl)
-	  (update-dir-entry self))
-    (fat-append-chain (slot self 'start-block) bl)
-    (setf (slot self 'blocks) (append blocks (list bl)))))
+	(sb (slot self 'start-block)))
+    (fat-append-chain sb bl)
+    (when (null sb) ; новый файл
+      (setf (slot self 'start-block) bl)
+      (update-dir-entry self))
+    (setf (slot self 'blocks) (get-fat-chain sb))))
