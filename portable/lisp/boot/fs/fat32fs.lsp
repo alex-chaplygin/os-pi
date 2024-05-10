@@ -105,5 +105,9 @@
     (fat-append-chain sb bl)
     (when (null sb) ; новый файл
       (setf (slot self 'start-block) bl)
-      (update-dir-entry self))
+      (update self))
     (setf (slot self 'blocks) (get-fat-chain sb))))
+
+(defmethod update ((self Fat32File))
+  "Обновить параметры файла из памяти на диск"
+  (update-dir-entry self))
