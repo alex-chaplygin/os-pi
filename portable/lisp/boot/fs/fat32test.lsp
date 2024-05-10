@@ -26,3 +26,20 @@
   (update-last-free-block (++ *last-free-block*))
   (update-free-blocks-count (-- *free-blocks-count*))
   `(,*last-free-block* ,*free-blocks-count*))
+
+(defun fwrite-test ()
+  (let ((a (make-array 256)))
+    (for i 0 256 (seta a i i))
+    (fwrite f a)))
+
+(defun fwr-test (pos)
+  "Тест записи внутри файла num байт"
+  (setq f (fopen "BOOT/ATA.LSP"))
+  (fseek f pos 'begin)
+  (fwrite-test)
+  (fseek f pos 'begin)
+  (fread f 256))
+
+(defun fwr-r () (fwr-test 10)) ;тест записи обычный
+(defun fwr-bl () (fwr-test 1023)) ;тест записи с пересечением границы
+(defun fwr-nbl () (fwr-test 5030)) ;тест записи с увеличением размера файла

@@ -104,10 +104,12 @@
 
 (defmethod fseek ((f File) offset dir)
   "Перемещение указателя чтения/записи в файле"
-  (setf (slot f 'position) (case dir
-			     ('begin offset)
-			     ('end (+ (slot f 'size) offset))
-			     ('cur (+ (slot f 'position) offset)))))
+  (let ((pos (case dir
+	       ('begin offset)
+	       ('end (+ (slot f 'size) offset))
+	       ('cur (+ (slot f 'position) offset)))))
+    (if (or (> pos (slot f 'size)) (< pos 0)) (error "fseek: invalid offset")
+	(setf (slot f 'position) pos))))
 
 (defmethod fwrite ((f File) buf)
   "Записать в файл file массив байт buf"
@@ -117,16 +119,19 @@
   (if (= size 0) nil
       (let ((p (slot f 'position)))
 	(when (null (slot f 'blocks)) (setf (slot f 'blocks) (get-blocks f)))
-	(let* ((pos (get-blocks-pos (slot f 'blocks) p))
-	       (bl (block-read (car pos)))
-	       (ofs (cdr pos))
-	       (len (- size pos)))
-	  (when (> len (- *block-size* ofs))
-	    (setq len (- *block-size* ofs))
-					; выделить новый блок)
-	    )
+	(let* ((blocks (slot f 'blocks)) ;список блоков файла
+	       (pos (get-blocks-pos blocks p)) ;(номер блока, смещение в блоке)
+	       (bl (block-read (car pos))) ; прочитанный блок
+	       (ofs (cdr pos)) ; смещение в блоке, куда будет запись
+	       (len size)) ; сколько пишется байт
+	  (when (> len (- *block-size* ofs)) ; если переход за границу блока
+	    (when (= (last blocks) (car pos)) (new-block f))
+	    (setq len (- *block-size* ofs))) ; пишем только до границы
 	  (for i 0 len (seta bl (+ ofs i) (aref buf (+ bpos i))))
-	  (fseek f len 'cur)
-	  (block-write (car pos) bl)
-	  (fwrite* f buf (+ bpos len) (- size len))))))
+	  (setf (slot f 'position) (+ p len)) ; перематываем указатель
+	  (when (> (slot f 'position) (slot f 'size)) ; если изменился размер
+	    (setf (slot f 'size) (slot f 'position))
+	    (update f))
+	  (block-write (car pos) bl) ; запись блока на диск
+	  (fwrite* f buf (+ bpos len) (- size len)))))) ;пишем отстаток
   
