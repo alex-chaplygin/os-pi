@@ -43,3 +43,7 @@
 (defun fwr-r () (fwr-test 10)) ;тест записи обычный
 (defun fwr-bl () (fwr-test 1023)) ;тест записи с пересечением границы
 (defun fwr-nbl () (fwr-test 5030)) ;тест записи с увеличением размера файла
+
+(defun gfde-test ()
+  "тест get-free-dir-entry"
+  (get-free-dir-entry '(2)))

@@ -73,3 +73,18 @@
     (write-struct bl (slot file 'dir-offset) directory-entry file)
     (block-write num bl)))
 	
+(defun get-free-dir-entry (blocks)
+  "Найти первую свободную запись в каталоге из блоков blocks"
+  (when (null blocks) (error "No free directory entry"))
+  (let* ((bl (block-read (car blocks)))
+	 (num (get-free-dir-entry* bl 0)))
+    (if (null num) (get-free-dir-entry (cdr blocks)) num)))
+(defun get-free-dir-entry* (block pos)
+  "pos - смещение внутри блока block"
+  (if (= pos *block-size*) nil
+      (let ((ch (aref block pos)))
+	(case ch
+	  (+dir-del+ (if (= (aref block (+ pos 11)) +long-name+)
+			 (get-free-dir-entry* block (+ pos 32)) pos))
+	  (+dir-end+ pos)
+	  (otherwise (get-free-dir-entry* block (+ pos 32)))))))
