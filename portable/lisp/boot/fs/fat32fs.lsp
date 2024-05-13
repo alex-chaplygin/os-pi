@@ -111,3 +111,13 @@
 (defmethod update ((self Fat32File))
   "Обновить параметры файла из памяти на диск"
   (update-dir-entry self))
+
+(defmethod create-file*((self Fat32FileSystem) dir name)
+  "Создать файл в каталоге dir с именем file"
+  (if (null dir) (error "create-file: invalid path")
+      (create-file-entry dir name 0)))
+
+(defmethod create-dir*((self Fat32FileSystem) dir name)
+  "Создать файл в каталоге dir с именем name"  
+  (if (null dir) (error "create-dir: invalid path")
+      (create-file-entry dir name +directory+)))
