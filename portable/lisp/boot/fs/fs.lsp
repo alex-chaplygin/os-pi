@@ -54,13 +54,20 @@
     (if (null d) (error "Invalid path")
 	(setq *working-directory* d))))
 
+(defun process-path (path)
+  "Разделяет путь на путь и имя файла"
+  (let* ((p (search-back "/" path))
+	 (dir-path (if (null p) "" (subseq path 0 p)))
+	 (file-name (if (null p) path (subseq path (+ p 1) (string-size path)))))
+    (cons dir-path file-name)))
+
 (defmacro fstat (path)
   "Получение информации о файле/каталоге"
   `(fstat* *file-system* ,path))
 (defmethod fstat*((self FileSystem) path)
-  (let* ((p (search-back "/" path))
-	 (dir-path (if (null p) "" (subseq path 0 p)))
-	 (file-name (if (null p) path (subseq path (+ p 1) (string-size path))))
+  (let* ((p (process-path path))
+	 (dir-path (car p))
+	 (file-name (cdr p))
 	 (d (load-path dir-path)))
     (if (null d) (error "Invalid path")
 	(if (not (check-key d file-name)) (error "File not found")
@@ -135,3 +142,8 @@
 	  (block-write (car pos) bl) ; запись блока на диск
 	  (fwrite* f buf (+ bpos len) (- size len)))))) ;пишем отстаток
   
+(defmacro create-file (path)
+  "Создать файл с путем path"
+  (let ((p (process-path path)))
+    `(create-file* *file-system* ,(load-path (car path)) ,(cdr path))))
+    
