@@ -65,8 +65,6 @@
   "Обновить запись каталога для файла file"
   (let* ((num (slot file 'dir-block))
 	 (bl (block-read num)))
-    ; для создания нового файла
-;    (setf (slot file 'dname) (fat-dname (slot file 'name)))
     (let ((sb (slot file 'start-block)))
       (setf (slot file 'block-hi) (>> sb 8))
       (setf (slot file 'block-low) (& sb 0xff)))
@@ -75,10 +73,11 @@
 	
 (defun get-free-dir-entry (blocks)
   "Найти первую свободную запись в каталоге из блоков blocks"
-  (when (null blocks) (error "No free directory entry"))
-  (let* ((bl (block-read (car blocks)))
-	 (num (get-free-dir-entry* bl 0)))
-    (if (null num) (get-free-dir-entry (cdr blocks)) num)))
+  "Возвращает (номер блока.смещение)"
+  (if (null blocks) nil
+      (let* ((bl (block-read (car blocks)))
+	     (num (get-free-dir-entry* bl 0)))
+	(if (null num) (get-free-dir-entry (cdr blocks)) (cons (car blocks) num)))))
 (defun get-free-dir-entry* (block pos)
   "pos - смещение внутри блока block"
   (if (= pos *block-size*) nil
@@ -88,3 +87,15 @@
 			 (get-free-dir-entry* block (+ pos 32)) pos))
 	  (+dir-end+ pos)
 	  (otherwise (get-free-dir-entry* block (+ pos 32)))))))
+
+(defun create-file-entry(dir name attr)
+  "Создать запись каталога в объекте dir с именем name, атрибуты attr"
+  (let* ((dname (fat-dname name))
+	 (pos (get-free-dir-entry (slot dir 'blocks))))
+    (when (null pos) (error "No free space to create dir entry"))
+    (let ((bl (block-read (car pos)))
+	  (ofs (cdr pos))
+	  (new-bl (fat-get-free-block)))
+      (let ((file (make-fat32file name 0 0 (fat-append-chain nil new-bl) nil dname (<< bl 8) (& bl 0xFF) (car pos) ofs attr new-bl 0 0 0 0 0)))
+	(write-struct bl ofs directory-entry file)
+	(set-hash (slot dir 'dir) name file)))))
