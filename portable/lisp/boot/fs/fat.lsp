@@ -57,14 +57,16 @@
     (ata-write-sectors *disk* (+ sec-num *fat-sectors*) 1 sec)))
 
 (defun fat-append-chain (start bl)
-  "Добавить новый блок bl в цепочку, начиная со start"
+  "Добавить новый блок bl в цепочку, начиная со start, возвращает цепочку"
   (let ((chain (if (null start) nil (get-fat-chain start))))
     (unless (null start) (update-fat (last chain) bl))
     (update-fat bl +end-block-end+) ;занимаем свободный блок
     (update-last-free-block (fat-get-free-block)) ;ищем новый свободный
     (update-free-blocks-count (-- *free-blocks-count*)) ;уменьшаем число свободных блоков
-    (if (null start) (set-hash *fat* bl nil)
-	(set-hash *fat* start (append (cdr chain) (list bl))))))
+    (if (null start) (progn (set-hash *fat* bl nil) (list bl))
+	(progn
+	  (set-hash *fat* start (append (cdr chain) (list bl)))
+	  (get-hash *fat* start)))))
 
 (defmacro mk/update-fs (name var pos)
   `(defun ,name (b)
