@@ -1,13 +1,6 @@
-/******************************************************************************
-
-                            Online C Compiler.
-                Code, Compile, Run and Debug C program online.
-Write your code in this editor and press "Run" button to compile and execute it.
-
-*******************************************************************************/
-
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define MAX_BIGNUM_SIZE 100
 #define MAX_BIGNUMS 100
@@ -31,19 +24,37 @@ static int last_bignum = 0;
  *
  * @return struct bignum_t bignum
  */
-bignum_t new_bignum(int size)
+bignum_t new_bignum()
 {
-    if (last_bignum >= MAXSIZE) {
+    if (last_bignum >= MAX_BIGNUMS) {
         printf("MAX bignum");
         return NULL;
     }
-    bignum_t bignum = &bignums[last_bignum++];
+    return &bignums[last_bignum++];
+}
+
+/** 
+ * Создать большое число из строки
+ *
+ * @param str строка числа
+ *
+ * @return объект большое число
+ */
+bignum_t new_bignum_from_str(const char *str)
+{
+    bignum_t bignum = new_bignum();
+    int size = strlen(str);
+    if (str[0] == '-') {
+	bignum->sign = -1;
+        str++;
+        size--;     
+    } else
+	bignum->sign = 1;
+    for (int i = 0; i < size; i++)
+        bignum->data[i] = str[size - i - 1] - '0';
     bignum->size = size;
-    bignum->sign = 0;
-    for(int i = 0; i < size; i++) 
-        bignum->data[i] = 0;
     bignum->exponent = 0;
-    return bignum;
+    return bignum;    
 }
 
 /**
@@ -93,15 +104,6 @@ void print_num(bignum_t bignum)
 {
     if (bignum->sign == 1) 
         putchar('-');
-    /*for(int i = 0; i < bignum->size - bignum->exponent; i++) 
-        if (bignum->data[i]!=-1)
-            printf("%d", bignum->data[i]);
-    if (bignum->exponent != 0) 
-        putchar('.');
-    for(int i = bignum->size - bignum->exponent; i < bignum->size; i++)
-        if (bignum->data[i]!=-1)
-            printf("%d", bignum->data[i]); 
-    printf("\n");*/
     int i = bignum->size - 1;
     while (bignum->data[i] == 0 && i >= 0)
         i--;
@@ -163,30 +165,21 @@ int bignum_sum(bignum_t n1, bignum_t n2)
 
 int main()
 {
-    //float a = 1.0000012345f;
-    bignum_t n1 = new_bignum(40);
-    bignum_t n2 = new_bignum(4);
-    //bignum_t n3 = new_bignum(20);
-   /* set_digit(n, 1, 9);
-    set_digit(n, 4, 1);
-    set_digit(n, 17, 7);
-    set_exp(n, 12);
-    set_sign(n, -1);*/
-    bignum_from_int(n1, 15);
-    bignum_from_int(n2, 2865);
-    //print_float_num(a);
-    //printf("\n%f", a);
-    //printf("%d %d %d\n",n->sign, n->size, n->exponent);
-    //for(int i=0; i<n.size; i++) printf("%d ", n.data[i]);
-    print_num(n1);
-    printf("\n");
-    print_num(n2);
-    printf("\n");
-    if (bignum_sum(n1, n2) == 0) {
-        printf("Сумма:");
-        print_num(n1);
-    }
-    //print_num(n3);
+    bignum_t bignum1 = new_bignum_from_str("-10220100434343002222");
+    bignum_t bignum2 = new_bignum_from_str("10220100434343002222");
+    bignum_t bignum3 = new_bignum_from_str("0");
 
+    if (bignum1 && bignum2 && bignum3) {
+	printf("One num: ");
+	print_num(bignum1);
+	printf("\n");
+
+	printf("Two num: ");
+	print_num(bignum2);
+	printf("\n");
+
+	printf("Zero: ");
+	print_num(bignum3);
+    }
     return 0;
 }
