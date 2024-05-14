@@ -47,3 +47,21 @@
 (defun gfde-test ()
   "тест get-free-dir-entry"
   (get-free-dir-entry '(2)))
+
+(defun cf-test ()
+  "Тест создания файла"
+  (setq f (create-file "BOOT/1.TXT"))
+  (fwrite f #(0x31 0x32 0x33 0x39))
+  (fclose f)
+  f)
+
+(defun cfr-test ()
+  "Тест чтения созданного файла"
+  (setq f (fopen "BOOT/1.TXT"))
+  (read-text f 4))
+
+(defun cd-test ()
+  "Тест создания каталога и файлов в нем"
+  (create-dir "TEST")
+  (create-file "TEST/1.TXT")
+  (create-file "TEST/TEST.TXT"))

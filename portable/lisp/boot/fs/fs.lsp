@@ -142,8 +142,12 @@
 	  (block-write (car pos) bl) ; запись блока на диск
 	  (fwrite* f buf (+ bpos len) (- size len)))))) ;пишем отстаток
   
-(defmacro create-file (path)
+(defun create-file (path)
   "Создать файл с путем path"
   (let ((p (process-path path)))
-    `(create-file* *file-system* ,(load-path (car path)) ,(cdr path))))
+    (create-file* *file-system* (load-path (car p)) (cdr p))))
     
+(defun create-dir (path)
+  "Создать каталог с путем path"
+  (let ((p (process-path path)))
+    (create-dir* *file-system* (load-path (car p)) (cdr p))))
