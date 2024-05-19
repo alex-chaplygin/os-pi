@@ -35,6 +35,10 @@ symbol_t *t_sym;
 symbol_t *nil_sym;
 /// символ "&REST"
 symbol_t *rest_sym;
+/// символ "TAGBODY"
+symbol_t *tagbody_sym;
+/// символ "RETURN_FROM"
+symbol_t *return_from_sym;
 /// текущее окружение
 object_t current_env = NULLOBJ;
 /// точка для возврата в цикл REPL
@@ -431,8 +435,8 @@ object_t eval_args(object_t args, object_t env)
 int is_special_form(symbol_t *s) 
 { 
     return s == quote_sym || s == defun_sym || s == defmacro_sym || 
-	s == setq_sym || s == backquote_sym || 
- 	s == cond_sym || s == or_sym || s == and_sym; 
+	s == setq_sym || s == backquote_sym || s == cond_sym
+	|| s == or_sym || s == and_sym || s == return_from_sym; 
 } 
 
 /* 
@@ -709,6 +713,28 @@ object_t error_func(object_t args)
     longjmp(repl_buf, 1);
 }
 
+/** 
+ * Функция вычисления форм с возможностью перехода по меткам
+ *
+ * @param params список форм и меток
+ *
+ * @return значение последней формы
+ */
+object_t tagbody(object_t params)  
+{                                  
+    return params; 
+}
+
+/* 
+ * Возвращает свой аргумент 
+ * @param arg (аргумент) 
+ * @return возвращает свой аргумент 
+ */ 
+object_t return_from(object_t arg) 
+{ 
+    return arg; 
+} 
+
 /*  
  * инициализация примитивов  
  */ 
@@ -731,6 +757,8 @@ void init_eval()
     register_func("EVAL", lisp_eval);
     register_func("GC", print_gc_stat);
     register_func("ERROR", error_func);
+    register_func("TAGBODY", tagbody);
+    register_func("RETURN_FROM", return_from);
     t = NEW_SYMBOL("T"); 
     nil = NULLOBJ;
     quote_sym = find_symbol("QUOTE"); 
@@ -747,4 +775,5 @@ void init_eval()
     nil_sym = find_symbol("NIL"); 
     nil_sym->value = nil; 
     rest_sym = find_symbol("&REST"); 
+    tagbody_sym = find_symbol("TAGBODY");
 } 
