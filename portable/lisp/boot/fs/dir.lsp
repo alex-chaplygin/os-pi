@@ -8,7 +8,7 @@
 ;(make-bit-flags +read-only+ +hidden+ +system+ +volume-id+ +directory+ +archive+)
 (defvar directory-entry ; базовая запись каталога
   '((str dname . 11) ; имя + расширение
-    (attrib . 1) ; атрибуты
+    (attributes . 1) ; атрибуты
     (reserved . 1)
     (ctime-mil . 1) ;  Сотые доли секунды времени создания
     (ctime . 2) ;  Часы/минуты/секунды времени создания (5 бит/6 бит/ 5 бит)
@@ -37,7 +37,7 @@
 	   (with-struct directory-entry block offset
 	     (cons
 	      (make-fat32file (fat-file-name dname) size 0 nil nil dname
-			      block-hi block-low block-num offset attrib
+			      block-hi block-low block-num offset attributes
 			      (+ block-low (<< block-hi 16))
 			      ctime cdate adate wdate wtime)
 	  (make-dir* block block-num (+ offset +entry-size+)))))))))
@@ -101,9 +101,9 @@
 	   (new-bl (fat-get-free-block)))
       (let ((file (make-fat32file name 0 0 (fat-append-chain nil new-bl) nil dname (>> new-bl 8) (& new-bl 0xFF) num ofs attr new-bl 0 0 0 0 0)))
 	(write-struct bl ofs directory-entry file)
-	(array-seq bl ofs (+ ofs 32))))))
-;	(block-write num bl)
-;	(set-hash dir name file)))))
+	(array-seq bl ofs (+ ofs 32))
+	(block-write num bl)
+	(set-hash dir name file)))))
 
 (defun create-special-entries (dir)
   "Создать специальные файлы . и .. в объекте-каталоге dir"
