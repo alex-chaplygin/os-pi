@@ -120,4 +120,6 @@
 (defmethod create-dir*((self Fat32FileSystem) dir name)
   "Создать файл в каталоге dir с именем name"  
   (if (null dir) (error "create-dir: invalid path")
-      (create-file-entry dir name +directory+)))
+      (progn
+	(create-file-entry dir name +directory+)
+	(create-special-entries (get-hash dir name)))))
