@@ -151,3 +151,8 @@
   "Создать каталог с путем path"
   (let ((p (process-path path)))
     (create-dir* *file-system* (load-path (car p)) (cdr p))))
+
+(defun remove-file (path)
+  "Удалить файл с путем path"
+  (let ((p (process-path path)))
+    (remove-file* *file-system* (load-path (car p)))))
