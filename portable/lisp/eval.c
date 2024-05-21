@@ -443,7 +443,7 @@ int is_special_form(symbol_t *s)
     return s == quote_sym || s == defun_sym || s == defmacro_sym
 	|| s == setq_sym || s == backquote_sym || s == cond_sym
 	|| s == or_sym || s == and_sym || s == return_from_sym
-	|| s == labels_sym; 
+	|| s == labels_sym || s == tagbody_sym; 
 } 
 
 /* 
