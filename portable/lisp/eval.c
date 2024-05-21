@@ -37,12 +37,16 @@ symbol_t *nil_sym;
 symbol_t *rest_sym;
 /// символ "TAGBODY"
 symbol_t *tagbody_sym;
+/// символ "BLOCK"
+symbol_t *block_sym;
 /// символ "RETURN_FROM"
 symbol_t *return_from_sym;
 /// текущее окружение
 object_t current_env = NULLOBJ;
 /// точка для возврата в цикл REPL
 jmp_buf repl_buf;
+/// точка возврата из block
+jmp_buf block_buf;
 
 // (eq 'a 'a) -> T 
 // (eq 'a 'b) -> () 
@@ -725,6 +729,28 @@ object_t tagbody(object_t params)
     return params; 
 }
 
+/** 
+ * Создает блок с лексическим именем, из которого можно выйти
+ * с помощью return-from и вычисляет внутренние формы как progn
+ *
+ * @param list (<символ - имя блока> <форма_1> ... <форма_n>)
+ *
+ * @return 
+ */
+object_t block(object_t list) 
+{ 
+    object_t obj; 
+    if (list == NULLOBJ)
+	error("block: no arguments\n");
+    if (setjmp(block_buf) == 0) {
+        while (list != NULLOBJ) {
+	    obj = eval(FIRST(list), current_env);
+	    list = TAIL(list);
+        }
+        return obj;
+    }    
+}
+
 /* 
  * Возвращает свой аргумент 
  * @param arg (аргумент) 
@@ -758,7 +784,9 @@ void init_eval()
     register_func("GC", print_gc_stat);
     register_func("ERROR", error_func);
     register_func("TAGBODY", tagbody);
+    register_func("BLOCK", block); 
     register_func("RETURN_FROM", return_from);
+    register_func("BLOCK", block);
     t = NEW_SYMBOL("T"); 
     nil = NULLOBJ;
     quote_sym = find_symbol("QUOTE"); 
@@ -776,4 +804,5 @@ void init_eval()
     nil_sym->value = nil; 
     rest_sym = find_symbol("&REST"); 
     tagbody_sym = find_symbol("TAGBODY");
+    block_sym = find_symbol("BLOCK");
 } 

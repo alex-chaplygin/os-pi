@@ -601,3 +601,7 @@ sh sys_test "(list 'a 'b '(1 2 3))" "(A B (1 2 3))"
 
 echo "---Тест ERROR---"
 sh sys_test "(progn 1 2 3 (error \"e\") 4 5 6)" "ERROR: \"e\""
+
+echo "---Тесты BLOCK---"
+sh sys_test "(BLOCK)" "NIL"
+sh sys_test "(BLOCK 1 2 3)" "3"
