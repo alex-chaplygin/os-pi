@@ -41,6 +41,8 @@ symbol_t *tagbody_sym;
 symbol_t *block_sym;
 /// символ "RETURN_FROM"
 symbol_t *return_from_sym;
+/// символ "LABELS"
+symbol_t *labels_sym;
 /// текущее окружение
 object_t current_env = NULLOBJ;
 /// точка для возврата в цикл REPL
@@ -438,9 +440,10 @@ object_t eval_args(object_t args, object_t env)
  */ 
 int is_special_form(symbol_t *s) 
 { 
-    return s == quote_sym || s == defun_sym || s == defmacro_sym || 
-	s == setq_sym || s == backquote_sym || s == cond_sym
-	|| s == or_sym || s == and_sym || s == return_from_sym; 
+    return s == quote_sym || s == defun_sym || s == defmacro_sym
+	|| s == setq_sym || s == backquote_sym || s == cond_sym
+	|| s == or_sym || s == and_sym || s == return_from_sym
+	|| s == labels_sym; 
 } 
 
 /* 
@@ -761,6 +764,19 @@ object_t return_from(object_t arg)
     return arg; 
 } 
 
+/** 
+ * Определяет локальные функции (могут быть рекурсивными) и выполняет формы
+ * Список функций - (функция 1 ... функция n)
+ * Функция - (имя параметры тело)
+ * @param param (<список функций> <форма1> .. <форма n>)
+ *
+ * @return значение последней формы
+ */
+object_t labels(object_t param) 
+{ 
+    return param; 
+}
+
 /*  
  * инициализация примитивов  
  */ 
@@ -787,6 +803,7 @@ void init_eval()
     register_func("BLOCK", block); 
     register_func("RETURN_FROM", return_from);
     register_func("BLOCK", block);
+    register_func("LABELS", labels);
     t = NEW_SYMBOL("T"); 
     nil = NULLOBJ;
     quote_sym = find_symbol("QUOTE"); 
@@ -805,4 +822,5 @@ void init_eval()
     rest_sym = find_symbol("&REST"); 
     tagbody_sym = find_symbol("TAGBODY");
     block_sym = find_symbol("BLOCK");
+    labels_sym = find_symbol("LABEL"); 
 } 
