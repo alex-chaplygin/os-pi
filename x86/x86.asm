@@ -37,7 +37,7 @@ global a_interrupt_handler
 global disable_interrupts, enable_interrupts
 global a_keyboard_interrupt
 global get_sp
-global setjmp, longjmp
+global _setjmp, longjmp
 extern kmain, exception_handler, sys_call, timer_event,end_of_interrupt		;this is defined in the c file
 extern interrupt_handler
 extern current_proc
@@ -101,7 +101,7 @@ restore_regs:
 				; переключаем контекст
 
 ; сохранение состояния стека
-setjmp:
+_setjmp:
 	mov eax, [esp + 4]  ;jmp_buf
 	mov [eax], ebx      ; [0]|ebx
 	mov [eax + 4], esi  ; [1]|esi
