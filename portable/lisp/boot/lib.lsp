@@ -12,6 +12,7 @@
   (if (eq x t) nil t))
 
 (defun caar(x) (car (car x)))
+(defun caadr(x) (car (car (cdr x))))
 (defun cadr(x) (car (cdr x)))
 (defun caddr(x) (car (cdr (cdr x))))
 (defun cadar(x) (car (cdr (car x))))
