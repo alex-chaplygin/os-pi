@@ -106,7 +106,7 @@
 	(set-hash dir name file)))))
 
 (defun create-special-entries (dir)
-  "Создать специальные файлы . и .. в объекте-каталоге dir"
+  "Создать специальные файлы . и .. в объекте-каталоге dir и очистить остальные записи"
   (let* ((num (slot dir 'start-block))
 	 (block (block-read num))
 	 (file-cur (make-fat32file "." 0 0 nil nil ".          " (>> num 8) (& num 0xff) (slot dir 'dir-block) 0 +directory+ num 0 0 0 0 0))
@@ -115,4 +115,5 @@
     (set-hash dir ".." file-par)
     (write-struct block 0 directory-entry file-cur)
     (write-struct block 32 directory-entry file-par)
+    (for i 64 *block-size* (seta block i 0))
     (block-write num block)))
