@@ -1,5 +1,7 @@
 #include <portable/types.h>
 
+#define setjmp(x) _setjmp(x)
+
 extern uint inb(int num);
 extern void outb(int num, int data);
 extern uint inw(int num);
@@ -18,5 +20,5 @@ extern ushort kernel_code;
 // тип для хранения состояния стека, используемый
 //   функциями setjmp, longjmp
 typedef long int jmp_buf[8];
-extern int setjmp(jmp_buf env);
+extern int _setjmp(jmp_buf env);
 extern void longjmp(jmp_buf env, int code);
