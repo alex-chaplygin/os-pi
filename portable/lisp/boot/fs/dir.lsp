@@ -117,3 +117,11 @@
     (write-struct block 32 directory-entry file-par)
     (for i 64 *block-size* (seta block i 0))
     (block-write num block)))
+
+(defun delete-file-entry (file)
+  "Удалить запись для объекта-файла file"
+  (let* ((num (slot file 'dir-block))
+	 (bl (block-read num))
+	 (ofs (slot file 'dir-offset)))
+    (seta bl ofs +dir-del+)
+    (block-write num bl)))
