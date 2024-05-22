@@ -114,12 +114,19 @@
 
 (defmethod create-file*((self Fat32FileSystem) dir name)
   "Создать файл в каталоге dir с именем file"
-  (if (null dir) (error "create-file: invalid path")
-      (create-file-entry dir name 0)))
+  (when (null dir) (error "create-file: invalid path"))
+  (create-file-entry dir name 0))
 
 (defmethod create-dir*((self Fat32FileSystem) dir name)
   "Создать файл в каталоге dir с именем name"  
-  (if (null dir) (error "create-dir: invalid path")
-      (progn
-	(create-file-entry dir name +directory+)
-	(create-special-entries (get-hash dir name)))))
+  (when (null dir) (error "create-dir: invalid path"))
+  (create-file-entry dir name +directory+)
+  (create-special-entries (get-hash dir name)))
+
+(defmethod remove-file*((self Fat32FileSystem) dir name)
+  "Удалить файл в каталоге dir с именем name"
+  (when (null dir) (error "remove-file: invalid path"))
+  (when (null (check-key dir name)) (error "remove-file: no such file"))
+  (let ((f (get-hash dir name)))
+    (delete-file-entry f)
+    (remove-key dir name)))

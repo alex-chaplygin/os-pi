@@ -155,4 +155,4 @@
 (defun remove-file (path)
   "Удалить файл с путем path"
   (let ((p (process-path path)))
-    (remove-file* *file-system* (load-path (car p)))))
+    (remove-file* *file-system* (load-path (car p)) (cdr p))))
