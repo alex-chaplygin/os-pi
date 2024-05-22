@@ -44,7 +44,7 @@
   (let ((d (load-path path)))
     (if (null d) (error "Invalid path")
 	(map '(lambda (f)
-	       (if (is-directory (cdr f)) (list 'dir (car f)) (car f))) d))))
+	       (if (is-directory (cdr f)) (list 'dir (car f)) (car f))) (cdr d)))))
 
 (defmacro chdir (path)
   "Смена рабочего каталога для относительных путей"
