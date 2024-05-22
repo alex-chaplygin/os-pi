@@ -1,6 +1,6 @@
 (defun make-hash ()
   "Создание пустой хэш-таблицы (hash))"
-  '(hash))
+  (list 'hash))
 
 (defun empty-hash (hash)
   "Проверяет hash на пустоту"
@@ -46,10 +46,13 @@
 
 (defun hash-test ()
   (setq a (make-hash))
+  (setq b (make-hash))
   (set-hash a 'x 5)
   (set-hash a 'y 10)
   (set-hash a 'x 25)
   (set-hash a 'z 35)
+  (set-hash b 'test 'alpha)
+  (set-hash a 'test b)
   (get-hash a 'x)
   (check-key a 'z)
 ;  (remove-key a 'w)
