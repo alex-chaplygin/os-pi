@@ -43,7 +43,7 @@
 
 (defun get-slots (class)
   "Получение списка свойств класса class"
-  (if (null class)  nil
+  (if (null class) nil
     (let* ((cl (get-hash *class-table* class))
 	   (slots (get-hash cl 'slots))
 	   (parent (get-hash cl 'parent)))
@@ -78,33 +78,27 @@
      (setq res (funcall (get-method (slot ,obj 'class) ',method-name) ,obj ,@args))
      (setf (slot ,obj 'class) origclass)
      res))
-     
-  ;`(funcall (get-method (slot (slot *class-table* (slot ,obj 'class)) 'parent) ',method-name) ,obj ,@args))
 
-;(defclass point () (x y)) 
-;(defclass line point (x2 y2))
+(defun oop-test ()
+  (defclass point () (x y)) 
+  (defclass line point (x2 y2))
+  (setq p2 (make-point 10 20))
+  (setf (slot p2 'x) 50)
+  (setq l1 (make-line 1 1 3 3))
 
-;(setq p2 (make-point 10 20))
-;(setf (slot p2 'x) 50)
-;(setq l1 (make-line 1 1 3 3))
+  (defmethod move ((self point) dx dy)
+    (setf (slot self 'x) (+ (slot self 'x) dx))
+    (setf (slot self 'y) (+ (slot self 'y) dy)))
 
-;(defmethod move ((self point) dx dy)
- ;   (setf (slot self 'x) (+ (slot self 'x) dx))
-  ;  (setf (slot self 'y) (+ (slot self 'y) dy)))
+  (defmethod move ((self line) dx dy)
+    (setf (slot self 'x) (+ (slot self 'x) dx))
+    (setf (slot self 'x2) (+ (slot self 'x2) dx))
+    (setf (slot self 'y) (+ (slot self 'y) dy))
+    (setf (slot self 'y2) (+ (slot self 'y2) dy)))
 
-
-
-;(defmethod move ((self line) dx dy)
- ;  (setf (slot self 'x) (+ (slot self 'x) dx))
-  ; (setf (slot self 'x2) (+ (slot self 'x2) dx))
-   ;(setf (slot self 'y) (+ (slot self 'y) dy))
-   ;(setf (slot self 'y2) (+ (slot self 'y2) dy)))
-
-
-
-;(move p2 20 20)
-;p2
-;(move l1 20 20)
-;l1
+  (move p2 20 20)
+  p2
+  (move l1 20 20)
+  l1)
 
      
