@@ -43,6 +43,8 @@ symbol_t *block_sym;
 symbol_t *return_from_sym;
 /// символ "LABELS"
 symbol_t *labels_sym;
+/// символ "PROGN"
+symbol_t *progn_sym;
 /// текущее окружение
 object_t current_env = NULLOBJ;
 /// точка для возврата в цикл REPL
@@ -248,8 +250,9 @@ object_t progn(object_t params)
 { 
     if (params == NULLOBJ)
  	error("progn: params = NULLOBJ"); 
-    else if (TAIL(params) == NULLOBJ) 
- 	return FIRST(params); 
+    object_t obj = eval(FIRST(params), current_env); 
+    if (TAIL(params) == NULLOBJ) 
+	return obj;
     return progn(TAIL(params)); 
 } 
 
@@ -443,7 +446,7 @@ int is_special_form(symbol_t *s)
     return s == quote_sym || s == defun_sym || s == defmacro_sym
 	|| s == setq_sym || s == backquote_sym || s == cond_sym
 	|| s == or_sym || s == and_sym || s == return_from_sym
-	|| s == labels_sym || s == tagbody_sym; 
+	|| s == labels_sym || s == tagbody_sym || s == progn_sym; 
 } 
 
 /* 
@@ -745,13 +748,8 @@ object_t block(object_t list)
     object_t obj; 
     if (list == NULLOBJ)
 	error("block: no arguments\n");
-    if (setjmp(block_buf) == 0) {
-        while (list != NULLOBJ) {
-	    obj = eval(FIRST(list), current_env);
-	    list = TAIL(list);
-        }
-        return obj;
-    }    
+    if (setjmp(block_buf) == 0)
+        return progn(list);
 }
 
 /* 
@@ -823,4 +821,5 @@ void init_eval()
     tagbody_sym = find_symbol("TAGBODY");
     block_sym = find_symbol("BLOCK");
     labels_sym = find_symbol("LABEL"); 
+    progn_sym = find_symbol("PROGN");
 } 
