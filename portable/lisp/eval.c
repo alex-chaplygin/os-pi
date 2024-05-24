@@ -732,7 +732,15 @@ object_t error_func(object_t args)
  */
 object_t tagbody(object_t params)  
 {                                  
-    return params; 
+    object_t obj;
+    object_t form;
+    while (params != NULLOBJ) {
+        obj = FIRST(params);
+        if (TYPE(obj) != SYMBOL)
+            form = eval(obj, current_env);
+	params = TAIL(params); 
+    } 
+    return form;
 }
 
 /** 
