@@ -605,3 +605,10 @@ sh sys_test "(progn 1 2 3 (error \"e\") 4 5 6)" "ERROR: \"e\""
 echo "---Тесты BLOCK---"
 sh sys_test "(BLOCK)" "NIL"
 sh sys_test "(BLOCK 1 2 3)" "3"
+
+echo "---Тесты TAGBODY---"
+sh sys_test "(tagbody 1 2 3 4)" "4"
+sh sys_test "(tagbody a 1 b 2 c 3 d 4 e)" "4"
+
+echo "---Тесты LABELS---"
+sh sys_test "(labels 1 2 3 4)" "4"

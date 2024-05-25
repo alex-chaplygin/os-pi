@@ -780,7 +780,7 @@ object_t return_from(object_t arg)
  */
 object_t labels(object_t param) 
 { 
-    return param; 
+    return progn(param);
 }
 
 /*  
@@ -828,6 +828,6 @@ void init_eval()
     rest_sym = find_symbol("&REST"); 
     tagbody_sym = find_symbol("TAGBODY");
     block_sym = find_symbol("BLOCK");
-    labels_sym = find_symbol("LABEL"); 
+    labels_sym = find_symbol("LABELS"); 
     progn_sym = find_symbol("PROGN");
 } 
