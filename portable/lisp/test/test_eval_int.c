@@ -100,7 +100,7 @@ void test_cond_many_params()
     object_t args = new_pair(eq_pair, new_pair(eq_pair, new_pair(first, NULLOBJ))); 
     object_t cond_pair = new_pair(NEW_SYMBOL("COND"), new_pair(args, NULLOBJ));
     if (setjmp(jmp_env) == 0) { 
-        object_t res = eval(cond_pair, NULLOBJ); 
+        object_t res = eval(cond_pair, NULLOBJ, NULLOBJ); 
         FAIL;
     } else 
         OK;
@@ -774,7 +774,7 @@ void test_eval_symbol_with_defined_variable()
     find_symbol("A")->value = new_number(10);
     object_t myVar = NEW_SYMBOL("A");
 
-    object_t result = eval(myVar, NULLOBJ);
+    object_t result = eval(myVar, NULLOBJ, NULLOBJ);
     
     ASSERT(TYPE(result), NUMBER); 
     ASSERT(get_value(result), 10); 
@@ -788,7 +788,7 @@ void test_eval_symbol_environment_variable()
     printf("test_eval_symbol_environment_variable: ");
     current_env = create_env();
     if (setjmp(jmp_env) == 0) {
-        object_t result = eval(NEW_SYMBOL("X"), current_env);
+        object_t result = eval(NEW_SYMBOL("X"), current_env, NULLOBJ);
         ASSERT(get_value(result), 1);
     } else
         FAIL;
@@ -802,7 +802,7 @@ void test_eval_symbol_undefined_variable()
     printf("test_eval_symbol_undefined_variable: ");
     object_t var = NEW_SYMBOL("undefinedVar");
     if (setjmp(jmp_env) == 0) {
-        eval(var, NULLOBJ);
+        eval(var, NULLOBJ, NULLOBJ);
         FAIL;
     } else
         OK;

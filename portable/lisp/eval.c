@@ -47,6 +47,8 @@ symbol_t *labels_sym;
 symbol_t *progn_sym;
 /// текущее окружение
 object_t current_env = NULLOBJ;
+/// окружение для пользовательских функций
+object_t func_env = NULLOBJ;
 /// точка для возврата в цикл REPL
 jmp_buf repl_buf;
 /// точка возврата из block
@@ -154,12 +156,12 @@ object_t backquote_rec(object_t list)
  	if (TYPE(el) == SYMBOL && !strcmp(GET_SYMBOL(el)->str, "BACKQUOTE")) 
  	    return list; 
  	if (TYPE(el) == SYMBOL && !strcmp(GET_SYMBOL(el)->str, "COMMA")) 
- 	    return eval(SECOND(list), current_env); 
+ 	    return eval(SECOND(list), current_env, func_env); 
  	object_t first = backquote_rec(el); 
  	if (first != NULLOBJ && TYPE(first) == PAIR) {  // first = (COMMA-AT B) 
  	    object_t comma_at = FIRST(first); 
  	    if (comma_at != NULLOBJ && TYPE(comma_at) == SYMBOL && !strcmp(GET_SYMBOL(comma_at)->str, "COMMA-AT")) { 
- 		object_t l = eval(SECOND(first), current_env); 
+ 		object_t l = eval(SECOND(first), current_env, func_env); 
  		if (l == NULLOBJ) 
  		    return backquote_rec(TAIL(list)); 
  		if (TYPE(l) != PAIR)
@@ -203,8 +205,8 @@ object_t cond(object_t obj)
     if (TAIL(TAIL(pair)) != NULLOBJ) 
 	error("cond: too many params"); 
     object_t p = FIRST(pair); 
-    if (eval(p, current_env) == t) 
-	return eval(SECOND(pair), current_env); 
+    if (eval(p, current_env, func_env) == t) 
+	return eval(SECOND(pair), current_env, func_env); 
     else 
 	return cond(TAIL(obj)); 
 } 
@@ -250,7 +252,7 @@ object_t progn(object_t params)
 { 
     if (params == NULLOBJ)
  	error("progn: params = NULLOBJ"); 
-    object_t obj = eval(FIRST(params), current_env); 
+    object_t obj = eval(FIRST(params), current_env, func_env); 
     if (TAIL(params) == NULLOBJ) 
 	return obj;
     return progn(TAIL(params)); 
@@ -386,7 +388,7 @@ object_t eval_func(object_t lambda, object_t args, object_t env)
  	new_env = env; 
     else 
  	append_env(new_env, env); 
-    return eval(body, new_env); 
+    return eval(body, new_env, func_env); 
 } 
 
 /* 
@@ -405,10 +407,10 @@ object_t macro_call(object_t macro, object_t args, object_t env)
     body = TAIL(TAIL(macro)); 
     append_env(new_env, env); 
     while (body != NULLOBJ) { 
- 	eval_res = eval(FIRST(body), new_env); 
+ 	eval_res = eval(FIRST(body), new_env, func_env); 
  	//printf("macro = "); 
  	//PRINT(eval_res); 
- 	eval_res = eval(eval_res, new_env); 
+ 	eval_res = eval(eval_res, new_env, func_env); 
  	body = TAIL(body); 
     } 
     return eval_res; 
@@ -431,7 +433,7 @@ object_t eval_args(object_t args, object_t env)
     object_t f = FIRST(args); 
     //printf("f = %x pair = %x", f, f->u.pair); 
     //PRINT(f); 
-    object_t arg = eval(f, env); 
+    object_t arg = eval(f, env, func_env); 
     object_t tail = eval_args(TAIL(args), env); 
     return new_pair(arg, tail);  
 } 
@@ -485,16 +487,18 @@ object_t eval_symbol(object_t obj)
  *  (car '(1 2 3)) -> 1
  *  (cdr '(1 2 3)) -> (2 3)
  * @param obj входное выражение
- * @param env окружение
+ * @param env окружение переменных
+ * @param func окружение функций
  * @return возвращает вычисленный объект
  */
-object_t eval(object_t obj, object_t env)
+object_t eval(object_t obj, object_t env, object_t func)
 {
     //printf("eval: ");
     // PRINT(obj);
     //printf("env: ");
     //PRINT(env);
     current_env = env;
+    func_env = func;
     if (obj == NULLOBJ)
         return NULLOBJ;
     else if (TYPE(obj) == NUMBER || TYPE(obj) == BIGNUMBER || TYPE(obj) == STRING || TYPE(obj) == ARRAY)
@@ -524,6 +528,7 @@ object_t eval(object_t obj, object_t env)
     } else
         error("Unknown object_type");
     current_env = env;
+    func_env = func;
 }
 
 /* 
@@ -564,7 +569,7 @@ object_t setq_rec(object_t params)
 	sym = find_symbol(GET_SYMBOL(FIRST(params))->str); 
     if (TAIL(params) == NULLOBJ)
  	error("setq: no value"); 
-    object_t obj = eval(SECOND(params), current_env); 
+    object_t obj = eval(SECOND(params), current_env, func_env); 
     if (find_res) 
 	set_in_env(current_env, FIRST(params), obj); 
     else 
@@ -594,7 +599,7 @@ object_t and(object_t params)
 	error("and: no params"); 
     while (params != NULLOBJ) { 
 	object_t first = FIRST(params); 
-	object_t res = eval(first, current_env); 
+	object_t res = eval(first, current_env, func_env); 
 	if (res == nil) 
 	    return nil; 
 	else if (res == t) 
@@ -618,7 +623,7 @@ object_t or(object_t params)
  	error("or: no params"); 
     while (params != NULLOBJ) { 
  	object_t first = FIRST(params); 
- 	object_t res = eval(first, current_env); 
+ 	object_t res = eval(first, current_env, func_env); 
  	if (res == t) 
  	    return t; 
  	else if (res == nil) 
@@ -655,7 +660,7 @@ object_t macroexpand(object_t params)
     object_t eval_res; 
     object_t res = NULLOBJ; 
     while (body != NULLOBJ) { 
- 	eval_res = eval(FIRST(body), new_env); 
+ 	eval_res = eval(FIRST(body), new_env, func_env); 
  	if (res == NULLOBJ) 
  	    res = eval_res; 
  	else if (TYPE(res) == STRING) 
@@ -709,7 +714,7 @@ object_t list(object_t args)
  */ 
 object_t lisp_eval(object_t args) 
 { 
-    return eval(FIRST(args), current_env); 
+    return eval(FIRST(args), current_env, func_env); 
 } 
 
 /* 
@@ -737,7 +742,7 @@ object_t tagbody(object_t params)
     while (params != NULLOBJ) {
         obj = FIRST(params);
         if (TYPE(obj) != SYMBOL)
-            form = eval(obj, current_env);
+            form = eval(obj, current_env, func_env);
 	params = TAIL(params); 
     } 
     return form;

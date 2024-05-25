@@ -39,7 +39,7 @@ void test_car()
 			   new_pair(l, NULLOBJ));
     object_t o = new_pair(NEW_SYMBOL("CAR"),
 			   new_pair(q, NULLOBJ));
-    object_t res = eval(o, NULLOBJ);
+    object_t res = eval(o, NULLOBJ, NULLOBJ);
     ASSERT(TYPE(res), NUMBER);
     ASSERT(get_value(res), 5);
 }
@@ -58,7 +58,7 @@ void test_invalid_car()
     object_t q = new_pair(NEW_SYMBOL("QUOTE"), new_pair(l,NULLOBJ));// (quote 5)
     object_t o = new_pair(NEW_SYMBOL("CAR"),new_pair(q,NULLOBJ));// (car (quote 5))
     if (setjmp(jmp_env) == 0) {
-        object_t res = eval(o, NULLOBJ); 
+        object_t res = eval(o, NULLOBJ, NULLOBJ); 
         FAIL;
     } else 
         OK;
@@ -109,7 +109,7 @@ void test_cdr()
 			   new_pair(l, NULLOBJ));
     object_t o = new_pair(NEW_SYMBOL("CDR"),
 			   new_pair(q, NULLOBJ));
-    object_t res = eval(o, NULLOBJ);
+    object_t res = eval(o, NULLOBJ, NULLOBJ);
     ASSERT(res, nil);
 }
 
@@ -124,7 +124,7 @@ void test_invalid_cdr()
     object_t q = new_pair(NEW_SYMBOL("QUOTE"),new_pair(l,NULLOBJ));// (quote 5)
     object_t o = new_pair(NEW_SYMBOL("CDR"),new_pair(q,NULLOBJ));// (cdr (quote 5))
     if (setjmp(jmp_env) == 0) {
-	object_t res = eval(o, NULLOBJ);
+	object_t res = eval(o, NULLOBJ, NULLOBJ);
         FAIL;
     } else 
         OK;
@@ -173,7 +173,7 @@ void test_cons()
  			   new_pair(NEW_SYMBOL("A"), NULLOBJ)); 
     object_t o = new_pair(NEW_SYMBOL("CONS"), 
 			  new_pair(qa, new_pair(q, NULLOBJ))); 
-    object_t res = eval(o, NULLOBJ); 
+    object_t res = eval(o, NULLOBJ, NULLOBJ); 
     ASSERT(TYPE(FIRST(res)), SYMBOL); 
     ASSERT(TYPE(SECOND(res)), NUMBER); 
     ASSERT(get_value(SECOND(res)), 5);
@@ -188,7 +188,7 @@ void test_cons_noparams()
     printf("test_cons_noparams: ");
     object_t a = new_pair(NEW_SYMBOL("CONS"), NULLOBJ); 
     if (setjmp(jmp_env) == 0) {
-        object_t res = eval(a, NULLOBJ); 
+        object_t res = eval(a, NULLOBJ, NULLOBJ); 
 	FAIL;
     } else 
 	OK;
@@ -203,7 +203,7 @@ void test_cons_one_param()
     printf("test_cons_one_param: ");
     object_t a = new_pair(NEW_SYMBOL("CONS"), new_pair(new_number(5), NULLOBJ)); 
     if (setjmp(jmp_env) == 0) {
-        object_t res = eval(a, NULLOBJ); 
+        object_t res = eval(a, NULLOBJ, NULLOBJ); 
 	FAIL;
     } else 
 	OK;
@@ -222,7 +222,7 @@ void test_cons_3_params()
  				   new_pair(new_number(num),  
  					    new_pair(new_number(num), NULLOBJ)))); 
     if (setjmp(jmp_env) == 0) {
-        object_t res = eval(a, NULLOBJ); 
+        object_t res = eval(a, NULLOBJ, NULLOBJ); 
 	FAIL;
     } else 
 	OK;
@@ -239,7 +239,7 @@ void test_cons2()
 			   new_pair(NEW_SYMBOL("A"), NULLOBJ)); //(quote a))) 
     object_t o = new_pair(NEW_SYMBOL("CONS"), 
  			  new_pair(qa, new_pair(new_number(4), NULLOBJ))); //(cons (quote a) 4)) 
-    object_t res = eval(o, NULLOBJ); 
+    object_t res = eval(o, NULLOBJ, NULLOBJ); 
     ASSERT(TYPE(res), PAIR); 
     ASSERT(get_value(TAIL(res)), 4);
 }
