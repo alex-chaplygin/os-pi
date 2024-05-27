@@ -78,3 +78,17 @@
 (mk/update-fs update-last-free-block *last-free-block* +last-free-block-pos+)
 ;Поменять число свободных блоков
 (mk/update-fs update-free-blocks-count *free-blocks-count* +free-blocks-count-pos+)
+
+(defun fat-free-chain (chain)
+  "Освободить блоки FAT по цепочке chain"
+  (fat-free-chain* chain 0 +max-block+)
+  (remove-key *fat* (car chain)))
+(defun fat-free-chain* (chain count min)
+  "count - текущее число блоков, min - минимум из номеров блоков цепочки"
+  (if (null chain)
+      (progn
+	(when (< min *last-free-block*)	(update-last-free-block min))
+	(update-free-blocks-count (- *free-blocks-count* count)))
+      (let ((cur (car chain)))
+	(update-fat cur +free-block+)
+	(fat-free-chain* (cdr chain) (++ count) (if (< cur min) cur min)))))
