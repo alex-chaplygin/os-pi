@@ -739,12 +739,18 @@ object_t tagbody(object_t params)
 {                                  
     object_t obj;
     object_t form;
+    object_t tags = NULLOBJ; // Список функций метки
+    
     while (params != NULLOBJ) {
         obj = FIRST(params);
-        if (TYPE(obj) != SYMBOL)
-            form = eval(obj, current_env, func_env);
 	params = TAIL(params); 
-    } 
+        if (TYPE(obj) == SYMBOL)
+	    tags = new_pair(new_pair(obj, params), tags);
+        else
+            form = eval(obj, current_env);
+    }
+    
+    PRINT(tags);
     return form;
 }
 
