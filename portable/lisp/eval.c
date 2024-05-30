@@ -738,20 +738,23 @@ object_t error_func(object_t args)
 object_t tagbody(object_t params)  
 {                                  
     object_t obj;
-    object_t form;
+    object_t params2;
     object_t tags = NULLOBJ; // Список функций метки
-    
+    params2 = params;
     while (params != NULLOBJ) {
         obj = FIRST(params);
 	params = TAIL(params); 
         if (TYPE(obj) == SYMBOL)
-	    tags = new_pair(new_pair(obj, params), tags);
-        else
-            form = eval(obj, current_env);
+            tags = new_pair(new_pair(obj, params), tags);
     }
-    
+    while (params2 != NULLOBJ) {
+        obj = FIRST(params2);
+	params2 = TAIL(params2); 
+        if (TYPE(obj) != SYMBOL)
+            eval(obj, current_env, func_env);
+    }
     PRINT(tags);
-    return form;
+    return nil;
 }
 
 /** 
