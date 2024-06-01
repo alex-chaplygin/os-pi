@@ -81,7 +81,7 @@
 (defmethod load-dir((self Fat32FileSystem) block-list)
   "Загрузить каталог, находящийся в блоках из списка block-list"
   (let ((h (make-hash)))
-    (app '(lambda (f) (set-hash h (slot f 'name) f)) (load-dir* block-list))
+    (app '(lambda (file) (set-hash h (slot file 'name) file)) (load-dir* block-list))
     h))
 
 (defun load-dir*(block-list)
