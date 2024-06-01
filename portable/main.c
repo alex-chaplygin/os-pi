@@ -63,7 +63,7 @@ void boot_lisp()
 	    if (o == NOVALUE)
 		longjmp(repl_buf, 1);
 	    //printf("parse: "); PRINT(o);
-	    object_t res = eval(o, NULLOBJ);
+	    object_t res = eval(o, NULLOBJ, NULLOBJ);
 	    //printf("res: "); PRINT(res);
 	    PRINT(res);
 	    garbage_collect();
@@ -95,7 +95,7 @@ void kmain(void)
 	    if (o == NOVALUE)
 		longjmp(repl_buf, 1);
 	    //printf("parse: "); PRINT(o);
-	    object_t res = eval(o, NULLOBJ);
+	    object_t res = eval(o, NULLOBJ, NULLOBJ);
 	    PRINT(res);
 	}
 	garbage_collect();
