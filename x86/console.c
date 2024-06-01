@@ -82,7 +82,7 @@ void putchar(char c)
     videoptr[print_ptr + 1] = (back_color << 4) + symbol_color;
     print_ptr += 2;
     move_cursor();
-    if (cur_row == CONSOLE_ROWS) {
+    if (print_ptr > (CONSOLE_ROWS * CONSOLE_COLS * 2)) {
 	console_clear();
 	print_ptr = 0;
 	move_cursor();
