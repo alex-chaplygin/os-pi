@@ -794,7 +794,14 @@ object_t return_from(object_t arg)
  */
 object_t labels(object_t param) 
 { 
-    return progn(param);
+    object_t forms = FIRST(param);
+    while (forms != NULLOBJ) {
+        object_t first = FIRST(forms);
+        func_env = new_pair(new_pair(FIRST(first), new_pair(NEW_SYMBOL("LAMBDA"), TAIL(first))), func_env);
+	forms = TAIL(forms);
+    }
+    PRINT(func_env);
+    return progn(TAIL(param));
 }
 
 /*  
