@@ -2,17 +2,17 @@
 #define OBJECTS
 
 /// Всего пар
-#define MAX_PAIRS 1000000
+#define MAX_PAIRS 2000000
 /// Всего символов
 #define MAX_SYMBOLS 500
 /// Всего строк
-#define MAX_STRINGS 10000
+#define MAX_STRINGS 20000
 /// Всего массивов
 #define MAX_ARRAYS 200
 /// Максимальная длина символа
 #define MAX_SYM_STR 32
 /// Всего больших чисел
-#define MAX_NUMBERS 150
+#define MAX_NUMBERS 350
 
 #define PRINT(o) print_counter++; print_obj(o); printf("\n");
 #define ERROR (object_t)(-1)
@@ -143,8 +143,6 @@ typedef struct symbol_s
     object_t tag_value;
 #ifdef X32
     int pad[2];
-#else
-    int pad[3];
 #endif
 } symbol_t;
 

@@ -4,7 +4,7 @@
 /// Начальный адрес памяти
 #define MEM_START 0x200000 
 /// Всего байт для регионов 
-#define MAX_REGION_SIZE 40000000
+#define MAX_REGION_SIZE 100000000
 
 /// Метка региона
 #define MAGIC 0xABCD1234
