@@ -44,6 +44,14 @@
   (if (equal key (caar hash)) (rplacd prev (cdr hash))
       (remove-key* (cdr prev) (cdr hash) key)))
 
+(defun hash-first (hash)
+  "Вернуть первый элемент hash"
+  (cadr hash))
+
+(defun hash-value (el)
+  "Вернуть значение элемента el"
+  (cdr el))
+
 (defun hash-test ()
   (setq a (make-hash))
   (setq b (make-hash))
