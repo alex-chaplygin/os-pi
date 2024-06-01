@@ -1,4 +1,14 @@
 ; функции для работы со списками
+
+(defun caar(x) (car (car x)))
+(defun caadr(x) (car (car (cdr x))))
+(defun cadr(x) (car (cdr x)))
+(defun caddr(x) (car (cdr (cdr x))))
+(defun cadar(x) (car (cdr (car x))))
+(defun cdar(x) (cdr (car x)))
+(defun cdadr(x) (cdr (car (cdr x))))
+(defun cddr(x) (cdr (cdr x)))
+
 (defun append (list1 list2)
   "объединение двух списков (1 . (2 . nil)) (a . (b . nil))"
   "(append '(1 2) '(a b))"
