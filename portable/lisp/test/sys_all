@@ -611,4 +611,4 @@ sh sys_test "(tagbody 1 2 3 4)" "4"
 sh sys_test "(tagbody a 1 b 2 c 3 d 4 e)" "4"
 
 echo "---Тесты LABELS---"
-sh sys_test "(labels 1 2 3 4)" "4"
+sh sys_test "(labels ((func (x) x) (func2 (y) y)) (func 1) (func2 2))" "2"

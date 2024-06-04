@@ -493,6 +493,8 @@ object_t eval_symbol(object_t obj)
  */
 object_t eval(object_t obj, object_t env, object_t func)
 {
+    object_t args;
+    object_t res;
     //printf("eval: ");
     // PRINT(obj);
     //printf("env: ");
@@ -512,11 +514,12 @@ object_t eval(object_t obj, object_t env, object_t func)
 	    return eval_func(first, eval_args(TAIL(obj), env), env);
 	}
 	symbol_t *s = find_symbol(GET_SYMBOL(first)->str);
-	object_t args;
 	if (is_special_form(s) || s->macro != NULLOBJ)
 	    args = TAIL(obj);
 	else
 	    args = eval_args(TAIL(obj), env);
+	if (find_in_env(func, first, &res))
+	    return eval_func(res, args, env);
 	if (s->lambda != NULLOBJ)
 	    return eval_func(s->lambda, args, env);
 	else if (s->func != NULL)
@@ -800,7 +803,6 @@ object_t labels(object_t param)
         func_env = new_pair(new_pair(FIRST(first), new_pair(NEW_SYMBOL("LAMBDA"), TAIL(first))), func_env);
 	forms = TAIL(forms);
     }
-    PRINT(func_env);
     return progn(TAIL(param));
 }
 
