@@ -607,8 +607,19 @@ sh sys_test "(BLOCK)" "NIL"
 sh sys_test "(BLOCK 1 2 3)" "3"
 
 echo "---Тесты TAGBODY---"
-sh sys_test "(tagbody 1 2 3 4)" "4"
-sh sys_test "(tagbody a 1 b 2 c 3 d 4 e)" "4"
+sh sys_test "(tagbody (setq v 10) (go a) (setq v 20) a ) v" "NIL
+10"
+sh sys_test "
+(tagbody
+	(setq i 0)
+	(setq a 0)
+	(go test)
+	loop
+	(setq i (+ i 1))
+	(setq a (+ a 10))
+	test
+	(cond ((equal i 10) nil) (t (go loop)))) a" "NIL
+100"
 
 echo "---Тесты LABELS---"
 sh sys_test "(labels ((func (x) x) (func2 (y) y)) (func 1) (func2 2))" "2"

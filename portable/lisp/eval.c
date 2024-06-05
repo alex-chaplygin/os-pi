@@ -37,6 +37,8 @@ symbol_t *nil_sym;
 symbol_t *rest_sym;
 /// символ "TAGBODY"
 symbol_t *tagbody_sym;
+/// символ "GO"
+symbol_t *go_sym;
 /// символ "BLOCK"
 symbol_t *block_sym;
 /// символ "RETURN_FROM"
@@ -53,6 +55,10 @@ object_t func_env = NULLOBJ;
 jmp_buf repl_buf;
 /// точка возврата из block
 jmp_buf block_buf;
+/// точка вычисления меток tagbody
+jmp_buf tagbody_buf;
+///текущая метка перехода go
+object_t cur_label = NULLOBJ;
 
 // (eq 'a 'a) -> T 
 // (eq 'a 'b) -> () 
@@ -448,7 +454,8 @@ int is_special_form(symbol_t *s)
     return s == quote_sym || s == defun_sym || s == defmacro_sym
 	|| s == setq_sym || s == backquote_sym || s == cond_sym
 	|| s == or_sym || s == and_sym || s == return_from_sym
-	|| s == labels_sym || s == tagbody_sym || s == progn_sym; 
+	|| s == labels_sym || s == tagbody_sym || s == progn_sym
+	|| s == go_sym; 
 } 
 
 /* 
@@ -736,12 +743,13 @@ object_t error_func(object_t args)
  *
  * @param params список форм и меток
  *
- * @return значение последней формы
+ * @return nil
  */
 object_t tagbody(object_t params)  
 {                                  
     object_t obj;
     object_t params2;
+    object_t res;
     object_t tags = NULLOBJ; // Список функций метки
     params2 = params;
     while (params != NULLOBJ) {
@@ -750,14 +758,25 @@ object_t tagbody(object_t params)
         if (TYPE(obj) == SYMBOL)
             tags = new_pair(new_pair(obj, params), tags);
     }
+    if (setjmp(tagbody_buf) == 1 && find_in_env(tags, cur_label, &res))
+       params2 = res;
     while (params2 != NULLOBJ) {
         obj = FIRST(params2);
 	params2 = TAIL(params2); 
         if (TYPE(obj) != SYMBOL)
             eval(obj, current_env, func_env);
     }
-    PRINT(tags);
     return nil;
+}
+
+/* 
+ * Функция перехода 
+ * @param args метка перехода
+ */ 
+object_t go(object_t args)
+{
+    cur_label = FIRST(args);
+    longjmp(tagbody_buf, 1);
 }
 
 /** 
@@ -829,6 +848,7 @@ void init_eval()
     register_func("GC", print_gc_stat);
     register_func("ERROR", error_func);
     register_func("TAGBODY", tagbody);
+    register_func("GO", go);
     register_func("BLOCK", block); 
     register_func("RETURN_FROM", return_from);
     register_func("BLOCK", block);
@@ -850,6 +870,7 @@ void init_eval()
     nil_sym->value = nil; 
     rest_sym = find_symbol("&REST"); 
     tagbody_sym = find_symbol("TAGBODY");
+    go_sym = find_symbol("GO");
     block_sym = find_symbol("BLOCK");
     labels_sym = find_symbol("LABELS"); 
     progn_sym = find_symbol("PROGN");
