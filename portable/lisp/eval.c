@@ -758,8 +758,11 @@ object_t tagbody(object_t params)
         if (TYPE(obj) == SYMBOL)
             tags = new_pair(new_pair(obj, params), tags);
     }
-    if (setjmp(tagbody_buf) == 1 && find_in_env(tags, cur_label, &res))
-       params2 = res;
+    if (setjmp(tagbody_buf) == 1)
+	if (!find_in_env(tags, cur_label, &res))
+            error("tagbody: label %s not found", GET_SYMBOL(cur_label)->str);
+        else
+            params2 = res;
     while (params2 != NULLOBJ) {
         obj = FIRST(params2);
 	params2 = TAIL(params2); 
@@ -775,6 +778,8 @@ object_t tagbody(object_t params)
  */ 
 object_t go(object_t args)
 {
+    if (args == NULLOBJ)
+	error("go: no label");
     cur_label = FIRST(args);
     longjmp(tagbody_buf, 1);
 }

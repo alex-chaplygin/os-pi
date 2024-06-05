@@ -607,6 +607,8 @@ sh sys_test "(BLOCK)" "NIL"
 sh sys_test "(BLOCK 1 2 3)" "3"
 
 echo "---Тесты TAGBODY---"
+sh sys_test "(tagbody (setq v 10) (go b) (setq v 20) a ) v" "tagbody: label B not found"
+sh sys_test "(tagbody (go) (setq v 20) a )" "go: no label"
 sh sys_test "(tagbody (setq v 10) (go a) (setq v 20) a ) v" "NIL
 10"
 sh sys_test "
