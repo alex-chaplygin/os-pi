@@ -41,6 +41,15 @@ array_t *arrays;
 /// Список свободных массивов
 array_t *free_arrays = NULL;
 
+///Количество используемых больших чисел
+int total_bignumbers = 0;
+///Количество используемых пар
+int total_pairs = 0;
+///Количество используемых строк
+int total_strings = 0;
+///Количество используемых массивов
+int total_arrays = 0;
+
 /**
  * Инициализация объектов
  */
@@ -74,6 +83,7 @@ object_t new_bignumber(int num)
     number->next = NULL;
     number->free = 0;
     number->value = num;
+    total_bignumbers++;
     return NEW_OBJECT(BIGNUMBER, number);
 }
 
@@ -93,6 +103,7 @@ void free_bignumber(bignumber_t *o)
     o->next = free_bignumbers;
     free_bignumbers = o;
     o->free = 1;
+    total_bignumbers--;
 }
 
 /**
@@ -156,7 +167,8 @@ object_t new_pair(object_t left, object_t right)
     pair->next = NULL; 
     pair->free = 0; 
     pair->left = left; 
-    pair->right = right;   
+    pair->right = right;
+    total_pairs++;
     return NEW_OBJECT(PAIR, pair); 
 } 
 
@@ -175,6 +187,7 @@ void free_pair(pair_t *p)
     p->next = free_pairs;
     free_pairs = p;
     p->free = 1;
+    total_pairs--;
 }
 
 /**
@@ -222,6 +235,7 @@ string_t *new_string(char *str)
     strcpy(string->data, str);
     string->next = NULL;
     string->free = 0;
+    total_strings++;
     return string;
 }
 
@@ -242,6 +256,7 @@ void free_string(string_t *s)
     free_strings = s;
     s->free = 1;
     free_region(s->data);
+    total_strings--;
 }
 
 /** Создание нового объекта массива
@@ -276,6 +291,7 @@ array_t *new_array(object_t list)
 	*d++ = FIRST(a);
 	a = TAIL(a);
     }
+    total_arrays++;
     return array;
 }
 
@@ -303,6 +319,7 @@ array_t *new_empty_array(int length)
     object_t *d = array->data;
     for (int i = 0; i < length; i++)
 	*d++ = NULLOBJ;
+    total_arrays++;
     return array;
 }
 
@@ -322,6 +339,7 @@ void free_array(array_t *a)
     a->next = free_arrays;
     free_arrays = a;
     a->free = 1;
+    total_arrays--;
     free_region(a->data);
 }
 /**
