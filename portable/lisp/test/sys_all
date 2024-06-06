@@ -603,11 +603,12 @@ echo "---Тест ERROR---"
 sh sys_test "(progn 1 2 3 (error \"e\") 4 5 6)" "ERROR: \"e\""
 
 echo "---Тесты BLOCK---"
-sh sys_test "(BLOCK)" "NIL"
-sh sys_test "(BLOCK 1 2 3)" "3"
+sh sys_test "(BLOCK)" "block: no arguments"
+sh sys_test "(BLOCK A)" "NIL"
+sh sys_test "(BLOCK A 1 2 3)" "3"
 
 echo "---Тесты TAGBODY---"
-sh sys_test "(tagbody (setq v 10) (go b) (setq v 20) a ) v" "tagbody: label B not found"
+sh sys_test "(tagbody (setq v 10) (go b) (setq v 20) a )" "tagbody: label B not found"
 sh sys_test "(tagbody (go) (setq v 20) a )" "go: no label"
 sh sys_test "(tagbody (setq v 10) (go a) (setq v 20) a ) v" "NIL
 10"

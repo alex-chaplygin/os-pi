@@ -455,7 +455,7 @@ int is_special_form(symbol_t *s)
 	|| s == setq_sym || s == backquote_sym || s == cond_sym
 	|| s == or_sym || s == and_sym || s == return_from_sym
 	|| s == labels_sym || s == tagbody_sym || s == progn_sym
-	|| s == go_sym; 
+	|| s == go_sym || s == block_sym; 
 } 
 
 /* 
@@ -796,9 +796,11 @@ object_t block(object_t list)
 { 
     object_t obj; 
     if (list == NULLOBJ)
-	error("block: no arguments\n");
+	error("block: no arguments");
+    object_t first_param = FIRST(list);
+    object_t rest_params = TAIL(list);
     if (setjmp(block_buf) == 0)
-        return progn(list);
+        return progn(rest_params); // Передаем в progn остаток списка
 }
 
 /* 
