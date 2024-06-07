@@ -8,6 +8,11 @@
 #include "parser.h"
 #include "eval.h"
 
+/// текущее окружение
+object_t current_env = NULLOBJ;
+/// окружение функции
+object_t func_env = NULLOBJ;
+
 extern token_t *cur_token; // текущий токен
 int token_error;
 token_t token = {LPAREN, 0, ""};

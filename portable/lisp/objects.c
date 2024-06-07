@@ -50,6 +50,11 @@ int total_strings = 0;
 ///Количество используемых массивов
 int total_arrays = 0;
 
+/// текущее окружение
+extern object_t current_env;
+/// окружение функции
+extern object_t func_env;
+
 /**
  * Инициализация объектов
  */
@@ -423,7 +428,9 @@ void garbage_collect()
          mark_object(symbols[i].lambda);
          mark_object(symbols[i].macro);
      }
-     sweep();
+    mark_object(current_env);
+    mark_object(func_env);
+    sweep();
 } 
 
 int print_counter = 0;

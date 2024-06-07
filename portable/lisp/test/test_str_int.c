@@ -16,6 +16,10 @@ object_t code_char(object_t list);
 object_t subseq(object_t list);
 object_t int_to_str(object_t list);
 
+/// текущее окружение
+object_t current_env = NULLOBJ;
+/// окружение функции
+object_t func_env = NULLOBJ;
 jmp_buf jmp_env;
 
 void error(char *str, ...)

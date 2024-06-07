@@ -30,6 +30,10 @@ void free_string(string_t *s);
 object_t make_list(int num);
 
 jmp_buf jmp_env;
+/// текущее окружение
+object_t current_env = NULLOBJ;
+/// окружение функции
+object_t func_env = NULLOBJ;
 
 void error(char *str, ...)
 {

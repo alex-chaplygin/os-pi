@@ -8,6 +8,10 @@
 #include "parser.h"
 
 jmp_buf jmp_env;
+/// текущее окружение
+object_t current_env = NULLOBJ;
+/// окружение функции
+object_t func_env = NULLOBJ;
 
 void error(char *str, ...)
 {
