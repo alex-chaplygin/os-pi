@@ -684,6 +684,17 @@ void test_new_object(int type, void *val)
     ASSERT(TYPE(object), type);
 }
 
+/** 
+ * Тест создания и получения одиночного символа
+ *
+ * @param s символ
+ */
+void test_get_char(char s)
+{
+    printf("test_get_char: ");
+    object_t obj = NEW_CHAR(s);
+    ASSERT(GET_CHAR(obj), s);
+}
 
 /*
 object_new
@@ -762,6 +773,8 @@ void main()
     test_get_value(13);
     test_get_value(0);
     test_get_value(-6);
+    test_get_char('a');
+    test_get_char(' ');
     reset_mem();
     test_new_pair();
     test_free_pair();

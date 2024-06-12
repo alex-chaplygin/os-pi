@@ -47,12 +47,16 @@
 #define GET_SYMBOL(sym) ((symbol_t *)(GET_ADDR(sym)))
 //Получение массива
 #define GET_ARRAY(arr) ((array_t *)(GET_ADDR(arr)))
+//Получение одиночного символа
+#define GET_CHAR(obj) (obj >> TYPE_BITS + 1)
 //Создание массива
 #define NEW_ARRAY(a) (NEW_OBJECT(ARRAY, new_array(a)))
 //Создание символа
 #define NEW_SYMBOL(s) (NEW_OBJECT(SYMBOL, find_symbol(s)))
 //Создание строки
 #define NEW_STRING(s) (NEW_OBJECT(STRING, new_string(s)))
+//Создание одиночного символа
+#define NEW_CHAR(s) (NEW_OBJECT(CHAR, ((s) << TYPE_BITS + 1)))
 // Первый элемент списка
 #define FIRST(o) (GET_PAIR(o)->left)
 // Второй элемент списка
@@ -72,6 +76,7 @@ typedef enum {
     PAIR,    ///пара
     STRING,  ///строка
     ARRAY, ///массив
+    CHAR, ///одиночный символ
 } type_t;
 /// Тип для объекта
 #ifndef X32
