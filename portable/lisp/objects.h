@@ -48,7 +48,7 @@
 //Получение массива
 #define GET_ARRAY(arr) ((array_t *)(GET_ADDR(arr)))
 //Получение одиночного символа
-#define GET_CHAR(obj) (obj >> TYPE_BITS + 1)
+#define GET_CHAR(obj) ((obj) >> TYPE_BITS + 1)
 //Создание массива
 #define NEW_ARRAY(a) (NEW_OBJECT(ARRAY, new_array(a)))
 //Создание символа
