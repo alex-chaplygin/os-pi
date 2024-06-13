@@ -488,6 +488,8 @@ void print_obj(object_t obj)
  	printf("\"%s\"", ((string_t *)GET_ADDR(obj))->data);
     else if (TYPE(obj) == SYMBOL)
  	printf("%s", ((symbol_t *)GET_ADDR(obj))->str);
+    else if (TYPE(obj) == CHAR) 
+        printf("#\\%c", GET_CHAR(obj));
     else if (TYPE(obj) == PAIR) {
  	    printf("(");
  	    print_list(obj);

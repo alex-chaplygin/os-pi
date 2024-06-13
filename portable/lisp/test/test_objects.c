@@ -785,4 +785,6 @@ void main()
     PRINT(NEW_ARRAY(make_list(2)));
     PRINT(NEW_OBJECT(SYMBOL, new_symbol("asd")));
     PRINT(NEW_STRING("Pasha"));
+    PRINT(NEW_CHAR('1'));
+    PRINT(NEW_CHAR('a'));
 }
