@@ -72,7 +72,6 @@ int main()
 	    //printf("res: "); PRINT(res);
 	    PRINT(res);
 	}
-	garbage_collect();
     } while (token.type != END);
     return 0;
 }

@@ -2,7 +2,7 @@
 #define OBJECTS
 
 /// Всего пар
-#define MAX_PAIRS 2000000
+#define MAX_PAIRS 10000
 /// Всего символов
 #define MAX_SYMBOLS 500
 /// Всего строк
@@ -173,4 +173,5 @@ array_t *new_array(object_t list);
 array_t *new_empty_array(int length);
 void free_array(array_t *a);
 object_t print_gc_stat(object_t o);
+int need_grabage_collect();
 #endif

@@ -531,3 +531,21 @@ object_t print_gc_stat(object_t o)
     printf("used mem: %d of %d\n", regions_mem(), MAX_REGION_SIZE);
     return NULLOBJ;
 }
+
+/*  
+ * Проверка на необходимость в сборке мусора 
+ * 
+ * @return 1 - сборка мусора требуется, 0 - нет 
+ */ 
+int need_grabage_collect()
+{
+    if (total_pairs > (MAX_PAIRS - (MAX_PAIRS >> 3)))
+        return 1;
+    if (total_bignumbers > (MAX_NUMBERS - (MAX_NUMBERS >> 3)))
+        return 1;
+    if (total_strings > (MAX_STRINGS - (MAX_STRINGS >> 3)))
+        return 1;
+    if (total_arrays > (MAX_ARRAYS - (MAX_ARRAYS >> 3)))
+        return 1;
+    return 0;
+}

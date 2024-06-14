@@ -506,6 +506,8 @@ object_t eval(object_t obj, object_t env, object_t func)
     // PRINT(obj);
     //printf("env: ");
     //PRINT(env);
+    if (need_grabage_collect())
+	garbage_collect();
     current_env = env;
     func_env = func;
     if (obj == NULLOBJ)
