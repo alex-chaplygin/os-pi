@@ -66,7 +66,6 @@ void boot_lisp()
 	    object_t res = eval(o, NULLOBJ, NULLOBJ);
 	    //printf("res: "); PRINT(res);
 	    PRINT(res);
-	    garbage_collect();
 	} while (token.type != END);
     }
     boot_load = 0;
@@ -98,7 +97,6 @@ void kmain(void)
 	    object_t res = eval(o, NULLOBJ, NULLOBJ);
 	    PRINT(res);
 	}
-	garbage_collect();
     }
 }
 
