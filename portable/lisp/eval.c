@@ -825,9 +825,13 @@ object_t return_from(object_t arg)
  */
 object_t labels(object_t param) 
 { 
+    if (param == NULLOBJ)
+        error("labels: no parameters");
     object_t forms = FIRST(param);
     while (forms != NULLOBJ) {
         object_t first = FIRST(forms);
+        if (TYPE(first) != PAIR || TYPE(SECOND(first)) != PAIR)
+            error("labels: invalid function");
         func_env = new_pair(new_pair(FIRST(first), new_pair(NEW_SYMBOL("LAMBDA"), TAIL(first))), func_env);
 	forms = TAIL(forms);
     }
