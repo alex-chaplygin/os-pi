@@ -75,6 +75,8 @@ object_t parse_element(type_t type, void *data, tokentype_t t_type)
 	obj = NEW_OBJECT(SYMBOL, find_symbol(data));
     else if (t_type == T_STRING)
 	obj = NEW_STRING((char *)data);
+    else if (t_type == T_CHAR)
+	obj = NEW_CHAR(*(char *)data);
     else
 	obj = NEW_OBJECT(type, data);
     object_t tail = parse_list();
@@ -111,6 +113,9 @@ object_t parse_list()
     } else if (cur_tok->type == T_SYMBOL) {
         strcpy(str, cur_tok->str);
 	return parse_element(SYMBOL, strupr(str), cur_tok->type);
+    } else if (cur_tok->type == T_CHAR) {
+        val = cur_tok->value;
+        return parse_element(CHAR, &val, cur_tok->type);
     } else if (cur_tok->type == LPAREN || cur_tok->type == QUOTE
 	       || cur_tok->type == BACKQUOTE || cur_tok->type == COMMA
 	       || cur_tok->type == COMMA_AT || cur_tok->type == SHARP)
@@ -171,6 +176,8 @@ object_t parse()
 	return parse_array();
     else if (cur_token->type == T_STRING)
 	return NEW_STRING(cur_token->str);
+    else if (cur_token->type == T_CHAR)
+	return NEW_CHAR(cur_token->value);
     else if (cur_token->type == END)
         return NOVALUE;
     else if (cur_token->type == INVALID)
