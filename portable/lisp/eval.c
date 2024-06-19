@@ -512,7 +512,7 @@ object_t eval(object_t obj, object_t env, object_t func)
     func_env = func;
     if (obj == NULLOBJ)
         return NULLOBJ;
-    else if (TYPE(obj) == NUMBER || TYPE(obj) == BIGNUMBER || TYPE(obj) == STRING || TYPE(obj) == ARRAY)
+    else if (TYPE(obj) == NUMBER || TYPE(obj) == BIGNUMBER || TYPE(obj) == STRING || TYPE(obj) == ARRAY || TYPE(obj) == CHAR)
 	return obj;
     else if (TYPE(obj) == SYMBOL)
         return eval_symbol(obj);

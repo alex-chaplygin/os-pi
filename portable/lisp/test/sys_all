@@ -25,6 +25,7 @@ sh sys_test ")" "invalid expression"
 sh sys_test "((a b (1 2) e f)" "expected )" #10
 sh sys_test "((a b #(1 #(2 (3 4) 5)) c d )" "expected )" #11
 sh sys_test "#(1 #(2 3) 4)" "#(1 #(2 3) 4)" # 20
+sh sys_test '#\\1' '#\\1'
 
 echo "---Тесты ATOM---"
 sh sys_test "(atom 'a)" "T" # 2
