@@ -627,3 +627,11 @@ sh sys_test "
 
 echo "---Тесты LABELS---"
 sh sys_test "(labels ((func (x) x) (func2 (y) y)) (func 1) (func2 2))" "2"
+# нет параметров
+sh sys_test "(labels)" "labels: no parameters"
+# элемент списка функций не пара
+sh sys_test "(labels (x) x)" "labels: invalid function"
+# элемент списка функций не пара
+sh sys_test "(labels (f x) x)" "labels: invalid function"
+# элемент списка функций содержит второй элемент - не список параметров 
+sh sys_test "(labels ((f x)) x)" "labels: invalid function"
