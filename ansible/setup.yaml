@@ -1,0 +1,15 @@
+---
+- hosts: a207
+  gather_facts: no
+  become: true
+  tasks:
+    - name: Установка требуемых пакетов
+      yum:
+        name: "{{item}}"
+        state: latest
+      with_items:
+        - emacs
+        - gcc
+        - make
+        - nasm
+        - qemu-system-i386

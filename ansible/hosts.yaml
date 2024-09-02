@@ -1,0 +1,14 @@
+a207:
+  hosts:
+    127.0.0.*
+  vars:
+#    ansible_python_interpreter: /usr/bin/python2.7
+    # пользователь сервера с правами sudo
+ #   ansible_user: 
+    
+    # пользователь от которого будет работать сервер приложений
+    user_name: student
+        
+    # домашний каталог
+    home_dir: /home/{{ user_name }}
+    

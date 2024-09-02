@@ -1,0 +1,10 @@
+- hosts: a207
+  gather_facts: no
+  become: true
+  become_user: "{{ user_name }}"
+  tasks:
+    - name: Копирование конфигурации Emacs
+      copy:
+        src: emacs.conf
+        dest: "{{ home_dir }}/.emacs"
+        mode: 0644
