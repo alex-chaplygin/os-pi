@@ -102,7 +102,7 @@ void set_sign(bignum_t bignum, int sign)
  */
 void print_num(bignum_t bignum)
 {
-    if (bignum->sign == 1) 
+    if (bignum->sign == -1) 
         putchar('-');
     int i = bignum->size - 1;
     while (bignum->data[i] == 0 && i >= 0)
