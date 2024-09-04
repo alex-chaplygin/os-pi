@@ -1,15 +1,11 @@
 ---
-- hosts: a207
+- hosts: all
   gather_facts: no
   become: true
+  become_method: su
   tasks:
     - name: Установка требуемых пакетов
       yum:
-        name: "{{item}}"
+        name: ['emacs', 'gcc', 'make', 'nasm', 'qemu-system-x86']
         state: latest
-      with_items:
-        - emacs
-        - gcc
-        - make
-        - nasm
-        - qemu-system-i386
+        use_backend: yum3
