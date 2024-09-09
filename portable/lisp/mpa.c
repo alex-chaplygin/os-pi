@@ -163,6 +163,39 @@ int bignum_sum(bignum_t n1, bignum_t n2)
     return 0;
 }
 
+
+/**
+ * @brief перезаписывает 1-е большое число, вычитая из него 2-е
+ * 
+ * @param n1 - большое 1-е число 
+ * @param n2 - большое 2-е число 
+ */
+int bignum_sub(bignum_t n1, bignum_t n2)
+{
+    if (n1->size < n2->size ||
+        (n1->size == n2->size && n1->data[n1->size - 1] < n2->data[n2->size - 1])) {
+        printf("Args error: n1 < n2\n");
+        return -1;
+    }
+    int borrow = 0;
+    for (int i = 0; i < n1->size; i++) {
+        int sub = n1->data[i] - (i < n2->size ? n2->data[i] : 0) - borrow;
+        if (sub < 0) {
+            sub += 10;
+            borrow = 1;
+        } else
+            borrow = 0;
+        n1->data[i] = sub;
+    }
+    while (n1->size > 0 && n1->data[n1->size - 1] == 0)
+        n1->size--;
+    if (n1->size == 0) {
+        n1->size = 1;
+        n1->data[0] = 0;
+    }
+    return 0;
+}
+
 int main()
 {
     bignum_t bignum1 = new_bignum_from_str("-10220100434343002222");
