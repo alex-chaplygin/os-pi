@@ -6,6 +6,6 @@
   tasks:
     - name: Установка требуемых пакетов
       yum:
-        name: ['emacs', 'gcc', 'make', 'nasm', 'qemu-system-x86']
+        name: ['emacs', 'gcc', 'make', 'texlive', 'nasm', 'qemu-system-x86']
         state: latest
         use_backend: yum3
