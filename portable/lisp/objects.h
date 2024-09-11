@@ -13,6 +13,8 @@
 #define MAX_SYM_STR 32
 /// Всего больших чисел
 #define MAX_NUMBERS 350
+/// Всего вещественных чисел
+#define MAX_FLOATS 350
 
 #define PRINT(o) print_counter++; print_obj(o); printf("\n");
 #define ERROR (object_t)(-1)
@@ -72,6 +74,7 @@
 typedef enum {
     NUMBER, /// целое число, которое умещается в ADDR_BITS
     BIGNUMBER, /// целое число - 32 бита
+    FLOAT, /// число с плавающей точкой
     SYMBOL, ///символ
     PAIR,    ///пара
     STRING,  ///строка
@@ -85,6 +88,8 @@ typedef long long object_t;
 typedef unsigned int object_t;
 #endif
 
+/* Структуры объектов должны иметь размер, кратный 2^MARKBIT (сейчас 16 байт) */
+
 /// Структура большого целого числа
 typedef struct bignumber_s
 {
@@ -95,6 +100,16 @@ typedef struct bignumber_s
     int pad;
 #endif
 } bignumber_t;
+
+typedef struct float_s
+{
+    float value; // значение вещественного числа
+    struct float_s *next; // указатель на следующее свободное число
+    int free; // Если число свободно
+#ifdef X32
+    int pad;
+#endif
+} float_t;
 
 /// Структура пары
 typedef struct pair_s
