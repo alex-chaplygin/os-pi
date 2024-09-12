@@ -2,18 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define MAX_BIGNUM_SIZE 100
-#define MAX_BIGNUMS 100
-
-/// Структура вещественного числа, запсисанного в виде символов
-typedef struct bign
-{
-    int size; // количество цифр в числе
-    int sign; // знак числа
-    char data[MAX_BIGNUM_SIZE]; //указатель на массив цифр числа от младшей к старшей 
-    int exponent; // позиция плавающей точки, начиная справа
-} *bignum_t;
-
 static struct bign bignums[MAX_BIGNUMS];
 static int last_bignum = 0;
 
@@ -192,27 +180,6 @@ int bignum_sub(bignum_t n1, bignum_t n2)
     if (n1->size == 0) {
         n1->size = 1;
         n1->data[0] = 0;
-    }
-    return 0;
-}
-
-int main()
-{
-    bignum_t bignum1 = new_bignum_from_str("-10220100434343002222");
-    bignum_t bignum2 = new_bignum_from_str("10220100434343002222");
-    bignum_t bignum3 = new_bignum_from_str("0");
-
-    if (bignum1 && bignum2 && bignum3) {
-	printf("One num: ");
-	print_num(bignum1);
-	printf("\n");
-
-	printf("Two num: ");
-	print_num(bignum2);
-	printf("\n");
-
-	printf("Zero: ");
-	print_num(bignum3);
     }
     return 0;
 }
