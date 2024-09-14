@@ -506,10 +506,10 @@ object_t eval(object_t obj, object_t env, object_t func)
     // PRINT(obj);
     //printf("env: ");
     //PRINT(env);
-    if (need_grabage_collect())
-	garbage_collect();
     current_env = env;
     func_env = func;
+    if (need_grabage_collect())
+	garbage_collect();
     if (obj == NULLOBJ)
         return NULLOBJ;
     else if (TYPE(obj) == NUMBER || TYPE(obj) == BIGNUMBER || TYPE(obj) == STRING || TYPE(obj) == ARRAY || TYPE(obj) == CHAR)
