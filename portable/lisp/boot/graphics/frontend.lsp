@@ -1,6 +1,8 @@
+(defvar *new-path* nil)      ; Список строк
+
 (defvar *path-begin* (cons 0 0))     ; Последняя точка пути
-(defvar *path-cur* (cons 0 0))       ; Текущая точка пути
-(defvar *cur-state* (make-hash))     ; Текущее состояние
+(defvar *cur-point* nil)      ; Текущая точка
+(defvar *cur-state* (make-hash)) ; Текущее состояние
 (set-hash *cur-state* 'ctm (mat-id)) ; Матрица трансформации
 (set-hash *cur-state* 'color 0)      ; Цвет
 (defvar *sav-states* (list))         ; Список сохраненных состояний
@@ -18,18 +20,29 @@
   "Произведение матрицы трансформации"
   `(mat-mul (get-hash *cur-state* 'ctm) (mat-make ,a ,b ,c ,d ,tx ,ty)))
 
-(defmacro begin-path (x y)
+(defmacro begin-path ()
   "Начать новый контур"
-  `(setq *path-begin* (cons ,x ,y))
-  `(setq *path-cur* (cons ,x ,y)))
+  `(setq *new-path* nil))
+
+(defmacro move-to (x y)
+  "Переместить текущую точку"
+  `(setq *cur-point* (cons ,x ,y))
+  `(when (null *new-path*) (setq *path-begin* *cur-point*)))
 
 (defmacro line-to (x y)
-  "Рисование линии до точки"
-  `(let* ((ctm (get-hash *cur-state* 'ctm))
-          (xy1 (mat-mul-vec ctm *path-cur*))
-          (xy2 (mat-mul-vec ctm (cons ,x ,y))))
-    (draw-line (car xy1) (cdr xy1) (car xy2) (cdr xy2) (get-hash *cur-state* 'color))
-    (setq *path-cur* (cons ,x ,y))))
+  "Добавить строку в путь"
+   `(let* ((ctm (get-hash *cur-state* 'ctm))
+          (p1 (mat-mul-vec ctm *cur-point*))
+          (p2 (mat-mul-vec ctm (cons ,x ,y))))
+      (setq *new-path* (append *new-path* (list (cons p1 p2)))))
+  `(move-to ,x ,y))
+
+(defmacro stroke-path ()
+  "Отрисовать текущий путь"
+  `(dolist (line *new-path*)
+     (let* ((xy1 (car line))
+	    (xy2 (cdr line)))
+       (draw-line (car xy1) (cdr xy1) (car xy2) (cdr xy2) (get-hash *cur-state* 'color)))))
 
 (defmacro cubic-bezier (x1 y1 x2 y2 x3 y3 x4 y4)
   "Рисование кубической кривой Безье"
@@ -37,21 +50,17 @@
 
 (defmacro close-path ()
   "Завершение текущего пути"
-  `(let* ((ctm (get-hash *cur-state* 'ctm)))
-    (line-to (car *path-begin*) (cdr *path-begin*))))
-
-(defmacro stroke-path ()
-  "Рисование текущего пути"
-  )
+  `(line-to ,(car *path-begin*) ,(cdr *path-begin*)))
 
 (defmacro rectangle (x y w h)
   "Рисование прямоугольника"
-  `(let* ((ctm (get-hash *cur-state* 'ctm)))
-    (begin-path ,x ,y)
-    (line-to (+ ,x ,w) ,y)
-    (line-to (+ ,x ,w) (+ ,y ,h))
-    (line-to ,x (+ ,y ,h))
-    (close-path)))
+  `(begin-path)
+  `(move-to ,x ,y)
+  `(line-to (+ ,x ,w) ,y)
+  `(line-to (+ ,x ,w) (+ ,y ,h))
+  `(line-to ,x (+ ,y ,h))
+  `(line-to ,x ,y)
+  `(stroke-path))
 
 (defmacro set-colour (color)
   "Установка цвета"
@@ -67,23 +76,34 @@
 
 (defun frontend-test ()
   (bgr-set-res +screen-width+ +screen-height+ +screen-depth+)
-  (set-colour 1)
+  (set-colour 15)
 					; (translate 100 100)
 					; (scale 2 1)
-  (begin-path 100 50)
+  (begin-path)
+  (move-to 100 50)
   (line-to 200 100)
   (line-to 50 100)
+  (move-to 100 150)
+  (line-to 150 200)
   (close-path)
+  (stroke-path)
+  
 					; (cubic-bezier 10 10 200 10 200 150 50 150)
   (set-colour 2)
   (rectangle 10 10 30 30)
   (translate 50 10)
   (set-colour 3)
-  (begin-path 100 50)
+  (begin-path)
+  (move-to 100 50)
   (line-to 200 100)
   (line-to 50 100)
   (close-path)
+  (stroke-path)
+  
   (scale 1 2)
   (set-colour 4)
   (rectangle 10 10 30 30)
-  (graph-send-buffer *gr-buf*))
+  (graph-send-buffer *gr-buf*)
+  *new-path*)
+
+(frontend-test)
