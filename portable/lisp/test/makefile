@@ -34,3 +34,8 @@ coverage: $(TESTS) /tmp/test_sys
 	lcov -c -i -d ../ -o /tmp/base.info
 	for test in $(TESTS); do rm $$test; make $$test; bash -c $$test ; lcov -c -d ../ -o $$test.info ;	done
 	./make_report
+
+/tmp/profile:
+	gcc test_sys.c ../eval.c ../symbols.c ../objects.c ../parser.c ../lexer.c ../arith.c ../str.c ../array.c ../pair.c ../predicates.c ../alloc.c $(CFLAGS) -g -pg -o $@
+	./run
+	grpof $@ ../gmon.out
