@@ -28,6 +28,11 @@
       (funcall f (car list))
       (app f (cdr list)))))
 
+(defmacro dolist (params &rest body)
+  "Вариант app, обходит список с итерационной переменной"
+  "(dolist (x list) (setq a x) (setq b x))"
+  `(app '(lambda (,(car params)) ,@body) ,(cadr params)))
+
 (defun map (f list)
   "Применяет функцию f к каждому элементу списка list и возвращает новый список"
   (if (null list) nil
