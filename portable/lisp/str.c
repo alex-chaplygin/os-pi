@@ -202,6 +202,22 @@ object_t code_char(object_t list)
     return NEW_STRING(str);
 }
 
+/** 
+ * Печать объекта
+ *
+ * @param args <объект>
+ *
+ * @return nil 
+ */
+object_t print_object(object_t args)
+{
+     if (args == NULLOBJ)
+	error("PRINT: invalid params\n");
+     PRINT(FIRST(args));
+     return NULLOBJ;
+}
+
+
 void init_strings()
 {
     register_func("INTERN", intern);
@@ -212,4 +228,5 @@ void init_strings()
     register_func("SUBSEQ", subseq);
     register_func("INTTOSTR", int_to_str);
     register_func("CODE-CHAR",code_char);
+    register_func("PRINT", print_object);
 }
