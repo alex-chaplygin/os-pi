@@ -8,9 +8,9 @@
  * 
  */
 
+#include <objects.h>
 #include <x86/x86.h>
 #include <lexer.h>
-#include <objects.h>
 #include <parser.h>
 #include <eval.h>
 #include <portable/libc.h>
@@ -56,7 +56,9 @@ void boot_lisp()
 {
     boot_load = 1;
     boot_code = (char *)&_lisp_start;
+#ifdef REPL
     printf("boot = %x\n", &_lisp_start);
+#endif
     if (setjmp(repl_buf) == 0) {
 	do {
 	    object_t o = parse();
@@ -65,12 +67,16 @@ void boot_lisp()
 	    //printf("parse: "); PRINT(o);
 	    object_t res = eval(o, NULLOBJ, NULLOBJ);
 	    //printf("res: "); PRINT(res);
+#ifdef REPL
 	    PRINT(res);
+#endif
 	} while (token.type != END);
     }
     boot_load = 0;
     reset_buffer();
+#ifdef REPL    
     print_gc_stat(1);
+#endif
 }
 
 /** 
@@ -87,8 +93,9 @@ void kmain(void)
     init_sys();
     graph_init();
     boot_lisp();
-    while(1) {
-	if (setjmp(repl_buf) == 0) {
+    if (setjmp(repl_buf) == 0) {
+	while(1) {
+#ifdef REPL	
 	    printf("> ");
 	    object_t o = parse();
 	    if (o == NOVALUE)
@@ -96,7 +103,9 @@ void kmain(void)
 	    //printf("parse: "); PRINT(o);
 	    object_t res = eval(o, NULLOBJ, NULLOBJ);
 	    PRINT(res);
+#endif
 	}
     }
+    while (1);
 }
 
