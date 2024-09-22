@@ -33,7 +33,6 @@ global a_syscall
 global save_regs, restore_regs
 global inb, outb, inw, outw, indw, outdw, inw_arr, outw_arr
 global a_timer
-global a_interrupt_handler
 global disable_interrupts, enable_interrupts
 global a_keyboard_interrupt
 global get_sp
@@ -197,25 +196,6 @@ a_timer:
         add esp, 4
 	iret
 	
-	;; обработчик прерывания
-a_interrupt_handler:
-	;; сохранить регистры текущего процесса
-	;; установить стек ядра
-	;; подтверждение контроллеру прерываний
-	call end_of_interrupt
-	push eax		; номер прерывания
-	;; вызов обработчика прерывания
-	call interrupt_handler
-	add esp, 4
-	iret
-
-a_keyboard_interrupt:
-	push 0
-        call end_of_interrupt
-        add esp, 4
-	call keyboard_interrupt
-	iretd
-
 %macro exception 1
         cli
         push %1
@@ -225,6 +205,18 @@ a_keyboard_interrupt:
         iretd
 %endmacro
 
+%macro interrupt 1
+        cli			
+	push 1
+	call end_of_interrupt
+        add esp, 4
+        push %1
+        call interrupt_handler
+        add esp, 4
+        sti
+        iretd
+%endmacro
+	
 a_isrZeroDivisionException: exception 0
 a_isrDebugException: exception 1
 a_isrNonMaskableInterruptException: exception 2
@@ -245,6 +237,8 @@ a_isrCoprocessorFaultException: exception 16
 a_isrAlignmentCheckException: exception 17
 a_isrMachineCheckException: exception 18
 a_isrNonExistent: exception 19
+
+a_keyboard_interrupt: interrupt 21h	
 	
 kernel_code dw 0
 
