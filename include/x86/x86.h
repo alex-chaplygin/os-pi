@@ -2,6 +2,8 @@
 
 #define setjmp(x) _setjmp(x)
 
+void set_int_handler(int num, object_t func);
+
 extern uint inb(int num);
 extern void outb(int num, int data);
 extern uint inw(int num);
