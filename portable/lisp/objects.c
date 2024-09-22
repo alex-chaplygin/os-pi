@@ -430,6 +430,13 @@ void garbage_collect()
      }
     mark_object(current_env);
     mark_object(func_env);
+#ifdef OS
+    // обязательная пометка обработчиков прерываний
+    extern object_t int_handlers[];
+    for (int i = 0; i < 16; i++)
+	if (int_handlers[i])
+	    mark_object(int_handlers[i]);
+#endif
     sweep();
 } 
 
