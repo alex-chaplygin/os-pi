@@ -1,5 +1,7 @@
 #include <x86/console.h>
 #include <portable/libc.h>
+#include "../../portable/lisp/objects.h"
+#include "../../portable/lisp/eval.h"
 
 char *table[] = {
 "Divide-by-zero Error 	0 (0x0) 	Fault 	#DE 	No",
@@ -30,6 +32,13 @@ char *table[] = {
 "FPU Error Interrupt",
 };
 
+/// Всего аппаратных прерываний
+#define MAX_IRQ 16
+/// Базовый вектор аппаратных прерываний
+#define IRQ_BASE 0x20
+/// Таблица Lisp обработчиков прерываний
+object_t int_handlers[MAX_IRQ];
+
 /**
  * @brief Вызывается при панике ядра
  * 
@@ -46,9 +55,10 @@ void panic(){
  * 
  * @param num Номер исключения
  */
-void exception_handler(int num){
-  printf(table[num]);
-  //  panic();
+void exception_handler(int num)
+{
+    printf(table[num]);
+    panic();
 }
 
 /** 
@@ -56,5 +66,20 @@ void exception_handler(int num){
  * 
  * @param num Номер прерывания
  */
-void interrupt_handler(int num) {
+void interrupt_handler(int num)
+{
+    object_t h = int_handlers[num - IRQ_BASE];
+    if (h)
+	eval(new_pair(h, NULLOBJ), NULLOBJ, NULLOBJ);
+}
+
+/** 
+ * Установить Lisp обработчик прерываний
+ * 
+ * @param num Номер прерывания
+ * @param func lambda функция без параметров
+ */
+void set_int_handler(int num, object_t func)
+{
+    int_handlers[num] = func;
 }

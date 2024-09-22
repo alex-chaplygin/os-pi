@@ -7,10 +7,10 @@
  * 
  */
 
+#include <objects.h>
 #include <x86/x86.h>
 #include <x86/console.h>
 #include <portable/libc.h>
-#include <objects.h>
 #include <alloc.h>
 #include <symbols.h>
 #include <eval.h>
@@ -269,6 +269,21 @@ object_t SHOW_CURSOR(object_t args)
 }
 
 /** 
+ * Установить обработчик аппаратного прерывания
+ *
+ * @param args <номер irq> <lambda функция обработки>
+ *
+ * @return nil 
+ */
+object_t SET_INT_HANDLER(object_t args)
+{
+     if (args == NULLOBJ)
+	error("SET-INT-HANDLER: invalid params\n");
+     set_int_handler(get_value(FIRST(args)), SECOND(args));
+     return NULLOBJ;
+}
+
+/** 
  * Регистрация системных функций
  */
 void init_sys()
@@ -287,4 +302,5 @@ void init_sys()
     register_func("SET-BACK-COLOR", SET_BACK_COLOR);
     register_func("HIDE-CURSOR", HIDE_CURSOR);
     register_func("SHOW-CURSOR", SHOW_CURSOR);
+    register_func("SET-INT-HANDLER", SET_INT_HANDLER);
 }
