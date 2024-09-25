@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "mpa.h"
 
 static struct bign bignums[MAX_BIGNUMS];
 static int last_bignum = 0;
@@ -134,18 +135,18 @@ void bignum_from_int(bignum_t n, int num)
  */
 int bignum_sum(bignum_t n1, bignum_t n2) 
 {
-    if (n1->size < n2->size) {
-        printf("Args error");
-        return -1;
-    }
+    if (n1->size < n2->size)
+        n1->size = n2->size;
     int carry = 0;
-    for (int i = 0; i < n2->size; i++) {
+    for (int i = 0; i < n2->size; i++)
+    {
         int sum = n1->data[i] + n2->data[i] + carry;
         n1->data[i] = sum % 10;
-        carry = sum >= 10;
+        carry = sum / 10;
     }
-    if (carry) {
-        printf("Индекс за пределами массива!\n");
+    if (carry)
+    {
+        printf("Index outside the array\n");
         return -1;
     }
     return 0;
