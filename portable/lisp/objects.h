@@ -43,6 +43,8 @@
 #define GET_PAIR(obj) ((pair_t *)(GET_ADDR(obj)))
 //Получение 32-х битного числа
 #define GET_BIGNUMBER(num) ((bignumber_t *)(GET_ADDR(num)))
+//Получение вещественного числа
+#define GET_FLOAT(num) ((float_t *)(GET_ADDR(num)))
 //Получение строки
 #define GET_STRING(str) ((string_t *)(GET_ADDR(str)))
 //Получение символа
@@ -171,6 +173,7 @@ extern int print_counter;
 void init_objects();
 object_t new_bignumber(int num);
 object_t new_number(int num);
+object_t new_float(float nuw);
 int get_value(object_t obj);
 object_t new_pair(object_t left, object_t right);
 struct symbol_s *new_symbol(char *str);
@@ -179,6 +182,7 @@ object_t *dump_free(object_t *);
 void print_obj(object_t obj);
 void free_object(object_t *obj);
 void free_bignumber(bignumber_t *o);
+void free_float(float_t *f);
 void free_pair(pair_t *p);
 void print_free_objs();
 void print_free_pairs();

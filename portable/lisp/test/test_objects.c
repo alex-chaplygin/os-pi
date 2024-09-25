@@ -9,6 +9,8 @@
 
 extern bignumber_t *bignumbers;
 extern bignumber_t *free_bignumbers;
+extern float_t *floats;
+extern float_t *free_floats;
 extern pair_t *pairs;
 extern string_t *strings;
 extern array_t *arrays;
@@ -57,6 +59,15 @@ void test_new_bignumber(int number)
     //    ASSERT(GET_ADDR(bignumbers[last_number - 1].value), GET_ADDR(number));
 }
 
+/**
+ * Создать объект вещественное число и проверить, что оно правильно записалось
+ */
+void test_new_float(float number)
+{
+    printf("test_new_float: ");
+    object_t fl = new_float(number);
+    ASSERT(GET_FLOAT(fl)->value, number);
+}
 
 /**
  * Создать объект маленькое число и проверить, что оно правильно записалось
@@ -181,6 +192,21 @@ void test_free_bignumber2()
     object_t r_o2 = new_bignumber(2);
     ASSERT(o2, GET_BIGNUMBER(r_o1));
     ASSERT(o1, GET_BIGNUMBER(r_o2));
+}
+
+/** 
+ *Освобождение вещественного числа из объекта
+ */
+
+void test_free_float()
+{
+    printf("test_free_float: ");
+    reset_mem();
+    object_t o = new_float(800000.1232f);
+    printf("%x\n", o);
+    ASSERT(TYPE(o), FLOAT);
+    free_float((float_t *)GET_ADDR(o));
+    ASSERT(free_floats, (float_t *)GET_ADDR(o));
 }
 
 /**
@@ -762,6 +788,10 @@ void main()
     test_new_bignumber(-1520);
     test_free_bignumber();
     test_free_bignumber2();
+    test_new_float(-13.23f);
+    test_new_float(0.0f);
+    test_new_float(78.34f);
+    test_free_float();
     reset_mem();
     test_new_number(-677, NUMBER);
     test_new_number(56, NUMBER);

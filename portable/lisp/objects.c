@@ -15,6 +15,13 @@ bignumber_t *bignumbers;
 /// Список свободных больших чисел
 bignumber_t *free_bignumbers = NULL;
 
+/// Индекс последнего вещественного числа
+int last_float = 0;
+/// Хранилище вещественных чисел
+float_t *floats;
+/// Список свободных вещественных чисел
+float_t *free_floats = NULL;
+
 /// Индекс последней пары
 int last_pair = 0;
 /// Массив или хранилище пар
@@ -43,6 +50,8 @@ array_t *free_arrays = NULL;
 
 ///Количество используемых больших чисел
 int total_bignumbers = 0;
+///Количество используемых вещественных чисел
+int total_floats = 0;
 ///Количество используемых пар
 int total_pairs = 0;
 ///Количество используемых строк
@@ -62,6 +71,7 @@ void init_objects()
 {
     alloc_region(1);
     bignumbers = (bignumber_t *)alloc_region(MAX_NUMBERS * sizeof(bignumber_t));
+    floats = (float_t *)alloc_region(MAX_FLOATS * sizeof(float_t));
     pairs = (pair_t *)alloc_region(MAX_PAIRS * sizeof(pair_t));
     strings = (string_t *)alloc_region(MAX_STRINGS * sizeof(string_t));
     arrays = (array_t *)alloc_region(MAX_ARRAYS * sizeof(array_t));
@@ -109,6 +119,50 @@ void free_bignumber(bignumber_t *o)
     free_bignumbers = o;
     o->free = 1;
     total_bignumbers--;
+}
+
+/**
+ * Создание нового объекта вещественного числа
+ *
+ * @param  num вещественное число
+ * 
+ * @return указатель на объект числа
+/*  */
+object_t new_float(float num)
+{
+    float_t *number;
+    if (last_float == MAX_FLOATS)
+    {
+	if (free_floats == NULL)
+	    error("Error: out of memory: floats");
+	number = free_floats;
+	free_floats = free_floats -> next;
+    } else
+	number = &floats[last_float++];
+    number->next = NULL;
+    number->free = 0;
+    number->value = num;
+    total_floats++;
+    return NEW_OBJECT(FLOAT, number);
+}
+
+/**
+ * Освобождение памяти для вещественного числа
+ *
+ * @param o  объект для освобождения
+ */
+void free_float(float_t *f)
+{
+    if (f == NULL) {
+    	error("free_float: null pointer: obj");
+    	return;
+    }    
+    if (f->free)
+	return;
+    f->next = free_floats;
+    free_floats = f;
+    f->free = 1;
+    total_floats--;
 }
 
 /**
@@ -430,13 +484,6 @@ void garbage_collect()
      }
     mark_object(current_env);
     mark_object(func_env);
-#ifdef OS
-    // обязательная пометка обработчиков прерываний
-    extern object_t int_handlers[];
-    for (int i = 0; i < 16; i++)
-	if (int_handlers[i])
-	    mark_object(int_handlers[i]);
-#endif
     sweep();
 } 
 
