@@ -257,11 +257,14 @@ object_t defmacro(object_t obj)
 object_t progn(object_t params) 
 { 
     if (params == NULLOBJ)
- 	error("progn: params = NULLOBJ"); 
-    object_t obj = eval(FIRST(params), current_env, func_env); 
-    if (TAIL(params) == NULLOBJ) 
-	return obj;
-    return progn(TAIL(params)); 
+ 	error("progn: params = NULLOBJ");
+    object_t env = current_env;
+    object_t obj;
+    while (params != NULLOBJ) {
+	obj = eval(FIRST(params), env, func_env);
+	params = TAIL(params);
+    }
+    return obj;
 } 
 
 /*  
