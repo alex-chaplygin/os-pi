@@ -538,6 +538,8 @@ void print_obj(object_t obj)
  	printf("%d", get_value(obj));
     else if (TYPE(obj) == BIGNUMBER)
 	printf("%d", GET_BIGNUMBER(obj)->value);
+    else if (TYPE(obj) == FLOAT)
+	printf("%f", ((float_t *)GET_ADDR(obj))->value);
     else if (TYPE(obj) == STRING)
  	printf("\"%s\"", ((string_t *)GET_ADDR(obj))->data);
     else if (TYPE(obj) == SYMBOL)
