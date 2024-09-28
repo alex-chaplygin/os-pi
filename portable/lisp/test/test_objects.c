@@ -817,4 +817,5 @@ void main()
     PRINT(NEW_STRING("Pasha"));
     PRINT(NEW_CHAR('1'));
     PRINT(NEW_CHAR('a'));
+    PRINT(new_float(1.25));
 }
