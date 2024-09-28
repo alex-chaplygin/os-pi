@@ -8,6 +8,7 @@
  * @copyright Copyright (c) 2020
  * 
  */
+#include <objects.h>
 #include <x86/x86.h>
 #include <x86/irq.h>
 

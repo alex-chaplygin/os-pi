@@ -8,6 +8,7 @@
  * 
  * 
  */
+#include <objects.h>
 #include <x86/x86.h>
 #include <portable/libc.h>
 #include <portable/types.h>

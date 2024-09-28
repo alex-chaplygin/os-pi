@@ -9,6 +9,7 @@
  * 
  */
 
+#include <objects.h>
 #include <x86/console.h>
 #include <portable/libc.h>
 #include <portable/types.h>
