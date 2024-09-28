@@ -26,6 +26,9 @@ sh sys_test "((a b (1 2) e f)" "expected )" #10
 sh sys_test "((a b #(1 #(2 (3 4) 5)) c d )" "expected )" #11
 sh sys_test "#(1 #(2 3) 4)" "#(1 #(2 3) 4)" # 20
 sh sys_test '#\\1' '#\\1'
+sh sys_test "1.25" "1.250000"
+sh sys_test "'(1.25 1.82 3.56 6.12 2 5.77 )" "(1.250000 1.820000 3.560000 6.120000 2 5.770000)"
+sh sys_test "'(1.23333)" "(1.233330)"
 
 echo "---Тесты ATOM---"
 sh sys_test "(atom 'a)" "T" # 2
