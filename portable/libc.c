@@ -216,6 +216,9 @@ void vprintf(char *format, va_list args)
         } else if (symbol == '%' && next_symbol == 'd') {
             print_num(va_arg(args, int));
             i++;
+        } else if (symbol == '%' && next_symbol == 'f') {
+            print_num(va_arg(args, int));
+            i++;
         } else if (symbol == '%' && next_symbol == 'x') {
             print_hex_num(va_arg(args, unsigned int));
             i++;
