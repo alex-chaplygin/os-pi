@@ -143,7 +143,7 @@ object_t backquote_rec(object_t list)
  	return NULLOBJ; 
     //PRINT(list); 
     object_t o; 
-    if (TYPE(list) == NUMBER || TYPE(list) == BIGNUMBER) 
+    if (TYPE(list) == NUMBER || TYPE(list) == FLOAT || TYPE(list) == BIGNUMBER) 
 	return new_number(get_value(list)); 
     else if (TYPE(list) == SYMBOL) 
 	return NEW_SYMBOL(GET_SYMBOL(list)->str); 
@@ -515,7 +515,7 @@ object_t eval(object_t obj, object_t env, object_t func)
 	garbage_collect();
     if (obj == NULLOBJ)
         return NULLOBJ;
-    else if (TYPE(obj) == NUMBER || TYPE(obj) == BIGNUMBER || TYPE(obj) == STRING || TYPE(obj) == ARRAY || TYPE(obj) == CHAR)
+    else if (TYPE(obj) == NUMBER || TYPE(obj) == BIGNUMBER || TYPE(obj) == FLOAT || TYPE(obj) == STRING || TYPE(obj) == ARRAY || TYPE(obj) == CHAR)
 	return obj;
     else if (TYPE(obj) == SYMBOL)
         return eval_symbol(obj);
