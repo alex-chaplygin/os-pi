@@ -235,6 +235,15 @@ token_t tok_list_invalid_token[] = {
     {INVALID},
     {RPAREN}
 };
+
+token_t float_tokens[] = {
+    {LPAREN},
+    {T_FLOAT, 0x40b47ae1},//5.64
+    {T_FLOAT, 0x3fa00000},//1.25
+    {T_FLOAT, 0x3fe8f5c3},//1.82
+    {RPAREN},
+    {END}
+};
     
 token_t *tokens;
 jmp_buf jmp_env;
@@ -251,6 +260,7 @@ void error(char *str, ...)
 
 void print_token(token_t *token)
 {
+    printf( "%d ", token->type);
     switch (token->type) {
     case T_NUMBER:
 	printf("NUM %d\n", token->value);
@@ -724,7 +734,24 @@ void test_parse_token_error()
     } else
         OK;
     token_error = 0; 
-} 
+}
+
+void test_parse_float()
+{
+    printf("test_parse_float:"); 
+    count = 0; 
+    cur_token = &token; 
+    tokens = float_tokens;  
+    if (setjmp(jmp_env) == 0) {
+        object_t o = parse();
+        ASSERT(5.64f - GET_FLOAT(FIRST(o))->value < 0.000001f, 1) ;
+	ASSERT(1.25f - GET_FLOAT(SECOND(o))->value == 0, 1) ;
+	printf("%f\n", GET_FLOAT(SECOND(o))->value);
+	ASSERT(1.82f - GET_FLOAT(THIRD(o))->value < 0.000001f, 1) ;
+    } else
+        FAIL;
+    token_error = 0; 
+}
 
 /*
  * условие   | правильный класс       | неправильный класс
@@ -794,5 +821,6 @@ int main()
     test_parse_token_error();
     test_parse_list_expected_rparen();
     test_parse_list_invalid_token();
+    test_parse_float();
     return 0;
 }
