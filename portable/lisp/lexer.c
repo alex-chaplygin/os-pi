@@ -50,7 +50,7 @@ void get_cur_char()
 	cur_symbol = symbol_buffer[buffer_read_pos++];
 	buffer_read_pos &= SYMBOL_BUFFER_SIZE - 1;
     }
-    //    printf("get_cur_char: '%c' read=%d write=%d\n", cur_symbol, buffer_read_pos, buffer_write_pos);
+    //printf("get_cur_char: '%c' read=%d write=%d\n", cur_symbol, buffer_read_pos, buffer_write_pos);
 }
 
 /** 
@@ -195,28 +195,9 @@ int get_float_num(int int_num)
 	get_cur_char();
     }
     float res_float = int_num > 0 ?  int_num + (float_num / count) : int_num - (float_num / count);
-    printf("res_float is equal  %f\n", res_float);
-    /*printf("sign is equal  %d\n", sign);
-    if (sign == -1) {
-	printf("Inside if block sign is %d\n", sign);
-	printf("res_float before minus is equal %f\n", res_float);
-	res_float = -res_float;
-	printf("res_float after minus is equal %f\n", res_float);
-	}*/
-    //res_float = -res_float;
+    //   printf("res_float is equal  %f\n", res_float);
+    unget_cur_char();
     return *(int *)&res_float;
-    /*    printf("res = %f\n", res_float);
-    while (num != 1) {
-	cnt++;
-	num >>= 1;
-    }
-    printf("cnt = %d\n", cnt);
-    int exp = cnt + 127;
-    printf("int = %d exp = %x\n", int_num, exp);
-    int mantissa = int_num & ((1 << cnt) - 1);
-    printf("man = %x\n", mantissa);
-    int result = (exp << 23) | (mantissa << (23 - cnt));
-    return result;*/
 }
 
 /** 
@@ -448,6 +429,9 @@ void print_token(token_t *token)
     switch (token->type) {
     case T_NUMBER:
 	printf("NUM %d\n", token->value);
+	break;
+    case T_FLOAT:
+	printf("FLOAT %f\n", *(float*)&token->value);
 	break;
     case T_SYMBOL:
 	printf("SYM %s\n", token->str);
