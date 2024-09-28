@@ -69,6 +69,8 @@ object_t parse_element(type_t type, void *data, tokentype_t t_type)
 	obj = parse_quote("COMMA-AT");
     else if (t_type == LPAREN)
 	obj = parse_list();
+    else if (t_type == T_FLOAT)
+	obj = new_float(*(float*)data);
     else if (t_type == T_NUMBER)
 	obj = new_number(*(int *)data);
     else if (t_type == T_SYMBOL)
@@ -96,8 +98,8 @@ object_t parse_list()
     int val;
     char str[MAX_STR];
     token_t *cur_tok = get_token();
-    //   printf("parselist: ");
-    //   print_token(cur_tok);
+    // printf("parselist: ");
+    // print_token(cur_tok);
     if (token_error == 1)
         error("parse: token_error");
     if (cur_tok->type == END)
@@ -107,6 +109,9 @@ object_t parse_list()
     if (cur_tok->type == T_NUMBER) {
         val = cur_tok->value;
 	return parse_element(NUMBER, &val, cur_tok->type);
+    } else if(cur_tok->type == T_FLOAT){
+    	val = cur_tok->value;
+    	return parse_element(FLOAT, &val, cur_tok->type);
     } else if (cur_tok->type == T_STRING) {
 	strcpy(str, cur_tok->str);
 	return parse_element(STRING, str, cur_tok->type);
@@ -156,12 +161,14 @@ object_t parse()
 {   
     object_t el; // создаем новый элемент
     token_t *cur_token = get_token(); // считывается левая скобка
-    // printf("parse: ");
-    // print_token(cur_token);
+    //printf("parse: ");
+    //print_token(cur_token);
     if (token_error == 1)
         error("parse: token_error");
     if (cur_token->type == T_NUMBER) // считывается число
 	return new_number(cur_token->value);
+    else if (cur_token->type == T_FLOAT)
+	return new_float(*(float *)&cur_token->value);
     else if (cur_token->type == T_SYMBOL)//считывается символ
 	return NEW_OBJECT(SYMBOL, find_symbol(strupr(cur_token->str)));
     else if (cur_token->type == LPAREN)
