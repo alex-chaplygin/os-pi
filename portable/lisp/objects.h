@@ -2,7 +2,7 @@
 #define OBJECTS
 
 /// Всего пар
-#define MAX_PAIRS 10000
+#define MAX_PAIRS 100000
 /// Всего символов
 #define MAX_SYMBOLS 500
 /// Всего строк
@@ -100,6 +100,8 @@ typedef struct bignumber_s
     int free; // Если 1 - число свободно
 #ifdef X32
     int pad;
+#else
+    int pad[3];    
 #endif
 } bignumber_t;
 
@@ -110,6 +112,8 @@ typedef struct float_s
     int free; // Если число свободно
 #ifdef X32
     int pad;
+#else
+    int pad[3];
 #endif
 } float_t;
 
