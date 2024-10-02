@@ -18,7 +18,8 @@
 
 #define PRINT(o) print_counter++; print_obj(o); printf("\n");
 #define ERROR (object_t)(-1)
-#define NULLOBJ 3
+/// Объект пустой список(пустой объект)
+#define NULLOBJ PAIR 
 /// Отсутствие значения у переменных
 #define NOVALUE (0xF)
 /// Число бит на тип объекта
