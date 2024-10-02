@@ -84,3 +84,13 @@
 		 (tail (cdr list)))
 	     (append (sort (filter tail '(lambda (x) (funcall pr x head))) pr)
 		     (cons head (sort (filter tail '(lambda (x) (not (funcall pr x head)))) pr)))))))
+
+(defun minp* (list pred min)
+  (if (null list) min
+    (let ((first (car list)))
+      (minp* (cdr list) pred
+	     (if (funcall pred min first) min first)))))
+
+(defun minp (list pred)
+  "Возвращает минимальный элемент списка по предикату. Предикат pred принимает два элемента списка и возвращает T, если первый элемент меньше второго"
+  (minp* (cdr list) pred (car list)))
