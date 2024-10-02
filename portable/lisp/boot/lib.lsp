@@ -64,11 +64,16 @@
   "(for i 0 10 (seta arr i i))"
   `(inner-for ,(intern (concat "for-" (symbol-name var))) ,var ,start ,end ,@body))
 
-(defmacro while (test &rest body)
+(defmacro while (test &rest bod)
   "Цикл while"
-  `(cond ((not ,test) 'end)
-    (t (progn ,@body
-        (while ,test ,@body)))))
+  (let ((loops (gensym))
+	(tests (gensym)))
+    `(tagbody
+	(go ,tests)
+	,loops
+	,@bod
+	,tests
+	(cond ((not ,test) nil) (t (go ,loops))))))
 
 (defmacro let (vars &rest body)
   "Блок локальных переменных"
