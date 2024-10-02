@@ -13,19 +13,18 @@
           (seta *gr-buf* (+ x (* y +screen-width+)) colour)
           nil) nil) nil) nil))
 
-(defun draw-line (x1 y1 x2 y2 colour)
-  "Рисование линии"
-  "x1 y1 x2 y2 - координаты начала и конца линии, colour - цвет"
+(defun mid-point (x1 y1 x2 y2)
+  "Алгоритм средней точки"
   (let* ((dx (abs (- x2 x1)))
          (dy (abs (- y2 y1)))
          (signx (if (< x1 x2) 1 (- 0 1)))
          (signy (if (< y1 y2) 1 (- 0 1)))
          (error1 (- (abs (- x2 x1)) (abs (- y2 y1))))
-         (error2 0))
-    (set-pixel x2 y2 colour)
+         (error2 0)
+         (points nil))
     (while (or (not (= x1 x2)) (not (= y1 y2)))
       (progn
-        (set-pixel x1 y1 colour)
+        (setq points (append points (list (cons x1 y1))))
         (setq error2 (* error1 2))
         (if (> error2 (- 0 dy))
           (progn
@@ -36,7 +35,32 @@
           (progn
             (setq error1 (+ error1 dx))
             (setq y1 (+ y1 signy)))
-        nil)))))
+        nil)))
+    (setq points (append points (list (cons x2 y2))))))
+
+(defun draw-line (x1 y1 x2 y2 colour)
+  "Рисование линии"
+  (let ((points (mid-point x1 y1 x2 y2)))
+    (dolist (p points)
+      (set-pixel (car p) (cdr p) colour))))
+
+(defun draw-hline (x1 x2 y colour)
+  "Рисование горизонтальной линии"
+  (if (< x1 x2)
+      (for x x1 x2
+        (set-pixel x y colour))
+      (for x x2 x1
+	   (set-pixel x y colour))))
+
+(defun fill-triangle (x1 y1 x2 y2 x3 y3 colour)
+  "Рисование залитого треугольника"
+  (let ((p1p2 (mid-point x1 y1 x2 y2))
+        (p1p3 (mid-point x1 y1 x3 y3)))
+    (while (not (null p1p2))
+      (let ((p1 (car p1p2))
+	    (p2 (car p1p3)))
+          (draw-hline (car p1) (car p2) (cdr p1) colour)
+          (setq p1p2 (cdr p1p2) p1p3 (cdr p1p3))))))
 
 (defun draw-rect (x y w h colour)
   "Рисование полого прямоугольника"
@@ -133,4 +157,11 @@
 (defun bezier-test ()
   (bgr-set-res +screen-width+ +screen-height+ +screen-depth+)
   (draw-bezier-curve 10 10 100 100 200 100 300 10 1)
+  (graph-send-buffer *gr-buf*))
+
+(defun draw-line-test ()
+  (bgr-set-res +screen-width+ +screen-height+ +screen-depth+)
+  (draw-line 5 10 100 100 1)
+  (draw-hline 10 100 10 1)
+  (fill-triangle 50 10 10 50 100 50 1)
   (graph-send-buffer *gr-buf*))
