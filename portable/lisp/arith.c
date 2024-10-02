@@ -9,6 +9,33 @@ extern object_t t;
 extern object_t nil;
 
 /** 
+ * Сложение чисел с плавающей точкой
+ *
+ * @param list - список чисел (1.56 2 3.67)
+ * @param sum - начальная сумма
+ *
+ * @return сумму
+ */
+object_t add_float(object_t list, float sum)
+{
+    if(list == NULLOBJ)
+	error("add: no arguments\n");
+    while(list != NULLOBJ) {
+	object_t first = FIRST(list);
+	if (TYPE(first) == FLOAT){
+	    sum += GET_FLOAT(first)->value;
+	    list = TAIL(list);
+	}
+	else if(IS_NUMBER(first)) {
+	    sum += get_value(first);
+	    list = TAIL(list);
+	}
+	else
+	    error("add: Not number\n");    }
+    return new_float(sum);
+}
+
+/** 
  * Сложение аргументов (+ 1 2 3)
  *
  * @param list - список чисел (1 2 3)
@@ -26,6 +53,8 @@ object_t add(object_t list)
 	        num += get_value(first);
 	        list = TAIL(list);
 	    }
+	    else if(TYPE(first) == FLOAT)
+		return add_float(list, num);
 	    else
 	        error("add: Not number\n");
     }
