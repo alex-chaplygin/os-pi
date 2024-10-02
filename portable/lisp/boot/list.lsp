@@ -28,11 +28,23 @@
       (funcall f (car list))
       (app f (cdr list)))))
 
-(defmacro dolist (params &rest body)
+(defmacro dolist (params &rest bod)
   "Вариант app, обходит список с итерационной переменной"
   "(dolist (x list) (setq a x) (setq b x))"
-  `(app '(lambda (,(car params)) ,@body) ,(cadr params)))
-
+  (let ((loops (gensym))
+	(tests (gensym))
+	(var (car params))
+	(list (gensym)))
+    `(tagbody
+	(setq ,list ,(cadr params))
+	(go ,tests)
+	,loops
+	(setq ,var (car ,list))
+	(setq ,list (cdr ,list))
+	,@bod
+	,tests
+	(cond ((null ,list) nil) (t (go ,loops))))))
+	
 (defun map (f list)
   "Применяет функцию f к каждому элементу списка list и возвращает новый список"
   (if (null list) nil
