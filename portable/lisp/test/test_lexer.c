@@ -131,7 +131,7 @@ void test_get_num(char* src, int expect)
  */
 void test_get_float_num(char* src, float expect)
 {
-    printf("test_get_num: ");
+    printf("test_get_float_num: %s ", src);
     write_file(src);
     fclose(stdin);
     stdin = oldstdin;
@@ -381,6 +381,8 @@ int main()
     test_get_float_num("10.567", 10.567f);
     test_get_float_num("1024.1024", 1024.1024f);
     test_get_float_num("-1024.1024", -1024.1024f);
+    test_get_float_num("0.25", 0.25f);
+    test_get_float_num("-0.25", -0.25f);
     test_get_symbol("Hello 12", "Hello"); // 14
     test_get_symbol("* 1 2", "*"); // 14
     test_get_token("lparen", "(", LPAREN); // 1

@@ -180,7 +180,7 @@ int hex_num()
  * @param int_num целая часть числа
  * @return число с плавающей точкой в формате int
  */
-int get_float_num(int int_num)
+int get_float_num(int int_num, int sgn)
 {
     int cnt = 0;
     float float_num = 0;
@@ -194,8 +194,11 @@ int get_float_num(int int_num)
 	count *= 10;
 	get_cur_char();
     }
-    float res_float = int_num > 0 ?  int_num + (float_num / count) : int_num - (float_num / count);
-    //   printf("res_float is equal  %f\n", res_float);
+    //printf("float = %f int = %d count = %f \n", float_num, int_num, count);
+    float res_float = int_num >= 0 ?  int_num + (float_num / count) : int_num - (float_num / count);
+    if (int_num == 0)
+	res_float *= sgn;
+    //printf("res_float is equal  %f\n", res_float);
     unget_cur_char();
     return *(int *)&res_float;
 }
@@ -223,7 +226,7 @@ int get_num()
 	if (is_digit(cur_symbol)) {
 	    cur_num = cur_num * 10 + sgn * (cur_symbol - '0');
 	    msb = (cur_num >> sgn_shr) & 1;
-	    if (msb != fl) {
+	    if (msb != fl && sgn == 1) {
 		token_error = 1;
 		printf("number overflow\n");
 		return 0;
@@ -231,7 +234,7 @@ int get_num()
 	    get_cur_char();
 	} else if (cur_symbol == '.') {
 	    token.type = T_FLOAT;
-	    return get_float_num(cur_num);
+	    return get_float_num(cur_num, sgn);
 	} else {
 	    token_error = 1;
 	    printf("invalid num\n");
