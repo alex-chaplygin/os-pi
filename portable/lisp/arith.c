@@ -189,7 +189,6 @@ object_t div_float(object_t first, object_t second)
 	error("div: Not number\n");
     GET_F(first, f);
     GET_F(second, s);
-    printf("%f %f\n", f, s);
     return new_float(f / s);  
 }
 
