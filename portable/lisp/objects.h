@@ -37,7 +37,11 @@
 /// Очистка бита пометки
 #define CLEAR_MARK(obj) ((obj) &= ~(1 << TYPE_BITS))
 /// Получить адрес объекта
-#define GET_ADDR(obj) (((obj) >> MARK_BIT) << MARK_BIT)
+#ifdef X32
+#define GET_ADDR(obj) ((obj) & 0xfffffff0)
+#else
+#define GET_ADDR(obj) ((obj) & 0xfffffffffffffff0)
+#endif
 //макрос, который строит указатель, состоящий из типа в младших битах и значения в остальных
 #define NEW_OBJECT(type, val) ((object_t)(val) + (type))
 //Получение пары из объекта
