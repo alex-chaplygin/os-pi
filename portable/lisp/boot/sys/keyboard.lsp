@@ -1,10 +1,31 @@
 (defconst +key-irq+ 1)
+(defconst +key-left+ 0x4b)
+(defconst +key-right+ 0x4d)
+(defconst +key-up+ 0x48)
+(defconst +key-down+ 0x50)
+(defconst +key-0+ 0x0B)
+(defconst +key-1+ 0x02)
+(defconst +key-2+ 0x03)
+(defconst +key-3+ 0x04)
+(defconst +key-4+ 0x05)
+(defconst +key-5+ 0x06)
+(defconst +key-6+ 0x07)
+(defconst +key-7+ 0x08)
+(defconst +key-8+ 0x09)
+(defconst +key-9+ 0x0A)
+
+(defvar *keys* (make-array 128))
 
 (defun key-handler ()
   (let ((status (inb 0x64)))
     (when (= (& status 1) 1)
       (let ((scan (inb 0x60)))
-	(when (< scan 128)
-	  (print scan))))))
+	(if (< scan 128)
+	    (seta *keys* scan t)
+	    (seta *keys* (- scan 128) nil))))))
+
+(defun key-pressed (key)
+  "Вовращает состояние нажатия клавиши key"
+  (aref *keys* key))
 
 (set-int-handler +key-irq+ 'key-handler)
