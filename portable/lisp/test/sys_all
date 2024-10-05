@@ -140,12 +140,34 @@ sh sys_test "(+ 1.25 3.11)" "4.360000"
 sh sys_test "(+ 1.25 3.11 2.05)" "6.410000"
 sh sys_test "(+ 1 2 3.11 2.25)" "8.360000"
 sh sys_test "(+ 1 2 3.11 2 2.25)" "10.360000"
-sh sys_test "(+ 1 2 3.11 2 \"\")" "add: Not number
-"
+sh sys_test "(+ 1 2 3.11 2 \"\")" "add: Not number"
 sh sys_test "(1" "expected )"
 sh sys_test "(+ 1 2 3 5)" "11"
 sh sys_test "(- 9 5 1 1)" "2"
+sh sys_test "(+ 1 0.25)" "1.250000"
+
+sh sys_test "(- 5 2.5)" "2.500000"
+sh sys_test "(- 10 1.35 5 2.3)" "1.350000"
+sh sys_test "(- 10.1 2)" "8.100000"
+sh sys_test "(- 10.1 2 \"\")" "sub: Not number
+"
+
+sh sys_test "(* 123 123 0 421)" "0"
+sh sys_test "(* 9 5 1 1)" "45"
+sh sys_test "(* 5 2.5)" "12.500000"
+sh sys_test "(* 10 1.35 5 2.3)" "155.250000"
+sh sys_test "(* 10.1 2)" "20.200001"
+sh sys_test "(* 10.1 2.25 3.5)" "79.537498"
+sh sys_test "(* 10.1 2 \"\")" "mul: Not number
+"
 sh sys_test "(* 1 2 3 5)" "30"
+
+sh sys_test "(/ 30 2)" "15"
+sh sys_test "(/ 30 0)" "div: divisor = 0"
+sh sys_test "(/ 19 3)" "6"
+sh sys_test "(/ 30.5 0.5)" "61.000000"
+sh sys_test "(/ 30 1.5)" "20.000000"
+
 sh sys_test "(> 1 2)" "NIL"
 sh sys_test "(> 3 2)" "T"
 sh sys_test "(> 3 3)" "NIL"
