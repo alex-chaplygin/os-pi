@@ -56,7 +56,9 @@ jmp_buf repl_buf;
 /// точка возврата из block
 jmp_buf block_buf;
 /// точка вычисления меток tagbody
-jmp_buf tagbody_buf;
+jmp_buf tagbody_buffers[MAX_TAGBODY_SIZE];
+///текущий индекс-буфер для tagbody
+int tb_index_buf = 0;
 ///текущая метка перехода go
 object_t cur_label = NULLOBJ;
 
@@ -762,18 +764,24 @@ object_t tagbody(object_t params)
 	params = TAIL(params); 
         if (TYPE(obj) == SYMBOL)
             tags = new_pair(new_pair(obj, params), tags);
-    }
-    if (setjmp(tagbody_buf) == 1)
-	if (!find_in_env(tags, cur_label, &res))
+    }   
+    if (setjmp(tagbody_buffers[tb_index_buf++]) == 1) {
+	if (tb_index_buf >= MAX_TAGBODY_SIZE)
+	    error("tagbody: buffer haven't true length");
+	if (!find_in_env(tags, cur_label, &res)) {
+	    tb_index_buf--;
             error("tagbody: label %s not found", GET_SYMBOL(cur_label)->str);
-        else
-            params2 = res;
+	} else
+            params2 = res;	    
+    }
     while (params2 != NULLOBJ) {
         obj = FIRST(params2);
 	params2 = TAIL(params2); 
         if (TYPE(obj) != SYMBOL)
             eval(obj, current_env, func_env);
     }
+    tb_index_buf--;
+    
     return nil;
 }
 
@@ -786,7 +794,7 @@ object_t go(object_t args)
     if (args == NULLOBJ)
 	error("go: no label");
     cur_label = FIRST(args);
-    longjmp(tagbody_buf, 1);
+    longjmp(tagbody_buffers[tb_index_buf - 1], 1);
 }
 
 /** 

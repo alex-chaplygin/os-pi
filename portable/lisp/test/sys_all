@@ -140,7 +140,8 @@ sh sys_test "(+ 1.25 3.11)" "4.360000"
 sh sys_test "(+ 1.25 3.11 2.05)" "6.410000"
 sh sys_test "(+ 1 2 3.11 2.25)" "8.360000"
 sh sys_test "(+ 1 2 3.11 2 2.25)" "10.360000"
-sh sys_test "(+ 1 2 3.11 2 \"\")" "add: Not number"
+sh sys_test "(+ 1 2 3.11 2 \"\")" "add: Not number
+"
 sh sys_test "(1" "expected )"
 sh sys_test "(+ 1 2 3 5)" "11"
 sh sys_test "(- 9 5 1 1)" "2"
@@ -654,6 +655,26 @@ sh sys_test "
 	(setq a (+ a 10))
 	test
 	(cond ((equal i 10) nil) (t (go loop)))) a" "NIL
+100"
+
+sh sys_test "
+(tagbody
+       (setq i 0)
+       
+       (setq a 0)
+       (go test)
+       loop
+       (setq i (+ i 1))
+       (tagbody
+              (setq g 0)
+              (go inside)
+              loopins
+              (setq g (+ g 1))
+              (setq a (+ a 1))
+              inside
+              (cond ((equal g 10) nil) (t (go loopins))))
+       test
+       (cond ((equal i 10) nil) (t (go loop)))) a" "NIL
 100"
 
 echo "---Тесты LABELS---"
