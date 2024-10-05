@@ -38,6 +38,7 @@ void init_all();
  */
 void error(char *str, ...)
 {
+    set_cursor(0, 0);
     if (str[0] != '\0') {
         va_list vals;
         va_start(vals, str);
@@ -45,6 +46,8 @@ void error(char *str, ...)
         va_end(vals);
         putchar('\n');
     }
+    extern object_t current_env;
+    PRINT(current_env);
     longjmp(repl_buf, 1);
 }
 
