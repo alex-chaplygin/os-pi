@@ -14,7 +14,7 @@ extern object_t nil;
 object_t add(object_t list);
 object_t sub(object_t list);
 object_t mul(object_t list);
-object_t int_div(object_t list);
+object_t DIV(object_t list);
 object_t bitwise_and(object_t list);
 object_t bitwise_or(object_t list);
 object_t shift_left(object_t list);
@@ -171,7 +171,7 @@ void test_div()
     int num2 = 2;
     object_t list = new_pair(new_number(num1),
                         new_pair(new_number(num2), NULLOBJ));
-    object_t res = int_div(list);
+    object_t res = DIV(list);
     ASSERT(get_value(res), 4); 
 }
 
@@ -184,7 +184,7 @@ void test_div_nulllist()
     printf("test_div_nulllist: \n");
     if (setjmp(jmp_env) == 0) {
         object_t list = NULLOBJ;
-        object_t res = int_div(list); 
+        object_t res = DIV(list); 
         FAIL;
     } else 
         OK;
@@ -202,7 +202,7 @@ void test_div_zerodivisor()
     if (setjmp(jmp_env) == 0) {
         object_t list =  new_pair(new_number(num1),
 			      new_pair(new_number(num2),NULLOBJ));
-        object_t res =  int_div(list);
+        object_t res =  DIV(list);
         FAIL;
     } else 
         OK;
@@ -217,7 +217,7 @@ void test_div_nulldivisor()
     int num1 = 8;
     if (setjmp(jmp_env) == 0) {
         object_t list = new_pair(new_number(num1), NULLOBJ);
-        object_t res =  int_div(list);
+        object_t res =  DIV(list);
         FAIL;
     } else 
         OK;
