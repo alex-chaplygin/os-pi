@@ -47,10 +47,10 @@
 (defun draw-hline (x1 x2 y colour)
   "Рисование горизонтальной линии"
   (if (< x1 x2)
-      (for x x1 x2
-        (set-pixel x y colour))
-      (for x x2 x1
-	   (set-pixel x y colour))))
+      (for xx x1 x2
+        (set-pixel xx y colour))
+      (for xx x2 x1
+	   (set-pixel xx y colour))))
 
 (defun fill-triangle (x1 y1 x2 y2 x3 y3 colour)
   "Рисование залитого треугольника"
