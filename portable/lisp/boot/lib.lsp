@@ -62,7 +62,9 @@
   "Цикл for, переменная var от start до end - 1"
   "body - тело цикла"
   "(for i 0 10 (seta arr i i))"
-  `(inner-for ,(intern (concat "for-" (symbol-name var))) ,var ,start ,end ,@body))
+;`(inner-for ,(intern (concat "for-" (symbol-name var))) ,var ,start ,end ,@body))
+  `(setq ,var ,start)
+  `(while (< ,var ,end) ,@body (setq ,var (++ ,var))))
 
 (defmacro while (test &rest bod)
   "Цикл while"
