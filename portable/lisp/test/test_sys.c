@@ -70,7 +70,9 @@ int main()
 	    //printf("parse: "); PRINT(o);
 	    object_t res = eval(o, NULLOBJ, NULLOBJ);
 	    //printf("res: "); PRINT(res);
+#ifdef REPL
 	    PRINT(res);
+#endif
 	}
     } while (token.type != END);
     return 0;
