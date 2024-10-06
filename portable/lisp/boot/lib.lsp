@@ -63,8 +63,9 @@
   "body - тело цикла"
   "(for i 0 10 (seta arr i i))"
 ;`(inner-for ,(intern (concat "for-" (symbol-name var))) ,var ,start ,end ,@body))
-  `(setq ,var ,start)
-  `(while (< ,var ,end) ,@body (setq ,var (++ ,var))))
+ `(let ((,var ,start))
+     (while (< ,var ,end)
+	    ,@body (setq ,var (+ ,var 1)))))
 
 (defmacro while (test &rest bod)
   "Цикл while"
