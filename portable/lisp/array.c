@@ -74,9 +74,20 @@ object_t aref(object_t list)
 */
 object_t array_size(object_t list)
 {
-    array_t *a = GET_ARRAY(FIRST(list));
+    if (list == NULLOBJ || FIRST(list) == NULLOBJ)
+        error("array_size: invalid arguments");
+
+    object_t arr_o = FIRST(list);
+    if (TYPE(arr_o) != ARRAY)
+        error("array_size: first element is not an array");
+
+    array_t *a = GET_ARRAY(arr_o);
+    if (a == NULL)
+        error("array_size: array is NULL");
+
     return new_number(a->length);
 }
+
 
 void init_arrays()
 {

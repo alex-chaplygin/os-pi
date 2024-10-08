@@ -244,6 +244,67 @@ void test_aref_invalid_index_type()
         OK;
 }
 
+/**
+ * Тест для array_size: проверка массива длиной 10.
+ */
+void test_correct_array_size()
+{
+  printf("test_correct_array_size: ");
+  int length = 10;
+  object_t list = new_pair(new_number(length), NULLOBJ);
+  object_t arr = make_array(list);
+  
+  object_t result = array_size(new_pair(arr, NULLOBJ));
+  ASSERT(get_value(result), length);
+  OK;
+}
+
+/**
+ * Тест для array_size: проверка пустого массива
+ */
+void test_array_size_empty()
+{
+    printf("test_array_size_empty: ");
+    int length = 0;
+    object_t list = new_pair(new_number(length), NULLOBJ); 
+    object_t arr = make_array(list); 
+    object_t result = array_size(new_pair(arr, NULLOBJ)); 
+    
+    ASSERT(get_value(result), length); 
+    OK
+}
+
+/**
+ * Тест для array_size: некорректный аргумент
+ */
+void test_array_size_invalid_input()
+{
+    printf("test_array_size_invalid_input: ");
+    object_t non_array_obj = new_number(100);
+    
+    if (setjmp(jmp_env) == 0) {
+        object_t result = array_size(new_pair(non_array_obj, NULLOBJ)); 
+        FAIL; 
+    } else 
+        OK; 
+    
+}
+
+/**
+ * Тест для array_size: передача NULL объекта в качестве входных данных
+ */
+void test_array_size_null()
+{
+    printf("test_array_size_null: ");
+    
+    if (setjmp(jmp_env) == 0) {
+        object_t result = array_size(NULLOBJ); 
+        FAIL; 
+    } else 
+        OK; 
+    
+}
+
 int main()
 {
     printf("------------test_arrays---------\n");
@@ -261,5 +322,9 @@ int main()
     test_aref_no_args();
     test_aref_only_array();
     test_aref_invalid_array();
+    test_correct_array_size();
+    test_array_size_empty();
+    test_array_size_invalid_input();
+    test_array_size_null();
     return 0;
 }
