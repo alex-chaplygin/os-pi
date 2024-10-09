@@ -13,10 +13,12 @@
 
 (defun set-big-endian ()
   "Устанавливает порядок байт на старший впереди"
+  (setq *bit-num* 0)
   (setq *endianness* 'big))
 
 (defun set-little-endian ()
   "Устанавливает порядок байт на младший впереди"
+  (setq *bit-num* 7)
   (setq *endianness* 'little))
 
 (defun get-byte ()
@@ -36,7 +38,7 @@
 
 (defun get-bit ()
   "Читает один бит из источника"
-  (when (= *bit-num* 0)
+  (when (= *bit-num* (if (eq *endianness* 'big) 0 7))
     (setq *cur-byte* (get-byte))
     (setq *bit-num* (if (eq *endianness* 'big) 8 -1)))
   (& 1 (>> *cur-byte* (setq *bit-num* (if (eq *endianness* 'big) (-- *bit-num*) (++ *bit-num*))))))
