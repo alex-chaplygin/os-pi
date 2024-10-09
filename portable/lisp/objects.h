@@ -44,17 +44,17 @@
 #endif
 //макрос, который строит указатель, состоящий из типа в младших битах и значения в остальных
 #define NEW_OBJECT(type, val) ((object_t)(val) + (type))
-//Получение пары из объекта
+//Получение указателя на структуру пары из объекта
 #define GET_PAIR(obj) ((pair_t *)(GET_ADDR(obj)))
-//Получение 32-х битного числа
+//Получение указателя на структуру 32-х битного числа
 #define GET_BIGNUMBER(num) ((bignumber_t *)(GET_ADDR(num)))
-//Получение вещественного числа
+//Получение указателя на структуру вещественного числа
 #define GET_FLOAT(num) ((float_t *)(GET_ADDR(num)))
-//Получение строки
+//Получение указателя на структуру строки
 #define GET_STRING(str) ((string_t *)(GET_ADDR(str)))
-//Получение символа
+//Получение указателя на структуру символа
 #define GET_SYMBOL(sym) ((symbol_t *)(GET_ADDR(sym)))
-//Получение массива
+//Получение указателя на структуру массива
 #define GET_ARRAY(arr) ((array_t *)(GET_ADDR(arr)))
 //Получение одиночного символа
 #define GET_CHAR(obj) ((obj) >> TYPE_BITS + 1)
