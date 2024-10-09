@@ -1,6 +1,8 @@
 #ifndef OBJECTS
 #define OBJECTS
 
+#include <setjmp.h>
+
 /// Всего пар
 #define MAX_PAIRS 800000
 /// Всего символов
@@ -176,6 +178,12 @@ typedef struct symbol_s
     int pad[2];
 #endif
 } symbol_t;
+
+/// Объект - продолжение
+typedef struct {
+    jmp_buf buffer;
+    object_t enviroment;
+} continuation_t;
 
 extern int print_counter;
 
