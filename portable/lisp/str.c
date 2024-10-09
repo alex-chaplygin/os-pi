@@ -5,6 +5,7 @@
 #include "symbols.h"
 #include "eval.h"
 #include "parser.h"
+#include "str.h"
 
 char *itoa(int num, char *str, int rad);
 
@@ -177,7 +178,7 @@ object_t int_to_str(object_t list)
 	error("inttostr: many args\n");
     if (TYPE(FIRST(list)) != NUMBER)
 	error("inttostr: invalid arg\n");
-    char str[14];
+    char str[MAX_ITOA_STR];
     char *s = itoa(get_value(FIRST(list)), str, 10);    
     return NEW_STRING(s);
 }

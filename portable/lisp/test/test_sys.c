@@ -23,7 +23,7 @@ extern jmp_buf repl_buf;
 
 char *itoa(int num, char *str, int rad)
 {
-    int i = 15;
+    int i = MAX_ITOA_STR;
     int neg = 0;
     str[i - 1] = 0;
     char *p = &str[i - 1];

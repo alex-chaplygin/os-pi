@@ -6,6 +6,7 @@
 #include "alloc.h"
 #include "symbols.h"
 #include "parser.h"
+#include "str.h"
 
 object_t intern(object_t list);
 object_t concat(object_t list);
@@ -30,7 +31,7 @@ void error(char *str, ...)
 
 char *itoa(int num, char *str, int rad)
 {
-    int i = 15;
+    int i = MAX_ITOA_STR;
     int neg = 0;
     str[i - 1] = 0;
     char *p = &str[i - 1];
@@ -662,7 +663,7 @@ void test_int_to_str_positive()
     object_t number_obj = new_number(123); 
     object_t params = new_pair(number_obj, NULLOBJ); 
     object_t result = int_to_str(params); 
-    ASSERT(TYPE(result), STRING); 
+    ASSERT(TYPE(result), STRING);
     ASSERT(strcmp(GET_STRING(result)->data, "123"), 0);
 }
 
