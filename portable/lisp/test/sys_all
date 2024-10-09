@@ -75,7 +75,7 @@ sh sys_test "(cond ((eq 'a 'b) 'first)
 sh sys_test "(cond  )" "NULLOBJ in COND" #67
 # отсутствие аргумента, приводящего к истине
 sh sys_test "(cond ((eq 'a 'b) 'first) 
-		   ((eq 'a 'b) 'second))" "NULLOBJ in COND" #68
+		   ((eq 'a 'b) 'second))" "No true conditions in COND" #68
 # лишнее выражение в паре
 sh sys_test "(cond ((eq 'a 'a)(eq 'a 'b) 'first))" "cond: too many params"
 # отсутствие выражения после предикат
