@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <string.h>
-#include <setjmp.h>
 #include "objects.h"
 #include "symbols.h"
 #include "parser.h"
@@ -56,7 +55,7 @@ jmp_buf repl_buf;
 /// точка возврата из block
 jmp_buf block_buf;
 /// точка вычисления меток tagbody
-jmp_buf tagbody_buffers[MAX_TAGBODY_SIZE];
+continuation_t tagbody_buffers[MAX_TAGBODY_SIZE];
 ///текущий индекс-буфер для tagbody
 int tb_index_buf = 0;
 ///текущая метка перехода go
@@ -207,16 +206,19 @@ object_t cond(object_t obj)
 { 
     if (obj == NULLOBJ) 
 	error("NULLOBJ in COND"); 
-    object_t pair = FIRST(obj);
-    if (TAIL(pair) == NULLOBJ) 
-	error("cond: not enough params"); 
-    if (TAIL(TAIL(pair)) != NULLOBJ) 
-	error("cond: too many params"); 
-    object_t p = FIRST(pair); 
-    if (eval(p, current_env, func_env) == t) 
-	return eval(SECOND(pair), current_env, func_env); 
-    else 
-	return cond(TAIL(obj)); 
+    object_t env = current_env;
+    while (obj != NULLOBJ) {
+	object_t pair = FIRST(obj);
+	if (TAIL(pair) == NULLOBJ) 
+	    error("cond: not enough params"); 
+	if (TAIL(TAIL(pair)) != NULLOBJ) 
+	    error("cond: too many params"); 
+	object_t p = FIRST(pair);
+	if (eval(p, env, func_env) == t) 
+	    return eval(SECOND(pair), env, func_env); 
+	obj = TAIL(obj);
+    }
+    error("No true conditions in COND"); 
 } 
 
 /*  
@@ -507,10 +509,10 @@ object_t eval(object_t obj, object_t env, object_t func)
 {
     object_t args;
     object_t res;
-    //printf("eval: ");
-    // PRINT(obj);
-    //printf("env: ");
-    //PRINT(env);
+    /*    printf("eval: ");
+    PRINT(obj);
+    printf("env: ");
+    PRINT(env);*/
     current_env = env;
     func_env = func;
     if (need_grabage_collect())
@@ -764,8 +766,8 @@ object_t tagbody(object_t params)
 	params = TAIL(params); 
         if (TYPE(obj) == SYMBOL)
             tags = new_pair(new_pair(obj, params), tags);
-    }   
-    if (setjmp(tagbody_buffers[tb_index_buf++]) == 1) {
+    }
+    if (setjmp(tagbody_buffers[tb_index_buf++].buffer) == 1) {
 	if (tb_index_buf >= MAX_TAGBODY_SIZE)
 	    error("tagbody: buffer haven't true length");
 	if (!find_in_env(tags, cur_label, &res)) {
@@ -781,7 +783,6 @@ object_t tagbody(object_t params)
             eval(obj, current_env, func_env);
     }
     tb_index_buf--;
-    
     return nil;
 }
 
@@ -794,7 +795,7 @@ object_t go(object_t args)
     if (args == NULLOBJ)
 	error("go: no label");
     cur_label = FIRST(args);
-    longjmp(tagbody_buffers[tb_index_buf - 1], 1);
+    longjmp(tagbody_buffers[tb_index_buf - 1].buffer, 1);
 }
 
 /** 
