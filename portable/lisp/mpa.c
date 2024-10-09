@@ -152,6 +152,16 @@ int bignum_sum(bignum_t n1, bignum_t n2)
     return 0;
 }
 
+/**
+ * @brief перезаписывает 1-е большое число, умножая его на 2-е
+ * 
+ * @param n1 - большое 1-е число
+ * @param n2 - большое 2-е число
+ */
+int bignum_mult(bignum_t n1, bignum_t n2)
+{
+    return -1;
+}
 
 /**
  * @brief перезаписывает 1-е большое число, вычитая из него 2-е
