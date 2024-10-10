@@ -417,8 +417,9 @@ object_t macro_call(object_t macro, object_t args, object_t env)
     object_t new_env = make_env(SECOND(macro), args); 
     object_t body; 
     object_t eval_res; 
-    body = TAIL(TAIL(macro)); 
-    append_env(new_env, env); 
+    body = TAIL(TAIL(macro));
+    if (new_env != NULLOBJ)
+	append_env(new_env, env); 
     while (body != NULLOBJ) { 
  	eval_res = eval(FIRST(body), new_env, func_env); 
  	//printf("macro = "); 
