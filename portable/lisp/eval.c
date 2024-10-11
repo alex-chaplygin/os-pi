@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <string.h>
+#include <setjmp.h>
 #include "objects.h"
+#include "cont.h"
 #include "symbols.h"
 #include "parser.h"
 #include "eval.h"
