@@ -12,6 +12,7 @@ extern object_t t;
 extern object_t nil;
 
 object_t add(object_t list);
+object_t add_float(object_t list, float sum);
 object_t sub(object_t list);
 object_t mul(object_t list);
 object_t DIV(object_t list);
@@ -46,7 +47,6 @@ void test_add()
     object_t res = add(list);
     ASSERT(get_value(res), 6);
 }
-
 /**
  * Тест сложения - проверка на NULL.
  */
@@ -72,6 +72,53 @@ void test_add_no_number()
         object_t list = new_pair(new_number(num),
                             new_pair(new_pair(NULL, NULL), NULL));
         object_t res = add(list);
+        FAIL;
+    } else
+        OK;
+}
+/**
+ * Тест сложения чисел с плавающей точкой
+ */
+void test_add_float()
+{
+    printf("test_add_float: ");
+    float num1 = 1.56f;
+    float num2 = 2.67f;
+    int num3 = 3;
+    object_t list = new_pair(new_float(num1), 
+                            new_pair(new_float(num2),
+                                new_pair(new_number(num3), NULLOBJ)));
+    object_t res = add(list);
+    ASSERT_FLOAT(GET_FLOAT(res)->value, 7.23f);
+}
+
+/**
+ * Тест сложения чисел с плавающей точкой - проверка на NULL.
+ */
+void test_add_float_null()
+{
+    printf("test_add_float_null: ");
+    if (setjmp(jmp_env) == 0) {
+        float sum = 0.0f;
+        object_t list = NULLOBJ;
+        object_t res = add_float(list, sum);
+        FAIL;
+    } else 
+        OK;
+}
+
+/**
+ * Тест сложения чисел с плавающей запятой - передача значения не число
+ */
+void test_add_float_no_number()
+{
+    printf("test_add_float_no_number: ");
+    float num = 2.0f;
+    if (setjmp(jmp_env) == 0) {
+        float sum = 0.0f;
+        object_t list = new_pair(new_float(num),
+                            new_pair(new_pair(NULL, NULL), NULL));
+        object_t res = add_float(list, sum);
         FAIL;
     } else
         OK;
@@ -683,6 +730,9 @@ int main()
     test_add();
     test_add_null();
     test_add_no_number();
+    test_add_float();
+    test_add_float_null();
+    test_add_float_no_number();
     test_sub();
     test_sub_null();
     test_sub_no_number();
