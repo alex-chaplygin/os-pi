@@ -1,13 +1,24 @@
 SHELL=bash
 SRC=parser.o lexer.o objects.o symbols.o eval.o arith.o array.o str.o pair.o predicates.o alloc.o
 CFLAGS=-g -m32 -nostdlib -nodefaultlibs -Wno-builtin-declaration-mismatch -I../include -D OS -D X32
-LISP=boot/lib.lsp boot/list.lsp boot/array.lsp boot/str.lsp boot/bgr.lsp boot/ata.lsp boot/sys/keyboard.lsp
-#boot/hash.lsp boot/oop.lsp boot/fs/block.lsp boot/fs/fs.lsp boot/fs/fat32fs.lsp boot/fs/fat.lsp boot/fs/dir.lsp boot/mbr.lsp boot/fs/fat32test.lsp
-#boot/hash.lsp boot/graphics/matrix.lsp boot/graphics/backend.lsp boot/graphics/frontend.lsp
+BASELISP=boot/lib.lsp boot/list.lsp boot/array.lsp boot/str.lsp boot/hash.lsp boot/oop.lsp
+GRAPHICS=$(BASELISP) boot/bgr.lsp boot/graphics/matrix.lsp boot/graphics/backend.lsp
+FS=$(BASELISP) boot/fs/block.lsp boot/fs/fs.lsp boot/fs/fat32fs.lsp boot/fs/fat.lsp boot/fs/dir.lsp boot/mbr.lsp boot/fs/fat32test.lsp
 
-all: $(SRC) /tmp/lisp.lsp
+all: $(SRC) lisp
 
-/tmp/lisp.lsp: $(LISP)
+lisp: /tmp/baselisp.lsp # здесь меняем набор библиотек
+	cp $^ /tmp/lisp.lsp
+
+/tmp/baselisp.lsp: $(BASELISP)
+	cat $^ >$@ ;
+	echo -e -n "\xff" >>$@
+
+/tmp/graphics.lsp: $(GRAPHICS)
+	cat $^ >$@ ;
+	echo -e -n "\xff" >>$@
+
+/tmp/fs.lsp: $(FS)
 	cat $^ >$@ ;
 	echo -e -n "\xff" >>$@
 
