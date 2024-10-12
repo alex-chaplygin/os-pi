@@ -70,3 +70,7 @@
   (setq f (make-fat32file "TEST" 0 0 nil nil (fat-dname "TEST") 0 34 2 160 +directory+ 34 0 0 0 0 0))
   (write-struct a 0 directory-entry f)
   a)
+
+(defun fat-fc-test ()
+  "Тест удаления цепочки FAT"
+  (get-fat-chain 11))
