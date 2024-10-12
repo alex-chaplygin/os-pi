@@ -285,7 +285,7 @@ void test_mark()
     int mask = 1 << 31;
     object_t n = new_bignumber(2147483658);
     object_t s = NEW_STRING("abc");
-    object_t a = NEW_ARRAY(make_list(3));	
+    object_t a = NEW_ARRAY(make_list(3));
     object_t inp2 = new_pair(a, NULLOBJ);
     object_t inp1 = new_pair(s, inp2);
     object_t p2 = new_pair(inp1, NULLOBJ);
@@ -666,29 +666,29 @@ void test_return_type()
 void test_return_set_mark()
 {
     printf("test_return_set_mark: ");
-    object_t obj = 0xf0;
+    object_t obj = 0xe0;
     SET_MARK(obj); // 1000
-    ASSERT(obj, 0xf8);
+    ASSERT(obj, 0xf0);
 }
 
 void test_return_get_mark()
 {
     printf("test_return_get_mark : ");
-    object_t obj = 0xf0;
+    object_t obj = 0x20;
     ASSERT(GET_MARK(obj), 0);
-    obj = 0xf8;
+    obj = 0x10;
     ASSERT(GET_MARK(obj), 1);
 }
 
 void test_return_clear_mark()
 {
     printf("test_return_clear_mark: ");
-    object_t obj = 0xf8;
+    object_t obj = 0xff;
     CLEAR_MARK(obj); // 1000
-    ASSERT(obj, 0xf0);
-    obj = 0xf1;
+    ASSERT(obj, 0xef);
+    obj = 0x10;
     CLEAR_MARK(obj); // 1000
-    ASSERT(obj, 0xf1);
+    ASSERT(obj, 0x0);
 }
 /**
  * тест: создаём объект и с помощью макроса получаем адрес объекта
@@ -810,8 +810,8 @@ void main()
     test_new_number(0xfffffff, BIGNUMBER);
     test_new_number(0xffffff8, BIGNUMBER);
     test_new_number(0, NUMBER);
-    test_new_number((1<<27)-1, NUMBER);
-    test_new_number(-((1<<27)-1), NUMBER);
+    test_new_number((1<<ADDR_BITS-1)-1, NUMBER); //fail
+    test_new_number(-((1<<ADDR_BITS-1)-1), NUMBER); //fail
     test_get_value(13);
     test_get_value(0);
     test_get_value(-6);

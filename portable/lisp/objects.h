@@ -23,11 +23,11 @@
 /// Отсутствие значения у переменных
 #define NOVALUE (0xF)
 /// Число бит на тип объекта
-#define TYPE_BITS 3
+#define TYPE_BITS 4
 /// Номер бита пометки для сборщика мусора
 #define MARK_BIT (TYPE_BITS + 1)
 /// Число бит в адресе
-#define ADDR_BITS 28
+#define ADDR_BITS (32 - MARK_BIT)
 /// Возвращение типа объекта в младших битах
 #define TYPE(obj) ((obj) & ((1 << TYPE_BITS) - 1))
 /// Установить бит пометки
@@ -38,9 +38,9 @@
 #define CLEAR_MARK(obj) ((obj) &= ~(1 << TYPE_BITS))
 /// Получить адрес объекта
 #ifdef X32
-#define GET_ADDR(obj) ((obj) & 0xfffffff0)
+#define GET_ADDR(obj) ((obj) & (0xFFFFFFFF << MARK_BIT))
 #else
-#define GET_ADDR(obj) ((obj) & 0xfffffffffffffff0)
+#define GET_ADDR(obj) ((obj) & (0xFFFFFFFFFFFFFFFF << MARK_BIT))
 #endif
 //макрос, который строит указатель, состоящий из типа в младших битах и значения в остальных
 #define NEW_OBJECT(type, val) ((object_t)(val) + (type))
@@ -76,7 +76,6 @@
 #define TAIL(o) (GET_PAIR(o)->right)
 // Проверка объекта на число
 #define IS_NUMBER(o) (TYPE(o) == NUMBER || TYPE(o) == BIGNUMBER)
-
 /// перечисление типов объектов
 typedef enum {
     NUMBER, /// целое число, которое умещается в ADDR_BITS
@@ -95,7 +94,7 @@ typedef long long object_t;
 typedef unsigned int object_t;
 #endif
 
-/* Структуры объектов должны иметь размер, кратный 2^MARKBIT (сейчас 16 байт) */
+/* Структуры объектов должны иметь размер, кратный 2^MARKBIT (сейчас 32 байт) */
 
 /// Структура большого целого числа
 typedef struct bignumber_s
@@ -104,9 +103,9 @@ typedef struct bignumber_s
     struct bignumber_s *next; // указатель на следующее свободное число
     int free; // Если 1 - число свободно
 #ifdef X32
-    int pad;
+    int pad[5];
 #else
-    int pad[3];    
+    int pad[2];    
 #endif
 } bignumber_t;
 
@@ -116,9 +115,9 @@ typedef struct float_s
     struct float_s *next; // указатель на следующее свободное число
     int free; // Если число свободно
 #ifdef X32
-    int pad;
+    int pad[5];
 #else
-    int pad[3];
+    int pad[2];
 #endif
 } float_t;
 
@@ -174,6 +173,8 @@ typedef struct symbol_s
     object_t tag_value;
 #ifdef X32
     int pad[2];
+#else
+    int pad[4];
 #endif
 } symbol_t;
 
