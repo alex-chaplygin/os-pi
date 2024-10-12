@@ -34,3 +34,13 @@
 (assert (get-bit) 1)
 (assert (get-bit) 1)
 (assert (get-bit) 0)
+;Тестирование чтения структуры
+(set-bin-src #(10 1 0 2 0 0x23 1 2 3))
+(set-big-endian)
+(setq temp (get-struct '((accuracy . byte) (height . word) (width . word) (other . bits4) (array . 3))))
+(assert (get-hash temp 'accuracy) 10)
+(assert (get-hash temp 'height) 256)
+(assert (get-hash temp 'width) 512)
+(assert (get-hash temp 'other) '(2 . 3))
+(assert (get-hash temp 'array) #(1 2 3))
+

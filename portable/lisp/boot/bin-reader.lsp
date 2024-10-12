@@ -42,3 +42,23 @@
     (setq *cur-byte* (get-byte))
     (setq *bit-num* (if (eq *endianness* 'big) 8 -1)))
   (& 1 (>> *cur-byte* (setq *bit-num* (if (eq *endianness* 'big) (-- *bit-num*) (++ *bit-num*))))))
+
+(defun get-array (num)
+  "Прочесть массив длиной num байт"
+  (let ((arr (make-array num)))
+    (for i 0 num (seta arr i (get-byte)))
+    arr))
+
+(defun get-struct (struct)
+  "Читает структуру по шаблону"
+  "Возвращает хэш-таблицу"
+  "Шаблон: ((accuracy . byte) (height . word) (width . word) (other . bits4) (array . 16))"
+  (labels ((read (type)
+		 (case type
+		       ('byte (get-byte))
+		       ('word (get-word))
+		       ('bits4 (get-4bit))
+		       (otherwise (get-array type)))))
+	  (let ((table (make-hash)))
+	    (app '(lambda (x) (set-hash table (car x) (read (cdr x)))) struct)
+	    table)))
