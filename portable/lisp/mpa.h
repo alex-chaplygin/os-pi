@@ -8,11 +8,12 @@
 #define MAX_BIGNUM_SIZE 100
 #define MAX_BIGNUMS 100
 
+/// Структура большого числа
 typedef struct bign
 {
-    int size;
-    int sign;
-    char data[MAX_BIGNUM_SIZE];
+    int size; /// Число десятичных цифр числа
+    int sign; /// Знак числа
+    char data[MAX_BIGNUM_SIZE]; /// Цифры числа, начиная с младшей цифры
     int exponent;
 } *bignum_t;
 
@@ -26,5 +27,6 @@ void print_bignum(bignum_t num);
 void bignum_from_int(bignum_t n, int num);
 int bignum_sum(bignum_t n1, bignum_t n2);
 int bignum_sub(bignum_t n1, bignum_t n2);
+int bignum_mult(bignum_t n1, bignum_t n2);
 
 #endif 

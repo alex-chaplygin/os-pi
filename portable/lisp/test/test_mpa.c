@@ -17,6 +17,22 @@ void test_bignum_sum(const char* num1, const char* num2, const char* expected_re
     }
 }
 
+void test_bignum_mult(const char* num1, const char* num2, const char* expected_result)
+{
+    printf("test_bignum_mult: %s %s\n", num1, num2);
+    bignum_t bignum1 = new_bignum_from_str(num1);
+    bignum_t bignum2 = new_bignum_from_str(num2);
+    bignum_t result_bignum = new_bignum_from_str(expected_result);
+
+    int res = bignum_mult(bignum1, bignum2);
+    printf("\n");
+    print_num(bignum1);
+    printf("\n");
+    
+    ASSERT(bignum1->size, result_bignum->size);
+    ASSERT(memcmp(bignum1->data, result_bignum->data, bignum1->size * sizeof(bignum1->data[0])), 0);
+}
+
 
 int main()
 {
@@ -44,5 +60,10 @@ int main()
     test_bignum_sum("20", "-10", "10", 0);
     test_bignum_sum("2a0", "10", "", -2);
     test_bignum_sum("20", "10z", "", -2);
+    test_bignum_sum("501", "503", "1004", 0);
+
+    
+    test_bignum_mult("732", "841", "615612");
+    
     return 0;
 }

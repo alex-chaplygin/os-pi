@@ -128,7 +128,7 @@ void bignum_from_int(bignum_t n, int num)
 }
 
 /**
- * @brief перезаписывает 1-е большое число, прибавляя к нему 2-е
+ * @brief Сложение больших чисел. Перезаписывает 1-е большое число, прибавляя к нему 2-е
  * 
  * @param n1 - большое 1-е число 
  * @param n2 - большое 2-е число 
@@ -145,22 +145,42 @@ int bignum_sum(bignum_t n1, bignum_t n2)
         carry = sum / 10;
     }
     if (carry)
-    {
-        printf("Index outside the array\n");
-        return -1;
-    }
+	n1->data[n1->size++] = 1;    
     return 0;
 }
 
 /**
- * @brief перезаписывает 1-е большое число, умножая его на 2-е
+ * @brief Умножение больших чисел. Перезаписывает 1-е большое число, умножая его на 2-е
  * 
  * @param n1 - большое 1-е число
  * @param n2 - большое 2-е число
  */
 int bignum_mult(bignum_t n1, bignum_t n2)
 {
-    return -1;
+    bignum_t n3 = new_bignum(); //промежуточная сумма
+    bignum_t n4 = new_bignum(); //частичное произведение
+    int carry = 0;
+    for(int i = 0; i < n2->size; i++)
+    {
+	for(int k = 0; k < i; k++)
+	    n4->data[k] = 0;
+	for(int j = 0; j < n1->size; j++)
+	{
+	    int mult = n1->data[j] * n2->data[i] + carry;
+	    n4->data[j + i] = mult % 10;
+	    carry = mult / 10;
+	}
+	n4->size = n1->size;	
+	if (carry){
+	    n4->data[n4->size++ + i] = carry;
+	    carry = 0;
+	}
+	bignum_sum(n3, n4);
+    }
+    n1->size = n3->size;
+    for(int i = 0; i < n3->size; i++)
+	n1->data[i] = n3->data[i];
+    return 0;
 }
 
 /**
