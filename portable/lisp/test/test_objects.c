@@ -722,6 +722,17 @@ void test_get_char(char s)
     ASSERT(GET_CHAR(obj), s);
 }
 
+/** 
+ * Тест проверки размера занимаемой памяти региона, после выделения
+ */
+void test_regions_mem()
+{
+    printf("test_regions_mem: ");
+    alloc_region(128);
+    int expected_memory = 128 + sizeof(struct region);
+    ASSERT(expected_memory, regions_mem());
+}
+
 /*
 object_new
 |условие               |правильный класс                    |неправильный класс                       |
@@ -760,6 +771,7 @@ void main()
 {
     printf("--------------test objects---------------------\n");
     init_regions();
+    test_regions_mem();
     init_objects();
     test_mark();
     test_sweep();    //19,24
