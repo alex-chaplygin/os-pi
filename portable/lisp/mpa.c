@@ -160,26 +160,27 @@ int bignum_mult(bignum_t n1, bignum_t n2)
     bignum_t n3 = new_bignum(); //промежуточная сумма
     bignum_t n4 = new_bignum(); //частичное произведение
     int carry = 0;
+    
     for(int i = 0; i < n2->size; i++)
-    {
-	for(int k = 0; k < i; k++)
+    {	
+	for(int k = 0; k < n4->size; k++)
 	    n4->data[k] = 0;
-	for(int j = 0; j < n1->size; j++)
-	{
+	for(int j = 0; j < n1->size; j++) {
 	    int mult = n1->data[j] * n2->data[i] + carry;
 	    n4->data[j + i] = mult % 10;
 	    carry = mult / 10;
 	}
-	n4->size = n1->size;	
+	n4->size = n1->size + i;
 	if (carry){
-	    n4->data[n4->size++ + i] = carry;
+	    n4->data[n4->size++] = carry;
 	    carry = 0;
 	}
 	bignum_sum(n3, n4);
     }
     n1->size = n3->size;
-    for(int i = 0; i < n3->size; i++)
+    for(int i = 0; i < n3->size; i++){
 	n1->data[i] = n3->data[i];
+    }
     return 0;
 }
 
