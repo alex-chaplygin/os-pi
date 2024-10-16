@@ -384,6 +384,7 @@ int main()
     test_get_float_num("0.25", 0.25f);
     test_get_float_num("-0.25", -0.25f);
     test_get_symbol("Hello 12", "Hello"); // 14
+    test_get_symbol("Hello\b", "Hell");
     test_get_symbol("* 1 2", "*"); // 14
     test_get_token("lparen", "(", LPAREN); // 1
     test_get_token("rparen", ")", RPAREN); // 2
