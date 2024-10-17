@@ -687,3 +687,8 @@ sh sys_test "(labels (x) x)" "labels: invalid function"
 sh sys_test "(labels (f x) x)" "labels: invalid function"
 # элемент списка функций содержит второй элемент - не список параметров 
 sh sys_test "(labels ((f x)) x)" "labels: invalid function"
+
+echo "---Тесты SIN, COS ---"
+sh sys_test "(sin 0.0)" "0.000000"
+sh sys_test "(cos 3.14159)" "-1.000000"
+sh sys_test "(cos 0.0)" "1.000000"

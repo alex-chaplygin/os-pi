@@ -432,6 +432,43 @@ object_t shift_right(object_t list)
     return new_number(num);
 }
 
+float sinf(float v);
+float cosf(float v);
+
+/**
+ * Вычисление синуса
+ *
+ * @param list - аргумент
+ *
+ * @return результат вычисления
+ */
+object_t SIN(object_t list)
+{
+    object_t arg = FIRST(list);
+    float num = 0;
+    if(TYPE(arg) != FLOAT)
+	error("sin: invalid argument");
+    else
+	return new_float(sinf(GET_FLOAT(arg)->value));
+}
+
+/**
+ * Вычисление косинуса
+ *
+ * @param list - аргумент
+ *
+ * @return результат вычисления
+ */
+object_t COS(object_t list)
+{
+    object_t arg = FIRST(list);
+    float num = 0;
+    if(TYPE(arg) != FLOAT)
+	error("cos: invalid argument");
+    else
+	return new_float(cosf(GET_FLOAT(arg)->value));
+}
+
 /** 
  * Инициализация арифметических функций
  */
@@ -449,4 +486,6 @@ void init_arith()
     register_func(">>", shift_right);
     register_func(">", gt);
     register_func("<", less);
+    register_func("SIN", SIN);
+    register_func("COS", COS);
 }
