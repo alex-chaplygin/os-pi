@@ -74,6 +74,10 @@
   "Масштабирование"
   `(set-hash *cur-state* 'ctm (mat-scale (get-hash *cur-state* 'ctm) ,x ,y)))
 
+(defmacro rotate (a)
+  "Поворот"
+  '(set-hash *cur-state* 'ctm (mat-rotate (get-hash *cur-state* 'ctm) ,a)))
+
 (defun frontend-test ()
   (bgr-set-res +screen-width+ +screen-height+ +screen-depth+)
   (set-colour 15)
