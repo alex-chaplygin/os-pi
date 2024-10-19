@@ -33,7 +33,6 @@ void test_bignum_mult(const char* num1, const char* num2, const char* expected_r
     ASSERT(memcmp(bignum1->data, result_bignum->data, bignum1->size * sizeof(bignum1->data[0])), 0);
 }
 
-
 int main()
 {
     test_bignum_sum("10220100434343002222", "1022010043434300222", "11242110477777302444", 0);
@@ -60,10 +59,12 @@ int main()
     test_bignum_sum("20", "-10", "10", 0);
     test_bignum_sum("2a0", "10", "", -2);
     test_bignum_sum("20", "10z", "", -2);
-    test_bignum_sum("501", "503", "1004", 0);
-
-    
+    test_bignum_sum("501", "503", "1004", 0);    
     test_bignum_mult("732", "841", "615612");
-    
+    test_bignum_mult("25", "2", "50");
+    test_bignum_mult("5486", "1475", "8091850");
+    test_bignum_mult("23", "5762", "132526");
+    test_bignum_mult("0", "275", "0");
+    test_bignum_mult("512", "0", "0");
     return 0;
 }
