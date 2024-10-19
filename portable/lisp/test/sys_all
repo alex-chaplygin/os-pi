@@ -64,6 +64,20 @@ sh sys_test "\`5" "5" #116
 sh sys_test "\`#(1 2 3 4)" "#(1 2 3 4)" #117
 sh sys_test "\`\"A\"" "\"A\"" #118
 
+echo  "---Тесты IF---"
+# выражение истино
+sh sys_test "(if (equal 2 2) 3 2)" "3"
+# выражение ложно
+sh sys_test "(if (equal 2 3) 3 2)" "2"
+# лишний аргумент
+sh sys_test "(if (equal 2 3) 3 2 1)" "if: too many params"
+#отсутствует условие
+sh sys_test "(if )" "NULLOBJ in IF"
+#отсутствует выражение при истине
+sh sys_test "(if (equal 2 3))" "True is empty"
+#отсутствует выпажение при лжи
+sh sys_test "(if (equal 2 3) 3)" "False is empty"
+
 echo  "---Тесты COND---"
 # первый аргумент приводит к истине
 sh sys_test "(cond ((eq 'a 'a) 'first) 
@@ -626,6 +640,7 @@ sh sys_test "(symbolp 1)" "NIL"
 sh sys_test "(symbolp 'a)" "T"
 # тест с двумя параметрами
 sh sys_test "(symbolp 'a 'b)" "SYMBOLP: many params"
+sh sys_test "(integerp 125)" "T"
 
 echo "---Тесты LIST---"
 sh sys_test "(list)" "NIL"
