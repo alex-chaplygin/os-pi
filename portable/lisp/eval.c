@@ -18,6 +18,8 @@ symbol_t *quote_sym;
 symbol_t *backquote_sym;
 /// символ "LAMBDA"
 symbol_t *lambda_sym;
+/// символ "IF"
+symbol_t *if_sym;
 /// символ "COND"
 symbol_t *cond_sym;
 /// символ "DEFUN"
@@ -196,7 +198,31 @@ object_t backquote(object_t list)
  	error("backquote: NULLOBJ"); 
     //PRINT(list); 
     return backquote_rec(FIRST(list)); 
-} 
+}
+
+/* 
+ * (if test True False)
+ * Обработка условия 
+ * Возвращаем список объектов из выражения, оцененных  eval 
+ * @param obj - список парамметров (<Условие> <Выражение по истине> <Выражение по лжи>)
+ * @return возвращает значение соответствующего выражения
+ */ 
+object_t IF(object_t obj)
+{
+    if (obj == NULLOBJ)
+	error("NULLOBJ in IF");    
+    object_t env = current_env;
+    if (TAIL(obj) == NULLOBJ)
+	error("True is empty");
+    if (TAIL(TAIL(obj)) == NULLOBJ)
+	error("False is empty");
+    else if (TAIL(TAIL(TAIL(obj))) != NULLOBJ)
+	error("if: too many params");
+    if (eval(FIRST(obj), env, func_env) == t)
+	return eval(SECOND(obj), env, func_env);
+    else
+	return eval(THIRD(obj), env, func_env);
+}
 
 /* 
  * Обработка условия 
@@ -462,7 +488,7 @@ object_t eval_args(object_t args, object_t env)
 int is_special_form(symbol_t *s) 
 { 
     return s == quote_sym || s == defun_sym || s == defmacro_sym
-	|| s == setq_sym || s == backquote_sym || s == cond_sym
+	|| s == setq_sym || s == backquote_sym || s == if_sym || s == cond_sym
 	|| s == or_sym || s == and_sym || s == return_from_sym
 	|| s == labels_sym || s == tagbody_sym || s == progn_sym
 	|| s == go_sym || s == block_sym; 
@@ -861,7 +887,8 @@ void init_eval()
     register_func("ATOM", atom); 
     register_func("EQ", eq); 
     register_func("QUOTE", quote); 
-    register_func("BACKQUOTE",backquote); 
+    register_func("BACKQUOTE",backquote);
+    register_func("IF", IF);
     register_func("COND", cond); 
     register_func("DEFUN", defun); 
     register_func("DEFMACRO", defmacro); 
@@ -885,7 +912,8 @@ void init_eval()
     nil = NULLOBJ;
     quote_sym = find_symbol("QUOTE"); 
     backquote_sym = find_symbol("BACKQUOTE"); 
-    lambda_sym = find_symbol("LAMBDA"); 
+    lambda_sym = find_symbol("LAMBDA");
+    if_sym = find_symbol("IF");
     cond_sym = find_symbol("COND"); 
     defun_sym = find_symbol("DEFUN"); 
     defmacro_sym = find_symbol("DEFMACRO"); 
