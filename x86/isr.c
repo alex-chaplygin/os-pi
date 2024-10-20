@@ -68,9 +68,14 @@ void exception_handler(int num)
  */
 void interrupt_handler(int num)
 {
+    extern object_t current_env;
+    object_t env;
     object_t h = int_handlers[num - IRQ_BASE];
-    if (h)
-	eval(new_pair(h, NULLOBJ), NULLOBJ, NULLOBJ);
+    if (h) {
+	env = current_env;
+	eval(new_pair(h, NULLOBJ), env, NULLOBJ);
+	current_env = env;
+    }
 }
 
 /** 
