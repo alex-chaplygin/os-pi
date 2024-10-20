@@ -15,14 +15,6 @@
   "Получение бита с номером bit у числа num"
   (& (>> num bit) 1))
 
-(defmacro if (test true false)
-  "Условный оператор"
-  "test - условие"
-  "true - выражение по истине"
-  "false - выражение по лжи"
-  `(cond (,test ,true)
-	 (t ,false)))
-
 (defmacro unless (test &rest body)
   "Условный неполный оператор"
   "test - условие"
@@ -76,7 +68,7 @@
 	,loops
 	,@bod
 	,tests
-	(cond ((not ,test) nil) (t (go ,loops))))))
+	(if ,test (go ,loops) nil))))
 
 (defmacro let (vars &rest body)
   "Блок локальных переменных"
