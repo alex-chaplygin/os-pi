@@ -41,6 +41,10 @@
     "Применение масштабирования"
     (mat-mul m1 (mat-make x 0 0 y 0 0)))
 
+(defun mat-rotate (ml a)
+  "Применение поворота"
+  (mat-mul ml (mat-make (cos a) (sin a) (- 0 (sin a)) (cos a) 0 0))
+
 (defun mat-mul-vec (m v)
     "Произведение матрицы на вектор"
     (cons (+ (* (aref m 0) (car v))
