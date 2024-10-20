@@ -4,10 +4,11 @@ CFLAGS=-g -m32 -nostdlib -nodefaultlibs -Wno-builtin-declaration-mismatch -I../i
 BASELISP=boot/lib.lsp boot/list.lsp boot/array.lsp boot/str.lsp boot/hash.lsp boot/oop.lsp
 GRAPHICS=$(BASELISP) boot/bgr.lsp boot/graphics/matrix.lsp boot/graphics/backend.lsp boot/graphics/frontend.lsp
 FS=$(BASELISP) boot/fs/block.lsp boot/fs/fs.lsp boot/fs/fat32fs.lsp boot/fs/fat.lsp boot/fs/dir.lsp boot/mbr.lsp boot/fs/fat32test.lsp
+KEYBOARD=$(BASELISP) boot/sys/keyboard.lsp
 
 all: $(SRC) lisp
 
-lisp: /tmp/graphics.lsp # здесь меняем набор библиотек
+lisp: /tmp/baselisp.lsp # здесь меняем набор библиотек
 	cp $^ /tmp/lisp.lsp
 
 /tmp/baselisp.lsp: $(BASELISP)
@@ -22,5 +23,6 @@ lisp: /tmp/graphics.lsp # здесь меняем набор библиотек
 	cat $^ >$@ ;
 	echo -e -n "\xff" >>$@
 
-/tmp/inter: $(SRC)
-	gcc $^ -o $@
+/tmp/key.lsp: $(KEYBOARD)
+	cat $^ >$@ ;
+	echo -e -n "\xff" >>$@
