@@ -94,3 +94,11 @@
 (defun minp (list pred)
   "Возвращает минимальный элемент списка по предикату. Предикат pred принимает два элемента списка и возвращает T, если первый элемент меньше второго"
   (minp* (cdr list) pred (car list)))
+
+(defun contains (list elem)
+  "Предикат - элемент elem содержится в списке list"
+  (let ((result NIL))
+    (dolist (current list)
+      (when (= current elem)
+	(setq result T)))
+    result))
