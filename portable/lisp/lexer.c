@@ -204,7 +204,7 @@ int get_float_num(int int_num, int sgn)
 }
 
 /** 
- * Функция считывает числа из строки и преобразует в число  десятичной и шестнадцатиричной СС
+ * Функция считывает числа в десятичной и шестнадцатиричной СС
  * 10 - десятичной, 0xFFAA - шестнадцатиричное 
  */
 int get_num()
@@ -226,7 +226,7 @@ int get_num()
 	if (is_digit(cur_symbol)) {
 	    cur_num = cur_num * 10 + sgn * (cur_symbol - '0');
 	    msb = (cur_num >> sgn_shr) & 1;
-	    if (msb != fl && sgn == 1) {
+	    if (msb != fl && cur_num != 0) {
 		token_error = 1;
 		printf("number overflow\n");
 		return 0;
