@@ -9,7 +9,8 @@
 /// Метка региона
 #define MAGIC 0xABCD1234
 
-#pragma pack(4)
+/* Структура региона должна иметь размер, кратный 2^MARKBIT (сейчас 32 байт) */
+
 /// создаваемый или свободный регион памяти
 struct region {
     int magic; /// метка своих регионов
@@ -18,9 +19,9 @@ struct region {
     struct region *prev; /// указатель на предыдущий регион
     int size; /// размер региона в байтах
 #ifndef X32
-    int pad;
+    int pad; // выравнивание 28 + 4
 #else
-    int pad[3];
+    int pad[3]; // выравнивание 20 + 12
 #endif
     char data[1]; /// Данные региона
 };

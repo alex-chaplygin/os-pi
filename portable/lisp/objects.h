@@ -15,6 +15,10 @@
 #define MAX_NUMBERS 350
 /// Всего вещественных чисел
 #define MAX_FLOATS 350
+/// Всего продолжений
+#define MAX_CONTINUATIONS 100
+/// Всего функций 
+#define MAX_FUNCTIONS 100
 
 #define PRINT(o) print_counter++; print_obj(o); printf("\n");
 #define ERROR (object_t)(-1)
@@ -86,6 +90,8 @@ typedef enum {
     STRING,  ///строка
     ARRAY, ///массив
     CHAR, ///одиночный символ
+    FUNCTION, /// lambda функция
+    CONTITUATION, ///продолжение
 } type_t;
 /// Тип для объекта
 #ifndef X32
@@ -95,6 +101,7 @@ typedef unsigned int object_t;
 #endif
 
 /* Структуры объектов должны иметь размер, кратный 2^MARKBIT (сейчас 32 байт) */
+/* Структура региона должна иметь размер, кратный 2^MARKBIT (сейчас 32 байт) */
 
 /// Структура большого целого числа
 typedef struct bignumber_s
@@ -103,11 +110,23 @@ typedef struct bignumber_s
     struct bignumber_s *next; // указатель на следующее свободное число
     int free; // Если 1 - число свободно
 #ifdef X32
-    int pad[5];
+    int pad[5]; // выравнивание 12 + 20
 #else
-    int pad[2];    
+    int pad[2]; // выравнивание 24 + 8
 #endif
 } bignumber_t;
+
+/// Структура функции
+typedef struct function_s
+{
+    object_t args; // аргументы функции
+    object_t body; // тело функции
+    struct function_s *next;// указатель на следующую свободную функцию
+    int free; // Если 1 - функция свободна
+#ifdef X32
+    int pad[4]; // выравнивание 16 + 16    
+#endif
+} function_t;
 
 typedef struct float_s
 {
@@ -115,9 +134,9 @@ typedef struct float_s
     struct float_s *next; // указатель на следующее свободное число
     int free; // Если число свободно
 #ifdef X32
-    int pad[5];
+    int pad[5]; // выравнивание 12 + 20
 #else
-    int pad[2];
+    int pad[2]; // выравнивание 24 + 8
 #endif
 } float_t;
 
@@ -130,7 +149,9 @@ typedef struct pair_s
     int free; // Если 1 - пара свободна
     int print_counter; // счетчик печати
 #ifdef X32
-    int pad[3];
+    int pad[3]; // выравнивание 20 + 12
+#else
+    int pad[8]; // выравнивание 40 + 24
 #endif
 } pair_t;
 
@@ -141,6 +162,9 @@ typedef struct string_s
     int length; //длина строки
     struct string_s *next; //указатель на следующую свободную строку
     int free; // Если 1 - строка свободна
+#ifdef X32
+    int pad[4]; // выравнивание 16 + 16
+#endif
 } string_t; //структура строки
 
 /// Структура массива
@@ -150,6 +174,9 @@ typedef struct array_s
     int length; // Длина массива
     struct array_s *next; // Указатель на следующий свободный массив
     int free; // Если 1 - массив свободен
+#ifdef X32
+    int pad[4]; // выравнивание 16 + 16
+#endif
 } array_t;
 
 typedef  object_t (*func_t)(object_t);
@@ -172,9 +199,9 @@ typedef struct symbol_s
     //список функций у метки
     object_t tag_value;
 #ifdef X32
-    int pad[2];
+    int pad[2]; // выравнивание 32 + 24 + 8
 #else
-    int pad[4];
+    int pad[4]; // выравнивание 32 + 48 + 16
 #endif
 } symbol_t;
 

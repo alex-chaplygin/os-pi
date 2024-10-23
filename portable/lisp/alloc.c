@@ -16,11 +16,12 @@ void init_regions()
     regions = (struct region *)malloc(MAX_REGION_SIZE);
 #else
     regions = (struct region *)MEM_START;
-#endif   
+#endif
+    regions = (struct region *)((((long long)regions >> MARK_BIT) + 1) << MARK_BIT);
     regions->free = 1;
     regions->next = NULL;
     regions->prev = NULL;
-    regions->size = MAX_REGION_SIZE - sizeof(struct region) + 4;
+    regions->size = MAX_REGION_SIZE - sizeof(struct region) + sizeof(char *);
     //    for (int i = 0; i < regions->size; i++)
     //	regions->data[i] = 0;
 }
@@ -36,9 +37,9 @@ void *alloc_region(int size)
     /// найти первый свободный регион подходящего размера
     char *p;
     struct region *r = regions;
-    if ((size & 0xf) != 0)
-	size = ((size >> 4) + 1) << 4;
-    int offset_markup = sizeof(struct region) - 4;
+    if ((size & ((1 << MARK_BIT) - 1)) != 0)
+	size = ((size >> MARK_BIT) + 1) << MARK_BIT;
+    int offset_markup = sizeof(struct region) - sizeof(char *);
     int size2 = size + offset_markup;
     while (r != NULL) {
         if (r->free == 1 && r->size >= size2) {
@@ -68,7 +69,7 @@ void *alloc_region(int size)
 void free_region(void *data)
 {
     struct region *r, *rprev, *rnext;
-    int offset = sizeof(struct region) - 4;
+    int offset = sizeof(struct region) - sizeof(char *);
     r = (struct region *)((char *)data - offset);
     if (r->magic != MAGIC) {
 	error("Free region: no magic\n");
