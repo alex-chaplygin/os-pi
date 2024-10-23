@@ -43,7 +43,7 @@
 
 (defun mat-rotate (ml a)
   "Применение поворота"
-  (mat-mul ml (mat-make (cos a) (sin a) (- 0 (sin a)) (cos a) 0 0))
+  (mat-mul ml (mat-make (cos a) (sin a) (- 0 (sin a)) (cos a) 0 0)))
 
 (defun mat-mul-vec (m v)
     "Произведение матрицы на вектор"
