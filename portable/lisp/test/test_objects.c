@@ -70,6 +70,21 @@ void test_new_float(float number)
 }
 
 /**
+ * Создать объект функции
+ * args: (x y)
+ * body: ((+ x y))
+ * new_simbol
+ */
+void test_new_function()
+{
+    object_t args;
+    object_t body;
+    printf("test_new_function");
+    args = new_pair(NEW_SYMBOL("X"), NEW_SYMBOL("Y"));    
+    //    object_t nf = new_function(args, body);        
+}
+
+/**
  * Создать объект маленькое число и проверить, что оно правильно записалось
  */
 void test_new_number(int number, int type)
@@ -285,7 +300,12 @@ void test_mark()
     int mask = 1 << 31;
     object_t n = new_bignumber(2147483658);
     object_t s = NEW_STRING("abc");
-    object_t a = NEW_ARRAY(make_list(3));
+    object_t l = make_list(3);
+    printf("make_list:");
+    PRINT(l);
+    object_t a = NEW_ARRAY(l);
+    printf("array: ");
+    PRINT(a);
     object_t inp2 = new_pair(a, NULLOBJ);
     object_t inp1 = new_pair(s, inp2);
     object_t p2 = new_pair(inp1, NULLOBJ);
@@ -442,14 +462,15 @@ void test_free_region()
     char *reg2 = alloc_region(12);
     char *reg3 = alloc_region(16);
     char *reg4 = alloc_region(10);
-    int offset = sizeof(struct region) - 4;
+    int offset = sizeof(struct region) - sizeof(char *);
+    int mask = (1 << MARK_BIT) - 1;
     struct region *r1 = (struct region *)(reg1 - offset);
     struct region *r2 = (struct region *)(reg2 - offset);
     struct region *r3 = (struct region *)(reg3 - offset);
-    ASSERT((int)reg1 & 0xf, 0);
-    ASSERT((int)reg2 & 0xf, 0);
-    ASSERT((int)reg3 & 0xf, 0);
-    ASSERT((int)reg4 & 0xf, 0); 
+    ASSERT((int)reg1 & mask, 0);
+    ASSERT((int)reg2 & mask, 0);
+    ASSERT((int)reg3 & mask, 0);
+    ASSERT((int)reg4 & mask, 0); 
     free_region(reg2);
     ASSERT(r1->next, r2);
     ASSERT(r2->prev, r1);
@@ -769,6 +790,8 @@ garbage_collect
 */
 void main()
 {
+    if (setjmp(jmp_env) == 1)
+	return;
     printf("--------------test objects---------------------\n");
     init_regions();
     test_regions_mem();
@@ -804,6 +827,7 @@ void main()
     test_new_float(0.0f);
     test_new_float(78.34f);
     test_free_float();
+    test_new_function();
     reset_mem();
     test_new_number(-677, NUMBER);
     test_new_number(56, NUMBER);
