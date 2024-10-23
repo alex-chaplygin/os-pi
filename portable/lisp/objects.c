@@ -2,11 +2,13 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include <setjmp.h>
 #include "objects.h" 
 #include "parser.h"
 #include "symbols.h"
 #include "eval.h"
-#include "alloc.h" 
+#include "alloc.h"
+#include "cont.h"
 
 /// Индекс последнего большого числа
 int last_bignumber = 0;
@@ -48,6 +50,20 @@ array_t *arrays;
 /// Список свободных массивов
 array_t *free_arrays = NULL;
 
+/// Хранилище функций
+function_t *functions;
+/// Список свободных функций
+function_t *free_functions = NULL;
+/// Индекс последней функции
+int last_function = 0;
+
+/// Индекс последнего продолжения
+int last_continuation = 0;
+/// Хранилище продолжений
+continuation_t *continuations;
+/// Список свободных продолжений
+continuation_t *free_continuations = NULL;
+
 ///Количество используемых больших чисел
 int total_bignumbers = 0;
 ///Количество используемых вещественных чисел
@@ -58,6 +74,10 @@ int total_pairs = 0;
 int total_strings = 0;
 ///Количество используемых массивов
 int total_arrays = 0;
+///Количество используемых продолжений
+int total_continuations = 0;
+///Количество используемых функций
+int total_functions = 0;
 
 /// текущее окружение
 extern object_t current_env;
@@ -69,12 +89,14 @@ extern object_t func_env;
  */
 void init_objects()
 {
-    alloc_region(1);
+    //alloc_region(1);
     bignumbers = (bignumber_t *)alloc_region(MAX_NUMBERS * sizeof(bignumber_t));
     floats = (float_t *)alloc_region(MAX_FLOATS * sizeof(float_t));
     pairs = (pair_t *)alloc_region(MAX_PAIRS * sizeof(pair_t));
     strings = (string_t *)alloc_region(MAX_STRINGS * sizeof(string_t));
     arrays = (array_t *)alloc_region(MAX_ARRAYS * sizeof(array_t));
+    continuations = (continuation_t *)alloc_region(MAX_CONTINUATIONS * sizeof(continuation_t));
+    functions = (function_t *)alloc_region(MAX_FUNCTIONS * sizeof(function_t));
 }
 
 /**
@@ -100,6 +122,59 @@ object_t new_bignumber(int num)
     number->value = num;
     total_bignumbers++;
     return NEW_OBJECT(BIGNUMBER, number);
+}
+
+/**
+ * Создание нового объекта продолжения
+ *
+ * @param buf буфер jmp_buf
+ * 
+ * @return указатель на объект продолжения
+/*  */
+/* object_t new_continuation(jmp_buf buf) */
+/* { */
+/*     continuation_t *continuation; */
+/*     if (last_continuation == MAX_CONTINUATIONS) */
+/*     { */
+/* 	if (free_continuations == NULL) */
+/* 	    error("Error: out of memory: continuations"); */
+/* 	continuation = free_continuations; */
+/* 	free_continuations = free_continuations -> next; */
+/*     } else */
+/* 	continuation = &continuations[last_continuation++]; */
+/*     jmp_buf buf2; */
+/*     memcpy(buf2,buf,sizeof(jmp_buf)); */
+/*     continuation->buffer = buf2; */
+/*     //continuation->enviroment = env; */
+/*     total_continuations++; */
+/*     return NEW_OBJECT(CONTINUATION, continuation); */
+/* } */
+
+/**
+ * Создание нового объекта функции
+ *
+ * @param args список аргументов функции
+ * @param body тело функции
+ * 
+ * @return указатель на объект продолжения
+/*  */
+object_t new_function(object_t args, object_t body)
+{
+    function_t *func;
+    if (last_function == MAX_FUNCTIONS)
+    {
+	if (free_functions == NULL)
+	    error("Error: out of memory: funcs");
+	func = free_functions;
+	free_functions = free_functions->next;
+    } else
+	func = &functions[last_function++];
+    func->next = NULL;
+    func->free = 0;
+    func->args = args;
+    func->body = body;
+    total_functions++;
+    return NEW_OBJECT(FUNCTION, func);
 }
 
 /**
@@ -222,7 +297,11 @@ object_t new_pair(object_t left, object_t right)
  	pair = free_pairs; 
  	free_pairs = free_pairs->next; 
     } else 
- 	pair = &pairs[last_pair++];         
+ 	pair = &pairs[last_pair++];
+    /*printf("new_pair: ");
+    PRINT(left);
+    PRINT(right);
+    printf("pair = %x %d\n", pair, sizeof(pair_t));*/
     pair->next = NULL; 
     pair->free = 0; 
     pair->left = left; 
@@ -323,6 +402,7 @@ void free_string(string_t *s)
  * @param list - список 
  *
  * @return указатель на объект
+
  */  
 array_t *new_array(object_t list) 
 {
