@@ -20,7 +20,9 @@
 /// Всего функций 
 #define MAX_FUNCTIONS 100
 
+/// Печать объекта с переводом строки и учетом рекурсии
 #define PRINT(o) print_counter++; print_obj(o); printf("\n");
+
 #define ERROR (object_t)(-1)
 /// Объект пустой список(пустой объект)
 #define NULLOBJ PAIR 
@@ -52,6 +54,8 @@
 #define GET_PAIR(obj) ((pair_t *)(GET_ADDR(obj)))
 //Получение указателя на структуру 32-х битного числа
 #define GET_BIGNUMBER(num) ((bignumber_t *)(GET_ADDR(num)))
+//Получение указателя на структуру функции из объекта
+#define GET_FUNCTION(obj) ((function_t *)(GET_ADDR(obj)))
 //Получение указателя на структуру вещественного числа
 #define GET_FLOAT(num) ((float_t *)(GET_ADDR(num)))
 //Получение указателя на структуру строки
@@ -211,6 +215,7 @@ void init_objects();
 object_t new_bignumber(int num);
 object_t new_number(int num);
 object_t new_float(float nuw);
+object_t new_function(object_t args, object_t body);
 int get_value(object_t obj);
 object_t new_pair(object_t left, object_t right);
 struct symbol_s *new_symbol(char *str);
@@ -221,6 +226,7 @@ void free_object(object_t *obj);
 void free_bignumber(bignumber_t *o);
 void free_float(float_t *f);
 void free_pair(pair_t *p);
+void free_function(function_t *f);
 void print_free_objs();
 void print_free_pairs();
 string_t *new_string(char *str);
