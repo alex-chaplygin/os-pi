@@ -70,7 +70,7 @@ object_t parse_element(type_t type, void *data, tokentype_t t_type)
     else if (t_type == LPAREN)
 	obj = parse_list();
     else if (t_type == T_FLOAT)
-	obj = new_float(*(float*)data);
+	obj = new_float(*(float *)data);
     else if (t_type == T_NUMBER)
 	obj = new_number(*(int *)data);
     else if (t_type == T_SYMBOL)
