@@ -125,6 +125,25 @@ object_t new_bignumber(int num)
 }
 
 /**
+ * Освобождение памяти для большого числа
+ *
+ * @param o  объект для освобождения
+ */
+void free_bignumber(bignumber_t *o)
+{
+    if (o == NULL) {
+    	error("free_bignumber: null pointer: obj");
+    	return;
+    }    
+    if (o->free)
+	return;
+    o->next = free_bignumbers;
+    free_bignumbers = o;
+    o->free = 1;
+    total_bignumbers--;
+}
+
+/**
  * Создание нового объекта продолжения
  *
  * @param buf буфер jmp_buf
@@ -178,22 +197,20 @@ object_t new_function(object_t args, object_t body)
 }
 
 /**
- * Освобождение памяти для большого числа
+ * Освобождение памяти для функции
  *
  * @param o  объект для освобождения
  */
-void free_bignumber(bignumber_t *o)
+void free_function(function_t *f)
 {
-    if (o == NULL) {
-    	error("free_bignumber: null pointer: obj");
-    	return;
-    }    
-    if (o->free)
+    if (f == NULL)
+    	error("free_function: null pointer: obj");        
+    if (f->free)
 	return;
-    o->next = free_bignumbers;
-    free_bignumbers = o;
-    o->free = 1;
-    total_bignumbers--;
+    f->next = free_functions;
+    free_functions = f;
+    f->free = 1;
+    total_functions--;
 }
 
 /**
@@ -224,14 +241,12 @@ object_t new_float(float num)
 /**
  * Освобождение памяти для вещественного числа
  *
- * @param o  объект для освобождения
+ * @param obj объект 
  */
 void free_float(float_t *f)
 {
-    if (f == NULL) {
-    	error("free_float: null pointer: obj");
-    	return;
-    }    
+    if (f == NULL)
+    	error("free_float: null pointer: obj");    
     if (f->free)
 	return;
     f->next = free_floats;
@@ -618,6 +633,13 @@ void print_obj(object_t obj)
  	printf("%d", get_value(obj));
     else if (TYPE(obj) == BIGNUMBER)
 	printf("%d", GET_BIGNUMBER(obj)->value);
+    else if (TYPE(obj) == FUNCTION){
+	printf("(LAMBDA ");
+	print_obj(GET_FUNCTION(obj)->args);
+	printf(" ");
+	print_obj(GET_FUNCTION(obj)->body);
+	printf(")");
+    }
     else if (TYPE(obj) == FLOAT)
 	printf("%f", ((float_t *)GET_ADDR(obj))->value);
     else if (TYPE(obj) == STRING)
