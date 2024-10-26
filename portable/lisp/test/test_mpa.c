@@ -26,11 +26,29 @@ void test_bignum_mult(const char* num1, const char* num2, const char* expected_r
 
     int res = bignum_mult(bignum1, bignum2);
     printf("\n");
-    print_num(bignum1);
+    print_bignum(bignum1);
     printf("\n");
     
     ASSERT(bignum1->size, result_bignum->size);
     ASSERT(memcmp(bignum1->data, result_bignum->data, bignum1->size * sizeof(bignum1->data[0])), 0);
+}
+
+void test_bignum_div(const char* num1, const char* num2, const char* expected_result, int r)
+{
+    printf("test_bignum_div: %s %s\n", num1, num2);
+    bignum_t bignum1 = new_bignum_from_str(num1);
+    bignum_t bignum2 = new_bignum_from_str(num2);
+    bignum_t result_bignum = new_bignum_from_str(expected_result);
+
+    int res = bignum_div(bignum1, bignum2);
+     printf("\n");
+    print_bignum(bignum1);
+    printf("\n");
+    ASSERT(res, r);
+    if (r >= 0) {
+	ASSERT(bignum1->size, result_bignum->size);
+	ASSERT(memcmp(bignum1->data, result_bignum->data, bignum1->size * sizeof(bignum1->data[0])), 0);
+    }
 }
 
 int main()
@@ -60,11 +78,18 @@ int main()
     test_bignum_sum("2a0", "10", "", -2);
     test_bignum_sum("20", "10z", "", -2);
     test_bignum_sum("501", "503", "1004", 0);    
+
     test_bignum_mult("732", "841", "615612");
     test_bignum_mult("25", "2", "50");
     test_bignum_mult("5486", "1475", "8091850");
     test_bignum_mult("23", "5762", "132526");
     test_bignum_mult("0", "275", "0");
     test_bignum_mult("512", "0", "0");
+
+    test_bignum_div("4879652", "2", "2439826", 0);
+    test_bignum_div("48", "240", "0", 0);
+    test_bignum_div("4879652", "4", "1219913", 0);
+    test_bignum_div("10000000", "1000000", "10", 0);
+    test_bignum_div("154894561", "0", "", -1);
     return 0;
 }
