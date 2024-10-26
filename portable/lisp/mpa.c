@@ -3,23 +3,49 @@
 #include <string.h>
 #include "mpa.h"
 
+/// Все большие числа
 static struct bign bignums[MAX_BIGNUMS];
+/// Индекс последнего большого числа 
 static int last_bignum = 0;
+/// Список свободных больших чисел
+bignum_t free_bignums = NULL;
 
 /**
- * @brief Инициализация структуры вещественного числа
- *
- * @param Входное число size
+ * @brief Инициализация структуры большого числа
  *
  * @return struct bignum_t bignum
  */
 bignum_t new_bignum()
 {
+    bignum_t number;
     if (last_bignum >= MAX_BIGNUMS) {
-        printf("MAX bignum");
-        return NULL;
-    }
-    return &bignums[last_bignum++];
+	if (free_bignums == NULL) {
+	    printf("Error: out of memory: bignumbers");
+	    return NULL;
+	}
+	number = free_bignums;
+	free_bignums = free_bignums -> next;
+    } else
+	number = &bignums[last_bignum++];
+    return number;
+}
+
+/**
+ * Освобождение памяти большого числа
+ *
+ * @param o объект для освобождения
+ */
+void free_bignum(bignum_t o)
+{
+    if (o == NULL) {
+    	printf("free_bignumber: null pointer: obj");
+    	return;
+    }    
+    if (o->free)
+	return;
+    o->next = free_bignums;
+    free_bignums = o;
+    o->free = 1;
 }
 
 /** 
@@ -47,49 +73,12 @@ bignum_t new_bignum_from_str(const char *str)
 }
 
 /**
- * @brief Изменение значения цифры вещественного числа
- *
- * @param Входная стуктура bignum_t
- * @param Входное число pos - позиция цифры
- * @param Входное число val - значение цифры
- *
- */
-void set_digit(bignum_t bignum, int pos, char val)
-{
-    bignum->data[pos] = val;
-}
-
-/**
- * @brief Изменение позиции плавающей точки вещественного числа
- *
- * @param Входная стуктура bignum_t
- * @param Входное число exponent - позиция плавающей точки
- *
- */
-void set_exp(bignum_t bignum, int exponent)
-{
-    bignum->exponent = exponent;
-}
-
-/**
- * @brief Изменение знака вещественного числа
- *
- * @param Входная стуктура bignum_t
- * @param Входное число sign - знак числа
- *
- */
-void set_sign(bignum_t bignum, int sign)
-{
-    bignum->sign = sign;
-}
-
-/**
  * @brief Печать структуры вещественного числа
  * 
  * @param bignum - входное число
  * 
  */
-void print_num(bignum_t bignum)
+void print_bignum(bignum_t bignum)
 {
     if (bignum->sign == -1) 
         putchar('-');
@@ -105,28 +94,6 @@ void print_num(bignum_t bignum)
         }
 }
 
-
-
-/**
- * @brief конвертирует число int в большое число
- * 
- * @param n - большое число 
- * @param num -целое число 
- */
-void bignum_from_int(bignum_t n, int num)
-{
-    if (num < 0) {
-         n->sign = 1;
-         num = -num;
-    }
-    for(int i = 0; i < n->size; i++) {   
-        n->data[i] = num % 10;
-        num = num / 10;
-        if (num == 0)
-            break;
-    }
-}
-
 /**
  * @brief Сложение больших чисел. Перезаписывает 1-е большое число, прибавляя к нему 2-е
  * 
@@ -137,6 +104,8 @@ int bignum_sum(bignum_t n1, bignum_t n2)
 {
     if (n1->size < n2->size)
         n1->size = n2->size;
+    else if (n2->size < n1->size)
+	n2->size = n1->size;
     int carry = 0;
     for (int i = 0; i < n2->size; i++)
     {
@@ -181,6 +150,8 @@ int bignum_mult(bignum_t n1, bignum_t n2)
     for(int i = 0; i < n3->size; i++){
 	n1->data[i] = n3->data[i];
     }
+    free_bignum(n3);
+    free_bignum(n4);
     return 0;
 }
 
@@ -213,5 +184,62 @@ int bignum_sub(bignum_t n1, bignum_t n2)
         n1->size = 1;
         n1->data[0] = 0;
     }
+    return 0;
+}
+
+/**
+ * @brief сравнивает два больших числа
+ * 
+ * @param n1 - большое 1-е число 
+ * @param n2 - большое 2-е число 
+ */
+int bignum_compare(bignum_t n1, bignum_t n2)
+{
+    if (n1->size != n2->size) {
+        return (n1->size > n2->size) ? 1 : -1;
+    }
+    for (int i = n1->size - 1; i >= 0; i--) {
+        if (n1->data[i] != n2->data[i]) {
+            return (n1->data[i] > n2->data[i]) ? 1 : -1;
+        }
+    }
+
+    return 0;
+}
+
+/**
+ * @brief деление больших чисел, перезаписывает 1-е число, деля его на 2-е
+ * 
+ * @param n1 - большое 1-е число 
+ * @param n2 - большое 2-е число 
+ */
+int bignum_div(bignum_t n1, bignum_t n2)
+{
+    if (n2->size == 1 && n2->data[0] == 0) {
+        printf("Деление на ноль невозможно! \n");
+        return -1;
+    }
+    if (bignum_compare(n1, n2) == -1) {
+        n1->size = 1;
+	n1->data[0] = 0;
+        return 0;
+    }
+    bignum_t temp = new_bignum();
+    bignum_t one = new_bignum();
+    temp->size = n1->size;
+    //one->size = n1->size;
+    one->size = 1;
+    one->data[0] = 1;
+    for (int i = 0; i < n1->size; i++) {
+        temp->data[i] = n1->data[i];
+        n1->data[i] = 0;
+    }
+    n1->size = 1;
+    while (bignum_compare(temp, n2) >= 0) {
+        bignum_sub(temp, n2);
+        bignum_sum(n1, one);
+    }
+    free_bignum(temp);
+    free_bignum(one);
     return 0;
 }
