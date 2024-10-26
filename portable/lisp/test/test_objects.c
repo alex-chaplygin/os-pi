@@ -24,6 +24,9 @@ extern array_t *free_arrays;
 extern struct region *regions;
 extern int last_string;
 extern int last_array;
+extern int last_function;
+extern function_t *functions;
+extern function_t *free_functions;
 
 void mark_object(object_t obj);
 void sweep();
@@ -70,18 +73,24 @@ void test_new_float(float number)
 }
 
 /**
- * Создать объект функции
- * args: (x y)
- * body: ((+ x y))
- * new_simbol
+ * Создать объект функции, напечатать и проверить тип объекта
+ * args: (X X)
+ * body: ((+ X Y))
+ * 
  */
 void test_new_function()
 {
     object_t args;
     object_t body;
-    printf("test_new_function");
-    args = new_pair(NEW_SYMBOL("X"), NEW_SYMBOL("Y"));    
-    //    object_t nf = new_function(args, body);        
+    printf("test_new_function: ");
+    object_t xsym = NEW_OBJECT(SYMBOL, new_symbol("X"));
+    object_t ysym = NEW_OBJECT(SYMBOL, new_symbol("Y"));
+    object_t plussym = NEW_OBJECT(SYMBOL, new_symbol("+"));
+    args = new_pair(xsym, new_pair(ysym, NULLOBJ));
+    body = new_pair(plussym, new_pair(xsym, new_pair(ysym, NULLOBJ)));
+    object_t nf = new_function(args, body);
+    ASSERT(TYPE(nf), FUNCTION);
+    PRINT(nf);
 }
 
 /**
@@ -162,16 +171,17 @@ void reset_mem()
     last_pair = 0;
     last_string = 0;
     last_array = 0;
+    last_function = 0;
     free_pairs = NULL;
     free_strings = NULL;
     free_bignumbers = NULL;
     free_arrays = NULL;
+    free_functions = NULL;
 }
 
 /** 
- *Освобождение большого числа из объекта
+ * Освобождение большого числа из объекта
  */
-
 void test_free_bignumber()
 {
     printf("test_free_bignumber: ");
@@ -183,6 +193,24 @@ void test_free_bignumber()
     ASSERT(free_bignumbers, (bignumber_t *)GET_ADDR(o));
 }
 
+/** 
+ * Создать объект функцию, освободить этот объект и проверить,
+ * что он попал в голову списка свободных функций
+ */
+void test_free_function()
+{
+    printf("test_free_function: ");
+    reset_mem();
+    object_t xsym = NEW_OBJECT(SYMBOL, new_symbol("X"));
+    object_t ysym = NEW_OBJECT(SYMBOL, new_symbol("Y"));
+    object_t plussym = NEW_OBJECT(SYMBOL, new_symbol("+"));
+    object_t args = new_pair(xsym, new_pair(ysym, NULLOBJ));
+    object_t body = new_pair(plussym, new_pair(xsym, new_pair(ysym, NULLOBJ)));
+    object_t o = new_function(args, body);
+    ASSERT(TYPE(o), FUNCTION);
+    free_function((function_t *)GET_ADDR(o));
+    ASSERT(free_functions, (function_t *)GET_ADDR(0));
+}
 /**
  * Проверка корректности работы сборщика мусора
  * относительно больших чисел.
@@ -828,6 +856,7 @@ void main()
     test_new_float(78.34f);
     test_free_float();
     test_new_function();
+    test_free_function();
     reset_mem();
     test_new_number(-677, NUMBER);
     test_new_number(56, NUMBER);
