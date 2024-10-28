@@ -16,8 +16,9 @@
 #include "predicates.h"
 #include "../init.c"
 
-extern token_t token;
+void print_stack_trace();
 
+extern token_t token;
 // точка начала цикла REPL
 extern jmp_buf repl_buf;
 
@@ -42,20 +43,6 @@ char *itoa(int num, char *str, int rad)
     if (neg)
         *--p = '-';
     return p;
-}
-
-// Вывод сообщения об ошибке и выход из программы
-// str - сообщение об ошибке
-void error(char *str, ...)
-{
-    if (str[0] != '\0') {
-        va_list vals;
-        va_start(vals, str);
-        vprintf(str, vals);
-        va_end(vals);
-        putchar('\n');
-    }
-    longjmp(repl_buf, 1);
 }
 
 int main()

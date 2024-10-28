@@ -32,26 +32,6 @@ void graph_init();
 void init_all();
 
 /** 
- * Вывод сообщения об ошибке и выход из программы
- *
- * @param str сообщение об ошибке
- */
-void error(char *str, ...)
-{
-    set_cursor(0, 0);
-    if (str[0] != '\0') {
-        va_list vals;
-        va_start(vals, str);
-        vprintf(str, vals);
-        va_end(vals);
-        putchar('\n');
-    }
-    extern object_t current_env;
-    PRINT(current_env);
-    longjmp(repl_buf, 1);
-}
-
-/** 
  * Загрузка начального кода lisp
  *
  */
