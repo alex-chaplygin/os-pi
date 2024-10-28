@@ -64,6 +64,25 @@ continuation_t tagbody_buffers[MAX_TAGBODY_SIZE];
 int tb_index_buf = 0;
 ///текущая метка перехода go
 object_t cur_label = NULLOBJ;
+#ifdef DEBUG
+/// Стек
+object_t debug_stack = NULLOBJ;
+
+/*
+ * Выводит текущее состояние стека.
+ */
+void print_debug_stack()
+{
+    object_t current = debug_stack;
+    int frame = 0;
+    while (current != NULLOBJ) {
+	// Выводим текущий элемент стека
+	printf("#%d: ", frame++);
+	PRINT(FIRST(current));
+	current = TAIL(current);
+    }
+}
+#endif
 
 // (eq 'a 'a) -> T 
 // (eq 'a 'b) -> () 
@@ -538,10 +557,6 @@ object_t eval(object_t obj, object_t env, object_t func)
 {
     object_t args;
     object_t res;
-    /*    printf("eval: ");
-    PRINT(obj);
-    printf("env: ");
-    PRINT(env);*/
     current_env = env;
     func_env = func;
     if (need_grabage_collect())
@@ -553,26 +568,35 @@ object_t eval(object_t obj, object_t env, object_t func)
     else if (TYPE(obj) == SYMBOL)
         return eval_symbol(obj);
     else if (TYPE(obj) == PAIR) {
-	object_t first = FIRST(obj);
-	if (TYPE(first) == PAIR) {
-	    is_lambda(first);
-	    return eval_func(first, eval_args(TAIL(obj), env), env);
-	}
-	symbol_t *s = find_symbol(GET_SYMBOL(first)->str);
-	if (is_special_form(s) || s->macro != NULLOBJ)
-	    args = TAIL(obj);
-	else
-	    args = eval_args(TAIL(obj), env);
-	if (find_in_env(func, first, &res))
-	    return eval_func(res, args, env);
-	if (s->lambda != NULLOBJ)
-	    return eval_func(s->lambda, args, env);
-	else if (s->func != NULL)
-	    return s->func(args);
-	else if (s->macro != NULLOBJ)
-	    return macro_call(s->macro, args, env);
-	else
-	    error("Unknown func: %s", s->str);
+        object_t first = FIRST(obj);
+        if (TYPE(first) == PAIR) {
+            is_lambda(first);
+            return eval_func(first, eval_args(TAIL(obj), env), env);
+        }
+        symbol_t *s = find_symbol(GET_SYMBOL(first)->str);
+#ifdef DEBUG
+    	debug_stack = new_pair(obj, debug_stack);
+#endif
+        if (is_special_form(s) || s->macro != NULLOBJ)
+            args = TAIL(obj);
+        else
+            args = eval_args(TAIL(obj), env);
+
+        object_t result;
+        if (find_in_env(func, first, &res))
+            result = eval_func(res, args, env);
+        else if (s->lambda != NULLOBJ)
+            result = eval_func(s->lambda, args, env);
+        else if (s->func != NULL)
+            result = s->func(args);
+        else if (s->macro != NULLOBJ)
+            result = macro_call(s->macro, args, env);
+        else
+            error("Unknown func: %s", s->str);
+#ifdef DEBUG
+    	debug_stack = TAIL(debug_stack);
+#endif
+        return result;
     } else
         error("Unknown object_type");
     current_env = env;

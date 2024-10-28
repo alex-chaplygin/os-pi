@@ -573,10 +573,13 @@ void sweep()
 void garbage_collect()
 {
     for (int i = 0; i < last_symbol; i++) { 
-         mark_object(symbols[i].value);
-         mark_object(symbols[i].lambda);
-         mark_object(symbols[i].macro);
-     }
+	mark_object(symbols[i].value);
+	mark_object(symbols[i].lambda);
+	mark_object(symbols[i].macro);
+    }
+#ifdef DEBUG
+    mark_object(debug_stack);
+#endif
     mark_object(current_env);
     mark_object(func_env);
     sweep();
