@@ -86,6 +86,7 @@ int main()
     test_bignum_mult("23", "5762", "132526");
     test_bignum_mult("0", "275", "0");
     test_bignum_mult("512", "0", "0");
+    test_bignum_mult("5", "10", "50");
 
     test_bignum_div("4879652", "2", "2439826", 0);
     test_bignum_div("48", "240", "0", 0);

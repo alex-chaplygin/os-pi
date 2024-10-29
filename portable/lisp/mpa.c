@@ -130,8 +130,7 @@ int bignum_mult(bignum_t n1, bignum_t n2)
     bignum_t n4 = new_bignum(); //частичное произведение
     int carry = 0;
     
-    for(int i = 0; i < n2->size; i++)
-    {	
+    for(int i = 0; i < n2->size; i++) {	
 	for(int k = 0; k < n4->size; k++)
 	    n4->data[k] = 0;
 	for(int j = 0; j < n1->size; j++) {
@@ -140,16 +139,19 @@ int bignum_mult(bignum_t n1, bignum_t n2)
 	    carry = mult / 10;
 	}
 	n4->size = n1->size + i;
-	if (carry){
+	if (carry) {
 	    n4->data[n4->size++] = carry;
 	    carry = 0;
 	}
 	bignum_sum(n3, n4);
     }
-    n1->size = n3->size;
-    for(int i = 0; i < n3->size; i++){
+    if ((n1->size == 1 && n1->data[0] == 0) ||
+	(n2->size == 1 && n2->data[0] == 0)) // проверка на то, является ли n1 или n2 нулём
+	n1->size = 1;
+    else
+	n1->size = n3->size;
+    for(int i = 0; i < n3->size; i++)
 	n1->data[i] = n3->data[i];
-    }
     free_bignum(n3);
     free_bignum(n4);
     return 0;
