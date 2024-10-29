@@ -355,27 +355,36 @@ get_token
  
 int main()
 {
-    printf("-------------test_lexer---------------\n");\
-    
+    printf("-------------test_lexer---------------\n");\    
+    // Пропуск пустот 
+    test_skip_white_space(); 
+    test_skip_new_line();   
     test_get_cur_char();
     test_is_digit();
     test_is_alpha();
-    test_is_symbol('+', 1);
-    test_skip_white_space(); 
-    test_skip_new_line(); 
-    test_is_symbol(';', 0); 
-    
-    // Правильные классы
+     
+    // Числа (T_NUMBER)
+    test_get_token("tnumber", "42", T_NUMBER); // 11
     test_get_num("1234", 1234); // 11
     test_get_num("-5    ", -5); // 12
+    test_get_num("-2147483648", -2147483648); // граничный тест минимальное число
+    test_get_num("2147483647", 2147483647); // граничный тест максимальное число
     test_get_num("0xF", 15); // 13
     test_get_num("0xa", 10); // 13
     test_get_num("0xff", 255); // 13
     test_get_num("0x1A23", 0x1A23); // 13
-    test_get_num("-2147483648", -2147483648); // граничный тест минимальное число
-    test_get_num("2147483647", 2147483647); // граничный тест максимальное число
     test_get_num("0xFFFFFFFF", 0xFFFFFFFF); // граничный тест максимальное число
     test_get_num("0x00000000", 0x00000000); // граничный тест минимальное число
+    // Ошибки в числах    
+    test_invalid_token("invalid num", "-2147483649", 1); // граничный тест минимальное число - 1
+    test_invalid_token("invalid num", "2147483648", 1); // граничный тест максимальное число + 1
+     test_invalid_token("invalid hex", "0x100000000", 1); // граничный тест максимальное число + 1
+    test_invalid_token("invalid num", "11D", 1); // 18
+    test_invalid_token("invalid num", "0GG", 1); // 19
+    test_invalid_token("invalid hex", "0xfrf", 1); // 19
+    test_invalid_token("invalid hex", "0xrf", 1); // 19
+
+    // Вещественные числа (T_FLOAT)
     test_get_float_num("1.0", 1.0f);
     test_get_float_num("0.0", 0.0f);
     test_get_float_num("10.567", 10.567f);
@@ -383,26 +392,42 @@ int main()
     test_get_float_num("-1024.1024", -1024.1024f);
     test_get_float_num("0.25", 0.25f);
     test_get_float_num("-0.25", -0.25f);
+  
+    // Символ - T_SYMBOL
     test_get_symbol("Hello 12", "Hello"); // 14
     test_get_symbol("Hello\b", "Hell");
     test_get_symbol("* 1 2", "*"); // 14
+    test_get_token2("setq_rec", "setq_rec setq_rec ", T_SYMBOL, T_SYMBOL); // 14
+    test_symbol_max(); // граничный тест на максимальный символ
+    // Разрешенные символы
+    test_is_symbol(';', 0);
+    test_is_symbol('+', 1);
+    // Ошибочные символы - INVALID
+    test_get_token("invalid_symbol", "^", INVALID); // 16
+    test_get_token("invalid_symbol", "!~", INVALID); // 16
+    test_invalid_token("invalid symbol", "ss^s?", 1); // 20
+    test_symbol_overflow(); // граничный тест на превышение допустимого размера символа
+ 
+    // Одиночные символы
     test_get_token("lparen", "(", LPAREN); // 1
     test_get_token("rparen", ")", RPAREN); // 2
-    test_get_token("empty", " ", END); // 3
-    test_get_token("comment", " ; comment\n  42", T_NUMBER); // 10, 11
-    test_get_token("comment_board", " ; \n  42", T_NUMBER); // граничный тест пустой комментарий
-    test_get_token("comment2", ";comment\n\n\n;fffff\n  42", T_NUMBER); // 10, 11, 15
-    test_get_token("comment3", ";comment;dsada\n  42", T_NUMBER); // 10, 11, 15
-    test_get_token("comment4", ";comment", END); // 10
-    test_get_token("tnumber", "42", T_NUMBER); // 11
     test_get_token("quote", "\'", QUOTE); // 4
     test_get_token("backquote", "`", BACKQUOTE); // 5
     test_get_token("comma", ",", COMMA); // 6
     test_get_token("comma_at", ",@", COMMA_AT); // 7
     test_get_token("sharp", "#(1 2 3)", SHARP); // 8
-    test_get_token("dot", ".", DOT); //21
     test_get_token("symbol", "abc", T_SYMBOL);  // 14
-    test_get_token2("setq_rec", "setq_rec setq_rec ", T_SYMBOL, T_SYMBOL); // 14
+    test_get_token("dot", ".", DOT); //21
+    test_get_token("empty", " ", END); // 3
+
+    // Коментарии
+    test_get_token("comment", " ; comment\n  42", T_NUMBER); // 10, 11
+    test_get_token("comment_board", " ; \n  42", T_NUMBER); // граничный тест пустой комментарий
+    test_get_token("comment2", ";comment\n\n\n;fffff\n  42", T_NUMBER); // 10, 11, 15
+    test_get_token("comment3", ";comment;dsada\n  42", T_NUMBER); // 10, 11, 15
+    test_get_token("comment4", ";comment", END); // 10
+
+    // Строки - T_STRING
     test_string("\"1 2 3\"", "1 2 3"); // 9
     test_string("\"\\x31\\x32\"", "12");
     test_string("\"a b\\n\"", "a b\n"); // 9
@@ -410,23 +435,7 @@ int main()
     test_invalid_string("\"\\x299\\x230\"");//
     test_string("\"\"", ""); // граничный тест на пустую строку
     test_string_max(); // граничный тест на максимальную строку
-    test_string_overflow(); // граничный тест на превышение допустимого размера строки
-    test_invalid_token("valid num", "11 dd", 0); // 11
-    
-    // Неправильные классы
-    test_invalid_token("invalid num", "-2147483649", 1); // граничный тест минимальное число - 1
-    test_invalid_token("invalid num", "2147483648", 1); // граничный тест максимальное число + 1
-    test_invalid_token("invalid num", "11D", 1); // 18
-    test_invalid_token("invalid num", "0GG", 1); // 19
-    test_invalid_token("invalid hex", "0xfrf", 1); // 19
-    test_invalid_token("invalid hex", "0xrf", 1); // 19
-    test_invalid_token("invalid hex", "0x100000000", 1); // граничный тест максимальное число + 1
-    test_get_token("invalid_symbol", "^", INVALID); // 16
-    test_get_token("invalid_symbol", "!~", INVALID); // 16
+    test_string_overflow(); // граничный тест на превышение допустимого размера строки   
     test_invalid_token("invalid string", "\"1 2 3", 1); // 17
-    test_invalid_token("invalid symbol", "ss^s?", 1); // 20
- 
-    test_symbol_max(); // граничный тест на максимальный символ
-    test_symbol_overflow(); // граничный тест на превышение допустимого размера символа
     return 0;
-}
+}     
