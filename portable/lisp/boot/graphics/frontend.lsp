@@ -109,5 +109,3 @@
   (rectangle 10 10 30 30)
   (graph-send-buffer *gr-buf*)
   *new-path*)
-
-(frontend-test)
