@@ -1,4 +1,0 @@
-make /tmp/test_sys
-cd ..
-cat boot/lib.lsp boot/hash.lsp boot/oop.lsp >/tmp/lisp
-/tmp/test_sys </tmp/lisp

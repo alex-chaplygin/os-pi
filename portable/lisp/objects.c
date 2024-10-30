@@ -497,9 +497,11 @@ void free_array(array_t *a)
     free_region(a->data);
 }
 /**
- *Пометить объект как используемый 
+ * Пометить объект как используемый 
  * Для маленьких чисел - не хранится 
  * Для больших чисел - старший бит в free 
+ * Для чисел с плавающей точкой - старший бит в free
+ * Для функций - старший бит в free
  * Для символов - нет 
  * Для пар - markbit в left 
  * Для строк - старший бит в length 
@@ -517,22 +519,27 @@ void mark_object(object_t obj)
 	SET_MARK(GET_PAIR(obj)->left);
 	mark_object(GET_PAIR(obj)->left);
 	mark_object(GET_PAIR(obj)->right);
-    }
-    else if (TYPE(obj) == BIGNUMBER) {
+    } else if (TYPE(obj) == BIGNUMBER) {
 	if (((GET_BIGNUMBER(obj)->free) & mask) != 0)
 	    return;
 	GET_BIGNUMBER(obj)->free |= mask;
-    }
-    else if (TYPE(obj) == STRING) {
+    } else if (TYPE(obj) == FLOAT) {
+	if (((GET_FLOAT(obj)->free) & mask) != 0)
+	    return;
+	GET_FLOAT(obj)->free |= mask;
+    } else if (TYPE(obj) == FUNCTION) {
+        if (((GET_FUNCTION(obj)->free) & mask) != 0)
+	    return;
+	GET_FUNCTION(obj)->free |= mask;
+    } else if (TYPE(obj) == STRING) {
         if (((GET_STRING(obj)->length) & mask) != 0)
 	    return;
 	GET_STRING(obj)->length |= mask;
-    }
-    else if (TYPE(obj) == ARRAY) {
+    } else if (TYPE(obj) == ARRAY) {
         if (((GET_ARRAY(obj)->length) & mask) != 0)
 	    return;
 	GET_ARRAY(obj)->length |= mask;
-    }
+    } 
 }
 
 /**
@@ -546,6 +553,18 @@ void sweep()
         if ((big_num->free & mask) == 0)
 	    free_bignumber(big_num);
 	else big_num->free &= ~mask;
+    }
+    for (int i = 0; i < last_float; i++) {
+	float_t *flt = &floats[i];
+	if ((flt->free & mask) == 0)
+	    free_float(flt);
+	else flt->free &= ~mask;
+    }
+    for (int i = 0; i < last_function; i++) {
+	function_t *func = &functions[i];
+	if ((func->free & mask) == 0)
+	    free_function(func);
+	else func->free &= ~mask;
     }
     for (int i = 0; i < last_pair; i++) {
         pair_t *pair = &pairs[i];

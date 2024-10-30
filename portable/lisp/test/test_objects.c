@@ -74,8 +74,8 @@ void test_new_float(float number)
 
 /**
  * Создать объект функции, напечатать и проверить тип объекта
- * args: (X X)
- * body: ((+ X Y))
+ * args: (X Y)
+ * body: (+ X Y)
  * 
  */
 void test_new_function()
@@ -209,7 +209,7 @@ void test_free_function()
     object_t o = new_function(args, body);
     ASSERT(TYPE(o), FUNCTION);
     free_function((function_t *)GET_ADDR(o));
-    ASSERT(free_functions, (function_t *)GET_ADDR(0));
+    ASSERT(free_functions, (function_t *)GET_ADDR(o));
 }
 /**
  * Проверка корректности работы сборщика мусора
@@ -628,6 +628,83 @@ void test_garbage_collect_strings()
     ASSERT((regions->next != NULL), 1); 
 }
 
+/*
+ * Создать символ B
+ * Присвоить ему значение - вещественное число 12.837
+ * Создать ещё два числа
+ * Выполнить сборку мусора
+ * Проверить, что объект не в списке свободных вещественных чисел
+ */
+void test_garbage_collect_floats() 
+{ 
+    printf("test_garbage_collect_floats: "); 
+    reset_mem(); 
+    symbol_t *s = new_symbol("B"); 
+    object_t obj1 = new_float(12.837f); 
+    object_t obj2 = new_float(0.5f); 
+    object_t obj3 = new_float(28391.9213f); 
+    s->value = obj1;
+    garbage_collect();
+    
+    float_t *fs = free_floats; 
+    while (fs != NULL) {
+	printf("%f\n", fs->value);
+	if (fs == (float_t *)GET_ADDR(obj1)) { 
+	    printf("fail_floats\n"); 
+	    return; 
+	} 
+	fs = fs->next; 
+    } 
+    printf("floats_OK\n");
+    ASSERT(regions->free, 0);
+    ASSERT((regions->next != NULL), 1);
+}
+
+/*
+ * Создать две функции
+ * Создать символ и присвоить ему функцию суммирования
+ * Выполнить сборку мусора
+ * Проверить, что функция суммирования не в списке свободных строк
+ */
+void test_garbage_collect_functions()
+{
+    printf("test_garbage_collect_functions: ");
+    
+    object_t args1;
+    object_t body1;
+    object_t xsym = NEW_OBJECT(SYMBOL, new_symbol("X"));
+    object_t ysym = NEW_OBJECT(SYMBOL, new_symbol("Y"));
+    object_t plussym = NEW_OBJECT(SYMBOL, new_symbol("+"));
+    args1 = new_pair(xsym, new_pair(ysym, NULLOBJ));
+    body1 = new_pair(plussym, new_pair(xsym, new_pair(ysym, NULLOBJ)));
+    object_t funsum = new_function(args1, body1);
+
+    object_t args2;
+    object_t body2;
+    object_t asym = NEW_OBJECT(SYMBOL, new_symbol("A"));
+    object_t bsym = NEW_OBJECT(SYMBOL, new_symbol("B"));
+    object_t mulsym = NEW_OBJECT(SYMBOL, new_symbol("*"));
+    args2 = new_pair(asym, new_pair(bsym, NULLOBJ));
+    body2 = new_pair(mulsym, new_pair(asym, new_pair(bsym, NULLOBJ)));
+    object_t funmultiply = new_function(args2, body2);
+
+    symbol_t *s = new_symbol("F");
+    s->value = funsum;
+
+    garbage_collect();
+
+    function_t *ff = free_functions;
+    while (ff != NULL) {
+	if (ff == (function_t *)GET_ADDR(funsum)) {
+	    printf("fail_functions\n");
+	    return;
+	}
+	ff = ff->next;
+    }
+    printf("functions_OK\n");
+}
+
+
 /**
  * Создать список с числом элементов num
  *
@@ -840,6 +917,8 @@ void main()
     test_garbage_collect_strings(); //22,24
     test_garbage_collect_arrays();  //23,24
     test_garbage_collect_cycle();
+    test_garbage_collect_floats();
+    test_garbage_collect_functions();
     test_return_type();
     test_return_set_mark();
     test_return_get_mark();
