@@ -15,8 +15,6 @@
 char cur_symbol;
 /// текущий токен
 token_t token;
-/// Если 1, то значит была ошибка при лексическом разборе
-int token_error;
 /// Если 1, то загрузка кода из секции .lisp ядра
 int boot_load = 0;
 /// Адрес памяти, откуда загружается lisp при загрузке
@@ -158,14 +156,11 @@ int hex_num()
 			cur_symbol = toupper(cur_symbol);
 			cur_num = cur_num * 16 + cur_symbol - 'A' + 10;
 		} else {
-			token_error = 1;
-			printf("invalid hex num\n");
-			return 0;
+		        error("invalid hex number");
 		}
 		if ((cur_num >> msb_shr) & 1) {
-			token_error = 1;
-			printf("hex number overflow\n");
-			return 0;	
+			error("hex number overflow");
+
 		} 
     } while (is_digit(cur_symbol) || is_hex_symbol(cur_symbol));
   
@@ -226,19 +221,16 @@ int get_num()
 	if (is_digit(cur_symbol)) {
 	    cur_num = cur_num * 10 + sgn * (cur_symbol - '0');
 	    msb = (cur_num >> sgn_shr) & 1;
-	    if (msb != fl && cur_num != 0) {
-		token_error = 1;
-		printf("number overflow\n");
-		return 0;
-	    }
+	    
+	    if (msb != fl && cur_num != 0)
+		error("number overflow");	      
+	    
 	    get_cur_char();
 	} else if (cur_symbol == '.') {
 	    token.type = T_FLOAT;
 	    return get_float_num(cur_num, sgn);
 	} else {
-	    token_error = 1;
-	    printf("invalid num\n");
-	    return 0;
+	    error("invalid character in number"); 
 	}
     }
     unget_cur_char();
@@ -256,18 +248,15 @@ void get_symbol(char *cur_str)
 	    get_cur_char();
 	    continue;
 	}
-	if (!(is_alpha(cur_symbol) || is_digit(cur_symbol) || is_symbol(cur_symbol))){
-	    printf("ERROR: lexer.c: Unsupported character in input: %c(#%x)", cur_symbol, cur_symbol);
-	    token_error = 1;
-	    return;
-	}	
+	
+	if (!(is_alpha(cur_symbol) || is_digit(cur_symbol) || is_symbol(cur_symbol)))
+	    error("invalid character in symbol: %c(#%x)", cur_symbol, cur_symbol);	    
+		
         cur_str[c++] = cur_symbol;
         get_cur_char();
-	if (c > MAX_SYMBOL) {
-	    printf("ERROR: lexer.c: MAX_SYMBOL");
-	    token_error = 1;
-	    return;
-	}
+
+	if (c > MAX_SYMBOL)
+	    error("maximum characters in symbol");
     }
     unget_cur_char();
     cur_str[c] = 0;
@@ -285,25 +274,21 @@ void get_string(char *cur_str)
     get_cur_char();
     while (cur_symbol != EOF) {
 	if (cur_symbol == '"')
-	    	break;
+	    break;
 	else if (c == MAX_STR) {
-		token_error = 1;
-		--c;
-		break;
+	    error("maximum characters in string");
 	}
     	else if (cur_symbol == '\\') {
 	    	get_cur_char();
 	    	if (cur_symbol == 'n')
-			cur_symbol = '\n';
+		    cur_symbol = '\n';
 		else if (cur_symbol == 'x')
 		{
 		    int code = hex_num();
+		    
 		    if (code > 255)
-		    {
-			printf("get_string: invalid symbol code\n");
-			token_error = 1;
-			return;
-		    }
+		    	error("invalid symbol in string");
+		    
 		    cur_str[c++] = code;
 		    get_cur_char();
 		    continue;
@@ -313,7 +298,8 @@ void get_string(char *cur_str)
 	get_cur_char();
     }
     if (cur_symbol != '"')
-	token_error = 1;
+	error("expected \" at string end");
+    
     cur_str[c] = '\0'; // Завершаем строку
 }
 
@@ -382,7 +368,6 @@ token_t get_sharp()
  */
 token_t *get_token()
 {
-    token_error  = 0;
     get_cur_char();
     skip_white_space();
     get_cur_char();
@@ -431,10 +416,8 @@ token_t *get_token()
 	    get_token_symbol:
 	        token.type =  T_SYMBOL;
 	        get_symbol(token.str);
-	} else {
-	    token.type = INVALID;
-	    error("ERROR: lexer.c: INVALID SYMBOL");
-	}
+	} else 
+	    error("invalid symbol");
     }
     return &token;
 }

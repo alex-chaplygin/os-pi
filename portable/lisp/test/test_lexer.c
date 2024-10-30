@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <fcntl.h>
+#include <setjmp.h>
 #include "test.h"
 #include "lexer.h"
 
@@ -16,13 +17,15 @@ int is_symbol(char c);
 void get_symbol(char *cur_str);
 void reset_buffer();
 extern char cur_symbol;
-extern int token_error;
 
 FILE *oldstdin;
 
+jmp_buf jmp_env;
+
 void error(char *str, ...)
 {
-  printf("%s", str);
+    printf("%s", str);
+    longjmp(jmp_env, 1);
 }
 
 /** 
@@ -250,8 +253,13 @@ void test_invalid_token(const char* name_test, char* str, int error)
     printf("test_get_num_%s : ", name_test); // вывод имени теста
     write_file(str); // запись в файл
     reset_buffer();
-    get_token();
-    ASSERT(token_error, error);
+
+    if (setjmp(jmp_env) == 0) {
+	get_token();
+	FAIL;
+    }
+    else
+	OK;
 }
 
 /*
@@ -276,8 +284,13 @@ void test_invalid_string(char* str)
     printf("test_invalid_symbol_code %s ", str);
     write_file(str);
     reset_buffer();
-    token_t *tok = get_token();
-    ASSERT(token_error, 1);
+
+    if (setjmp(jmp_env) == 0) {
+	token_t *tok = get_token();
+	FAIL;
+    }
+    else
+	OK;
 }
 
 /*
@@ -301,8 +314,13 @@ void test_string_overflow()
     char *src = generate_string(MAX_STR + 1, 'a');
     write_file(src); // запись в файл 
     free(src);
-    get_token();
-    ASSERT(token_error, 1);    
+
+    if (setjmp(jmp_env) == 0) {
+	get_token();
+	FAIL;
+    }
+    else
+	OK;
 }
 
 /*
@@ -325,8 +343,13 @@ void test_symbol_overflow()
     printf("test_symbol_overflow :");
     char *src = generate_raw_string(MAX_SYMBOL + 1, 'a');
     write_file(src);
-    get_token();
-    ASSERT(token_error, 1);    
+
+    if (setjmp(jmp_env) == 0) {
+	get_token();
+	FAIL;
+    }
+    else
+	OK;
 }
 
 
@@ -343,7 +366,8 @@ get_token
 |                      |7) символ ,@                                            |                                           |
 |                      |8) символ #                                             |
 |                      |21) символ .                                            |
-|строка                |9) корректная строка                                    |17) строка без закрывающей кавычки         |
+|строка                |9) ко
+рректная строка                                    |17) строка без закрывающей кавычки         |
 |комментарии           |10) комментарий - начинается c ';' оканчивается '\n'    |                                           |
 |число                 |11) положительное dec-число                             |18) некорректное Dec-число                 |
 |                      |12) отрицательное dec-число                             |19) некорректное Hex-число                 |
