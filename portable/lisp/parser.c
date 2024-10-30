@@ -147,10 +147,22 @@ object_t parse_array()
 
 /**
  * Читает выражение и строит обьект этого выражения
- * (1 2)
- * 12
- * ABC
- * @return указатель на объект
+ * Числа: T_NUMBER -> NUMBER или BIGNUMBER
+ *        T_FLOAT -> FLOAT
+ * Символы: T_SYMBOL -> SYMBOL
+ *          T_CHAR -> CHAR
+ * Списки: (<объекты> ... ) -> PAIR
+ *         ( 1 A B 2 ) -> (1 . (A . (B . (2 . NIL))))
+ *         (1 . 3) -> PAIR (1, 3)
+ * Цитирование: '<объект> -> (QUOTE <объект>)
+ *              `<объект> -> (BACKQUOTE <объект>)
+ *              ,<объект> -> (COMMA <объект>)
+ *              ,@<объект> -> (COMMA-AT <объект>)  
+ * Строки: T_STRING -> STRING
+ * Массивы: #(<объекты>) -> ARRAY
+ * END -> NULLOBJ
+ * 
+ * @return объект
  */
 object_t parse()
 {   
