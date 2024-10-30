@@ -98,10 +98,7 @@ object_t parse_list()
     int val;
     char str[MAX_STR];
     token_t *cur_tok = get_token();
-    // printf("parselist: ");
-    // print_token(cur_tok);
-    if (token_error == 1)
-        error("parse: token_error");
+
     if (cur_tok->type == END)
 	error("expected )");
     if (cur_tok->type == RPAREN)
@@ -131,9 +128,7 @@ object_t parse_list()
 	if (cur_tok->type != RPAREN)
 	    error("expected )");
 	return res;
-    } else if (cur_token->type == INVALID)
-        error("parse: invalid token");
-    else 
+    } else 
 	error("invalid expression");
 }
 
@@ -160,11 +155,8 @@ object_t parse_array()
 object_t parse()
 {   
     object_t el; // создаем новый элемент
-    token_t *cur_token = get_token(); // считывается левая скобка
-    //printf("parse: ");
-    //print_token(cur_token);
-    if (token_error == 1)
-        error("parse: token_error");
+    token_t *cur_token = get_token(); // считывается левая скобка    
+    
     if (cur_token->type == T_NUMBER) // считывается число
 	return new_number(cur_token->value);
     else if (cur_token->type == T_FLOAT)

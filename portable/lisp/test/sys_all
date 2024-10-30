@@ -1,23 +1,20 @@
 echo "------------SYSTEM TEST-------------------"
-sh sys_test "\"\xFFF\"" "get_string: invalid symbol code
-parse: token_error
-parse: token_error"
+sh sys_test "\"\xFFF\"" "invalid symbol in string
+expected \" at string end"
 #Проверка точечной пары
 sh sys_test "'(1 . 1)" "(1 . 1)"
 #Тест для самого большого числа int
 sh sys_test "2147483647" "2147483647"
 ##Тест для самого большого числа int+1
-sh sys_test "2147483648" "number overflow
-parse: token_error"
+sh sys_test "2147483648" "number overflow"
 #самого маленького int
 sh sys_test "-2147483648" "-2147483648"
 #самого маленького int-1
-sh sys_test "-2147483649" "number overflow
-parse: token_error"
+sh sys_test "-2147483649" "number overflow"
 
 echo "---Тесты PARSER ---"
 #PARSER 2 Неправильный символ
-sh sys_test "~" "ERROR: lexer.c: INVALID SYMBOL"
+sh sys_test "~" "invalid symbol"
 #PARSER 6 список без закрывающей скобки
 sh sys_test "(a b c" "expected )"
 #PARSER 8 пустой список без открывающей скобки
