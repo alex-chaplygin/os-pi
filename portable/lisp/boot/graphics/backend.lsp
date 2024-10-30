@@ -3,6 +3,14 @@
 (defvar +screen-depth+ 8)
 (defvar *gr-buf* (make-array (* +screen-width+ +screen-height+ (/ +screen-depth+ 8))))
 
+(defclass Edge ()
+  (cur-x ; текущее пересечение (начало ребра)
+   start-y ; текущая горизонталь
+   end-y ; конечная горизонталь
+   dx ; разница координат ребра по x
+   dy ; разница координат ребра по y
+   counter)) ; счетчик для дроби
+
 (defun set-pixel (x y colour)
   "Установка пикселя"
   "x y - координаты пикселя, colour - цвет"
@@ -52,15 +60,45 @@
       (for xx x2 x1
 	   (set-pixel xx y colour))))
 
-(defun fill-triangle (x1 y1 x2 y2 x3 y3 colour)
+(defun next-x (edge)
+  "Поиск пересечений горизонтали с ребром"
+  (let ((counter (slot edge 'counter))
+        (cur-x (slot edge 'cur-x))
+        (dx (slot edge 'dx))
+        (dy (slot edge 'dy)))
+    (setq counter (+ counter (abs dx)))
+    (while (>= counter dy)
+      (setq counter (- counter dy))
+      (setq cur-x (+ cur-x (if (< dx 0) -1 1))))
+    (setf (slot edge 'counter) counter)
+    (setf (slot edge 'cur-x) cur-x)
+    cur-x))
+
+(defun fill-triangle (p1 p2 p3 colour)
   "Рисование залитого треугольника"
-  (let ((p1p2 (mid-point x1 y1 x2 y2))
-        (p1p3 (mid-point x1 y1 x3 y3)))
-    (while (not (null p1p2))
-      (let ((p1 (car p1p2))
-	    (p2 (car p1p3)))
-          (draw-hline (car p1) (car p2) (cdr p1) colour)
-          (setq p1p2 (cdr p1p2) p1p3 (cdr p1p3))))))
+  (labels ((fill (edge1 edge2) 
+		(for y (slot edge1 'start-y) (slot edge1 'end-y)
+            (let ((x1 (next-x edge1))
+                  (x2 (next-x edge2)))
+                  (when (not (= x1 x2))
+                    (draw-hline (++ x1) (-- x2) y colour))))))
+  (let* ((x1 (car p1))
+         (y1 (cdr p1))
+         (x2 (car p2))
+         (y2 (cdr p2))
+         (x3 (car p3))
+         (y3 (cdr p3))
+         (dxp1p2 (- x2 x1))
+         (dyp1p2 (- y2 y1))
+         (dxp1p3 (- x3 x1))
+         (dyp1p3 (- y3 y1))
+         (dxp2p3 (- x3 x2))
+         (dyp2p3 (- y3 y2))
+         (p1p2 (make-Edge x1 y1 (-- y2) dxp1p2 dyp1p2 0))
+         (p1p3 (make-Edge x1 y1 y3 dxp1p3 dyp1p3 0))
+         (p2p3 (make-Edge x2 y2 y3 dxp2p3 dyp2p3 0)))
+    (fill p1p2 p1p3)
+    (fill p2p3 p1p3))))
 
 (defun draw-rect (x y w h colour)
   "Рисование полого прямоугольника"
