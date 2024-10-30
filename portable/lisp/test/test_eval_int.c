@@ -832,6 +832,21 @@ void test_eval_args_null()
     object_t res = eval_args(NULLOBJ, NULLOBJ);
     ASSERT(res, NULLOBJ); 
 }
+
+/** 
+ * Тестирование выражения (())
+ */
+void test_eval_empty_lambda()
+{
+    printf("test_eval_empty_lambda: ");
+    object_t var = new_pair(NULLOBJ, NULLOBJ);
+    if (setjmp(jmp_env) == 0) {
+        eval(var, NULLOBJ, NULLOBJ);
+        FAIL;
+    } else
+        OK;
+}
+
 /*
 eval_int
 +---------------------------+------------------------------------------------+------------------------------------------------------+
@@ -1006,5 +1021,6 @@ int main()
     test_eval_symbol_undefined_variable();
     test_eval_args();
     test_eval_args_null();
+    test_eval_empty_lambda();
     return 0;
 }
