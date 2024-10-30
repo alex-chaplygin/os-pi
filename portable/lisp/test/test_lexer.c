@@ -355,11 +355,11 @@ get_token
  
 int main()
 {
-    printf("-------------test_lexer---------------\n");\    
+    printf("-------------test_lexer---------------\n");    
     // Пропуск пустот 
+    test_get_cur_char();
     test_skip_white_space(); 
     test_skip_new_line();   
-    test_get_cur_char();
     test_is_digit();
     test_is_alpha();
      
