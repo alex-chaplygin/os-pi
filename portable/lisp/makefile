@@ -31,4 +31,8 @@ lisp: /tmp/baselisp.lsp # здесь меняем набор библиотек
 
 graphics: $(GRAPHICS_TEST)
 	make -C test /tmp/lisp
-	cat $(GRAPHICS_TEST) | /tmp/repl_lisp
+	cat $^ | /tmp/lisp
+
+lib-test: $(BASELISP) $(TEST) boot/test/lib.lsp
+	make -C test /tmp/lisp
+	cat $^ | /tmp/lisp
