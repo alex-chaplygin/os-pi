@@ -559,6 +559,8 @@ object_t eval(object_t obj, object_t env, object_t func)
     object_t res;
     current_env = env;
     func_env = func;
+    //    printf("eval: "); PRINT(obj);
+    //    printf("env: "); PRINT(env);
     if (need_grabage_collect())
 	garbage_collect();
     if (obj == NULLOBJ)
@@ -813,6 +815,7 @@ object_t tagbody(object_t params)
     object_t params2;
     object_t res;
     object_t tags = NULLOBJ; // Список функций метки
+    object_t env;
     params2 = params;
     while (params != NULLOBJ) {
         obj = FIRST(params);
@@ -820,6 +823,7 @@ object_t tagbody(object_t params)
         if (TYPE(obj) == SYMBOL)
             tags = new_pair(new_pair(obj, params), tags);
     }
+    tagbody_buffers[tb_index_buf].environment = current_env;
     if (setjmp(tagbody_buffers[tb_index_buf++].buffer) == 1) {
 	if (tb_index_buf >= MAX_TAGBODY_SIZE)
 	    error("tagbody: buffer haven't true length");
@@ -829,11 +833,12 @@ object_t tagbody(object_t params)
 	} else
             params2 = res;	    
     }
+    env = current_env;
     while (params2 != NULLOBJ) {
         obj = FIRST(params2);
 	params2 = TAIL(params2); 
         if (TYPE(obj) != SYMBOL)
-            eval(obj, current_env, func_env);
+            eval(obj, env, func_env);
     }
     tb_index_buf--;
     return nil;
@@ -848,6 +853,7 @@ object_t go(object_t args)
     if (args == NULLOBJ)
 	error("go: no label");
     cur_label = FIRST(args);
+    current_env = tagbody_buffers[tb_index_buf - 1].environment;
     longjmp(tagbody_buffers[tb_index_buf - 1].buffer, 1);
 }
 
