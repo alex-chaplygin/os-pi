@@ -248,7 +248,7 @@ void test_print_token(token_t *token, const char *expected_output)
 /*
 * Проверка получения ошибки, если в значении встречается буква.
 */
-void test_invalid_token(const char* name_test, char* str, int error) 
+void test_invalid_token(const char* name_test, char* str) 
 {
     printf("test_get_num_%s : ", name_test); // вывод имени теста
     write_file(str); // запись в файл
@@ -354,6 +354,23 @@ void test_symbol_overflow()
 
 
 /*
+ * Тестирует получение одиночного символа типа T_CHAR из входной строки
+ * 
+ * @param src           Входная строка, содержащая символ, который нужно проверить
+ * @param expected_char Ожидаемый символ, который должен быть извлечен из src
+ * @param expected_type Ожидаемый тип токена, который должен быть возвращен функцией get_token
+ */
+void test_get_char(char* src, char expected_char, int expected_type)
+{
+    printf("test_get_char: %s ", src);
+    write_file(src);
+    reset_buffer();
+    token_t *t = get_token();
+    ASSERT(t->type, expected_type);
+    ASSERT(t->value, expected_char);            
+}
+
+/*
 get_token
 |условие               |правильный класс                                        |неправильный класс                         | 
 
@@ -366,8 +383,7 @@ get_token
 |                      |7) символ ,@                                            |                                           |
 |                      |8) символ #                                             |
 |                      |21) символ .                                            |
-|строка                |9) ко
-рректная строка                                    |17) строка без закрывающей кавычки         |
+|строка                |9) корректная строка                                    |17) строка без закрывающей кавычки         |
 |комментарии           |10) комментарий - начинается c ';' оканчивается '\n'    |                                           |
 |число                 |11) положительное dec-число                             |18) некорректное Dec-число                 |
 |                      |12) отрицательное dec-число                             |19) некорректное Hex-число                 |
@@ -400,13 +416,13 @@ int main()
     test_get_num("0xFFFFFFFF", 0xFFFFFFFF); // граничный тест максимальное число
     test_get_num("0x00000000", 0x00000000); // граничный тест минимальное число
     // Ошибки в числах    
-    test_invalid_token("invalid num", "-2147483649", 1); // граничный тест минимальное число - 1
-    test_invalid_token("invalid num", "2147483648", 1); // граничный тест максимальное число + 1
-     test_invalid_token("invalid hex", "0x100000000", 1); // граничный тест максимальное число + 1
-    test_invalid_token("invalid num", "11D", 1); // 18
-    test_invalid_token("invalid num", "0GG", 1); // 19
-    test_invalid_token("invalid hex", "0xfrf", 1); // 19
-    test_invalid_token("invalid hex", "0xrf", 1); // 19
+    test_invalid_token("invalid num", "-2147483649"); // граничный тест минимальное число - 1
+    test_invalid_token("invalid num", "2147483648"); // граничный тест максимальное число + 1
+     test_invalid_token("invalid hex", "0x100000000"); // граничный тест максимальное число + 1
+    test_invalid_token("invalid num", "11D"); // 18
+    test_invalid_token("invalid num", "0GG"); // 19
+    test_invalid_token("invalid hex", "0xfrf"); // 19
+    test_invalid_token("invalid hex", "0xrf"); // 19
 
     // Вещественные числа (T_FLOAT)
     test_get_float_num("1.0", 1.0f);
@@ -417,21 +433,6 @@ int main()
     test_get_float_num("0.25", 0.25f);
     test_get_float_num("-0.25", -0.25f);
   
-    // Символ - T_SYMBOL
-    test_get_symbol("Hello 12", "Hello"); // 14
-    test_get_symbol("Hello\b", "Hell");
-    test_get_symbol("* 1 2", "*"); // 14
-    test_get_token2("setq_rec", "setq_rec setq_rec ", T_SYMBOL, T_SYMBOL); // 14
-    test_symbol_max(); // граничный тест на максимальный символ
-    // Разрешенные символы
-    test_is_symbol(';', 0);
-    test_is_symbol('+', 1);
-    // Ошибочные символы - INVALID
-    test_get_token("invalid_symbol", "^", INVALID); // 16
-    test_get_token("invalid_symbol", "!~", INVALID); // 16
-    test_invalid_token("invalid symbol", "ss^s?", 1); // 20
-    test_symbol_overflow(); // граничный тест на превышение допустимого размера символа
- 
     // Одиночные символы
     test_get_token("lparen", "(", LPAREN); // 1
     test_get_token("rparen", ")", RPAREN); // 2
@@ -460,6 +461,46 @@ int main()
     test_string("\"\"", ""); // граничный тест на пустую строку
     test_string_max(); // граничный тест на максимальную строку
     test_string_overflow(); // граничный тест на превышение допустимого размера строки   
-    test_invalid_token("invalid string", "\"1 2 3", 1); // 17
+    test_invalid_token("invalid string", "\"1 2 3"); // 17
+
+    // Корректные классы T_CHAR
+    test_get_char("#\\a", 'a', T_CHAR);
+    test_get_char("#\\Z", 'Z', T_CHAR);
+    test_get_char("#\\ ", ' ', T_CHAR);
+    test_get_char("#\\1", '1', T_CHAR);
+    test_get_char("#\\@", '@', T_CHAR);
+
+    // Тесты символов
+    test_get_symbol("Hello 12", "Hello");
+    test_get_symbol("Hello\b", "Hell");
+    test_get_symbol("+ plus", "+");
+    test_get_symbol("- minus", "-");
+    test_get_symbol("* multiply", "*");
+    test_get_symbol("/ divide", "/");
+    test_get_symbol("= equals", "=");
+    test_get_symbol("_ underscore", "_");
+    test_get_symbol("& ampersand", "&");
+    test_get_symbol("| pipe", "|");
+    test_get_symbol("< less_than", "<");
+    test_get_symbol("> greater_than", ">");
+    test_get_symbol("% percent", "%");
+
+    // Тесты для символов с комбинированным содержимым
+    test_get_symbol("setq_rec", "setq_rec");
+    test_get_symbol("setq_rec setq_rec ", "setq_rec");
+
+    // Граничный тест на максимальный символ
+    test_symbol_max();
+
+    // Тесты для некорректных символов
+    test_invalid_token("invalid_symbol", "^"); // 16
+    test_invalid_token("invalid_symbol", "!~"); // 16
+    test_invalid_token("invalid symbol", "ss^s?"); // 20
+
+    // Разрешенные символы
+    test_is_symbol(';', 0);
+    test_is_symbol('+', 1);
+    // Ошибочные символы - INVALID
+    test_symbol_overflow(); // граничный тест на превышение допустимого размера символа
     return 0;
 }     
