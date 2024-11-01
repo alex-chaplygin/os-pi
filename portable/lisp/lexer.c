@@ -460,9 +460,6 @@ void print_token(token_t *token)
     case COMMA_AT:
 	printf("COMMA_AT\n");
 	break;
-    case INVALID:
-	printf("INVALID\n");
-	break;
     case T_STRING:
 	printf("STRING %s\n", token->str);
 	break;
@@ -470,7 +467,10 @@ void print_token(token_t *token)
 	printf("SHARP\n");
 	break;
     case DOT:
-	printf("DOT\n");       
+	printf("DOT\n");
+	break;
+    default:
+	printf("UNKNOWN!!!");
     }
 }
 
