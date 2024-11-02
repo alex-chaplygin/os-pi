@@ -191,8 +191,6 @@ object_t parse()
 	return NEW_CHAR(cur_token->value);
     else if (cur_token->type == END)
         return NOVALUE;
-    else if (cur_token->type == INVALID)
-        error("parse: invalid token");
     else 
 	error("invalid expression");
 }
