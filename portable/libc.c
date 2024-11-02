@@ -11,6 +11,7 @@
 #include <portable/libc.h>
 #include <x86/console.h>
 #include <mpa.h>
+#include "float.h"
 
 char outbuf[50]; // память для возвращаемого значения
 
@@ -168,36 +169,6 @@ void print_num(int num)
 }
 
 /**
- * @brief Печать вещественного числа
- *  sign(1) exp(8) mant(23)
- * 
- * @param n Входное число
- */
-void print_float_num(unsigned int num)
-{
-    int n = num;
-    int s = n >> 31; // знак
-    int e = ((n >> MANTISSA_BITS) & 0xff) - 127; // порядок
-    int m = n & 0x7fffff; // мантисса
-    char str[MANTISSA_BITS + 2] = "100000000000000000000000";
-    bignum_t sum;  //сумма значений всех битов
-    bignum_t bit;  // значение бита мантиссы
-    bignum_t two = new_bignum_from_str("2");
-    sum = new_bignum_from_str(str); 
-    bit = new_bignum_from_str(str);
-    for (int i = 0; i < MANTISSA_BITS; ++i) {
-	bignum_div(bit, two);
-	if ((m >> (MANTISSA_BITS - i - 1) & 1) == 1)
-	    bignum_sum(sum, bit);
-    }
-    for (int i = 0; i < MAX_BIGNUM_SIZE; i++)
-	printf("%d", sum->data[i]);
-    free_bignum(sum);
-    free_bignum(bit);
-    free_bignum(two);
-}
-
-/**
  * @brief Посимвольный анализ строки для печати типа printf - вывод значения многих переменных
  * %i - вывод целого числа
  * %d - вывод десятичного числа
@@ -219,7 +190,7 @@ void vprintf(char *format, va_list args)
             print_num(va_arg(args, int));
             i++;
         } else if (symbol == '%' && next_symbol == 'f') {
-            print_float_num(va_arg(args, unsigned int));
+            print_float_num(va_arg(args, float));
             i++;
         } else if (symbol == '%' && next_symbol == 'x') {
             print_hex_num(va_arg(args, unsigned int));

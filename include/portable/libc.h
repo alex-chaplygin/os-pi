@@ -3,7 +3,6 @@
 typedef char *va_list;		/**< Тип - строка из параметров */
 #define NULL 0
 #define EOF (-1)		/**< Конец потока */
-#define MANTISSA_BITS 23	/**< Число бит в мантиссе float */
 /// Инициализация параметров
 #define va_start(cur_arg, args) *((char *)(cur_arg = (char *)&args))
 /// Извлечение параметра
