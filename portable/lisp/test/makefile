@@ -30,7 +30,9 @@ all: $(TESTS)
 /tmp/repl_lisp: test_sys.c ../eval.c ../symbols.c ../objects.c ../parser.c ../lexer.c ../arith.c ../str.c ../array.c ../pair.c ../predicates.c ../alloc.c ../error.c
 	gcc $^ $(CFLAGS) -DREPL -DDEBUG $(LDFLAGS) -o $@
 /tmp/test_mpa: test_mpa.c ../mpa.c
-	gcc $(CFLAGS) $(LDFLAGS) -o $@ $^
+	gcc $^ $(CFLAGS) $(LDFLAGS) -o $@
+/tmp/test_libc: ../mpa.c ../../float.c test_libc.c
+	gcc $^ $(CFLAGS) $(LDFLAGS) -o $@
 
 test: $(TESTS) /tmp/test_sys
 	for test in $(TESTS); do bash -c $$test ; done
