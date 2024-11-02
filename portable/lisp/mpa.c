@@ -227,11 +227,8 @@ int bignum_div(bignum_t n1, bignum_t n2)
         return 0;
     }
     bignum_t temp = new_bignum();
-    bignum_t one = new_bignum();
+    bignum_t one = new_bignum_from_str("1");
     temp->size = n1->size;
-    //one->size = n1->size;
-    one->size = 1;
-    one->data[0] = 1;
     for (int i = 0; i < n1->size; i++) {
         temp->data[i] = n1->data[i];
         n1->data[i] = 0;
