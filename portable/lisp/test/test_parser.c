@@ -99,7 +99,6 @@ token_t tok_inv[] =
 	{LPAREN},
 	{T_NUMBER, 1},
 	{T_SYMBOL, 0, "S"},
-	{INVALID},
 	{T_NUMBER, 22},
 	{RPAREN}
     };
@@ -158,7 +157,6 @@ token_t tok_array_list[] = {
 
 token_t tok_inv_quote[] = {
     {QUOTE},
-    {INVALID}
 };
 
 token_t tok_quote_number[] = {
@@ -232,7 +230,6 @@ token_t tok_list_expected_rparen[] = {
 
 token_t tok_list_invalid_token[] = {
     {LPAREN},
-    {INVALID},
     {RPAREN}
 };
 
@@ -279,9 +276,6 @@ void print_token(token_t *token)
 	break;
     case QUOTE:
 	printf("QUOTE\n");
-	break;
-    case INVALID:
-	printf("INVALID\n");
 	break;
     }
 }
