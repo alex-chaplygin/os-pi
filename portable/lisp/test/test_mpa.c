@@ -16,6 +16,9 @@ void test_bignum_sum(const char* num1, const char* num2, const char* expected_re
 	ASSERT(bignum1->size, result_bignum->size);
 	ASSERT(memcmp(bignum1->data, result_bignum->data, bignum1->size * sizeof(bignum1->data[0])), 0);
     }
+    free_bignum(bignum1);
+    free_bignum(bignum2);
+    free_bignum(result_bignum);
 }
 
 void test_bignum_sub(const char* num1, const char* num2, const char* expected_result, int r)
@@ -31,6 +34,9 @@ void test_bignum_sub(const char* num1, const char* num2, const char* expected_re
 	ASSERT(bignum1->size, result_bignum->size);
 	ASSERT(memcmp(bignum1->data, result_bignum->data, bignum1->size * sizeof(bignum1->data[0])), 0);
     }
+    free_bignum(bignum1);
+    free_bignum(bignum2);
+    free_bignum(result_bignum);
 }
 
 void test_bignum_mult(const char* num1, const char* num2, const char* expected_result)
@@ -47,6 +53,9 @@ void test_bignum_mult(const char* num1, const char* num2, const char* expected_r
     
     ASSERT(bignum1->size, result_bignum->size);
     ASSERT(memcmp(bignum1->data, result_bignum->data, bignum1->size * sizeof(bignum1->data[0])), 0);
+    free_bignum(bignum1);
+    free_bignum(bignum2);
+    free_bignum(result_bignum);
 }
 
 void test_bignum_div(const char* num1, const char* num2, const char* expected_result, int r)
@@ -65,6 +74,9 @@ void test_bignum_div(const char* num1, const char* num2, const char* expected_re
 	ASSERT(bignum1->size, result_bignum->size);
 	ASSERT(memcmp(bignum1->data, result_bignum->data, bignum1->size * sizeof(bignum1->data[0])), 0);
     }
+    free_bignum(bignum1);
+    free_bignum(bignum2);
+    free_bignum(result_bignum);
 }
 
 int main()
@@ -107,7 +119,7 @@ int main()
     test_bignum_sub("1", "0", "1", 0);
     test_bignum_sub("1", "1", "0", 0);
     test_bignum_sub("1", "-1", "2", 0);
- 
+
     test_bignum_mult("732", "841", "615612");
     test_bignum_mult("25", "2", "50");
     test_bignum_mult("5486", "1475", "8091850");
@@ -121,5 +133,6 @@ int main()
     test_bignum_div("4879652", "4", "1219913", 0);
     test_bignum_div("10000000", "1000000", "10", 0);
     test_bignum_div("154894561", "0", "", -1);
+
     return 0;
 }
