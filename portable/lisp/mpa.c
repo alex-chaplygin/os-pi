@@ -73,6 +73,32 @@ bignum_t new_bignum_from_str(const char *str)
 }
 
 /**
+ * @brief конвертирует число int в большое число
+ * 
+ * @param n - большое число 
+ * @param num -целое число
+ *
+ * @return объект большое число 
+ */
+bignum_t bignum_from_int(int num)
+{
+    bignum_t bignum = new_bignum();
+    int size = 0;
+    if (num < 0) {
+         bignum->sign = -1;
+         num = -num;
+    } else if (num == 0)
+	size = 1;
+    while (num != 0) {
+	bignum->data[size] = num % 10;
+	num = num / 10;
+	size++;
+    }
+    bignum->size = size;
+    return bignum;
+}
+
+/**
  * @brief Печать структуры вещественного числа
  * 
  * @param bignum - входное число

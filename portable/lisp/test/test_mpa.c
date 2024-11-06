@@ -66,7 +66,7 @@ void test_bignum_div(const char* num1, const char* num2, const char* expected_re
     bignum_t result_bignum = new_bignum_from_str(expected_result);
 
     int res = bignum_div(bignum1, bignum2);
-     printf("\n");
+    printf("\n");
     print_bignum(bignum1);
     printf("\n");
     ASSERT(res, r);
@@ -78,9 +78,30 @@ void test_bignum_div(const char* num1, const char* num2, const char* expected_re
     free_bignum(bignum2);
     free_bignum(result_bignum);
 }
+/**
+ * @brief проверяем конвертацию числа int в большое число
+ * @brief печатаем число и проверяем размер
+ *
+ *@param num - целое число
+ *@param size - ожидаемый размер целого числа
+ */
+void test_bignum_from_int(int num, int size)
+{
+    printf("test_bignum_from_int: %d ", num);
+    
+    bignum_t res = bignum_from_int(num);
+    print_bignum(res);
+    printf("\n");
+    ASSERT(res->size, size);
+    free_bignum(res);
+}    
 
 int main()
 {
+    test_bignum_from_int(23453435, 8);
+    test_bignum_from_int(-34, 2);
+    test_bignum_from_int(0, 1);
+    
     test_bignum_sum("10220100434343002222", "1022010043434300222", "11242110477777302444", 0);
     test_bignum_sum("0", "0", "0", 0);
     test_bignum_sum("10220100434343002222", "0", "10220100434343002222", 0);

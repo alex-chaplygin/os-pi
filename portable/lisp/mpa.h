@@ -17,6 +17,7 @@ typedef struct bign
 
 bignum_t new_bignum();
 bignum_t new_bignum_from_str(const char* str);
+bignum_t bignum_from_int(int num);
 void free_bignum(bignum_t o);
 void print_bignum(bignum_t num);
 int bignum_sum(bignum_t n1, bignum_t n2);
