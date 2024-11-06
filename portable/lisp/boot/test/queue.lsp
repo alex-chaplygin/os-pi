@@ -1,0 +1,6 @@
+(setq q (queue-create))
+(queue-push q 1)
+(queue-push q 2)
+(queue-push q 3)
+(assert q '(queue 1 2 3))
+(queue-push (list 1 2 3) 3)
