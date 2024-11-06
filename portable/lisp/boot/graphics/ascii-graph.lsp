@@ -3,6 +3,10 @@
 (defvar *tile-w* 1)
 (defvar *tile-h* 1)
 (defvar *tile-hash*)
+(defvar *default-sprite-w*)
+(defvar *default-sprite-h*)
+(defvar *sprite-list* nil)
+(defclass Sprite () (tile x y width height))
 
 (defun set-screen (screen)
   "Задать матрицу экрана"
@@ -12,7 +16,8 @@
 
 (defun draw-screen ()
   "Отрисовать экран"
-  (draw-background))
+  (draw-background)
+  (draw-sprites))
 
 (defun set-tile-size (w h)
   "Установить размеры тайла"
@@ -27,27 +32,48 @@
   (app '(lambda (tile) (set-hash *tile-hash* (car tile) (cdr tile))) tiles))
 
 (defun set-default-sprite-size (w h)
-  "Установить размеры спрайта по умолчанию")
+  "Установить размеры спрайта по умолчанию"
+  (setq *default-sprite-w* w)
+  (setq *default-sprite-h* h))
 
-(defun new-sprite (tile x y)
-  "Создать новый спрайт с заданными координатами"
-  )
+(defun new-sprite (tile x y z)
+  "Создать новый спрайт с заданным тайлом и координатами"
+  (let ((sprite (make-Sprite tile x y *default-sprite-w* *default-sprite-h*)))
+    (setq *sprite-list* (append *sprite-list* (list sprite)))
+    sprite))
 
-(defun set-sprite-pos (sprite x y)
-  "Установить позицию переданного спрайта")
+(defun set-sprite-pos (sprite x y z)
+  "Установить позицию переданного спрайта"
+  (setf (slot sprite 'x) x)
+  (setf (slot sprite 'y) y))
 
 (defun set-sprite-tile (sprite tile)
-  "Установить тайл для переданного спрайта")
+  "Установить тайл для переданного спрайта"
+  (setf (slot sprite 'tile) tile))
 
 (defun set-sprite-size (sprite w h)
-  "Установить размер переданного спрайта")
+  "Установить размер переданного спрайта"
+  (setf (slot sprite 'w) w)
+  (setf (slot sprite 'h) h))
 
 ;--------------------------------------сверху API-----------------------------
 (defun draw-tile (tile x y)
+  "Отрисовать переданный тайл с заданными координатами"
   (for yy y (+ *tile-h* y)
        (set-cursor x yy)
        (for xx x (+ *tile-w* x) (putchar (get-hash *tile-hash* tile)))))
 
+(defun draw-sprites ()
+  "Отрисовать спрайты из списка спрайтов"
+  (app '(lambda (sprite) (draw-sprite sprite)) *sprite-list*))
+
+(defun draw-sprite (sprite)
+  "Отрисовать переданный спрайт"
+  (for y (slot sprite 'y) (+ (slot sprite 'height) (slot sprite 'y))
+       (set-cursor (slot sprite 'x) y)
+       (for x (slot sprite 'x) (+ (slot sprite 'width) (slot sprite 'x))
+	    (putchar (get-hash *tile-hash* (slot sprite 'tile))))))
+  
 (defun draw-background ()
   "Отрисовать сетку тайлов"
   (for r 0 (array-size *screen*)
