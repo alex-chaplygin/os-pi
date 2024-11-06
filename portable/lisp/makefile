@@ -1,7 +1,7 @@
 SHELL=bash
 SRC=parser.o lexer.o objects.o symbols.o eval.o arith.o array.o str.o pair.o predicates.o alloc.o mpa.o error.o
 CFLAGS=-g -m32 -nostdlib -nodefaultlibs -Wno-builtin-declaration-mismatch -I../include -D OS -D X32 -DDEBUG -fno-stack-protector -fstack-check=no
-BASELISP=boot/lib.lsp boot/list.lsp boot/array.lsp boot/str.lsp boot/hash.lsp boot/oop.lsp
+BASELISP=boot/lib.lsp boot/list.lsp boot/array.lsp boot/str.lsp boot/hash.lsp boot/oop.lsp boot/queue.lsp
 GRAPHICS=$(BASELISP) boot/bgr.lsp boot/graphics/matrix.lsp boot/graphics/backend.lsp boot/graphics/frontend.lsp
 TEST=boot/test.lsp
 GRAPHICS_TEST=$(GRAPHICS) $(TEST) boot/graphics/test/backend.lsp
@@ -36,3 +36,7 @@ graphics: $(GRAPHICS_TEST)
 lib-test: $(BASELISP) $(TEST) boot/test/lib.lsp
 	make -C test /tmp/lisp
 	cat $^ | /tmp/lisp
+
+queue: $(BASELISP) $(TEST) boot/test/queue.lsp
+	make -C test /tmp/repl_lisp
+	cat $^ | /tmp/repl_lisp
