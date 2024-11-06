@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include "mpa.h"
+#include "objects.h"
+#include "parser.h"
 
 /// Все большие числа
 static struct bign bignums[MAX_BIGNUMS];
@@ -19,10 +21,8 @@ bignum_t new_bignum()
 {
     bignum_t number;
     if (last_bignum >= MAX_BIGNUMS) {
-	if (free_bignums == NULL) {
-	    printf("Error: out of memory: bignumbers");
-	    return NULL;
-	}
+	if (free_bignums == NULL)
+	    error("Error: out of memory: bignumbers\n");
 	number = free_bignums;
 	free_bignums = free_bignums -> next;
     } else
@@ -37,10 +37,8 @@ bignum_t new_bignum()
  */
 void free_bignum(bignum_t o)
 {
-    if (o == NULL) {
-    	printf("free_bignumber: null pointer: obj");
-    	return;
-    }    
+    if (o == NULL)
+	error("free_bignumber: null pointer: obj\n");
     if (o->free)
 	return;
     o->next = free_bignums;
@@ -126,7 +124,7 @@ void print_bignum(bignum_t bignum)
  * @param n1 - большое 1-е число 
  * @param n2 - большое 2-е число 
  */
-int bignum_sum(bignum_t n1, bignum_t n2) 
+void bignum_sum(bignum_t n1, bignum_t n2) 
 {
     if (n1->size < n2->size)
         n1->size = n2->size;
@@ -141,7 +139,6 @@ int bignum_sum(bignum_t n1, bignum_t n2)
     }
     if (carry)
 	n1->data[n1->size++] = 1;    
-    return 0;
 }
 
 /**
@@ -150,7 +147,7 @@ int bignum_sum(bignum_t n1, bignum_t n2)
  * @param n1 - большое 1-е число
  * @param n2 - большое 2-е число
  */
-int bignum_mult(bignum_t n1, bignum_t n2)
+void bignum_mult(bignum_t n1, bignum_t n2)
 {
     bignum_t n3 = new_bignum(); //промежуточная сумма
     bignum_t n4 = new_bignum(); //частичное произведение
@@ -180,7 +177,6 @@ int bignum_mult(bignum_t n1, bignum_t n2)
 	n1->data[i] = n3->data[i];
     free_bignum(n3);
     free_bignum(n4);
-    return 0;
 }
 
 /**
@@ -189,13 +185,11 @@ int bignum_mult(bignum_t n1, bignum_t n2)
  * @param n1 - большое 1-е число 
  * @param n2 - большое 2-е число 
  */
-int bignum_sub(bignum_t n1, bignum_t n2)
+void bignum_sub(bignum_t n1, bignum_t n2)
 {
     if (n1->size < n2->size ||
-        (n1->size == n2->size && n1->data[n1->size - 1] < n2->data[n2->size - 1])) {
-        printf("Args error: n1 < n2\n");
-        return -1;
-    }
+        (n1->size == n2->size && n1->data[n1->size - 1] < n2->data[n2->size - 1]))
+	error("bignum_sum args error: n1 < n2");
     int borrow = 0;
     for (int i = 0; i < n1->size; i++) {
         int sub = n1->data[i] - (i < n2->size ? n2->data[i] : 0) - borrow;
@@ -212,7 +206,6 @@ int bignum_sub(bignum_t n1, bignum_t n2)
         n1->size = 1;
         n1->data[0] = 0;
     }
-    return 0;
 }
 
 /**
@@ -223,15 +216,11 @@ int bignum_sub(bignum_t n1, bignum_t n2)
  */
 int bignum_compare(bignum_t n1, bignum_t n2)
 {
-    if (n1->size != n2->size) {
+    if (n1->size != n2->size)
         return (n1->size > n2->size) ? 1 : -1;
-    }
-    for (int i = n1->size - 1; i >= 0; i--) {
-        if (n1->data[i] != n2->data[i]) {
+    for (int i = n1->size - 1; i >= 0; i--)
+        if (n1->data[i] != n2->data[i])
             return (n1->data[i] > n2->data[i]) ? 1 : -1;
-        }
-    }
-
     return 0;
 }
 
@@ -241,20 +230,20 @@ int bignum_compare(bignum_t n1, bignum_t n2)
  * @param n1 - большое 1-е число 
  * @param n2 - большое 2-е число 
  */
-int bignum_div(bignum_t n1, bignum_t n2)
+void bignum_div(bignum_t n1, bignum_t n2)
 {
-    if (n2->size == 1 && n2->data[0] == 0) {
-        printf("Деление на ноль невозможно! \n");
-        return -1;
-    }
+    if (n2->size == 1 && n2->data[0] == 0)
+        error("bignum_div: division by zero");
     if (bignum_compare(n1, n2) == -1) {
         n1->size = 1;
 	n1->data[0] = 0;
-        return 0;
+        return;
     }
     bignum_t temp = new_bignum();
-    bignum_t one = new_bignum_from_str("1");
+    bignum_t one = new_bignum();
     temp->size = n1->size;
+    one->size = 1;
+    one->data[0] = 1;
     for (int i = 0; i < n1->size; i++) {
         temp->data[i] = n1->data[i];
         n1->data[i] = 0;
@@ -266,5 +255,4 @@ int bignum_div(bignum_t n1, bignum_t n2)
     }
     free_bignum(temp);
     free_bignum(one);
-    return 0;
 }

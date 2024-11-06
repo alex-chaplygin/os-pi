@@ -3,15 +3,36 @@
 #include "mpa.h"
 #include "test.h"
 
+/** 
+ * 
+ *
+ * @param num1 
+ * @param r 
+ */
+void test_new_bignum_from_str(const char* num1, int r)
+{
+
+    printf("test_new_bignum_from_str: %s\n", num1);
+    bignum_t bignum1 = new_bignum_from_str(num1);
+
+    ASSERT(bignum1->size, strlen(num1));
+}
+
+/** 
+ * 
+ *
+ * @param num1 
+ * @param num2 
+ * @param expected_result 
+ * @param r 
+ */
 void test_bignum_sum(const char* num1, const char* num2, const char* expected_result, int r)
 {
     printf("test_bignum_sum: %s %s\n", num1, num2);
     bignum_t bignum1 = new_bignum_from_str(num1);
     bignum_t bignum2 = new_bignum_from_str(num2);
     bignum_t result_bignum = new_bignum_from_str(expected_result);
-
-    int res = bignum_sum(bignum1, bignum2);
-    ASSERT(res, r);
+    bignum_sum(bignum1, bignum2);
     if (r >= 0) {
 	ASSERT(bignum1->size, result_bignum->size);
 	ASSERT(memcmp(bignum1->data, result_bignum->data, bignum1->size * sizeof(bignum1->data[0])), 0);
@@ -21,6 +42,14 @@ void test_bignum_sum(const char* num1, const char* num2, const char* expected_re
     free_bignum(result_bignum);
 }
 
+/** 
+ * 
+ *
+ * @param num1 
+ * @param num2 
+ * @param expected_result 
+ * @param r 
+ */
 void test_bignum_sub(const char* num1, const char* num2, const char* expected_result, int r)
 {
     printf("test_bignum_sub: %s %s\n", num1, num2);
@@ -28,8 +57,7 @@ void test_bignum_sub(const char* num1, const char* num2, const char* expected_re
     bignum_t bignum2 = new_bignum_from_str(num2);
     bignum_t result_bignum = new_bignum_from_str(expected_result);
 
-    int res = bignum_sub(bignum1, bignum2);
-    ASSERT(res, r);
+    bignum_sub(bignum1, bignum2);
     if (r >= 0) {
 	ASSERT(bignum1->size, result_bignum->size);
 	ASSERT(memcmp(bignum1->data, result_bignum->data, bignum1->size * sizeof(bignum1->data[0])), 0);
@@ -39,6 +67,13 @@ void test_bignum_sub(const char* num1, const char* num2, const char* expected_re
     free_bignum(result_bignum);
 }
 
+/** 
+ * 
+ *
+ * @param num1 
+ * @param num2 
+ * @param expected_result 
+ */
 void test_bignum_mult(const char* num1, const char* num2, const char* expected_result)
 {
     printf("test_bignum_mult: %s %s\n", num1, num2);
@@ -46,7 +81,7 @@ void test_bignum_mult(const char* num1, const char* num2, const char* expected_r
     bignum_t bignum2 = new_bignum_from_str(num2);
     bignum_t result_bignum = new_bignum_from_str(expected_result);
 
-    int res = bignum_mult(bignum1, bignum2);
+    bignum_mult(bignum1, bignum2);
     printf("\n");
     print_bignum(bignum1);
     printf("\n");
@@ -58,6 +93,14 @@ void test_bignum_mult(const char* num1, const char* num2, const char* expected_r
     free_bignum(result_bignum);
 }
 
+/** 
+ * 
+ *
+ * @param num1 
+ * @param num2 
+ * @param expected_result 
+ * @param r 
+ */
 void test_bignum_div(const char* num1, const char* num2, const char* expected_result, int r)
 {
     printf("test_bignum_div: %s %s\n", num1, num2);
@@ -65,11 +108,10 @@ void test_bignum_div(const char* num1, const char* num2, const char* expected_re
     bignum_t bignum2 = new_bignum_from_str(num2);
     bignum_t result_bignum = new_bignum_from_str(expected_result);
 
-    int res = bignum_div(bignum1, bignum2);
+    bignum_div(bignum1, bignum2);
     printf("\n");
     print_bignum(bignum1);
     printf("\n");
-    ASSERT(res, r);
     if (r >= 0) {
 	ASSERT(bignum1->size, result_bignum->size);
 	ASSERT(memcmp(bignum1->data, result_bignum->data, bignum1->size * sizeof(bignum1->data[0])), 0);
