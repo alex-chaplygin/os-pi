@@ -19,6 +19,7 @@ void print_float_num(float num)
     bignum_t bit;  // значение бита мантиссы
     bignum_t power = new_bignum_from_str("1"); // степень 5
     bignum_t five = new_bignum_from_str("5");
+    bignum_t degree = bignum_from_int(1 << e);
     sum = new_bignum_from_str(str); 
     bit = new_bignum_from_str(str);
     //printf("bit = ");
@@ -36,9 +37,11 @@ void print_float_num(float num)
 	    bignum_sum(sum, bit);
 	}
     }
+    bignum_mult(sum, degree);
     print_bignum(sum);
     free_bignum(sum);
     free_bignum(bit);
     free_bignum(power);
     free_bignum(five);
+    free_bignum(degree);
 }
