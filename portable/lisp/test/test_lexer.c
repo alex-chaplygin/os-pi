@@ -441,6 +441,7 @@ int main()
     test_get_token("comma", ",", COMMA); // 6
     test_get_token("comma_at", ",@", COMMA_AT); // 7
     test_get_token("sharp", "#(1 2 3)", SHARP); // 8
+    test_get_token("function", "#'", T_FUNCTION);
     test_get_token("symbol", "abc", T_SYMBOL);  // 14
     test_get_token("dot", ".", DOT); //21
     test_get_token("empty", " ", END); // 3

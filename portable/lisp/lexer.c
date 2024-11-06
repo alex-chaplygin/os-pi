@@ -32,8 +32,7 @@ int buffer_read_pos = 0;
 void error(char *str, ...);
 
 /** 
- * Считываем символ, помещаем его в буфер.
- * Когда буфер заполняется, то делаем сдвиг указателей
+ * Считывает очередной символ из входного потока символов в глобальную переменную cur_symbol.
  */
 void get_cur_char()
 {
@@ -52,7 +51,7 @@ void get_cur_char()
 }
 
 /** 
- * Вернуть указатель назад, переприсвоить cur_symbol
+ * Возращает символ назад в поток
  */
 void unget_cur_char() 
 {
@@ -324,7 +323,10 @@ token_t get_comma()
 }
 
 /** 
- * Определяет тип лексемы # или #\
+ * Определяет тип лексемы 
+ * # - SHARP
+ * #\<символ> - T_CHAR
+ * #' - T_FUNCTION				\
  *
  * @return лексему
  */
@@ -338,6 +340,8 @@ token_t get_sharp()
 	token.type = T_CHAR;
 	get_cur_char();
 	token.value = cur_symbol;
+    } else if (ctr[0] == '#' && ctr[1] == '\'') {
+	token.type = T_FUNCTION;
     } else {
 	token.type = SHARP;
 	unget_cur_char();
@@ -360,9 +364,9 @@ token_t get_sharp()
  *  COMMA_AT, // символ ,@
  *  T_STRING, // строка в кавычках
  *  SHARP, // символ #
+ *  T_FUNCTION, // символ #'
  *  DOT,// точка .
  *  END, // если конец потока
- *  INVALID // прочие символы
  *
  * @return указатель на структуру лексемы
  */
