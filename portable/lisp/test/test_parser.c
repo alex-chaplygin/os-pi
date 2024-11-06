@@ -65,6 +65,15 @@ token_t back_comma_tokens[] = {
     {END}
 };
 
+token_t back_in_back_tokens[] = {
+    {BACKQUOTE},
+    {LPAREN},
+    {BACKQUOTE},
+    {T_SYMBOL, 0, "A"},
+    {RPAREN},
+    {END}
+};
+
 token_t back_comma_at_tokens[] = {
     {LPAREN},
     {BACKQUOTE},
@@ -262,6 +271,10 @@ void print_token(token_t *token)
     }
 }
 
+/** 
+ * Создать две идентичные строки разного регистра, 
+ * приравнять их к одному регистру и проверить корректность сравнения
+ */
 void test_strupr ()
 {
     char str_in[] = "a1a a!aa bb r4n\n";
@@ -559,6 +572,23 @@ void test_parse_backquote_comma()
 } 
 
 /**
+ * Тестируем `(`a)
+ * Должно получиться: (BACKQUOTE (BACKQUOTE A))
+ */
+void test_parse_backquote_backquote() 
+{ 
+    printf("test_parse_backquote_in_backquote: "); 
+    count = 0; 
+    cur_token = &token; 
+    tokens = back_in_back_tokens; 
+    object_t o = parse(); 
+    ASSERT(strcmp(GET_SYMBOL(GET_PAIR(o)->left)->str, "BACKQUOTE"), 0);  
+    o = GET_PAIR(GET_PAIR(GET_PAIR(o)->right)->left)->left;
+    ASSERT(strcmp(GET_SYMBOL(GET_PAIR(o)->left)->str, "BACKQUOTE"), 0); 
+    ASSERT(strcmp(GET_SYMBOL(GET_PAIR(GET_PAIR(o)->right)->left)->str, "A"), 0);
+} 
+
+/**
  * Тестируем (`(,@a))
  * Должно получиться: ((BACKQUOTE ((COMMA-AT A))))
  */
@@ -676,7 +706,7 @@ void test_parse_float()
 
 /*
  * условие   | правильный класс       | неправильный класс
- * атом      | 1 число                | 2 invalid
+ * атом      | 1 число                | 
  *           | 3 символ               | 
  *           | 4 строка               |
  * ---------------------------------------------------------------------------
@@ -709,36 +739,72 @@ void test_parse_float()
  * Запятая и | 25 находится внутри    |
  * @         |   выражения с backquote| 
  *           |  и применяется к списку|
+ * --------------------------------------------------------------------------
+ * Точечная  | 26 правильная точечная | 27 точечная пара без второго элемента
+ * пара      |   пара                 |
+ *           |                        | 
+ *           |                        |
+ * --------------------------------------------------------------------------
+ * Строка    | 30 строка              | 
+ *           |                        |
+ *           |                        | 
+ *           |                        |
+ * --------------------------------------------------------------------------
+ * Отсутствие| 31 конец потока        | 
+ * объектов  |                        |
+ *           |                        | 
+ *           |                        |
+ * --------------------------------------------------------------------------
+ * Число с   | 34 число с плавающей   | 
+ * плавающей |  точкой                |
+ * точкой    |                        | 
+ *           |                        |
+ * --------------------------------------------------------------------------
  */
 int main()
 {
     printf("------------test_parser------------\n");
     init_regions();
     init_objects();
-    test_strupr();
+
+    // Строка
+    test_strupr(); // 29
+    test_parse_string(); // 30
+
+    // Список (числа, символы)
     test_parse_list_atoms(); // 1, 3, 4, 5
-    test_parse_list_list();
-    test_parse_quote(quote_tokens, "QUOTE"); //12
-    test_parse_quote(backquote_tokens, "BACKQUOTE");//12
-    test_parse_quote(comma_tokens, "COMMA"); //17
+    test_parse_list_list(); // 5
     test_parse_list_quote(); //16
+    test_parse_inner_list(); //7
     test_parse_no_rparen();  //6
     test_parse_no_rparen_lists(); //10
-    test_parse_no_rparen_arrays(); //11 23
-    test_parse_inner_list(); //7
+
+    // Массив (числа, символы)
     test_parse_array(); //18 
     test_parse_array_list(); //9
     test_parse_inner_array(); // 20
     test_parse_array_error(); //21*/
     test_parse_array_error_paren(); //19
+    test_parse_no_rparen_arrays(); //11 23
+
+    // Цитата, квазицитата
+    test_parse_quote(quote_tokens, "QUOTE"); //12
+    test_parse_quote(backquote_tokens, "BACKQUOTE");//12
+    test_parse_quote(comma_tokens, "COMMA"); //17
     test_parse_backquote_comma(); //17
+    test_parse_backquote_backquote(); //28
     test_parse_quote_number(); //13
     test_parse_backquote_comma_at(); //25
-    test_parse_number_dot_number();
-    test_parse_string();
-    test_parse_end();
-    test_parse_list_expected_rparen();
-    test_parse_float();
     test_parse_function();
+
+    // Точечная пара
+    test_parse_number_dot_number(); // 26
+    test_parse_list_expected_rparen(); // 27
+
+    // Число с плавающей точкой
+    test_parse_float(); // 34
+
+    // Иные проверки
+    test_parse_end(); // 31
     return 0;
 }
