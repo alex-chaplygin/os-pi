@@ -67,6 +67,8 @@ object_t parse_element(type_t type, void *data, tokentype_t t_type)
 	obj = parse_quote("COMMA");
     else if (t_type == COMMA_AT)
 	obj = parse_quote("COMMA-AT");
+    else if (t_type == T_FUNCTION)
+	obj = parse_quote("FUNCTION");
     else if (t_type == LPAREN)
 	obj = parse_list();
     else if (t_type == T_FLOAT)
@@ -158,6 +160,7 @@ object_t parse_array()
  *              `<объект> -> (BACKQUOTE <объект>)
  *              ,<объект> -> (COMMA <объект>)
  *              ,@<объект> -> (COMMA-AT <объект>)  
+ *              ,#<объект> -> (FUNCTION <объект>)  
  * Строки: T_STRING -> STRING
  * Массивы: #(<объекты>) -> ARRAY
  * END -> NULLOBJ
@@ -183,6 +186,8 @@ object_t parse()
 	return parse_quote("BACKQUOTE");
     else if (cur_token->type == COMMA)
 	return parse_quote("COMMA");
+    else if (cur_token->type == T_FUNCTION)
+	return parse_quote("FUNCTION");
     else if (cur_token->type == SHARP)
 	return parse_array();
     else if (cur_token->type == T_STRING)

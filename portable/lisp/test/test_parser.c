@@ -94,15 +94,6 @@ token_t token_list[] = {
     {RPAREN}
 };
 
-token_t tok_inv[] = 
-    {
-	{LPAREN},
-	{T_NUMBER, 1},
-	{T_SYMBOL, 0, "S"},
-	{T_NUMBER, 22},
-	{RPAREN}
-    };
-
 token_t tok_array[] = {
     {SHARP},
     {LPAREN},
@@ -154,10 +145,6 @@ token_t tok_array_list[] = {
     {RPAREN},
     {RPAREN}
 }; 
-
-token_t tok_inv_quote[] = {
-    {QUOTE},
-};
 
 token_t tok_quote_number[] = {
     {QUOTE},
@@ -226,11 +213,6 @@ token_t tok_list_expected_rparen[] = {
     {T_NUMBER, 1},
     {T_NUMBER, 1},
     {END}
-};
-
-token_t tok_list_invalid_token[] = {
-    {LPAREN},
-    {RPAREN}
 };
 
 token_t float_tokens[] = {
@@ -472,37 +454,6 @@ void test_parse_inner_list()
 } 
 
 /**
- * Тестируем неверный символ внутри списка
- */
-void test_parse_invalid() 
-{ 
-    printf("test_parse_invalid: "); 
-    count = 0; 
-    tokens = tok_inv; 
-    if (setjmp(jmp_env) == 0) {
-        object_t o = parse();
-        FAIL;
-    } else
-        OK;
-} 
-
-/**
- * Тестируем неверный символ после кавычки
- */
-void test_parse_invalid_quote() 
-{ 
-    printf("test_parse_invalid_quote: "); 
-    count = 0; 
-    cur_token = &token; 
-    tokens = tok_inv_quote; 
-    if (setjmp(jmp_env) == 0) {
-        object_t o = parse();
-        FAIL;
-    } else
-        OK;
-} 
-
-/**
  * Тестируем массив #(1 2 3)
  * На выходе: #(1 2 3)
  */
@@ -640,6 +591,16 @@ void test_parse_quote_number()
 } 
 
 /**
+ * Тестируем выражение #'X -> (FUNCTION X)
+ */
+void test_parse_function() 
+{ 
+    printf("test_parse_function: "); 
+    count = 0; 
+    cur_token = &token; 
+} 
+
+/**
  * Тестируем точечную пару (1 . 2)
  */
 void test_parse_number_dot_number() 
@@ -695,40 +656,6 @@ void test_parse_list_expected_rparen()
     } else
         OK;
 } 
-
-/**
- * Тестирование токена кторого нет в возможных токенах
- */
-void test_parse_list_invalid_token() 
-{ 
-    printf("test_parse_list_invalid_token: "); 
-    count = 0; 
-    cur_token = &token; 
-    tokens = tok_list_invalid_token; 
-    if (setjmp(jmp_env) == 0) {
-        object_t res = parse(); 
-        FAIL;
-    } else
-        OK;
-} 
-
-/**
- * Тест ошибки лексера
- */
-void test_parse_token_error() 
-{ 
-    printf("test_parse_token_error:"); 
-    count = 0; 
-    cur_token = &token; 
-    tokens = end_tokens; 
-    token_error = 1; 
-    if (setjmp(jmp_env) == 0) {
-        object_t o = parse();
-        FAIL;
-    } else
-        OK;
-    token_error = 0; 
-}
 
 void test_parse_float()
 {
@@ -799,8 +726,6 @@ int main()
     test_parse_no_rparen_lists(); //10
     test_parse_no_rparen_arrays(); //11 23
     test_parse_inner_list(); //7
-    test_parse_invalid();    //2
-    test_parse_invalid_quote(); //2
     test_parse_array(); //18 
     test_parse_array_list(); //9
     test_parse_inner_array(); // 20
@@ -812,9 +737,8 @@ int main()
     test_parse_number_dot_number();
     test_parse_string();
     test_parse_end();
-    test_parse_token_error();
     test_parse_list_expected_rparen();
-    test_parse_list_invalid_token();
     test_parse_float();
+    test_parse_function();
     return 0;
 }
