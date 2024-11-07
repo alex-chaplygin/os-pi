@@ -37,6 +37,10 @@ lib-test: $(BASELISP) $(TEST) boot/test/lib.lsp
 	make -C test /tmp/lisp
 	cat $^ | /tmp/lisp
 
+list-test: $(BASELISP) $(TEST) boot/test/list.lsp
+	make -C test /tmp/repl_lisp
+	cat $^ | /tmp/repl_lisp
+
 queue: $(BASELISP) $(TEST) boot/test/queue.lsp
 	make -C test /tmp/repl_lisp
 	cat $^ | /tmp/repl_lisp
