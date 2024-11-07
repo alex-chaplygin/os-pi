@@ -432,7 +432,17 @@ int main()
     test_get_float_num("-1024.1024", -1024.1024f);
     test_get_float_num("0.25", 0.25f);
     test_get_float_num("-0.25", -0.25f);
-  
+    // Проверка граничных значений
+    //test_get_float_num("3.4028235e38", 3.4028235e38f);
+    //test_get_float_num("-3.4028235e38", -3.4028235e38f);     
+    // Ошибки с вещественными числами
+    //test_invalid_token("3.5028235e38", "3.5028235e38f"); //чило больше максимально допустимого
+    //test_invalid_token("-3.5028235e38", "-3.5028235e38f"); //чило меньше максимально допустимого
+    test_invalid_token("invalid format 1.0.0", "1.0.0"); // неправильный формат
+    test_invalid_token("invalid float .5.5", ".5.5"); // неправильный формат
+    test_invalid_token("invalid float 3..1", "3..14"); // две точки
+    test_invalid_token("invalid float 1.14s", "1.14s"); // буква
+    
     // Одиночные символы
     test_get_token("lparen", "(", LPAREN); // 1
     test_get_token("rparen", ")", RPAREN); // 2
