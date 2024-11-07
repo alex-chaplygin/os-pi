@@ -766,8 +766,11 @@ object_t funcall(object_t params)
     object_t args = TAIL(params); 
     if (TYPE(func) == PAIR) 
 	return eval_func(func, args, current_env); 
-    symbol_t *s = find_symbol(GET_SYMBOL(func)->str); 
-    if (s->lambda != NULLOBJ) 
+    symbol_t *s = find_symbol(GET_SYMBOL(func)->str);
+    object_t res;
+    if (find_in_env(func_env, func, &res))
+	return eval_func(res, args, current_env);
+    else if (s->lambda != NULLOBJ) 
 	return eval_func(s->lambda, args, current_env); 
     else if (s->func != NULL) 
  	return s->func(args); 
