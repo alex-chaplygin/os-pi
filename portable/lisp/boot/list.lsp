@@ -69,11 +69,11 @@
   (if (null lst) '(error "last: empty list")
       (if (null (cdr lst)) (car lst) (last (cdr lst)))))
 
-(defun filter (list pred)
+(defun filter (pred list)
   "Остаются только те элементы списка list, для которых предикат pred с одним параметров возвращает t"
   (if (null list) nil
       (let ((h (car list))
-	    (tail (filter (cdr list) pred)))
+	    (tail (filter pred (cdr list))))
 	(if (funcall pred h) (cons h tail) tail))))
 
 (defun sort (list pr)
@@ -82,8 +82,8 @@
 	((null (cdr list)) list)
 	(t (let ((head (car list))
 		 (tail (cdr list)))
-	     (append (sort (filter tail '(lambda (x) (funcall pr x head))) pr)
-		     (cons head (sort (filter tail '(lambda (x) (not (funcall pr x head)))) pr)))))))
+	     (append (sort (filter '(lambda (x) (funcall pr x head)) tail) pr)
+		     (cons head (sort (filter '(lambda (x) (not (funcall pr x head))) tail) pr)))))))
 
 (defun minp* (list pred min)
   (if (null list) min
