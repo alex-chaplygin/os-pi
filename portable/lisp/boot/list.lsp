@@ -102,3 +102,9 @@
       (when (= current elem)
 	(setq result T)))
     result))
+
+(defun list-length (list)
+  "длина списка list"
+  (if (null list)
+      0
+      (++ (list-length (cdr list))))) 
