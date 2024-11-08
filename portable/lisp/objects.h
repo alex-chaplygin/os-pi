@@ -4,7 +4,7 @@
 /// Всего пар
 #define MAX_PAIRS 800000
 /// Всего символов
-#define MAX_SYMBOLS 500
+#define MAX_SYMBOLS 1000
 /// Всего строк
 #define MAX_STRINGS 20000
 /// Всего массивов
