@@ -10,7 +10,7 @@ typedef struct bign
     int size; /// Число десятичных цифр числа
     int sign; /// Знак числа
     char data[MAX_BIGNUM_SIZE]; /// Цифры числа, начиная с младшей цифры
-    int exponent;
+    int exponent; /// Степень 10
     struct bign *next;
     int free;
 } *bignum_t;
