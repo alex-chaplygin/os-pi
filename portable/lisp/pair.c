@@ -20,6 +20,8 @@ object_t car(object_t list)
     object_t arg = FIRST(list);
     if (TYPE(arg) != PAIR)
         error("Not list in car");
+    if (arg == NULLOBJ)
+	error("car: Empty list");
     return FIRST(arg);
 }
 
@@ -40,6 +42,8 @@ object_t cdr(object_t list)
     object_t arg = FIRST(list);
     if (TYPE(arg) != PAIR)
         error("cdr: Not list in cdr");
+    if (arg == NULLOBJ)
+	error("cdr: Empty list");
     return TAIL(arg);
 }
 

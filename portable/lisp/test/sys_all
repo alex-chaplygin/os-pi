@@ -97,12 +97,14 @@ echo "---Тесты car ---"
 sh sys_test "(car '(a b c))" "A" #10
 sh sys_test "(car \"fafaf\")" "Not list in car" #58
 sh sys_test "(car)" "car: No args" #59
+sh sys_test "(car nil)" "car: Empty list" #59
 sh sys_test "(car '(a b c) '(n h r))" "car: Too many args" #60
 		   
 echo "---Тесты cdr ---"
 sh sys_test "(cdr '(a b c))" "(B C)" #11
 sh sys_test "(cdr \"dsfsd\")" "cdr: Not list in cdr" #61
 sh sys_test "(cdr)" "cdr: No args" #62
+sh sys_test "(cdr nil)" "cdr: Empty list" #62
 sh sys_test  "(cdr '(a b c) '(d e f))" "cdr: Too many args" #63 
 
 echo "---Тесты lambda ---"
