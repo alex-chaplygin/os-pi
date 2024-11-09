@@ -688,10 +688,12 @@ void print_obj(object_t obj)
 object_t print_gc_stat(object_t o)
 {
     printf("bignumbers: %d(%d) of %d\n", last_bignumber, total_bignumbers, MAX_NUMBERS);
+    printf("floats: %d(%d) of %d\n", last_float, total_floats, MAX_FLOATS);
     printf("pairs: %d(%d) of %d\n", last_pair, total_pairs, MAX_PAIRS);
     printf("symbols: %d of %d\n", last_symbol, MAX_SYMBOLS);
     printf("strings: %d(%d) of %d\n", last_string, total_strings, MAX_STRINGS);
     printf("arrays: %d(%d) of %d\n", last_array, total_arrays, MAX_ARRAYS);
+    printf("functions: %d(%d) of %d\n", last_function, total_functions, MAX_FUNCTIONS);
     printf("used mem: %d of %d\n", regions_mem(), MAX_REGION_SIZE);
     return NULLOBJ;
 }
@@ -710,6 +712,10 @@ int need_grabage_collect()
     if (total_strings > (MAX_STRINGS - (MAX_STRINGS >> 3)))
         return 1;
     if (total_arrays > (MAX_ARRAYS - (MAX_ARRAYS >> 3)))
+        return 1;
+    if (total_floats > (MAX_FLOATS - (MAX_FLOATS >> 3)))
+        return 1;
+    if (total_functions > (MAX_FUNCTIONS - (MAX_FUNCTIONS >> 3)))
         return 1;
     return 0;
 }
