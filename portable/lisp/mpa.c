@@ -3,6 +3,7 @@
 #include <string.h>
 #include "mpa.h"
 #include "objects.h"
+#include "lexer.h"
 #include "parser.h"
 
 /// Все большие числа
@@ -22,7 +23,7 @@ bignum_t new_bignum()
     bignum_t number;
     if (last_bignum >= MAX_BIGNUMS) {
 	if (free_bignums == NULL)
-	    error("Error: out of memory: bignumbers\n");
+	    error("Error: out of memory: bignumbers");
 	number = free_bignums;
 	free_bignums = free_bignums -> next;
     } else
@@ -38,7 +39,7 @@ bignum_t new_bignum()
 void free_bignum(bignum_t o)
 {
     if (o == NULL)
-	error("free_bignumber: null pointer: obj\n");
+	error("free_bignumber: null pointer: obj");
     if (o->free)
 	return;
     o->next = free_bignums;
@@ -57,6 +58,8 @@ bignum_t new_bignum_from_str(const char *str)
 {
     bignum_t bignum = new_bignum();
     int size = strlen(str);
+    char c;
+    bignum->exponent = 0;
     if (str[0] == '-') {
 	bignum->sign = -1;
         str++;
@@ -64,9 +67,17 @@ bignum_t new_bignum_from_str(const char *str)
     } else
 	bignum->sign = 1;
     for (int i = 0; i < size; i++)
-        bignum->data[i] = str[size - i - 1] - '0';
+    {
+	c = str[size - i - 1];
+	if (isdigit(c))
+	    bignum->data[i] = c - '0';
+	else{
+	    if (c == '.')
+		bignum->exponent = -i;
+	    else
+		error("new_bignum_from_str: not digit");}
+    }
     bignum->size = size;
-    bignum->exponent = 0;
     return bignum;    
 }
 
@@ -130,6 +141,12 @@ void bignum_sum(bignum_t n1, bignum_t n2)
         n1->size = n2->size;
     else if (n2->size < n1->size)
 	n2->size = n1->size;
+    if (n1->sign != n2->sign) {
+	n1->sign = 1;
+	n2->sign = 1;
+	bignum_sub(n1, n2);
+	return;
+    } 
     int carry = 0;
     for (int i = 0; i < n2->size; i++)
     {
@@ -138,7 +155,7 @@ void bignum_sum(bignum_t n1, bignum_t n2)
         carry = sum / 10;
     }
     if (carry)
-	n1->data[n1->size++] = 1;    
+    n1->data[n1->size++] = 1;
 }
 
 /**
@@ -187,9 +204,19 @@ void bignum_mult(bignum_t n1, bignum_t n2)
  */
 void bignum_sub(bignum_t n1, bignum_t n2)
 {
-    if (n1->size < n2->size ||
-        (n1->size == n2->size && n1->data[n1->size - 1] < n2->data[n2->size - 1]))
-	error("bignum_sum args error: n1 < n2");
+    /*if (n1->size < n2->size ||
+        (n1->size == n2->size && n1->data[n1->size - 1] < n2->data[n2->size - 1])) {
+	n1->size = n2->size;
+	n1->sign = -1;
+	}*/
+    if (bignum_compare(n1, n2) == -1){
+	bignum_t temp = new_bignum();
+	temp = n1;
+	n1 = n2;
+	n2 = temp;
+	n1->sign = -1;
+	free_bignum(temp);
+    }
     int borrow = 0;
     for (int i = 0; i < n1->size; i++) {
         int sub = n1->data[i] - (i < n2->size ? n2->data[i] : 0) - borrow;
