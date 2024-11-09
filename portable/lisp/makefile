@@ -5,6 +5,7 @@ BASELISP=boot/lib.lsp boot/list.lsp boot/array.lsp boot/str.lsp boot/hash.lsp bo
 GRAPHICS=$(BASELISP) boot/bgr.lsp boot/graphics/matrix.lsp boot/graphics/backend.lsp boot/graphics/frontend.lsp
 TEST=boot/test.lsp
 GRAPHICS_TEST=$(GRAPHICS) $(TEST) boot/graphics/test/backend.lsp
+ASCII_GRAPH=$(GRAPHICS) boot/graphics/ascii-graph.lsp
 FS=$(BASELISP) boot/fs/block.lsp boot/fs/fs.lsp boot/fs/fat32fs.lsp boot/fs/fat.lsp boot/fs/dir.lsp boot/mbr.lsp boot/fs/fat32test.lsp
 KEYBOARD=$(BASELISP) boot/sys/keyboard.lsp
 
@@ -21,6 +22,10 @@ lisp: /tmp/baselisp.lsp # здесь меняем набор библиотек
 	cat $^ >$@ ;
 	echo -e -n "\xff" >>$@
 
+/tmp/ascii-graph.lsp: $(ASCII_GRAPH) boot/graphics/test/ascii-graph.lsp
+	cat $^ >$@ ;
+	echo -e -n "\xff" >>$@
+
 /tmp/fs.lsp: $(FS)
 	cat $^ >$@ ;
 	echo -e -n "\xff" >>$@
@@ -29,7 +34,7 @@ lisp: /tmp/baselisp.lsp # здесь меняем набор библиотек
 	cat $^ >$@ ;
 	echo -e -n "\xff" >>$@
 
-graphics: $(GRAPHICS_TEST)
+graphics-test: $(GRAPHICS_TEST)
 	make -C test /tmp/lisp
 	cat $^ | /tmp/lisp
 
