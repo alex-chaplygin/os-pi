@@ -166,6 +166,8 @@ object_t backquote_rec(object_t list)
     if (list == NULLOBJ) 
  	return NULLOBJ; 
     //PRINT(list); 
+    object_t env = current_env;
+    object_t func = func_env;
     object_t o; 
     if (TYPE(list) == NUMBER || TYPE(list) == FLOAT || TYPE(list) == BIGNUMBER) 
 	return new_number(get_value(list)); 
@@ -186,12 +188,12 @@ object_t backquote_rec(object_t list)
  	if (TYPE(el) == SYMBOL && !strcmp(GET_SYMBOL(el)->str, "BACKQUOTE")) 
  	    return list; 
  	if (TYPE(el) == SYMBOL && !strcmp(GET_SYMBOL(el)->str, "COMMA")) 
- 	    return eval(SECOND(list), current_env, func_env); 
+ 	    return eval(SECOND(list), env, func); 
  	object_t first = backquote_rec(el); 
  	if (first != NULLOBJ && TYPE(first) == PAIR) {  // first = (COMMA-AT B) 
  	    object_t comma_at = FIRST(first); 
  	    if (comma_at != NULLOBJ && TYPE(comma_at) == SYMBOL && !strcmp(GET_SYMBOL(comma_at)->str, "COMMA-AT")) { 
- 		object_t l = eval(SECOND(first), current_env, func_env); 
+ 		object_t l = eval(SECOND(first), env, func); 
  		if (l == NULLOBJ) 
  		    return backquote_rec(TAIL(list)); 
  		if (TYPE(l) != PAIR)
@@ -231,16 +233,17 @@ object_t IF(object_t obj)
     if (obj == NULLOBJ)
 	error("NULLOBJ in IF");    
     object_t env = current_env;
+    object_t func = func_env;
     if (TAIL(obj) == NULLOBJ)
 	error("True is empty");
     if (TAIL(TAIL(obj)) == NULLOBJ)
 	error("False is empty");
     else if (TAIL(TAIL(TAIL(obj))) != NULLOBJ)
 	error("if: too many params");
-    if (eval(FIRST(obj), env, func_env) == t)
-	return eval(SECOND(obj), env, func_env);
+    if (eval(FIRST(obj), env, func) == t)
+	return eval(SECOND(obj), env, func);
     else
-	return eval(THIRD(obj), env, func_env);
+	return eval(THIRD(obj), env, func);
 }
 
 /* 
@@ -254,6 +257,7 @@ object_t cond(object_t obj)
     if (obj == NULLOBJ) 
 	error("NULLOBJ in COND"); 
     object_t env = current_env;
+    object_t func = func_env;
     while (obj != NULLOBJ) {
 	object_t pair = FIRST(obj);
 	if (TAIL(pair) == NULLOBJ) 
@@ -261,8 +265,8 @@ object_t cond(object_t obj)
 	if (TAIL(TAIL(pair)) != NULLOBJ) 
 	    error("cond: too many params"); 
 	object_t p = FIRST(pair);
-	if (eval(p, env, func_env) == t) 
-	    return eval(SECOND(pair), env, func_env); 
+	if (eval(p, env, func) == t) 
+	    return eval(SECOND(pair), env, func); 
 	obj = TAIL(obj);
     }
     error("No true conditions in COND"); 
@@ -310,9 +314,10 @@ object_t progn(object_t params)
     if (params == NULLOBJ)
  	error("progn: params = NULLOBJ");
     object_t env = current_env;
+    object_t func = func_env;
     object_t obj;
     while (params != NULLOBJ) {
-	obj = eval(FIRST(params), env, func_env);
+	obj = eval(FIRST(params), env, func);
 	params = TAIL(params);
     }
     return obj;
@@ -436,9 +441,10 @@ void append_env(object_t l1, object_t l2)
  * @param lambda - функция (lambda (x) e1 e2) 
  * @param args - список значений аргументов (1) 
  * @param env окружение 
+ * @param func окружение функций
  * @return вычисленное значение функции 
  */ 
-object_t eval_func(object_t lambda, object_t args, object_t env) 
+object_t eval_func(object_t lambda, object_t args, object_t env, object_t func) 
 { 
     object_t new_env = make_env(SECOND(lambda), args); 
     object_t body; 
@@ -450,7 +456,7 @@ object_t eval_func(object_t lambda, object_t args, object_t env)
  	new_env = env; 
     else 
  	append_env(new_env, env); 
-    return eval(body, new_env, func_env); 
+    return eval(body, new_env, func); 
 } 
 
 /* 
@@ -459,9 +465,10 @@ object_t eval_func(object_t lambda, object_t args, object_t env)
  * @param macro - тело макроса (lambda (x) e1 e2 .. en) 
  * @param args - список значений аргументов (1) 
  * @param env окружение 
+ * @param func окружение функций
  * @return вычисленное значение макроса 
  */ 
-object_t macro_call(object_t macro, object_t args, object_t env) 
+object_t macro_call(object_t macro, object_t args, object_t env, object_t func) 
 { 
     object_t new_env = make_env(SECOND(macro), args); 
     object_t body; 
@@ -470,10 +477,10 @@ object_t macro_call(object_t macro, object_t args, object_t env)
     if (new_env != NULLOBJ)
 	append_env(new_env, env); 
     while (body != NULLOBJ) { 
- 	eval_res = eval(FIRST(body), new_env, func_env); 
+ 	eval_res = eval(FIRST(body), new_env, func); 
  	//printf("macro = "); 
  	//PRINT(eval_res); 
- 	eval_res = eval(eval_res, new_env, func_env); 
+ 	eval_res = eval(eval_res, new_env, func); 
  	body = TAIL(body); 
     } 
     return eval_res; 
@@ -483,9 +490,10 @@ object_t macro_call(object_t macro, object_t args, object_t env)
  * Рекурсивно вычисляет список аргументов, создаёт новый список 
  * @param args список аргументов 
  * @param env окружение 
+ * @param func окружение функций
  * @return возвращает список вычисленных аргументов 
  */ 
-object_t eval_args(object_t args, object_t env) 
+object_t eval_args(object_t args, object_t env, object_t func) 
 { 
     //printf("eval_args: "); 
     //PRINT(args); 
@@ -496,8 +504,8 @@ object_t eval_args(object_t args, object_t env)
     object_t f = FIRST(args); 
     //printf("f = %x pair = %x", f, f->u.pair); 
     //PRINT(f); 
-    object_t arg = eval(f, env, func_env); 
-    object_t tail = eval_args(TAIL(args), env); 
+    object_t arg = eval(f, env, func); 
+    object_t tail = eval_args(TAIL(args), env, func); 
     return new_pair(arg, tail);  
 } 
 
@@ -561,10 +569,10 @@ object_t eval(object_t obj, object_t env, object_t func)
 {
     object_t args;
     object_t res;
+    //     printf("eval: "); PRINT(obj);
+    //    printf("env: "); PRINT(env);
     current_env = env;
     func_env = func;
-    //    printf("eval: "); PRINT(obj);
-    //    printf("env: "); PRINT(env);
     if (need_grabage_collect())
 	garbage_collect();
     if (obj == NULLOBJ)
@@ -577,7 +585,7 @@ object_t eval(object_t obj, object_t env, object_t func)
         object_t first = FIRST(obj);
         if (TYPE(first) == PAIR) {
             is_lambda(first);
-            return eval_func(first, eval_args(TAIL(obj), env), env);
+            return eval_func(first, eval_args(TAIL(obj), env, func), env, func);
         }
         symbol_t *s = find_symbol(GET_SYMBOL(first)->str);
 #ifdef DEBUG
@@ -586,17 +594,17 @@ object_t eval(object_t obj, object_t env, object_t func)
         if (is_special_form(s) || s->macro != NULLOBJ)
             args = TAIL(obj);
         else
-            args = eval_args(TAIL(obj), env);
+            args = eval_args(TAIL(obj), env, func);
 
         object_t result;
         if (find_in_env(func, first, &res))
-            result = eval_func(res, args, env);
+            result = eval_func(res, args, env, func);
         else if (s->lambda != NULLOBJ)
-            result = eval_func(s->lambda, args, env);
+            result = eval_func(s->lambda, args, env, func);
         else if (s->func != NULL)
             result = s->func(args);
         else if (s->macro != NULLOBJ)
-            result = macro_call(s->macro, args, env);
+            result = macro_call(s->macro, args, env, func);
         else
             error("Unknown func: %s", s->str);
 #ifdef DEBUG
@@ -636,32 +644,30 @@ void set_in_env(object_t env, object_t sym, object_t val)
  * @param param параметры (символьный объект, значение, окружение) 
  * @return возвращает значение переменной 
  */ 
-object_t setq_rec(object_t params) 
-{ 
-    if (params == NULLOBJ) 
-	return NULLOBJ; 
-    symbol_t *sym = GET_SYMBOL(FIRST(params)); 
-    object_t res; 
-    int find_res = find_in_env(current_env, FIRST(params), &res); 
-    if (!find_res) 
-	sym = find_symbol(GET_SYMBOL(FIRST(params))->str); 
-    if (TAIL(params) == NULLOBJ)
- 	error("setq: no value"); 
-    object_t obj = eval(SECOND(params), current_env, func_env); 
-    if (find_res) 
-	set_in_env(current_env, FIRST(params), obj); 
-    else 
-	sym->value = obj; 
-    if (TAIL(TAIL(params)) == NULLOBJ) 
- 	return obj; 
-    return setq_rec(TAIL(TAIL(params))); 
-} 
-
 object_t setq(object_t params) 
 { 
+    object_t env = current_env;
+    object_t func = func_env;
     if (params == NULLOBJ)
  	error("setq: params = NULLOBJ"); 
-    return setq_rec(params); 
+    while (params != NULLOBJ) {
+	symbol_t *sym = GET_SYMBOL(FIRST(params)); 
+	object_t res; 
+	int find_res = find_in_env(env, FIRST(params), &res); 
+	if (!find_res) 
+	    sym = find_symbol(GET_SYMBOL(FIRST(params))->str); 
+	if (TAIL(params) == NULLOBJ)
+	    error("setq: no value"); 
+	object_t obj = eval(SECOND(params), env, func); 
+	if (find_res) 
+	    set_in_env(env, FIRST(params), obj); 
+	else 
+	    sym->value = obj; 
+	if (TAIL(TAIL(params)) == NULLOBJ) 
+	    return obj;
+	params = TAIL(TAIL(params));
+    }
+    error("setq: out of vars");
 } 
 
 /* 
@@ -674,10 +680,12 @@ object_t setq(object_t params)
 object_t and(object_t params) 
 { 
     if (params == NULLOBJ)
-	error("and: no params"); 
+	error("and: no params");
+    object_t env = current_env;
+    object_t func = func_env;    
     while (params != NULLOBJ) { 
 	object_t first = FIRST(params); 
-	object_t res = eval(first, current_env, func_env); 
+	object_t res = eval(first, env, func); 
 	if (res == nil) 
 	    return nil; 
 	else if (res == t) 
@@ -699,9 +707,11 @@ object_t or(object_t params)
 { 
     if (params == NULLOBJ)
  	error("or: no params"); 
+    object_t env = current_env;
+    object_t func = func_env;    
     while (params != NULLOBJ) { 
  	object_t first = FIRST(params); 
- 	object_t res = eval(first, current_env, func_env); 
+ 	object_t res = eval(first, env, func); 
  	if (res == t) 
  	    return t; 
  	else if (res == nil) 
@@ -733,12 +743,14 @@ object_t macroexpand(object_t params)
     macro = GET_SYMBOL(macro_name)->macro; 
     object_t args = TAIL(macro_c); 
     object_t new_env = make_env(SECOND(macro), args); 
-    append_env(new_env, current_env); 
+    object_t env = current_env;
+    object_t func = func_env;    
+    append_env(new_env, env); 
     object_t body = TAIL(TAIL(macro)); 
     object_t eval_res; 
     object_t res = NULLOBJ; 
     while (body != NULLOBJ) { 
- 	eval_res = eval(FIRST(body), new_env, func_env); 
+ 	eval_res = eval(FIRST(body), new_env, func); 
  	if (res == NULLOBJ) 
  	    res = eval_res; 
  	else if (TYPE(res) == STRING) 
@@ -759,21 +771,23 @@ object_t funcall(object_t params)
 { 
     if (params == NULLOBJ)
 	error("funcall: no arguments"); 
+    object_t env = current_env;
+    object_t func_en = func_env;    
     object_t func = FIRST(params); 
     if (func == NULLOBJ || TYPE(func) != SYMBOL && 
 	!(TYPE(func) == PAIR && is_lambda(func) == 1))
 	error("funcall: invalid func"); 
     object_t args = TAIL(params); 
     if (TYPE(func) == PAIR) 
-	return eval_func(func, args, current_env); 
+	return eval_func(func, args, env, func_en); 
     symbol_t *s = find_symbol(GET_SYMBOL(func)->str);
     object_t res;
-    if (find_in_env(func_env, func, &res))
-	return eval_func(res, args, current_env);
+    if (find_in_env(func_en, func, &res))
+	return eval_func(res, args, env, func_en);
     else if (s->lambda != NULLOBJ) 
-	return eval_func(s->lambda, args, current_env); 
+	return eval_func(s->lambda, args, env, func_en); 
     else if (s->func != NULL) 
- 	return s->func(args); 
+ 	return s->func(args);
     else 
  	error("Unknown func: %s", s->str); 
 } 
@@ -823,6 +837,7 @@ object_t tagbody(object_t params)
     object_t res;
     object_t tags = NULLOBJ; // Список функций метки
     object_t env;
+    object_t func;
     params2 = params;
     while (params != NULLOBJ) {
         obj = FIRST(params);
@@ -831,6 +846,7 @@ object_t tagbody(object_t params)
             tags = new_pair(new_pair(obj, params), tags);
     }
     tagbody_buffers[tb_index_buf].environment = current_env;
+    tagbody_buffers[tb_index_buf].func_environment = func_env;
     if (setjmp(tagbody_buffers[tb_index_buf++].buffer) == 1) {
 	if (tb_index_buf >= MAX_TAGBODY_SIZE)
 	    error("tagbody: buffer haven't true length");
@@ -841,11 +857,12 @@ object_t tagbody(object_t params)
             params2 = res;	    
     }
     env = current_env;
+    func = func_env;
     while (params2 != NULLOBJ) {
         obj = FIRST(params2);
 	params2 = TAIL(params2); 
         if (TYPE(obj) != SYMBOL)
-            eval(obj, env, func_env);
+            eval(obj, env, func);
     }
     tb_index_buf--;
     return nil;
@@ -861,6 +878,7 @@ object_t go(object_t args)
 	error("go: no label");
     cur_label = FIRST(args);
     current_env = tagbody_buffers[tb_index_buf - 1].environment;
+    func_env = tagbody_buffers[tb_index_buf - 1].func_environment;
     longjmp(tagbody_buffers[tb_index_buf - 1].buffer, 1);
 }
 
