@@ -17,7 +17,11 @@ void init_regions()
 #else
     regions = (struct region *)MEM_START;
 #endif
-    regions = (struct region *)((((long long)regions >> MARK_BIT) + 1) << MARK_BIT);
+#ifdef X32
+    regions = (struct region *)((((int)regions >> MARK_BIT) + 1) << MARK_BIT);
+#else
+    regions = (struct region *)((((long long)regions >> MARK_BIT) + 1) << MARK_BI
+#endif
     regions->free = 1;
     regions->next = NULL;
     regions->prev = NULL;
