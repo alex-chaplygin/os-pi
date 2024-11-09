@@ -1,7 +1,3 @@
-
-(defun set-cursor (x y) nil)
-(defun putchar (c) nil)
-
 (defvar *level* #(#(WALL PLAT WALL PLAT)
 		  #(nil WALL nil)))
 
@@ -14,7 +10,7 @@
 (hide-cursor)
 (set-screen *level*)
 (set-tiles *tile-symbols*)
-(set-tile-size 1 1)
+(set-tile-size 10 5)
 ;(putchar (get-hash *tile-hash* 'WALL))
 ;(draw-tile 'WALL 1 1)
 (set-default-sprite-size 10 5)
@@ -22,4 +18,4 @@
 (set-sprite-pos player-spr 20 10 3)
 (set-sprite-tile player-spr 'PLAYER2)
 (set-sprite-size player-spr 1 1)
-(draw-background)
+(draw-screen)
