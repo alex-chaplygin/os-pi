@@ -65,6 +65,11 @@ token_t back_comma_tokens[] = {
     {END}
 };
 
+token_t function_tokens[] = {
+    {T_FUNCTION},
+    {T_SYMBOL, 0, "X"}
+};
+
 token_t back_in_back_tokens[] = {
     {BACKQUOTE},
     {LPAREN},
@@ -622,12 +627,18 @@ void test_parse_quote_number()
 
 /**
  * Тестируем выражение #'X -> (FUNCTION X)
+ * Проверить тип объекта и проверить каждый элемент.
  */
 void test_parse_function() 
 { 
     printf("test_parse_function: "); 
     count = 0; 
-    cur_token = &token; 
+    cur_token = &token;
+    tokens = function_tokens; 
+    object_t o = parse();
+    ASSERT(strcmp(GET_SYMBOL(GET_PAIR(o)->left)->str, "FUNCTION"), 0);
+    object_t ro = GET_PAIR(o)->right;
+    ASSERT(strcmp(GET_SYMBOL(GET_PAIR(ro)->left)->str, "X"), 0); 
 } 
 
 /**
