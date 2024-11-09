@@ -460,6 +460,9 @@ void print_token(token_t *token)
     case DOT:
 	printf("DOT\n");
 	break;
+    case T_FUNCTION:
+	printf("T_FUNCTION\n");
+	break;
     default:
 	printf("UNKNOWN!!!");
     }
