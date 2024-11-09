@@ -50,6 +50,8 @@ symbol_t *return_from_sym;
 symbol_t *labels_sym;
 /// символ "PROGN"
 symbol_t *progn_sym;
+/// символ "FUNCTION"
+symbol_t *func_sym;
 /// текущее окружение
 object_t current_env = NULLOBJ;
 /// окружение для пользовательских функций
@@ -520,7 +522,7 @@ int is_special_form(symbol_t *s)
 	|| s == setq_sym || s == backquote_sym || s == if_sym || s == cond_sym
 	|| s == or_sym || s == and_sym || s == return_from_sym
 	|| s == labels_sym || s == tagbody_sym || s == progn_sym
-	|| s == go_sym || s == block_sym; 
+	|| s == go_sym || s == block_sym || s == func_sym; 
 } 
 
 /* 
@@ -934,6 +936,22 @@ object_t labels(object_t param)
     return progn(TAIL(param));
 }
 
+/** 
+ * Создаёт объект типа функция. 
+ * Один параметр - или lambda функция или символ - имя функции или локальная или глобальная
+ * @param param список парметров - один параметр - функция
+ *
+ * @return значение последней формы
+ */
+object_t function(object_t param) 
+{
+    if (param == NULLOBJ)
+	error("function: no arguments");
+    if (GET_PAIR(param)->right != NULLOBJ)
+	error("function: more than one argument is given");    
+    return NULLOBJ;
+}
+
 /*  
  * инициализация примитивов  
  */ 
@@ -963,6 +981,7 @@ void init_eval()
     register_func("RETURN_FROM", return_from);
     register_func("BLOCK", block);
     register_func("LABELS", labels);
+    register_func("FUNCTION", function);
     t = NEW_SYMBOL("T"); 
     nil = NULLOBJ;
     quote_sym = find_symbol("QUOTE"); 
@@ -985,4 +1004,5 @@ void init_eval()
     block_sym = find_symbol("BLOCK");
     labels_sym = find_symbol("LABELS"); 
     progn_sym = find_symbol("PROGN");
+    func_sym = find_symbol("FUNCTION");
 } 
