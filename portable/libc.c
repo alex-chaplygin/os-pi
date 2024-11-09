@@ -273,11 +273,22 @@ void strcat(char *str1, char *str2)
 /** 
  * Перевод символа в верхний регистр
  */ 
-char toupper(char ch)
+int toupper(int ch)
 {
     if (ch >= 'a' && ch <= 'z')
         return ch - 32;
     return ch;
 }
 
+// проверка символа на цифру
+int isdigit(int c)
+{
+    return c >= '0' && c <= '9';
+}
+
+// проверка символа на букву
+int isalpha(int c)
+{
+    return c >= 'a' && c <= 'z' || c>= 'A' && c <= 'Z';
+}
 

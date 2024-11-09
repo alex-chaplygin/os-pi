@@ -7,7 +7,6 @@
  */
 
 #include <stdio.h>
-#include <ctype.h>
 #include <limits.h>
 #include "lexer.h"
 
@@ -93,18 +92,6 @@ void skip_white_space()
     unget_cur_char();
 }
 
-// проверка символа на цифру
-int is_digit(char c)
-{
-    return c >= '0' && c <= '9';
-}
-
-// проверка символа на букву
-int is_alpha(char c)
-{
-    return c >= 'a' && c <= 'z' || c>= 'A' && c <= 'Z';
-}
-
 /** 
  * Проверка символа на разрешенный символ
  */ 
@@ -149,7 +136,7 @@ int hex_num()
 		get_cur_char();
 		if (is_delimeter(cur_symbol))
 			break;
-		if (is_digit(cur_symbol)) {
+		if (isdigit(cur_symbol)) {
 			cur_num = cur_num * 16 + cur_symbol - '0';
 		} else if (is_hex_symbol(cur_symbol)) {
 			cur_symbol = toupper(cur_symbol);
@@ -161,7 +148,7 @@ int hex_num()
 			error("hex number overflow");
 
 		} 
-    } while (is_digit(cur_symbol) || is_hex_symbol(cur_symbol));
+    } while (isdigit(cur_symbol) || is_hex_symbol(cur_symbol));
   
     unget_cur_char();
     return cur_num;
@@ -183,7 +170,7 @@ int get_float_num(int int_num, int sgn)
     int temp;
     get_cur_char();
     float count = 1;
-    while(is_digit(cur_symbol)) {
+    while(isdigit(cur_symbol)) {
 	float_num = float_num * 10 + (cur_symbol - '0');
 	count *= 10;
 	get_cur_char();
@@ -216,8 +203,8 @@ int get_num()
     const int sgn_shr = CHAR_BIT * sizeof(int) - 1;
     int sgn = fl ? -1 : 1;
     int msb;
-    while (is_alpha(cur_symbol) || is_digit(cur_symbol) || is_symbol(cur_symbol) || cur_symbol == '.')  {
-	if (is_digit(cur_symbol)) {
+    while (isalpha(cur_symbol) || isdigit(cur_symbol) || is_symbol(cur_symbol) || cur_symbol == '.')  {
+	if (isdigit(cur_symbol)) {
 	    cur_num = cur_num * 10 + sgn * (cur_symbol - '0');
 	    msb = (cur_num >> sgn_shr) & 1;
 	    
@@ -248,7 +235,7 @@ void get_symbol(char *cur_str)
 	    continue;
 	}
 	
-	if (!(is_alpha(cur_symbol) || is_digit(cur_symbol) || is_symbol(cur_symbol)))
+	if (!(isalpha(cur_symbol) || isdigit(cur_symbol) || is_symbol(cur_symbol)))
 	    error("invalid character in symbol: %c(#%x)", cur_symbol, cur_symbol);	    
 		
         cur_str[c++] = cur_symbol;
@@ -406,17 +393,17 @@ token_t *get_token()
 	token.type = DOT;
 	break;
     default:
-	if (cur_symbol == '-' || is_digit(cur_symbol)) {
+	if (cur_symbol == '-' || isdigit(cur_symbol)) {
 	    if (cur_symbol == '-') {
 	        get_cur_char();
 		char c = cur_symbol;
 		unget_cur_char();
-	        if (!is_digit(c))
+	        if (!isdigit(c))
 	            goto get_token_symbol;
 	    }
 	    token.type = T_NUMBER;
 	    token.value = get_num();
-	} else if (is_alpha(cur_symbol) || is_symbol(cur_symbol)) {
+	} else if (isalpha(cur_symbol) || is_symbol(cur_symbol)) {
 	    get_token_symbol:
 	        token.type =  T_SYMBOL;
 	        get_symbol(token.str);

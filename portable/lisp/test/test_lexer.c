@@ -11,8 +11,6 @@ void get_cur_char();
 void unget_cur_char();
 void skip_white_space();
 int get_num();
-int is_alpha(char);
-int is_digit(char);
 int is_symbol(char c);
 void get_symbol(char *cur_str);
 void reset_buffer();
@@ -144,25 +142,6 @@ void test_get_float_num(char* src, float expect)
     int curnum = t->value;
     ASSERT(t->type, T_FLOAT);
     ASSERT(curnum, *(int *)&expect);
-}
-
-
-/** 
- * Тест должен проверять что символ это цифра
- */
-void test_is_digit()
-{
-    ASSERT(is_digit('9'), 1);
-    ASSERT(is_digit('Q'), 0);
-}
-
-/** 
- * Тест должен проверять что символ это буква
- */
-void test_is_alpha()
-{
-    printf("test_is_alpha: ");
-    ASSERT(is_alpha('a'), 1);
 }
 
 /** 
@@ -400,8 +379,6 @@ int main()
     test_get_cur_char();
     test_skip_white_space(); 
     test_skip_new_line();   
-    test_is_digit();
-    test_is_alpha();
      
     // Числа (T_NUMBER)
     test_get_token("tnumber", "42", T_NUMBER); // 11

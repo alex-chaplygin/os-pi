@@ -18,4 +18,6 @@ void clear_buffer(byte* buffer, int offset, int count);
 int strcmp(char *str_one, char *str_two);
 void strcpy(char *str1, char *str2);
 int strlen(char *str);
-char toupper(char ch);
+int toupper(int ch);
+int isdigit(int c);
+int isalpha(int c);
