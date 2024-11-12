@@ -314,7 +314,7 @@ object_t defmacro(object_t obj)
 object_t progn(object_t params) 
 { 
     if (params == NULLOBJ)
- 	error("progn: params = NULLOBJ");
+	return NULLOBJ;
     object_t env = current_env;
     object_t func = func_env;
     object_t obj;
@@ -502,7 +502,9 @@ object_t eval_args(object_t args, object_t env, object_t func)
     //printf(" "); 
     //PRINT(env); 
     if (args == NULLOBJ) 
- 	return NULLOBJ; 
+ 	return NULLOBJ;
+    if (TYPE(args) != PAIR)
+	error("arguments are not list");    
     object_t f = FIRST(args); 
     //printf("f = %x pair = %x", f, f->u.pair); 
     //PRINT(f); 
