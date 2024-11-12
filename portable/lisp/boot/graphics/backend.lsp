@@ -5,7 +5,7 @@
 
 (defclass Edge ()
   (cur-x ; текущее пересечение (начало ребра)
-   start-y ; текущая горизонталь
+   cur-y ; текущая горизонталь
    end-y ; конечная горизонталь
    dx ; разница координат ребра по x
    dy ; разница координат ребра по y
@@ -61,6 +61,7 @@
   "Поиск пересечений горизонтали с ребром"
   (let ((counter (slot edge 'counter))
         (cur-x (slot edge 'cur-x))
+	(cur-y (slot edge 'cur-y))
         (dx (slot edge 'dx))
         (dy (slot edge 'dy)))
     (setq counter (+ counter (* (abs dx) 2)))
@@ -69,6 +70,7 @@
       (setq cur-x (+ cur-x (if (< dx 0) -1 1))))
     (setf (slot edge 'counter) counter)
     (setf (slot edge 'cur-x) cur-x)
+    (setf (slot edge 'cur-y) (++ cur-y))
     cur-x))
 
 (defun fill-triangle (p1 p2 p3 colour)
@@ -76,18 +78,18 @@
   (labels ((fill (edge1 edge2)
 		 (let ((x1 (slot edge1 'cur-x))
 		       (x2 (slot edge2 'cur-x))
-		       (y (slot edge1 'start-y)))
+		       (y1 (slot edge1 'cur-y)))
 		   (when (> (- x2 x1) 1)
-		     (draw-hline (++ x1) (-- x2) y colour))
-		   (while (< (++ y) (slot edge1 'end-y))
-			  (setq y (++ y))
-			  (setq x1 (next-x edge1))
-			  (setq x2 (next-x edge2))
-			  (print `(x1 ,(++ x1) x2 ,(-- x2))
-				 (when (> (- x2 x1) 1)
-				   (draw-hline (++ x1) (-- x2) y colour))))
+		     (draw-hline (++ x1) (-- x2) y1 colour))
+		   (while (< (++ y1) (slot edge1 'end-y))
+		     (setq y1 (++ y1))
+		     (setq x1 (next-x edge1))
+		     (setq x2 (next-x edge2))
+		     (print `(x1 ,(++ x1) x2 ,(-- x2)))
+		     (when (> (- x2 x1) 1)
+		       (draw-hline (++ x1) (-- x2) y1 colour))))
 		   (next-x edge1)
-		   (next-x edge2))))
+		   (next-x edge2)))
 	  (let* ((x1 (car p1))
 		 (y1 (cdr p1))
 		 (x2 (car p2))
@@ -103,7 +105,8 @@
 		 (p1p2 (make-Edge x1 y1 y2 dxp1p2 dyp1p2 0))
 		 (p1p3 (make-Edge x1 y1 y3 dxp1p3 dyp1p3 0))
 		 (p2p3 (make-Edge x2 y2 y3 dxp2p3 dyp2p3 0)))
-	    (fill p1p2 p1p3)
+	    (when (> y2 y1) (fill p1p2 p1p3))
+	    (when (= y1 y2) (next-x p2p3) (next-x p1p3))
 	    (when (> y3 y2) (fill p2p3 p1p3)))))
 
 (defun draw-rect (x y w h colour)
