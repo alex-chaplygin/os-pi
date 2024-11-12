@@ -656,6 +656,7 @@ sh sys_test "(BLOCK A 1 2 3)" "3"
 
 echo "---Тесты PROGN---"
 sh sys_test "(PROGN)" "NIL"
+sh sys_test "(a . 1)" "arguments are not list"
 
 echo "---Тесты TAGBODY---"
 sh sys_test "(tagbody (setq v 10) (go b) (setq v 20) a )" "tagbody: label B not found"
