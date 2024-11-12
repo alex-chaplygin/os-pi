@@ -20,7 +20,7 @@ void init_regions()
 #ifdef X32
     regions = (struct region *)((((int)regions >> MARK_BIT) + 1) << MARK_BIT);
 #else
-    regions = (struct region *)((((long long)regions >> MARK_BIT) + 1) << MARK_BI
+    regions = (struct region *)((((long long)regions >> MARK_BIT) + 1) << MARK_BIT);
 #endif
     regions->free = 1;
     regions->next = NULL;
