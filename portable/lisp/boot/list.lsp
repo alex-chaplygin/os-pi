@@ -108,3 +108,11 @@
   (if (null list)
       0
       (++ (list-length (cdr list))))) 
+
+(defun list-search (list element)
+  "Находит индекс элемента element в списке list."
+  (labels ((search (list index)
+	     (if (null list) nil ; Возвращаем nil, если элемент не найден
+		 (if (equal element (car list)) index ; Возвращаем индекс при совпадении
+		     (search (cdr list) (++ index))))))
+    (search list 0)))
