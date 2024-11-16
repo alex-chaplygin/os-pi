@@ -66,18 +66,17 @@ bignum_t new_bignum_from_str(const char *str)
         size--;     
     } else
 	bignum->sign = 1;
-    for (int i = 0; i < size; i++)
-    {
+    char *p = bignum->data;
+    for (int i = 0; i < size; i++) {
 	c = str[size - i - 1];
-	if (isdigit(c))
-	    bignum->data[i] = c - '0';
-	else{
-	    if (c == '.')
-		bignum->exponent = -i;
-	    else
-		error("new_bignum_from_str: not digit");}
+	if (isdigit(c)) 
+	    *p++ = c - '0';
+	else if (c == '.')
+	    bignum->exponent = i;
+	else
+	    error("new_bignum_from_str: not digit");
     }
-    bignum->size = size;
+    bignum->size = p - bignum->data;
     return bignum;    
 }
 
@@ -124,8 +123,10 @@ void print_bignum(bignum_t bignum)
         printf("0");
     else
         while (i >= 0) {
-            printf("%d", bignum->data[i]);
-            i--;
+	    putchar(bignum->data[i] + '0');
+	    if (bignum->exponent != 0 && i == bignum->exponent)
+	    	putchar('.');
+	    i--;  
         }
 }
 

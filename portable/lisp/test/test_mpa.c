@@ -56,6 +56,8 @@ void test_new_bignum_from_str_exp(const char* num, int exp)
     printf("test_new_bignum_from_str_exp: %s\n", num);
     bignum_t bignum1;
     bignum1 = new_bignum_from_str(num);
+    print_bignum(bignum1);
+    printf("\n");
     ASSERT(bignum1->exponent, exp); 
     free_bignum(bignum1);
 }
@@ -192,9 +194,11 @@ void test_bignum_from_int(int num, int size)
 int main()
 {
     test_new_bignum_from_str("123", 0);
-    test_new_bignum_from_str_exp("123.34", -2); // exp = -2
-    test_new_bignum_from_str_exp("123.3", -1); // exp = -2
-    test_new_bignum_from_str_exp("123", 0); // exp = -2
+    test_new_bignum_from_str_exp("123.34", 2); // exp = 2
+    test_new_bignum_from_str_exp("123.3", 1); // exp = 1
+    test_new_bignum_from_str_exp("123.", 0); // exp = 0
+    test_new_bignum_from_str_exp("123", 0); // exp = 0
+    test_new_bignum_from_str_exp("-123.4567", 4); // exp = 4
     test_new_bignum_from_str("-123", 0);
     test_new_bignum_from_str("45567a1", -1);
     test_new_bignum_from_str("abc", -1);
