@@ -153,8 +153,7 @@ sh sys_test "(+ 1.25 3.11)" "4.360000"
 sh sys_test "(+ 1.25 3.11 2.05)" "6.410000"
 sh sys_test "(+ 1 2 3.11 2.25)" "8.360000"
 sh sys_test "(+ 1 2 3.11 2 2.25)" "10.360000"
-sh sys_test "(+ 1 2 3.11 2 \"\")" "add: Not number
-"
+sh sys_test "(+ 1 2 3.11 2 \"\")" "add: Not number"
 sh sys_test "(+ 'b 2)" "add: Not number"
 
 sh sys_test "(1" "expected )"
@@ -165,8 +164,7 @@ sh sys_test "(+ 1 0.25)" "1.250000"
 sh sys_test "(- 5 2.5)" "2.500000"
 sh sys_test "(- 10 1.35 5 2.3)" "1.350000"
 sh sys_test "(- 10.1 2)" "8.100000"
-sh sys_test "(- 10.1 2 \"\")" "sub: Not number
-"
+sh sys_test "(- 10.1 2 \"\")" "sub: Not number"
 sh sys_test "(- 'b 2)" "sub: Not number"
 
 sh sys_test "(* 123 123 0 421)" "0"
@@ -175,8 +173,7 @@ sh sys_test "(* 5 2.5)" "12.500000"
 sh sys_test "(* 10 1.35 5 2.3)" "155.250000"
 sh sys_test "(* 10.1 2)" "20.200001"
 sh sys_test "(* 10.1 2.25 3.5)" "79.537498"
-sh sys_test "(* 10.1 2 \"\")" "mul: Not number
-"
+sh sys_test "(* 10.1 2 \"\")" "mul: Not number"
 sh sys_test "(* 1 2 3 5)" "30"
 sh sys_test "(* 'b 2)" "mul: Not number"
 
@@ -422,14 +419,11 @@ sh sys_test "(equal '(a c c) '(a b))" "NIL"
 sh sys_test "(equal #(1 2 a) #(1 2 a))" "T"
 sh sys_test "(equal #(1 2 a) #(1 b a))" "NIL"
 # ошибка - нет аргументов
-sh sys_test "(equal)" "equal: no arguments
-"
+sh sys_test "(equal)" "equal: no arguments"
 # ошибка - нет второго аргумента
-sh sys_test "(equal 1)" "equal: no second argument
-"
+sh sys_test "(equal 1)" "equal: no second argument"
 # ошибка - более двух аргументов
-sh sys_test "(equal 1 2 3)" "equal: too many arguments
-"
+sh sys_test "(equal 1 2 3)" "equal: too many arguments"
 
 echo "---Тесты INTERN---"
 #аргумент строка

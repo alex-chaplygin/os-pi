@@ -19,7 +19,7 @@ extern object_t nil;
 object_t add_float(object_t list, float sum)
 {
     if(list == NULLOBJ)
-	error("add: no arguments\n");
+	error("add: no arguments");
     while(list != NULLOBJ) {
 	object_t first = FIRST(list);
 	if (TYPE(first) == FLOAT)
@@ -27,7 +27,7 @@ object_t add_float(object_t list, float sum)
 	else if(IS_NUMBER(first))
 	    sum += get_value(first);
 	else
-	    error("add: Not number\n");
+	    error("add: Not number");
 	list = TAIL(list);
     }
     return new_float(sum);
@@ -44,7 +44,7 @@ object_t add(object_t list)
 {
     int num = 0;
     if (list == NULLOBJ)
-	error("add: no arguments\n");
+	error("add: no arguments");
     while (list != NULLOBJ) {
 	object_t first = FIRST(list);
 	if (IS_NUMBER(first)) {  
@@ -54,7 +54,7 @@ object_t add(object_t list)
 	else if(TYPE(first) == FLOAT)
 	    return add_float(list, num);
 	else
-	    error("add: Not number\n");
+	    error("add: Not number");
     }
     return new_number(num);
 }
@@ -70,7 +70,7 @@ object_t add(object_t list)
 object_t sub_float(object_t list, float sub)
 {
     if(list == NULLOBJ)
-	error("sub: no argements\n");
+	error("sub: no argements");
     while(list != NULLOBJ) {
 	object_t first = FIRST(list);
 	if (TYPE(first) == FLOAT)
@@ -78,7 +78,7 @@ object_t sub_float(object_t list, float sub)
 	else if(IS_NUMBER(first))
 	    sub -= get_value(first);
 	else
-	    error("sub: Not number\n");
+	    error("sub: Not number");
 	list = TAIL(list);
     }
     return new_float(sub);
@@ -94,11 +94,15 @@ object_t sub_float(object_t list, float sub)
 object_t sub(object_t list)
 { 
     if (list == NULLOBJ)
-        error("sub: no arguments\n");
+        error("sub: no arguments");
     object_t first = FIRST(list);
+    int num;
     if (TYPE(first) == FLOAT) 
 	return sub_float(TAIL(list), GET_FLOAT(first)->value);
-    int num = get_value(FIRST(list));  
+    else if (IS_NUMBER(first))
+	num = get_value(FIRST(list));
+    else
+	error("sub: Not number");
     list = TAIL(list);
     while (list != NULLOBJ) {
 	object_t first = FIRST(list);
@@ -109,7 +113,7 @@ object_t sub(object_t list)
 	else if(TYPE(first) == FLOAT)
 	    return sub_float(list, num);
 	else
-	    error("sub: Not number\n");
+	    error("sub: Not number");
     }
     return new_number(num);
 }
@@ -125,7 +129,7 @@ object_t sub(object_t list)
 object_t mul_float(object_t list, float mul)
 {
     if(list == NULLOBJ)
-	error("mul: no arguments\n");
+	error("mul: no arguments");
     while(list != NULLOBJ) {
 	object_t first = FIRST(list);
 	if (TYPE(first) == FLOAT)
@@ -133,7 +137,7 @@ object_t mul_float(object_t list, float mul)
 	else if(IS_NUMBER(first))
 	    mul *= get_value(first);
 	else
-	    error("mul: Not number\n");
+	    error("mul: Not number");
 	list = TAIL(list);
     }
     return new_float(mul);
@@ -148,11 +152,15 @@ object_t mul_float(object_t list, float mul)
 object_t mul(object_t list)
 {
     if (list == NULLOBJ)
-	error("mul: no arguments\n");
+	error("mul: no arguments");
     object_t first = FIRST(list);
+    int num;
     if (TYPE(first) == FLOAT) 
 	return mul_float(TAIL(list), GET_FLOAT(first)->value);
-    int num = get_value(FIRST(list));
+    else if (IS_NUMBER(first))
+	num = get_value(FIRST(list));
+    else
+	error("mul: Not number");
     list = TAIL(list);
     while(list != NULLOBJ){
 	object_t first = FIRST(list);
@@ -163,7 +171,7 @@ object_t mul(object_t list)
 	else if(TYPE(first) == FLOAT)
 	    return mul_float(list, num);
 	else
-	    error("mul: Not number\n");
+	    error("mul: Not number");
     }
     return new_number(num);
 }
@@ -186,7 +194,7 @@ object_t div_float(object_t first, object_t second)
     else if (IS_NUMBER(o))\
 	v = (float)get_value(o);\
     else\
-	error("div: Not number\n");
+	error("div: Not number");
     GET_F(first, f);
     GET_F(second, s);
     return new_float(f / s);  
@@ -202,18 +210,18 @@ object_t div_float(object_t first, object_t second)
 object_t DIV(object_t list){
 
     if (list == NULLOBJ)
-        error("div: no arguments\n");
+        error("div: no arguments");
     if (TAIL(list) == NULLOBJ)
-        error("div: no divisor\n");
+        error("div: no divisor");
     object_t first = FIRST(list);
     object_t second = SECOND(list);
     if(TYPE(first) == FLOAT || TYPE(second) == FLOAT)
 	return div_float(first, second);
     if (get_value(second) != 0) {		
 	if (!IS_NUMBER(first))
-	    error("div: Not number\n");
+	    error("div: Not number");
 	if (!IS_NUMBER(second))
-	    error("div: Not number\n");
+	    error("div: Not number");
 	int num = get_value(first) / get_value(second);
 	return new_number(num);
     } else 
@@ -230,20 +238,20 @@ object_t DIV(object_t list){
 object_t mod(object_t list){
 
     if (list == NULLOBJ)
-        error("mod: no arguments\n");
+        error("mod: no arguments");
     if (TAIL(list) == NULLOBJ)
-        error("mod: no modisor\n");
+        error("mod: no modisor");
     object_t first = FIRST(list);
     if (!IS_NUMBER(first))
-	 error("mod: Not number\n");
+	 error("mod: Not number");
     object_t second = SECOND(list);
     if (!IS_NUMBER(first))
-	 error("mod: Not number\n");
+	 error("mod: Not number");
     if (get_value(second) != 0) {
         int num = get_value(first) % get_value(second);
         return new_number(num);
     } else 
-        error("mod: divisor = 0 \n");
+        error("mod: divisor = 0");
 }
 
 /* Сравнение на больше (> 8 2) */
@@ -255,9 +263,9 @@ object_t mod(object_t list){
 object_t gt(object_t list)
 {
     if (list == NULLOBJ)
-        error(">: no arguments\n");
+        error(">: no arguments");
     if (TAIL(list) == NULLOBJ)
-        error(">: one argument\n");
+        error(">: one argument");
     object_t first = FIRST(list);
     object_t second = SECOND(list);
     if (get_value(first) > get_value(second))
@@ -274,9 +282,9 @@ object_t gt(object_t list)
 object_t less(object_t list)
 {
     if (list == NULLOBJ)
-        error("<: no arguments\n");
+        error("<: no arguments");
     if (TAIL(list) == NULLOBJ)
-        error("<: one argument\n");
+        error("<: one argument");
     object_t first = FIRST(list);
     object_t second = SECOND(list);
     if ( get_value(first) <  get_value(second))
@@ -330,13 +338,13 @@ int compare_obj(object_t obj1, object_t obj2)
 object_t equal(object_t list)
 {
     if (list == NULLOBJ)
-        error("equal: no arguments\n");
+        error("equal: no arguments");
     object_t obj1 = FIRST(list);
     if (TAIL(list) == NULLOBJ)
-        error("equal: no second argument\n");
+        error("equal: no second argument");
     object_t obj2 = SECOND(list);
     if (TAIL(TAIL(list)) != NULLOBJ)
-        error("equal: too many arguments\n");
+        error("equal: too many arguments");
     return compare_obj(obj1, obj2) ? t : nil;
 }
 
@@ -350,9 +358,9 @@ object_t equal(object_t list)
 object_t bitwise_and(object_t list)
 {
     if (list == NULLOBJ)
-	error("bitwise_and: no arguments\n");
+	error("bitwise_and: no arguments");
     if (!IS_NUMBER(FIRST(list))) 
-	error("bitwise_and: Not a number\n");
+	error("bitwise_and: Not a number");
     int num = get_value(FIRST(list));
     list = TAIL(list);
     while (list != NULLOBJ) {
@@ -362,7 +370,7 @@ object_t bitwise_and(object_t list)
 	    list = TAIL(list);
 	}
 	else
-	    error("bitwise_and: Not number\n");
+	    error("bitwise_and: Not number");
     }
     return new_number(num);
 }
@@ -377,7 +385,7 @@ object_t bitwise_and(object_t list)
 object_t bitwise_or(object_t list)
 {
     if (list == NULLOBJ)
-	error("bitwise_or: no arguments\n");
+	error("bitwise_or: no arguments");
     int num = get_value(FIRST(list));
     list = TAIL(list);
     while (list != NULLOBJ) {
@@ -387,7 +395,7 @@ object_t bitwise_or(object_t list)
 	    list = TAIL(list);
 	}
 	else {
-	    error("bitwise_or: Not number\n");
+	    error("bitwise_or: Not number");
 	    return ERROR;
 	}
     }
@@ -404,9 +412,9 @@ object_t bitwise_or(object_t list)
 object_t shift_left(object_t list)
 {
     if (list == NULLOBJ)
-        error("shift_left: no arguments\n");
+        error("shift_left: no arguments");
     if (TAIL(list) == NULLOBJ)
-        error("shift_left: no second param\n");
+        error("shift_left: no second param");
     object_t first = FIRST(list);
     object_t second = SECOND(list);
     int num = get_value(first) << get_value(second);
@@ -423,9 +431,9 @@ object_t shift_left(object_t list)
 object_t shift_right(object_t list)
 {
     if (list == NULLOBJ)
-        error("shift_right: no arguments\n");
+        error("shift_right: no arguments");
     if (TAIL(list) == NULLOBJ)
-        error("shift_right: no second param\n");
+        error("shift_right: no second param");
     object_t first = FIRST(list);
     object_t second = SECOND(list);
     int num = get_value(first) >> get_value(second);
