@@ -157,27 +157,6 @@ object_t OUTSW(object_t args)
 }
 
 /** 
- * Печать символа 
- *
- * @param args (строка, содержащая один символ)
- *
- * @return nil
- */
-object_t PUTCHAR(object_t args)
-{
-    if (args == NULLOBJ || TAIL(args) != NULLOBJ)
-	error("PUTCHAR: char\n");
-    object_t str = FIRST(args);
-    if (TYPE(str) != STRING && TYPE(str) != NUMBER)
-	error("PUTCHAR: not string and no number\n");
-    if (TYPE(str) == STRING)
-	putchar(*GET_STRING(str)->data);
-    else
-	putchar(get_value(str));
-    return NULLOBJ;
-}
-
-/** 
  * Установка позиции курсора 
  *
  * @param args (две координаты x, y)
@@ -296,7 +275,6 @@ void init_sys()
     register_func("OUTDW", OUTDW);
     register_func("INSW", INSW);
     register_func("OUTSW", OUTSW);
-    register_func("PUTCHAR", PUTCHAR);
     register_func("SET-CURSOR", SET_CURSOR);
     register_func("SET-COLOR", SET_COLOR);
     register_func("SET-BACK-COLOR", SET_BACK_COLOR);
