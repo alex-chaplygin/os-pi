@@ -7,7 +7,7 @@ TEST=boot/test.lsp
 GRAPHICS_TEST=$(GRAPHICS) $(TEST) boot/graphics/test/backend.lsp
 ASCII_GRAPH=$(GRAPHICS) boot/graphics/ascii-graph.lsp
 FS=$(BASELISP) boot/fs/block.lsp boot/fs/fs.lsp boot/fs/fat32fs.lsp boot/fs/fat.lsp boot/fs/dir.lsp boot/mbr.lsp boot/fs/fat32test.lsp
-KEYBOARD=$(BASELISP) boot/sys/keyboard.lsp
+KEYBOARD=$(BASELISP) boot/sys/keyboard.lsp boot/sys/events.lsp
 
 all: $(SRC) lisp
 
@@ -53,3 +53,7 @@ queue-test: $(BASELISP) $(TEST) boot/test/queue.lsp
 bin-tree-test: $(BASELISP) boot/bin-tree.lsp $(TEST) boot/test/bin-tree.lsp
 	make -C test /tmp/repl_lisp
 	cat $^ | /tmp/repl_lisp
+
+key-test: $(BASELISP) boot/sys/keyboard.lsp boot/test/key.lsp boot/sys/events.lsp 
+	make -C test /tmp/lisp
+	cat $^ | /tmp/lisp
