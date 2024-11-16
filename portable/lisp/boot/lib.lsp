@@ -183,3 +183,11 @@
   (cond ((null obj) nil)
 	((atom obj) obj)
 	(t (cons (clone (car obj)) (clone (cdr obj))))))
+
+(defmacro incf (var)
+  "Увеличивает значение переменной на 1"
+  `(setq ,var (++ ,var)))
+
+(defmacro decf (var)
+  "Увеличивает значение переменной на 1"
+  `(setq ,var (-- ,var)))
