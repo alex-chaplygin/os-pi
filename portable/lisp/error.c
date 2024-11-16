@@ -14,18 +14,19 @@ extern jmp_buf repl_buf;
  */
 void error(char *str, ...)
 {
+    va_list vals;
+    va_start(vals, str);
 #ifdef OS
     void set_cursor(int x, int y);
     set_cursor(0, 0);
+    vals = &str;
 #endif
     if (str[0] != '\0') {
-        va_list vals;
-        va_start(vals, str);
         vprintf(str, vals);
         va_end(vals);
         putchar('\n');
 #ifdef DEBUG
-        print_debug_stack();
+	print_debug_stack();
         debug_stack = NULLOBJ;
 #endif
     }
