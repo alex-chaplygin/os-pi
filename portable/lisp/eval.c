@@ -849,6 +849,9 @@ object_t tagbody(object_t params)
         if (TYPE(obj) == SYMBOL)
             tags = new_pair(new_pair(obj, params), tags);
     }
+#ifdef DEBUG
+    object_t debug = debug_stack;
+#endif
     tagbody_buffers[tb_index_buf].environment = current_env;
     tagbody_buffers[tb_index_buf].func_environment = func_env;
     if (setjmp(tagbody_buffers[tb_index_buf++].buffer) == 1) {
@@ -863,10 +866,15 @@ object_t tagbody(object_t params)
     env = current_env;
     func = func_env;
     while (params2 != NULLOBJ) {
+	mark_object(tags);
+	mark_object(cur_label);	
         obj = FIRST(params2);
 	params2 = TAIL(params2); 
         if (TYPE(obj) != SYMBOL)
             eval(obj, env, func);
+#ifdef DEBUG
+	debug_stack = debug;
+#endif
     }
     tb_index_buf--;
     return nil;
@@ -881,6 +889,7 @@ object_t go(object_t args)
     if (args == NULLOBJ)
 	error("go: no label");
     cur_label = FIRST(args);
+    mark_object(cur_label);
     current_env = tagbody_buffers[tb_index_buf - 1].environment;
     func_env = tagbody_buffers[tb_index_buf - 1].func_environment;
     longjmp(tagbody_buffers[tb_index_buf - 1].buffer, 1);
