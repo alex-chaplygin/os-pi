@@ -22,7 +22,7 @@ sh sys_test ")" "invalid expression"
 sh sys_test "((a b (1 2) e f)" "expected )" #10
 sh sys_test "((a b #(1 #(2 (3 4) 5)) c d )" "expected )" #11
 sh sys_test "#(1 #(2 3) 4)" "#(1 #(2 3) 4)" # 20
-sh sys_test '#\\1' '#\\1'
+sh sys_test "#\\1" "#\\1"
 sh sys_test "1.25" "1.250000"
 sh sys_test "'(1.25 1.82 3.56 6.12 2 5.77 )" "(1.250000 1.820000 3.560000 6.120000 2 5.770000)"
 sh sys_test "'(1.23333)" "(1.233330)"
@@ -424,30 +424,26 @@ sh sys_test "(equal)" "equal: no arguments"
 sh sys_test "(equal 1)" "equal: no second argument"
 # ошибка - более двух аргументов
 sh sys_test "(equal 1 2 3)" "equal: too many arguments"
+sh sys_test "(putchar #\\F)" "FNIL"
+sh sys_test "(putchar \"1 2 3\")" "PUTCHAR: not a char"
 
 echo "---Тесты INTERN---"
 #аргумент строка
 sh sys_test "(intern \"F\")" "F" #30
 # отсутствие аргументов
-sh sys_test "(intern )" "intern: no arguments
-" #91
+sh sys_test "(intern )" "intern: no arguments" #91
 # аргумент не строка
-sh sys_test "(intern 1)" "intern: not string in params
-" #92
+sh sys_test "(intern 1)" "intern: not string in params" #92
 # больше одного аргумента
-sh sys_test "(intern 'a 'd)" "intern: not string in params
-" #93
+sh sys_test "(intern 'a 'd)" "intern: not string in params" #93
 
 echo "---Тесты STRING-SIZE---"
 #отсутствие аргументов
-sh sys_test "(string-size)" "string-size: no arguments
-"
+sh sys_test "(string-size)" "string-size: no arguments"
 #больше 1 аргумента
-sh sys_test "(string-size \"1 2 3\" \"abc\")" "string-size: too many arguments
-"
+sh sys_test "(string-size \"1 2 3\" \"abc\")" "string-size: too many arguments"
 #аргумент не строка
-sh sys_test "(string-size 1)" "string-size: not string in params
-"
+sh sys_test "(string-size 1)" "string-size: not string in params"
 #аргумент строка
 sh sys_test "(string-size \"123 a\")" 5
 #аргумент пустая строка
@@ -455,52 +451,35 @@ sh sys_test "(string-size \"\")" 0
 sh sys_test "(string-size \"test 12 test test\")" 17
 
 echo "---Тесты STR-CHAR---"
-sh sys_test "(char \"0\" 0)" 48
-sh sys_test "(char \"4321\" 3)" 49
-sh sys_test "(char \"\" 0)" "str-char: invalid index
-"
-sh sys_test "(char \"abc\" 4)" "str-char: invalid index
-"
-sh sys_test "(char 'abc 4)" "str-char: not string in params
-"
-sh sys_test "(char \"0\")" "str-char: not all arguments
-"
-sh sys_test "(char \"abc\" 'a)" "str-char: not number in params
-"
-sh sys_test "(char \"abc\" 4 5)" "str-size: too many arguments
-"
+sh sys_test "(char \"0\" 0)" "#\\0"
+sh sys_test "(char \"4321\" 3)" "#\\1"
+sh sys_test "(char \"\" 0)" "str-char: invalid index"
+sh sys_test "(char \"abc\" 4)" "str-char: invalid index"
+sh sys_test "(char 'abc 4)" "str-char: not string in params"
+sh sys_test "(char \"0\")" "str-char: not all arguments"
+sh sys_test "(char \"abc\" 'a)" "str-char: not number in params"
+sh sys_test "(char \"abc\" 4 5)" "str-size: too many arguments"
 
 echo "---Тесты SUBSEQ---"
 #Отсутствие аргументов
-sh sys_test "(subseq)" "subseq: no arguments
-"
+sh sys_test "(subseq)" "subseq: no arguments"
 #Недостаточно аргументов
-sh sys_test "(subseq \"tst\")" "subseq: not all arguments
-"
-sh sys_test "(subseq \"tst\" 1)" "subseq: not all arguments
-"
+sh sys_test "(subseq \"tst\")" "subseq: not all arguments"
+sh sys_test "(subseq \"tst\" 1)" "subseq: not all arguments"
 #Больше 3 аргументов
-sh sys_test "(subseq \"tst\" 0 2 4)" "subseq: too many arguments
-"
+sh sys_test "(subseq \"tst\" 0 2 4)" "subseq: too many arguments"
 #Некорректные аргументы
-sh sys_test "(subseq 123 \"tst\" 1)" "subseq: invalid args
-"
-sh sys_test "(subseq \"tst\" 'f 6)" "subseq: invalid args
-"
-sh sys_test "(subseq \"tst\" 0 'g)" "subseq: invalid args
-"
+sh sys_test "(subseq 123 \"tst\" 1)" "subseq: invalid args"
+sh sys_test "(subseq \"tst\" 'f 6)" "subseq: invalid args"
+sh sys_test "(subseq \"tst\" 0 'g)" "subseq: invalid args"
 #Стартовый индекс больше конечного
-sh sys_test "(subseq \"Hello\" 3 1)" "subseq: invalid index
-"
+sh sys_test "(subseq \"Hello\" 3 1)" "subseq: invalid index"
 #Стартовый индекс выходит за пределы строки
-sh sys_test "(subseq \"Test\" 4 5)" "subseq: invalid index
-"
+sh sys_test "(subseq \"Test\" 4 5)" "subseq: invalid index"
 #Конечный индекс выходит за пределы строки
-sh sys_test "(subseq \"Test\" 0 5)" "subseq: invalid index
-"
+sh sys_test "(subseq \"Test\" 0 5)" "subseq: invalid index"
 #Отрицательный индекс
-sh sys_test "(subseq \"Test\" -1 2)" "subseq: index can not be negative
-"
+sh sys_test "(subseq \"Test\" -1 2)" "subseq: index can not be negative"
 #Корректные аргументы
 sh sys_test "(subseq \"Hello, world!\" 7 13)" "\"world!\""
 sh sys_test "(subseq \"Hello, world!\" 7 7)" "\"\""
