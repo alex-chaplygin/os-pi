@@ -30,9 +30,9 @@ object_t or(object_t list);
 object_t backquote(object_t list);
 object_t defmacro(object_t list);
 object_t eval_symbol(object_t list);
-object_t macro_call(object_t macro, object_t args, object_t env);
-object_t eval_func(object_t lambda, object_t args, object_t env);
-object_t eval_args(object_t args, object_t env);
+object_t macro_call(object_t macro, object_t args, object_t env, object_t func);
+object_t eval_func(object_t lambda, object_t args, object_t env, object_t func);
+object_t eval_args(object_t args, object_t env, object_t func);
 
 jmp_buf jmp_env;
 
@@ -294,11 +294,8 @@ void test_progn()
 void test_progn_null()
 {
     printf("test_progn_null: ");
-    if (setjmp(jmp_env) == 0) {
-        object_t res = progn(NULLOBJ);
-        FAIL;
-    } else
-        OK;
+    object_t res = progn(NULLOBJ);
+    ASSERT(res, NULLOBJ);
 }
 
 /*
@@ -688,7 +685,7 @@ void test_is_lambda_no_body()
 }
 
 /**
- * Вызов (macrocall (lambda (x) (list x)))
+ * Вызов (macrocall (lambda (x) (list x)) (10))
  */
 void test_macro_call()
 {
@@ -699,7 +696,7 @@ void test_macro_call()
     object_t lx = new_pair(NEW_SYMBOL("LAMBDA"), new_pair(new_pair(p1, NULLOBJ), new_pair(new_pair(NEW_SYMBOL("LIST"), NULLOBJ), new_pair(p1, NULLOBJ)))); 
     // (lambda (x) (list x)); 
     object_t args = new_pair(new_number(10), NULLOBJ); 
-    object_t res = macro_call(lx, args, NULLOBJ); 
+    object_t res = macro_call(lx, args, NULLOBJ, NULLOBJ); 
     ASSERT(get_value(res), 10);
 }
 
@@ -714,7 +711,7 @@ void test_eval_func()
     object_t list = new_pair(NEW_SYMBOL("LAMBDA"), new_pair(param1, param1)); // (lambda (x) x) 
     object_t arg_x = new_number(10); // 10
     object_t args = new_pair(arg_x, NULLOBJ); //(
-    object_t res = eval_func(list, args, NULLOBJ); 
+    object_t res = eval_func(list, args, NULLOBJ, NULLOBJ); 
     ASSERT(TYPE(res), NUMBER); 
     ASSERT(get_value(res), 10); 
 }
@@ -731,7 +728,7 @@ void test_eval_func2()
     object_t param1 = new_pair(x1, NULLOBJ); // (x) 
     object_t param2 = new_pair(arg_x, param1); 
     object_t list = new_pair(NEW_SYMBOL("LAMBDA"), new_pair(param1, param2));  
-    object_t res = eval_func(list, args, NULLOBJ); 
+    object_t res = eval_func(list, args, NULLOBJ, NULLOBJ); 
     ASSERT(TYPE(res), NUMBER); 
     ASSERT(get_value(res), 10);
 }
@@ -817,7 +814,7 @@ void test_eval_args()
     object_t num1 = new_number(1);
     object_t num2 = new_number(2);
     object_t list = new_pair(num1, new_pair(num2, NULLOBJ));
-    object_t res = eval_args(list, NULLOBJ);
+    object_t res = eval_args(list, NULLOBJ, NULLOBJ);
     ASSERT(TYPE(res), PAIR); 
     ASSERT(get_value(FIRST(res)), 1); 
     ASSERT(get_value(SECOND(res)), 2); 
@@ -829,7 +826,7 @@ void test_eval_args()
 void test_eval_args_null()
 {
     printf("test_eval_args_null: ");
-    object_t res = eval_args(NULLOBJ, NULLOBJ);
+    object_t res = eval_args(NULLOBJ, NULLOBJ, NULLOBJ);
     ASSERT(res, NULLOBJ); 
 }
 
