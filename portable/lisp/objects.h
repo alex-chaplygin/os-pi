@@ -236,4 +236,5 @@ array_t *new_empty_array(int length);
 void free_array(array_t *a);
 object_t print_gc_stat(object_t o);
 int need_grabage_collect();
+void mark_object(object_t obj);
 #endif
