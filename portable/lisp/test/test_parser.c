@@ -798,7 +798,7 @@ int main()
     test_parse_array_error_paren(); //19
     test_parse_no_rparen_arrays(); //11 23
 
-    // Цитата, квазицитата
+    // Цитата, квазицитата, функция
     test_parse_quote(quote_tokens, "QUOTE"); //12
     test_parse_quote(backquote_tokens, "BACKQUOTE");//12
     test_parse_quote(comma_tokens, "COMMA"); //17
