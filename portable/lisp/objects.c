@@ -131,10 +131,8 @@ object_t new_bignumber(int num)
  */
 void free_bignumber(bignumber_t *o)
 {
-    if (o == NULL) {
+    if (o == NULL)
     	error("free_bignumber: null pointer: obj");
-    	return;
-    }    
     if (o->free)
 	return;
     o->next = free_bignumbers;
