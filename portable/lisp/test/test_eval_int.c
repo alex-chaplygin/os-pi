@@ -447,37 +447,72 @@ void test_quote()
      ASSERT(res, obj);
 }
 
-/* /\** */
-/*  * Создать объекты для выражения  */
-/*  * Вызвать функцию eq */
-/*  * Проверить результат */
-/*  * (eq )            -> error */
-/*  * (eq 'a)          -> error */
-/*  * (eq 'a 'a 'a)    -> error */
-/*  * (eq 'a 'a)       -> t */
-/*  * (eq 'a 'b)       -> nil */
-/*  *\/ */
+/**
+ * Создать объекты для выражения
+ * Вызвать функцию eq
+ * Проверить результат
+ * (eq )            -> error
+ * (eq 'a)          -> error
+ * (eq 'a 'a 'a)    -> error
+ * (eq 1 1)         -> t
+ * (eq 'a 'a)       -> t
+ * (eq 'a 'b)       -> nil
+ */
 void test_eq() 
 { 
-    printf("test_eq: "); 
-    object_t n1 = new_number(1); 
+    printf("test_eq: ");
+    // Одинаковые числа
+    object_t n1 = new_number(1);
     object_t n2 = new_number(1);
-    object_t s1 = NEW_STRING("String");
-    object_t s2 = NEW_STRING("String");
-    object_t s3 = NEW_SYMBOL("a");
-    object_t s4 = NEW_SYMBOL("a");
-    
-    object_t list1 = new_pair(n1, new_pair(n2, NULLOBJ)); 
-    object_t list2 = new_pair(s1, new_pair(s2, NULLOBJ)); 
-    object_t list3 = new_pair(s3, new_pair(s4, NULLOBJ)); 
-    
-    object_t res1 = eq(list1); 
-    object_t res2 = eq(list2); 
-    object_t res3 = eq(list3); 
-    
-    ASSERT(res1, t); 
+    object_t res1 = eq(new_pair(n1, new_pair(n2, NULLOBJ)));
+    ASSERT(res1, t);
+
+    // Одинаковые строки, но разные объекты
+    object_t s1 = NEW_STRING("test");
+    object_t s2 = NEW_STRING("test");
+    object_t res2 = eq(new_pair(s1, new_pair(s2, NULLOBJ)));
     ASSERT(res2, nil);
-    ASSERT(res3, t); 
+
+    // Одинаковые символы
+    object_t sym1 = NEW_SYMBOL("x");
+    object_t sym2 = NEW_SYMBOL("x");
+    object_t res3 = eq(new_pair(sym1, new_pair(sym2, NULLOBJ)));
+    ASSERT(res3, t);
+
+    // Разные символы
+    object_t sym3 = NEW_SYMBOL("x");
+    object_t sym4 = NEW_SYMBOL("y");
+    object_t res4 = eq(new_pair(sym3, new_pair(sym4, NULLOBJ)));
+    ASSERT(res4, nil);
+
+    // Нет аргументов
+    if (setjmp(jmp_env) == 0) {
+        eq(NULLOBJ);
+        FAIL;
+    } else {
+        OK;
+    }
+
+    // Один аргумент
+    if (setjmp(jmp_env) == 0) {
+        eq(new_pair(n1, NULLOBJ));
+        FAIL;
+    } else {
+        OK;
+    }
+
+    // Больше двух аргументов
+    object_t too_many_args = new_pair(n1, new_pair(n2, new_pair(s2, NULLOBJ)));
+    if (setjmp(jmp_env) == 0) {
+        eq(too_many_args);
+        FAIL;
+    } else {
+        OK;
+    }
+
+    // Одинаковые объекты
+    object_t res5 = eq(new_pair(s1, new_pair(s1, NULLOBJ)));
+    ASSERT(res5, t);
 }
 
 /**
