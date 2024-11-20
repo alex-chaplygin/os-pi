@@ -1,4 +1,5 @@
-(defconst +node-size+ 3)
+; Абстрактный тип - бинарное дерево
+(defconst +node-size+ 3) ; размер списка у узла
 
 (defun correct-tree (t1)
   "Проверка узла t1 на корректность"
@@ -9,7 +10,7 @@
   "Создать дерево с поддеревом t1 - слева, t2 - справа"
   "Элементами дерева могут являться узлы и листья"
 "node (left right val) - узел, первый и второй элементы являются соответствующими поддеревьями, третий элемент - значение узла, которое может быть nil или любым объектом"
-  (if (and (correct-tree t1) (correct-tree t2))
+(if (and (correct-tree t1) (correct-tree t2))
       (list t1 t2 val)
     (error '(try to make an incorrect node))))
 
@@ -30,7 +31,7 @@
       (error '(wrong access to left tree))))
 
 (defun right-tree (t1)
-  "Полуение правого поддерева узла t1"
+  "Получение правого поддерева узла t1"
   "Доступен только узлу"
   (if (and (correct-tree t1) (null (is-leaf t1)))
     (cadr t1)
@@ -39,18 +40,21 @@
 (defun set-left-tree (t1 left)
   "Установка левого поддерева узлу t1"
   "Доступен только узлу"
-  (if (and (correct-tree t1) (correct-tree left) (null (is-leaf t1)))))
-      
+  (if (and (correct-tree t1) (correct-tree left) (null (is-leaf t1)))
+      (rplaca t1 left)
+      (error '(wrong attempt to set left tree))))
 
 (defun set-right-tree (t1 right)
   "Установка правого поддерева узлу t1"
   "Доступен только узлу"
-  )
+  (if (and (correct-tree t1) (correct-tree right) (null (is-leaf t1)))
+      (progn (rplaca (cdr t1) right) t1)
+      (error '(wrong attempt to set right tree))))
 
 (defun tree-get-val (t1)
   "Получение значения узла t1"
-  )
+  (when (correct-tree t1) (caddr t1)))
 
 (defun tree-set-val (t1 val)
   "Установка значения val узлу t1"
-  )
+  (when (correct-tree t1) (progn (rplaca (cddr t1) val) t1)))
