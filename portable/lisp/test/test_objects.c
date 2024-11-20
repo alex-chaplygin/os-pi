@@ -238,7 +238,7 @@ void test_free_bignumber2()
 }
 
 /** 
- *Освобождение вещественного числа из объекта
+ * Освобождение вещественного числа из объекта
  */
 
 void test_free_float()
@@ -718,7 +718,9 @@ object_t make_list(int num)
 }
 
 /**
- *@param length = 8
+ * Создать пустой массив заданной длины и проверить все ли элементы с пустым значением 
+ *
+ * @param length = 8
  */
 void test_new_empty_array()
 {
@@ -779,7 +781,7 @@ void test_garbage_collect_arrays()
 /* } */
 
 /**
- *
+ * Проверить, правильно ли макрос извлекает закодированный тип из объекта
  */
 void test_return_type()
 {
@@ -789,6 +791,9 @@ void test_return_type()
     ASSERT(TYPE(obj), SYMBOL);
 }
 
+/**
+ * Проверить, что макрос правильно устанавливает маркерные биты в объекте
+ */
 void test_return_set_mark()
 {
     printf("test_return_set_mark: ");
@@ -797,6 +802,9 @@ void test_return_set_mark()
     ASSERT(obj, 0xf0);
 }
 
+/**
+ * Проверить, что макрос правильно определяет маркерные биты в объекте
+ */
 void test_return_get_mark()
 {
     printf("test_return_get_mark : ");
@@ -806,6 +814,9 @@ void test_return_get_mark()
     ASSERT(GET_MARK(obj), 1);
 }
 
+/**
+ * Проверить, что макрос корректно очищает маркерные биты в объекте
+ */
 void test_return_clear_mark()
 {
     printf("test_return_clear_mark: ");
@@ -816,8 +827,9 @@ void test_return_clear_mark()
     CLEAR_MARK(obj); // 1000
     ASSERT(obj, 0x0);
 }
+
 /**
- * тест: создаём объект и с помощью макроса получаем адрес объекта
+ * Создаем объект и с помощью макроса получаем адрес объекта
  */
 void test_return_get_addr()
 {
@@ -827,7 +839,7 @@ void test_return_get_addr()
 }
 
 /**
- * тест: создаём объект с помощью макроса и проверяем его тип
+ * Создаём объект с помощью макроса и проверяем его тип
  */
 void test_new_object(int type, void *val)
 {
@@ -898,45 +910,35 @@ void main()
     if (setjmp(jmp_env) == 1)
 	return;
     printf("--------------test objects---------------------\n");
+    // Инициализация
     init_regions();
-    test_regions_mem();
+    test_regions_mem(); // тест памяти
     init_objects();
+
+    // Тесты сборки мусора
     test_mark();
     test_sweep();    //19,24
     test_garbage_collect();     //19,24   
     test_garbage_collect_list();    //21,24
-    test_alloc_region();
-    test_free_region();
-    test_new_string();
-    test_free_string();
-    test_free_array();
-    reset_mem();
-    test_new_empty_array();
-    test_objects_new_null();
-    test_free_pair_empty();
     test_garbage_collect_strings(); //22,24
     test_garbage_collect_arrays();  //23,24
     test_garbage_collect_cycle();
     test_garbage_collect_floats();
     test_garbage_collect_functions();
-    test_return_type();
-    test_return_set_mark();
-    test_return_get_mark();
-    test_return_clear_mark();
-    test_return_get_addr();
+    test_objects_new_null();
     reset_mem();
-    test_new_bignumber(1100);
-    test_new_bignumber(0);
-    test_new_bignumber(-1520);
-    test_free_bignumber();
-    test_free_bignumber2();
-    test_new_float(-13.23f);
-    test_new_float(0.0f);
-    test_new_float(78.34f);
-    test_free_float();
-    test_new_function();
-    test_free_function();
+
+    // Тесты для массивов
+    test_new_empty_array();
+    test_free_array();
     reset_mem();
+
+    // Тесты для строк
+    test_new_string();
+    test_free_string();
+    reset_mem();
+
+    // Тесты для чисел (малые числа)
     test_new_number(-677, NUMBER);
     test_new_number(56, NUMBER);
     test_new_number(0xfffffff, BIGNUMBER);
@@ -947,12 +949,53 @@ void main()
     test_get_value(13);
     test_get_value(0);
     test_get_value(-6);
+    reset_mem();
+
+    // Тесты для чисел (большие числа)
+    test_new_bignumber(1100);
+    test_new_bignumber(0);
+    test_new_bignumber(-1520);
+    test_free_bignumber();
+    test_free_bignumber2();
+    reset_mem();
+
+    // Тесты для чисел (числа с плавающей точкой)
+    test_new_float(-13.23f);
+    test_new_float(0.0f);
+    test_new_float(78.34f);
+    test_free_float();
+    reset_mem();
+
+    // Тесты для функций
+    test_new_function();
+    test_free_function();
+    reset_mem();
+
+    // Тесты для пар
+    test_new_pair();
+    test_free_pair();
+    test_free_pair_empty();
+    reset_mem();
+
+    // Тесты для регионов памяти
+    test_alloc_region();
+    test_free_region();
+    reset_mem();
+
+    // Тесты для работы с маркерами
+    test_return_set_mark();
+    test_return_get_mark();
+    test_return_clear_mark();
+    reset_mem();
+
+    // Тесты для извлечения и преобразования данных
+    test_return_type();
+    test_return_get_addr();
     test_get_char('a');
     test_get_char(' ');
     reset_mem();
-    test_new_pair();
-    test_free_pair();
-    reset_mem();
+
+    // Вывод
     PRINT(new_number(10));
     PRINT(new_bignumber(2000000000));
     PRINT(make_list(4));
