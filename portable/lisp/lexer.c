@@ -141,13 +141,10 @@ int hex_num()
 		} else if (is_hex_symbol(cur_symbol)) {
 			cur_symbol = toupper(cur_symbol);
 			cur_num = cur_num * 16 + cur_symbol - 'A' + 10;
-		} else {
-		        error("invalid hex number");
-		}
-		if ((cur_num >> msb_shr) & 1) {
+		} else
+		    error("invalid hex number");
+		if ((cur_num >> msb_shr) & 1)
 			error("hex number overflow");
-
-		} 
     } while (isdigit(cur_symbol) || is_hex_symbol(cur_symbol));
   
     unget_cur_char();
@@ -170,7 +167,9 @@ int get_float_num(int int_num, int sgn)
     int temp;
     get_cur_char();
     float count = 1;
-    while(isdigit(cur_symbol)) {
+    while (!is_delimeter(cur_symbol)) {
+	if (!isdigit(cur_symbol))
+	    error("invalid symbol in float");
 	float_num = float_num * 10 + (cur_symbol - '0');
 	count *= 10;
 	get_cur_char();
@@ -203,7 +202,7 @@ int get_num()
     const int sgn_shr = CHAR_BIT * sizeof(int) - 1;
     int sgn = fl ? -1 : 1;
     int msb;
-    while (isalpha(cur_symbol) || isdigit(cur_symbol) || is_symbol(cur_symbol) || cur_symbol == '.')  {
+    while (!is_delimeter(cur_symbol)) {
 	if (isdigit(cur_symbol)) {
 	    cur_num = cur_num * 10 + sgn * (cur_symbol - '0');
 	    msb = (cur_num >> sgn_shr) & 1;

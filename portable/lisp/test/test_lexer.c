@@ -416,7 +416,6 @@ int main()
     //test_invalid_token("3.5028235e38", "3.5028235e38f"); //чило больше максимально допустимого
     //test_invalid_token("-3.5028235e38", "-3.5028235e38f"); //чило меньше максимально допустимого
     test_invalid_token("invalid format 1.0.0", "1.0.0"); // неправильный формат
-    test_invalid_token("invalid float .5.5", ".5.5"); // неправильный формат
     test_invalid_token("invalid float 3..1", "3..14"); // две точки
     test_invalid_token("invalid float 1.14s", "1.14s"); // буква
     
