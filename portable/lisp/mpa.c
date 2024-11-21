@@ -147,7 +147,24 @@ void bignum_sum(bignum_t n1, bignum_t n2)
 	n2->sign = 1;
 	bignum_sub(n1, n2);
 	return;
-    } 
+    }
+#define FILL(n)\
+	for (int i = n->size - 1; i >= 0; --i) {\
+	    n->data[i + delta_exp] = n->data[i];\
+	    n->data[i] = 0;\
+	}
+#define SET_PARAM(n1, n2)\
+	int delta_exp = n1->exponent - n2->exponent;\
+	n2->exponent = n1->exponent;\
+	n2->size = n1->size;
+    
+    if (n1->exponent > n2->exponent) {
+	SET_PARAM(n1, n2)
+	FILL(n2)
+    } else if (n2->exponent > n1->exponent) {
+	SET_PARAM(n2, n1)
+	FILL(n1)
+    }    
     int carry = 0;
     for (int i = 0; i < n2->size; i++)
     {
@@ -241,6 +258,7 @@ void bignum_sub(bignum_t n1, bignum_t n2)
  * 
  * @param n1 - большое 1-е число 
  * @param n2 - большое 2-е число 
+ * @return 1, если n1 больше n2; -1, если n2 больше n1; 0, если они равны
  */
 int bignum_compare(bignum_t n1, bignum_t n2)
 {
@@ -267,20 +285,69 @@ void bignum_div(bignum_t n1, bignum_t n2)
 	n1->data[0] = 0;
         return;
     }
-    bignum_t temp = new_bignum();
+    
+    bignum_t div = new_bignum(); // остаток от деления
+    bignum_t temp = new_bignum(); // разряд, с которым работаем
+    bignum_t result = new_bignum();
     bignum_t one = new_bignum();
-    temp->size = n1->size;
+    
+    div->size = 1;
+    div->data[0] = 0;
+    
+    temp->size = 1;
+
     one->size = 1;
     one->data[0] = 1;
-    for (int i = 0; i < n1->size; i++) {
-        temp->data[i] = n1->data[i];
-        n1->data[i] = 0;
+
+    result->size = 1;
+    result->data[0] = 0;
+
+    printf("result: ");
+    print_bignum(result);
+    
+    for (int i = n1->size - 1; i >= 0; i--)
+    {
+	temp->data[0] = n1->data[i];
+	bignum_sum(div, temp);
+
+	printf("temp: ");
+	print_bignum(temp);
+	printf("div: ");
+	print_bignum(div);
+	
+	if (bignum_compare(div, n2) >= 0)
+	{
+	    while (bignum_compare(div, n2) >= 0)
+	    {
+		printf("result: ");
+		print_bignum(result);
+		bignum_sub(div, n2);
+		bignum_sum(result, one);
+		printf("result: ");
+		print_bignum(result);
+	    }
+	    
+	}
+	else
+	{
+	    div->size += 1;
+	    for (int i = div->size - 1; i >= 0 ; i--)
+	    {
+		div->data[i + 1] = div->data[i];
+	    }
+	    div->data[0] = 0;
+	     
+	}
+    } 
+	    
+    n1->size = result->size;
+    
+    for (int i = 0; i < result->size; i++) {
+        n1->data[i] = result->data[i];
     }
-    n1->size = 1;
-    while (bignum_compare(temp, n2) >= 0) {
-        bignum_sub(temp, n2);
-        bignum_sum(n1, one);
-    }
+
+    free_bignum(result);
     free_bignum(temp);
     free_bignum(one);
+    free_bignum(div);
 }
