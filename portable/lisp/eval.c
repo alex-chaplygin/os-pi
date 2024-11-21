@@ -354,19 +354,19 @@ int check_params(object_t list)
 int is_lambda(object_t list) 
 {
     if (list == NULLOBJ)
-	error("Invalid lambda expression");
+	return 0;
     object_t lambda = FIRST(list); 
     if (TYPE(lambda) != SYMBOL || GET_SYMBOL(lambda) != lambda_sym)
-	error("Invalid lambda symbol"); 
+	return 0; 
     if (TAIL(list) == NULLOBJ)
-	error("No params in lambda"); 
+	return 0; 
     object_t params = SECOND(list); 
     if (params != NULLOBJ && TYPE(params) != PAIR)
-	error("Invalid params in lambda"); 
+	return 0;
     if (!check_params(params))
-	error("Not symbol in lambda attrs"); 
+	return 0; 
     if (TAIL(TAIL(list)) == NULLOBJ)
-	error("No body in lambda");
+	return 0;
     return 1;
 } 
 
@@ -588,8 +588,10 @@ object_t eval(object_t obj, object_t env, object_t func)
     else if (TYPE(obj) == PAIR) {
         object_t first = FIRST(obj);
         if (TYPE(first) == PAIR) {
-            is_lambda(first);
-            return eval_func(first, eval_args(TAIL(obj), env, func), env, func);
+	    if (!is_lambda(first))
+		error("Invalid lambda function");
+	    else
+		return eval_func(first, eval_args(TAIL(obj), env, func), env, func);
         }
         symbol_t *s = find_symbol(GET_SYMBOL(first)->str);
 #ifdef DEBUG
@@ -952,15 +954,28 @@ object_t labels(object_t param)
  * Один параметр - или lambda функция или символ - имя функции или локальная или глобальная
  * @param param список парметров - один параметр - функция
  *
- * @return значение последней формы
+ * @return объект функция. 
  */
 object_t function(object_t param) 
 {
     if (param == NULLOBJ)
 	error("function: no arguments");
     if (GET_PAIR(param)->right != NULLOBJ)
-	error("function: more than one argument is given");    
-    return NULLOBJ;
+	error("function: more than one argument is given");
+
+    object_t func = FIRST(param);
+    if (is_lambda(func)) ;
+    else if (TYPE(func) == SYMBOL) {
+	symbol_t *s = find_symbol(GET_SYMBOL(func)->str);
+	object_t res;
+	if (find_in_env(func_env, func, &res))
+	    func = res;
+	else if (s->lambda != NULLOBJ)
+	    func = s->lambda;
+    } else
+	error("function: invalid param");
+    pair_t*  pair_right = GET_PAIR(GET_PAIR(func)->right);
+    return new_function(pair_right->left, pair_right->right);   
 }
 
 /*  
