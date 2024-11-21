@@ -66,7 +66,7 @@ object_t string_size(object_t list)
 /**
  * Получает символ по индексу
  * @param list (строка индекс)
- * @return код символа - число
+ * @return объект символа
 **/
 object_t str_char(object_t list)
 {
