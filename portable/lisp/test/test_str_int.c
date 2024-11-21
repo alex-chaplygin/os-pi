@@ -261,54 +261,65 @@ void test_symbol_name_no_params()
         OK;
 }
 
-/* /\** */
-/*  * Тест функции получения длинны строки */
-/*  *\/ */
-/* void test_string_size() { */
-/*     printf("test_string_size: "); */
-/*     char *str = "Hello"; */
-/*     object_t string_obj = object_new(STRING, str); */
-/*     object_t params = new_pair(string_obj, NULL); */
-/*     object_t res = string_size(params); */
-/*     ASSERT(res->type, NUMBER); */
-/*     ASSERT(res->u.value, strlen(str)); */
-/* } */
+/**
+ * Тест функции получения длинны строки
+ */
+void test_string_size()
+{
+    printf("test_string_size: ");
+    char *str = "Hello";
+    object_t string_obj = NEW_STRING(str);
+    object_t params = new_pair(string_obj, NULLOBJ);
+    object_t res = string_size(params);
+    ASSERT(TYPE(res), NUMBER);
+    ASSERT(get_value(res), strlen(str));
+}
 
-/* /\** */
-/*  * Тест функции получения длинны строки */
-/*  * Ошибка: без параметра */
-/*  *\/ */
-/* void test_string_size_no_arguments() { */
-/*     printf("test_string_size_no_arguments: "); */
-/*     object_t result = string_size(NULL); */
-/*     ASSERT(result, ERROR); */
-/* } */
+/**
+ * Тест функции получения длинны строки
+ * Ошибка: без параметра
+ */
+void test_string_size_no_arguments()
+{
+    printf("test_string_size_no_arguments: ");
+    if (setjmp(jmp_env) == 0) {
+        string_size(NULLOBJ);
+        FAIL;
+    } else 
+        OK;
+}
 
-/* /\** */
-/*  * Тест функции получения длинны строки */
-/*  * Ошибка: несколько аргументов */
-/*  *\/ */
-/* void test_string_size_too_many_arguments() { */
-/*     printf("test_string_size_too_many_arguments: "); */
-/*     int num = 5; */
-/*     object_t number_obj = object_new(NUMBER, &num); */
-/*     object_t params = new_pair(number_obj, new_pair(number_obj, NULL)); */
-/*     object_t result = string_size(params); */
-/*     ASSERT(result, ERROR); */
-/* } */
+/**
+ * Тест функции получения длинны строки
+ * Ошибка: несколько аргументов
+ */
+void test_string_size_too_many_arguments()
+{
+    printf("test_string_size_too_many_arguments: ");
+    object_t number_obj = new_number(5);
+    object_t params = new_pair(number_obj, new_pair(number_obj, NULLOBJ));
+     if (setjmp(jmp_env) == 0) {
+        string_size(params);
+        FAIL;
+    } else 
+        OK;
+}
 
-/* /\** */
-/*  * Тест функции получения длинны строки */
-/*  * Ошибка: аргумент не строка */
-/*  *\/ */
-/* void test_string_size_not_string() { */
-/*     printf("test_string_size_not_string: "); */
-/*     int num = 5; */
-/*     object_t number_obj = object_new(NUMBER, &num); */
-/*     object_t params = new_pair(number_obj, NULL); */
-/*     object_t result = string_size(params); */
-/*     ASSERT(result, ERROR); */
-/* } */
+/**
+ * Тест функции получения длинны строки
+ * Ошибка: аргумент не строка
+ */
+void test_string_size_not_string()
+{
+    printf("test_string_size_not_string: ");
+    object_t number_obj = new_number(5);
+    object_t params = new_pair(number_obj, NULLOBJ);
+    if (setjmp(jmp_env) == 0) {
+        string_size(params);
+        FAIL;
+    } else 
+        OK;
+}
 
 /**
  * Тест функции получения символа по индексу в строке
@@ -322,8 +333,8 @@ void test_str_char()
     object_t index_obj = new_number(1);
     object_t params = new_pair(string_obj, new_pair(index_obj, NULLOBJ));
     object_t result = str_char(params);
-    ASSERT(TYPE(result), NUMBER);
-    ASSERT(get_value(result), 'e');
+    ASSERT(TYPE(result), CHAR);
+    ASSERT(GET_CHAR(result), 'e');
 }
 
 /**
@@ -701,10 +712,10 @@ int main()
     test_symbol_name_many_params();
     test_symbol_name_null_first_param();
     test_symbol_name_no_params();
-    /* test_string_size(); */
-    /* test_string_size_no_arguments(); */
-    /* test_string_size_too_many_arguments(); */
-    /* test_string_size_not_string(); */
+    test_string_size();
+    test_string_size_no_arguments();
+    test_string_size_too_many_arguments();
+    test_string_size_not_string();
     test_str_char();
     test_str_char_null();
     test_str_char_not_all_arguments();
