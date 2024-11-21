@@ -116,3 +116,9 @@
 		 (if (equal element (car list)) index ; Возвращаем индекс при совпадении
 		     (search (cdr list) (++ index))))))
     (search list 0)))
+
+(defun nth (list n)
+  "Получает n-й элемент списка list"
+  (if (null list) (error "nth: invalid index")
+    (if (= n 0) (car list)
+      (nth (cdr list) (- n 1)))))

@@ -13,3 +13,7 @@
 (assert (list-search '(1 2 3) 6) nil)
 (assert (list-search '(1 2 3) 3) 2)
 (assert (list-search '() 3) nil)
+; n-й элемент списка
+(assert (nth '(1 2 3) 0) 1)
+(assert (nth '(1 2 3) 2) 3)
+(nth '(1 2 3) 10)
