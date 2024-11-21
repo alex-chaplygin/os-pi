@@ -22,7 +22,7 @@ void error(char *str, ...)
 /**
  * Проверка создания массивов:
  * Создаём массив из 10 элементов и проверяем, что все элементы являются NULLOBJ
-*/
+ */
 void test_make_array()
 {
     printf("test_make_array: ");
@@ -34,6 +34,22 @@ void test_make_array()
     ASSERT(TYPE(arr), ARRAY);
     for (int i = 0; i < length; i++)
         ASSERT(GET_ARRAY(arr)->data[i], NULLOBJ);
+}
+
+/**
+ * Проверка создания массива с отрицательной длиной
+ * Ожидается, что вызов завершится ошибкой
+ */
+void test_make_array_negative_length()
+{
+    printf("test_make_array_negative_length: ");
+    int length = -5; // Отрицательная длина массива
+    object_t list = new_pair(new_number(length), NULLOBJ);
+    if (setjmp(jmp_env) == 0) {
+	object_t arr = make_array(list); // Попытка создать массив
+	FAIL; // Если не вызвана ошибка, тест провален
+    } else 
+	OK; // Если вызвана ошибка, тест успешен
 }
 
 /**
@@ -311,6 +327,7 @@ int main()
     init_regions();
     init_objects();
     test_make_array();
+    test_make_array_negative_length();
     test_seta();
     test_seta_invalid_arguments();
     test_seta_not_array();
