@@ -653,7 +653,7 @@ void print_obj(object_t obj)
  	printf("%d", get_value(obj));
     else if (TYPE(obj) == BIGNUMBER)
 	printf("%d", GET_BIGNUMBER(obj)->value);
-    else if (TYPE(obj) == FUNCTION){
+    else if (TYPE(obj) == FUNCTION) {
 	printf("(LAMBDA ");
 	print_obj(GET_FUNCTION(obj)->args);
 	printf(" ");
