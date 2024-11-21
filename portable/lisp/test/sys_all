@@ -503,12 +503,9 @@ sh sys_test "(seta 2 1 1)" "seta: not array" #103
 
 echo  "---Тесты INTTOSTR---"
 # отсутствие аргументов
-sh sys_test "(inttostr)" "inttostr: no args
-"
-sh sys_test "(inttostr 1 2)" "inttostr: many args
-"
-sh sys_test "(inttostr 'a)" "inttostr: invalid arg
-"
+sh sys_test "(inttostr)" "inttostr: no args"
+sh sys_test "(inttostr 1 2)" "inttostr: many args"
+sh sys_test "(inttostr 'a)" "inttostr: invalid arg"
 # аргумент - число
 sh sys_test "(inttostr 234)" "\"234\""
 sh sys_test "(inttostr -234)" "\"-234\""
@@ -517,12 +514,9 @@ sh sys_test "(inttostr 0)" "\"0\""
 echo  "---Тесты CODE-CHAR---"
 sh sys_test "(code-char 0x20)" "\" \""
 sh sys_test "(code-char 0x39)" "\"9\""
-sh sys_test "(code-char)" "code-char: no arguments
-"
-sh sys_test "(code-char 1 2)" "code-char: many arguments
-"
-sh sys_test "(code-char 'a)" "code-char: not number in params
-"
+sh sys_test "(code-char)" "code-char: no arguments"
+sh sys_test "(code-char 1 2)" "code-char: many arguments"
+sh sys_test "(code-char 'a)" "code-char: not number in params"
 
 echo  "---Тесты AREF---"
 # два аргумента
