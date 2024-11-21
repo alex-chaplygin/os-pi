@@ -644,12 +644,8 @@ void test_is_lambda_invalid_symbol()
     object_t params = new_pair(p1, new_pair(p2, NULLOBJ)); 
     object_t q = new_pair(NEW_SYMBOL("ATOM"), new_pair(NEW_SYMBOL("CAR"), new_pair(params, NULLOBJ))); 
     object_t list = new_pair(new_number(num), new_pair(params, new_pair(q, NULLOBJ))); 
-
-    if (setjmp(jmp_env) == 0) {
-        int i = is_lambda(list); 
-        FAIL;
-    } else
-        OK;
+    int i = is_lambda(list);
+    ASSERT(i, 0);
 }
 
 /**
@@ -660,11 +656,8 @@ void test_is_lambda_no_params()
     printf("test_is_lambda_no_params \n"); 
     
     object_t list = new_pair(NEW_SYMBOL("LAMBDA"), NULLOBJ); 
-    if (setjmp(jmp_env) == 0) {
-        int i = is_lambda(list); 
-        FAIL;
-    } else
-        OK;
+    int i = is_lambda(list);
+    ASSERT(i, 0);
 }
 
 /**
@@ -676,11 +669,8 @@ void test_is_lambda_invalid_params()
     object_t p1 = NEW_SYMBOL("a"); 
     object_t q = new_pair(NEW_SYMBOL("ATOM"), new_pair(NEW_SYMBOL("CAR"), new_pair(p1, NULLOBJ))); 
     object_t list = new_pair(NEW_SYMBOL("LAMBDA"), new_pair(p1, new_pair(q, NULLOBJ))); 
-    if (setjmp(jmp_env) == 0) {
-        int i = is_lambda(list); 
-        FAIL;
-    } else
-        OK;
+    int i = is_lambda(list);
+    ASSERT(i, 0);
 }
 
 /**
@@ -695,11 +685,8 @@ void test_is_lambda_not_symbol()
     object_t params = new_pair(p1, new_pair(p2, NULLOBJ)); 
     object_t q = new_pair(NEW_SYMBOL("ATOM"), new_pair(NEW_SYMBOL("CAR"), new_pair(params, NULLOBJ))); 
     object_t list = new_pair(NEW_SYMBOL("LAMBDA"), new_pair(params, new_pair(q, NULLOBJ))); 
-    if (setjmp(jmp_env) == 0) {
-        int i = is_lambda(list); 
-        FAIL;
-    } else
-        OK;
+    int i = is_lambda(list);
+    ASSERT(i, 0);
 }
 
 /**
@@ -712,11 +699,8 @@ void test_is_lambda_no_body()
     object_t p2 = NEW_SYMBOL("b"); 
     object_t params = new_pair(p1, new_pair(p2, NULLOBJ)); 
     object_t list = new_pair(NEW_SYMBOL("LAMBDA"), new_pair(params, NULLOBJ)); 
-    if (setjmp(jmp_env) == 0) {
-        int i = is_lambda(list); 
-        FAIL;
-    } else
-        OK;
+    int i = is_lambda(list);
+    ASSERT(i, 0);
 }
 
 /**
