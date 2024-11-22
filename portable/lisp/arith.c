@@ -325,7 +325,8 @@ int compare_obj(object_t obj1, object_t obj2)
 	    if (!compare_obj(arr1->data[i], arr2->data[i]))
 		return 0;	    
 	return 1;
-    }
+    } else
+	error("equal: unknown object types");
 }
 
 /** 
