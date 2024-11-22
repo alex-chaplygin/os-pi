@@ -27,7 +27,7 @@
 
 (defun set-tiles (tiles)
   "Задать список тайлов"
-  "set-tiles '((WALL . \"#\") (PLAT . \"-\"))"
+  "set-tiles '((WALL . \##') (PLAT . \#-))"
   (setq *tile-hash* (make-hash))
   (app '(lambda (tile) (set-hash *tile-hash* (car tile) (cdr tile))) tiles))
 
@@ -59,9 +59,10 @@
 ;--------------------------------------сверху API-----------------------------
 (defun draw-tile (tile x y)
   "Отрисовать переданный тайл с заданными координатами"
-  (for yy y (+ *tile-h* y)
-       (set-cursor x yy)
-       (for xx x (+ *tile-w* x) (putchar (get-hash *tile-hash* tile)))))
+  (let ((c (get-hash *tile-hash* tile)))
+    (for yy y (+ *tile-h* y)
+	 (set-cursor x yy)
+	 (for xx x (+ *tile-w* x) (putchar c)))))
 
 (defun draw-sprites ()
   "Отрисовать спрайты из списка спрайтов"
