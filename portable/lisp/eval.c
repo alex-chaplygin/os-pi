@@ -171,8 +171,12 @@ object_t backquote_rec(object_t list)
     object_t env = current_env;
     object_t func = func_env;
     object_t o; 
-    if (TYPE(list) == NUMBER || TYPE(list) == FLOAT || TYPE(list) == BIGNUMBER) 
-	return new_number(get_value(list)); 
+    if (TYPE(list) == BIGNUMBER) 
+	return new_bignumber(GET_BIGNUMBER(list)->value);
+    else if (TYPE(list) == FLOAT)
+	return new_float(GET_FLOAT(list)->value);
+    else if (TYPE(list) == CHAR || TYPE(list) == NUMBER)
+	return list;
     else if (TYPE(list) == SYMBOL) 
 	return NEW_SYMBOL(GET_SYMBOL(list)->str); 
     else if (TYPE(list) == ARRAY) { 
