@@ -1,21 +1,31 @@
-(defmacro test (expr-list expected-res)
-  `(let ((program (compile ,expr-list)))
-     (print '-----------------)
-     (print '---expr-list---)
-     (print ,expr-list)
-     (print '---compilation---)
-     (print program)
-     (print '---result---)
-     (assert (vm-run program) ,expected-res)))
+;; *test-failed* - флаг - провалился ли хотя бы один тест.
+(defvar *test-compile-failed* nil)
 
-;; (test '(1 2 3) 3)
-;; (test '(a (progn 1 2) (progn (progn))) 2)
-;; (test `(1 2 3 ,nil (a) (b) (c)) nil)
-;; (test '(a b (progn 1 2) (progn (progn 1))) 1)
-;; (test '(a a a a a a a a a) 'a)
-;; (compile '(a (progn 1) 2 3))
 
-;(test '(progn 1 2 3) 3)
-(test '(progn (progn 2 (progn 11) 4) (progn 3)) 3)
-;(test '(progn) nil)
-;(test '(progn (progn (progn) (progn 1)) 2) 2)
+;; Тест компиляции, ассемблирования и выполнения программы.
+(defun test-compile (expr expected-res)
+  (unless *test-compile-failed*
+    (let* ((program (compile expr))
+	   (target (if *comp-err*
+		       *comp-err-msg*
+		     program))
+	   (res (assert target expected-res)))
+      (print expr)
+      (print target)
+      (print res)
+      (if (eq (car res) 'fail)
+	  (setq *test-compile-failed* t)
+	(print '---------------------)))))
+
+;; Проверка, все ли тесты успешны
+(defun check-compiler-tests ()
+  (when (null *test-compile-failed*)
+    (print "\n\nAll compiler tests OK\n\n")))
+
+
+(test-compile 1 '((lda 1)))
+(test-compile '(progn 1 2 3) '((lda 1) (lda 2) (lda 3)))
+(test-compile '(progn) '())
+
+
+(check-compiler-tests)
