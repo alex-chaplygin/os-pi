@@ -1,11 +1,11 @@
 (defvar *level* #(#(WALL PLAT WALL PLAT)
 		  #(nil WALL nil)))
 
-(defvar *tile-symbols* '((WALL . "#")
-			 (PLAT . "-")
-			 (NIL . " ")
-			 (PLAYER . "@")
-			 (PLAYER2 . "&")))
+(defvar *tile-symbols* '((WALL . #\#)
+			 (PLAT . #\-)
+			 (NIL . #\ )
+			 (PLAYER . #\@)
+			 (PLAYER2 . #\&)))
 ;res 80x25
 (hide-cursor)
 (set-screen *level*)
