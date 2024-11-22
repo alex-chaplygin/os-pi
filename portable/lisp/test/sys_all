@@ -425,6 +425,7 @@ sh sys_test "(equal 1)" "equal: no second argument"
 # ошибка - более двух аргументов
 sh sys_test "(equal 1 2 3)" "equal: too many arguments"
 sh sys_test "(putchar #\\F)" "FNIL"
+sh sys_test "(putchar #\\ )" " NIL"
 sh sys_test "(putchar \"1 2 3\")" "PUTCHAR: not a char"
 
 echo "---Тесты INTERN---"
