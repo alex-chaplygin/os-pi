@@ -52,7 +52,7 @@
       (set-back-color c)
       (for i y (+ y hh)
 	 (set-cursor x i)
-	 (fill-row ww " "))))
+	 (fill-row ww #\ ))))
 
 (defun print-rect (x y w h)
   "Отрисовывет рамку окна"
@@ -72,3 +72,12 @@
     (putchar +bl-char+)
     (fill-row ww +h-char+)
     (putchar +br-char+)))
+
+(defun show-text (text)
+  "Вывод текста в текущей позиции"
+  (let* ((ctm (get-hash *cur-state* 'ctm))
+	 (p (mat-mul-vec ctm *cur-point*))
+	 (c (get-hash *cur-state* 'color)))
+    (set-cursor (car p) (cdr p))
+    (set-color c)
+    (putstring text)))
