@@ -6,6 +6,7 @@ GRAPHICS=$(BASELISP) boot/bgr.lsp boot/graphics/matrix.lsp boot/graphics/backend
 TEST=boot/test.lsp
 GRAPHICS_TEST=$(GRAPHICS) $(TEST) boot/graphics/test/backend.lsp
 ASCII_GRAPH=$(GRAPHICS) boot/graphics/ascii-graph.lsp
+ASCII_GUI=$(GRAPHICS) boot/gui/ascii-backend.lsp
 FS=$(BASELISP) boot/fs/block.lsp boot/fs/fs.lsp boot/fs/fat32fs.lsp boot/fs/fat.lsp boot/fs/dir.lsp boot/mbr.lsp boot/fs/fat32test.lsp
 KEYBOARD=$(BASELISP) boot/sys/keyboard.lsp boot/sys/events.lsp
 
@@ -23,6 +24,10 @@ lisp: /tmp/baselisp.lsp # здесь меняем набор библиотек
 	echo -e -n "\xff" >>$@
 
 /tmp/ascii-graph.lsp: $(ASCII_GRAPH) boot/graphics/test/ascii-graph.lsp
+	cat $^ >$@ ;
+	echo -e -n "\xff" >>$@
+
+/tmp/ascii-gui.lsp: $(ASCII_GUI) boot/gui/test/ascii-backend.lsp
 	cat $^ >$@ ;
 	echo -e -n "\xff" >>$@
 
