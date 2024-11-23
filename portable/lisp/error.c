@@ -28,6 +28,9 @@ void error(char *str, ...)
 #ifdef DEBUG
 	print_debug_stack();
         debug_stack = NULLOBJ;
+	extern object_t current_env;
+	printf("env: ");
+	PRINT(current_env);
 #endif
     }
     longjmp(repl_buf, 1);
