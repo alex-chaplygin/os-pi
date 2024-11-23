@@ -20,7 +20,7 @@ int main()
 {
     test_print_float(0.5f);
     test_print_float(16.0f);    
-    test_print_float(0.0f);    
-    //test_print_float(-16.123456f);    
+    //test_print_float(0.0f);    
+    test_print_float(-16.123456f);    
     return 0;
 }
