@@ -35,5 +35,11 @@
       (read)
       (print (read-num)))))
 
+(defun lex-test ()
+  "Тест, где параметр list у функции map закрывает свободную переменную list в let"
+  "В динамическом Лиспе - результат (0 0 0), в лексическом - правильный"
+  (let ((list '(a b c)))
+    (print (assert (map '(lambda (x) (nth list x)) '(2 1 0)) '(c b a)))))
+
 (fors-test)
 (tagbody-rec-test)
