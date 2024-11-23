@@ -955,7 +955,7 @@ object_t labels(object_t param)
 
 /** 
  * Создаёт объект типа функция. 
- * Один параметр - или lambda функция или символ - имя функции или локальная или глобальная
+ * Один параметр - или lambda функция или символ - имя функции: локальная, глобальная или встроенная
  * @param param список парметров - один параметр - функция
  *
  * @return объект функция. 
@@ -972,13 +972,17 @@ object_t function(object_t param)
     else if (TYPE(func) == SYMBOL) {
 	symbol_t *s = find_symbol(GET_SYMBOL(func)->str);
 	object_t res;
-	if (find_in_env(func_env, func, &res))
+	if (find_in_env(func_env, func, &res)) // поиск локальной функции
 	    func = res;
-	else if (s->lambda != NULLOBJ)
+	else if (s->lambda != NULLOBJ) // если символ - пользовательская функция
 	    func = s->lambda;
+	else if (s->func != NULL) // если символ - примитив
+	    return new_prim_function(s->func);
+	else
+	    error("function: unknown symbol");
     } else
 	error("function: invalid param");
-    pair_t*  pair_right = GET_PAIR(GET_PAIR(func)->right);
+    pair_t* pair_right = GET_PAIR(GET_PAIR(func)->right);
     return new_function(pair_right->left, pair_right->right);   
 }
 
