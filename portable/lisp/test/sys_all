@@ -111,10 +111,10 @@ echo "---Тесты lambda ---"
 sh sys_test "((lambda (x y) (cons x y)) 1 '(2))" "(1 2)" # 14 125
 sh sys_test "((lambda (x y) (cons x y) (cons y x)) 1 '(2))" "((2) . 1)" #15
 
-sh sys_test "((lambda ) 1 2)" "No params in lambda" #70
+sh sys_test "((lambda ) 1 2)" "Invalid lambda function" #70
 sh sys_test "((lambda (x y) (cons x y)) )" "Not enough values for params" #71 72
 sh sys_test "((lambda (x y) (cons x y)) 1)" "Not enough values for params" #72
-sh sys_test "((lambda (x y)) 1 '(2))" "No body in lambda" #73
+sh sys_test "((lambda (x y)) 1 '(2))" "Invalid lambda function" #73
 sh sys_test "((lambda () nil))" "NIL"
 
 
