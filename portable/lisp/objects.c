@@ -173,7 +173,7 @@ void free_bignumber(bignumber_t *o)
  * @param args список аргументов функции
  * @param body тело функции
  * 
- * @return указатель на объект продолжения
+ * @return указатель на объект функции
 /*  */
 object_t new_function(object_t args, object_t body)
 {
@@ -190,6 +190,33 @@ object_t new_function(object_t args, object_t body)
     func->free = 0;
     func->args = args;
     func->body = body;
+    func->func = NULL;
+    total_functions++;
+    return NEW_OBJECT(FUNCTION, func);
+}
+
+/**
+ * Создание нового объекта встроенной функции
+ *
+ * @param func имя примитива
+ * @return указатель на объект функции
+ */
+object_t new_prim_function(func_t f)
+{
+    function_t *func;
+    if (last_function == MAX_FUNCTIONS)
+    {
+	if (free_functions == NULL)
+	    error("Error: out of memory: funcs");
+	func = free_functions;
+	free_functions = free_functions->next;
+    } else
+    func = &functions[last_function++];
+    func->next = NULL;
+    func->free = 0;
+    func->args = NULL;
+    func->body = NULL;
+    func->func = f;
     total_functions++;
     return NEW_OBJECT(FUNCTION, func);
 }
@@ -457,6 +484,8 @@ array_t *new_array(object_t list)
 array_t *new_empty_array(int length)
 {
     array_t *array;
+    if (length < 0)
+	error("make-array: negative length");
     if (last_array == MAX_ARRAYS) {
 	if (free_arrays == NULL)
 	    error("Error: out of memory: arrays");
