@@ -91,7 +91,9 @@ bignum_t new_bignum_from_str(const char *str)
 bignum_t bignum_from_int(int num)
 {
     bignum_t bignum = new_bignum();
+    bignum->exponent = 0;
     int size = 0;
+    bignum->sign = 1;
     if (num < 0) {
          bignum->sign = -1;
          num = -num;
@@ -117,7 +119,7 @@ void print_bignum(bignum_t bignum)
     if (bignum->sign == -1) 
         putchar('-');
     int i = bignum->size - 1;
-    while (bignum->data[i] == 0 && i >= 0)
+    while (bignum->data[i] == 0 && i >= 0 && bignum->exponent == 0)
         i--;
     if (i == -1)
         printf("0");
@@ -173,7 +175,7 @@ void bignum_sum(bignum_t n1, bignum_t n2)
         carry = sum / 10;
     }
     if (carry)
-    n1->data[n1->size++] = 1;
+	n1->data[n1->size++] = 1;
 }
 
 /**
@@ -184,9 +186,13 @@ void bignum_sum(bignum_t n1, bignum_t n2)
  */
 void bignum_mult(bignum_t n1, bignum_t n2)
 {
-    bignum_t n3 = new_bignum(); //промежуточная сумма
-    bignum_t n4 = new_bignum(); //частичное произведение
+    bignum_t n3 = bignum_from_int(0); //промежуточная сумма
+    bignum_t n4 = bignum_from_int(0); //частичное произведение
+
     int carry = 0;
+
+    for(int i = 0; i < n1->size + n2->size; i++)
+	n3->data[i] = 0;
     
     for(int i = 0; i < n2->size; i++) {	
 	for(int k = 0; k < n4->size; k++)
@@ -196,12 +202,13 @@ void bignum_mult(bignum_t n1, bignum_t n2)
 	    n4->data[j + i] = mult % 10;
 	    carry = mult / 10;
 	}
+
 	n4->size = n1->size + i;
 	if (carry) {
 	    n4->data[n4->size++] = carry;
 	    carry = 0;
 	}
-	bignum_sum(n3, n4);
+	bignum_sum(n3, n4);	
     }
     if ((n1->size == 1 && n1->data[0] == 0) ||
 	(n2->size == 1 && n2->data[0] == 0)) // проверка на то, является ли n1 или n2 нулём
@@ -210,9 +217,11 @@ void bignum_mult(bignum_t n1, bignum_t n2)
 	n1->size = n3->size;
     for(int i = 0; i < n3->size; i++)
 	n1->data[i] = n3->data[i];
+    n1->exponent += n2->exponent; //присваивание экспоненте результата суммы экспонент
     free_bignum(n3);
     free_bignum(n4);
 }
+
 
 /**
  * @brief перезаписывает 1-е большое число, вычитая из него 2-е

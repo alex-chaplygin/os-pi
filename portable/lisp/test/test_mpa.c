@@ -84,6 +84,32 @@ void test_bignum_sum(const char* num1, const char* num2, const char* expected_re
 }
 
 /** 
+ * @brief Проверяем умножение больших чисел
+ *
+ * @param num1 - 1-е большое число
+ * @param num2 - 2-е большое число
+ * @param expected_result - ожидаемый результат
+ */
+void test_bignum_mult(const char* num1, const char* num2, const char* expected_result)
+{
+    printf("test_bignum_mult: %s %s\n", num1, num2);
+    bignum_t bignum1 = new_bignum_from_str(num1);
+    bignum_t bignum2 = new_bignum_from_str(num2);
+    bignum_t result_bignum = new_bignum_from_str(expected_result);
+
+    bignum_mult(bignum1, bignum2);
+    printf("\n");
+    print_bignum(bignum1);
+    printf("\n");
+    
+    ASSERT(bignum1->size, result_bignum->size);
+    ASSERT(memcmp(bignum1->data, result_bignum->data, bignum1->size * sizeof(bignum1->data[0])), 0);
+    free_bignum(bignum1);
+    free_bignum(bignum2);
+    free_bignum(result_bignum);
+}
+
+/** 
  * @brief Проверяем вычитание больших чисел
  *
  * @param num1 - 1-е большое число
@@ -98,32 +124,6 @@ void test_bignum_sub(const char* num1, const char* num2, const char* expected_re
     bignum_t result_bignum = new_bignum_from_str(expected_result);
 
     bignum_sub(bignum1, bignum2);
-    ASSERT(bignum1->size, result_bignum->size);
-    ASSERT(memcmp(bignum1->data, result_bignum->data, bignum1->size * sizeof(bignum1->data[0])), 0);
-    free_bignum(bignum1);
-    free_bignum(bignum2);
-    free_bignum(result_bignum);
-}
-
-/** 
- * 
- *
- * @param num1 
- * @param num2 
- * @param expected_result 
- */
-void test_bignum_mult(const char* num1, const char* num2, const char* expected_result)
-{
-    printf("test_bignum_mult: %s %s\n", num1, num2);
-    bignum_t bignum1 = new_bignum_from_str(num1);
-    bignum_t bignum2 = new_bignum_from_str(num2);
-    bignum_t result_bignum = new_bignum_from_str(expected_result);
-
-    bignum_mult(bignum1, bignum2);
-    printf("\n");
-    print_bignum(bignum1);
-    printf("\n");
-    
     ASSERT(bignum1->size, result_bignum->size);
     ASSERT(memcmp(bignum1->data, result_bignum->data, bignum1->size * sizeof(bignum1->data[0])), 0);
     free_bignum(bignum1);
@@ -250,6 +250,15 @@ int main()
     test_bignum_sub("1", "0", "1");
     test_bignum_sub("1", "1", "0");
     test_bignum_sub("1", "-1", "2");
+
+    test_bignum_mult("1.25", "5.3", "6.625");
+    test_bignum_mult("1.25", "-5.3", "-6.625");
+    test_bignum_mult("5.3", "1.25", "6.625");
+    test_bignum_mult("1.897", "153.4", "290.9998");
+    test_bignum_mult("567.28313", "8742.15", "4959274.2149295");
+    test_bignum_mult("1", "0.5", "0.5");
+    test_bignum_mult("0.5", "0.5", "0.25");
+    test_bignum_mult("0.5", "0.000000476837158203125", "0.0000002384185791015625");
     
     test_bignum_mult("732", "841", "615612");
     test_bignum_mult("25", "2", "50");
