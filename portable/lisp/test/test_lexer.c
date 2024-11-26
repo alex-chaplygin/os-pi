@@ -392,6 +392,9 @@ int main()
     test_get_num("0x1A23", 0x1A23); // 13
     test_get_num("0xFFFFFFFF", 0xFFFFFFFF); // граничный тест максимальное число
     test_get_num("0x00000000", 0x00000000); // граничный тест минимальное число
+    test_get_num("000123", 123); // число с нулями
+    test_get_num("-00025", 25); // отрицательное число с нулями
+
     // Ошибки в числах    
     test_invalid_token("invalid num", "-2147483649"); // граничный тест минимальное число - 1
     test_invalid_token("invalid num", "2147483648"); // граничный тест максимальное число + 1
@@ -400,6 +403,7 @@ int main()
     test_invalid_token("invalid num", "0GG"); // 19
     test_invalid_token("invalid hex", "0xfrf"); // 19
     test_invalid_token("invalid hex", "0xrf"); // 19
+    test_invalid_token("hexadecimal_float", "0x1.23p2"); // некорректное hex число
 
     // Вещественные числа (T_FLOAT)
     test_get_float_num("1.0", 1.0f);
@@ -449,7 +453,10 @@ int main()
     test_string_max(); // граничный тест на максимальную строку
     test_string_overflow(); // граничный тест на превышение допустимого размера строки   
     test_invalid_token("invalid string", "\"1 2 3"); // 17
-
+    test_invalid_string("\"abc\\\""); // незакрытая escape-последовательность.
+    test_invalid_string("\"\\xG1\""); // неправильный символ после \\x.
+    test_invalid_string("\"invalid escape \\q\""); // неправильная escape-последовательность(\q)
+    
     // Корректные классы T_CHAR
     test_get_char("#\\a", 'a', T_CHAR);
     test_get_char("#\\Z", 'Z', T_CHAR);
@@ -475,6 +482,8 @@ int main()
     // Тесты для символов с комбинированным содержимым
     test_get_symbol("setq_rec", "setq_rec");
     test_get_symbol("setq_rec setq_rec ", "setq_rec");
+    test_get_symbol("symbol123", "symbol123"); // буквы и цифры должны распознаться как валидный символ типа T_SYMBOL
+    test_get_symbol(" symbol1.23", "symbol1.23"); 
 
     // Граничный тест на максимальный символ
     test_symbol_max();
