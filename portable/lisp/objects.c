@@ -561,6 +561,8 @@ void mark_object(object_t obj)
     } else if (TYPE(obj) == FUNCTION) {
         if (((GET_FUNCTION(obj)->free) & mask) != 0)
 	    return;
+	mark_object(GET_FUNCTION(obj)->env);
+	mark_object(GET_FUNCTION(obj)->func_env);
 	GET_FUNCTION(obj)->free |= mask;
     } else if (TYPE(obj) == STRING) {
         if (((GET_STRING(obj)->length) & mask) != 0)
