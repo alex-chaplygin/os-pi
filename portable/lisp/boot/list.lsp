@@ -78,24 +78,24 @@
 	    (tail (filter pred (cdr list))))
 	(if (funcall pred h) (cons h tail) tail))))
 
-(defun sort (list pr)
+(defun sort (pr list)
   "Быстрая сортировка списка list по предикату pr (2 параметра)"
   (cond ((null list) nil)
 	((null (cdr list)) list)
 	(t (let ((head (car list))
 		 (tail (cdr list)))
-	     (append (sort (filter #'(lambda (x) (funcall pr x head)) tail) pr)
-		     (cons head (sort (filter #'(lambda (x) (not (funcall pr x head))) tail) pr)))))))
+	     (append (sort pr (filter #'(lambda (x) (funcall pr x head)) tail))
+		     (cons head (sort pr (filter #'(lambda (x) (not (funcall pr x head))) tail))))))))
 
-(defun minp* (list pred min)
+(defun minp* (pred min list)
   (if (null list) min
     (let ((first (car list)))
-      (minp* (cdr list) pred
-	     (if (funcall pred min first) min first)))))
+      (minp* pred
+	     (if (funcall pred min first) min first) (cdr list)))))
 
-(defun minp (list pred)
+(defun minp (pred list)
   "Возвращает минимальный элемент списка по предикату. Предикат pred принимает два элемента списка и возвращает T, если первый элемент меньше второго"
-  (minp* (cdr list) pred (car list)))
+  (minp* pred (car list) (cdr list)))
 
 (defun contains (list elem)
   "Предикат - элемент elem содержится в списке list"
