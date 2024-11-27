@@ -172,10 +172,12 @@ void free_bignumber(bignumber_t *o)
  *
  * @param args список аргументов функции
  * @param body тело функции
+ * @param env окружение для переменных
+ * @param func_env окружение для функций
  * 
  * @return указатель на объект функции
 /*  */
-object_t new_function(object_t args, object_t body)
+object_t new_function(object_t args, object_t body, object_t env, object_t func_env)
 {
     function_t *func;
     if (last_function == MAX_FUNCTIONS)
@@ -190,6 +192,8 @@ object_t new_function(object_t args, object_t body)
     func->free = 0;
     func->args = args;
     func->body = body;
+    func->env = env;
+    func->func_env = func_env;
     func->func = NULL;
     total_functions++;
     return NEW_OBJECT(FUNCTION, func);
@@ -214,8 +218,8 @@ object_t new_prim_function(func_t f)
     func = &functions[last_function++];
     func->next = NULL;
     func->free = 0;
-    func->args = NULL;
-    func->body = NULL;
+    func->args = NULLOBJ;
+    func->body = NULLOBJ;
     func->func = f;
     total_functions++;
     return NEW_OBJECT(FUNCTION, func);

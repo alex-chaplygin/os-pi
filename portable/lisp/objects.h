@@ -128,12 +128,14 @@ typedef struct function_s
     object_t args; // аргументы функции
     object_t body; // тело функции
     func_t func; // указатель на функцию примитив, если = NULL, то функция пользовательская, иначе встроенная
+    object_t env; // окружение для переменных
+    object_t func_env; // окружение для функций
     struct function_s *next;// указатель на следующую свободную функцию
     int free; // Если 1 - функция свободна
 #ifdef X32
-    int pad[3]; // выравнивание 20 + 12
+    int pad; // выравнивание 28 + 4
 #else
-    int pad[6]; // выравнивание 40 + 24
+    int pad[2]; // выравнивание 56 + 8
 #endif
 } function_t;
 
@@ -219,7 +221,7 @@ void init_objects();
 object_t new_bignumber(int num);
 object_t new_number(int num);
 object_t new_float(float nuw);
-object_t new_function(object_t args, object_t body);
+object_t new_function(object_t args, object_t body, object_t env, object_t func_env);
 object_t new_prim_function(func_t func);
 int get_value(object_t obj);
 object_t new_pair(object_t left, object_t right);

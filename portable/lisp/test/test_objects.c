@@ -88,7 +88,7 @@ void test_new_function()
     object_t plussym = NEW_OBJECT(SYMBOL, new_symbol("+"));
     args = new_pair(xsym, new_pair(ysym, NULLOBJ));
     body = new_pair(plussym, new_pair(xsym, new_pair(ysym, NULLOBJ)));
-    object_t nf = new_function(args, body);
+    object_t nf = new_function(args, body, NULLOBJ, NULLOBJ);
     ASSERT(TYPE(nf), FUNCTION);
     PRINT(nf);
 }
@@ -206,7 +206,7 @@ void test_free_function()
     object_t plussym = NEW_OBJECT(SYMBOL, new_symbol("+"));
     object_t args = new_pair(xsym, new_pair(ysym, NULLOBJ));
     object_t body = new_pair(plussym, new_pair(xsym, new_pair(ysym, NULLOBJ)));
-    object_t o = new_function(args, body);
+    object_t o = new_function(args, body, NULLOBJ, NULLOBJ);
     ASSERT(TYPE(o), FUNCTION);
     free_function((function_t *)GET_ADDR(o));
     ASSERT(free_functions, (function_t *)GET_ADDR(o));
@@ -677,7 +677,7 @@ void test_garbage_collect_functions()
     object_t plussym = NEW_OBJECT(SYMBOL, new_symbol("+"));
     args1 = new_pair(xsym, new_pair(ysym, NULLOBJ));
     body1 = new_pair(plussym, new_pair(xsym, new_pair(ysym, NULLOBJ)));
-    object_t funsum = new_function(args1, body1);
+    object_t funsum = new_function(args1, body1, NULLOBJ, NULLOBJ);
 
     object_t args2;
     object_t body2;
@@ -686,7 +686,7 @@ void test_garbage_collect_functions()
     object_t mulsym = NEW_OBJECT(SYMBOL, new_symbol("*"));
     args2 = new_pair(asym, new_pair(bsym, NULLOBJ));
     body2 = new_pair(mulsym, new_pair(asym, new_pair(bsym, NULLOBJ)));
-    object_t funmultiply = new_function(args2, body2);
+    object_t funmultiply = new_function(args2, body2, NULLOBJ, NULLOBJ);
 
     symbol_t *s = new_symbol("F");
     s->value = funsum;
