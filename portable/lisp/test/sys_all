@@ -11,6 +11,9 @@ sh sys_test "2147483648" "number overflow"
 sh sys_test "-2147483648" "-2147483648"
 #самого маленького int-1
 sh sys_test "-2147483649" "number overflow"
+#функция
+sh sys_test "#'(lambda (x) (+ x 1))" "(LAMBDA (X) ((+ X 1)))"
+
 
 echo "---Тесты PARSER ---"
 #PARSER 2 Неправильный символ
@@ -539,14 +542,14 @@ sh sys_test "(aref 2 1)" "aref: not an array" #108
 
 echo "---Тесты FUNCALL---"
 # аргумент - ламбда-функция
-sh sys_test "(funcall '(lambda (x) (+ x 1)) 2)" "3" # 14 125
+sh sys_test "(funcall #'(lambda (x) (+ x 1)) 2)" "3" # 14 125
 # аргумент - встроенная функция "+"
-sh sys_test "(funcall '+ 1 2 3 4 5)" "15"
+sh sys_test "(funcall #'+ 1 2 3 4 5)" "15"
 # аргумент - встроенная функция "car"
-sh sys_test "(funcall 'car '(a b c))" "A" # 10
+sh sys_test "(funcall #'car '(a b c))" "A" # 10
 # аргумент - пользовательская функция
 sh sys_test "(defun tfun (x y) (* (+ x 1) y))
-(funcall 'tfun 2 3)" "TFUN
+(funcall #'tfun 2 3)" "TFUN
 9" # 18
 # аргумент отсутствует
 sh sys_test "(funcall)" "funcall: no arguments"
@@ -558,23 +561,23 @@ sh sys_test "(funcall 1)" "funcall: invalid func"
 sh sys_test "(funcall nil)" "funcall: invalid func"
 # ошибка - аргументов больше параметров
 sh sys_test "(defun tfun (x y) (+ x y))
-(funcall 'tfun 2 3 4)" "TFUN
+(funcall #'tfun 2 3 4)" "TFUN
 Invalid number of arguments"
 # ошибка - параметров больше аргументов
 sh sys_test "(defun tfun (x y) (+ x y))
-(funcall 'tfun 2)" "TFUN
+(funcall #'tfun 2)" "TFUN
 Not enough values for params"
 # объединение остаточных параметров в список, используя &rest
 sh sys_test "(defun test (a &rest b) b)
-(funcall 'test 1 2 3 4)" "TEST
+(funcall #'test 1 2 3 4)" "TEST
 (2 3 4)" # 18
 # ошибка - отсутсвует параметр после &rest
 sh sys_test "(defun test (a &rest) b)
-(funcall 'test 1 2 3 4)" "TEST
+(funcall #'test 1 2 3 4)" "TEST
 Missing parameter after &rest" # 18
 # ошибка - лишний параметр после &rest b
 sh sys_test "(defun test (a &rest b c) b)
-(funcall 'test 1 2 3 4)" "TEST
+(funcall #'test 1 2 3 4)" "TEST
 Too many parameters after &rest" # 18
 
 echo "---Тесты MACROEXPAND---"

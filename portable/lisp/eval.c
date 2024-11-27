@@ -779,25 +779,15 @@ object_t funcall(object_t params)
 { 
     if (params == NULLOBJ)
 	error("funcall: no arguments"); 
-    object_t env = current_env;
-    object_t func_en = func_env;    
     object_t func = FIRST(params); 
-    if (func == NULLOBJ || TYPE(func) != SYMBOL && 
-	!(TYPE(func) == PAIR && is_lambda(func) == 1))
+    if (func == NULLOBJ || TYPE(func) != FUNCTION)
 	error("funcall: invalid func"); 
-    object_t args = TAIL(params); 
-    if (TYPE(func) == PAIR) 
-	return eval_func(func, args, env, func_en); 
-    symbol_t *s = find_symbol(GET_SYMBOL(func)->str);
-    object_t res;
-    if (find_in_env(func_en, func, &res))
-	return eval_func(res, args, env, func_en);
-    else if (s->lambda != NULLOBJ) 
-	return eval_func(s->lambda, args, env, func_en); 
-    else if (s->func != NULL) 
- 	return s->func(args);
+    object_t args = TAIL(params);
+    function_t *f = GET_FUNCTION(func);
+    if (f->func != NULL) 
+ 	return f->func(args);
     else 
- 	error("Unknown func: %s", s->str); 
+	return eval_func(new_pair(NEW_SYMBOL("LAMBDA"), new_pair(f->args, f->body)), args, f->env, f->func_env); 
 } 
 
 /* 
@@ -952,7 +942,7 @@ object_t labels(object_t param)
 }
 
 /** 
- * Создаёт объект типа функция. 
+ * Создаёт объект типа функция - лексическое замыкание. 
  * Один параметр - или lambda функция или символ - имя функции: локальная, глобальная или встроенная
  * @param param список парметров - один параметр - функция
  *
@@ -977,11 +967,11 @@ object_t function(object_t param)
 	else if (s->func != NULL) // если символ - примитив
 	    return new_prim_function(s->func);
 	else
-	    error("function: unknown symbol");
+	    error("function: unknown symbol %s", s->str);
     } else
 	error("function: invalid param");
     pair_t* pair_right = GET_PAIR(GET_PAIR(func)->right);
-    return new_function(pair_right->left, pair_right->right);   
+    return new_function(pair_right->left, pair_right->right, current_env, func_env);   
 }
 
 /*  
