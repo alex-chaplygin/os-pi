@@ -25,5 +25,6 @@ void bignum_sub(bignum_t n1, bignum_t n2);
 void bignum_mult(bignum_t n1, bignum_t n2);
 int bignum_compare(bignum_t n1, bignum_t n2);
 void bignum_div(bignum_t n1, bignum_t n2);
+void round_bignum(bignum_t num, int n);
 
 #endif 

@@ -191,6 +191,16 @@ void test_bignum_from_int(int num, int size)
     free_bignum(res);
 }
 
+void test_round_bignum(const char* num, int n)
+{
+    printf("test_round_bignum: %s, result: ", num);
+    bignum_t bignum = new_bignum_from_str(num);
+    round_bignum(bignum, n);
+    print_bignum(bignum);
+    printf("\n");
+}
+
+
 int main()
 {
     test_new_bignum_from_str("123", 0);
@@ -276,5 +286,7 @@ int main()
     //test_bignum_div("154894561", "0", "", -1);
     //test_bignum_div("100000000000000000000000", "2", "50000000000000000000000", 0);
 
+    test_round_bignum("120.123155",4);
+    test_round_bignum("120.5", 4);
     return 0;
 }

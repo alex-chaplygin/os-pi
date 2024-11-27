@@ -360,3 +360,32 @@ void bignum_div(bignum_t n1, bignum_t n2)
     free_bignum(one);
     free_bignum(div);
 }
+
+/**
+ * @brief приводит большое число к форме с n знаками после запятой.
+ * В случае если знаков не достаточно ( меньше 6 ) после запятой доставляются нужное количество нулей,
+ * в обратном случае число округляется по правилам алгебры.
+ *
+ * @param num - большое число
+ * @param n - требуемое количество знаков после запятой
+ */
+
+void round_bignum(bignum_t num, int n)
+{
+    if (num->exponent > n) {
+	int delta_exp = num->exponent - n;
+	num->data[delta_exp] += num->data[delta_exp - 1] >= 5 ? 1 : 0;
+	for (int i = delta_exp; i < num->size; i++)
+	    num->data[i - delta_exp] = num->data[i];
+	num->size -= delta_exp;
+	num->exponent = n;
+    } else if (num->exponent < n) {
+	int delta_exp = n - num->exponent;
+	for (int i = num->size-1; i >= 0; --i)
+	    num->data[i+delta_exp] = num->data[i];
+	for (int i = 0; i < delta_exp; ++i)
+	    num->data[i] = 0;
+	num->size+=delta_exp;
+	num->exponent=n;
+    }
+}
