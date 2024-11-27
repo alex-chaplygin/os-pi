@@ -25,11 +25,6 @@ void print_float_num(float num)
 	for (int i = 0; i < -e; i++)
 	    bignum_mult(degree, five);
     }
-    //printf("bit = ");
-    //print_bignum(bit);
-    //printf("\ntwo = ");
-    //print_bignum(two);
-    //printf("\n");
     for (int i = 0; i < MANTISSA_BITS; ++i) {	
 	if ((m >> (MANTISSA_BITS - i - 1) & 1) == 1)
 	    bignum_sum(sum, bit);
@@ -38,6 +33,7 @@ void print_float_num(float num)
     bignum_mult(sum, degree);
     if (s != 0)
 	putchar('-');
+    round_bignum(sum, 6); // округление до 6 знаков после .
     print_bignum(sum);
     free_bignum(sum);
     free_bignum(bit);
