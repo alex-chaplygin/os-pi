@@ -122,7 +122,7 @@ object_t parse_list()
         return parse_element(CHAR, &val, cur_tok->type);
     } else if (cur_tok->type == LPAREN || cur_tok->type == QUOTE
 	       || cur_tok->type == BACKQUOTE || cur_tok->type == COMMA
-	       || cur_tok->type == COMMA_AT || cur_tok->type == SHARP)
+	       || cur_tok->type == COMMA_AT || cur_tok->type == SHARP || cur_tok->type == T_FUNCTION)
 	return parse_element(SYMBOL, NULL, cur_tok->type);
     else if (cur_tok->type == DOT) {
 	object_t res = parse();
@@ -160,7 +160,7 @@ object_t parse_array()
  *              `<объект> -> (BACKQUOTE <объект>)
  *              ,<объект> -> (COMMA <объект>)
  *              ,@<объект> -> (COMMA-AT <объект>)  
- *              ,#<объект> -> (FUNCTION <объект>)  
+ *              #'<объект> -> (FUNCTION <объект>)  
  * Строки: T_STRING -> STRING
  * Массивы: #(<объекты>) -> ARRAY
  * END -> NULLOBJ
