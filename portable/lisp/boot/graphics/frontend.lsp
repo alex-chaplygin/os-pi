@@ -16,7 +16,7 @@
   `(setq *sav-states* (cdr *sav-states*)))
 
 (defmacro matrix (a b c d tx ty)
-  "Произведение матрицы трансформации"
+  "Произведение текущей матрицы трансформации на матрицу a b c d tx ty"
   `(mat-mul (get-hash *cur-state* 'ctm) (mat-make ,a ,b ,c ,d ,tx ,ty)))
 
 (defmacro new-path ()
@@ -24,12 +24,12 @@
   `(setq *new-path* nil))
 
 (defmacro move-to (x y)
-  "Переместить текущую точку"
+  "Переместить текущую точку в контуре в точку p"
   `(setq *cur-point* (cons ,x ,y))
   `(when (null *new-path*) (setq *path-begin* *cur-point*)))
 
 (defmacro line-to (x y)
-  "Добавить строку в путь"
+  "Добавить прямую линию от текущей точки до точки p"
    `(let* ((ctm (get-hash *cur-state* 'ctm))
           (p1 (mat-mul-vec ctm *cur-point*))
           (p2 (mat-mul-vec ctm (cons ,x ,y))))
@@ -37,7 +37,7 @@
   `(move-to ,x ,y))
 
 (defmacro stroke-path ()
-  "Отрисовать текущий путь"
+  "Обвести текущий контур"
   `(dolist (line *new-path*)
      (case (car line)
        (LINE (let ((xy1 (cadr line))
@@ -49,7 +49,7 @@
   `(draw-bezier-curve ,x1 ,y1 ,x2 ,y2 ,x3 ,y3 ,x4 ,y4 (get-hash *cur-state* 'color)))
 
 (defmacro close-path ()
-  "Завершение текущего пути"
+  "Закрыть текущий контур"
   `(line-to ,(car *path-begin*) ,(cdr *path-begin*)))
 
 (defmacro rectangle (x y w h)
