@@ -27,7 +27,7 @@
 	   ',name)
   `(defun ,(intern (concat "MAKE-" (symbol-name name))) ,(get-slots name)
      (let ((obj (make-instance ,name)))
-	 ,@(map '(lambda(s) `(setf (slot obj ',s) ,s)) (get-slots name))
+	 ,@(map #'(lambda(s) `(setf (slot obj ',s) ,s)) (get-slots name))
 	 obj))
   `',name)	
 	
@@ -37,7 +37,7 @@
   (if (not (check-key *class-table* class)) (concat "no class " (symbol-name class))
     `(let ((object (make-hash)))
 	 (set-hash object 'class ',class)
-	 (app '(lambda (x) (set-hash object x nil)) ',(get-slots class))
+	 (app #'(lambda (x) (set-hash object x nil)) ',(get-slots class))
 	 object)))
 
 
@@ -67,7 +67,7 @@
   "body - тело метода"
   `(let* ((class-name (cadar args))
 	  (class (slot *class-table* class-name)))
-     (set-hash class ',name '(lambda ,(cons (caar args) (cdr args)) ,@body))
+     (set-hash class ',name #'(lambda ,(cons (caar args) (cdr args)) ,@body))
      (defun ,name ,(cons (caar args) (cdr args))
        (funcall (get-method (slot ,(caar args) 'class) ',name) ,(caar args) ,@(cdr args)))))
 

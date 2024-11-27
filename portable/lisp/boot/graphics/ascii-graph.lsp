@@ -29,7 +29,7 @@
   "Задать список тайлов"
   "set-tiles '((WALL . \##') (PLAT . \#-))"
   (setq *tile-hash* (make-hash))
-  (app '(lambda (tile) (set-hash *tile-hash* (car tile) (cdr tile))) tiles))
+  (app #'(lambda (tile) (set-hash *tile-hash* (car tile) (cdr tile))) tiles))
 
 (defun set-default-sprite-size (w h)
   "Установить размеры спрайта по умолчанию"
@@ -66,7 +66,7 @@
 
 (defun draw-sprites ()
   "Отрисовать спрайты из списка спрайтов"
-  (app '(lambda (sprite) (draw-sprite sprite)) *sprite-list*))
+  (app #'(lambda (sprite) (draw-sprite sprite)) *sprite-list*))
 
 (defun draw-sprite (sprite)
   "Отрисовать переданный спрайт"

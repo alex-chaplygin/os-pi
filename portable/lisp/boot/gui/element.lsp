@@ -108,7 +108,7 @@
 	 (w (slot self 'width))
 	 (h (slot self 'height)))
     (fill-rect new-x new-y w h " ")
-    (app '(lambda (el)
+    (app #'(lambda (el)
 	   (setf (slot self 'ofs-x) new-x) ;устанавливаем новое смещение для дочерних элементов
 	   (setf (slot self 'ofs-y) new-y)
 	   (draw el)

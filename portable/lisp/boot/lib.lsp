@@ -33,7 +33,7 @@
   "(cond ((equal k 1) 2)
          ((equal k 2) 3)
          (t 4))"
-  `(cond ,@(map '(lambda (x) (case-func x val)) list)))
+  `(cond ,@(map #'(lambda (x) (case-func x val)) list)))
 
 (defun case-func (p val)
   "(e v) -> ((equal val e) v)"

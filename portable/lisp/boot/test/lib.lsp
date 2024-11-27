@@ -36,10 +36,60 @@
       (print (read-num)))))
 
 (defun lex-test ()
-  "Тест, где параметр list у функции map закрывает свободную переменную list в let"
+  "Тест лексической переменной, где параметр list у функции map закрывает свободную переменную list в let"
   "В динамическом Лиспе - результат (0 0 0), в лексическом - правильный"
   (let ((list '(a b c)))
-    (print (assert (map '(lambda (x) (nth list x)) '(2 1 0)) '(c b a)))))
+    (print (assert (map #'(lambda (x) (nth list x)) '(2 1 0)) '(c b a)))))
+
+(defun compose-test ()
+  "Тест композиции функций"
+  (labels ((o (f g) #'(lambda (x) (funcall f (funcall g x))))
+	   (sqr (x) (* x x)))
+	  (print (assert (funcall (o #'sqr #'sqr) 10) 10000))))
+
+(defun dyn-test ()
+  "Тест динамических переменных"
+  (defvar *g* 10)
+  (labels ((test (x) (+ x *g*)))
+	  (print (assert (test 1) 11))
+	  (setq *g* 20)
+	  (print (assert (test 1) 21))))
+
+(defun closure-test ()
+  "Тест лексических замыканий"
+  (labels ((make (am) (let ((bal am))
+			#'(lambda (act)
+			    (case act
+				  ('inc (incf bal))
+				  ('bal bal)
+				  ('dec (decf bal))
+				  (otherwise nil)))))
+	   (pr (acc a) (print `(acc bal = ,(funcall a 'bal)))))
+	  (let ((a (make 10))
+		(b (make 20)))
+	    (print "Init")
+	    (pr 'a a)
+	    (funcall a 'inc)
+	    (print "Inc")
+	    (pr 'a a)
+	    (funcall a 'dec)
+	    (print "Dec")
+	    (pr 'a a)
+	    (print "Init")
+	    (pr 'b b)
+	    (funcall b 'inc)
+	    (print "Inc")
+	    (pr 'b b)
+	    (funcall b 'dec)
+	    (print "Dec")
+	    (pr 'b b)
+	    (print "a = ")
+	    (pr 'a a))))
+
 
 (fors-test)
 (tagbody-rec-test)
+(lex-test)
+(compose-test)
+(dyn-test)
+(closure-test)

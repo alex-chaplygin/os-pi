@@ -17,7 +17,7 @@
      (setf (slot new-window 'x) x)
      (setf (slot new-window 'y) y)     
      (setf (slot new-window 'width) (+ (slot new-window 'width) (string-size ,text)))
-     ,@(map '(lambda (elem) `(if (equal ',(car elem) 'children)
+     ,@(map #'(lambda (elem) `(if (equal ',(car elem) 'children)
 				 (window-add-children new-window ',(cdr elem))
 			       (setf (slot new-window ',(car elem)) ,(cadr elem))))
 	    params)
@@ -42,7 +42,7 @@
 (defun screen (&rest windows)
   "Отрисовка окон"
   "windows - список окон"
-  (app '(lambda (w) (draw w)) windows))
+  (app #'(lambda (w) (draw w)) windows))
 
 (defmacro gen/elem (name)
   "Генерация макроса для класса name"
@@ -52,7 +52,7 @@
        `(let ((new-elem (make-instance ,n)))
 	  (setf (slot new-elem 'text) ,text)
 	  (set-defaults new-elem)
-	  ,@(map '(lambda (elem) `(setf (slot new-elem ',(car elem)) ,(cadr elem))) params)
+	  ,@(map #'(lambda (elem) `(setf (slot new-elem ',(car elem)) ,(cadr elem))) params)
 	  new-elem))))
 
 (gen/elem text)

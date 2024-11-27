@@ -20,6 +20,8 @@
 	(cons (car list1) list2)
       (cons (car list1) (append (cdr list1) list2)))))
 
+(defun o (f g) #'(lambda (x) (funcall f (funcall g x)))) ; математическая композиция функция f и g
+
 (defun app (f list)
   "Применяет функцию f к каждому элементу списка list"
   "(app '(lambda (x) (set-hash h x nil)) '(x y z))"
@@ -82,8 +84,8 @@
 	((null (cdr list)) list)
 	(t (let ((head (car list))
 		 (tail (cdr list)))
-	     (append (sort (filter '(lambda (x) (funcall pr x head)) tail) pr)
-		     (cons head (sort (filter '(lambda (x) (not (funcall pr x head))) tail) pr)))))))
+	     (append (sort (filter #'(lambda (x) (funcall pr x head)) tail) pr)
+		     (cons head (sort (filter #'(lambda (x) (not (funcall pr x head))) tail) pr)))))))
 
 (defun minp* (list pred min)
   (if (null list) min

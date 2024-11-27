@@ -60,5 +60,5 @@
 		       ('bits4 (get-4bit))
 		       (otherwise (get-array type)))))
 	  (let ((table (make-hash)))
-	    (app '(lambda (x) (set-hash table (car x) (read (cdr x)))) struct)
+	    (app #'(lambda (x) (set-hash table (car x) (read (cdr x)))) struct)
 	    table)))

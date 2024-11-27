@@ -8,7 +8,7 @@
   "Преобразовывает структуру в список для let"
 					;  (let ((attr (arr-get-num arr ofs num))
 					;       ((type .. ))
-   (car (foldl '(lambda (acc elem)
+   (car (foldl #'(lambda (acc elem)
 	    (let ((list (car acc))
 		  (ofs (cdr acc))
 		  (field (car elem))
@@ -49,7 +49,7 @@
 (defun write-struct (arr offs struct values)
   "Записать в массив arr по смещению ofs значения из хеш объекта values,"
   "используя структуру struct"
-  (foldl '(lambda (ofs elem)
+  (foldl #'(lambda (ofs elem)
 	   (let ((name (car elem))
 		 (size (cdr elem)))
 	     (if (eq name 'str)
