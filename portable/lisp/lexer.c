@@ -249,7 +249,9 @@ void get_symbol(char *cur_str)
 
 /** 
  * прочесть строку в двойных кавычках \"1 2 3\"
- *
+ * обрабатывает escape-последовательности 
+ * \n - конец строки
+ * \xNN - символ с hex-кодом NN
  * @param cur_str куда сохраняется строка
  */
 void get_string(char *cur_str)
@@ -267,8 +269,7 @@ void get_string(char *cur_str)
 	    	get_cur_char();
 	    	if (cur_symbol == 'n')
 		    cur_symbol = '\n';
-		else if (cur_symbol == 'x')
-		{
+		else if (cur_symbol == 'x') {
 		    int code = hex_num();
 		    
 		    if (code > 255)
@@ -277,7 +278,8 @@ void get_string(char *cur_str)
 		    cur_str[c++] = code;
 		    get_cur_char();
 		    continue;
-		}
+		} else
+		    error("invalid escape");
 	}
 	cur_str[c++] = cur_symbol;
 	get_cur_char();
