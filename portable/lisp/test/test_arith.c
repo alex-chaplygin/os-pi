@@ -166,6 +166,50 @@ void test_sub_no_number()
         OK;
 }
 
+/**
+ * Тест вычитания чисел с плавающей запятой 
+ */
+void test_sub_float()
+{
+    printf("test_sub_float: ");
+    float num1 = 10.26f;
+    float num2 = 2.67f;
+    float num3 = 5.11f;
+    object_t list = new_pair(new_float(num1),
+                        new_pair(new_float(num2), 
+                            new_pair(new_float(num3), NULLOBJ)));
+    object_t res = sub(list);
+    ASSERT_FLOAT(GET_FLOAT(res)->value, 2.48f);
+}
+
+//Тест вычитания чисел с плавающей запятой, целочисленное число
+void test_sub_float_number()
+{
+    printf("test_sub_float_number: ");
+    float num1 = 10.22f;
+    float num2 = 2.11f;
+    int num3 = 5;
+    object_t list = new_pair(new_float(num1),
+                        new_pair(new_float(num2), 
+                            new_pair(new_number(num3), NULLOBJ)));
+    object_t res = sub(list);
+    ASSERT_FLOAT(GET_FLOAT(res)->value, 3.11f)
+}
+
+//Тест вычитания чисел с плавающей запятой передача значения не число
+void test_sub_float_no_number()
+{
+    printf("test_sub_float_no_number: ");
+    float num = 2.11f;
+    if (setjmp(jmp_env) == 0) {
+        object_t list = new_pair(new_float(num),
+			         new_pair(new_pair(NULLOBJ, NULLOBJ), NULLOBJ));
+        object_t res = sub(list);
+        FAIL;
+    } else 
+        OK;
+}
+
 //Тест умножения.
 void test_mul()
 {
@@ -736,6 +780,9 @@ int main()
     test_sub();
     test_sub_null();
     test_sub_no_number();
+    test_sub_float();
+    test_sub_float_number();
+    test_sub_float_no_number();
     test_mul();
     test_mul_empty_list();
     test_mul_list_with_symbol();
