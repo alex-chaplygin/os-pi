@@ -268,10 +268,10 @@ object_t gt(object_t list)
         error(">: one argument");
     object_t first = FIRST(list);
     object_t second = SECOND(list);
-    if (get_value(first) > get_value(second))
-        return t;
-    else 
-        return NULLOBJ;
+    if (IS_NUMBER(first))
+	return (get_value(first) >  get_value(second)) ? t : NULLOBJ;
+    else if (TYPE(first) == FLOAT)
+	return (GET_FLOAT(first)->value > GET_FLOAT(second)->value) ? t : NULLOBJ;
 }
 
 /* Сравнение на меньше (< 8 2) */
@@ -287,10 +287,10 @@ object_t less(object_t list)
         error("<: one argument");
     object_t first = FIRST(list);
     object_t second = SECOND(list);
-    if ( get_value(first) <  get_value(second))
-        return t;
-    else 
-        return NULLOBJ;
+    if (IS_NUMBER(first))
+	return (get_value(first) <  get_value(second)) ? t : NULLOBJ;
+    else if (TYPE(first) == FLOAT)
+	return (GET_FLOAT(first)->value < GET_FLOAT(second)->value) ? t : NULLOBJ;
 }
 
 /**
@@ -311,6 +311,8 @@ int compare_obj(object_t obj1, object_t obj2)
 	return strcmp(GET_STRING(obj1)->data, GET_STRING(obj2)->data) == 0;
     else if (IS_NUMBER(obj1))
 	return get_value(obj1) == get_value(obj2);
+    else if (TYPE(obj1) == FLOAT)
+	return GET_FLOAT(obj1)->value == GET_FLOAT(obj2)->value;
     else if (TYPE(obj1) == PAIR) {
 	if (!compare_obj(FIRST(obj1), FIRST(obj2)))
 	    return 0;
