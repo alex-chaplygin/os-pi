@@ -166,16 +166,20 @@
          (error 0))
     (inner-draw-circle cx cy r colour x y delta error)))
 
-(defun bezier-curve (p0 p1 p2 p3 ti)
-  (cons (/ (+ (* (expt (- 100 ti) 3) (car p0)) (* 3 ti (expt (- 100 ti) 2) (car p1)) (* 3 (expt ti 2) (- 100 ti) (car p2)) (* (expt ti 3) (car p3))) 1000000)
-        (/ (+ (* (expt (- 100 ti) 3) (cdr p0)) (* 3 ti (expt (- 100 ti) 2) (cdr p1)) (* 3 (expt ti 2) (- 100 ti) (cdr p2)) (* (expt ti 3) (cdr p3))) 1000000)))
+(defun bezier-point (p0 p1 p2 p3 ti)
+  "Возвращает очередную точку кривой"
+  (cons (+ (* (expt (- 1  ti) 3) (car p0)) (* 3 ti (expt (- 1 ti) 2) (car p1)) (* 3 (expt ti 2) (- 1 ti) (car p2)) (* (expt ti 3) (car p3)))
+        (+ (* (expt (- 1 ti) 3) (cdr p0)) (* 3 ti (expt (- 1 ti) 2) (cdr p1)) (* 3 (expt ti 2) (- 1 ti) (cdr p2)) (* (expt ti 3) (cdr p3)))))
 
-(defun draw-bezier-curve (x1 y1 x2 y2 x3 y3 x4 y4 colour)
+(defun draw-bezier-curve (p1 p2 p3 p4 n colour)
   "Рисование кривой Безье"
-  "x1 y1 x2 y2 x3 y3 x4 y4 - координаты точек, colour - цвет"
-  (for ti 0 100
-    (let ((curve-point (bezier-curve (cons ,x1 ,y1) (cons ,x2 ,y2) (cons ,x3 ,y3) (cons ,x4 ,y4) ti)))
-      (set-pixel (car curve-point) (cdr curve-point) colour))))
+  "p1 p2 p3 p4 - точки, n - число точек в кривой colour - цвет"
+  (let ((ti 0.0)
+	(step (/ 1.0 n)))
+    (while (< ti 1.1)
+      (let ((curve-point (bezier-point p1 p2 p3 p4 ti)))
+	(set-pixel (car curve-point) (cdr curve-point) colour))
+      (setq ti (+ ti step)))))
 
 (defun gr-test ()
   "Тест графики"
