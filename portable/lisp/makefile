@@ -2,7 +2,7 @@ SHELL=bash
 SRC=parser.o lexer.o objects.o symbols.o eval.o arith.o array.o str.o pair.o predicates.o alloc.o mpa.o error.o
 CFLAGS=-g -m32 -nostdlib -nodefaultlibs -Wno-builtin-declaration-mismatch -I../include -D OS -D X32 -DDEBUG -fno-stack-protector -fstack-check=no
 BASELISP=boot/lib.lsp boot/list.lsp boot/array.lsp boot/str.lsp boot/hash.lsp boot/oop.lsp boot/queue.lsp
-GRAPHICS=$(BASELISP) boot/bgr.lsp boot/graphics/matrix.lsp boot/graphics/backend.lsp boot/graphics/frontend.lsp
+GRAPHICS=$(BASELISP) boot/math.lsp boot/bgr.lsp boot/graphics/matrix.lsp boot/graphics/backend.lsp boot/graphics/frontend.lsp
 TEST=boot/test.lsp
 GRAPHICS_TEST=$(GRAPHICS) $(TEST) boot/graphics/test/backend.lsp
 ASCII_GRAPH=$(GRAPHICS) boot/graphics/ascii-graph.lsp
