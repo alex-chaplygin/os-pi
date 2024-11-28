@@ -170,24 +170,11 @@
   (for i 0 (string-size s) 
        (putchar (char s i))))
 
-(defun abs (x)
-  "Абсолютное значение"
-  (if (< x 0) (- 0 x) x))
-
-(defun expt (x y)
-  "Возведение в степень"
-  (if (equal y 0) 1
-    (progn
-      (for xx 1 y
-        (setq x (* x x)))
-      x)))
-
 (setq *gensym-counter* 0) ;счетчик уникальных символов
 
 (defun gensym ()
   "Возвращает уникальный символ типа G<n>, где n - новое число"
-  (setf *gensym-counter* (++ *gensym-counter*))
-  (intern (concat "G" (inttostr *gensym-counter*))))
+  (intern (concat "G" (inttostr (incf *gensym-counter*)))))
 
 (defun clone (obj)
   "Делает копию объекта (кроме чисел, массивов и строк)"

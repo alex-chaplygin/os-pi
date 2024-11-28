@@ -16,3 +16,15 @@
 (defun randint (min max)
   "Получить случайное число от min до max"
   (+ (% (rand) (- (++ max) min)) min))
+
+(defun abs (x)
+  "Абсолютное значение числа"
+  (if (< x 0) (- 0 x) x))
+
+(defun expt (x y)
+  "Возведение числа в целую степень"
+  (if (equal y 0) 1
+    (let ((s x))
+      (for xx 1 y
+        (setq s (* s x)))
+      s)))
