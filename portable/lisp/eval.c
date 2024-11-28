@@ -20,8 +20,6 @@ symbol_t *backquote_sym;
 symbol_t *lambda_sym;
 /// символ "IF"
 symbol_t *if_sym;
-/// символ "COND"
-symbol_t *cond_sym;
 /// символ "DEFUN"
 symbol_t *defun_sym;
 /// символ "DEFMACRO"
@@ -229,7 +227,7 @@ object_t backquote(object_t list)
 
 /* 
  * (if test True False)
- * Обработка условия 
+ * Обработка условия. Истинное условие - не nil
  * Возвращаем список объектов из выражения, оцененных  eval 
  * @param obj - список парамметров (<Условие> <Выражение по истине> <Выражение по лжи>)
  * @return возвращает значение соответствующего выражения
@@ -246,37 +244,11 @@ object_t IF(object_t obj)
 	error("False is empty");
     else if (TAIL(TAIL(TAIL(obj))) != NULLOBJ)
 	error("if: too many params");
-    if (eval(FIRST(obj), env, func) == t)
+    if (eval(FIRST(obj), env, func) != nil)
 	return eval(SECOND(obj), env, func);
     else
 	return eval(THIRD(obj), env, func);
 }
-
-/* 
- * Обработка условия 
- * Возвращаем список объектов из выражения, оцененных  eval 
- * @param obj входное выражение 
- * @return возвращает вычисленный объект 
- */ 
-object_t cond(object_t obj) 
-{ 
-    if (obj == NULLOBJ) 
-	error("NULLOBJ in COND"); 
-    object_t env = current_env;
-    object_t func = func_env;
-    while (obj != NULLOBJ) {
-	object_t pair = FIRST(obj);
-	if (TAIL(pair) == NULLOBJ) 
-	    error("cond: not enough params"); 
-	if (TAIL(TAIL(pair)) != NULLOBJ) 
-	    error("cond: too many params"); 
-	object_t p = FIRST(pair);
-	if (eval(p, env, func) == t) 
-	    return eval(SECOND(pair), env, func); 
-	obj = TAIL(obj);
-    }
-    error("No true conditions in COND"); 
-} 
 
 /*  
  * Создаёт новую функцию 
@@ -523,7 +495,7 @@ object_t eval_args(object_t args, object_t env, object_t func)
 int is_special_form(symbol_t *s) 
 { 
     return s == quote_sym || s == defun_sym || s == defmacro_sym
-	|| s == setq_sym || s == backquote_sym || s == if_sym || s == cond_sym
+	|| s == setq_sym || s == backquote_sym || s == if_sym //|| s == cond_sym
 	|| s == or_sym || s == and_sym || s == return_from_sym
 	|| s == labels_sym || s == tagbody_sym || s == progn_sym
 	|| s == go_sym || s == block_sym || s == func_sym; 
@@ -984,7 +956,6 @@ void init_eval()
     register_func("QUOTE", quote); 
     register_func("BACKQUOTE",backquote);
     register_func("IF", IF);
-    register_func("COND", cond); 
     register_func("DEFUN", defun); 
     register_func("DEFMACRO", defmacro); 
     register_func("PROGN", progn); 
@@ -1010,7 +981,6 @@ void init_eval()
     backquote_sym = find_symbol("BACKQUOTE"); 
     lambda_sym = find_symbol("LAMBDA");
     if_sym = find_symbol("IF");
-    cond_sym = find_symbol("COND"); 
     defun_sym = find_symbol("DEFUN"); 
     defmacro_sym = find_symbol("DEFMACRO"); 
     setq_sym = find_symbol("SETQ"); 
