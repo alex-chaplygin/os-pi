@@ -27,6 +27,17 @@
   "body - список выражений по истине"
   `(if ,test (progn ,@body) nil))
 
+(defmacro cond (&rest body)
+  "Условный оператор cond"
+  (if (null body)
+      nil
+      (let ((c (car body)))
+	(if (cdr c)
+	    `(if ,(car c)
+		 (progn ,@(cdr c))
+		 (cond ,@(cdr body)))
+	    (car c)))))
+
 (defmacro case (val &rest list)
   "(setq k 10)"
   "(case k ((1 2)(2 3)(otherwise 4)))"
@@ -171,7 +182,7 @@
         (setq x (* x x)))
       x)))
 
-(defvar *gensym-counter* 0) ;счетчик уникальных символов
+(setq *gensym-counter* 0) ;счетчик уникальных символов
 
 (defun gensym ()
   "Возвращает уникальный символ типа G<n>, где n - новое число"

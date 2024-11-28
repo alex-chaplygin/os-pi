@@ -86,6 +86,17 @@
 	    (print "a = ")
 	    (pr 'a a))))
 
+(defun cond-tests ()
+  (labels ((cond-test (val)
+	     (cond
+	       ((> val 10) ">10")
+	       ((< val 10) "<10")
+	       (t "==10"))))
+    (print (assert (cond-test 3) "<10"))
+    (print (assert (cond-test 7) "<10"))
+    (print (assert (cond-test 10) "==10"))
+    (print (assert (cond-test 12) ">10"))
+    (print (assert (cond) nil))))
 
 (fors-test)
 (tagbody-rec-test)
@@ -93,3 +104,4 @@
 (compose-test)
 (dyn-test)
 (closure-test)
+(cond-tests)
