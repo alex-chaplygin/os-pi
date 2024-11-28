@@ -51,6 +51,10 @@ list-test: $(BASELISP) $(TEST) boot/test/list.lsp
 	make -C test /tmp/repl_lisp
 	cat $^ | /tmp/repl_lisp
 
+oop-test: $(BASELISP) $(TEST) boot/test/oop.lsp
+	make -C test /tmp/repl_lisp
+	cat $^ | /tmp/repl_lisp
+
 queue-test: $(BASELISP) $(TEST) boot/test/queue.lsp
 	make -C test /tmp/repl_lisp
 	cat $^ | /tmp/repl_lisp
