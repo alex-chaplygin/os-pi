@@ -34,11 +34,12 @@
 (defmacro make-instance (class)
   "Создать экземпляр объекта класса class"
   "(make-instance 'point) -> ((X.nil)(Y.nil))"
-  (if (not (check-key *class-table* class)) (concat "no class " (symbol-name class))
-    `(let ((object (make-hash)))
-	 (set-hash object 'class ',class)
-	 (app #'(lambda (x) (set-hash object x nil)) ',(get-slots class))
-	 object)))
+  (if (not (check-key *class-table* class)) (error (concat "no class " (symbol-name class)))
+      (let ((o (gensym)))
+	`(let ((,o (make-hash)))
+	   (set-hash ,o 'class ',class)
+	   (app #'(lambda (x) (set-hash ,o x nil)) ',(get-slots class))
+	   ,o))))
 
 
 (defun get-slots (class)
@@ -65,11 +66,11 @@
   "Определяет метод с именем name"
   "args - аргументы, первый аргумент состоит из имени экземпляра объекта и имени класса"
   "body - тело метода"
-  `(let* ((class-name (cadar args))
-	  (class (slot *class-table* class-name)))
-     (set-hash class ',name #'(lambda ,(cons (caar args) (cdr args)) ,@body))
-     (defun ,name ,(cons (caar args) (cdr args))
-       (funcall (get-method (slot ,(caar args) 'class) ',name) ,(caar args) ,@(cdr args)))))
+  (let ((class (slot *class-table* (cadar args))))
+    `(progn
+       (set-hash ',class ',name #'(lambda ,(cons (caar args) (cdr args)) ,@body))
+       (defun ,name ,(cons (caar args) (cdr args))
+	 (funcall (get-method (slot ,(caar args) 'class) ',name) ,(caar args) ,@(cdr args))))))
 
 (defmacro super (method-name obj &rest args)
   "Вызов метода method-name родителя экземпляра класса obj с аргументами args"
@@ -78,27 +79,3 @@
      (setq res (funcall (get-method (slot ,obj 'class) ',method-name) ,obj ,@args))
      (setf (slot ,obj 'class) origclass)
      res))
-
-(defun oop-test ()
-  (defclass point () (x y)) 
-  (defclass line point (x2 y2))
-  (setq p2 (make-point 10 20))
-  (setf (slot p2 'x) 50)
-  (setq l1 (make-line 1 1 3 3))
-
-  (defmethod move ((self point) dx dy)
-    (setf (slot self 'x) (+ (slot self 'x) dx))
-    (setf (slot self 'y) (+ (slot self 'y) dy)))
-
-  (defmethod move ((self line) dx dy)
-    (setf (slot self 'x) (+ (slot self 'x) dx))
-    (setf (slot self 'x2) (+ (slot self 'x2) dx))
-    (setf (slot self 'y) (+ (slot self 'y) dy))
-    (setf (slot self 'y2) (+ (slot self 'y2) dy)))
-
-  (move p2 20 20)
-  p2
-  (move l1 20 20)
-  l1)
-
-     
