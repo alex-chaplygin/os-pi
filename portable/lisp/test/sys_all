@@ -78,23 +78,6 @@ sh sys_test "(if (equal 2 3))" "True is empty"
 #отсутствует выпажение при лжи
 sh sys_test "(if (equal 2 3) 3)" "False is empty"
 
-echo  "---Тесты COND---"
-# первый аргумент приводит к истине
-sh sys_test "(cond ((eq 'a 'a) 'first) 
-		   ((eq 'a 'b) 'second))" "FIRST"  #13
-# второй аргумент приводит к истине
-sh sys_test "(cond ((eq 'a 'b) 'first) 
-		   ((eq 'a 'a) 'second))" "SECOND"  #13
-# отсутствие аргументов
-sh sys_test "(cond  )" "NULLOBJ in COND" #67
-# отсутствие аргумента, приводящего к истине
-sh sys_test "(cond ((eq 'a 'b) 'first) 
-		   ((eq 'a 'b) 'second))" "No true conditions in COND" #68
-# лишнее выражение в паре
-sh sys_test "(cond ((eq 'a 'a)(eq 'a 'b) 'first))" "cond: too many params"
-# отсутствие выражения после предикат
-sh sys_test "(cond ((eq 'a 'b)) 
-		   ((eq 'a 'a)))" "cond: not enough params"  #69
 
 echo "---Тесты car ---"
 sh sys_test "(car '(a b c))" "A" #10
@@ -127,24 +110,15 @@ NIL
 T
 T" # 18
 sh sys_test "(defun f(x)\
-         (cond \
-            ((equal x 1) 1) \
-            (T (* x (f (- x 1))))))\
-         (f 8) (f 3) (f 8) (f 9) (f 10) (f 10)" "F
+         (if \
+            (equal x 1) 1 \
+            (* x (f (- x 1)))))\
+         (f 8) (f 3) (f 8) (f 9) (f 10) (f 10) (f 11)" "F
 40320
 6
 40320
 362880
 3628800
-3628800" # 18
-sh sys_test "(defun f(x)\
-         (cond \
-            ((equal x 1) 1) \
-            (T (* x (f (- x 1))))))\
-         (f 11) (f 11) (f 11) (f 10) (f 11)" "F
-39916800
-39916800
-39916800
 3628800
 39916800" # 18
 # обработка отрицательного числа
@@ -211,14 +185,6 @@ sh sys_test "(setq +bgr-index+ 0x1ce) \
 Unknown SYMBOL: X
 Unknown SYMBOL: ABC" # 23
 sh sys_test "\"a b c d\"" "\"a b c d\""
-sh sys_test "(defun f(x)\
-             \"factorial f(x)\"\
-         (cond \
-            ((equal x 1) 1) \
-            (T (* x (f (- x 1))))))\
-         (f 12) (f 10)" "F
-479001600
-3628800" # 18
 sh sys_test "(setq test 200) test" "200
 200" # 25 26 
 sh sys_test "(defun bgr-out (reg data)\
@@ -312,40 +278,6 @@ x" "10
 CHANGE-LOCAL-X
 5
 10" # 23 24 18 26 27
-sh sys_test "
-(defmacro inner-for (name var start end body)
-	  \`(defun ,name (,var)
-                           (cond ((equal ,var ,end) 'end)
-			   	 (t (progn ,body 
-                                           (,name (+ ,var 1))))))
-			\`(,name ,start))
-
-(defmacro for (var start end body)
-  \`(inner-for ,(intern (concat \"for-\" (symbol-name var))) ,var ,start ,end ,body))
-
-(setq arr (make-array 3))
-(setq arr2 (make-array 12))
-(for row 0 3
-     (progn
-	(setq a (make-array 3))
-	(for col 0 3
-	     (seta a col row))		
-	(seta arr row a)))
-	arr
-(for y 0 4
-     (for x 0 3
-     	  (seta arr2 
-	  	(+ (* y 3) x) 
-		(+ (* y 3) x))))
-arr2
-" "INNER-FOR
-FOR
-#(NIL NIL NIL)
-#(NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL)
-END
-#(#(0 0 0) #(1 1 1) #(2 2 2))
-END
-#(0 1 2 3 4 5 6 7 8 9 10 11)" # 41 18 35 36 37 33 23 24
 
 sh sys_test "(defmacro testrest (&rest args) args)
 (testrest)" "TESTREST
@@ -583,26 +515,23 @@ Too many parameters after &rest" # 18
 echo "---Тесты MACROEXPAND---"
 # нормальный вызов
 sh sys_test "(defmacro if (test true false) 
-                 \`(cond (,test ,true)
-                         (t ,false)))
+                 \`(if ,test ,true ,false))
 (macroexpand '(if (equal 1 1) 2 3))" "IF
-(COND ((EQUAL 1 1) 2) (T 3))" # 41
+(IF (EQUAL 1 1) 2 3)" # 41
 # без параметров
 sh sys_test "(macroexpand)" "macroexpand: no params"
 # неверный параметр
 sh sys_test "(macroexpand 2)" "macroexpand: invalid macro call"
 # лишний параметр
 sh sys_test "(defmacro if (test true false) 
-                 \`(cond (,test ,true)
-                         (t ,false)))
+                 \`(if ,test ,true ,false))
 (macroexpand '(if (equal 1 1) 2 3) 4)" "IF
 macroexpand: many params" # 41
 # не макрос
 sh sys_test "(macroexpand '(+ 1 1))" "macroexpand: invalid macro"
 # ошибка в макросе
 sh sys_test "(defmacro if (test true false) 
-                 \`(cond (,test ,true)
-                         (t ,false)))
+                 \`(if ,test ,true ,false))
 (macroexpand '(if (equal 1 1)))" "IF
 Not enough values for params" # 113
 
@@ -648,7 +577,7 @@ sh sys_test "
 	(setq i (+ i 1))
 	(setq a (+ a 10))
 	test
-	(cond ((equal i 10) nil) (t (go loop)))) a" "NIL
+	(if (equal i 10) nil (go loop))) a" "NIL
 100"
 
 sh sys_test "
@@ -666,9 +595,9 @@ sh sys_test "
               (setq g (+ g 1))
               (setq a (+ a 1))
               inside
-              (cond ((equal g 10) nil) (t (go loopins))))
+              (if (equal g 10) nil (go loopins)))
        test
-       (cond ((equal i 10) nil) (t (go loop)))) a" "NIL
+       (if (equal i 10) nil (go loop))) a" "NIL
 100"
 
 echo "---Тесты LABELS---"
@@ -686,3 +615,7 @@ echo "---Тесты SIN, COS ---"
 sh sys_test "(sin 0.0)" "0.000000"
 sh sys_test "(cos 3.14159)" "-1.000000"
 sh sys_test "(cos 0.0)" "1.000000"
+
+echo "---Тесты ROUND ---"
+sh sys_test "(round 1.3)" "1"
+sh sys_test "(round 2.5)" "3"
