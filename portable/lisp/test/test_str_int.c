@@ -321,6 +321,7 @@ void test_string_size_not_string()
         OK;
 }
 
+
 /**
  * Тест функции получения символа по индексу в строке
  * Получение 2 символа строки
@@ -583,7 +584,23 @@ void test_subseq_negative_index()
     } else 
         OK;
 }
-
+/**
+ * Тест функции получения подстроки из строки
+ * Ошибка: неверный конечный индекс
+ */
+void test_subseq_negative_end_index()
+{
+    printf("test_subseq_negative_end_index: ");
+    object_t string_obj = NEW_STRING("Hello");
+    object_t start_index = new_number(0);
+    object_t end_index = new_number(-1);
+    object_t params = new_pair(string_obj, new_pair(start_index, new_pair(end_index, NULLOBJ)));
+    if (setjmp(jmp_env) == 0) {
+        object_t result = subseq(params);
+        FAIL;
+    } else 
+        OK;
+}
 /**
  * Тест функции получения подстроки из строки
  * Ошибка: индекс за границами длины строки
@@ -601,7 +618,38 @@ void test_subseq_invalid_index_range()
     } else 
         OK;
 }
-
+/**
+ * Тест функции получения подстроки из строки
+ * Ошибка: начальный индекс больше конечного
+ */
+void test_subseq_start_greater_than_end()
+{
+    printf("test_subseq_start_greater_than_end: ");
+    object_t string_obj = NEW_STRING("Hello");
+    object_t start_index = new_number(4);
+    object_t end_index = new_number(2);
+    object_t params = new_pair(string_obj, new_pair(start_index, new_pair(end_index, NULLOBJ)));
+    if (setjmp(jmp_env) == 0) {
+        object_t result = subseq(params);
+        FAIL;
+    } else 
+        OK;
+}
+/**
+ * Тест функции получения подстроки из строки
+ * На вход подаётся пустая строка
+ */
+void test_subseq_empty_input()
+{
+    printf("test_subseq_empty_input: ");
+    object_t string_obj = NEW_STRING(""); 
+    object_t start_index = new_number(0);
+    object_t end_index = new_number(0);
+    object_t params = new_pair(string_obj, new_pair(start_index, new_pair(end_index, NULLOBJ)));
+    object_t result = subseq(params); 
+    ASSERT(TYPE(result), STRING); 
+    ASSERT(strcmp(GET_STRING(result)->data, ""), 0);
+}
 /**
  * Тест функции получения подстроки из строки
  * Получение требуемой подстроки
@@ -617,6 +665,37 @@ void test_subseq()
     ASSERT(TYPE(result), STRING); 
     ASSERT(strcmp(GET_STRING(result)->data, "el"), 0);
 }
+/**
+ * Тест функции получения подстроки из строки
+ * Получение всей строки
+ */
+void test_subseq_full_string()
+{
+    printf("test_subseq_full_string: ");
+    object_t string_obj = NEW_STRING("Hello, World!");
+    object_t start_index = new_number(0);
+    object_t end_index = new_number(13); 
+    object_t params = new_pair(string_obj, new_pair(start_index, new_pair(end_index, NULLOBJ)));
+    object_t result = subseq(params);
+    ASSERT(TYPE(result), STRING);
+    ASSERT(strcmp(GET_STRING(result)->data, "Hello, World!"), 0);
+}
+
+/**
+ * Тест функции получения подстроки из строки
+ * Получение пустой подстриоки, если start_index == end_index
+ */
+ void test_subseq_empty_substring()
+{
+    printf("test_subseq_empty_substring: ");
+    object_t string_obj = NEW_STRING("Hello");
+    object_t start_index = new_number(2);
+    object_t end_index = new_number(2);
+    object_t params = new_pair(string_obj, new_pair(start_index, new_pair(end_index, NULLOBJ)));
+    object_t result = subseq(params);
+    ASSERT(TYPE(result), STRING);
+    ASSERT(strcmp(GET_STRING(result)->data, ""), 0);
+}
 
 /**
  * Тест функции перевода целочисленного числа в строку
@@ -631,6 +710,7 @@ void test_int_to_str_no_args()
     } else 
         OK;
 }
+
 
 /**
  * Тест функции перевода целочисленного числа в строку
@@ -732,12 +812,18 @@ int main()
     test_subseq_too_many_arguments();
     test_subseq_invalid_args();
     test_subseq_negative_index();
+    test_subseq_negative_end_index();
     test_subseq_invalid_index_range();
+    test_subseq_start_greater_than_end();
+    test_subseq_empty_input();
     test_subseq();
+    test_subseq_full_string();
+    test_subseq_empty_substring();
     test_int_to_str_no_args();
     test_int_to_str_many_args();
     test_int_to_str_invalid_arg();
     test_int_to_str_positive();
     test_int_to_str_negative();
+
     return 0;
 }
