@@ -37,7 +37,7 @@ global disable_interrupts, enable_interrupts
 global a_keyboard_interrupt
 global get_sp
 global _setjmp, longjmp
-global sinf, cosf
+global sinf, cosf, roundf
 extern kmain, exception_handler, sys_call, timer_event,end_of_interrupt		;this is defined in the c file
 extern interrupt_handler
 extern current_proc
@@ -135,20 +135,24 @@ mov_:
 
 section .bss
 float_ret: resd(1)
-section .text	
-sinf:
+section .text
+
+%macro floatcmd 1
 	fld dword [esp + 4]
-	fsin
+	%1
 	fstp dword [float_ret]
 	mov eax, [float_ret]
 	ret
+%endmacro
+	
+sinf:
+	floatcmd fsin
 
 cosf:
-	fld dword [esp + 4]
-	fcos
-	fstp dword [float_ret]
-	mov eax, [float_ret]
-	ret
+	floatcmd fcos
+
+roundf:
+	floatcmd frndint
 	
 	
 disable_interrupts:
