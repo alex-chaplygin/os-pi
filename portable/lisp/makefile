@@ -5,64 +5,59 @@ BASELISP=boot/lib.lsp boot/list.lsp boot/array.lsp boot/str.lsp boot/hash.lsp bo
 GRAPHICS=$(BASELISP) boot/math.lsp boot/bgr.lsp boot/graphics/matrix.lsp boot/graphics/backend.lsp boot/graphics/frontend.lsp
 TEST=boot/test.lsp
 GRAPHICS_TEST=$(GRAPHICS) $(TEST) boot/graphics/test/backend.lsp
-ASCII_GRAPH=$(GRAPHICS) boot/graphics/ascii-graph.lsp
-ASCII_GUI=$(GRAPHICS) boot/gui/ascii-backend.lsp
-FS=$(BASELISP) boot/fs/block.lsp boot/fs/fs.lsp boot/fs/fat32fs.lsp boot/fs/fat.lsp boot/fs/dir.lsp boot/mbr.lsp boot/fs/fat32test.lsp
+ASCII_GRAPHICS=$(GRAPHICS) boot/graphics/ascii-backend.lsp
+FS=$(BASELISP) boot/ata.lsp boot/mbr.lsp boot/fs/block.lsp boot/fs/fs.lsp boot/fs/fat32fs.lsp boot/fs/fat.lsp boot/fs/dir.lsp boot/fs/fat32test.lsp
 KEYBOARD=$(BASELISP) boot/sys/keyboard.lsp boot/sys/events.lsp
 
 all: $(SRC) lisp
 
 lisp: /tmp/baselisp.lsp # здесь меняем набор библиотек
 	cp $^ /tmp/lisp.lsp
-
-/tmp/baselisp.lsp: $(BASELISP)
+# базовый набор
+/tmp/baselisp.lsp: $(BASELISP) 
 	cat $^ >$@ ;
 	echo -e -n "\xff" >>$@
-
+# графика
 /tmp/graphics.lsp: $(GRAPHICS)
 	cat $^ >$@ ;
 	echo -e -n "\xff" >>$@
-
-/tmp/ascii-graph.lsp: $(ASCII_GRAPH) boot/graphics/test/ascii-graph.lsp
+# графика через ASCII в текстовом видеорежиме
+/tmp/ascii-graphics.lsp: $(ASCII_GRAPHICS) boot/graphics/test/ascii-backend.lsp
 	cat $^ >$@ ;
 	echo -e -n "\xff" >>$@
-
-/tmp/ascii-gui.lsp: $(ASCII_GUI) boot/gui/test/ascii-backend.lsp
-	cat $^ >$@ ;
-	echo -e -n "\xff" >>$@
-
+# файловая система
 /tmp/fs.lsp: $(FS)
 	cat $^ >$@ ;
 	echo -e -n "\xff" >>$@
-
+# тест клавиш
 /tmp/key.lsp: $(KEYBOARD)
 	cat $^ >$@ ;
 	echo -e -n "\xff" >>$@
-
+# модульные тесты графики
 graphics-test: $(GRAPHICS_TEST)
 	make -C test /tmp/lisp
 	cat $^ | /tmp/lisp
-
+# модульные тесты стандартной библиотеки
 lib-test: $(BASELISP) $(TEST) boot/test/lib.lsp
 	make -C test /tmp/lisp
 	cat $^ | /tmp/lisp
-
+# модульные тесты функций списков
 list-test: $(BASELISP) $(TEST) boot/test/list.lsp
 	make -C test /tmp/repl_lisp
 	cat $^ | /tmp/repl_lisp
-
+# модульные тесты ООП
 oop-test: $(BASELISP) $(TEST) boot/test/oop.lsp
 	make -C test /tmp/repl_lisp
 	cat $^ | /tmp/repl_lisp
-
+# модульные тесты очередей
 queue-test: $(BASELISP) $(TEST) boot/test/queue.lsp
 	make -C test /tmp/repl_lisp
 	cat $^ | /tmp/repl_lisp
-
+# модульные тесты двоичное дерево
 bin-tree-test: $(BASELISP) boot/bin-tree.lsp $(TEST) boot/test/bin-tree.lsp
 	make -C test /tmp/repl_lisp
 	cat $^ | /tmp/repl_lisp
-
+# модульные тесты цикла событий
 key-test: $(BASELISP) boot/sys/keyboard.lsp boot/test/key.lsp boot/sys/events.lsp 
 	make -C test /tmp/lisp
 	cat $^ | /tmp/lisp
