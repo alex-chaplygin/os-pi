@@ -18,9 +18,17 @@ void test_print_float(float number)
 
 int main()
 {
+    int n;
     test_print_float(0.5f);
     test_print_float(16.0f);    
-    //test_print_float(0.0f);    
-    test_print_float(-16.123456f);    
+    test_print_float(0.0f);
+    test_print_float(-0.0f);
+    test_print_float(-16.123456f);
+    n = 0x7f800000;
+    test_print_float(*(float *)&n);
+    n = 0xff800000;
+    test_print_float(*(float *)&n);
+    n = 0x7fc00000;
+    test_print_float(*(float *)&n);
     return 0;
 }
