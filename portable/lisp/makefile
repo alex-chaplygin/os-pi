@@ -33,6 +33,16 @@ lisp: /tmp/baselisp.lsp # здесь меняем набор библиотек
 /tmp/key.lsp: $(KEYBOARD)
 	cat $^ >$@ ;
 	echo -e -n "\xff" >>$@
+# тест печати чисел с плавающей точкой
+/tmp/float.lsp: $(BASELISP)
+	cat $^ >$@ ;
+	echo ""
+	echo "(print 0.0)" >>$@ ;
+	echo "(print (sin 0.0))" >>$@ ;
+	echo "(print (cos 0.0))" >>$@ ;
+	echo "(print (round 1.1))" >>$@ ;
+	echo "(print (round 1.5))" >>$@ ;
+	echo -e -n "\xff" >>$@
 # модульные тесты графики
 graphics-test: $(GRAPHICS_TEST)
 	make -C test /tmp/lisp
