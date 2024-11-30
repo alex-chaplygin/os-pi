@@ -696,7 +696,7 @@ void print_obj(object_t obj)
 	printf(")");
     }
     else if (TYPE(obj) == FLOAT)
-	printf("%f", ((float_t *)GET_ADDR(obj))->value);
+	printf("%f", (GET_FLOAT(obj))->value);
     else if (TYPE(obj) == STRING)
  	printf("\"%s\"", ((string_t *)GET_ADDR(obj))->data);
     else if (TYPE(obj) == SYMBOL)
