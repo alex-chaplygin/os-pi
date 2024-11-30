@@ -445,11 +445,12 @@ object_t shift_right(object_t list)
 
 float sinf(float v);
 float cosf(float v);
+float roundf(float v);
 
 /**
  * Вычисление синуса
  *
- * @param list - аргумент
+ * @param list - список аргументов
  *
  * @return результат вычисления
  */
@@ -466,7 +467,7 @@ object_t SIN(object_t list)
 /**
  * Вычисление косинуса
  *
- * @param list - аргумент
+ * @param list - список аргументов
  *
  * @return результат вычисления
  */
@@ -478,6 +479,24 @@ object_t COS(object_t list)
 	error("cos: invalid argument");
     else
 	return new_float(cosf(GET_FLOAT(arg)->value));
+}
+
+/**
+ * Округление числа с плавающей точкой до целого
+ *
+ * @param list - список аргументов
+ *
+ * @return результат вычисления
+ */
+object_t ROUND(object_t list)
+{
+    if (list == NULLOBJ)
+        error("ROUND: no arguments");
+    object_t arg = FIRST(list);
+    if (TYPE(arg) != FLOAT)
+	error("ROUND: invalid argument");
+    else
+	return new_number(roundf(GET_FLOAT(arg)->value));
 }
 
 /** 
@@ -499,4 +518,5 @@ void init_arith()
     register_func("<", less);
     register_func("SIN", SIN);
     register_func("COS", COS);
+    register_func("ROUND", ROUND);
 }
