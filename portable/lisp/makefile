@@ -4,7 +4,6 @@ CFLAGS=-g -m32 -nostdlib -nodefaultlibs -Wno-builtin-declaration-mismatch -I../i
 BASELISP=boot/lib.lsp boot/list.lsp boot/array.lsp boot/str.lsp boot/hash.lsp boot/oop.lsp boot/queue.lsp
 GRAPHICS=$(BASELISP) boot/math.lsp boot/bgr.lsp boot/graphics/matrix.lsp boot/graphics/backend.lsp boot/graphics/frontend.lsp
 TEST=boot/test.lsp
-GRAPHICS_TEST=$(GRAPHICS) $(TEST) boot/graphics/test/backend.lsp
 ASCII_GRAPHICS=$(GRAPHICS) boot/graphics/ascii-backend.lsp
 FS=$(BASELISP) boot/ata.lsp boot/mbr.lsp boot/fs/block.lsp boot/fs/fs.lsp boot/fs/fat32fs.lsp boot/fs/fat.lsp boot/fs/dir.lsp boot/fs/fat32test.lsp
 KEYBOARD=$(BASELISP) boot/sys/keyboard.lsp boot/sys/events.lsp
@@ -44,7 +43,7 @@ lisp: /tmp/baselisp.lsp # здесь меняем набор библиотек
 	echo "(print (round 1.5))" >>$@ ;
 	echo -e -n "\xff" >>$@
 # модульные тесты графики
-graphics-test: $(GRAPHICS_TEST)
+graphics-test: $(GRAPHICS) $(TEST) boot/graphics/test/backend.lsp
 	make -C test /tmp/lisp
 	cat $^ | /tmp/lisp
 # модульные тесты стандартной библиотеки
