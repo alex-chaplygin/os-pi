@@ -14,6 +14,7 @@ extern float_t *free_floats;
 extern pair_t *pairs;
 extern string_t *strings;
 extern array_t *arrays;
+extern symbol_t *symbols;
 extern int last_bignumber;
 extern int last_pair;
 extern int last_symbol;
@@ -21,6 +22,7 @@ extern pair_t *free_pairs;
 extern char *region_data;
 extern string_t *free_strings;
 extern array_t *free_arrays;
+extern symbol_t *free_symbols;
 extern struct region *regions;
 extern int last_string;
 extern int last_array;
@@ -177,6 +179,7 @@ void reset_mem()
     free_bignumbers = NULL;
     free_arrays = NULL;
     free_functions = NULL;
+    free_symbols = NULL;
 }
 
 /** 
@@ -871,6 +874,25 @@ void test_regions_mem()
     ASSERT(expected_memory, regions_mem());
 }
 
+/**
+ * Создать максимальное количество символов,
+ * освободить первый символ, проверить, что он находится в списке свободных символов
+ * Создать еще один символ и проверить, что его адрес совпадает с первым
+ */
+void test_free_symbol()
+{
+    char str[10];
+    printf("test_free_symbol: ");
+    reset_mem();
+    for (int i = last_symbol; i < MAX_SYMBOLS;i++) {
+	sprintf(str, "s%d", i);
+	new_symbol(str);
+    }
+    free_symbol(&symbols[0]);
+    ASSERT(free_symbols, &symbols[0]);
+    symbol_t *s = new_symbol("1");
+    ASSERT(s, &symbols[0]);
+}
 /*
 object_new
 |условие               |правильный класс                    |неправильный класс                       |
@@ -926,19 +948,19 @@ void main()
     test_garbage_collect_floats();
     test_garbage_collect_functions();
     test_objects_new_null();
-    reset_mem();
 
     // Тесты для массивов
+    reset_mem();
     test_new_empty_array();
     test_free_array();
-    reset_mem();
 
     // Тесты для строк
+    reset_mem();
     test_new_string();
     test_free_string();
-    reset_mem();
 
     // Тесты для чисел (малые числа)
+    reset_mem();
     test_new_number(-677, NUMBER);
     test_new_number(56, NUMBER);
     test_new_number(0xfffffff, BIGNUMBER);
@@ -949,53 +971,57 @@ void main()
     test_get_value(13);
     test_get_value(0);
     test_get_value(-6);
-    reset_mem();
 
     // Тесты для чисел (большие числа)
+    reset_mem();
     test_new_bignumber(1100);
     test_new_bignumber(0);
     test_new_bignumber(-1520);
     test_free_bignumber();
     test_free_bignumber2();
-    reset_mem();
 
     // Тесты для чисел (числа с плавающей точкой)
+    reset_mem();
     test_new_float(-13.23f);
     test_new_float(0.0f);
     test_new_float(78.34f);
     test_free_float();
-    reset_mem();
 
+    // Тесты для символов
+    reset_mem();
+    test_free_symbol();
+    
     // Тесты для функций
+    reset_mem();
     test_new_function();
     test_free_function();
-    reset_mem();
 
     // Тесты для пар
+    reset_mem();
     test_new_pair();
     test_free_pair();
     test_free_pair_empty();
-    reset_mem();
 
     // Тесты для регионов памяти
+    reset_mem();
     test_alloc_region();
     test_free_region();
-    reset_mem();
 
     // Тесты для работы с маркерами
+    reset_mem();
     test_return_set_mark();
     test_return_get_mark();
     test_return_clear_mark();
-    reset_mem();
 
     // Тесты для извлечения и преобразования данных
+    reset_mem();
     test_return_type();
     test_return_get_addr();
     test_get_char('a');
     test_get_char(' ');
-    reset_mem();
 
     // Вывод
+    reset_mem();
     PRINT(new_number(10));
     PRINT(new_bignumber(2000000000));
     PRINT(make_list(4));
