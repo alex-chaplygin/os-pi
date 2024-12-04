@@ -34,7 +34,9 @@ pair_t *free_pairs = NULL;
 /// Индекс последнего символа
 int last_symbol = 0;
 /// Хранилище символов
-symbol_t symbols[MAX_SYMBOLS];
+symbol_t *symbols;
+/// Список свободных символов
+symbol_t *free_symbols = NULL;
 
 /// Индекс последней строки
 int last_string = 0;
@@ -78,6 +80,10 @@ int total_arrays = 0;
 int total_continuations = 0;
 ///Количество используемых функций
 int total_functions = 0;
+///Количество используемых символов
+int total_symbols = 0;
+///Количество созданных пар с момента последней сборки мусора
+int allocated_pairs = 0;
 
 /// текущее окружение
 extern object_t current_env;
@@ -89,7 +95,7 @@ extern object_t func_env;
  */
 void init_objects()
 {
-    //alloc_region(1);
+    symbols = (symbol_t *)alloc_region(MAX_SYMBOLS * sizeof(symbol_t));
     bignumbers = (bignumber_t *)alloc_region(MAX_NUMBERS * sizeof(bignumber_t));
     floats = (float_t *)alloc_region(MAX_FLOATS * sizeof(float_t));
     pairs = (pair_t *)alloc_region(MAX_PAIRS * sizeof(pair_t));
@@ -351,6 +357,7 @@ object_t new_pair(object_t left, object_t right)
     pair->left = left; 
     pair->right = right;
     total_pairs++;
+    allocated_pairs++;
     return NEW_OBJECT(PAIR, pair); 
 } 
 
@@ -381,18 +388,37 @@ void free_pair(pair_t *p)
  */
 symbol_t *new_symbol(char *str)
 {
-    if (last_symbol == MAX_SYMBOLS)
-	error("Error: out of memory: symbols");
+    symbol_t *symbol;
     if (*str == 0)
 	return NULL;
-    symbol_t *symbol = &symbols[last_symbol++];
+    if (last_symbol == MAX_SYMBOLS) {
+	if (free_symbols == NULL)
+	    error("Error: out of memory: symbols");
+	symbol = free_symbols;
+	free_symbols = free_symbols->next;
+    } else
+	symbol = &symbols[last_symbol++];
     strcpy(symbol->str, str);
-    symbol->next = NULL;
+    symbol->next_hash = NULL;
     symbol->value = NOVALUE;
     symbol->func = NULL;
     symbol->lambda = NULLOBJ;
     symbol->macro = NULLOBJ;
     return symbol;
+}
+
+/**
+ * Освобождение памяти для символа
+ *
+ * @param s объект для освобождения
+ */
+void free_symbol(symbol_t *s)
+{
+    if (s == NULL)
+	error("free_symbol: null pointer: obj");
+    s->next = free_symbols;
+    free_symbols = s;
+    total_symbols--;
 }
 
 /**
@@ -635,6 +661,7 @@ void garbage_collect()
     mark_object(current_env);
     mark_object(func_env);
     sweep();
+    allocated_pairs = 0;
 } 
 
 int print_counter = 0;
@@ -723,7 +750,7 @@ object_t print_gc_stat(object_t o)
     printf("bignumbers: %d(%d) of %d\n", last_bignumber, total_bignumbers, MAX_NUMBERS);
     printf("floats: %d(%d) of %d\n", last_float, total_floats, MAX_FLOATS);
     printf("pairs: %d(%d) of %d\n", last_pair, total_pairs, MAX_PAIRS);
-    printf("symbols: %d of %d\n", last_symbol, MAX_SYMBOLS);
+    printf("symbols: %d(%d) of %d\n", last_symbol, total_symbols, MAX_SYMBOLS);
     printf("strings: %d(%d) of %d\n", last_string, total_strings, MAX_STRINGS);
     printf("arrays: %d(%d) of %d\n", last_array, total_arrays, MAX_ARRAYS);
     printf("functions: %d(%d) of %d\n", last_function, total_functions, MAX_FUNCTIONS);
@@ -738,17 +765,5 @@ object_t print_gc_stat(object_t o)
  */ 
 int need_grabage_collect()
 {
-    if (total_pairs > (MAX_PAIRS - (MAX_PAIRS >> 3)))
-        return 1;
-    if (total_bignumbers > (MAX_NUMBERS - (MAX_NUMBERS >> 3)))
-        return 1;
-    if (total_strings > (MAX_STRINGS - (MAX_STRINGS >> 3)))
-        return 1;
-    if (total_arrays > (MAX_ARRAYS - (MAX_ARRAYS >> 3)))
-        return 1;
-    if (total_floats > (MAX_FLOATS - (MAX_FLOATS >> 3)))
-        return 1;
-    if (total_functions > (MAX_FUNCTIONS - (MAX_FUNCTIONS >> 3)))
-        return 1;
-    return 0;
+    return allocated_pairs > GC_THRESHOLD;
 }
