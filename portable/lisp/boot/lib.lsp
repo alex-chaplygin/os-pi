@@ -38,6 +38,12 @@
 		 (cond ,@(cdr body)))
 	    (car c)))))
 
+(defmacro and (&rest args)
+  "оператор 'и' для произвольного количества выражений"
+  (if (null args) t
+      (if (null (cdr args)) (car args)
+	  `(if ,(car args) (and ,@(cdr args)) nil))))
+
 (defmacro case (val &rest list)
   "(setq k 10)"
   "(case k ((1 2)(2 3)(otherwise 4)))"

@@ -98,6 +98,16 @@
     (print (assert (cond-test 12) ">10"))
     (print (assert (cond) nil))))
 
+(defun and-tests ()
+  (print (assert (and nil nil) nil))
+  (print (assert (and (= 1 1) nil) nil))
+  (print (assert (and nil t) nil))
+  (print (assert (and t t) t))
+  (print (assert (and t t nil) nil))
+  (print (assert (and t nil t t) nil))
+  (print (assert (and t t t) t))
+  (print (assert (and nil nil nil) nil)))
+
 (fors-test)
 (tagbody-rec-test)
 (lex-test)
@@ -105,3 +115,4 @@
 (dyn-test)
 (closure-test)
 (cond-tests)
+(and-tests)

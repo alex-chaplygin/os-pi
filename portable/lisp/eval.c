@@ -28,8 +28,6 @@ symbol_t *defmacro_sym;
 symbol_t *setq_sym;
 /// символ "OR"
 symbol_t *or_sym;
-/// символ "AND"
-symbol_t *and_sym;
 /// символ "T"
 symbol_t *t_sym;
 /// символ "NIL"
@@ -495,8 +493,8 @@ object_t eval_args(object_t args, object_t env, object_t func)
 int is_special_form(symbol_t *s) 
 { 
     return s == quote_sym || s == defun_sym || s == defmacro_sym
-	|| s == setq_sym || s == backquote_sym || s == if_sym //|| s == cond_sym
-	|| s == or_sym || s == and_sym || s == return_from_sym
+	|| s == setq_sym || s == backquote_sym || s == if_sym 
+	|| s == or_sym || s == return_from_sym
 	|| s == labels_sym || s == tagbody_sym || s == progn_sym
 	|| s == go_sym || s == block_sym || s == func_sym; 
 } 
@@ -648,32 +646,6 @@ object_t setq(object_t params)
 	params = TAIL(TAIL(params));
     }
     error("setq: out of vars");
-} 
-
-/* 
- * Логическое И (and (= 1 2) (= 2 2)) 
- * Возвращает результат ЛОЖЬ после нахождения первого ложного условия 
- * Должно быть хотя бы одно условие 
- * @param param параметры (условие 1, условие 2, и т.д.) 
- * @return возвращает результат И 
- */ 
-object_t and(object_t params) 
-{ 
-    if (params == NULLOBJ)
-	error("and: no params");
-    object_t env = current_env;
-    object_t func = func_env;    
-    while (params != NULLOBJ) { 
-	object_t first = FIRST(params); 
-	object_t res = eval(first, env, func); 
-	if (res == nil) 
-	    return nil; 
-	else if (res == t) 
-	    params = TAIL(params); 
-	else 
-	    error("and: invalid param"); 
-    } 
-    return t;
 } 
 
 /* 
@@ -961,7 +933,6 @@ void init_eval()
     register_func("PROGN", progn); 
     register_func("SETQ", setq); 
     register_func("OR", or); 
-    register_func("AND", and); 
     register_func("MACROEXPAND", macroexpand); 
     register_func("FUNCALL", funcall); 
     register_func("LIST", list); 
@@ -985,7 +956,6 @@ void init_eval()
     defmacro_sym = find_symbol("DEFMACRO"); 
     setq_sym = find_symbol("SETQ"); 
     or_sym = find_symbol("OR"); 
-    and_sym = find_symbol("AND"); 
     t_sym = GET_SYMBOL(t); 
     t_sym->value = t; 
     nil_sym = find_symbol("NIL"); 
