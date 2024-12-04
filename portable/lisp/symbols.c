@@ -15,7 +15,7 @@ unsigned int hash(char *str)
     unsigned int res = 456886;//*str++; 
   
     while (*str)
-        res = (res * 846431 + *str++)%257659;
+        res = (res * 846431 + *str++) % 257659;
     return res;
 }
 
@@ -45,7 +45,7 @@ symbol_t *check_symbol(char *str)
     symbol_t *el = hash_table[i];
     if (el == NULL)
         return NULL;
-    for (symbol_t *cur = el; cur != NULL; cur = cur->next)
+    for (symbol_t *cur = el; cur != NULL; cur = cur->next_hash)
             if (compare_str(cur->str, str))
                 return cur;    
     return NULL;
@@ -64,22 +64,21 @@ symbol_t *find_symbol(char *str)
         return NULL;
     int i = hash(str) % HASH_SIZE;
     symbol_t *el = hash_table[i];
-    if (el == NULL ){
+    if (el == NULL) {
         symbol_t *new = new_symbol(str);
+	new->hash_index = i;
         hash_table[i] = new;
         el = new;
-    }
-    else
-    {
-        for (symbol_t *cur = el; cur != 0; cur = cur->next)
+    } else {
+        for (symbol_t *cur = el; cur != 0; cur = cur->next_hash)
             if (compare_str(cur->str, str))
                 return cur;
                 
         symbol_t *new = new_symbol(str);
         symbol_t *last = el;
-        while (last->next != 0)
-            last = last->next;
-        last->next = new;
+        while (last->next_hash != 0)
+            last = last->next_hash;
+        last->next_hash = new;
         return new;
     }    
     return el;
@@ -104,9 +103,9 @@ void print_table()
 	cur = hash_table[i];
 	if (cur != NULL) {
 	    printf("%d ", i);
-	    while (cur->next != NULL) {
+	    while (cur->next_hash != NULL) {
 		printf("%s -> ", cur->str);
-		cur = cur->next;
+		cur = cur->next_hash;
 	    }
 	    printf("%s\n", cur->str);
 	}
