@@ -78,6 +78,7 @@ void test_bignum_sum(const char* num1, const char* num2, const char* expected_re
     bignum_sum(bignum1, bignum2);
     ASSERT(bignum1->size, result_bignum->size);
     ASSERT(memcmp(bignum1->data, result_bignum->data, bignum1->size * sizeof(bignum1->data[0])), 0);
+    ASSERT(bignum1->sign, result_bignum->sign);
     free_bignum(bignum1);
     free_bignum(bignum2);
     free_bignum(result_bignum);
@@ -124,8 +125,12 @@ void test_bignum_sub(const char* num1, const char* num2, const char* expected_re
     bignum_t result_bignum = new_bignum_from_str(expected_result);
 
     bignum_sub(bignum1, bignum2);
+    printf("res: ");
+    print_bignum(bignum1);
+    printf("\n");
     ASSERT(bignum1->size, result_bignum->size);
     ASSERT(memcmp(bignum1->data, result_bignum->data, bignum1->size * sizeof(bignum1->data[0])), 0);
+    ASSERT(bignum1->sign, result_bignum->sign);
     free_bignum(bignum1);
     free_bignum(bignum2);
     free_bignum(result_bignum);
@@ -244,7 +249,7 @@ int main()
 */
     test_bignum_sum("-10", "10", "0");
     test_bignum_sum("-10", "-10", "-20");
-    test_bignum_sum("10", "-20", "0");
+    test_bignum_sum("10", "-20", "-10");
     test_bignum_sum("20", "-10", "10");
     test_bignum_sum("501", "503", "1004");    
 
@@ -253,6 +258,9 @@ int main()
     test_bignum_sub("503", "501", "2");
     test_bignum_sub("0", "0", "0");
     test_bignum_sub("0", "1", "-1");
+    test_bignum_sub("0", "10", "-10");
+    //test_bignum_sub("1", "10", "-9");
+    test_bignum_sub("10", "20", "-10");
     test_bignum_sub("0", "-1", "1");
     test_bignum_sub("-1", "0", "-1");
     test_bignum_sub("-1", "1", "-2");
