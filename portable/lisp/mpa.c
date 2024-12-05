@@ -236,18 +236,20 @@ void bignum_sub(bignum_t n1, bignum_t n2)
 	bignum_sum(n1, n2);
 	return;
     }
-    if (bignum_compare(n1, n2) == -1) {
-	bignum_t temp;
-	temp = n1;
-	n1 = n2;
-	n2 = temp;
-	n1->sign = -1;
+    int res = bignum_compare(n1, n2);
+    if (res == 0) {
+	n1->data[0] = 0;
+	n1->size = 1;
+	n1->sign = 1;
+	return;
+    } else if (res == -1) {
+	struct bign temp;
+	memcpy(&temp, n1, sizeof(struct bign));
+        memcpy(n1, n2, sizeof(struct bign));
+        memcpy(n2, &temp, sizeof(struct bign));
+        memcpy(&temp, n2, sizeof(struct bign));
+	n1->sign = (n1->sign == 1) ? -1 : 1;
     }
-    printf("n1 = ");
-    print_bignum(n1);
-    printf(" n2 = ");
-    print_bignum(n2);
-    printf("\n");
     int borrow = 0;
     for (int i = 0; i < n1->size; i++) {
         int sub = n1->data[i] - (i < n2->size ? n2->data[i] : 0) - borrow;
@@ -258,9 +260,6 @@ void bignum_sub(bignum_t n1, bignum_t n2)
             borrow = 0;
         n1->data[i] = sub;
     }
-    printf("n1 before while = ");
-    print_bignum(n1);    
-    printf(" size = %d\n", n1->size);
     while (n1->size > 0 && n1->data[n1->size - 1] == 0)
         n1->size--;
     if (n1->size == 0) {
