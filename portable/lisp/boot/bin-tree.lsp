@@ -3,8 +3,9 @@
 
 (defun correct-tree (t1)
   "Проверка узла t1 на корректность"
+  "nil - корректное дерево"
   "Узел и лист корректные, если они состоят из трех элементов"
-  (if (= (list-length t1) +node-size+) t nil))
+  (or (null t1) (eq (car t1) 'leaf) (= (list-length t1) +node-size+)))
 
 (defun make-tree (t1 t2 val)
   "Создать дерево с поддеревом t1 - слева, t2 - справа"
@@ -12,49 +13,35 @@
 "node (left right val) - узел, первый и второй элементы являются соответствующими поддеревьями, третий элемент - значение узла, которое может быть nil или любым объектом"
 (if (and (correct-tree t1) (correct-tree t2))
       (list t1 t2 val)
-    (error '(try to make an incorrect node))))
+    (error "make-tree: try to make an incorrect node")))
 
 (defun make-leaf (val)
   "Создать лист со значением val"
   "leaf (nil nil val) - лист, не имеет поддеревьев, третий элемент значение узла, которое может быть nil или любым объектом"
-  (list nil nil val))
+  (list 'leaf val))
 
 (defun is-leaf (t1)
   "Является ли t1 листом"
-  (if (and (correct-tree t1) (null (car t1)) (null (cadr t1))) t nil))
+  (and (correct-tree t1) (eq (car t1) 'leaf)))
 
 (defun left-tree (t1)
   "Получение левого поддерева узла t1"
   "Доступен только узлу"
-  (if (and (correct-tree t1) (null (is-leaf t1)))
+  (if (and (correct-tree t1) (not (is-leaf t1)))
       (car t1)
-      (error '(wrong access to left tree))))
+      (error "left-tree: invalid operation")))
 
 (defun right-tree (t1)
   "Получение правого поддерева узла t1"
   "Доступен только узлу"
-  (if (and (correct-tree t1) (null (is-leaf t1)))
+  (if (and (correct-tree t1) (not (is-leaf t1)))
     (cadr t1)
-    (error '(wrong access to right tree))))
-
-(defun set-left-tree (t1 left)
-  "Установка левого поддерева узлу t1"
-  "Доступен только узлу"
-  (if (and (correct-tree t1) (correct-tree left) (null (is-leaf t1)))
-      (rplaca t1 left)
-      (error '(wrong attempt to set left tree))))
-
-(defun set-right-tree (t1 right)
-  "Установка правого поддерева узлу t1"
-  "Доступен только узлу"
-  (if (and (correct-tree t1) (correct-tree right) (null (is-leaf t1)))
-      (progn (rplaca (cdr t1) right) t1)
-      (error '(wrong attempt to set right tree))))
+    (error "right-tree: invalid operation")))
 
 (defun tree-get-val (t1)
   "Получение значения узла t1"
-  (when (correct-tree t1) (caddr t1)))
-
-(defun tree-set-val (t1 val)
-  "Установка значения val узлу t1"
-  (when (correct-tree t1) (progn (rplaca (cddr t1) val) t1)))
+  (if (correct-tree t1)
+   (if (is-leaf t1)
+       (cadr t1)
+       (caddr t1))
+   (error "tree-get-val: try to get val of an incorrect obj")))
