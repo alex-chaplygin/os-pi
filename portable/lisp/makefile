@@ -66,6 +66,10 @@ queue-test: $(BASELISP) $(TEST) boot/test/queue.lsp
 bin-tree-test: $(BASELISP) boot/bin-tree.lsp $(TEST) boot/test/bin-tree.lsp
 	make -C test /tmp/repl_lisp
 	cat $^ | /tmp/repl_lisp
+# модульные тесты коды Хаффмана
+huffman-test: $(BASELISP) boot/bin-tree.lsp boot/huffman.lsp $(TEST) boot/test/huffman.lsp
+	make -C test /tmp/repl_lisp
+	cat $^ | /tmp/repl_lisp
 # модульные тесты цикла событий
 key-test: $(BASELISP) boot/sys/keyboard.lsp boot/test/key.lsp boot/sys/events.lsp 
 	make -C test /tmp/lisp
