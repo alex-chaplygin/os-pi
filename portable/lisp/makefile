@@ -2,7 +2,7 @@ SHELL=bash
 SRC=parser.o lexer.o objects.o symbols.o eval.o arith.o array.o str.o pair.o predicates.o alloc.o mpa.o error.o
 CFLAGS=-g -m32 -nostdlib -nodefaultlibs -Wno-builtin-declaration-mismatch -I../include -D OS -D X32 -DDEBUG -fno-stack-protector -fstack-check=no
 BASELISP=boot/lib.lsp boot/list.lsp boot/array.lsp boot/str.lsp boot/hash.lsp boot/oop.lsp boot/queue.lsp boot/vec2.lsp
-GRAPHICS=$(BASELISP) boot/math.lsp boot/bgr.lsp boot/graphics/matrix.lsp boot/graphics/backend.lsp boot/graphics/frontend.lsp
+GRAPHICS=$(BASELISP) boot/math.lsp boot/bgr.lsp boot/graphics/matrix.lsp boot/graphics/image.lsp boot/graphics/backend.lsp boot/graphics/frontend.lsp
 TEST=boot/test.lsp
 ASCII_GRAPHICS=$(GRAPHICS) boot/graphics/ascii-backend.lsp
 FS=$(BASELISP) boot/ata.lsp boot/mbr.lsp boot/fs/block.lsp boot/fs/fs.lsp boot/fs/fat32fs.lsp boot/fs/fat.lsp boot/fs/dir.lsp boot/fs/fat32test.lsp
@@ -76,5 +76,9 @@ key-test: $(BASELISP) boot/sys/keyboard.lsp boot/test/key.lsp boot/sys/events.ls
 	cat $^ | /tmp/lisp
 # модульные тесты двумерного вектора
 vec2-test: $(BASELISP) $(TEST) boot/test/vec2.lsp
+	make -C test /tmp/lisp
+	cat $^ | /tmp/lisp
+# модульные тесты изображений
+image-test: $(GRAPHICS) $(TEST) boot/graphics/test/image.lsp
 	make -C test /tmp/lisp
 	cat $^ | /tmp/lisp

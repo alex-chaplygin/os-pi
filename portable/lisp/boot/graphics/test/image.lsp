@@ -1,0 +1,21 @@
+(defvar +image3x3+ (make-image #(#(3 5 6)
+				 #(8 9 2)
+				 #(5 2 4))))
+
+(defvar +image2x5+ (make-image #(#(3 5)
+				 #(8 9)
+				 #(5 2)
+				 #(324 53)
+				 #(83 12))))
+
+(defvar +image5x1+ (make-image #(#(3 5 6 10 23))))
+
+(print (assert (image-width +image3x3+) 3))
+(print (assert (image-width +image2x5+) 2))
+(print (assert (image-width +image5x1+) 5))
+(print (assert (image-height +image3x3+) 3))
+(print (assert (image-height +image2x5+) 5))
+(print (assert (image-height +image5x1+) 1))
+(print (assert (image-row +image3x3+ 2) #(5 2 4)))
+(print (assert (image-row +image2x5+ 3) #(324 53)))
+(print (assert (image-row +image5x1+ 0) #(3 5 6 10 23)))
