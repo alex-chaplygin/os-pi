@@ -24,7 +24,6 @@ object_t progn(object_t list);
 object_t defun(object_t list);
 object_t quote(object_t list);
 object_t eq(object_t list);
-object_t and(object_t list);
 object_t or(object_t list);
 object_t backquote(object_t list);
 object_t defmacro(object_t list);
@@ -132,6 +131,19 @@ void test_defun()
 }
 
 /**
+ * Вызвать defun без аргументов
+ */
+void test_defun_null()
+{
+    printf("test_defun_null: ");
+    if (setjmp(jmp_env) == 0) {
+        object_t res = defun(NULLOBJ);  // FIXME: Вызывает segfault
+        FAIL;
+    } else
+        OK;
+}
+
+/**
  * Создать окружение с числовыми переменными X, Y
  * Вызвать функцию setq для изменения значения Y на 1010
  * Проверить что значение Y = 1010
@@ -221,6 +233,19 @@ void test_progn()
     object_t res = progn(obj); 
     ASSERT(TYPE(res), NUMBER);
     ASSERT(get_value(res), 3);
+}
+
+/**
+ * Попытка вычисления списка выражений с одним элементом
+ */
+void test_progn_single_element()
+{
+    printf("test_progn_single_element: ");
+    object_t num = new_number(5);
+    object_t list = new_pair(num, NULLOBJ);
+    object_t res = progn(list);
+    ASSERT(TYPE(res), NUMBER);
+    ASSERT(get_value(res), 5);
 }
 
 /**
@@ -380,6 +405,19 @@ void test_quote()
      object_t list = new_pair(obj, NULLOBJ);
      object_t res = quote(list);
      ASSERT(res, obj);
+}
+
+/**
+ * Попытка цитирования пустого аргумента
+ */
+void test_quote_null()
+{
+    printf("test_quote_null: ");
+    if (setjmp(jmp_env) == 0) {
+        object_t res = quote(NULLOBJ);  // FIXME: Вызывает segfault
+        FAIL;
+    } else
+        OK;
 }
 
 /**
@@ -604,20 +642,25 @@ void test_macro_call()
     ASSERT(get_value(res), 10);
 }
 
+void test_eval_func(object_t list, object_t args, int expected)
+{
+    object_t res = eval_func(list, args, NULLOBJ, NULLOBJ);
+    ASSERT(TYPE(res), NUMBER);
+    ASSERT(get_value(res), expected);
+}
+
 /**
  * Тест вызова функции ((lambda (x) x) 10)
  */
-void test_eval_func()
+void test_eval_func1()
 {
-    printf("test_eval_func: ");
+    printf("test_eval_func1: ");
     object_t x1 = NEW_SYMBOL("x"); // x 
     object_t param1 = new_pair(x1, NULLOBJ); // (x) 
     object_t list = new_pair(NEW_SYMBOL("LAMBDA"), new_pair(param1, param1)); // (lambda (x) x) 
     object_t arg_x = new_number(10); // 10
     object_t args = new_pair(arg_x, NULLOBJ); //(
-    object_t res = eval_func(list, args, NULLOBJ, NULLOBJ); 
-    ASSERT(TYPE(res), NUMBER); 
-    ASSERT(get_value(res), 10); 
+    test_eval_func(list, args, 10);
 }
 
 /**
@@ -632,9 +675,7 @@ void test_eval_func2()
     object_t param1 = new_pair(x1, NULLOBJ); // (x) 
     object_t param2 = new_pair(arg_x, param1); 
     object_t list = new_pair(NEW_SYMBOL("LAMBDA"), new_pair(param1, param2));  
-    object_t res = eval_func(list, args, NULLOBJ, NULLOBJ); 
-    ASSERT(TYPE(res), NUMBER); 
-    ASSERT(get_value(res), 10);
+    test_eval_func(list, args, 10);
 }
 
 /** 
@@ -664,6 +705,16 @@ void test_defmacro()
     PRINT(result);
     ASSERT(TYPE(result), SYMBOL); 
     ASSERT(strcmp(GET_SYMBOL(result)->str, "test"), 0); 
+}
+
+void test_defmacro_null()
+{
+    printf("test_defmacro_null: ");
+    if (setjmp(jmp_env) == 0) {
+        object_t result = defmacro(NULLOBJ);  // FIXME: Вызывает segfault
+        FAIL;
+    } else
+        OK;
 }
 
 /**
@@ -880,10 +931,12 @@ int main()
     test_make_env();
     test_find_in_env();
     test_defun();//18
+    // test_defun_null();  // FIXME: Вызывает segfault
     test_setq_set_env();
     /* test_setq_global_set(); */
     test_append();
     test_progn();
+    test_progn_single_element();
     test_progn_null();
     test_backquote_nulllist();
     test_backquote_arguments();
@@ -893,6 +946,7 @@ int main()
     test_atom_many_args();//131
     test_quote();
     test_quote_error();//53
+    // test_quote_null();  // FIXME: Вызывает segfault
     test_eq(); //9, 55, 56, 57
     test_or_null();
     test_or_invalid();
@@ -905,10 +959,11 @@ int main()
     test_is_lambda_not_symbol();
     test_is_lambda_no_body();
     test_macro_call();
-    test_eval_func();
+    test_eval_func1();
     test_eval_func2();
     /* test_er_num_arg_make_env(); */
     test_defmacro();
+    // test_defmacro_null();  // FIXME: Вызывает segfault
     test_eval_symbol_with_defined_variable();
     test_eval_symbol_environment_variable();
     test_eval_symbol_undefined_variable();
