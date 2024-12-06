@@ -1,7 +1,7 @@
-(defvar +screen-width+ 320)
-(defvar +screen-height+ 200)
-(defvar +screen-depth+ 8)
-(defvar *gr-buf* (make-array (* +screen-width+ +screen-height+ (/ +screen-depth+ 8))))
+(defvar *screen-width*) ; ширина экрана
+(defvar *screen-height*) ; высота экрана
+(defvar +screen-depth+ 8) ; число бит на пиксель
+(defvar *graphics-buffer*) ; внутренний буфер пикселей
 
 (defclass Edge ()
   (cur-x ; текущее пересечение (начало ребра)
@@ -11,14 +11,33 @@
    dy ; разница координат ребра по y
    counter)) ; счетчик для дроби
 
+(defun draw-screen ()
+  "Отобразить графику из внутреннего буфера"
+  (graph-send-buffer *graphics-buffer*))
+
+(defun clear-screen ()
+  "Очистка экрана"
+  (let ((size (* *screen-height* *screen-width*)))
+    (for i 0 size
+      (seta *graphics-buffer* i 0)))
+  (graph-send-buffer *graphics-buffer*))
+
+(defun init-screen (w h)
+  "Инициализация экрана с разрешением w на h"
+  (setq *screen-width* w)
+  (setq *screen-height* h)
+  (setq *graphics-buffer* (make-array (* w h (/ +screen-depth+ 8))))
+  (bgr-set-res w h +screen-depth+)
+  (clear-screen))
+
 (defun set-pixel (x y colour)
   "Установка пикселя"
   "x y - координаты пикселя, colour - цвет"
-  (if (< x +screen-width+)
+  (if (< x *screen-width*)
     (if (> x -1)
-      (if (< y +screen-height+)
+      (if (< y *screen-height*)
         (if (> y -1)
-          (seta *gr-buf* (+ x (* y +screen-width+)) colour)
+          (seta *graphics-buffer* (+ x (* y *screen-width*)) colour)
           nil) nil) nil) nil))
 
 (defun mid-point (x1 y1 x2 y2)
@@ -180,46 +199,3 @@
       (let ((curve-point (bezier-point p1 p2 p3 p4 ti)))
 	(set-pixel (car curve-point) (cdr curve-point) colour))
       (setq ti (+ ti step)))))
-
-(defun gr-test ()
-  "Тест графики"
-  (bgr-set-res +screen-width+ +screen-height+ +screen-depth+)
-  (for y 0 +screen-height+
-  (for x 0 +screen-width+
-    ; (seta *gr-buf* (+ x (* y +screen-width+)) (& x 0xff))))
-    (set-pixel x y (& x 0xff))))
-  (graph-send-buffer *gr-buf*))
-
-(defun rect-test ()
-  (bgr-set-res +screen-width+ +screen-height+ +screen-depth+)
-  (draw-rect 30 10 200 100 1)
-  (graph-send-buffer *gr-buf*))
-
-(defun rectf-test ()
-  (bgr-set-res +screen-width+ +screen-height+ +screen-depth+)
-  (draw-rectf 30 10 200 100 1)
-  (graph-send-buffer *gr-buf*))
-
-(defun line-test ()
-  (bgr-set-res +screen-width+ +screen-height+ +screen-depth+)
-  (draw-line 37 17 176 200 1)
-  (draw-line 200 13 20 100 3)
-  (draw-line 72 126 13 200 2)
-  (graph-send-buffer *gr-buf*))
-
-(defun circle-test ()
-  (bgr-set-res +screen-width+ +screen-height+ +screen-depth+)
-  (draw-circle 100 100 20 1)
-  (graph-send-buffer *gr-buf*))
-
-(defun bezier-test ()
-  (bgr-set-res +screen-width+ +screen-height+ +screen-depth+)
-  (draw-bezier-curve 10 10 100 100 200 100 300 10 1)
-  (graph-send-buffer *gr-buf*))
-
-(defun draw-line-test ()
-  (bgr-set-res +screen-width+ +screen-height+ +screen-depth+)
-  (draw-line 5 10 100 100 1)
-  (draw-hline 10 100 10 1)
-  (fill-triangle 50 10 10 50 100 50 1)
-  (graph-send-buffer *gr-buf*))
