@@ -6,8 +6,11 @@
 #include <parser.h>
 
 #define TEXT_BUF_WIDTH 160 // число байт в строке текстового буфера
-#define TEXT_BUF_HEIGHT 25 // число строк в текстовом буфере
-#define TEXT_VIDEO_MEM 0xB8000 // Адрес текстовой видео памяти 
+#define TEXT_BUF_HEIGHT 25 // число строк в текстовом буфере видеопамяти
+#define GRAPHIC_BUF_WIDTH 320 // число байт в строке буфера видеопамяти
+#define GRAPHIC_BUF_HEIGHT 200 // число строк в буфере
+#define TEXT_VIDEO_MEM 0xB8000 // Адрес текстовой видеопамяти 
+#define VIDEO_MEM 0xA0000 // Адрес видеопамяти 
 
 /**
  * Отправляет массив в буфер видеопамяти
@@ -39,7 +42,7 @@ object_t send_text_buffer(object_t params)
     int y = get_value(THIRD(params));
     int w = 2 * get_value(FIRST(TAIL(TAIL(TAIL(params)))));
     int h = get_value(SECOND(TAIL(TAIL(TAIL(params)))));
-    byte b[TEXT_BUF_WIDTH] = {0x30, 0x33, 0x31, 0x34};
+    byte b[TEXT_BUF_WIDTH];
     byte *bp;
 
     int start_offset = TEXT_BUF_WIDTH * y + x * 2;
@@ -55,10 +58,39 @@ object_t send_text_buffer(object_t params)
     }
 }
 
+/**
+ * Отправляет часть экрана в буфер видеопамяти
+ * 
+ * @param params - (буфер, координаты x,y копируемой области, ширина и высота копируемой области )
+ */
+object_t send_graphics_buffer(object_t params)
+{
+    array_t *buf = GET_ARRAY(FIRST(params));
+    int x = get_value(SECOND(params));
+    int y = get_value(THIRD(params));
+    int w = get_value(FIRST(TAIL(TAIL(TAIL(params)))));
+    int h = get_value(SECOND(TAIL(TAIL(TAIL(params)))));
+    byte b[GRAPHIC_BUF_WIDTH];
+    byte *bp;
+
+    int start_offset = GRAPHIC_BUF_WIDTH * y + x;
+    byte *dst = (byte *)VIDEO_MEM + start_offset;
+    object_t *src = buf->data + start_offset;
+    for (int yi = 0; yi < h; yi++) {
+	bp = b;
+	for (int i = 0; i < w; i++)
+	    *bp++ = GET_CHAR(src[i]);
+	memcpy(dst, b, w);
+	dst += GRAPHIC_BUF_WIDTH;
+	src += GRAPHIC_BUF_WIDTH;
+    }
+}
+
 void graph_init()
 {
     register_func("GRAPH-SEND-BUFFER", graph_send_buffer);
     register_func("SEND-TEXT-BUFFER", send_text_buffer);
-    
+    register_func("SEND-GRAPHICS-BUFFER", send_graphics_buffer);
+
 }
 
