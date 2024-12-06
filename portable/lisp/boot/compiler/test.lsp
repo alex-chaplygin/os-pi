@@ -1,24 +1,24 @@
 ;; *test-failed* - флаг - провалился ли хотя бы один тест.
 (defvar *test-failed* nil)
-;; (setq *test-failed* t)
+
 
 ;; Тест компиляции, ассемблирования и выполнения программы.
 (defun test (expr expected-res)
   (unless (or *test-failed*
-	      *test-compile-failed*)
+              *test-compile-failed*)
     (let* ((program (compile expr))
            (bytecode (assemble program))
            (target nil))
       (if *comp-err*
           (setq target *comp-err-msg*)
-	      (setq target (vm-run bytecode)))
+          (setq target (vm-run bytecode)))
       (let ((res (assert target expected-res)))
-	    (print expr)
-	    (when (not (null program)) (print program))
-	    (when (> (array-size bytecode) 0) (print bytecode))
-	    (print res)
+        (print expr)
+        (when (not (null program)) (print program))
+        (when (> (array-size bytecode) 0) (print bytecode))
+        (print res)
         (if (eq (car res) 'fail)
-	        (setq *test-failed* t)
+            (setq *test-failed* t)
             (print '---------------------))))))
 
 ;; Проверка, все ли тесты успешны
@@ -37,7 +37,7 @@
 (test '(if t 1) "[Compilation error] if: not enough params")
 (test '(if t 1 2 3) "[Compilation error] if: too many params")
 (test '(if t 1 2) 1)
-(test '(if 5 1 2) 2)
+(test '(if 5 1 2) 1)
 (test `(if ,nil 1 2) 2)
 (test '(if t (if t 1 2) 3) 1)
 (test `(if t (if ,nil 1 2) 3) 2)
@@ -74,8 +74,8 @@
 (test '((lambda (x) (setq x 35)) 30) 35)
 
 (test '(progn
-	    (defun f (x) x)
-	    (f 5))
+        (defun f (x) x)
+        (f 5))
       5)
 (test '(progn
         (defun f (x) x)
@@ -94,15 +94,15 @@
       6)
 
 (test '(progn
-	 (defun test (x)
-	   ((lambda (y) (+ x y)) 10))
-	 (test 20))
+        (defun test (x)
+          ((lambda (y) (+ x y)) 10))
+        (test 20))
       30)
 (test '(progn
-	 (defun test (x)
-	   ((lambda (y) (+ x y)) 10)
-	   ((lambda (y z) (+ x (+ y z))) 20 30))
-	 (test 50))
+        (defun test (x)
+          ((lambda (y) (+ x y)) 10)
+          ((lambda (y z) (+ x (+ y z))) 20 30))
+        (test 50))
       100)
 
 
