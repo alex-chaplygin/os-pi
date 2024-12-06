@@ -1,7 +1,10 @@
 ARCHIVE="/tmp/$1.tar.gz"
 cd ~/os-pi
 git status
+
 FILES=`git status | grep -P "^\t" | sed -e 's/^[ \t]\+изменено:[ \t]\+\(.*\)/\1/g'`
+
+#FILES=`git status | grep -P "^\t" | sed -e 's/^[ \t]\+modified:[ \t]\+\(.*\)/\1/'`
 echo "Архивация файлов:"
 echo "------------------------"
 echo "$FILES"
