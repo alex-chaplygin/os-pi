@@ -13,6 +13,10 @@ sh sys_test "-2147483648" "-2147483648"
 sh sys_test "-2147483649" "number overflow"
 #функция
 sh sys_test "#'(lambda (x) (+ x 1))" "(LAMBDA (X) ((+ X 1)))"
+# вместо функции число
+sh sys_test "(5 5)" ""
+# вместо функции символ
+sh sys_test '(#\\5 5)' ""
 
 
 echo "---Тесты PARSER ---"
