@@ -17,7 +17,7 @@ lisp: /tmp/baselisp.lsp # здесь меняем набор библиотек
 	cat $^ >$@ ;
 	echo -e -n "\xff" >>$@
 # графика
-/tmp/graphics.lsp: $(GRAPHICS)
+/tmp/graphics.lsp: $(GRAPHICS) boot/graphics/test/backend.lsp
 	cat $^ >$@ ;
 	echo -e -n "\xff" >>$@
 # графика через ASCII в текстовом видеорежиме
@@ -43,7 +43,7 @@ lisp: /tmp/baselisp.lsp # здесь меняем набор библиотек
 	echo "(print (round 1.5))" >>$@ ;
 	echo -e -n "\xff" >>$@
 # модульные тесты графики
-graphics-test: $(GRAPHICS) $(TEST) boot/graphics/test/backend.lsp
+graphics-test: $(GRAPHICS) $(TEST) boot/graphics/test/unit-backend.lsp
 	make -C test /tmp/lisp
 	cat $^ | /tmp/lisp
 # модульные тесты стандартной библиотеки

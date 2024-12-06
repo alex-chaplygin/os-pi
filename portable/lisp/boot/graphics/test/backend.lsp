@@ -1,65 +1,55 @@
-(defvar *hlist*) ;список горизонталей для теста fill-triangle
+(defun draw-screen-test ()
+  "Тестирование вывода экрана"
+  (let ((i -1))
+    (for y 0 *screen-height*
+	 (for x 0 *screen-width*
+             (seta *graphics-buffer* (incf i) (& x 0x3f)))))
+  (draw-screen))
 
-(defun test-next-x (x1 y1 x2 y2 res-list)
-  "Тестирование поиска пересечения горизонталью ребра"
-  (let ((e (make-Edge x1 y1 y2 (- x2 x1) (- y2 y1) 0))
-	(list nil))
-    (for i y1 y2
-	 (setq list (append list (list (next-x e)))))
-    (print (assert list res-list))))
-  
-(defun test-fill-triangle (p1 p2 p3 hlines)
-  "Тестирование заполнения треугольника p1p2p3, hlines -  список горизонтальных линей"
-  (setq *hlist* nil)
-  (fill-triangle p1 p2 p3 1)
-  (print (assert *hlist* hlines)))
+(defun rect-test ()
+  "Тестирование рисования полого прямоугольника"
+  (init-screen *screen-width* *screen-height*)
+  (draw-rect 30 10 200 100 1)
+  (draw-screen))
 
-(defun draw-hline (x1 x2 y colour)
-  "Переобпредлённая функция рисования горизонтальной линии"
-  (setq *hlist* (append *hlist* (list (list x1 x2 y)))))
+(defun rectf-test ()
+  "Тестирование рисования заполненного прямоугольника"
+  (init-screen *screen-width* *screen-height*)
+  (draw-rectf 30 10 200 100 1)
+  (draw-screen))
 
-(defun test-bezier-curve ()
-  (print "Тестирование рисования кривой Безье")
-  (setq *points* nil)
-  (draw-bezier-curve '(0 . 0) '(1 . 2) '(4 . 2) '(5 . 0) 20 1)
-  (print *points*))
+(defun line-test ()
+  "Тестирование рисования прямой линии"
+  (init-screen *screen-width* *screen-height*)
+  (draw-line 37 17 176 200 1)
+  (draw-line 200 13 20 100 3)
+  (draw-line 72 126 13 200 2)
+  (draw-screen))
 
-(defun set-pixel (x y colour)
-  "Заглушка рисования точки"
-  (setq *points* (append *points* (list x y))))
+(defun circle-test ()
+  "Тестирование рисования круга"
+  (init-screen *screen-width* *screen-height*)
+  (draw-circle 100 100 20 1)
+  (draw-screen))
 
-(defun fill-triangle-tests ()
-  (print "Произвольный треугольник")
-  (test-fill-triangle '(5 . 1) '(1 . 3) '(8 . 8) '((4 4 2) (2 5 3) (3 5 4) (5 6 5) (6 6 6)))
-  (test-next-x 5 1 1 3 '(3 1))
-  (test-next-x 5 1 8 8 '(5 6 6 7 7 8 8))
-  (test-next-x 1 3 8 8 '(2 4 5 7 8))
+(defun bezier-test ()
+  "Тестирование рисования кривой Безье"
+  (init-screen *screen-width* *screen-height*)
+  (draw-bezier-curve 10 10 100 100 200 100 300 10 1)
+  (draw-screen))
 
-  (print "Треугольник с горизонтальной нижней гранью")
-  (test-fill-triangle '(6 . 1) '(1 . 6) '(10 . 6) '((6 6 2) (5 7 3) (4 7 4) (3 8 5)))
-  (test-next-x 6 1 1 6 '(5 4 3 2 1))
-  (test-next-x 6 1 10 6 '(7 8 8 9 10))
-  (test-next-x 1 6 10 6 ())
+(defun test-part-screen (x y w h c)
+  "Тестирование вывода части экрана"
+  (let ((i (+ (* y *screen-width*) x -1)))
+    (for yy y (+ y h)
+	 (for xx x (+ x w)
+	      (seta *graphics-buffer* (incf i) c))
+	 (setq i (- (+ i *screen-width*) w)))
+  (send-graphics-buffer *graphics-buffer* x y w h)))
 
-  (print "Треугольник с горизонтальной верхней гранью")
-  (test-fill-triangle '(1 . 1) '(11 . 1) '(8 . 8) '((3 10 2) (4 9 3) (5 9 4) (6 8 5) (7 8 6)))
-  (test-next-x 1 1 11 1 ())
-  (test-next-x 1 1 8 8 '(2 3 4 5 6 7 8))
-  (test-next-x 11 1 8 8 '(11 10 10 9 9 8 8))
-
-  (print "Несортированные треугольники")
-  (test-fill-triangle '(8 . 8) '(1 . 3) '(5 . 1) '((4 4 2) (2 5 3) (3 5 4) (5 6 5) (6 6 6)))
-  (test-fill-triangle '(6 . 1) '(10 . 6) '(1 . 6) '((6 6 2) (5 7 3) (4 7 4) (3 8 5)))
-  (test-fill-triangle '(11 . 1) '(1 . 1) '(8 . 8) '((3 10 2) (4 9 3) (5 9 4) (6 8 5) (7 8 6)))
-  (test-fill-triangle '(10 . 6) '(1 . 6) '(6 . 1) '((6 6 2) (5 7 3) (4 7 4) (3 8 5)))
-  (test-fill-triangle '(11 . 1) '(8 . 8) '(1 . 1) '((3 10 2) (4 9 3) (5 9 4) (6 8 5) (7 8 6)))
-
-  (test-next-x 1 1 4 4 '(2 3 4))
-  (test-next-x 3 2 5 6 '(4 4 5 5))
-  (test-next-x 6 6 2 8 '(4 2))
-  (test-next-x 3 3 3 6 '(3 3 3))
-  (test-next-x 1 1 2 10 '(1 1 1 1 2 2 2 2 2))
-  (test-next-x 1 1 4 8 '(1 2 2 3 3 4 4)))
-
-(fill-triangle-tests)
-(test-bezier-curve)
+(init-screen 320 200)
+(draw-screen-test)
+(clear-screen)
+(test-part-screen 30 10 100 50 1)
+(test-part-screen 70 30 120 70 2)
+(test-part-screen 148 148 1 1 3)
