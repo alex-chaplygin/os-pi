@@ -138,8 +138,10 @@ object_t atom(object_t list)
  */ 
 object_t quote(object_t list) 
 { 
-    if (TAIL(list) != NULLOBJ)
- 	error("quote: many args"); 
+    if (list == NULLOBJ)
+	error("quote: empty");
+    else if (TAIL(list) != NULLOBJ)
+ 	error("quote: many args");
     return FIRST(list); 
 } 
 
@@ -256,11 +258,13 @@ object_t IF(object_t obj)
  * @return символ имени новой функции 
  */ 
 object_t defun(object_t obj) 
-{ 
+{
+    if (obj == NULLOBJ)
+	error("defun: empty");
     symbol_t *name = find_symbol(GET_SYMBOL(FIRST(obj))->str); 
     name->lambda = new_pair(NEW_SYMBOL("LAMBDA"), TAIL(obj));
-    return NEW_SYMBOL(name->str);
-} 
+    return NEW_SYMBOL(name->str);  
+}
 
 /*  
  * Создаёт новый макрос 
@@ -271,10 +275,12 @@ object_t defun(object_t obj)
  */ 
 object_t defmacro(object_t obj) 
 { 
+    if (obj == NULLOBJ)
+	error("defmacro: empty");
     symbol_t *name = find_symbol(GET_SYMBOL(FIRST(obj))->str); 
     name->macro = new_pair(NEW_SYMBOL("LAMBDA"), TAIL(obj)); 
     return NEW_SYMBOL(name->str);
-} 
+}
 
 /* 
  * (progn e1 e2 .. en) 
@@ -856,8 +862,7 @@ object_t block(object_t list)
 
 /* 
  * Выходит из лексического блока, созданного block
- * @param args (имя блока, результат) 
- * @return возвращает свой аргумент 
+ * @param args (имя блока, результат)
  */ 
 object_t return_from(object_t args) 
 { 
