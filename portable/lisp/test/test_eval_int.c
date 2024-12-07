@@ -137,7 +137,7 @@ void test_defun_null()
 {
     printf("test_defun_null: ");
     if (setjmp(jmp_env) == 0) {
-        object_t res = defun(NULLOBJ);  // FIXME: Вызывает segfault
+        object_t res = defun(NULLOBJ);
         FAIL;
     } else
         OK;
@@ -414,7 +414,7 @@ void test_quote_null()
 {
     printf("test_quote_null: ");
     if (setjmp(jmp_env) == 0) {
-        object_t res = quote(NULLOBJ);  // FIXME: Вызывает segfault
+        object_t res = quote(NULLOBJ);
         FAIL;
     } else
         OK;
@@ -711,7 +711,7 @@ void test_defmacro_null()
 {
     printf("test_defmacro_null: ");
     if (setjmp(jmp_env) == 0) {
-        object_t result = defmacro(NULLOBJ);  // FIXME: Вызывает segfault
+        object_t result = defmacro(NULLOBJ);
         FAIL;
     } else
         OK;
@@ -931,7 +931,7 @@ int main()
     test_make_env();
     test_find_in_env();
     test_defun();//18
-    // test_defun_null();  // FIXME: Вызывает segfault
+    test_defun_null();
     test_setq_set_env();
     /* test_setq_global_set(); */
     test_append();
@@ -946,7 +946,7 @@ int main()
     test_atom_many_args();//131
     test_quote();
     test_quote_error();//53
-    // test_quote_null();  // FIXME: Вызывает segfault
+    test_quote_null();
     test_eq(); //9, 55, 56, 57
     test_or_null();
     test_or_invalid();
@@ -963,7 +963,7 @@ int main()
     test_eval_func2();
     /* test_er_num_arg_make_env(); */
     test_defmacro();
-    // test_defmacro_null();  // FIXME: Вызывает segfault
+    test_defmacro_null();
     test_eval_symbol_with_defined_variable();
     test_eval_symbol_environment_variable();
     test_eval_symbol_undefined_variable();
