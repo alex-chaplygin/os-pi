@@ -849,17 +849,20 @@ object_t block(object_t list)
     object_t first_param = FIRST(list);
     object_t rest_params = TAIL(list);
     if (setjmp(block_buf) == 0)
-        return progn(rest_params); // Передаем в progn остаток списка
+        return progn(rest_params);
+    else
+	return cur_label;
 }
 
 /* 
- * Возвращает свой аргумент 
- * @param arg (аргумент) 
+ * Выходит из лексического блока, созданного block
+ * @param args (имя блока, результат) 
  * @return возвращает свой аргумент 
  */ 
-object_t return_from(object_t arg) 
+object_t return_from(object_t args) 
 { 
-    return arg; 
+    cur_label = eval(SECOND(args), current_env, func_env);
+    longjmp(block_buf, 1);
 } 
 
 /** 
