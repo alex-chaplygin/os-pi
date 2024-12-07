@@ -7,6 +7,7 @@ TEST=boot/test.lsp
 ASCII_GRAPHICS=$(GRAPHICS) boot/graphics/ascii-backend.lsp
 FS=$(BASELISP) boot/ata.lsp boot/mbr.lsp boot/fs/block.lsp boot/fs/fs.lsp boot/fs/fat32fs.lsp boot/fs/fat.lsp boot/fs/dir.lsp boot/fs/fat32test.lsp
 KEYBOARD=$(BASELISP) boot/sys/keyboard.lsp boot/sys/events.lsp
+COMPILER=$(BASELISP) boot/compiler/compiler.lsp
 
 all: $(SRC) lisp
 
@@ -80,5 +81,9 @@ vec2-test: $(BASELISP) $(TEST) boot/test/vec2.lsp
 	cat $^ | /tmp/lisp
 # модульные тесты изображений
 image-test: $(GRAPHICS) $(TEST) boot/graphics/test/image.lsp
+	make -C test /tmp/lisp
+	cat $^ | /tmp/lisp
+# модульные тесты компилятора
+compiler-test: $(COMPILER) $(TEST) boot/compiler/test-compiler.lsp
 	make -C test /tmp/lisp
 	cat $^ | /tmp/lisp
