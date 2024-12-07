@@ -67,10 +67,8 @@
 			(compile-lambda name (cadr f) `(progn ,@(cddr f)) env)
 			(list 'ALLOC count)
 			(list 'REG-CALL name vals))))
-	    (otherwise
-	     (if (or (eq type 'func) (eq type 'lambda))
-		 (list 'SEQ (list 'ALLOC count) (list 'REG-CALL f vals))
-		 (list 'PRIM f vals))))))))
+	    ('func (list 'SEQ (list 'ALLOC count) (list 'REG-CALL f vals)))
+	    ('primitive (list 'PRIM f vals)))))))
 
 ;; Компилирует объявление функции с помощью DEFUN.
 ;; expr - список, состоящий из названия, списка аргументов и тела функции.
