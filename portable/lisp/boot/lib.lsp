@@ -149,6 +149,10 @@
   "Равно"
   `(equal ,g1 ,g2))
 
+(defmacro != (g1 g2)
+  "Не равно"
+  `(not (equal ,g1 ,g2)))
+
 (defmacro <= (g1 g2)
   "Меньше или равно"
   `(or (< ,g1 ,g2) (equal ,g1 ,g2)))
