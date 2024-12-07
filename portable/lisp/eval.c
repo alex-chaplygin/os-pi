@@ -950,7 +950,7 @@ void init_eval()
     register_func("TAGBODY", tagbody);
     register_func("GO", go);
     register_func("BLOCK", block); 
-    register_func("RETURN_FROM", return_from);
+    register_func("RETURN-FROM", return_from);
     register_func("BLOCK", block);
     register_func("LABELS", labels);
     register_func("FUNCTION", function);
