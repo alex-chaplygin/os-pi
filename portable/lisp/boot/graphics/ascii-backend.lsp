@@ -15,16 +15,16 @@
 (defconst +light-magenta+ 13)
 (defconst +yellow+ 14)
 (defconst +white+ 15)
-(defconst +text-width+ 80) ; число колонок экрана
-(defconst +text-height+ 25) ; число строк экрана
-(defconst +buffer-size+ (* (* +text-width+ +text-height+) 2)) ; размер буфера экрана
+(defvar *screen-width* 80) ; число колонок экрана
+(defvar *screen-height* 25) ; число строк экрана
+(defconst +buffer-size+ (* (* *screen-width* *screen-height*) 2)) ; размер буфера экрана
 (defvar *text-buffer* (make-array +buffer-size+)) ; буфер для текстовой видеопамяти
 
 (defun clear-screen()
   "Очистка экрана"
   (for i 0 +buffer-size+
        (seta *text-buffer* i 0))
-  (send-text-buffer *text-buffer* 0 0 +text-width+ +text-height+))
+  (send-text-buffer *text-buffer* 0 0 *screen-width* *screen-height*))
 
 (defun fill-rect (x y w h)
   "Заполняет область пробелом с учетом матрицы преобразования"
