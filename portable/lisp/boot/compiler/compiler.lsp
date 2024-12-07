@@ -39,7 +39,9 @@
     (add-func name arity)
     (list 'LABEL name
 	  (list 'FIX-CLOSURE arity
-		(inner-compile body (extend-env env args))))))
+		(list 'SEQ
+		      (inner-compile body (extend-env env args))
+		      (list 'RETURN))))))
 
 ;; Определения типа функции: лямбда, примитив, глобальная функция
 (defun find-func (f)

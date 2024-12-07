@@ -38,7 +38,7 @@
 
 ;; Генерация кода
 (defun inner-generate (expr)
-  (if (contains '(CONST GLOBAL-REF GLOBAL-SET LOCAL-REF LOCAL-SET DEEP-REF DEEP-SET ALLOC) (car expr))
+  (if (contains '(CONST GLOBAL-REF GLOBAL-SET LOCAL-REF LOCAL-SET DEEP-REF DEEP-SET ALLOC RETURN) (car expr))
       (emit expr)
       (if (contains '(LABEL FIX-CLOSURE) (car expr))
 	  (generate-2-params expr)
