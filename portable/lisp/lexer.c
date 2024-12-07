@@ -19,7 +19,9 @@ int boot_load = 0;
 /// Адрес памяти, откуда загружается lisp при загрузке
 char *boot_code;
 /// размер буфера символов symbol_buffer
-#define SYMBOL_BUFFER_SIZE 8
+#define SYMBOL_BUFFER_SIZE 512
+/// количество строк, выводимых для отладки
+#define NUM_DEBUG_LINES 5
 /// буфер символов из stdin
 /// с обратным  порядком элементов
 char symbol_buffer[SYMBOL_BUFFER_SIZE];
@@ -60,6 +62,27 @@ void unget_cur_char()
     //printf("unget_cur_char: '%c' read=%d write=%d\n", cur_symbol, buffer_read_pos, buffer_write_pos);
 }
 
+/**
+ * Выводит строки для отладки
+ */
+void print_debug_lines()
+{
+    int bt = buffer_write_pos - 1;
+    int ncount = 0;
+    while (ncount != NUM_DEBUG_LINES) {
+	if (bt == 0)
+	    break;
+	if (symbol_buffer[bt] == '\n')
+	    ncount++;
+	bt--;
+    }
+    while (bt < buffer_write_pos) {
+	putchar(symbol_buffer[bt]);
+	bt++;
+    }
+    putchar('\n');
+}
+
 /** 
  * Проверка символа на пустоту
  */ 
@@ -97,7 +120,7 @@ void skip_white_space()
  */ 
 int is_symbol(char c)
 {
-    char str[] = "+-*/=_&|<>%";
+    char str[] = "+-*/=_&|<>%!";
     for (int i = 0; i < sizeof(str); i++)
 	if (str[i] == c)
 	    return 1;

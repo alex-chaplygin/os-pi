@@ -7,6 +7,8 @@
 // точка начала цикла REPL
 extern jmp_buf repl_buf;
 
+void print_debug_lines();
+
 /** 
  * Вывод сообщения об ошибке, трассировка стека.
  *
@@ -21,6 +23,7 @@ void error(char *str, ...)
     set_cursor(0, 0);
     vals = &str;
 #endif
+    print_debug_lines();
     if (str[0] != '\0') {
         vprintf(str, vals);
         va_end(vals);
