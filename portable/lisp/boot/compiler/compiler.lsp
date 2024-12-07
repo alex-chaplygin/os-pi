@@ -5,11 +5,12 @@
 ;; *global-functions* - глобальное окружение функций, содержащий названия функций и кол-во аргументов.
 (defvar *global-functions* nil)
 ;; постоянный список примитивов с количеством их аргументов
-(defvar *primitives* '((car . 1) (cdr . 1) (cons . 2)))
+(defvar *primitives* '((car . 1) (cdr . 1) (cons . 2) (- . 2) (* . 2)
+		       (equal . 2)))
 
 ;; Устанавливает флаг ошибки компиляции и сохраняет сообщение об ошибке.
 (defun comp-err (msg)
-  (return-from compiler msg))
+  (return-from 'compiler msg))
 
 ;; Расширить окружение новым кадром аргументов
 (defun extend-env (env args)
@@ -43,7 +44,7 @@
 ;; Определения типа функции: лямбда, примитив, глобальная функция
 (defun find-func (f)
   (if (and (not (atom f)) (correct-lambda f))
-      (cons 'lambda (gensym))
+      (list 'lambda (list-length (cadr f)) (gensym))
       (let ((r (search-func-list *global-functions* f)))
 	(if r (cons 'func r)
 	    (let ((r (search-func-list *primitives* f)))
@@ -54,17 +55,22 @@
 ;; f - имя функции или lambda, args - аргументы, env - окружение
 (defun compile-application (f args env)
   (let* ((fun (find-func f))
-	 (type (car fun)))
-    (print `(app ,f ,args ,fun))
-    (if (eq type 'lambda)
-	(compile-lambda (cdr fun) (cadr f) (caddr f) env)
-	(let ((count (cdr fun)))
-	  (if (!= count (list-length args))
-	      (comp-err (concat "invalid args count"))
-	      (let ((vals (map #'(lambda (a) (inner-compile a env)) args)))
-		(if (eq type 'func)
-		    (list 'SEQ (list 'ALLOC count) (list 'REG-CALL f vals))
-		    (list 'PRIM f vals))))))))
+	 (type (car fun))
+	 (count (if (eq type 'lambda) (cadr fun) (cdr fun))))
+    (if (!= count (list-length args))
+	(comp-err (concat "invalid args count"))
+	(let ((vals (map #'(lambda (a) (inner-compile a env)) args)))
+	  (case type
+	    ('lambda
+		(let ((name (caddr fun)))
+		  (list 'SEQ
+			(compile-lambda name (cadr f) `(progn ,@(cddr f)) env)
+			(list 'ALLOC count)
+			(list 'REG-CALL name vals))))
+	    (otherwise
+	     (if (or (eq type 'func) (eq type 'lambda))
+		 (list 'SEQ (list 'ALLOC count) (list 'REG-CALL f vals))
+		 (list 'PRIM f vals))))))))
 
 ;; Компилирует объявление функции с помощью DEFUN.
 ;; expr - список, состоящий из названия, списка аргументов и тела функции.
@@ -148,14 +154,15 @@
 	     (if (null frames) nil
 		 (let ((j (list-search (car frames) var)))
 		   (if (null j) (find-frame (cdr frames) (++ i))
-		       (list (if (= i 0) 'local 'deep) i j))))))
+		       (if (= i 0) (list 'local j)
+			   (list 'deep i j)))))))
 	  (find-frame env 0)))
 
 ;; Компиляция перемнной
 (defun compile-variable (v env)
   (let ((res (find-var v env)))
     (if (null res)
-	(comp-err `(Unknown symbol ,v))
+	(comp-err (concat "Unknown symbol " (symbol-name v)))
       (case (car res)
 	    ('local (list 'LOCAL-REF (cadr res)))
 	    ('global (list 'GLOBAL-REF (cadr res)))
@@ -168,18 +175,18 @@
 ;; Функция компиляции в промежуточную форму
 ;; expr - выражение, env - лексическое окружение
 (defun inner-compile (expr env)
-    (if (atom expr)
-        (if (symbolp expr)
-	    (compile-variable expr env)
+  (if (atom expr)
+      (if (symbolp expr)
+	  (compile-variable expr env)
 	  (compile-constant expr))
-        (let ((func (car expr))
-              (args (cdr expr)))
-          (case func
-            ('progn (compile-progn args env))
-            ('if (compile-if args env))
-            ('setq (compile-setq args env))
-            ('defun (compile-defun args env))
-            (otherwise (compile-application func args env))))))
+      (let ((func (car expr))
+	    (args (cdr expr)))
+	(case func
+	  ('progn (compile-progn args env))
+	  ('if (compile-if args env))
+	  ('setq (compile-setq args env))
+	  ('defun (compile-defun args env))
+	  (otherwise (compile-application func args env))))))
 
 ;; Создаёт список инструкций для вычисления S-выражения expr на виртуальной машине с помощью функции vm-run.
 ;; expr - S-выражение
@@ -191,7 +198,7 @@
         *global-functions* nil
         *environment* nil)
   (block compiler
-    (inner-compile `(progn ,@expr) nil)))
+    (inner-compile expr nil)))
 
 
 ;; Компилирует вызов функции.
