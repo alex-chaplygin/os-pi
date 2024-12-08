@@ -1,11 +1,11 @@
-;; *globals* - список имён глобальных переменных.
-(defvar *globals* nil)
-;; *globals-count* - число глобальных переменных в списке *globals*.
-(defvar *globals-count* 0)
+;; *global-variables* - список имён глобальных переменных.
+(defvar *global-variables*)
+;; *global-variables-count* - число глобальных переменных в списке *global-variables*.
+(defvar *global-variables-count*)
 ;; *global-functions* - глобальное окружение функций, содержащий названия функций и кол-во аргументов.
-(defvar *global-functions* nil)
+(defvar *global-functions*)
 ;; постоянный список примитивов с количеством их аргументов
-(defvar *primitives* '((car . 1) (cdr . 1) (cons . 2) (- . 2) (* . 2)
+(defvar *primitives* '((car . 1) (cdr . 1) (cons . 2) (+ . 2) (- . 2) (* . 2)
 		       (equal . 2)))
 
 ;; Устанавливает флаг ошибки компиляции и сохраняет сообщение об ошибке.
@@ -84,9 +84,9 @@
 ;; Добавить глобальную переменную
 ;; Возвращает индекс добавленной переменной
 (defun add-global (sym)
-  (setq *globals* (append *globals* (list sym)))
-  (incf *globals-count*)
-  (- *globals-count* 1))
+  (setq *global-variables* (append *global-variables* (list sym)))
+  (incf *global-variables-count*)
+  (- *global-variables-count* 1))
 
 ;; Компилирует setq-выражение.
 ;; setq-body - пара из символа и выражения, которое необходимо установить этому символу.
@@ -143,7 +143,7 @@
 ;; Производит поиск переменной в глобальном окружении по символу.
 ;; Возвращает индекс в массиве глобального окружения, если символ найден, иначе nil.
 (defun find-global-var (var)
-  (let ((i (list-search *globals* var)))
+  (let ((i (list-search *global-variables* var)))
     (if (null i) nil
 	(list 'global i))))
 
@@ -188,23 +188,14 @@
 	  ('defun (compile-defun args env))
 	  (otherwise (compile-application func args env))))))
 
-;; Создаёт список инструкций для вычисления S-выражения expr на виртуальной машине с помощью функции vm-run.
-;; expr - S-выражение
+;; Анализ S-выражения и преобразование в эквивалентное выражение
+;; из более простых операций
 (defun compile (expr)
-  (setq *globals* '(t nil)
-        *globals-count* (list-length *globals*)
+  (setq *global-variables* '(t nil)
+        *global-variables-count* (list-length *global-variables*)
         *comp-err* nil
         *comp-err-msg* nil
         *global-functions* nil
         *environment* nil)
   (block compiler
     (inner-compile expr nil)))
-
-
-;; Компилирует вызов функции.
-;; label - метка тела функции.
-;; fparams - параметры функции.
-
-;; Компилирует вызов примитива.
-;; args - аргументы примитива.
-;; prim-i - индекс в таблице примитивов.
