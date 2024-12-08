@@ -233,6 +233,7 @@ void print_obj(object_t obj);
 void free_object(object_t *obj);
 void free_bignumber(bignumber_t *o);
 void free_symbol(symbol_t *s);
+void hash_remove(symbol_t *s);
 void free_float(float_t *f);
 void free_pair(pair_t *p);
 void free_function(function_t *f);
@@ -246,4 +247,5 @@ void free_array(array_t *a);
 object_t print_gc_stat(object_t o);
 int need_grabage_collect();
 void mark_object(object_t obj);
+void error(char *str, ...);
 #endif
