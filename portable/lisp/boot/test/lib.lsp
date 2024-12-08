@@ -108,6 +108,14 @@
   (print (assert (and t t t) t))
   (print (assert (and nil nil nil) nil)))
 
+(defun or-tests ()
+  (print (assert (or nil nil) nil))
+  (print (assert (or nil t) t))
+  (print (assert (or t nil) t))
+  (print (assert (or t t) t))
+  (print (assert (or (= 1 1) nil nil) t))
+  (print (assert (or nil nil nil) nil)))
+
 (fors-test)
 (tagbody-rec-test)
 (lex-test)
@@ -116,3 +124,4 @@
 (closure-test)
 (cond-tests)
 (and-tests)
+(or-tests)

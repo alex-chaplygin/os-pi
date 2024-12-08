@@ -44,6 +44,14 @@
       (if (null (cdr args)) (car args)
 	  `(if ,(car args) (and ,@(cdr args)) nil))))
 
+(defmacro or (&rest args)
+  "оператор 'или' для произвольного количества выражений" 
+  (if (null args) nil
+      (if (null (cdr args))
+          (car args)
+          `(if ,(car args) t (or ,@(cdr args))))))
+
+
 (defmacro case (val &rest list)
   "(setq k 10)"
   "(case k ((1 2)(2 3)(otherwise 4)))"

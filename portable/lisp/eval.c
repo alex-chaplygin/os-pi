@@ -26,8 +26,6 @@ symbol_t *defun_sym;
 symbol_t *defmacro_sym;
 /// символ "SETQ"
 symbol_t *setq_sym;
-/// символ "OR"
-symbol_t *or_sym;
 /// символ "T"
 symbol_t *t_sym;
 /// символ "NIL"
@@ -500,7 +498,7 @@ int is_special_form(symbol_t *s)
 { 
     return s == quote_sym || s == defun_sym || s == defmacro_sym
 	|| s == setq_sym || s == backquote_sym || s == if_sym 
-	|| s == or_sym || s == return_from_sym
+	|| s == return_from_sym
 	|| s == labels_sym || s == tagbody_sym || s == progn_sym
 	|| s == go_sym || s == block_sym || s == func_sym; 
 } 
@@ -652,32 +650,6 @@ object_t setq(object_t params)
 	params = TAIL(TAIL(params));
     }
     error("setq: out of vars");
-} 
-
-/* 
- * Логическое ИЛИ (or (= 1 2) (= 2 2)) 
- * Возвращает результат ИСТИНА после нахождения первого истинного условия 
- * Должно быть хотя бы одно условие 
- * @param param параметры (условие 1, условие 2, и т.д.) 
- * @return возвращает результат ИЛИ 
- */ 
-object_t or(object_t params) 
-{ 
-    if (params == NULLOBJ)
- 	error("or: no params"); 
-    object_t env = current_env;
-    object_t func = func_env;    
-    while (params != NULLOBJ) { 
- 	object_t first = FIRST(params); 
- 	object_t res = eval(first, env, func); 
- 	if (res == t) 
- 	    return t; 
- 	else if (res == nil) 
- 	    params = TAIL(params); 
- 	else
- 	    error("or: invalid param"); 
-    } 
-    return nil; 
 } 
 
 /* 
@@ -940,7 +912,6 @@ void init_eval()
     register_func("DEFMACRO", defmacro); 
     register_func("PROGN", progn); 
     register_func("SETQ", setq); 
-    register_func("OR", or); 
     register_func("MACROEXPAND", macroexpand); 
     register_func("FUNCALL", funcall); 
     register_func("LIST", list); 
@@ -963,7 +934,6 @@ void init_eval()
     defun_sym = find_symbol("DEFUN"); 
     defmacro_sym = find_symbol("DEFMACRO"); 
     setq_sym = find_symbol("SETQ"); 
-    or_sym = find_symbol("OR"); 
     t_sym = GET_SYMBOL(t); 
     t_sym->value = t; 
     nil_sym = find_symbol("NIL"); 
