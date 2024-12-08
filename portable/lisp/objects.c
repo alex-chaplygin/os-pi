@@ -416,6 +416,7 @@ void free_symbol(symbol_t *s)
 {
     if (s == NULL)
 	error("free_symbol: null pointer: obj");
+    hash_remove(s);
     s->next = free_symbols;
     free_symbols = s;
     total_symbols--;
@@ -559,7 +560,7 @@ void free_array(array_t *a)
  * Для больших чисел - старший бит в free 
  * Для чисел с плавающей точкой - старший бит в free
  * Для функций - старший бит в free
- * Для символов - нет 
+ * Для символов - старший бит в hash_index
  * Для пар - markbit в left 
  * Для строк - старший бит в length 
  * Для массивов - старший бит в length 
@@ -576,6 +577,12 @@ void mark_object(object_t obj)
 	SET_MARK(GET_PAIR(obj)->left);
 	mark_object(GET_PAIR(obj)->left);
 	mark_object(GET_PAIR(obj)->right);
+    } else if (TYPE(obj) == SYMBOL) {
+	symbol_t *s = GET_SYMBOL(obj);
+	s->hash_index |= mask;
+	mark_object(s->value);
+	mark_object(s->lambda);
+	mark_object(s->macro);
     } else if (TYPE(obj) == BIGNUMBER) {
 	if (((GET_BIGNUMBER(obj)->free) & mask) != 0)
 	    return;
@@ -642,6 +649,13 @@ void sweep()
 	if ((arr->length & mask) == 0)
 	    free_array(arr);
 	else arr->length &= ~mask;
+    }
+    for (int i = 0; i < last_symbol; i++) {
+	symbol_t *symb = &symbols[i];
+	if ((symb->hash_index & mask) == 0)
+	    free_symbol(symb);
+	else
+	    symb->hash_index &= ~mask;
     }
 }
 
