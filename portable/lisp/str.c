@@ -183,24 +183,107 @@ object_t int_to_str(object_t list)
     return NEW_STRING(s);
 }
 
+/** 
+ * Определение длины списка
+ *
+ * @param args список
+ *
+ * @return длина
+ */
+int list_length(object_t args)
+{
+    int c = 0;
+    while (args != NULLOBJ) {
+	args = TAIL(args);
+	c++;
+    }
+    return c;
+}
+
 /**
- * Создаёт символ-строку по коду
+ * Создаёт символ по коду
  * @param list (индекс)
  * @return код символа - число
 **/
 object_t code_char(object_t list)
 {
-    if (list == NULLOBJ)
-	error("code-char: no arguments");
-    if (TAIL(list) != NULLOBJ)
-	error("code-char: many arguments");
-    if (TYPE(FIRST(list)) != NUMBER)
+    if (list_length(list) != 1)
+	error("code-char: invalid arguments number");
+    object_t o = FIRST(list);
+    if (!IS_NUMBER(o))
     	error("code-char: not number in params");
-    int code = get_value(FIRST(list));
-    char* str = alloc_region(2);
-    *str = code;
-    *(str + 1) = 0;
-    return NEW_STRING(str);
+    int code = get_value(o);
+    return NEW_CHAR(code);
+}
+
+/**
+ * Получает код символа
+ * @param list (символ)
+ * @return код символа - число
+**/
+object_t char_code(object_t list)
+{
+    if (list_length(list) != 1)
+	error("char-code: invalid arguments number");
+    object_t o = FIRST(list);
+    if (TYPE(o) != CHAR)
+    	error("char-code: not char");
+    return new_number(GET_CHAR(o));
+}
+
+/** 
+ * Создание строки заднной длины с заполнение символом:
+ *
+ * @param args (размер символ)
+ *
+ * @return созданная строка
+ */
+object_t make_string(object_t args)
+{
+    if (list_length(args) != 2)
+	error("make-string: invalid arguments count");
+    object_t co = FIRST(args);
+    object_t ch = SECOND(args);
+    if (!IS_NUMBER(co))
+	error("make-string: invalid size");
+    if (TYPE(ch) != CHAR)
+	error("make-string: invalid char");
+    int count = get_value(co);
+    char c = GET_CHAR(ch);
+    char *buf = alloc_region(count + 1);
+    for (int i = 0; i < count; i++)
+	buf[i] = c;
+    object_t str = NEW_STRING(buf);
+    free_region(buf);
+    return str;
+}
+
+/** 
+ * Замена символа в строке
+ *
+ * @param args (строка индекс символ)
+ *
+ * @return символ
+ */
+object_t sets(object_t args)
+{
+    if (list_length(args) != 3)
+	error("sets: invalid arguments count");
+    object_t a1 = FIRST(args);
+    if (TYPE(a1) != STRING)
+	error("sets: not string");
+    string_t *s = GET_STRING(a1);
+    object_t a2 = SECOND(args);
+    if (!IS_NUMBER(a2))
+	error("sets: not number in index");
+    int idx = get_value(a2);
+    if (idx < 0 || idx >= s->length)
+	error("sets: index out if bounds");
+    object_t ch = THIRD(args);
+    if (TYPE(ch) != CHAR)
+	error("sets: not char");
+    s->data[idx] = GET_CHAR(ch);
+    return ch;
 }
 
 /** 
@@ -244,8 +327,11 @@ void init_strings()
     register_func("STRING-SIZE", string_size);
     register_func("CHAR", str_char);
     register_func("SUBSEQ", subseq);
+    register_func("MAKE-STRING", make_string);
+    register_func("SETS", sets);
     register_func("INTTOSTR", int_to_str);
     register_func("CODE-CHAR",code_char);
+    register_func("CHAR-CODE",char_code);
     register_func("PRINT", print_object);
     register_func("PUTCHAR", PUTCHAR);
 }
