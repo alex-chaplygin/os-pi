@@ -65,11 +65,6 @@ token_t back_comma_tokens[] = {
     {END}
 };
 
-token_t function_tokens[] = {
-    {T_FUNCTION},
-    {T_SYMBOL, 0, "X"}
-};
-
 token_t back_in_back_tokens[] = {
     {BACKQUOTE},
     {LPAREN},
@@ -235,6 +230,19 @@ token_t float_tokens[] = {
     {T_FLOAT, 0x3fa00000},//1.25
     {T_FLOAT, 0x3fe8f5c3},//1.82
     {RPAREN},
+    {END}
+};
+
+token_t char_tokens[] = {
+    {LPAREN},
+    {T_CHAR, 97},
+    {RPAREN},
+    {END}
+};
+
+token_t function_tokens[] = {
+    {T_FUNCTION},
+    {T_SYMBOL, 0, "A"},
     {END}
 };
     
@@ -469,7 +477,7 @@ void test_parse_inner_list()
     ASSERT(TYPE(GET_PAIR(GET_PAIR(GET_PAIR(o)->right)->right)->left), SYMBOL);
     ASSERT(strcmp(GET_SYMBOL((GET_PAIR(GET_PAIR(GET_PAIR(o)->right)->right)->left))->str, "Z"), 0);  
     ASSERT(GET_PAIR(GET_PAIR(GET_PAIR(o)->right)->right)->right, NULLOBJ); 
-} 
+}
 
 /**
  * Тестируем массив #(1 2 3)
@@ -626,22 +634,6 @@ void test_parse_quote_number()
 } 
 
 /**
- * Тестируем выражение #'X -> (FUNCTION X)
- * Проверить тип объекта и проверить каждый элемент.
- */
-void test_parse_function() 
-{ 
-    printf("test_parse_function: "); 
-    count = 0; 
-    cur_token = &token;
-    tokens = function_tokens; 
-    object_t o = parse();
-    ASSERT(strcmp(GET_SYMBOL(GET_PAIR(o)->left)->str, "FUNCTION"), 0);
-    object_t ro = GET_PAIR(o)->right;
-    ASSERT(strcmp(GET_SYMBOL(GET_PAIR(ro)->left)->str, "X"), 0); 
-} 
-
-/**
  * Тестируем точечную пару (1 . 2)
  */
 void test_parse_number_dot_number() 
@@ -698,6 +690,9 @@ void test_parse_list_expected_rparen()
         OK;
 } 
 
+/**
+ * Тест чисел с плавающей точкой
+ */
 void test_parse_float()
 {
     printf("test_parse_float:"); 
@@ -714,6 +709,38 @@ void test_parse_float()
         FAIL;
     token_error = 0; 
 }
+
+/**
+ * Тест одиночного символа (#\\a)
+ * Должно получиться: (a)
+ */
+void test_parse_char() 
+{  
+    printf("test_parse_char: "); 
+    count = 0; 
+    cur_token = &token; 
+    tokens = char_tokens; 
+    if (setjmp(jmp_env) == 0) {
+        object_t o = parse();
+        ASSERT(TYPE(FIRST(o)), CHAR);
+        ASSERT(GET_CHAR(FIRST(o)), 'a');
+    } else FAIL;
+} 
+
+/**
+ * Тест функции (#'A)
+ * Должно получиться: (FUNCTION A)
+ */
+void test_parse_function() 
+{ 
+    printf("test_parse_function: "); 
+    count = 0; 
+    cur_token = &token;
+    tokens = function_tokens; 
+    object_t o = parse();
+    ASSERT(strcmp(GET_SYMBOL(GET_PAIR(o)->left)->str, "FUNCTION"), 0);
+    ASSERT(strcmp(GET_SYMBOL(GET_PAIR(GET_PAIR(o)->right)->left)->str, "A"), 0); 
+} 
 
 /*
  * условие   | правильный класс       | неправильный класс
@@ -756,6 +783,11 @@ void test_parse_float()
  *           |                        | 
  *           |                        |
  * --------------------------------------------------------------------------
+ * Строки с  | 29 применяются в методе| 
+ * разным    |   strupr               |
+ * регистром |                        | 
+ *           |                        |
+ * --------------------------------------------------------------------------
  * Строка    | 30 строка              | 
  *           |                        |
  *           |                        | 
@@ -766,9 +798,19 @@ void test_parse_float()
  *           |                        | 
  *           |                        |
  * --------------------------------------------------------------------------
+ * Ошибка    | 32 активна и           | 
+ * токена    |   применяется к потоку |
+ *           |                        | 
+ *           |                        |
+ * --------------------------------------------------------------------------
  * Число с   | 34 число с плавающей   | 
  * плавающей |  точкой                |
  * точкой    |                        | 
+ *           |                        |
+ * --------------------------------------------------------------------------
+ * Функция   | 35 выражение           | 
+ *           |                        |
+ *           |                        | 
  *           |                        |
  * --------------------------------------------------------------------------
  */
@@ -798,7 +840,7 @@ int main()
     test_parse_array_error_paren(); //19
     test_parse_no_rparen_arrays(); //11 23
 
-    // Цитата, квазицитата, функция
+    // Цитата, квазицитата
     test_parse_quote(quote_tokens, "QUOTE"); //12
     test_parse_quote(backquote_tokens, "BACKQUOTE");//12
     test_parse_quote(comma_tokens, "COMMA"); //17
@@ -806,7 +848,6 @@ int main()
     test_parse_backquote_backquote(); //28
     test_parse_quote_number(); //13
     test_parse_backquote_comma_at(); //25
-    test_parse_function();
 
     // Точечная пара
     test_parse_number_dot_number(); // 26
@@ -814,6 +855,12 @@ int main()
 
     // Число с плавающей точкой
     test_parse_float(); // 34
+
+    // Функция
+    test_parse_function(); // 35
+
+    // Символ
+    test_parse_char();
 
     // Иные проверки
     test_parse_end(); // 31
