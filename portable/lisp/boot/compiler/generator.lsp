@@ -42,7 +42,7 @@
 
 ;; Вызов примитива
 (defun generate-prim (type args)
-  (generate-args args 'SET-ARG)
+  (generate-args args 'PUSH)
   (emit (list 'PRIM type)))
 
 ;; Обычный вызов функции
