@@ -2,7 +2,7 @@
 (defvar *global-variables*)
 ;; *global-variables-count* - число глобальных переменных в списке *global-variables*.
 (defvar *global-variables-count*)
-;; *global-functions* - глобальное окружение функций, содержащий названия функций и кол-во аргументов.
+;; *global-functions* - глобальное окружение функций, содержащий названия функций, смещение кадра окружения, кол-во аргументов.
 (defvar *global-functions*)
 ;; постоянный список примитивов с количеством их аргументов
 (defvar *primitives* '((car . 1) (cdr . 1) (cons . 2) (+ . 2) (- . 2) (* . 2)
@@ -16,15 +16,15 @@
 (defun extend-env (env args)
   (cons args env))
 
-;; Добавить глобальную функцию с именем и числом аргументов
-(defun add-func (name arity)
-  (setq *global-functions* (cons (cons name arity) *global-functions*)))
+;; Добавить глобальную функцию с именем, смещением окружения и числом аргументов
+(defun add-func (name env arity)
+  (setq *global-functions* (cons (list name env arity) *global-functions*)))
 
-;; Поиск функции или примитива по имени, возвращет кол-во аргументов или nil - если не найдено
+;; Поиск функции или примитива по имени, возвращет сохраненную функцию или примитив
 (defun search-func-list (list name)
   (labels ((search (list)
 	     (if (null list) nil
-		 (if (eq (caar list) name) (cdar list)
+		 (if (eq (caar list) name) (car list)
 		     (search (cdr list))))))
     (search list)))
 
@@ -36,7 +36,7 @@
 ;; (список аргументов, тело функции, локальное окружение).
 (defun compile-lambda (name args body env)
   (let ((arity (list-length args)))
-    (add-func name arity)
+    (add-func name (list-length env) arity)
     (list 'LABEL name
 	  (list 'FIX-CLOSURE arity
 		(list 'SEQ
@@ -46,11 +46,11 @@
 ;; Определения типа функции: лямбда, примитив, глобальная функция
 (defun find-func (f)
   (if (and (not (atom f)) (correct-lambda f))
-      (list 'lambda (list-length (cadr f)) (gensym))
+      (list 'lambda (list-length (cadr f)) (gensym)) ; lambda num-args name
       (let ((r (search-func-list *global-functions* f)))
-	(if r (cons 'func r)
+	(if r (list 'func (caddr r) (cadr r))  ; func num-args env
 	    (let ((r (search-func-list *primitives* f)))
-	      (if r (cons 'primitive r)
+	      (if r (list 'primitive (cdr r)) ; primitive num-atrgs
 		  (comp-err (concat "unknown function " (symbol-name f)))))))))
 		  
 ;; Применение функции
@@ -58,7 +58,8 @@
 (defun compile-application (f args env)
   (let* ((fun (find-func f))
 	 (type (car fun))
-	 (count (if (eq type 'lambda) (cadr fun) (cdr fun))))
+	 (count (cadr fun))
+	 (cur-env (list-length env)))
     (if (!= count (list-length args))
 	(comp-err (concat "invalid args count"))
 	(let ((vals (map #'(lambda (a) (inner-compile a env)) args)))
@@ -67,9 +68,8 @@
 		(let ((name (caddr fun)))
 		  (list 'SEQ
 			(compile-lambda name (cadr f) `(progn ,@(cddr f)) env)
-			(list 'ALLOC count)
-			(list 'REG-CALL name vals))))
-	    ('func (list 'SEQ (list 'ALLOC count) (list 'REG-CALL f vals)))
+			(list 'REG-CALL name cur-env vals))))
+	    ('func (list 'REG-CALL f (caddr fun) vals))
 	    ('primitive (list 'PRIM f vals)))))))
 
 ;; Компилирует объявление функции с помощью DEFUN.

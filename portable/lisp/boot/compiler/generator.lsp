@@ -32,21 +32,29 @@
   (inner-generate (caddr expr))
   (emit (list (car expr) (cadr expr))))
 
-;; Генерация функций вызова со списком параметров
-(defmacro make-call (name set-f)
-  `(defun ,name (expr)
-     (let ((i 0))
-       (dolist (a (caddr expr))
-	 (inner-generate a) ; код аргумента
-	 (emit (list ',set-f i))
-	 (incf i)))
-     (emit (list (car expr) (cadr expr)))))
-(make-call generate-prim SET-ARG)
-(make-call generate-reg-call LOCAL-SET)
+;; Генерация вычисления аргументов
+(defun generate-args (args set)
+  (let ((i 0))
+    (dolist (a args)
+      (inner-generate a) ; код аргумента
+      (emit (list set i))
+      (incf i))))
+
+;; Вызов примитива
+(defun generate-prim (type args)
+  (generate-args args 'SET-ARG)
+  (emit (list 'PRIM type)))
+
+;; Обычный вызов функции
+(defun generate-reg-call (name env args)
+  (emit (list 'SET-ENV env))
+  (emit (list 'ALLOC (list-length args)))
+  (generate-args args 'LOCAL-SET)
+  (emit (list 'REG-CALL name)))
 
 ;; Генерация кода
 (defun inner-generate (expr)
-  (if (contains '(CONST GLOBAL-REF LOCAL-REF DEEP-REF ALLOC RETURN) (car expr))
+  (if (contains '(CONST GLOBAL-REF LOCAL-REF DEEP-REF RETURN) (car expr))
       (emit expr)
       (if (contains '(GLOBAL-SET LOCAL-SET DEEP-SET) (car expr))
 	  (generate-set expr)
@@ -55,8 +63,8 @@
 	      (case (car expr)
 		('SEQ (app #'inner-generate (cdr expr))) ; последовательность
 		('ALTER (generate-if (cdr expr))) ; ветвление
-		('PRIM (generate-prim expr)) ; вызов примитива
-		('REG-CALL (generate-reg-call expr)) ; обычный вызов
+		('PRIM (generate-prim (cadr expr) (caddr expr))) ; вызов примитива
+		('REG-CALL (generate-reg-call (cadr expr) (caddr expr) (cadddr expr))) ; обычный вызов
 		(otherwise (emit (list 'UNKNOWN (car expr)))))))))
 
 (defun generate (expr)
