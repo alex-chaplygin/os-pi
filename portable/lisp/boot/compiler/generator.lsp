@@ -50,7 +50,8 @@
   (emit (list 'SET-ENV env))
   (emit (list 'ALLOC (list-length args)))
   (generate-args args 'LOCAL-SET)
-  (emit (list 'REG-CALL name)))
+  (emit (list 'REG-CALL name))
+  (emit (list 'RESTORE-ENV)))
 
 ;; Генерация кода
 (defun inner-generate (expr)
