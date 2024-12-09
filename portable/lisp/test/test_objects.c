@@ -437,6 +437,39 @@ void test_garbage_collect_list()
     printf("\npairs: OK\n");
 }
 
+/**
+ * Создать символ B
+ * Присвоить ему значение - большое число 123456789
+ * Создать ещё два больших числа
+ * Выполнить сборку мусора
+ * Проверить, что объект не в списке свободных больших чисел
+ */
+void test_garbage_collect_bignumbers() 
+{ 
+    printf("test_garbage_collect_bignumbers: "); 
+    reset_mem(); 
+    symbol_t *s = new_symbol("B");
+    
+    object_t obj1 = new_bignumber(1234567890); 
+    object_t obj2 = new_bignumber(-987654321); 
+    object_t obj3 = new_bignumber(555555555); 
+    s->value = obj1;
+    garbage_collect();
+    
+    bignumber_t *fb = free_bignumbers; 
+    while (fb != NULL) {
+	    printf("%f\n", fb->value);
+	    if (fb == (bignumber_t *)GET_ADDR(obj1)) { 
+	        printf("fail_bignumbers\n"); 
+	        return; 
+	    } 
+	    fb = fb->next; 
+    } 
+    printf("bignumbers_OK\n");
+    ASSERT(regions->free, 0);
+    ASSERT((regions->next != NULL), 1);
+}
+
 /*
  * Создать две п
  * Присвоить левым частям этих пар - числа, а правые ссылались друг на друга
@@ -942,6 +975,7 @@ void main()
     test_sweep();    //19,24
     test_garbage_collect();     //19,24   
     test_garbage_collect_list();    //21,24
+    test_garbage_collect_bignumbers();
     test_garbage_collect_strings(); //22,24
     test_garbage_collect_arrays();  //23,24
     test_garbage_collect_cycle();
