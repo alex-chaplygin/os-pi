@@ -10,5 +10,5 @@
 ::
 
    (defun parse-4-digit () (parse-element 4)) ; ожидает 4
-   (funcall #'parse-4-digit '(4 5 6)) ; возвращает ((4 . (5 6)))
-   (funcall #'parse-4-digit '(3 5 6)) ; возвращает ((nil . (3 5 6)))
+   (funcall parse-4-digit '(4 5 6)) ; возвращает ((4 . (5 6)))
+   (funcall parse-4-digit '(3 5 6)) ; возвращает ((nil . (3 5 6)))
