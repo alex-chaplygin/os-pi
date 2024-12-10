@@ -713,16 +713,6 @@ object_t funcall(object_t params)
 } 
 
 /* 
- * Возвращает список из аргументов 
- * @param args (аргумент 1, аргумент 2 ...) 
- * @return возвращает список из аргументов 
- */ 
-object_t list(object_t args) 
-{ 
-    return args; 
-} 
-
-/* 
  * Вычисляет свой аргумент 
  * @param args (выражение) 
  * @return возвращает список из аргументов 
@@ -914,7 +904,6 @@ void init_eval()
     register_func("SETQ", setq); 
     register_func("MACROEXPAND", macroexpand); 
     register_func("FUNCALL", funcall); 
-    register_func("LIST", list); 
     register_func("EVAL", lisp_eval);
     register_func("GC", print_gc_stat);
     register_func("ERROR", error_func);

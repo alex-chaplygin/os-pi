@@ -10,6 +10,10 @@
 (defun cdadr(x) (cdr (car (cdr x))))
 (defun cddr(x) (cdr (cdr x)))
 
+(defun list (&rest args)
+  "Функция создания списка"
+  args)
+
 (defun append (list1 list2)
   "объединение двух списков (1 . (2 . nil)) (a . (b . nil))"
   "(append '(1 2) '(a b))"

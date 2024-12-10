@@ -17,3 +17,10 @@
 (assert (nth '(1 2 3) 0) 1)
 (assert (nth '(1 2 3) 2) 3)
 (nth '(1 2 3) 10)
+
+(defun list-tests ()
+  (print (assert (list 1 2 3) '(1 2 3)))
+  (print (assert (list '(1 2) 3 4 5) '((1 2) 3 4 5)))
+  (print (assert (list "a" "b" "c") '("a" "b" "c"))))
+
+(list-tests)
