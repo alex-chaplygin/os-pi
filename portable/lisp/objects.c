@@ -9,6 +9,7 @@
 #include "eval.h"
 #include "alloc.h"
 #include "cont.h"
+#include "bind.h"
 
 /// Индекс последнего большого числа
 int last_bignumber = 0;
@@ -664,11 +665,12 @@ void sweep()
  */
 void garbage_collect()
 {
-    for (int i = 0; i < last_symbol; i++) { 
-	mark_object(symbols[i].value);
-	mark_object(symbols[i].lambda);
-	mark_object(symbols[i].macro);
+    bind_t *cur = global_env;
+    while (cur != NULL) {
+	mark_object(cur->obj);
+	cur = cur->next;
     }
+    
 #ifdef DEBUG
     mark_object(debug_stack);
 #endif
