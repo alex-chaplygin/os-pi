@@ -36,7 +36,7 @@
   (if (< x *screen-width*)
     (if (> x -1)
       (if (< y *screen-height*)
-        (if (> y -1)
+	  (if (> y -1)
           (seta *graphics-buffer* (+ x (* y *screen-width*)) colour)
           nil) nil) nil) nil))
 
@@ -197,7 +197,7 @@
 	(step (/ 1.0 n)))
     (while (< ti 1.1)
       (let ((curve-point (bezier-point p1 p2 p3 p4 ti)))
-	(set-pixel (car curve-point) (cdr curve-point) colour))
+	(set-pixel (round (car curve-point)) (round (cdr curve-point)) colour))
       (setq ti (+ ti step)))))
 
 (defun draw-image (image)
