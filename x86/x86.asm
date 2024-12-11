@@ -152,7 +152,11 @@ cosf:
 	floatcmd fcos
 
 roundf:
-	floatcmd frndint
+	fld dword [esp + 4]
+	frndint
+	fstp dword [float_ret]
+	mov eax, [float_ret]
+	ret
 	
 	
 disable_interrupts:
