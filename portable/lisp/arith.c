@@ -497,8 +497,10 @@ object_t ROUND(object_t list)
     object_t arg = FIRST(list);
     if (TYPE(arg) != FLOAT)
 	error("ROUND: invalid argument");
-    else
-	return new_number(roundf(GET_FLOAT(arg)->value));
+    else {
+	int v = (int)roundf(GET_FLOAT(arg)->value);
+	return new_number(v);
+    }
 }
 
 /** 
