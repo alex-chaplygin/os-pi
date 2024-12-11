@@ -110,6 +110,7 @@ void register_func(char *name, func_t func_ptr)
 {
     symbol_t *s = find_symbol(name);
     s->func = func_ptr;
+    bind_global(NEW_OBJECT(SYMBOL, s));
 }
 
 void print_table() 
