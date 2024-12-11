@@ -568,7 +568,8 @@ object_t eval(object_t obj, object_t env, object_t func)
 		error("Invalid lambda function");
 	    else
 		return eval_func(first, eval_args(TAIL(obj), env, func), env, func);
-        }
+        } else if (TYPE(first) != SYMBOL)
+	    error("not function");
         symbol_t *s = find_symbol(GET_SYMBOL(first)->str);
 #ifdef DEBUG
     	debug_stack = new_pair(obj, debug_stack);
