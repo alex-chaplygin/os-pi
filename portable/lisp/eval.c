@@ -267,6 +267,7 @@ object_t defun(object_t obj)
 	error("defun: empty");
     symbol_t *name = find_symbol(GET_SYMBOL(FIRST(obj))->str); 
     name->lambda = new_pair(NEW_SYMBOL("LAMBDA"), TAIL(obj));
+    set_global(name);
     return NEW_SYMBOL(name->str);  
 }
 
@@ -282,7 +283,8 @@ object_t defmacro(object_t obj)
     if (obj == NULLOBJ)
 	error("defmacro: empty");
     symbol_t *name = find_symbol(GET_SYMBOL(FIRST(obj))->str); 
-    name->macro = new_pair(NEW_SYMBOL("LAMBDA"), TAIL(obj)); 
+    name->macro = new_pair(NEW_SYMBOL("LAMBDA"), TAIL(obj));
+    set_global(name);
     return NEW_SYMBOL(name->str);
 }
 
@@ -576,7 +578,7 @@ object_t eval(object_t obj, object_t env, object_t func)
 		return eval_func(first, eval_args(TAIL(obj), env, func), env, func);
         } else if (TYPE(first) != SYMBOL)
 	    error("not function");
-        symbol_t *s = find_symbol(GET_SYMBOL(first)->str);
+	symbol_t *s = find_symbol(GET_SYMBOL(first)->str);
 #ifdef DEBUG
     	debug_stack = new_pair(obj, debug_stack);
 #endif
@@ -650,8 +652,10 @@ object_t setq(object_t params)
 	object_t obj = eval(SECOND(params), env, func); 
 	if (find_res) 
 	    set_in_env(env, FIRST(params), obj); 
-	else 
-	    sym->value = obj; 
+	else {
+	    sym->value = obj;
+	    set_global(sym);
+	}
 	if (TAIL(TAIL(params)) == NULLOBJ) 
 	    return obj;
 	params = TAIL(TAIL(params));
@@ -881,6 +885,7 @@ void init_eval()
     register_func("FUNCTION", function);
     t = NEW_SYMBOL("T"); 
     nil = NULLOBJ;
+    bind_global(t);
     quote_sym = find_symbol("QUOTE"); 
     backquote_sym = find_symbol("BACKQUOTE"); 
     lambda_sym = find_symbol("LAMBDA");
@@ -892,6 +897,7 @@ void init_eval()
     t_sym->value = t; 
     nil_sym = find_symbol("NIL"); 
     nil_sym->value = nil; 
+    bind_global(NEW_OBJECT(SYMBOL, nil));
     rest_sym = find_symbol("&REST"); 
     tagbody_sym = find_symbol("TAGBODY");
     go_sym = find_symbol("GO");
