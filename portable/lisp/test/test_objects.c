@@ -187,7 +187,7 @@ void test_free_bignumber()
     printf("test_free_bignumber: ");
     reset_mem();
     object_t o = new_number(800000000);
-    printf("%x\n", o);
+    printf("%x\n", (int)o);
     ASSERT(TYPE(o), BIGNUMBER);
     free_bignumber((bignumber_t *)GET_ADDR(o));
     ASSERT(free_bignumbers, (bignumber_t *)GET_ADDR(o));
@@ -246,7 +246,7 @@ void test_free_float()
     printf("test_free_float: ");
     reset_mem();
     object_t o = new_float(800000.1232f);
-    printf("%x\n", o);
+    printf("%x\n", (int)o);
     ASSERT(TYPE(o), FLOAT);
     free_float((float_t *)GET_ADDR(o));
     ASSERT(free_floats, (float_t *)GET_ADDR(o));
