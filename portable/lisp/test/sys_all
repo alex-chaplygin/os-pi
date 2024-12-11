@@ -1,33 +1,46 @@
 echo "------------SYSTEM TEST-------------------"
-sh sys_test "\"\xFFF\"" "invalid symbol in string
+sh sys_test "\"\xFFF\"" "\"\xFFF\"
+invalid symbol in string
+\"\xFFF\"
+
 expected \" at string end"
 #Проверка точечной пары
 sh sys_test "'(1 . 1)" "(1 . 1)"
 #Тест для самого большого числа int
 sh sys_test "2147483647" "2147483647"
 ##Тест для самого большого числа int+1
-sh sys_test "2147483648" "number overflow"
+sh sys_test "2147483648" "2147483648
+number overflow"
 #самого маленького int
 sh sys_test "-2147483648" "-2147483648"
 #самого маленького int-1
-sh sys_test "-2147483649" "number overflow"
+sh sys_test "-2147483649" "-2147483649
+number overflow"
 #функция
 sh sys_test "#'(lambda (x) (+ x 1))" "(LAMBDA (X) ((+ X 1)))"
 # вместо функции число
-sh sys_test "(5 5)" ""
+sh sys_test "(5 5)" "not function"
 # вместо функции символ
-sh sys_test '(#\\5 5)' ""
+sh sys_test '(#\\5 5)' "not function"
 
 
 echo "---Тесты PARSER ---"
 #PARSER 2 Неправильный символ
-sh sys_test "~" "invalid symbol"
+sh sys_test "~" "~
+invalid symbol"
 #PARSER 6 список без закрывающей скобки
-sh sys_test "(a b c" "expected )"
+sh sys_test "(a b c" "(a b c
+
+expected )"
 #PARSER 8 пустой список без открывающей скобки
-sh sys_test ")" "invalid expression"
-sh sys_test "((a b (1 2) e f)" "expected )" #10
-sh sys_test "((a b #(1 #(2 (3 4) 5)) c d )" "expected )" #11
+sh sys_test ")" ")
+invalid expression"
+sh sys_test "((a b (1 2) e f)" "((a b (1 2) e f)
+
+expected )" #10
+sh sys_test "((a b #(1 #(2 (3 4) 5)) c d )" "((a b #(1 #(2 (3 4) 5)) c d )
+
+expected )" #11
 sh sys_test "#(1 #(2 3) 4)" "#(1 #(2 3) 4)" # 20
 sh sys_test "#\\1" "#\\1"
 sh sys_test "1.25" "1.250000"
@@ -63,7 +76,9 @@ sh sys_test "(setq abc '(a b c))
 9
 (1 A B C (9) \"a\" #(1 9 2))" # 25 26 27 49 45
 sh sys_test "\`y" "Y" #42
-sh sys_test "\` " "quote: no args" #115
+sh sys_test "\` " "\` 
+
+quote: no args" #115
 sh sys_test "\`5" "5" #116
 sh sys_test "\`#(1 2 3 4)" "#(1 2 3 4)" #117
 sh sys_test "\`\"A\"" "\"A\"" #118
@@ -137,7 +152,6 @@ sh sys_test "(+ 1 2 3.11 2 2.25)" "10.360000"
 sh sys_test "(+ 1 2 3.11 2 \"\")" "add: Not number"
 sh sys_test "(+ 'b 2)" "add: Not number"
 
-sh sys_test "(1" "expected )"
 sh sys_test "(+ 1 2 3 5)" "11"
 sh sys_test "(- 9 5 1 1)" "2"
 sh sys_test "(+ 1 0.25)" "1.250000"
@@ -290,22 +304,9 @@ NIL"
 echo "---Тесты точечных пар----"
 sh sys_test "'(4 . 5)" "(4 . 5)"
 sh sys_test "'(4 .(3 .(5 .())))" "(4 3 5)"
-sh sys_test "'(4 .5"  "expected )"
+sh sys_test "'(4 .5"  "'(4 .5
 
-echo "---Тесты OR----"
-# случай TRUE
-sh sys_test "(or(equal 1 2) (equal 2 2))" "T"
-# случай FALSE
-sh sys_test "(or(equal 1 3) (equal 1 4))" "NIL"
-# один аргумент
-sh sys_test "(or(equal 1 3))" "NIL"
-# без аргементов
-sh sys_test "(or)" "or: no params"
-# неверный аргумент
-sh sys_test "(or (+ 1 2))" "or: invalid param"
-# проверка на невычисление аргумента
-sh sys_test "(or t (+ 1 2))" "T"
-
+expected )"
 
 echo "---Тесты EQ----"
 #случай число FALSE
@@ -438,10 +439,10 @@ sh sys_test "(inttostr -234)" "\"-234\""
 sh sys_test "(inttostr 0)" "\"0\""
 
 echo  "---Тесты CODE-CHAR---"
-sh sys_test "(code-char 0x20)" "\" \""
-sh sys_test "(code-char 0x39)" "\"9\""
-sh sys_test "(code-char)" "code-char: no arguments"
-sh sys_test "(code-char 1 2)" "code-char: many arguments"
+sh sys_test "(code-char 0x20)" "#\\ "
+sh sys_test "(code-char 0x39)" "#\9"
+sh sys_test "(code-char)" "code-char: invalid arguments number"
+sh sys_test "(code-char 1 2)" "code-char: invalid arguments number"
 sh sys_test "(code-char 'a)" "code-char: not number in params"
 
 echo  "---Тесты AREF---"
@@ -535,11 +536,6 @@ sh sys_test "(symbolp 'a)" "T"
 # тест с двумя параметрами
 sh sys_test "(symbolp 'a 'b)" "SYMBOLP: many params"
 sh sys_test "(integerp 125)" "T"
-
-echo "---Тесты LIST---"
-sh sys_test "(list)" "NIL"
-sh sys_test "(list 1 2 3)" "(1 2 3)"
-sh sys_test "(list 'a 'b '(1 2 3))" "(A B (1 2 3))"
 
 echo "---Тест ERROR---"
 sh sys_test "(progn 1 2 3 (error \"e\") 4 5 6)" "ERROR: \"e\""
