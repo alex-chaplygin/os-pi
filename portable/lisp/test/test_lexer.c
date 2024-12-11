@@ -20,7 +20,7 @@ FILE *oldstdin;
 
 jmp_buf jmp_env;
 
-void error(char *str, ...)
+void parser_error(char *str, ...)
 {
     printf("%s", str);
     longjmp(jmp_env, 1);

@@ -23,7 +23,6 @@ void error(char *str, ...)
     set_cursor(0, 0);
     vals = &str;
 #endif
-    print_debug_lines();
     if (str[0] != '\0') {
         vprintf(str, vals);
         va_end(vals);
@@ -37,4 +36,22 @@ void error(char *str, ...)
 #endif
     }
     longjmp(repl_buf, 1);
+}
+
+/**
+ * Вывод сообщения об ошибке для парсера и лексера
+ * 
+ * @param str строка с сообщением об ошибке
+ */
+void parser_error(char *str, ...)
+{
+    va_list(vals);
+    va_start(vals, str);
+    print_debug_lines();
+    if (str[0] != '\0') {
+	vprintf(str, vals);
+	va_end(vals);
+	putchar('\n');
+    }
+    longjmp(repl_buf,1);
 }

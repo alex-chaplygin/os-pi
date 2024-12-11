@@ -30,7 +30,7 @@ int buffer_write_pos = 0;
 /// текущая позиция чтения из буфера symbol_buffer
 int buffer_read_pos = 0;
 
-void error(char *str, ...);
+void parser_error(char *str, ...);
 
 /** 
  * Считывает очередной символ из входного потока символов в глобальную переменную cur_symbol.
@@ -77,7 +77,9 @@ void print_debug_lines()
 	bt--;
     }
     while (bt < buffer_write_pos) {
-	putchar(symbol_buffer[bt]);
+	//printf("%x\n", symbol_buffer[bt]);
+	if (symbol_buffer[bt] != EOF)
+	    putchar(symbol_buffer[bt]);
 	bt++;
     }
     putchar('\n');
@@ -165,9 +167,9 @@ int hex_num()
 			cur_symbol = toupper(cur_symbol);
 			cur_num = cur_num * 16 + cur_symbol - 'A' + 10;
 		} else
-		    error("invalid hex number");
+		    parser_error("invalid hex number");
 		if ((cur_num >> msb_shr) & 1)
-			error("hex number overflow");
+			parser_error("hex number overflow");
     } while (isdigit(cur_symbol) || is_hex_symbol(cur_symbol));
   
     unget_cur_char();
@@ -192,7 +194,7 @@ int get_float_num(int int_num, int sgn)
     float count = 1;
     while (!is_delimeter(cur_symbol)) {
 	if (!isdigit(cur_symbol))
-	    error("invalid symbol in float");
+	    parser_error("invalid symbol in float");
 	float_num = float_num * 10 + (cur_symbol - '0');
 	count *= 10;
 	get_cur_char();
@@ -231,14 +233,14 @@ int get_num()
 	    msb = (cur_num >> sgn_shr) & 1;
 	    
 	    if (msb != fl && cur_num != 0)
-		error("number overflow");	      
+		parser_error("number overflow");	      
 	    
 	    get_cur_char();
 	} else if (cur_symbol == '.') {
 	    token.type = T_FLOAT;
 	    return get_float_num(cur_num, sgn);
 	} else {
-	    error("invalid character in number"); 
+	    parser_error("invalid character in number"); 
 	}
     }
     unget_cur_char();
@@ -258,13 +260,13 @@ void get_symbol(char *cur_str)
 	}
 	
 	if (!(isalpha(cur_symbol) || isdigit(cur_symbol) || is_symbol(cur_symbol)))
-	    error("invalid character in symbol: %c(#%x)", cur_symbol, cur_symbol);	    
+	    parser_error("invalid character in symbol: %c(#%x)", cur_symbol, cur_symbol);	    
 		
         cur_str[c++] = cur_symbol;
         get_cur_char();
 
 	if (c > MAX_SYMBOL)
-	    error("maximum characters in symbol");
+	    parser_error("maximum characters in symbol");
     }
     unget_cur_char();
     cur_str[c] = 0;
@@ -286,7 +288,7 @@ void get_string(char *cur_str)
 	if (cur_symbol == '"')
 	    break;
 	else if (c == MAX_STR) {
-	    error("maximum characters in string");
+	    parser_error("maximum characters in string");
 	}
     	else if (cur_symbol == '\\') {
 	    	get_cur_char();
@@ -298,19 +300,19 @@ void get_string(char *cur_str)
 		    int code = hex_num();
 		    
 		    if (code > 255)
-		    	error("invalid symbol in string");
+		    	parser_error("invalid symbol in string");
 		    
 		    cur_str[c++] = code;
 		    get_cur_char();
 		    continue;
 		} else
-		    error("invalid escape");
+		    parser_error("invalid escape");
 	}
 	cur_str[c++] = cur_symbol;
 	get_cur_char();
     }
     if (cur_symbol != '"')
-	error("expected \" at string end");
+	parser_error("expected \" at string end");
     
     cur_str[c] = '\0'; // Завершаем строку
 }
@@ -434,7 +436,7 @@ token_t *get_token()
 	        token.type =  T_SYMBOL;
 	        get_symbol(token.str);
 	} else 
-	    error("invalid symbol");
+	    parser_error("invalid symbol");
     }
     return &token;
 }

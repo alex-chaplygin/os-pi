@@ -6,7 +6,7 @@
 #include "symbols.h"
 #include "parser.h"
 
-extern int token_error;
+void parser_error(char *str, ...);
 
 token_t *cur_token; // текущий токен
 
@@ -43,7 +43,7 @@ object_t parse_quote(char *quote_sym)
     //printf("quote: ");
     //PRINT(o);
     if (o == NOVALUE)
-	error("quote: no args");
+	parser_error("quote: no args");
     object_t p = new_pair(o, NULLOBJ);
     return new_pair(NEW_SYMBOL(quote_sym), p);
 }
@@ -102,7 +102,7 @@ object_t parse_list()
     token_t *cur_tok = get_token();
 
     if (cur_tok->type == END)
-	error("expected )");
+	parser_error("expected )");
     if (cur_tok->type == RPAREN)
 	return NULLOBJ;
     if (cur_tok->type == T_NUMBER) {
@@ -128,10 +128,10 @@ object_t parse_list()
 	object_t res = parse();
 	cur_tok = get_token();       
 	if (cur_tok->type != RPAREN)
-	    error("expected )");
+	    parser_error("expected )");
 	return res;
     } else 
-	error("invalid expression");
+	parser_error("invalid expression");
 }
 
 /** 
@@ -143,7 +143,7 @@ object_t parse_array()
 {
     object_t o = parse();
     if (o != NULLOBJ && TYPE(o) != PAIR)
-	error("invalid array");
+	parser_error("invalid array");
     return NEW_ARRAY(o);
 }
 
@@ -197,5 +197,5 @@ object_t parse()
     else if (cur_token->type == END)
         return NOVALUE;
     else 
-	error("invalid expression");
+	parser_error("invalid expression");
 }

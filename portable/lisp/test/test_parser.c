@@ -253,7 +253,7 @@ char *strupr (char *str);
 object_t parse_list();
 object_t parse();
 
-void error(char *str, ...)
+void parser_error(char *str, ...)
 {
     printf("%s", str);
     longjmp(jmp_env, 1);
