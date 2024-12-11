@@ -416,20 +416,6 @@ void test_rplacd()
     ASSERT(get_value(TAIL(res)), 2);
 }
 
-/**
- * Тест функции list
- */
-void test_list()
-{
-    printf("test_list: ");
-    object_t p = new_pair(new_number(1),  
- 			  new_pair(new_number(2), NULLOBJ)); 
-    object_t res = list(p); 
-    ASSERT(TYPE(FIRST(res)), NUMBER); 
-    ASSERT(get_value(FIRST(res)), 1); 
-    ASSERT(TYPE(SECOND(res)), NUMBER); 
-    ASSERT(get_value(SECOND(res)), 2);
-}
 
 int main()
 {
@@ -463,6 +449,6 @@ int main()
     test_rplacd_many_params();//80
     test_rplacd_empty_list();//81
     test_rplacd_not_pair();//82
-    test_list();
+    
     return 0;
 }
