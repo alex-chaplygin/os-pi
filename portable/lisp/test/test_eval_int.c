@@ -24,7 +24,6 @@ object_t progn(object_t list);
 object_t defun(object_t list);
 object_t quote(object_t list);
 object_t eq(object_t list);
-object_t or(object_t list);
 object_t backquote(object_t list);
 object_t defmacro(object_t list);
 object_t eval_symbol(object_t list);
@@ -487,74 +486,7 @@ void test_eq()
     object_t res5 = eq(new_pair(s1, new_pair(s1, NULLOBJ)));
     ASSERT(res5, t);
 }
-
-/**
- * Тестирование функции or
- * передаём NULLOBJ вместо списка
- */
-void test_or_null()
-{
-    printf("test_or_null: \n");
-    if (setjmp(jmp_env) == 0) {
-        object_t res = or(NULLOBJ);
-        FAIL;
-    } else
-        OK;
-}
-
- /**
- * Тестирование функции or
- * передаём список с некорректными данными
- */
-void test_or_invalid()
-{
-    printf("test_or_invalid: \n");
-    object_t p1 = new_number(1);
-    object_t l1 = new_pair(p1, NULLOBJ);
-    if (setjmp(jmp_env) == 0) {
-        object_t res = or(l1);
-        FAIL;
-    } else
-        OK;
-}
-
- /**
- * Тестирование функции or
- * Первый элемент - t
- */
-void test_or_first()
-{
-    printf("test_or_first: \n");
-    object_t l1 = new_pair(t, new_pair(t, NULLOBJ));
-    object_t res = or(l1);
-    ASSERT(res, t);
-}
-
-/**
- * Тестирование функции or
- * Первый элемент - nil, второй - t
- */
-void test_or_tail()
-{
-    printf("test_or_tail: \n");
-    object_t l1 = new_pair(nil, new_pair(t, NULLOBJ));
-    object_t res = or(l1);
-    ASSERT(res, t);
-}
-
-
-/**
- * Тестирование функции or
- * Первый элемент - nil, второй - nil
- */
-void test_or_nil()
-{
-    printf("test_or_nil: \n");
-    object_t l1 = new_pair(nil, new_pair(nil, NULLOBJ));
-    object_t res = or(l1);
-    ASSERT(res, nil);
-}
-
+ 
 /**
  * Тест на неправильный символ LAMBDA
  */
@@ -948,11 +880,6 @@ int main()
     test_quote_error();//53
     test_quote_null();
     test_eq(); //9, 55, 56, 57
-    test_or_null();
-    test_or_invalid();
-    test_or_first();
-    test_or_tail();
-    test_or_nil();
     test_is_lambda_invalid_symbol();
     test_is_lambda_no_params();
     test_is_lambda_invalid_params();
