@@ -450,8 +450,8 @@ void test_code_char()
     printf("test_code_char: ");
     object_t params = new_pair(new_number(110), NULLOBJ); 
     object_t res = code_char(params); 
-    ASSERT(TYPE(res), STRING); 
-    ASSERT(GET_STRING(res)->data[0], 'n');
+    ASSERT(TYPE(res), CHAR); 
+    ASSERT(GET_CHAR(res), 'n');
 }
 
 /**
