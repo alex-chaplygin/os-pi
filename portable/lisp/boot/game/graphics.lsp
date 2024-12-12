@@ -1,4 +1,3 @@
-;Вывод растровой графики в ASCII
 (defvar *background*)
 (defvar *tile-w* 1)
 (defvar *tile-h* 1)
@@ -20,7 +19,7 @@
 
 (defun set-tiles (tiles)
   "Задать список тайлов"
-  "set-tiles '((WALL . \##') (PLAT . \#-))"
+  "set-tiles `((WALL . ,image1) (PLAT . ,image2))"
   (setq *tile-hash* (make-hash))
   (app #'(lambda (tile) (set-hash *tile-hash* (car tile) (cdr tile))) tiles))
 
@@ -54,7 +53,7 @@
 (defun draw-sprite (sprite)
   "Отрисовать переданный спрайт"
   (gsave)
-  (translate '((slot sprite 'x) . (slot sprite 'y)))
+  (translate (cons (slot sprite 'x) (slot sprite 'y)))
   (draw-image (slot sprite 'image))
   (grestore))
   
@@ -65,9 +64,9 @@
        (let* ((row (aref *background* r))
 	      (rowsize (array-size row)))
 	 (for c 0 rowsize
-	      (draw-image (aref row c))
-	      (translate '(*tile-w* . 0)))
-	 (translate '((* rowsize (- *tile-w*)) . *tile-h*))))
+	      (draw-image (get-hash *tile-hash* (aref row c)))
+	      (translate (cons *tile-w* 0)))
+	      (translate (cons (* rowsize (- 0 *tile-w*)) *tile-h*))))
   (grestore))
 
 (defun get-tile-index (x y)
@@ -83,11 +82,11 @@
 	 (start-column (cdr start-tile-ind))
 	 (end-row (car end-tile-ind))
 	 (end-column (cdr end-tile-ind)))
-    (translate '((* start-column *tile-w*) . (* start-row *tile-h*)))
+    (translate (cons (* start-column *tile-w*) (* start-row *tile-h*)))
     (for row-ind start-row (+ end-row 1)
 	 (let ((row (aref *background* row-ind)))
 	   (for column-ind start-column (+ end-column 1)
-		(draw-image (aref row column-ind))
-		(translate '(*tile-w* . 0))))
-	 (translate '((- width) . *tile-h*))))
+		(draw-image (get-hash *tile-hash* (aref row c)))
+		(translate (cons *tile-w* 0))))
+	 (translate (cons (- 0 width) *tile-h*))))
   (grestore))

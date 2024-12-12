@@ -5,6 +5,7 @@ BASELISP=boot/lib.lsp boot/list.lsp boot/array.lsp boot/str.lsp boot/hash.lsp bo
 GRAPHICS=$(BASELISP) boot/math.lsp boot/bgr.lsp boot/graphics/matrix.lsp boot/graphics/image.lsp boot/graphics/backend.lsp boot/graphics/frontend.lsp
 TEST=boot/test.lsp
 ASCII_GRAPHICS=$(GRAPHICS) boot/graphics/ascii-backend.lsp
+GAME=$(ASCII_GRAPHICS) boot/game/graphics.lsp
 FS=$(BASELISP) boot/ata.lsp boot/mbr.lsp boot/fs/block.lsp boot/fs/fs.lsp boot/fs/fat32fs.lsp boot/fs/fat.lsp boot/fs/dir.lsp boot/fs/fat32test.lsp
 KEYBOARD=$(BASELISP) boot/sys/keyboard.lsp boot/sys/events.lsp
 COMPILER=$(BASELISP) boot/compiler/compiler.lsp  boot/compiler/generator.lsp
@@ -23,6 +24,10 @@ lisp: /tmp/baselisp.lsp # здесь меняем набор библиотек
 	echo -e -n "\xff" >>$@
 # графика через ASCII в текстовом видеорежиме
 /tmp/ascii-graphics.lsp: $(ASCII_GRAPHICS) boot/graphics/test/ascii-backend.lsp
+	cat $^ >$@ ;
+	echo -e -n "\xff" >>$@
+# графическая система для игр
+/tmp/game.lsp: $(GAME) boot/game/tests/graphics.lsp
 	cat $^ >$@ ;
 	echo -e -n "\xff" >>$@
 # файловая система
