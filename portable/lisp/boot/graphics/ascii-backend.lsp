@@ -22,6 +22,7 @@
 
 (defun clear-screen()
   "Очистка экрана"
+  (hide-cursor)
   (for i 0 +buffer-size+
        (seta *text-buffer* i 0))
   (send-text-buffer *text-buffer* 0 0 *screen-width* *screen-height*))
@@ -53,3 +54,24 @@
     (set-cursor (car p) (cdr p))
     (set-color c)
     (putstring text)))
+
+(defun draw-image (image)
+  "Вывод изображения в позиции матрицы трансформации"
+  (let* ((ctm (get-hash *cur-state* 'ctm))
+	 (color (get-hash *cur-state* 'color))
+	 (p (mat-mul-vec ctm '(0 . 0)))
+	 (ofs (<< (+ (* (cdr p) *screen-width*) (car p)) 1))
+	 (width (image-width image))
+	 (height (image-height image)))
+    (for y 0 height
+	 (let ((row (image-row image y)))
+	   (for x 0 width
+		(seta *text-buffer* ofs (aref row x))
+		(incf ofs)
+		(seta *text-buffer* ofs color)
+		(incf ofs))
+	   (setq ofs (+ ofs (<< *screen-width* 1) (- 0 (<< width 1))))))))
+
+(defun draw-screen ()
+  "Перерисовка экрана"
+  (send-text-buffer *text-buffer* 0 0 *screen-width* *screen-height*))

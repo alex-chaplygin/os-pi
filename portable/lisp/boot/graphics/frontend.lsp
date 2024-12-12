@@ -4,16 +4,16 @@
 (defvar *cur-state* (make-hash))     ; Текущее состояние
 (set-hash *cur-state* 'ctm (mat-id)) ; Матрица трансформации
 (set-hash *cur-state* 'color 0)      ; Цвет
-(defvar *sav-states* (list))         ; Список сохраненных состояний
+(defvar *sav-states*)         ; Список сохраненных состояний
 
 (defmacro gsave ()
   "Сохранение состояния"
-  `(setq *sav-states* (cons *cur-state* *sav-states*)))
+  `(setq *sav-states* (cons (clone *cur-state*) *sav-states*)))
 
-(defmacro grestore ()
+(defun grestore ()
   "Восстановление состояния"
-  `(setq *cur-state* (car *sav-states*))
-  `(setq *sav-states* (cdr *sav-states*)))
+  (setq *cur-state* (car *sav-states*))
+  (setq *sav-states* (cdr *sav-states*)))
 
 (defmacro matrix (a b c d tx ty)
   "Произведение текущей матрицы трансформации на матрицу a b c d tx ty"
@@ -66,9 +66,9 @@
   "Установка цвета"
   `(set-hash *cur-state* 'color ,color))
 
-(defmacro translate (x y)
+(defun translate (p)
   "Смещение"
-  `(set-hash *cur-state* 'ctm (mat-trans (get-hash *cur-state* 'ctm) ,x ,y)))
+  (set-hash *cur-state* 'ctm (mat-trans (get-hash *cur-state* 'ctm) (car p) (cdr p))))
 
 (defmacro scale (x y)
   "Масштабирование"
