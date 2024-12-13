@@ -59,11 +59,12 @@
       (emit expr)
       (if (contains '(GLOBAL-SET LOCAL-SET DEEP-SET) (car expr))
 	  (generate-set expr)
-	  (if (contains '(LABEL FIX-CLOSURE) (car expr))
+	  (if (contains '(LABEL) (car expr))
 	      (generate-2-params expr)
 	      (case (car expr)
 		('SEQ (app #'inner-generate (cdr expr))) ; последовательность
 		('ALTER (generate-if (cdr expr))) ; ветвление
+		('FIX-CLOSURE (inner-generate (caddr expr)))
 		('PRIM (generate-prim (cadr expr) (caddr expr))) ; вызов примитива
 		('REG-CALL (generate-reg-call (cadr expr) (caddr expr) (cadddr expr))) ; обычный вызов
 		(otherwise (emit (list 'UNKNOWN (car expr)))))))))
