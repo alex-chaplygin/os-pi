@@ -676,6 +676,11 @@ void garbage_collect()
 #endif
     mark_object(current_env);
     mark_object(func_env);
+    cur = protected;
+    while (cur != NULL) {
+	mark_object(cur->obj);
+	cur = cur->next;
+    }
     sweep();
     allocated_pairs = 0;
 } 
