@@ -14,10 +14,10 @@
   "Добавить прямоугольник в область отрисовки"
   "ul - координаты верхнего левого угла"
   "size - вектор размеров"
-  (let ((x1 (vec2-x ul))
-	(y1 (vec2-y ul))
-	(x2 (+ x1 (vec2-x size)))
-	(y2 (+ y1 (vec2-y size))))
+  (let* ((x1 (vec2-x ul))
+	 (y1 (vec2-y ul))
+	 (x2 (+ x1 (vec2-x size)))
+	 (y2 (+ y1 (vec2-y size))))
     (when (< x1 (vec2-x *draw-top-left*)) (rplaca *draw-top-left* x1))
     (when (< y1 (vec2-y *draw-top-left*)) (rplacd *draw-top-left* y1))
     (when (> x2 (vec2-x *draw-bottom-right*)) (rplaca *draw-bottom-right* x2))

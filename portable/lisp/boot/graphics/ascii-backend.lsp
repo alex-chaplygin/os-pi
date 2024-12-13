@@ -63,6 +63,7 @@
 	 (ofs (<< (+ (* (cdr p) *screen-width*) (car p)) 1))
 	 (width (image-width image))
 	 (height (image-height image)))
+    (screen-add-rect p (cons width height))
     (for y 0 height
 	 (let ((row (image-row image y)))
 	   (for x 0 width
@@ -74,4 +75,12 @@
 
 (defun draw-screen ()
   "Перерисовка экрана"
-  (send-text-buffer *text-buffer* 0 0 *screen-width* *screen-height*))
+  (let*  ((x (vec2-x *draw-top-left*))
+	  (y (vec2-y *draw-top-left*))
+	  (width (- (vec2-x *draw-bottom-right*) x))
+	  (height (- (vec2-y *draw-bottom-right*) y)))
+    (when (and (> width 0) (> height 0))
+      (send-text-buffer *text-buffer* x y width height)))
+  (screen-reset))
+
+(screen-reset)
