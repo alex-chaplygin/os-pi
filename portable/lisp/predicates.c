@@ -4,37 +4,31 @@
 #include "parser.h"
 #include "eval.h"
 
-/*
- * Функция symbolp, которая возвращает T, если obj - символ и NIL, если нет
- */
-object_t symbolp(object_t params)
-{   
-    if (params == NULLOBJ) 
-	error("SYMBOLP: no params");
-    else if (TAIL(params) != NULLOBJ) 
-	error("SYMBOLP: many params");
-    object_t symbol = FIRST(params);    
-    if (TYPE(symbol) == SYMBOL)
-	return t;
-    else
-	return nil;
-}
+int list_length(object_t args);
 
 /*
- * Функция integerp, которая возвращает T, если obj - целое число и NIL, если нет
+ * Создает функцию предикат 
+ * @param name имя создаваемой функции 
+ * @param cond условие, когда функция возвращает Т
  */
-object_t integerp(object_t params)
-{   
-    if (params == NULLOBJ) 
-	error("INTEGERP: no params");
-     else if (TAIL(params) != NULLOBJ) 
-	error("INTEGERP: many params");
-    object_t integer = FIRST(params);
-    if (TYPE(integer) == NUMBER || TYPE(integer) == BIGNUMBER)
-	return t;
-    else
-	return nil;
+#define MAKE_PREDICATE(name, cond)\
+object_t name (object_t params)\
+{   \
+    if (params == NULLOBJ) \
+	error(#name": no params");    \
+     else if (TAIL(params) != NULLOBJ) \
+	 error(#name": many params"); \
+    object_t el  = FIRST(params);\
+    if (cond)\
+	return t;\
+    else\
+	return nil;\
 }
+
+// Символ
+MAKE_PREDICATE(symbolp, TYPE(el) == SYMBOL)
+// Число
+MAKE_PREDICATE(integerp, TYPE(el) == NUMBER || TYPE(el) == BIGNUMBER)
 
 void init_predicates()
 {
