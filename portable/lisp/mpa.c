@@ -93,6 +93,7 @@ bignum_t bignum_from_int(int num)
     bignum_t bignum = new_bignum();
     bignum->exponent = 0;
     int size = 0;
+    bignum->data[0] = 0;
     bignum->sign = 1;
     if (num < 0) {
          bignum->sign = -1;
@@ -301,44 +302,37 @@ void bignum_div(bignum_t n1, bignum_t n2)
         return;
     }
     
-    bignum_t div = new_bignum(); // остаток от деления
-    bignum_t temp = new_bignum(); // разряд, с которым работаем
-    bignum_t result = new_bignum();
-    bignum_t one = new_bignum();
-    
-    div->size = 1;
-    div->data[0] = 0;
+    bignum_t div = bignum_from_int(0); // остаток от деления
+    bignum_t temp = bignum_from_int(0); // разряд, с которым работаем
+    bignum_t result = bignum_from_int(0);
+    bignum_t one = bignum_from_int(1);
     
     temp->size = 1;
-
-    one->size = 1;
-    one->data[0] = 1;
-
-    result->size = 1;
-    result->data[0] = 0;
-
-    printf("result: ");
+    printf("\ntemp: ");
+    print_bignum(temp);
+    printf("\nresult: ");
     print_bignum(result);
     
     for (int i = n1->size - 1; i >= 0; i--)
     {
 	temp->data[0] = n1->data[i];
+	temp->size = 1;
 	bignum_sum(div, temp);
 
-	printf("temp: ");
+	printf("\ntemp: ");
 	print_bignum(temp);
-	printf("div: ");
+	printf("\ndiv: ");
 	print_bignum(div);
 	
 	if (bignum_compare(div, n2) >= 0)
 	{
 	    while (bignum_compare(div, n2) >= 0)
 	    {
-		printf("result: ");
+		printf("\nresult: ");
 		print_bignum(result);
 		bignum_sub(div, n2);
 		bignum_sum(result, one);
-		printf("result: ");
+		printf("\nresult: ");
 		print_bignum(result);
 	    }
 	    
@@ -349,9 +343,12 @@ void bignum_div(bignum_t n1, bignum_t n2)
 	    for (int i = div->size - 1; i >= 0 ; i--)
 	    {
 		div->data[i + 1] = div->data[i];
+		printf("\ndiv: ");
+		print_bignum(div);
 	    }
 	    div->data[0] = 0;
-	     
+	    printf("\ndiv: ");
+	    print_bignum(div);
 	}
     } 
 	    
