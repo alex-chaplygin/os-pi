@@ -15,6 +15,17 @@
 					;((class . line)(x . 10)(y . 20)(x2 . 5)(y2 . 10))
 (defvar *class-table* (make-hash))
 
+(defmacro gen-class-functions (class slots)
+  "Генерация функций селекторов - <class>-<slot>"
+  "мутаторов - <class>-set-<slot>"
+  (if (null slots) nil
+  `(progn
+     (defun ,(intern (concat (symbol-name class) "-" (symbol-name (car slots)))) (obj)
+       (slot obj ',(car slots)))
+     (defun ,(intern (concat (symbol-name class) "-SET-" (symbol-name (car slots)))) (obj val)
+       (setf (slot obj ',(car slots)) val))
+     (gen-class-functions ,class ,(cdr slots)))))
+					       
 (defmacro defclass (name parent slots)
   "Создание нового класса
   name - имя, parent - родительский класс,
@@ -29,6 +40,7 @@
      (let ((obj (make-instance ,name)))
 	 ,@(map #'(lambda(s) `(setf (slot obj ',s) ,s)) (get-slots name))
 	 obj))
+  `(gen-class-functions ,name ,(get-slots name))
   `',name)	
 	
 (defmacro make-instance (class)
