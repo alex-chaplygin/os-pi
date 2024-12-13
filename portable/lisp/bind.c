@@ -6,13 +6,12 @@
 bind_t *global_env = NULL;
 
 /// Временные объекты, защищенные от сборки мусора
-bind_t *protected_head = NULL;
-bind_t protected[PROTECTED_SIZE];
+bind_t *protected = NULL; // указатель на начало списка текущих временных объектов
 
 /*  
- * Добавляет элемент в глобальное окружение 
+ * Добавляет элемент в глобальное окружение
  * 
- * @param symbol - символ, который добавляется 
+ * @param symbol - символ, который добавляется
  */ 
 void bind_global(object_t symbol)
 {
@@ -40,6 +39,3 @@ void set_global(symbol_t *symbol)
 	cur = cur->next;
     }
 }
-
-
-
