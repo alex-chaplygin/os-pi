@@ -177,10 +177,8 @@ object_t backquote_rec(object_t list)
 	return new_bignumber(GET_BIGNUMBER(list)->value);
     else if (TYPE(list) == FLOAT)
 	return new_float(GET_FLOAT(list)->value);
-    else if (TYPE(list) == CHAR || TYPE(list) == NUMBER)
+    else if (TYPE(list) == CHAR || TYPE(list) == NUMBER || TYPE(list) == SYMBOL)
 	return list;
-    else if (TYPE(list) == SYMBOL) 
-	return NEW_SYMBOL(GET_SYMBOL(list)->str); 
     else if (TYPE(list) == ARRAY) { 
  	array_t *arr = new_empty_array(GET_ARRAY(list)->length); 
  	int l = GET_ARRAY(list)->length; 
@@ -189,19 +187,25 @@ object_t backquote_rec(object_t list)
  	return NEW_OBJECT(ARRAY, arr); 
     } else if (TYPE(list) == STRING) 
 	return NEW_STRING(GET_STRING(list)->data); 
-    else if (TYPE(list) == PAIR) { 
+    else if (TYPE(list) == PAIR) {
  	object_t el = FIRST(list); // list = (COMMA B) 
  	if (el == NULLOBJ) 
  	    return new_pair(NULLOBJ, backquote_rec(TAIL(list))); 
  	if (TYPE(el) == SYMBOL && !strcmp(GET_SYMBOL(el)->str, "BACKQUOTE")) 
  	    return list; 
- 	if (TYPE(el) == SYMBOL && !strcmp(GET_SYMBOL(el)->str, "COMMA")) 
- 	    return eval(SECOND(list), env, func); 
+ 	if (TYPE(el) == SYMBOL && !strcmp(GET_SYMBOL(el)->str, "COMMA")) {
+	    PROTECT1(list);
+ 	    object_t res = eval(SECOND(list), env, func);
+	    UNPROTECT;
+	    return res;
+	}
  	object_t first = backquote_rec(el); 
  	if (first != NULLOBJ && TYPE(first) == PAIR) {  // first = (COMMA-AT B) 
  	    object_t comma_at = FIRST(first); 
- 	    if (comma_at != NULLOBJ && TYPE(comma_at) == SYMBOL && !strcmp(GET_SYMBOL(comma_at)->str, "COMMA-AT")) { 
- 		object_t l = eval(SECOND(first), env, func); 
+ 	    if (comma_at != NULLOBJ && TYPE(comma_at) == SYMBOL && !strcmp(GET_SYMBOL(comma_at)->str, "COMMA-AT")) {
+		PROTECT1(first);
+ 		object_t l = eval(SECOND(first), env, func);
+		UNPROTECT;
  		if (l == NULLOBJ) 
  		    return backquote_rec(TAIL(list)); 
  		if (TYPE(l) != PAIR)
@@ -242,16 +246,20 @@ object_t IF(object_t obj)
 	error("NULLOBJ in IF");    
     object_t env = current_env;
     object_t func = func_env;
+    object_t res;
     if (TAIL(obj) == NULLOBJ)
 	error("True is empty");
     if (TAIL(TAIL(obj)) == NULLOBJ)
 	error("False is empty");
     else if (TAIL(TAIL(TAIL(obj))) != NULLOBJ)
 	error("if: too many params");
+    PROTECT1(obj);
     if (eval(FIRST(obj), env, func) != nil)
-	return eval(SECOND(obj), env, func);
+	res = eval(SECOND(obj), env, func);
     else
-	return eval(THIRD(obj), env, func);
+	res = eval(THIRD(obj), env, func);
+    UNPROTECT;
+    return res;
 }
 
 /*  
@@ -304,10 +312,12 @@ object_t progn(object_t params)
     object_t env = current_env;
     object_t func = func_env;
     object_t obj;
+    PROTECT1(params);
     while (params != NULLOBJ) {
 	obj = eval(FIRST(params), env, func);
 	params = TAIL(params);
     }
+    UNPROTECT
     return obj;
 } 
 
@@ -416,7 +426,7 @@ int find_in_env(object_t env, object_t sym, object_t *res)
  */ 
 void append_env(object_t l1, object_t l2) 
 { 
-    while (GET_PAIR(l1)->right != NULLOBJ) 
+    while (GET_PAIR(l1)->right != NULLOBJ)
  	l1 = GET_PAIR(l1)->right; 
     GET_PAIR(l1)->right = l2; 
 } 
@@ -443,8 +453,11 @@ object_t eval_func(object_t lambda, object_t args, object_t env, object_t func)
     if (new_env == NULLOBJ) 
  	new_env = env; 
     else 
- 	append_env(new_env, env); 
-    return eval(body, new_env, func); 
+ 	append_env(new_env, env);
+    PROTECT1(body);
+    object_t result = eval(body, new_env, func);
+    UNPROTECT;
+    return result;
 } 
 
 /* 
@@ -463,12 +476,16 @@ object_t macro_call(object_t macro, object_t args, object_t env, object_t func)
     object_t eval_res;
     body = TAIL(TAIL(macro));
     if (new_env != NULLOBJ)
-	append_env(new_env, env); 
+	append_env(new_env, env);
     while (body != NULLOBJ) {
- 	eval_res = eval(FIRST(body), new_env, func); 
- 	eval_res = eval(eval_res, env, func); 
- 	body = TAIL(body); 
-    } 
+	PROTECT1(body);
+ 	eval_res = eval(FIRST(body), new_env, func);
+	UNPROTECT;
+	PROTECT1(eval_res);
+ 	eval_res = eval(eval_res, env, func);
+	UNPROTECT;
+ 	body = TAIL(body);
+    }
     return eval_res; 
 } 
     
@@ -481,19 +498,17 @@ object_t macro_call(object_t macro, object_t args, object_t env, object_t func)
  */ 
 object_t eval_args(object_t args, object_t env, object_t func) 
 { 
-    //printf("eval_args: "); 
-    //PRINT(args); 
-    //printf(" "); 
-    //PRINT(env); 
     if (args == NULLOBJ) 
  	return NULLOBJ;
     if (TYPE(args) != PAIR)
 	error("arguments are not list");    
+    PROTECT1(args);
     object_t f = FIRST(args); 
-    //printf("f = %x pair = %x", f, f->u.pair); 
-    //PRINT(f); 
-    object_t arg = eval(f, env, func); 
+    object_t arg = eval(f, env, func);
+    UNPROTECT;
+    PROTECT1(arg);
     object_t tail = eval_args(TAIL(args), env, func); 
+    UNPROTECT;
     return new_pair(arg, tail);  
 } 
 
