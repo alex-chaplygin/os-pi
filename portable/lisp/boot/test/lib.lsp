@@ -116,6 +116,11 @@
   (print (assert (or (= 1 1) nil nil) t))
   (print (assert (or nil nil nil) nil)))
 
+(defun case-test ()
+  (print (assert (case 10
+		   (1 2)
+		   (otherwise 3)) 3)))
+
 (fors-test)
 (tagbody-rec-test)
 (lex-test)
@@ -125,3 +130,4 @@
 (cond-tests)
 (and-tests)
 (or-tests)
+(case-test)
