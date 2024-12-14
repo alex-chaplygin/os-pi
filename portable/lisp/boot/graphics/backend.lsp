@@ -187,15 +187,21 @@
 
 (defun bezier-point (p0 p1 p2 p3 ti)
   "Возвращает очередную точку кривой"
-  (cons (+ (* (expt (- 1  ti) 3) (car p0)) (* 3 ti (expt (- 1 ti) 2) (car p1)) (* 3 (expt ti 2) (- 1 ti) (car p2)) (* (expt ti 3) (car p3)))
-        (+ (* (expt (- 1 ti) 3) (cdr p0)) (* 3 ti (expt (- 1 ti) 2) (cdr p1)) (* 3 (expt ti 2) (- 1 ti) (cdr p2)) (* (expt ti 3) (cdr p3)))))
+  (let* ((t1 (- 1 ti))
+         (t2 (expt t1 2))
+         (t3 (expt t1 3))
+	 (ti2 (expt ti 2))
+	 (ti3 (expt ti 3)))
+    (cons (+ (* t3 (car p0)) (* 3 ti t2 (car p1)) (* 3 t1 ti2 (car p2)) (* ti3 (car p3)))
+          (+ (* t3 (cdr p0)) (* 3 ti t2 (cdr p1)) (* 3 t1 ti2 (cdr p2)) (* ti3 (cdr p3))))))
 
 (defun draw-bezier-curve (p1 p2 p3 p4 n colour)
   "Рисование кривой Безье"
   "p1 p2 p3 p4 - точки, n - число точек в кривой colour - цвет"
-  (let ((ti 0.0)
-	(step (/ 1.0 n)))
-    (while (< ti 1.1)
+  (let* ((ti 0.0)
+	 (step (/ 1.0 n))
+	 (fin-ti (+ 1.0 step)))
+    (while (< ti fin-ti)
       (let ((curve-point (bezier-point p1 p2 p3 p4 ti)))
 	(set-pixel (round (car curve-point)) (round (cdr curve-point)) colour))
       (setq ti (+ ti step)))))

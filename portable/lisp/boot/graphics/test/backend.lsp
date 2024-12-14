@@ -46,9 +46,10 @@
 (defun bezier-test ()
   "Тестирование рисования кривой Безье"
   (clear-screen)
-  (draw-bezier-curve '(0 . 0) '(10 . 10) '(20 . 10) '(30 . 10) 10 1)
+  (draw-bezier-curve '(50 . 50) '(50 . 120) '(100 . 0) '(100 . 80) 15 1)
   (draw-bezier-curve '(20 . 120) '(30 . 100) '(140 . 100) '(150 . 120) 20 2)
-  (draw-bezier-curve '(160 . 100) '(170 . 100) '(300 . 100) '(319 . 100) 20 3)
+  (draw-bezier-curve '(160 . 100) '(170 . 10) '(300 . 100) '(319 . 100) 20 3)
+  (draw-bezier-curve '(30 . 30) '(15 .120) '(100 . 20) '(100 . 100) 20 4)
   (draw-screen))
 
 (defun test-set-pixel ()

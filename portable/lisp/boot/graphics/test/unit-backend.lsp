@@ -21,11 +21,13 @@
 (defun test-bezier-curve ()
   (print "Тестирование рисования кривой Безье")
   (setq *points* nil)
-  (draw-bezier-curve '(0 . 0) '(1 . 2) '(4 . 2) '(5 . 0) 20 1)
-  (print *points*))
+  (draw-bezier-curve '(50 . 50) '(50 .120) '(100 . 0) '(100 . 80) 5 4)
+;  (print *points*))
+  )
 
 (defun set-pixel (x y colour)
   "Заглушка рисования точки"
+  (print `(,x ,y))
   (setq *points* (append *points* (list x y))))
 
 (defun fill-triangle-tests ()
@@ -61,5 +63,5 @@
   (test-next-x 1 1 2 10 '(1 1 1 1 2 2 2 2 2))
   (test-next-x 1 1 4 8 '(1 2 2 3 3 4 4)))
 
-(fill-triangle-tests)
+;(fill-triangle-tests)
 (test-bezier-curve)
