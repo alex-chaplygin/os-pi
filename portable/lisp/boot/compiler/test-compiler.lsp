@@ -23,16 +23,28 @@
 	      '(GLOBAL-SET 2 (PRIM + ((PRIM * ((CONST 1) (CONST 2))) (PRIM * ((CONST 2) (CONST 3)))))))
 
 (test-compile '(defun test (x) (setq a 2) (setq x a) x)
-	      '(LABEL TEST (FIX-CLOSURE 1 (SEQ (SEQ (GLOBAL-SET 2 (CONST 2)) (SEQ (LOCAL-SET 0 (GLOBAL-REF 2)) (LOCAL-REF 0))) (RETURN)))))
+	      '(LABEL TEST (SEQ (SEQ (GLOBAL-SET 2 (CONST 2)) (SEQ (LOCAL-SET 0 (GLOBAL-REF 2)) (LOCAL-REF 0))) (RETURN))))
 
 (test-compile '(progn (defun test (x) x x) (test 10))
-	      '(SEQ (LABEL TEST (FIX-CLOSURE 1 (SEQ (SEQ (LOCAL-REF 0) (LOCAL-REF 0)) (RETURN)))) (REG-CALL TEST 0 ((CONST 10)))))
+	      '(SEQ (LABEL TEST (SEQ (SEQ (LOCAL-REF 0) (LOCAL-REF 0)) (RETURN))) (REG-CALL TEST 0 ((CONST 10)))))
 
 (test-compile '(progn (defun test (x y) (progn x y)) (test 10 (if t 3 4)))
-	      '(SEQ (LABEL TEST (FIX-CLOSURE 2 (SEQ (SEQ (LOCAL-REF 0) (LOCAL-REF 1)) (RETURN)))) (REG-CALL TEST 0 ((CONST 10) (ALTER (GLOBAL-REF 0) (CONST 3) (CONST 4))))))
+	      '(SEQ (LABEL TEST (SEQ (SEQ (LOCAL-REF 0) (LOCAL-REF 1)) (RETURN))) (REG-CALL TEST 0 ((CONST 10) (ALTER (GLOBAL-REF 0) (CONST 3) (CONST 4))))))
 
 (test-compile '((lambda (x) ((lambda (y) (cons x y)) 1)) 2)
-	      '(SEQ (LABEL G448 (FIX-CLOSURE 1 (SEQ (SEQ (LABEL G449 (FIX-CLOSURE 1 (SEQ (PRIM CONS ((DEEP-REF 1 0) (LOCAL-REF 0))) (RETURN)))) (REG-CALL G449 1 ((CONST 1)))) (RETURN)))) (REG-CALL G448 0 ((CONST 2)))))
+	      '(FIX-LET 1 ((CONST 2)) (FIX-LET 1 ((CONST 1)) (PRIM CONS ((DEEP-REF 1 0) (LOCAL-REF 0))))))
 
 (test-compile '(progn (defun fac (x) (if (equal x 1) 1 (* x (fac (- x 1))))) (fac 4))
-	      '(SEQ (LABEL FAC (FIX-CLOSURE 1 (SEQ (ALTER (PRIM EQUAL ((LOCAL-REF 0) (CONST 1))) (CONST 1) (PRIM * ((LOCAL-REF 0) (REG-CALL FAC 0 ((PRIM - ((LOCAL-REF 0) (CONST 1)))))))) (RETURN)))) (REG-CALL FAC 0 ((CONST 4)))))
+	      '(SEQ (LABEL FAC (SEQ (ALTER (PRIM EQUAL ((LOCAL-REF 0) (CONST 1))) (CONST 1) (PRIM * ((LOCAL-REF 0) (REG-CALL FAC 0 ((PRIM - ((LOCAL-REF 0) (CONST 1)))))))) (RETURN))) (REG-CALL FAC 0 ((CONST 4)))))
+
+(test-compile '(setq a #'(lambda (x y) (+ x y)))
+	      '(GLOBAL-SET 2 (FIX-CLOSURE G598 (LABEL G598 (SEQ (PRIM + ((LOCAL-REF 0) (LOCAL-REF 1))) (RETURN))))))
+
+(test-compile '(progn (defun test () 1) (setq a #'test))
+	      '(SEQ (LABEL TEST (SEQ (CONST 1) (RETURN))) (GLOBAL-SET 2 (FIX-CLOSURE TEST ()))))
+
+(test-compile '(defun test () #'(lambda (x) x))
+	      '(LABEL TEST (SEQ (FIX-CLOSURE G711 (LABEL G711 (SEQ (LOCAL-REF 0) (RETURN)))) (RETURN))))
+
+(test-compile '(progn (defmacro test (x y) `(+ ,x ,y)) (test 1 2))
+	      '(SEQ (NOP) (PRIM + ((CONST 1) (CONST 2)))))

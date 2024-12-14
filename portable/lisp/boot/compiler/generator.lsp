@@ -53,6 +53,19 @@
   (emit (list 'REG-CALL name))
   (emit (list 'RESTORE-ENV)))
 
+;; let - форма, расширение окружения, тело lambda без вызова функции
+(defun generate-let (count args body)
+  (emit (list 'ALLOC count))
+  (generate-args args 'LOCAL-SET)
+  (inner-generate body)
+  (emit (list 'RESTORE-ENV)))
+
+;; генерация замыкания
+(defun generate-closure (name body)
+  (emit (list 'FIX-CLOSURE name))
+  (when body
+    (inner-generate body)))
+
 ;; Генерация кода
 (defun inner-generate (expr)
   (if (contains '(CONST GLOBAL-REF LOCAL-REF DEEP-REF RETURN) (car expr))
@@ -62,9 +75,11 @@
 	  (if (contains '(LABEL) (car expr))
 	      (generate-2-params expr)
 	      (case (car expr)
+		('NOP nil)
 		('SEQ (app #'inner-generate (cdr expr))) ; последовательность
 		('ALTER (generate-if (cdr expr))) ; ветвление
-		('FIX-CLOSURE (inner-generate (caddr expr)))
+		('FIX-LET (generate-let (cadr expr) (caddr expr) (cadddr expr))) ; let форма
+		('FIX-CLOSURE (generate-closure (cadr expr) (caddr expr))) ; замыкание
 		('PRIM (generate-prim (cadr expr) (caddr expr))) ; вызов примитива
 		('REG-CALL (generate-reg-call (cadr expr) (caddr expr) (cadddr expr))) ; обычный вызов
 		(otherwise (emit (list 'UNKNOWN (car expr)))))))))

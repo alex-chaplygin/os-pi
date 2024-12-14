@@ -21,7 +21,7 @@
   (setq *global-functions* (cons (list name env arity) *global-functions*)))
 
 ;; Поиск функции или примитива по имени, возвращет сохраненную функцию или примитив
-(defun search-func-list (list name)
+(defun search-symbol (list name)
   (labels ((search (list)
 	     (if (null list) nil
 		 (if (eq (caar list) name) (car list)
@@ -38,20 +38,21 @@
   (let ((arity (list-length args)))
     (add-func name (list-length env) arity)
     (list 'LABEL name
-	  (list 'FIX-CLOSURE arity
-		(list 'SEQ
-		      (inner-compile body (extend-env env args))
-		      (list 'RETURN))))))
+	  (list 'SEQ
+		(inner-compile body (extend-env env args))
+		(list 'RETURN)))))
 
 ;; Определения типа функции: лямбда, примитив, глобальная функция
 (defun find-func (f)
   (if (and (not (atom f)) (correct-lambda f))
       (list 'lambda (list-length (cadr f)) (gensym)) ; lambda num-args name
-      (let ((r (search-func-list *global-functions* f)))
-	(if r (list 'func (caddr r) (cadr r))  ; func num-args env
-	    (let ((r (search-func-list *primitives* f)))
-	      (if r (list 'primitive (cdr r)) ; primitive num-atrgs
-		  (comp-err (concat "unknown function " (symbol-name f)))))))))
+      (let ((r (search-symbol *macros* f)))
+	(if r (list 'macro (list-length (cadr r)) (cadr r) (cddr r)) ; macro num-args args body
+	    (let ((r (search-symbol *global-functions* f)))
+	      (if r (list 'func (caddr r) (cadr r))  ; func num-args env
+		  (let ((r (search-symbol *primitives* f)))
+		    (if r (list 'primitive (cdr r)) ; primitive num-atrgs
+			(comp-err (concat "unknown function " (symbol-name f)))))))))))
 		  
 ;; Применение функции
 ;; f - имя функции или lambda, args - аргументы, env - окружение
@@ -62,15 +63,23 @@
 	 (cur-env (list-length env)))
     (if (!= count (list-length args))
 	(comp-err (concat "invalid args count"))
-	(let ((vals (map #'(lambda (a) (inner-compile a env)) args)))
-	  (case type
-	    ('lambda
-		(let ((name (caddr fun)))
-		  (list 'SEQ
-			(compile-lambda name (cadr f) `(progn ,@(cddr f)) env)
-			(list 'REG-CALL name cur-env vals))))
-	    ('func (list 'REG-CALL f (caddr fun) vals))
-	    ('primitive (list 'PRIM f vals)))))))
+	(if (eq type 'macro)
+	    (inner-compile (macroexpand (caddr fun) args (cadddr fun)) env)
+	    (let ((vals (map #'(lambda (a) (inner-compile a env)) args)))
+	      (case type
+		('lambda (list 'FIX-LET count vals (compile-progn (cddr f) (extend-env env (cadr f)))))
+		('func (list 'REG-CALL f (caddr fun) vals))
+		('primitive (list 'PRIM f vals))))))))
+
+;; Создание функции-замыкания
+(defun compile-function (f env)
+  (let* ((fun (find-func f))
+	 (type (car fun))
+	 (name (gensym)))
+    (case type
+      ('lambda (list 'FIX-CLOSURE name (compile-lambda name (cadr f) `(progn ,@(cddr f)) env)))
+      ('func (list 'FIX-CLOSURE f nil))
+      (otherwise (comp-err (concat "invalid function argument"))))))
 
 ;; Компилирует объявление функции с помощью DEFUN.
 ;; expr - список, состоящий из названия, списка аргументов и тела функции.
@@ -182,10 +191,13 @@
       (let ((func (car expr))
 	    (args (cdr expr)))
 	(case func
+	  ('quote (compile-constant (cadr expr)))
 	  ('progn (compile-progn args env))
 	  ('if (compile-if args env))
 	  ('setq (compile-setq args env))
 	  ('defun (compile-defun args env))
+	  ('function (compile-function (cadr expr) env))
+	  ('defmacro (progn (make-macro args) (list 'NOP)))
 	  (otherwise (compile-application func args env))))))
 
 ;; Анализ S-выражения и преобразование в эквивалентное выражение
