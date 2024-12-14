@@ -654,46 +654,6 @@ object_t setq(object_t params)
 } 
 
 /* 
- * Выполняет макро подстановку 
- * @param param параметры (if (= 1 1) 2 3) 
- * @return возвращает результат макро подстановки 
- */ 
-object_t macroexpand(object_t params) 
-{ 
-    if (params == NULLOBJ)
- 	error("macroexpand: no params"); 
-    if (TAIL(params) != NULLOBJ)
- 	error("macroexpand: many params"); 
-    object_t macro_c = FIRST(params);
-    if (TYPE(macro_c) != PAIR)
- 	error("macroexpand: invalid macro call"); 
-    object_t macro_name = FIRST(macro_c); 
-    object_t macro; 
-    if (macro_name == NULLOBJ || TYPE(macro_name) != SYMBOL || GET_SYMBOL(macro_name)->macro == NULLOBJ)
- 	error("macroexpand: invalid macro"); 
-    macro = GET_SYMBOL(macro_name)->macro; 
-    object_t args = TAIL(macro_c); 
-    object_t new_env = make_env(SECOND(macro), args); 
-    object_t env = current_env;
-    object_t func = func_env;    
-    append_env(new_env, env); 
-    object_t body = TAIL(TAIL(macro)); 
-    object_t eval_res; 
-    object_t res = NULLOBJ; 
-    while (body != NULLOBJ) { 
- 	eval_res = eval(FIRST(body), new_env, func); 
- 	if (res == NULLOBJ) 
- 	    res = eval_res; 
- 	else if (TYPE(res) == STRING) 
- 	    res = NULLOBJ; 
- 	else 
- 	    append_env(res, eval_res); 
- 	body = TAIL(body); 
-    } 
-    return res; 
-} 
-
-/* 
  * Выполняет функцию с аргументами 
  * @param param параметры (функция аргумент 1, аргумент 2 ...) 
  * @return возвращает результат выполнения функции 
@@ -903,7 +863,6 @@ void init_eval()
     register_func("DEFMACRO", defmacro); 
     register_func("PROGN", progn); 
     register_func("SETQ", setq); 
-    register_func("MACROEXPAND", macroexpand); 
     register_func("FUNCALL", funcall); 
     register_func("EVAL", lisp_eval);
     register_func("GC", print_gc_stat);
