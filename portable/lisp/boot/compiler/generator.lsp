@@ -72,7 +72,7 @@
       (emit expr)
       (if (contains '(GLOBAL-SET LOCAL-SET DEEP-SET) (car expr))
 	  (generate-set expr)
-	  (if (contains '(LABEL) (car expr))
+	  (if (eq 'LABEL (car expr))
 	      (generate-2-params expr)
 	      (case (car expr)
 		('NOP nil)
