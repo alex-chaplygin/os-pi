@@ -140,7 +140,7 @@ section .text
 %macro floatcmd 1
 	fld dword [esp + 4]
 	%1
-	fstp dword [float_ret]
+	fst dword [float_ret]
 	mov eax, [float_ret]
 	ret
 %endmacro
@@ -154,7 +154,8 @@ cosf:
 roundf:
 	fld dword [esp + 4]
 	frndint
-	fstp dword [float_ret]
+	fwait
+	fst dword [float_ret]
 	mov eax, [float_ret]
 	ret
 	
