@@ -121,6 +121,27 @@
 		   (1 2)
 		   (otherwise 3)) 3)))
 
+(defun get-bit-test ()
+  "Тест для проверки функции get-bit"
+  ; Тесты для числа 5 (двоичное представление: 101)
+  (print (assert (get-bit 5 0) 1)) 
+  (print (assert (get-bit 5 1) 0)) 
+  (print (assert (get-bit 5 2) 1))
+  (print (assert (get-bit 5 -1) 0)) 
+  ; Тест для числа 0 (двоичное представление: 0)
+  (print (assert (get-bit 0 0) 0)) 
+  ; Тесты для отрицательных чисел 
+  (print (assert (get-bit -1 0) 1))
+  (print (assert (get-bit -1 31) 1))
+  ; Граничный тест 
+  (print (assert (get-bit 1024 10) 1))
+  (print (assert (get-bit 1024 11) 0))
+  (print (assert (get-bit 2147483647 0) 1))
+  ; Использование типа данных float
+  (print (assert (get-bit 3.14 0) 1))
+  (print (assert (get-bit 3.14 1) 1))
+  (print (assert (get-bit 3.14 2) 0)))
+
 (fors-test)
 (tagbody-rec-test)
 (lex-test)
@@ -131,3 +152,4 @@
 (and-tests)
 (or-tests)
 (case-test)
+(get-bit-test)
