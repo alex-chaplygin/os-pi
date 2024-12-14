@@ -8,7 +8,7 @@ ASCII_GRAPHICS=$(GRAPHICS) boot/graphics/ascii-backend.lsp
 GAME=$(ASCII_GRAPHICS) boot/game/graphics.lsp
 FS=$(BASELISP) boot/ata.lsp boot/mbr.lsp boot/fs/block.lsp boot/fs/fs.lsp boot/fs/fat32fs.lsp boot/fs/fat.lsp boot/fs/dir.lsp boot/fs/fat32test.lsp
 KEYBOARD=$(BASELISP) boot/sys/keyboard.lsp boot/sys/events.lsp
-COMPILER=$(BASELISP) boot/compiler/compiler.lsp  boot/compiler/generator.lsp
+COMPILER=$(BASELISP) boot/compiler/macro.lsp boot/compiler/compiler.lsp  boot/compiler/generator.lsp
 
 all: $(SRC) lisp
 
