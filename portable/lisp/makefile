@@ -27,7 +27,7 @@ lisp: /tmp/baselisp.lsp # здесь меняем набор библиотек
 	cat $^ >$@ ;
 	echo -e -n "\xff" >>$@
 # графическая система для игр
-/tmp/game.lsp: $(GAME) boot/game/tests/graphics.lsp
+/tmp/game.lsp: $(GAME) boot/game/test/graphics.lsp
 	cat $^ >$@ ;
 	echo -e -n "\xff" >>$@
 # файловая система
