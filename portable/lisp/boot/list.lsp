@@ -9,6 +9,7 @@
 (defun cdar(x) (cdr (car x)))
 (defun cdadr(x) (cdr (car (cdr x))))
 (defun cddr(x) (cdr (cdr x)))
+(defun cdddr(x) (cdr (cdr (cdr x))))
 
 (defun list (&rest args)
   "Функция создания списка"
