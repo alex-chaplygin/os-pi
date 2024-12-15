@@ -92,3 +92,7 @@ image-test: $(GRAPHICS) $(TEST) boot/graphics/test/image.lsp
 compiler-test: $(COMPILER) $(TEST) boot/compiler/test-compiler.lsp
 	make -C test /tmp/lisp
 	cat $^ | /tmp/lisp
+# модульные тесты fat
+fat-test: $(BASELISP) boot/fs/fat.lsp $(TEST) boot/fs/test/fat.lsp
+	make -C test /tmp/lisp
+	cat $^ | /tmp/lisp
