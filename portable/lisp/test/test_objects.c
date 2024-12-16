@@ -48,10 +48,10 @@ void error(char *str, ...)
     longjmp(jmp_env, 1);
 }
 
-symbol_t *find_symbol(char *str)
+/* symbol_t *find_symbol(char *str)
 {
     return NULL;
-}
+} */ 
 
 /**
  * Создать объект большое число и проверить, что оно правильно записалось
@@ -458,7 +458,7 @@ void test_garbage_collect_bignumbers()
     
     bignumber_t *fb = free_bignumbers; 
     while (fb != NULL) {
-	    printf("%f\n", fb->value);
+	    PRINT(fb->value);
 	    if (fb == (bignumber_t *)GET_ADDR(obj1)) { 
 	        printf("fail_bignumbers\n"); 
 	        return; 
@@ -660,6 +660,38 @@ void test_garbage_collect_strings()
 	fs = fs->next; 
     } 
     printf("strings_OK\n"); 
+    ASSERT(regions->free, 0); 
+    ASSERT((regions->next != NULL), 1); 
+}
+
+/*
+ * Создать символ B
+ * Присвоить ему значение - символ "AB"
+ * Создать ещё два символа
+ * Выполнить сборку мусора
+ * Проверить, что объект не в списке свободных символов
+ */
+void test_garbage_collect_symbols() 
+{ 
+    printf("test_garbage_collect_symbols: "); 
+    reset_mem(); 
+    symbol_t *s = new_symbol("B"); 
+    symbol_t *obj1 = new_symbol("AB"); 
+    symbol_t *obj2 = new_symbol("TEST"); 
+    symbol_t *obj3 = new_symbol("T2"); 
+    s->value = NEW_OBJECT(SYMBOL, obj1);
+    garbage_collect();
+    
+    symbol_t *fs = free_symbols; 
+    while (fs != NULL) { 
+	PRINT(fs->value); 
+	if (!strcmp(fs->value, "AB")) { 
+	    printf("fail_symbol\n"); 
+	    return; 
+	} 
+	fs = fs->next; 
+    } 
+    printf("symbols_OK\n"); 
     ASSERT(regions->free, 0); 
     ASSERT((regions->next != NULL), 1); 
 }
@@ -977,6 +1009,7 @@ void main()
     test_garbage_collect_list();    //21,24
     test_garbage_collect_bignumbers();
     test_garbage_collect_strings(); //22,24
+    test_garbage_collect_symbols();
     test_garbage_collect_arrays();  //23,24
     test_garbage_collect_cycle();
     test_garbage_collect_floats();
