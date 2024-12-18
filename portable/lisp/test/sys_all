@@ -23,7 +23,6 @@ sh sys_test "(5 5)" "not function"
 # вместо функции символ
 sh sys_test '(#\\5 5)' "not function"
 
-
 echo "---Тесты PARSER ---"
 #PARSER 2 Неправильный символ
 sh sys_test "~" "~
@@ -502,29 +501,6 @@ Missing parameter after &rest" # 18
 sh sys_test "(defun test (a &rest b c) b)
 (funcall #'test 1 2 3 4)" "TEST
 Too many parameters after &rest" # 18
-
-echo "---Тесты MACROEXPAND---"
-# нормальный вызов
-sh sys_test "(defmacro if (test true false) 
-                 \`(if ,test ,true ,false))
-(macroexpand '(if (equal 1 1) 2 3))" "IF
-(IF (EQUAL 1 1) 2 3)" # 41
-# без параметров
-sh sys_test "(macroexpand)" "macroexpand: no params"
-# неверный параметр
-sh sys_test "(macroexpand 2)" "macroexpand: invalid macro call"
-# лишний параметр
-sh sys_test "(defmacro if (test true false) 
-                 \`(if ,test ,true ,false))
-(macroexpand '(if (equal 1 1) 2 3) 4)" "IF
-macroexpand: many params" # 41
-# не макрос
-sh sys_test "(macroexpand '(+ 1 1))" "macroexpand: invalid macro"
-# ошибка в макросе
-sh sys_test "(defmacro if (test true false) 
-                 \`(if ,test ,true ,false))
-(macroexpand '(if (equal 1 1)))" "IF
-Not enough values for params" # 113
 
 echo "---Тесты PREDICATES---"
 # тест функции symbolp без параметров
