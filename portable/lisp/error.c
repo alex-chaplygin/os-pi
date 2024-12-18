@@ -21,7 +21,6 @@ void error(char *str, ...)
 #ifdef OS
     void set_cursor(int x, int y);
     set_cursor(0, 0);
-    vals = &str;
 #endif
     if (str[0] != '\0') {
         vprintf(str, vals);
