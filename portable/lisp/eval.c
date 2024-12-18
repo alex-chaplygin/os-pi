@@ -7,9 +7,8 @@
 #include "parser.h"
 #include "eval.h"
 #include "arith.h"
-
+/// Число кадров стека, которое выводится при отладке
 #define DEBUG_STACK_MAX_FRAME 7
-
 /// объект истина
 object_t t;
 /// объект пусто
@@ -77,7 +76,7 @@ void print_debug_stack()
 #ifdef OS
 	if (frame == DEBUG_STACK_MAX_FRAME)
 	    break;
-#endif
+#endif	
 	// Выводим текущий элемент стека
 	printf("#%d: ", frame++);
 	PRINT(FIRST(current));
@@ -477,15 +476,13 @@ object_t macro_call(object_t macro, object_t args, object_t env, object_t func)
     body = TAIL(TAIL(macro));
     if (new_env != NULLOBJ)
 	append_env(new_env, env);
+    PROTECT2(body, eval_res);
     while (body != NULLOBJ) {
-	PROTECT1(body);
  	eval_res = eval(FIRST(body), new_env, func);
-	UNPROTECT;
-	PROTECT1(eval_res);
  	eval_res = eval(eval_res, env, func);
-	UNPROTECT;
  	body = TAIL(body);
     }
+    UNPROTECT;
     return eval_res; 
 } 
     
@@ -663,8 +660,10 @@ object_t setq(object_t params)
 	if (!find_res) 
 	    sym = find_symbol(GET_SYMBOL(FIRST(params))->str); 
 	if (TAIL(params) == NULLOBJ)
-	    error("setq: no value"); 
-	object_t obj = eval(SECOND(params), env, func); 
+	    error("setq: no value");
+	PROTECT1(params);
+	object_t obj = eval(SECOND(params), env, func);
+	UNPROTECT;
 	if (find_res) 
 	    set_in_env(env, FIRST(params), obj); 
 	else {
