@@ -8,6 +8,8 @@
 #include "eval.h"
 #include "arith.h"
 
+#define DEBUG_STACK_MAX_FRAME 7
+
 /// объект истина
 object_t t;
 /// объект пусто
@@ -72,6 +74,10 @@ void print_debug_stack()
     object_t current = debug_stack;
     int frame = 0;
     while (current != NULLOBJ) {
+#ifdef OS
+	if (frame == DEBUG_STACK_MAX_FRAME)
+	    break;
+#endif
 	// Выводим текущий элемент стека
 	printf("#%d: ", frame++);
 	PRINT(FIRST(current));
