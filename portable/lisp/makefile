@@ -96,3 +96,7 @@ compiler-test: $(COMPILER) $(TEST) boot/compiler/test-compiler.lsp
 fat-test: $(BASELISP) boot/fs/fat.lsp $(TEST) boot/fs/test/fat.lsp
 	make -C test /tmp/lisp
 	cat $^ | /tmp/lisp
+# модульные тесты парсера
+parser-test: $(BASELISP) boot/parser.lsp $(TEST) boot/test/parser.lsp
+	make -C test /tmp/lisp
+	cat $^ | /tmp/lisp
