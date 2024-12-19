@@ -270,8 +270,10 @@ object_t gt(object_t list)
     object_t second = SECOND(list);
     if (IS_NUMBER(first))
 	return (get_value(first) >  get_value(second)) ? t : NULLOBJ;
-    else if (TYPE(first) == FLOAT)
+    else if (TYPE(first) == FLOAT && TYPE(second) == FLOAT)
 	return (GET_FLOAT(first)->value > GET_FLOAT(second)->value) ? t : NULLOBJ;
+    else
+      return NULLOBJ;
 }
 
 /* Сравнение на меньше (< 8 2) */
@@ -289,8 +291,10 @@ object_t less(object_t list)
     object_t second = SECOND(list);
     if (IS_NUMBER(first))
 	return (get_value(first) <  get_value(second)) ? t : NULLOBJ;
-    else if (TYPE(first) == FLOAT)
+    else if (TYPE(first) == FLOAT && TYPE(second) == FLOAT)
 	return (GET_FLOAT(first)->value < GET_FLOAT(second)->value) ? t : NULLOBJ;
+    else
+      return NULLOBJ;
 }
 
 /**
@@ -503,6 +507,33 @@ object_t ROUND(object_t list)
     }
 }
 
+/**
+ * Вычисление квадратного корня
+ *
+ * @param list - список аргументов (одно число)
+ *
+ * @return квадратный корень числа
+ */
+object_t SQRT(object_t list)
+{
+    if (list == NULLOBJ)
+        error("SQRT: no arguments");
+
+    object_t arg = FIRST(list);
+    float num;
+
+    if (TYPE(arg) == FLOAT) {
+        num = GET_FLOAT(arg)->value;
+    } else if (IS_NUMBER(arg)) {
+        num = (float)get_value(arg);
+    } else
+        error("SQRT: invalid argument");
+    if (num < 0) 
+        error("SQRT: negative number");
+
+    return new_float(sqrtf(num));
+}
+
 /** 
  * Инициализация арифметических функций
  */
@@ -523,4 +554,5 @@ void init_arith()
     register_func("SIN", SIN);
     register_func("COS", COS);
     register_func("ROUND", ROUND);
+    register_func("SQRT", SQRT);
 }
