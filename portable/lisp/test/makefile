@@ -44,7 +44,8 @@ coverage: $(TESTS) /tmp/test_sys
 	for test in $(TESTS); do rm $$test; make $$test; bash -c $$test ; lcov -c -d ../ -o $$test.info ;	done
 	./make_report
 
-/tmp/profile:
-	gcc test_sys.c ../eval.c ../symbols.c ../objects.c ../parser.c ../lexer.c ../arith.c ../str.c ../array.c ../pair.c ../predicates.c ../alloc.c $(CFLAGS) -g -pg -o $@
-	./run
-	grpof $@ ../gmon.out
+profile:
+	gcc test_sys.c ../eval.c ../symbols.c ../objects.c ../parser.c ../lexer.c ../arith.c ../str.c ../array.c ../pair.c ../predicates.c ../alloc.c ../error.c $(CFLAGS) $(LDFLAGS) -g -pg -o /tmp/profile
+	for i in `seq 1 10`; do sh run  ; mv /tmp/gmon.out /tmp/gmon.out.$$i ; done
+	grpof -s /tmp/profile gmon.out.* -o /tmp/gmon.sum
+	gprof /tmp/profile /tmp/gmon.sum >/tmp/report
