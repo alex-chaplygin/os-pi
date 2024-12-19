@@ -12,3 +12,10 @@
    (defun parse-4-digit () (parse-element 4)) ; ожидает 4
    (funcall parse-4-digit '(4 5 6)) ; возвращает ((4 . (5 6)))
    (funcall parse-4-digit '(3 5 6)) ; возвращает ((nil . (3 5 6)))
+
+Комбинатор parse-many позволяет разобрать 0 или более повторений заданного парсера. Результат разбора - список собранных значений.
+::
+
+   (funcall (parse-many (parse-element 4)) '(1 2 3)) ; -> ((() . (1 2 3)))
+   (funcall (parse-many (parse-element 4)) '(4 2 3)) ; -> (((4) . (2 3)))
+   (funcall (parse-many (parse-element 4)) '(4 4 4 2 3)) ; -> (((4 4 4) . (2 3)))      
