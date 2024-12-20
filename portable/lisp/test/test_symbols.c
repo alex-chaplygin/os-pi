@@ -18,6 +18,10 @@ void error(char *str, ...)
     printf("%s", str);
 }
 
+void bind_global(object_t symbol)
+{
+}
+
 symbol_t *new_symbol(char *str)
 {
     symbol_t *symbol = (symbol_t*)malloc(sizeof(symbol_t));

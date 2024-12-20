@@ -259,6 +259,15 @@ void parser_error(char *str, ...)
     longjmp(jmp_env, 1);
 }
 
+symbol_t *find_symbol(char *str) 
+{
+    return new_symbol(str);
+}
+
+void hash_remove(symbol_t *s)
+{
+}
+
 void print_token(token_t *token)
 {
     printf( "%d ", token->type);

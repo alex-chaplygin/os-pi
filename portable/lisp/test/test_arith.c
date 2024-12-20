@@ -32,6 +32,14 @@ void error(char *str, ...)
   longjmp(jmp_env, 1);
 }
 
+void bind_global(object_t symbol)
+{
+}
+
+void set_global(symbol_t *symbol)
+{
+}
+
 /**
  * Тест сложения
  */

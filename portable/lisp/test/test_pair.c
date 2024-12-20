@@ -25,6 +25,14 @@ void error(char *str, ...)
     longjmp(jmp_env, 1);
 }
 
+void bind_global(object_t symbol)
+{
+}
+
+void set_global(symbol_t *symbol)
+{
+}
+
 /**
  * создать объект для выражения (car (quote (5)))
  * вычислить объект

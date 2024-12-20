@@ -15,7 +15,7 @@ all: $(SRC) lisp
 lisp: /tmp/baselisp.lsp # здесь меняем набор библиотек
 	cp $^ /tmp/lisp.lsp
 # базовый набор
-/tmp/baselisp.lsp: $(BASELISP) 
+/tmp/baselisp.lsp: $(BASELISP)  $(TEST) boot/test/list.lsp
 	cat $^ >$@ ;
 	echo -e -n "\xff" >>$@
 # графика

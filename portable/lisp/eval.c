@@ -7,6 +7,8 @@
 #include "parser.h"
 #include "eval.h"
 #include "arith.h"
+#include "bind.h"
+
 /// Число кадров стека, которое выводится при отладке
 #define DEBUG_STACK_MAX_FRAME 7
 /// объект истина
@@ -499,11 +501,10 @@ object_t eval_args(object_t args, object_t env, object_t func)
  	return NULLOBJ;
     if (TYPE(args) != PAIR)
 	error("arguments are not list");    
-    PROTECT1(args);
     object_t f = FIRST(args); 
-    object_t arg = eval(f, env, func);
-    UNPROTECT;
-    PROTECT1(arg);
+    object_t arg;
+    PROTECT2(args, arg);
+    arg = eval(f, env, func);
     object_t tail = eval_args(TAIL(args), env, func); 
     UNPROTECT;
     return new_pair(arg, tail);  
@@ -703,8 +704,12 @@ object_t funcall(object_t params)
  * @return возвращает список из аргументов 
  */ 
 object_t lisp_eval(object_t args) 
-{ 
-    return eval(FIRST(args), current_env, func_env); 
+{
+    object_t res;
+    PROTECT1(res);
+    res =  eval(FIRST(args), current_env, func_env);
+    UNPROTECT;
+    return res;
 } 
 
 /* 
@@ -733,6 +738,7 @@ object_t tagbody(object_t params)
     object_t tags = NULLOBJ; // Список функций метки
     object_t env;
     object_t func;
+    PROTECT2(params, tags);
     params2 = params;
     while (params != NULLOBJ) {
         obj = FIRST(params);
@@ -757,8 +763,6 @@ object_t tagbody(object_t params)
     env = current_env;
     func = func_env;
     while (params2 != NULLOBJ) {
-	mark_object(tags);
-	mark_object(cur_label);	
         obj = FIRST(params2);
 	params2 = TAIL(params2); 
         if (TYPE(obj) != SYMBOL)
@@ -768,6 +772,7 @@ object_t tagbody(object_t params)
 #endif
     }
     tb_index_buf--;
+    UNPROTECT;
     return nil;
 }
 
@@ -780,7 +785,6 @@ object_t go(object_t args)
     if (args == NULLOBJ)
 	error("go: no label");
     cur_label = FIRST(args);
-    mark_object(cur_label);
     current_env = tagbody_buffers[tb_index_buf - 1].environment;
     func_env = tagbody_buffers[tb_index_buf - 1].func_environment;
     longjmp(tagbody_buffers[tb_index_buf - 1].buffer, 1);
@@ -812,8 +816,10 @@ object_t block(object_t list)
  * @param args (имя блока, результат)
  */ 
 object_t return_from(object_t args) 
-{ 
+{
+    PROTECT1(args);
     cur_label = eval(SECOND(args), current_env, func_env);
+    UNPROTECT;
     longjmp(block_buf, 1);
 } 
 

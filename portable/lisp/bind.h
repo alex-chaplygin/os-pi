@@ -30,7 +30,7 @@ typedef struct temp_bind_s
    p_obj1.obj = &o1;\
    p_obj1.next = &p_obj2;\
    p_obj2.obj = &o2;\
-   p_obj2.next = protected;\				
+   p_obj2.next = protected;\
    temp_bind_t *old_ped = protected;\
    protected = &p_obj1;
 
@@ -38,7 +38,7 @@ typedef struct temp_bind_s
 #define UNPROTECT\
    protected = old_ped;
 
-extern bind_t *global_env;
+extern bind_t global_env[];
 extern temp_bind_t *protected;
 
 void bind_global(object_t symbol);

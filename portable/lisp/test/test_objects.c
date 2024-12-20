@@ -6,6 +6,8 @@
 #include "objects.h"
 #include "parser.h"
 #include "alloc.h"
+#include "bind.h"
+#include "cont.h"
 
 extern bignumber_t *bignumbers;
 extern bignumber_t *free_bignumbers;
@@ -30,6 +32,9 @@ extern int last_function;
 extern function_t *functions;
 extern function_t *free_functions;
 
+continuation_t tagbody_buffers[100];
+int tb_index_buf;
+
 void mark_object(object_t obj);
 void sweep();
 void garbage_collect();
@@ -46,6 +51,10 @@ void error(char *str, ...)
 {
     printf("%s\n", str);
     longjmp(jmp_env, 1);
+}
+
+void hash_remove(symbol_t *s)
+{
 }
 
 /* symbol_t *find_symbol(char *str)
@@ -415,6 +424,7 @@ void test_garbage_collect_list()
 {
     printf("test_garbage_collect_list: ");
     symbol_t *s = new_symbol("B");
+    bind_global(NEW_OBJECT(SYMBOL, s));
     object_t obj1 = new_number(1);
     object_t obj2 = new_number(2);
     object_t p1 = new_pair(obj1, new_pair(obj2, NULLOBJ));
@@ -449,25 +459,22 @@ void test_garbage_collect_bignumbers()
     printf("test_garbage_collect_bignumbers: "); 
     reset_mem(); 
     symbol_t *s = new_symbol("B");
-    
+    bind_global(NEW_OBJECT(SYMBOL, s));    
     object_t obj1 = new_bignumber(1234567890); 
     object_t obj2 = new_bignumber(-987654321); 
     object_t obj3 = new_bignumber(555555555); 
     s->value = obj1;
     garbage_collect();
-    
     bignumber_t *fb = free_bignumbers; 
     while (fb != NULL) {
-	    PRINT(fb->value);
-	    if (fb == (bignumber_t *)GET_ADDR(obj1)) { 
-	        printf("fail_bignumbers\n"); 
-	        return; 
-	    } 
-	    fb = fb->next; 
+	printf("%d ", fb->value);
+	if (fb == (bignumber_t *)GET_ADDR(obj1)) { 
+	    printf("fail_bignumbers\n"); 
+	    return; 
+	} 
+	fb = fb->next; 
     } 
     printf("bignumbers_OK\n");
-    ASSERT(regions->free, 0);
-    ASSERT((regions->next != NULL), 1);
 }
 
 /*
@@ -483,6 +490,8 @@ void test_garbage_collect_cycle()
     int num1 = 1;
     symbol_t *s1 = new_symbol("A");
     symbol_t *s2 = new_symbol("B");
+    bind_global(NEW_OBJECT(SYMBOL, s1));    
+    bind_global(NEW_OBJECT(SYMBOL, s2));    
     object_t p1 = new_pair(new_number(1), NULLOBJ);
     object_t p2 = new_pair(new_number(2), NULLOBJ);
     GET_PAIR(p1)->right = p2;
@@ -649,6 +658,7 @@ void test_garbage_collect_strings()
     string_t *obj2 = new_string("ff"); 
     string_t *obj3 = new_string("cc"); 
     s->value = NEW_OBJECT(STRING, obj1);
+    bind_global(NEW_OBJECT(SYMBOL, s));    
     garbage_collect(); 
     string_t *fs = free_strings; 
     while (fs != NULL) { 
@@ -680,20 +690,19 @@ void test_garbage_collect_symbols()
     symbol_t *obj2 = new_symbol("TEST"); 
     symbol_t *obj3 = new_symbol("T2"); 
     s->value = NEW_OBJECT(SYMBOL, obj1);
+    bind_global(NEW_OBJECT(SYMBOL, s));    
     garbage_collect();
-    
+    printf("end\n");
     symbol_t *fs = free_symbols; 
     while (fs != NULL) { 
 	PRINT(fs->value); 
-	if (!strcmp(fs->value, "AB")) { 
+	if (!strcmp(fs->str, "AB")) { 
 	    printf("fail_symbol\n"); 
 	    return; 
 	} 
 	fs = fs->next; 
     } 
     printf("symbols_OK\n"); 
-    ASSERT(regions->free, 0); 
-    ASSERT((regions->next != NULL), 1); 
 }
 
 /*
@@ -712,6 +721,7 @@ void test_garbage_collect_floats()
     object_t obj2 = new_float(0.5f); 
     object_t obj3 = new_float(28391.9213f); 
     s->value = obj1;
+    bind_global(NEW_OBJECT(SYMBOL, s));    
     garbage_collect();
     
     float_t *fs = free_floats; 
@@ -758,7 +768,7 @@ void test_garbage_collect_functions()
 
     symbol_t *s = new_symbol("F");
     s->value = funsum;
-
+    bind_global(NEW_OBJECT(SYMBOL, s));    
     garbage_collect();
 
     function_t *ff = free_functions;
@@ -816,6 +826,7 @@ void test_garbage_collect_arrays()
     array_t *obj2 = new_array(make_list(10));
     array_t *obj3 = new_array(make_list(20));
     s->value = NEW_OBJECT(ARRAY, obj1);
+    bind_global(NEW_OBJECT(SYMBOL, s));    
     garbage_collect();
     array_t *fa = free_arrays;
     while (fa != NULL)

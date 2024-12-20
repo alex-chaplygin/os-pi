@@ -3,6 +3,7 @@
 #include <string.h>
 #include "objects.h"
 #include "symbols.h"
+#include "bind.h"
 
 symbol_t *hash_table[HASH_SIZE];
 

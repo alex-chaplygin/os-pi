@@ -85,6 +85,11 @@ int total_functions = 0;
 int total_symbols = 0;
 ///Количество созданных пар с момента последней сборки мусора
 int allocated_pairs = 0;
+/// Глобальное окружение
+bind_t global_env[10000];
+int last_global = 0;
+/// Временные объекты, защищенные от сборки мусора
+temp_bind_t *protected = NULL; // указатель на начало списка текущих временных объектов
 
 /// текущее окружение
 extern object_t current_env;
@@ -569,7 +574,8 @@ void free_array(array_t *a)
  */
 void mark_object(object_t obj)
 {
-    if (obj == NULLOBJ || obj == NOVALUE || obj == NULLOBJ + (1 << TYPE_BITS))
+    extern object_t t;
+    if (obj == NULLOBJ || obj == t || obj == NOVALUE || obj == NULLOBJ + (1 << TYPE_BITS))
 	return;
     int mask = 1 << 31;
     if (TYPE(obj) == PAIR) {
@@ -581,6 +587,9 @@ void mark_object(object_t obj)
     } else if (TYPE(obj) == SYMBOL) {
 	symbol_t *s = GET_SYMBOL(obj);
 	s->hash_index |= mask;
+	//	printf("mark %s\n", s->str);
+	//printf("value: ");
+	//PRINT(s->value);
 	mark_object(s->value);
 	mark_object(s->lambda);
 	mark_object(s->macro);
@@ -666,22 +675,27 @@ void sweep()
 void garbage_collect()
 {
     bind_t *cur = global_env;
-    while (cur != NULL) {
+    printf("garbage_collect\nglobal env:");
+    for (int i = 0; i < last_global; i++, cur++) {
+	//	PRINT(cur->obj);
 	mark_object(cur->obj);
-	cur = cur->next;
     }
-    
+    printf("garbage_collect end glob\n");    
 #ifdef DEBUG
     mark_object(debug_stack);
 #endif
     mark_object(current_env);
     mark_object(func_env);
-    temp_bind_t *cur = protected;
-    while (cur != NULL) {
-	mark_object(*cur->obj);
-	cur = cur->next;
+    printf("garbage_collect end env %x\n", protected);    
+    temp_bind_t *curp = protected;
+    while (curp != NULL) {
+	PRINT(*(curp->obj));
+	mark_object(*curp->obj);
+	curp = curp->next;
     }
+    printf("garbage_collect end protect\n");    
     sweep();
+    printf("garbage_collect end sweep\n");
     allocated_pairs = 0;
 } 
 

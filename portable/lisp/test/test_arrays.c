@@ -19,6 +19,10 @@ void error(char *str, ...)
     longjmp(jmp_env, 1);
 }
 
+void bind_global(object_t symbol)
+{
+}
+
 /**
  * Проверка создания массивов:
  * Создаём массив из 10 элементов и проверяем, что все элементы являются NULLOBJ
