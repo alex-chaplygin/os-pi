@@ -5,8 +5,12 @@
 ;; *global-functions* - глобальное окружение функций, содержащий названия функций, смещение кадра окружения, кол-во аргументов.
 (defvar *global-functions*)
 ;; постоянный список примитивов с количеством их аргументов
-(defvar *primitives* '((car . 1) (cdr . 1) (cons . 2) (+ . 2) (- . 2) (* . 2)
-		       (equal . 2)))
+(defvar *primitives*
+  '((car . 1) (cdr . 1) (cons . 2) (rplaca . 2) (rplacd . 2)
+    (+ . 2) (- . 2) (* . 2) (/ . 2) (% . 2) (& . 2) (bitor . 2) (<< . 2) (>> . 2) (equal . 2) (> . 2) (< . 2) (sin . 1) (cos . 1)
+    (intern . 1) (symbol-name . 1) (string-size . 1) (inttostr . 1) (code-char . 1) (print . 1) (putchar . 1) (char . 2) (concat . 2) (subseq . 3)
+    (make-array . 1) (array-size . 1) (aref . 2) (seta . 3)
+    (symbolp . 1) (integerp . 1)))
 
 ;; Устанавливает флаг ошибки компиляции и сохраняет сообщение об ошибке.
 (defun comp-err (msg)
@@ -30,7 +34,17 @@
 
 ;; Проверка на правильность lambda выражения, или ошибка
 (defun correct-lambda (f)
-  t)
+  (and (not (atom f))
+       (>= (list-length f) 3)
+       (equal (car f) 'lambda)
+       (or (null (cadr f))
+           (not (atom (cadr f))))
+       (labels ((is-args-sym (args)
+                  (if (null args) t
+                      (if (symbolp (car args))
+                          (is-args-sym (cdr args))
+                          nil))))
+         (is-args-sym (cadr f)))))
 
 ;; Комплирует лямбда-абстракцию.
 ;; (список аргументов, тело функции, локальное окружение).
@@ -53,7 +67,7 @@
 		  (let ((r (search-symbol *primitives* f)))
 		    (if r (list 'primitive (cdr r)) ; primitive num-atrgs
 			(comp-err (concat "unknown function " (symbol-name f)))))))))))
-		  
+
 ;; Применение функции
 ;; f - имя функции или lambda, args - аргументы, env - окружение
 (defun compile-application (f args env)
@@ -179,11 +193,24 @@
 
 ;; Компиляция константы
 (defun compile-constant (c)
+  ;; (print (list 'compile-constant c))
   (list 'CONST c))
+
+;; Комиляция квазицитирования
+(defun compile-backquote (expr env)
+  ;; (print (list 'compile-backquote expr))
+  ;; (when (null expr)
+  ;;   (comp-err "backquote: no body"))
+  (if (atom expr)
+      (compile-constant expr)
+      (if (equal (car expr) 'COMMA)
+	  (inner-compile (cadr expr) env)
+	(list 'PRIM 'CONS (list (compile-backquote (car expr) env) (compile-backquote (cdr expr) env))))))
 
 ;; Функция компиляции в промежуточную форму
 ;; expr - выражение, env - лексическое окружение
 (defun inner-compile (expr env)
+  ;; (print (list 'inner-compile expr))
   (if (atom expr)
       (if (symbolp expr)
 	  (compile-variable expr env)
@@ -198,6 +225,7 @@
 	  ('defun (compile-defun args env))
 	  ('function (compile-function (cadr expr) env))
 	  ('defmacro (progn (make-macro args) (list 'NOP)))
+	  ('backquote (compile-backquote (cadr expr) env))
 	  (otherwise (compile-application func args env))))))
 
 ;; Анализ S-выражения и преобразование в эквивалентное выражение
