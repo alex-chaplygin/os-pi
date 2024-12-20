@@ -53,6 +53,47 @@ void test_make_array_negative_length()
 }
 
 /**
+ * Тест для make_array: создание массива с нулевой длиной
+ */
+void test_make_array_zero_length()
+{
+    printf("test_make_array_zero_length: ");
+    int length = 0;
+    object_t list = new_pair(new_number(length), NULLOBJ);
+    object_t arr = make_array(list);
+    ASSERT(TYPE(arr), ARRAY);
+    ASSERT(GET_ARRAY(arr)->length, length);
+}
+
+/**
+ * Тест для make_array: создание массива с некорректным аргументом
+ */
+void test_make_array_invalid_argument()
+{
+    printf("test_make_array_invalid_argument: ");
+    object_t list = new_pair(NEW_SYMBOL("invalid"), NULLOBJ);
+    if (setjmp(jmp_env) == 0) {
+        object_t arr = make_array(list);
+        FAIL;
+    } else
+        OK;
+}
+
+/**
+ * Тест для make_array: создание массива с лишними аргументами
+ */
+void test_make_array_many_arguments()
+{
+    printf("test_make_array_many_arguments: ");
+    object_t list = new_pair(new_number(5), new_pair(new_number(10), NULLOBJ));
+    if (setjmp(jmp_env) == 0) {
+        object_t arr = make_array(list);
+        FAIL;
+    } else
+        OK;
+}
+
+/**
  * Проверка присваивания значения массиву:
  * Создаём массив на 5 элементов и присваиваем разные типы объектов в 0, 2, 4 и 7 индексы
 */
@@ -149,6 +190,55 @@ void test_seta_not_array()
     object_t list = new_pair(obj, new_pair(new_number(index), new_pair(value, NULLOBJ)));
     if (setjmp(jmp_env) == 0) {
         object_t result = seta(list);
+        FAIL;
+    } else
+        OK;
+}
+
+/**
+ * Тест для seta: обновление существующего элемента
+ */
+void test_seta_update_value()
+{
+    printf("test_seta_update_value: ");
+    int length = 3;
+    object_t list = new_pair(new_number(length), NULLOBJ);
+    object_t arr = make_array(list);
+
+    object_t old_value = NEW_SYMBOL("OLD");
+    object_t new_value = NEW_SYMBOL("NEW");
+
+    // Установка первоначального значения
+    seta(new_pair(arr, new_pair(new_number(1), new_pair(old_value, NULLOBJ))));
+    ASSERT(GET_ARRAY(arr)->data[1], old_value);
+
+    // Обновление значения
+    seta(new_pair(arr, new_pair(new_number(1), new_pair(new_value, NULLOBJ))));
+    ASSERT(GET_ARRAY(arr)->data[1], new_value);
+}
+
+/**
+ * Тест для seta: индекс вне диапазона
+ */
+void test_seta_out_of_bounds()
+{
+    printf("test_seta_out_of_bounds: ");
+    int length = 3;
+    object_t list = new_pair(new_number(length), NULLOBJ);
+    object_t arr = make_array(list);
+
+    object_t value = new_number(42);
+
+    // Индекс больше длины массива
+    if (setjmp(jmp_env) == 0) {
+        seta(new_pair(arr, new_pair(new_number(10), new_pair(value, NULLOBJ))));
+        FAIL;
+    } else
+        OK;
+
+    // Отрицательный индекс
+    if (setjmp(jmp_env) == 0) {
+        seta(new_pair(arr, new_pair(new_number(-1), new_pair(value, NULLOBJ))));
         FAIL;
     } else
         OK;
@@ -261,6 +351,69 @@ void test_aref_invalid_index_type()
 }
 
 /**
+ * Тест для aref: чтение без указания индекса
+ */
+void test_aref_no_index()
+{
+    printf("test_aref_no_index: ");
+    int length = 3;
+    object_t list = new_pair(new_number(length), NULLOBJ);
+    object_t arr = make_array(list);
+
+    if (setjmp(jmp_env) == 0) {
+        object_t elem = aref(new_pair(arr, NULLOBJ));
+        FAIL;
+    } else
+        OK;
+}
+
+/**
+ * Тест для aref: чтение элементов с граничными индексами
+ */
+void test_aref_boundary_indices()
+{
+    printf("test_aref_boundary_indices: ");
+    int length = 5;
+    object_t list = new_pair(new_number(length), NULLOBJ);
+    object_t arr = make_array(list);
+
+    object_t value_start = new_number(1);
+    object_t value_end = new_number(2);
+
+    // Устанавливаем значения
+    GET_ARRAY(arr)->data[0] = value_start;
+    GET_ARRAY(arr)->data[length - 1] = value_end;
+
+    // Проверяем первый элемент
+    object_t elem = aref(new_pair(arr, new_pair(new_number(0), NULLOBJ)));
+    ASSERT(elem, value_start);
+
+    // Проверяем последний элемент
+    elem = aref(new_pair(arr, new_pair(new_number(length - 1), NULLOBJ)));
+    ASSERT(elem, value_end);
+}
+
+/**
+ * Тест для aref: лишние аргументы
+ */
+void test_aref_extra_arguments()
+{
+    printf("test_aref_extra_arguments: ");
+    int length = 3;
+    object_t list = new_pair(new_number(length), NULLOBJ);
+    object_t arr = make_array(list);
+
+    if (setjmp(jmp_env) == 0) {
+	object_t index = new_number(1);
+	object_t extra_arg = new_number(10);
+	object_t pair = new_pair(arr, new_pair(index, new_pair(extra_arg, NULLOBJ)));
+	aref(pair);
+	FAIL;
+    } else
+	OK;
+}
+
+/**
  * Тест для array_size: проверка массива длиной 10.
  */
 void test_correct_array_size()
@@ -272,7 +425,6 @@ void test_correct_array_size()
   
   object_t result = array_size(new_pair(arr, NULLOBJ));
   ASSERT(get_value(result), length);
-  OK;
 }
 
 /**
@@ -287,7 +439,6 @@ void test_array_size_empty()
     object_t result = array_size(new_pair(arr, NULLOBJ)); 
     
     ASSERT(get_value(result), length); 
-    OK
 }
 
 /**
@@ -321,6 +472,25 @@ void test_array_size_null()
     
 }
 
+/**
+ * Тест для array_size: лишние аргументы
+ */
+void test_array_size_extra_arguments()
+{
+    printf("test_array_size_extra_arguments: ");
+    int length = 3;
+    object_t list = new_pair(new_number(length), NULLOBJ);
+    object_t arr = make_array(list);
+
+    if (setjmp(jmp_env) == 0) {
+	object_t extra_arg = new_number(10);
+	object_t pair = new_pair(arr, new_pair(extra_arg, NULLOBJ));
+	array_size(pair);
+	FAIL;
+    } else
+	OK;
+}
+
 int main()
 {
     printf("------------test_arrays---------\n");
@@ -328,10 +498,14 @@ int main()
     init_objects();
     test_make_array();
     test_make_array_negative_length();
+    test_make_array_zero_length();
+    test_make_array_invalid_argument();
     test_seta();
     test_seta_invalid_arguments();
     test_seta_not_array();
     test_seta_many_args();
+    test_seta_update_value();
+    test_seta_out_of_bounds();
     test_aref();
     test_aref_invalid_index(10);
     test_aref_invalid_index(-1);
@@ -339,9 +513,13 @@ int main()
     test_aref_no_args();
     test_aref_only_array();
     test_aref_invalid_array();
+    test_aref_no_index();
+    test_aref_boundary_indices();
+    test_aref_extra_arguments();
     test_correct_array_size();
     test_array_size_empty();
     test_array_size_invalid_input();
     test_array_size_null();
+    test_array_size_extra_arguments();
     return 0;
 }

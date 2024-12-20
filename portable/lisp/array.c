@@ -53,6 +53,8 @@ object_t aref(object_t list)
 {
     if (list == NULLOBJ || TAIL(list) == NULLOBJ)
         error("aref: invalid arguments");
+    if (TAIL(TAIL(list)) != NULLOBJ)
+        error("aref: extra arguments");
     object_t arr_o = FIRST(list);
     if (TYPE(arr_o) != ARRAY)
 	error("aref: not an array");
@@ -76,6 +78,9 @@ object_t array_size(object_t list)
 {
     if (list == NULLOBJ || FIRST(list) == NULLOBJ)
         error("array_size: invalid arguments");
+
+    if (TAIL(list) != NULLOBJ)
+        error("array_size: extra arguments");
 
     object_t arr_o = FIRST(list);
     if (TYPE(arr_o) != ARRAY)
