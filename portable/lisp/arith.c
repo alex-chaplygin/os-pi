@@ -452,6 +452,7 @@ object_t shift_right(object_t list)
 float sinf(float v);
 float cosf(float v);
 float roundf(float v);
+float sqrtf(float v);
 
 /**
  * Вычисление синуса
