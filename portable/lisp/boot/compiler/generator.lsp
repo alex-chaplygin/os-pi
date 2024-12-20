@@ -1,7 +1,7 @@
 ;; Генерация кода после анализа компилятора
 
 ;; *program* - хранит накопленный результат компиляции.
-(defvar *program)
+(defvar *program*)
 
 ;; Добавить инструкцию в программу
 (defun emit (val)
@@ -37,7 +37,9 @@
   (let ((i 0))
     (dolist (a args)
       (inner-generate a) ; код аргумента
-      (emit (list set i))
+      (emit (if (equal set 'PUSH)
+		(list set)
+		(list set i)))
       (incf i))))
 
 ;; Вызов примитива
@@ -47,16 +49,18 @@
 
 ;; Обычный вызов функции
 (defun generate-reg-call (name env args)
-  (emit (list 'SET-ENV env))
-  (emit (list 'ALLOC (list-length args)))
-  (generate-args args 'LOCAL-SET)
-  (emit (list 'REG-CALL name))
-  (emit (list 'RESTORE-ENV)))
+  (let ((num (list-length args)))
+    (generate-args args 'PUSH)
+    (emit (list 'SET-ENV env))
+    (when (> num 0) (emit (list 'ALLOC num)))
+    (emit (list 'REG-CALL name))
+    (emit (list 'RESTORE-ENV))))
 
 ;; let - форма, расширение окружения, тело lambda без вызова функции
 (defun generate-let (count args body)
-  (emit (list 'ALLOC count))
-  (generate-args args 'LOCAL-SET)
+  (generate-args args 'PUSH)
+  (emit (list 'SET-ENV 0))
+  (when (> count 0) (emit (list 'ALLOC count)))
   (inner-generate body)
   (emit (list 'RESTORE-ENV)))
 
@@ -68,6 +72,7 @@
 
 ;; Генерация кода
 (defun inner-generate (expr)
+  ;; (print (list 'inner-generate expr))
   (if (contains '(CONST GLOBAL-REF LOCAL-REF DEEP-REF RETURN) (car expr))
       (emit expr)
       (if (contains '(GLOBAL-SET LOCAL-SET DEEP-SET) (car expr))
