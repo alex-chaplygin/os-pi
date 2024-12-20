@@ -160,6 +160,8 @@ sh sys_test "(- 10 1.35 5 2.3)" "1.350000"
 sh sys_test "(- 10.1 2)" "8.100000"
 sh sys_test "(- 10.1 2 \"\")" "sub: Not number"
 sh sys_test "(- 'b 2)" "sub: Not number"
+sh sys_test "(- 2)" "-2"
+sh sys_test "(setq x 1) (- x)" "-1"
 
 sh sys_test "(* 123 123 0 421)" "0"
 sh sys_test "(* 9 5 1 1)" "45"
