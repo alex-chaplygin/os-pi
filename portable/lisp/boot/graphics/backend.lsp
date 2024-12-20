@@ -44,25 +44,19 @@
   "Алгоритм средней точки"
   (let* ((dx (abs (- x2 x1)))
          (dy (abs (- y2 y1)))
-         (signx (if (< x1 x2) 1 (- 0 1)))
-         (signy (if (< y1 y2) 1 (- 0 1)))
-         (error1 (- (abs (- x2 x1)) (abs (- y2 y1))))
-         (error2 0)
+         (signx (if (< x1 x2) 1 -1))
+         (signy (if (< y1 y2) 1 -1))
+         (error1 (- dx dy))
          (points nil))
     (while (or (not (= x1 x2)) (not (= y1 y2)))
-      (progn
-        (setq points (append points (list (cons x1 y1))))
-        (setq error2 (* error1 2))
-        (if (> error2 (- 0 dy))
-          (progn
-            (setq error1 (- error1 dy))
-            (setq x1 (+ x1 signx)))
-        nil)
-        (if (< error2 dx)
-          (progn
-            (setq error1 (+ error1 dx))
-            (setq y1 (+ y1 signy)))
-        nil)))
+      (setq points (append points (list (cons x1 y1))))
+      (let ((error2 (* 2 error1)))
+        (when (> error2 (- 0 dy))
+          (setq error1 (- error1 dy))
+          (setq x1 (+ x1 signx)))
+        (when (< error2 dx)
+          (setq error1 (+ error1 dx))
+          (setq y1 (+ y1 signy)))))
     (setq points (append points (list (cons x2 y2))))))
 
 (defun draw-line (x1 y1 x2 y2 colour)
@@ -138,17 +132,16 @@
 (defun draw-rect (x y w h colour)
   "Рисование полого прямоугольника"
   "x y - координаты левого верхнего угла, w h - ширина и высота, colour - цвет"
-  (draw-line x y (+ x w) y colour)
+  (draw-hline x (+ x w) y colour)
   (draw-line (+ x w) y (+ x w) (+ y h) colour)
-  (draw-line (+ x w) (+ y h) x (+ y h) colour)
+  (draw-hline x (+ x w) (+ y h) colour)
   (draw-line x (+ y h) x y colour))
 
 (defun draw-rectf (x y w h colour)
   "Рисование заполненного прямоугольника"
   "x y - координаты левого верхнего угла, w h - ширина и высота, colour - цвет"
   (for i 0 h
-    (for j 0 w
-      (set-pixel (+ x j) (+ y i) colour))))
+    (draw-hline x (+ x w) (+ y i) colour)))
 
 (defun draw-sym-pixels (cx cy x y colour)
   (set-pixel (+ cx x) (+ cy y) colour)
@@ -193,7 +186,7 @@
 	 (ti2 (expt ti 2))
 	 (ti3 (expt ti 3)))
     (cons (+ (* t3 (car p0)) (* 3 ti t2 (car p1)) (* 3 t1 ti2 (car p2)) (* ti3 (car p3)))
-          (+ (* t3 (cdr p0)) (* 3 ti t2 (cdr p1)) (* 3 t1 ti2 (cdr p2)) (* ti3 (cdr p3))))))
+	  (+ (* t3 (cdr p0)) (* 3 ti t2 (cdr p1)) (* 3 t1 ti2 (cdr p2)) (* ti3 (cdr p3))))))
 
 (defun draw-bezier-curve (p1 p2 p3 p4 n colour)
   "Рисование кривой Безье"
@@ -202,9 +195,9 @@
 	 (step (/ 1.0 n))
 	 (fin-ti (+ 1.0 step)))
     (while (< ti fin-ti)
-      (let ((curve-point (bezier-point p1 p2 p3 p4 ti)))
-	(set-pixel (round (car curve-point)) (round (cdr curve-point)) colour))
-      (setq ti (+ ti step)))))
+	   (let ((curve-point (bezier-point p1 p2 p3 p4 ti)))
+	     (set-pixel (round (car curve-point)) (round (cdr curve-point)) colour))
+	   (setq ti (+ ti step)))))
 
 (defun draw-image (image)
   "Вывод изображения в позиции матрицы трансформации"

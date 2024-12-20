@@ -63,5 +63,25 @@
   (test-next-x 1 1 2 10 '(1 1 1 1 2 2 2 2 2))
   (test-next-x 1 1 4 8 '(1 2 2 3 3 4 4)))
 
+(defun test-mid-point (x1 y1 x2 y2 colour points)
+  "Тестирование алгоритма средней точки"
+  (setq *points* nil)
+  (draw-line x1 y1 x2 y2 colour)
+  (print (assert *points* points)))
+
 ;(fill-triangle-tests)
-(test-bezier-curve)
+;(test-bezier-curve)
+(test-mid-point 2 2 4 6 1 '(2 2 2 3 3 4 3 5 4 6))
+(test-mid-point 8 8 3 4 1 '(8 8 7 7 6 6 5 6 4 5 3 4))
+(test-mid-point 8 2 3 16 1 '(8 2 8 3 7 4 7 5 7 6 6 7 6 8 6 9 5 10 5 11 4 12 4 13 4 14 3 15 3 16))
+(test-mid-point 3 20 15 4 1 '(3 20 4 19 4 18 5 17 6 16 7 15 7 14 8 13 9 12 10 11 10 10 11 9 12 8 13 7 13 6 14 5 15 4))
+
+(test-mid-point 5 5 15 5 1 '(5 5 6 5 7 5 8 5 9 5 10 5 11 5 12 5 13 5 14 5 15 5))
+(test-mid-point 5 15 5 5 1 '(5 15 5 14 5 13 5 12 5 11 5 10 5 9 5 8 5 7 5 6 5 5))
+(test-mid-point 8 8 8 20 1 '(8 8 8 9 8 10 8 11 8 12 8 13 8 14 8 15 8 16 8 17 8 18 8 19 8 20))
+(test-mid-point 8 20 8 8 1 '(8 20 8 19 8 18 8 17 8 16 8 15 8 14 8 13 8 12 8 11 8 10 8 9 8 8))
+
+(test-mid-point -5 -4 7 6 1 '(-5 -4 -4 -3 -3 -2 -2 -2 -1 -1 0 0 1 1 2 2 3 3 4 3 5 4 6 5 7 6))
+;(test-mid-point -50 -48 -44 -42 1 '(-50 -48 -49 -47 -48 -46 -47 -45 -46 -44 -45 -43 -44 -42))
+
+(test-mid-point 37 17 176 200 1 '())
