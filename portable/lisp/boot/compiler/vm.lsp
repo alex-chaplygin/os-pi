@@ -24,23 +24,27 @@
 
 ;; Регистры:
 
-;; ACC - хранит результат последней операции.
+;; *acc* - хранит результат последней операции.
 (defvar *acc* nil)
-;; GLOBALS-MEM - хранит значения глобальных переменных.
+;; *globals-mem* - хранит значения глобальных переменных.
 (defvar *globals-mem* nil)
-;; PC - хранит адрес текущей выполняемой инструкции.
+;; *pc* - хранит адрес текущей выполняемой инструкции.
 (defvar *pc* 0)
 ;; *stack-max* - размер стека.
-(defvar *stack-max* 2048)
-;; STACK - стек общего назначения.
-(defvar *stack* (make-array *stack-max*))
+(defvar *stack-len* 2048)
+;; *stack* - стек общего назначения.
+(defvar *stack* (make-array *stack-len*))
 ;; *stack-head* - указатель на вершину стека.
 (defvar *stack-head* 0)
+;; *env* - ссылка на текущий кадр окружения.
+(defvar *env*)
+;; *env-num* - номер глубины кадра окружения.
+(defvar *env-num*)
 
 ;; Инструкции:
 
-;; LDA - поместить S-выражение expr в регистр ACC.
-(defun lda (expr)
+;; CONST expr - поместить S-выражение expr в регистр ACC.
+(defun const (expr)
   (setq *acc* expr
         *pc* (+ *pc* 2)))
 
@@ -54,29 +58,66 @@
       (setq *pc* (+ *pc* 2))
       (jmp addr)))
 
-;; GLOBAL-SET - присвоить глобальной переменной с индексом i значение регистра ACC.
+;; ALLOC n - создать новый кадр активации размером n.
+(defun alloc (n)
+  (let ((prev-env (stack-pop))
+	(new-frame (cons *env* (make-array n))))
+    (labels ((add-arg (i)
+		      (when (>= i 0)
+			(seta (cdr new-frame) i (stack-pop))
+			(add-arg (-- i)))))
+	    (add-arg (-- n)))
+    (stack-push prev-env)
+    (setq *env* new-frame
+          *env-num* (++ *env-num*)
+          *pc* (+ *pc* 2))))
+
+;; GLOBAL-REF - загружает в ACC значение глобальной переменной с индексом i.
+(defun global-ref (i)
+  (const (aref *globals-mem* i)))
+
+;; GLOBAL-SET - присваивает глобальной переменной с индексом i значение регистра ACC.
 (defun global-set (i)
   (seta *globals-mem* i *acc*)
   (setq *pc* (+ *pc* 2)))
 
-;; GLOBAL-GET - присвоить регистру ACC значение глобальной переменной с индексом i.
-(defun global-get (i)
-  (lda (aref *globals-mem* i)))
+;; LOCAL-REF - загружает в ACC значение i локальной переменной.
+(defun local-ref (i)
+  (const (aref (cdr *env*) i)))
+
+;; LOCAL-SET i - присваивает локальной переменной i значение регистра ACC.
+(defun local-set (i)
+  (seta (cdr *env*) i *acc*)
+  (setq *pc* (+ *pc* 2)))
+
+;; DEEP-REF i j - загружает в ACC значение локальной переменной с индексом j в кадре i.
+(defun deep-ref (i j)
+  (let ((env *env*))
+    (while (> i 0)
+      (setq env (car env)
+            i (-- i)))
+    (setq *acc* (aref (cdr env) j)
+          *pc* (+ *pc* 3))))
+
+;; DEEP-SET i j - присваивает локальной переменной j в кадре i значение регистра ACC.
+(defun deep-set (i j)
+  (let ((env *env*))
+    (while (> i 0)
+      (setq env (car env)
+            i (-- i)))
+    (seta (cdr env) j *acc*
+          *pc* (+ *pc* 3))))
 
 ;; PUSH - добавляет значение регистра ACC в стэк.
 (defun push ()
   (stack-push *acc*)
-  (setq *pc* (+ *pc* 1)))
+  (incf *pc*))
 
 (defun stack-push (val)
   (seta *stack* *stack-head* val)
-  (setq *stack-head* (++ *stack-head*))
-  (when (>= *stack-head* *stack-max*)
+  (incf *stack-head*)
+  (when (>= *stack-head* *stack-len*)
     (error "Stack overflow")))
-
-;; POP - загружает верхний элемент стека в регистр ACC, при этом удаляет этот элемент из стека.
-(defun pop ()
-  (lda (stack-pop)))
 
 (defun stack-pop ()
   (setq *stack-head* (- *stack-head* 1))
@@ -84,19 +125,10 @@
     (error "Stack underflow"))
   (aref *stack* *stack-head*))
 
-;; DROP n - удаляет n верхних элементов из стека.
-(defun drop (n)
-  (stack-drop n)
-  (setq *pc* (+ *pc* 2)))
-
 (defun stack-drop (n)
   (setq *stack-head* (- *stack-head* n))
   (when (< *stack-head* 0)
     (error "Stack underflow")))
-
-;; LOCAL-GET - загружает в ACC значение i-го элемента стэка, начиная с верхушки.
-(defun local-get (i)
-  (lda (stack-peek i)))
 
 (defun stack-peek (i)
   (let ((idx (- (- *stack-head* i) 1)))
@@ -104,106 +136,142 @@
       (error "Stack underflow"))
     (aref *stack* idx)))
 
-;; LOCAL-SET i - присваивает элементу стека с индексом i, начиная с верхушки, значение регистра ACC.
-(defun local-set (i)
-  (let ((idx (- (- *stack-head* i) 1)))
-    (when (< idx 0)
-      (error "Stack underflow"))
-    (seta *stack* idx *acc*)
-    (setq *pc* (+ *pc* 2))))
-
-;; CALL addr - добавляет адрес следующей инструкции в стэк и производит переход на относительный адрес addr.
-(defun call (addr)
+;; REG-CALL addr - добавляет адрес следующей инструкции в стэк и производит переход на относительный адрес addr.
+(defun reg-call (addr)
   (stack-push (+ *pc* 2))
   (jmp addr))
 
-;; RET - производит переход на адрес из верхушки стэка, при этом удаляет этот адрес из стэка.
-(defun ret ()
-  (jmp (- (stack-pop) *pc*)))
+;; RETURN - производит переход на адрес из верхушки стэка, при этом удаляет этот адрес из стэка.
+(defun return ()
+  (setq *pc* (stack-pop)))
+
+;; SET-ENV num - сохраняет текущий кадр окружения в стек и производит переход окружения на кадр с номером num.
+(defun set-env (num)
+  (let ((env-diff (- *env-num* num)))
+    (when (< env-diff 0)
+      (error "SET-ENV: invalid operand"))
+    (stack-push (cons *env* *env-num*))
+    (when (!= env-diff 0)
+      (while (!= env-diff 0)
+        (when (null *env*)
+          (error "SET-ENV: invalid operand"))
+        (setq *env* (car *env*)
+              *env-num* (-- *env-num*)
+              env-diff (-- env-diff))))
+    (setq *pc* (+ *pc* 2))))
+
+;; RESTORE-ENV - восстанавливает окружение из стека.
+(defun restore-env ()
+  (let ((env-pair (stack-pop)))
+    (let ((env (car env-pair))
+          (env-num (cdr env-pair)))
+      (setq *env* env
+            *env-num* env-num)
+      (incf *pc*))))
 
 ;; PRIM1 - вызывает примитив от 1 аргумента по индексу i в таблице примитивов *prim1-table*.
 (defun prim1 (i)
-  (when (>= i (array-size *prim1-table*))
-    (error (concat "Unknown prim1: " (inttostr i))))
   (setq *cur-prim-func*
-        `(,(aref *prim1-table* i)
-           ,(stack-peek 0)))
-  (lda (vm-exec-prim))
+        (list (aref *prim1-table* i)
+              (stack-peek 0)))
+  (const (vm-exec-prim))
   (stack-drop 1))
 
 ;; PRIM2 - вызывает примитив от 2 аргументов по индексу i в таблице примитивов *prim2-table*.
 (defun prim2 (i)
-  (when (>= i (array-size *prim2-table*))
-    (error (concat "Unknown prim2: " (inttostr i))))
   (setq *cur-prim-func*
-        `(,(aref *prim2-table* i)
-           ,(stack-peek 0)
-           ,(stack-peek 1)))
-  (lda (vm-exec-prim))
+        (list (aref *prim2-table* i)
+	      ;; (stack-peek 1)
+              ;; (stack-peek 0)
+              ;; (list 'quote (stack-peek 1))
+              ;; (list 'quote (stack-peek 0))
+	      (if (null (stack-peek 1)) nil (list 'quote (stack-peek 1)))
+	      (if (null (stack-peek 0)) nil (list 'quote (stack-peek 0)))
+	      ))
+  (const (vm-exec-prim))
   (stack-drop 2))
 
 ;; PRIM3 - вызывает примитив от 3 аргументов по индексу i в таблице примитивов *prim3-table*.
 (defun prim3 (i)
-  (when (>= i (array-size *prim3-table*))
-    (error (concat "Unknown prim3: " (inttostr i))))
   (setq *cur-prim-func*
-        `(,(aref *prim3-table* i)
-           ,(stack-peek 0)
-           ,(stack-peek 1)
-           ,(stack-peek 2)))
-  (lda (vm-exec-prim))
+        (list (aref *prim3-table* i)
+              (stack-peek 2)
+              (stack-peek 1)
+              (stack-peek 0)))
+  (const (vm-exec-prim))
   (stack-drop 3))
 
 ;; Выполняет функцию примитива *cur-prim-func*
 (defmacro vm-exec-prim ()
   *cur-prim-func*)
 
+(defvar *insts*
+  '((const . 1)
+    (jmp . 1) (jnt . 1)
+    (alloc . 1)
+    (global-ref . 1) (global-set . 1)
+    (local-ref . 1) (local-set . 1)
+    (deep-ref . 2) (deep-set . 2)
+    (push . 0)
+    (reg-call . 1) (return . 0)
+    (fix-closure . 0) (set-env . 1) (restore-env . 0)
+    (prim1 . 1) (prim2 . 1) (prim3 . 1)))
 
-;; Выполняет программу program.
-;; bytecode - массив инструкций (пар опкодов и операндов).
-;; Возвращает значение регистра ACC.
+(defun print-stack ()
+  (labels ((collect-stack (i)
+             (if (= i *stack-head*)
+                 nil
+                 (append (list (aref *stack* i)) (collect-stack (++ i))))))
+    (print (list 'stack '= (collect-stack 0)))))
+
+;; Выполняет байт-код на виртуальной машине.
 (defun vm-run (bytecode)
-  (setq *cur-bytecode* bytecode
-        *acc* nil
+  (setq *acc* nil
         *pc* 0
-        *stack-head* 0)
-  (when (> *globals-count* 0)
-    (setq *globals-mem*
-          (make-array *globals-count*)))
+        *stack-head* 0
+        *env* nil
+        *env-num* 0)
+  (setq *globals-mem*
+        (make-array *global-variables-count*))
+  (seta *globals-mem* 0 t)
+  (seta *globals-mem* 1 nil)
   (let ((bytecode-len (array-size bytecode)))
     (while (< *pc* bytecode-len)
-      (case (aref bytecode *pc*)
-        (0 (vm-exec-inst 'lda 1))
-        (1 (vm-exec-inst 'jmp 1))
-        (2 (vm-exec-inst 'jnt 1))
-        (3 (vm-exec-inst 'global-set 1))
-        (4 (vm-exec-inst 'global-get 1))
-        (5 (vm-exec-inst 'push 0))
-        (6 (vm-exec-inst 'pop 0))
-        (7 (vm-exec-inst 'drop 1))
-        (8 (vm-exec-inst 'local-get 1))
-        (9 (vm-exec-inst 'local-set 1))
-        (10 (vm-exec-inst 'call 1))
-        (11 (vm-exec-inst 'ret 0))
-        (12 (vm-exec-inst 'prim1 1))
-        (13 (vm-exec-inst 'prim2 1))
-        (14 (vm-exec-inst 'prim3 1))
-        (otherwise (error (concat
-                           "Unknown opcode: "
-                           (inttostr (aref bytecode *pc*)))))))
-    *acc*))
-
-;; Выполняет инструкцию inst с args-len операндами.
-(defun vm-exec-inst (inst args-len)
-  (let ((inst-args nil))
-    (for i 1 (+ args-len 1)
-         (setq inst-args
-               (append inst-args
-                       `(,(aref *cur-bytecode*
-                                (+ *pc* i))))))
-    (setq *cur-inst*
-          (append `(,inst) inst-args))
-    (inner-vm-exec-inst)))
-
-(defmacro inner-vm-exec-inst ()
-  *cur-inst*)
+      (let ((op1 (if (< (++ *pc*) bytecode-len)
+                     (aref bytecode (++ *pc*)) nil))
+            (op2 (if (< (+ *pc* 2) bytecode-len)
+                     (aref bytecode (+ *pc* 2)) nil)))
+        (let* ((cur-inst-pair (nth *insts* (aref bytecode *pc*)))
+               (cur-inst (car cur-inst-pair))
+               (cur-inst-args-len (cdr cur-inst-pair)))
+          (print (case cur-inst-args-len
+                   (0 (list '--> *pc* cur-inst))
+                   (1 (list '--> *pc* cur-inst (aref bytecode (++ *pc*))))
+                   (2 (list '--> *pc* cur-inst (aref bytecode (++ *pc*)) (aref bytecode (+ *pc* 2)))))))
+        (case (aref bytecode *pc*)
+          (0  (funcall #'const op1))
+          (1  (funcall #'jmp op1))
+          (2  (funcall #'jnt op1))
+          (3  (funcall #'alloc op1))
+          (4  (funcall #'global-ref op1))
+          (5  (funcall #'global-set op1))
+          (6  (funcall #'local-ref op1))
+          (7  (funcall #'local-set op1))
+          (8  (funcall #'deep-ref op1 op2))
+          (9  (funcall #'deep-set op1 op2))
+          (10 (funcall #'push))
+          (11 (funcall #'reg-call op1))
+          (12 (funcall #'return))
+          (13 nil) ;; fix-closure
+          (14 (funcall #'set-env op1))
+          (15 (funcall #'restore-env))
+          (16 (funcall #'prim1 op1))
+          (17 (funcall #'prim2 op1))
+          (18 (funcall #'prim3 op1))
+          (otherwise (error "Unknown instruction opcode")))
+        (print-stack)
+        (print (list 'env '= *env*))
+        (print (list 'acc '= *acc*))
+        (print '-----)
+        )))
+  *acc*)

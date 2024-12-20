@@ -1,62 +1,74 @@
 ;; *inst-table* - список инструкций для генерации байт-кода.
 (defvar *inst-table*
-  '(lda
+  '(const
     jmp jnt
-    global-set global-get
-    push pop drop local-get local-set
-    call ret
+    alloc
+    global-ref global-set
+    local-ref local-set
+    deep-ref deep-set
+    push
+    reg-call return
+    fix-closure set-env restore-env
     prim1 prim2 prim3))
 ;; *inst-jmp-table* - список номеров инструкций перехода.
-(defvar *inst-jmp-table* '(jmp jnt call))
+(defvar *inst-jmp-table* '(jmp jnt reg-call))
 
 ;; Превращает список инструкций с метками в байт-код.
-;; program - список инструкций.
 (defun assemble (program)
-  (let* ((jmp-labels nil)
-         (jmp-addrs (make-hash))
-         (bytecode-len 0)
-         (bytecode-res
-          (foldl #'(lambda (res-pc inst)
-                     (if (symbolp inst)
-                         (progn
-                           (set-hash jmp-addrs inst (++ (cdr res-pc)))
-                           res-pc)
-                         (let ((pc (++ (cdr res-pc))))
-                           (when (contains *inst-jmp-table* (car inst))
-                             (setq jmp-labels
-                                   (append jmp-labels
-                                           (list (cons pc (cadr inst))))))
-                           (cons (append
-                                  (car res-pc)
-                                  (append
-                                   (list (list-search *inst-table* (car inst)))
-                                   (foldl #'(lambda (res elem)
-                                              (setq pc (++ pc))
-                                              (append res (list elem)))
-                                          nil (cdr inst))))
-                                 pc))))
-                 (cons nil 0) program))
-         (bytecode (car bytecode-res))
-         (bytecode-len (cdr bytecode-res))
-         (bytecode-arr (make-array bytecode-len)))
-    (foldl #'(lambda (pc elem)
-               (seta bytecode-arr pc elem)
-               (++ pc))
-           0 bytecode)
-    (foldl #'(lambda (pc addr-label)
-               (seta bytecode-arr
-                     (car addr-label)
-                     (- (get-hash jmp-addrs (cdr addr-label)) (car addr-label))))
-           0 jmp-labels)
-    bytecode-arr))
-
-(defun contains (list elem)
-  ;; (print (list 'contains list elem))
-  (if (null list)
-      nil
-      (progn
-        (when (atom list)
-          (error "Not list in contains"))
-        (if (eq (car list) elem)
-            t
-            (contains (cdr list) elem)))))
+  (let ((bytecode nil)
+        (pc 0)
+        (jmp-labels nil)
+        (jmp-addrs (make-hash)))
+    (labels ((asm-emit (&rest bytes)
+               (setq bytecode (append bytecode bytes))))
+      (app #'(lambda (inst)
+               (case (car inst)
+                 ('label (set-hash jmp-addrs (cadr inst) (++ pc)))
+                 ('prim
+                  (let* ((prim (search-symbol *primitives* (cadr inst)))
+                         (prim-table (case (cdr prim)
+                                       (1 *prim1-table*)
+                                       (2 *prim2-table*)
+                                       (3 *prim3-table*)
+                                       (otherwise (error "Unreachable"))))
+                         (prim-i nil))
+                    (for i 0 (array-size prim-table)
+                         (when (eq (aref prim-table i) (car prim))
+                           (setq prim-i i
+                                 i (array-size prim-table))))
+                    (when (null prim-i)
+                      (error "Unreachable"))
+                    (asm-emit
+                     (list-search *inst-table*
+                                  (case (cdr  prim)
+                                    (1 'prim1)
+                                    (2 'prim2)
+                                    (3 'prim3)
+                                    (otherwise (error "Unreachable"))))
+                     prim-i)
+                    (setq pc (+ pc 2))))
+                 (otherwise
+                  (let ((opcode (list-search *inst-table* (car inst))))
+                    (when (contains *inst-jmp-table* (car inst))
+                      (setq jmp-labels
+                            (append jmp-labels
+                                    (list (cons (++ pc) (cadr inst))))))
+                    (when (not (null opcode))
+                      (asm-emit opcode)
+                      (app #'(lambda (elem)
+                               (incf pc)
+                               (asm-emit elem))
+                           (cdr inst))
+                      (incf pc))))))
+           program))
+    (let ((bytecode-arr (make-array pc)))
+      (foldl #'(lambda (pc elem)
+                 (seta bytecode-arr pc elem)
+                 (++ pc))
+             0 bytecode)
+      (foldl #'(lambda (pc addr-label)
+                 (seta bytecode-arr
+                       (car addr-label)
+                       (- (get-hash jmp-addrs (cdr addr-label)) (car addr-label))))
+             0 jmp-labels)
+      bytecode-arr)))

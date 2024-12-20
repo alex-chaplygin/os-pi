@@ -1,3 +1,5 @@
+(defvar *test-compile-failed*)
+
 ;; Тест компиляции программы.
 (defun test-compile (expr expected-res)
   (let ((program (compile expr)))
@@ -48,3 +50,33 @@
 
 (test-compile '(progn (defmacro test (x y) `(+ ,x ,y)) (test 1 2))
 	      '(SEQ (NOP) (PRIM + ((CONST 1) (CONST 2)))))
+
+;; (test-compile '(progn (setq a 1 b 2) `(a (,a) b (,b)))
+;; 	      '(SEQ (...) (PRIM LIST ((CONST A) (PRIM LIST (GLOBAL-REF 2)) (CONST B) (PRIM LIST (GLOBAL-REF 3))))))
+
+(test-compile '(progn (setq a 1 b 2) `(a (,a) b (,b)))
+	      '(SEQ (GLOBAL-SET 2 (CONST 1))
+		    (SEQ (GLOBAL-SET 3 (CONST 2))
+			 (PRIM CONS ((CONST A)
+				     (PRIM CONS ((PRIM CONS ((GLOBAL-REF 2)
+							     (CONST NIL)))
+						 (PRIM CONS ((CONST B)
+							     (PRIM CONS ((PRIM CONS ((GLOBAL-REF 3)
+										     (CONST NIL)))
+									 (CONST NIL))))))))))))
+
+;; (print 'testing)
+;; (print
+;;  (vm-run
+;;   (assemble
+;;    (generate
+;;     `(SEQ (GLOBAL-SET 2 (CONST 1))
+;; 	  (SEQ (GLOBAL-SET 3 (CONST 2))
+;; 	       (PRIM CONS ((CONST A)
+;; 			   (PRIM CONS ((PRIM CONS ((GLOBAL-REF 2)
+;; 						   (CONST ,NIL)))
+;; 				       (PRIM CONS ((CONST B)
+;; 						   (PRIM CONS ((PRIM CONS ((GLOBAL-REF 3)
+;; 									   (CONST ,NIL)))
+;; 							       (CONST ,NIL)))))))))))))))
+;; (print 'done)
