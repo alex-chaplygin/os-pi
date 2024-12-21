@@ -13,6 +13,8 @@ object_t current_env = NULLOBJ;
 /// окружение функции
 object_t func_env = NULLOBJ;
 
+object_t t;
+
 extern token_t *cur_token; // текущий токен
 int token_error;
 token_t token = {LPAREN, 0, ""};

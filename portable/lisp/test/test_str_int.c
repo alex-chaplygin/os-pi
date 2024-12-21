@@ -22,6 +22,7 @@ object_t current_env = NULLOBJ;
 /// окружение функции
 object_t func_env = NULLOBJ;
 jmp_buf jmp_env;
+object_t t;
 
 void error(char *str, ...)
 {

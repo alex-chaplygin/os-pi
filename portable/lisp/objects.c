@@ -89,7 +89,8 @@ int allocated_pairs = 0;
 bind_t global_env[10000];
 int last_global = 0;
 /// Временные объекты, защищенные от сборки мусора
-temp_bind_t *protected = NULL; // указатель на начало списка текущих временных объектов
+temp_bind_t protected[1000];
+int last_protected = 0;
 
 /// текущее окружение
 extern object_t current_env;
@@ -467,6 +468,7 @@ void free_string(string_t *s)
     }
     if (s->free)
 	return;
+    printf("free_string: %s\n", s->data);
     s->next = free_strings;
     free_strings = s;
     s->free = 1;
@@ -575,13 +577,16 @@ void free_array(array_t *a)
 void mark_object(object_t obj)
 {
     extern object_t t;
-    if (obj == NULLOBJ || obj == t || obj == NOVALUE || obj == NULLOBJ + (1 << TYPE_BITS))
+    if (obj == NULLOBJ || obj == NOVALUE || obj == NULLOBJ + (1 << TYPE_BITS))
 	return;
+    /* printf("mark object: "); */
+    /* PRINT(obj); */
     int mask = 1 << 31;
     if (TYPE(obj) == PAIR) {
 	if (GET_MARK(GET_PAIR(obj)->left) == 1)
 	    return;
-	SET_MARK(GET_PAIR(obj)->left);
+	if (GET_PAIR(obj)->left != NULLOBJ)
+	    SET_MARK(GET_PAIR(obj)->left);
 	mark_object(GET_PAIR(obj)->left);
 	mark_object(GET_PAIR(obj)->right);
     } else if (TYPE(obj) == SYMBOL) {
@@ -618,6 +623,8 @@ void mark_object(object_t obj)
     } 
 }
 
+void print_array(object_t obj);
+
 /**
  * Освобождаем все непомеченные объекты, снимаем пометки
  */
@@ -648,25 +655,25 @@ void sweep()
 	    free_pair(pair);
 	else CLEAR_MARK(pair->left);
     }
-    for (int i = 0; i < last_string; i++) {
-	string_t *str = &strings[i];
-	if ((str->length & mask) == 0)
-	    free_string(str);
-	else str->length &= ~mask;
-    }
-    for (int i = 0; i < last_array; i++) {
-	array_t *arr = &arrays[i];
-	if ((arr->length & mask) == 0)
-	    free_array(arr);
-	else arr->length &= ~mask;
-    }
-    for (int i = 0; i < last_symbol; i++) {
-	symbol_t *symb = &symbols[i];
-	if ((symb->hash_index & mask) == 0)
-	    free_symbol(symb);
-	else
-	    symb->hash_index &= ~mask;
-    }
+    /* for (int i = 0; i < last_string; i++) { */
+    /* 	string_t *str = &strings[i]; */
+    /* 	if ((str->length & mask) == 0) */
+    /* 	    free_string(str); */
+    /* 	else str->length &= ~mask; */
+    /* } */
+    /* for (int i = 0; i < last_array; i++) { */
+    /* 	array_t *arr = &arrays[i]; */
+    /* 	if ((arr->length & mask) == 0) */
+    /* 	    free_array(arr); */
+    /* 	else arr->length &= ~mask; */
+    /* } */
+    /* for (int i = 0; i < last_symbol; i++) { */
+    /* 	symbol_t *symb = &symbols[i]; */
+    /* 	if ((symb->hash_index & mask) == 0) */
+    /* 	    free_symbol(symb); */
+    /* 	else */
+    /* 	    symb->hash_index &= ~mask; */
+    /* } */
 }
 
 /**
@@ -675,29 +682,43 @@ void sweep()
 void garbage_collect()
 {
     bind_t *cur = global_env;
-    printf("garbage_collect\nglobal env:");
+    //printf("garbage_collect\nglobal env:");
     for (int i = 0; i < last_global; i++, cur++) {
 	//	PRINT(cur->obj);
+	//printf("gc print before: %x\n", protected);
 	mark_object(cur->obj);
+	//printf("gc print after:  %x\n", protected);
+	//PRINTPROT;
     }
-    printf("garbage_collect end glob\n");    
+    //printf("garbage_collect end glob\n");
 #ifdef DEBUG
     mark_object(debug_stack);
 #endif
     mark_object(current_env);
     mark_object(func_env);
-    printf("garbage_collect end env %x\n", protected);    
+    //    printf("garbage_collect end env %x\n", protected);    
     temp_bind_t *curp = protected;
-    while (curp != NULL) {
-	PRINT(*(curp->obj));
-	mark_object(*curp->obj);
-	curp = curp->next;
+    for (int i = 0; i < last_protected; i++, curp++) {
+	//	printf("%x ", curp);
+	//PRINT(*(curp->obj));
+	mark_object(*(curp->obj));
     }
-    printf("garbage_collect end protect\n");    
+    //printf("garbage_collect end protect\n");    
     sweep();
-    printf("garbage_collect end sweep\n");
+    //    printf("garbage_collect end sweep\n");
     allocated_pairs = 0;
 } 
+
+void print_globals()
+{
+    bind_t *cur = global_env;
+    printf("global env:\n");
+    for (int i = 0; i < last_global; i++, cur++) {
+	print_obj(cur->obj);
+	printf(": ");
+	PRINT(GET_SYMBOL(cur->obj)->value);
+    }
+}
 
 int print_counter = 0;
 
@@ -764,7 +785,7 @@ void print_obj(object_t obj)
     else if (TYPE(obj) == SYMBOL)
  	printf("%s", ((symbol_t *)GET_ADDR(obj))->str);
     else if (TYPE(obj) == CHAR) 
-        printf("#\\%c", GET_CHAR(obj));
+        printf("#\\%c", (int)GET_CHAR(obj));
     else if (TYPE(obj) == PAIR) {
  	    printf("(");
  	    print_list(obj);

@@ -169,8 +169,7 @@ void append_env(object_t l1, object_t l2);
 object_t backquote_rec(object_t list) 
 { 
     if (list == NULLOBJ) 
- 	return NULLOBJ; 
-    //PRINT(list); 
+ 	return NULLOBJ;
     object_t env = current_env;
     object_t func = func_env;
     object_t o; 
@@ -444,7 +443,7 @@ void append_env(object_t l1, object_t l2)
  * @return вычисленное значение функции 
  */ 
 object_t eval_func(object_t lambda, object_t args, object_t env, object_t func) 
-{ 
+{
     object_t new_env = make_env(SECOND(lambda), args); 
     object_t body; 
     if (GET_PAIR(TAIL(TAIL(lambda)))->right == NULLOBJ) 
@@ -475,12 +474,16 @@ object_t macro_call(object_t macro, object_t args, object_t env, object_t func)
     object_t new_env = make_env(SECOND(macro), args); 
     object_t body; 
     object_t eval_res;
+    //    printf("macro_call ");
+    //PRINT(macro);
+    //PRINT(args);
     body = TAIL(TAIL(macro));
     if (new_env != NULLOBJ)
 	append_env(new_env, env);
     PROTECT2(body, eval_res);
     while (body != NULLOBJ) {
  	eval_res = eval(FIRST(body), new_env, func);
+	//	PRINT(eval_res);
  	eval_res = eval(eval_res, env, func);
  	body = TAIL(body);
     }
@@ -500,14 +503,25 @@ object_t eval_args(object_t args, object_t env, object_t func)
     if (args == NULLOBJ) 
  	return NULLOBJ;
     if (TYPE(args) != PAIR)
-	error("arguments are not list");    
-    object_t f = FIRST(args); 
+	error("arguments are not list");
+    object_t f;
     object_t arg;
-    PROTECT2(args, arg);
-    arg = eval(f, env, func);
-    object_t tail = eval_args(TAIL(args), env, func); 
+    object_t vals = new_pair(NULLOBJ, NULLOBJ);
+    object_t v = vals;
+    PROTECT2(args, vals);
+    while (args != NULLOBJ) {
+	f = FIRST(args); 
+	arg = eval(f, env, func);
+	GET_PAIR(v)->left = arg;
+	if (TAIL(args) == NULLOBJ)
+	    GET_PAIR(v)->right = NULLOBJ;
+	else
+	    GET_PAIR(v)->right = new_pair(NULLOBJ, NULLOBJ);
+	args = TAIL(args);
+	v = TAIL(v);
+    }
     UNPROTECT;
-    return new_pair(arg, tail);  
+    return vals;  
 } 
 
 /* 
@@ -536,8 +550,7 @@ object_t eval_symbol(object_t obj)
     //    printf("eval_symbol: "); 
     //    PRINT(obj); 
     //    printf("env: "); 
-    //    PRINT(env);   
-    
+    //    PRINT(env);
     if (find_in_env(current_env, obj, &res)) 
 	return res; 
     else { 
@@ -568,10 +581,16 @@ object_t eval_symbol(object_t obj)
  */
 object_t eval(object_t obj, object_t env, object_t func)
 {
+    extern int last_global;
     object_t args;
     object_t res;
-    //     printf("eval: "); PRINT(obj);
-    //    printf("env: "); PRINT(env);
+    /* printf("eval: "); PRINT(obj); */
+    /* printf("env: "); PRINT(env); */
+    /* printf("func_env: "); PRINT(func_env); */
+    /* printf("global_env: %d\n", last_global); */
+    /* bind_t *cur = global_env; */
+    /* for (int i = 0; i < last_global; i++, cur++) */
+    /* 	PRINT(cur->obj); */
     current_env = env;
     func_env = func;
     if (need_grabage_collect())
@@ -720,6 +739,7 @@ object_t error_func(object_t args)
 {
     printf("ERROR: ");
     PRINT(FIRST(args));
+    last_protected = 0;
     longjmp(repl_buf, 1);
 }
 
@@ -914,11 +934,13 @@ void init_eval()
     defmacro_sym = find_symbol("DEFMACRO"); 
     setq_sym = find_symbol("SETQ"); 
     t_sym = GET_SYMBOL(t); 
-    t_sym->value = t; 
+    t_sym->value = new_number(1); 
     nil_sym = find_symbol("NIL"); 
     nil_sym->value = nil; 
-    bind_global(NEW_OBJECT(SYMBOL, nil));
+    bind_global(NEW_OBJECT(SYMBOL, nil_sym));
     rest_sym = find_symbol("&REST"); 
+    bind_global(NEW_OBJECT(SYMBOL, rest_sym));
+    bind_global(NEW_OBJECT(SYMBOL, lambda_sym));
     tagbody_sym = find_symbol("TAGBODY");
     go_sym = find_symbol("GO");
     block_sym = find_symbol("BLOCK");

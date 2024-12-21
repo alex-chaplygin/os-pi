@@ -32,6 +32,7 @@ extern int last_function;
 extern function_t *functions;
 extern function_t *free_functions;
 
+object_t t;
 continuation_t tagbody_buffers[100];
 int tb_index_buf;
 

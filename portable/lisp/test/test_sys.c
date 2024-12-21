@@ -14,6 +14,7 @@
 #include "array.h"
 #include "pair.h"
 #include "predicates.h"
+#include "bind.h"
 #include "../init.c"
 
 void print_stack_trace();
@@ -54,8 +55,10 @@ int main()
 	    object_t o = parse();
 	    if (o == NOVALUE)
 		longjmp(repl_buf, 1);
-	    //printf("parse: "); PRINT(o);
+	    //	    printf("parse: "); PRINT(o);
+	    PROTECT1(o);
 	    object_t res = eval(o, NULLOBJ, NULLOBJ);
+	    UNPROTECT;
 	    //printf("res: "); PRINT(res);
 #ifdef REPL
 	    PRINT(res);

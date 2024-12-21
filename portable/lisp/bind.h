@@ -14,32 +14,38 @@ typedef struct temp_bind_s
     struct temp_bind_s *next; // Указатель на следующий элемент в списке
 } temp_bind_t;
 
+#define PRINTPROT\
+    temp_bind_t *pprot = protected;\
+    printf("protected list: ");\
+    while (pprot != NULL) {\
+    PRINT(pprot->obj);\
+    pprot = pprot->next;\
+    }
 
 /// Добавить один объект в список защиты protected
 #define PROTECT1(o)\
-   temp_bind_t p_obj;\
-   p_obj.obj = &o;\
-   p_obj.next = protected;\
-   temp_bind_t *old_ped = protected;		\
-   protected = &p_obj;
+   int old_ped = last_protected;		\
+   temp_bind_t *p_obj = &protected[last_protected++];\
+   p_obj->obj = &o;\
+   //PRINT(o);
+   //   PRINTPROT
 
 /// Добавить 2 объекта в список защиты protected
 #define PROTECT2(o1, o2)\
-   temp_bind_t p_obj1;\
-   temp_bind_t p_obj2;\
-   p_obj1.obj = &o1;\
-   p_obj1.next = &p_obj2;\
-   p_obj2.obj = &o2;\
-   p_obj2.next = protected;\
-   temp_bind_t *old_ped = protected;\
-   protected = &p_obj1;
+   int old_ped = last_protected;		\
+   temp_bind_t *p_obj = &protected[last_protected++];\
+   p_obj->obj = &o1;\
+   p_obj = &protected[last_protected++];\
+   p_obj->obj = &o2;\
+   //   PRINTPROT
 
 
 #define UNPROTECT\
-   protected = old_ped;
+    last_protected = old_ped;
 
 extern bind_t global_env[];
-extern temp_bind_t *protected;
+extern temp_bind_t protected[];
+extern int last_protected;
 
 void bind_global(object_t symbol);
 void set_global(symbol_t *symbol);

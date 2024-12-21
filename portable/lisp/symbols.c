@@ -89,9 +89,10 @@ symbol_t *find_symbol(char *str)
  */
 void hash_remove(symbol_t *s)
 {
+    //    printf("hash_remove %s\n", s->str);
     symbol_t *el = hash_table[s->hash_index];
     if (el == NULL)
-	error("Hash remove error: got NULL structure of str");
+	error("Hash remove error: got NULL on symbol %s index %d", s->str, s->hash_index);
     if (el == s)
         hash_table[s->hash_index] = el->next_hash;
     else {

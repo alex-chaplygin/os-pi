@@ -20,7 +20,7 @@
 /// Всего функций 
 #define MAX_FUNCTIONS 100
 /// Число созданных пар, после которого вызвается сборка мусора
-#define GC_THRESHOLD 1000
+#define GC_THRESHOLD 1
 
 /// Печать объекта с переводом строки и учетом рекурсии
 #define PRINT(o) print_counter++; print_obj(o); printf("\n");
