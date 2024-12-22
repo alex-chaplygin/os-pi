@@ -213,7 +213,7 @@ void test_remove_hash()
     hash_remove(s2);
     ASSERT((int)hash_table[s3->hash_index] != 0, 1)
     
-    for (symbol_t *cur = hash_table[s3->hash_index]; cur != NULL; cur = cur->next_hash) {
+    for (symbol_t *cur = hash_table[s3->hash_index]; cur != NULL; cur = cur->next) {
 	if (s1 == cur)
 	    FAIL;
 	if (s2 == cur)

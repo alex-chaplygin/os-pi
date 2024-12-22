@@ -167,58 +167,65 @@ void append_env(object_t l1, object_t l2);
  * @return аргумент 
  */ 
 object_t backquote_rec(object_t list) 
-{ 
+{
+    object_t res = NULLOBJ;
     if (list == NULLOBJ) 
  	return NULLOBJ;
+    //    printf("backqoute ");
+    //PRINT(list);
+    PROTECT1(list);
     object_t env = current_env;
     object_t func = func_env;
-    object_t o; 
     if (TYPE(list) == BIGNUMBER) 
-	return new_bignumber(GET_BIGNUMBER(list)->value);
+	res = new_bignumber(GET_BIGNUMBER(list)->value);
     else if (TYPE(list) == FLOAT)
-	return new_float(GET_FLOAT(list)->value);
+	res = new_float(GET_FLOAT(list)->value);
     else if (TYPE(list) == CHAR || TYPE(list) == NUMBER || TYPE(list) == SYMBOL)
-	return list;
+	res = list;
     else if (TYPE(list) == ARRAY) { 
  	array_t *arr = new_empty_array(GET_ARRAY(list)->length); 
  	int l = GET_ARRAY(list)->length; 
  	for (int i = 0; i < l; i++) 
  	    arr->data[i] = backquote_rec(GET_ARRAY(list)->data[i]); 
- 	return NEW_OBJECT(ARRAY, arr); 
+ 	res = NEW_OBJECT(ARRAY, arr); 
     } else if (TYPE(list) == STRING) 
-	return NEW_STRING(GET_STRING(list)->data); 
+	res = NEW_STRING(GET_STRING(list)->data); 
     else if (TYPE(list) == PAIR) {
- 	object_t el = FIRST(list); // list = (COMMA B) 
- 	if (el == NULLOBJ) 
- 	    return new_pair(NULLOBJ, backquote_rec(TAIL(list))); 
- 	if (TYPE(el) == SYMBOL && !strcmp(GET_SYMBOL(el)->str, "BACKQUOTE")) 
- 	    return list; 
- 	if (TYPE(el) == SYMBOL && !strcmp(GET_SYMBOL(el)->str, "COMMA")) {
-	    PROTECT1(list);
- 	    object_t res = eval(SECOND(list), env, func);
-	    UNPROTECT;
-	    return res;
+ 	object_t el = FIRST(list); // list = (COMMA B)
+	if (TYPE(el) == SYMBOL && !strcmp(GET_SYMBOL(el)->str, "BACKQUOTE"))
+	    res = list;
+	else if (TYPE(el) == SYMBOL && !strcmp(GET_SYMBOL(el)->str, "COMMA"))
+ 	    res = eval(SECOND(list), env, func);
+	else {
+	    object_t first = backquote_rec(el); 
+	    if (first != NULLOBJ && TYPE(first) == PAIR) {  // first = (COMMA-AT B) 
+		object_t comma_at = FIRST(first);
+		if (comma_at != NULLOBJ && TYPE(comma_at) == SYMBOL && !strcmp(GET_SYMBOL(comma_at)->str, "COMMA-AT")) {
+		    object_t l = eval(SECOND(first), env, func);
+		    if (l == NULLOBJ) {
+			res = backquote_rec(TAIL(list));
+			UNPROTECT;
+			return res;
+		    } else if (TYPE(l) != PAIR)
+			error("COMMA-AT: not list");
+		    else {
+			object_t new_comma = backquote_rec(l); 
+			append_env(new_comma, backquote_rec(TAIL(list))); 
+			res = new_comma;
+			UNPROTECT;
+			return res;
+		    }
+		}
+	    }
+	    object_t tail = backquote_rec(TAIL(list)); 
+	    res = new_pair(first, tail);
 	}
- 	object_t first = backquote_rec(el); 
- 	if (first != NULLOBJ && TYPE(first) == PAIR) {  // first = (COMMA-AT B) 
- 	    object_t comma_at = FIRST(first); 
- 	    if (comma_at != NULLOBJ && TYPE(comma_at) == SYMBOL && !strcmp(GET_SYMBOL(comma_at)->str, "COMMA-AT")) {
-		PROTECT1(first);
- 		object_t l = eval(SECOND(first), env, func);
-		UNPROTECT;
- 		if (l == NULLOBJ) 
- 		    return backquote_rec(TAIL(list)); 
- 		if (TYPE(l) != PAIR)
-		    error("COMMA-AT: not list"); 
- 		object_t new_comma = backquote_rec(l); 
- 		append_env(new_comma, backquote_rec(TAIL(list))); 
- 		return new_comma; 
- 	    } 
- 	} 
- 	object_t tail = backquote_rec(TAIL(list)); 
- 	return new_pair(first, tail); 
-    } 
-    error("backqoute: unknown type: %d\n", TYPE(list));    
+    }
+    UNPROTECT;
+    //    printf("res: ");
+    //PRINT(res);
+    return res;
+    // error("backqoute: unknown type: %d\n", TYPE(list));    
 } 
 
 /* 
@@ -473,22 +480,28 @@ object_t macro_call(object_t macro, object_t args, object_t env, object_t func)
 { 
     object_t new_env = make_env(SECOND(macro), args); 
     object_t body; 
-    object_t eval_res;
-    //    printf("macro_call ");
-    //PRINT(macro);
-    //PRINT(args);
+    object_t eval_res = NULLOBJ;
+    object_t eval_res2 = NULLOBJ;
+    printf("macro_call ");
+    PRINT(macro);
+    PRINT(args);
     body = TAIL(TAIL(macro));
+    printf("body ");
+    PRINT(body);
     if (new_env != NULLOBJ)
 	append_env(new_env, env);
-    PROTECT2(body, eval_res);
+    PROTECT3(macro, eval_res, eval_res2);
     while (body != NULLOBJ) {
  	eval_res = eval(FIRST(body), new_env, func);
-	//	PRINT(eval_res);
- 	eval_res = eval(eval_res, env, func);
+	printf("macro expand: ");
+	PRINT(eval_res);
+ 	eval_res2 = eval(eval_res, env, func);
+	printf("eval: ");
+	PRINT(eval_res2);
  	body = TAIL(body);
     }
     UNPROTECT;
-    return eval_res; 
+    return eval_res2; 
 } 
     
 /* 
@@ -688,6 +701,7 @@ object_t setq(object_t params)
 	    set_in_env(env, FIRST(params), obj); 
 	else {
 	    sym->value = obj;
+	    printf("setq %s = ", sym->str); PRINT(obj);
 	    set_global(sym);
 	}
 	if (TAIL(TAIL(params)) == NULLOBJ) 

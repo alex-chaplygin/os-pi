@@ -1,4 +1,5 @@
-#define PROTECTED_SIZE 50
+#define PROTECTED_SIZE 1000
+#define MAX_GLOBALS 10000
 
 /// Структура элемента привязки
 typedef struct bind_s
@@ -39,6 +40,15 @@ typedef struct temp_bind_s
    p_obj->obj = &o2;\
    //   PRINTPROT
 
+/// Добавить 3 объекта в список защиты protected
+#define PROTECT3(o1, o2, o3)			\
+   int old_ped = last_protected;		\
+   temp_bind_t *p_obj = &protected[last_protected++];\
+   p_obj->obj = &o1;\
+   p_obj = &protected[last_protected++];\
+   p_obj->obj = &o2;\
+   p_obj = &protected[last_protected++];\
+   p_obj->obj = &o3;\
 
 #define UNPROTECT\
     last_protected = old_ped;

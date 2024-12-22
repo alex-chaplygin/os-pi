@@ -400,6 +400,7 @@ void test_garbage_collect()
     symbol_t *s = new_symbol("A");
     object_t obj1 = new_bignumber(num1);
     s->value = obj1;
+    bind_global(NEW_OBJECT(SYMBOL, s));
     garbage_collect();
 
     // Проверяем наличие obj1 в списке свободных объектов
@@ -1017,7 +1018,7 @@ void main()
     // Тесты сборки мусора
     test_mark();
     test_sweep();    //19,24
-    test_garbage_collect();     //19,24   
+    test_garbage_collect();     //19,24
     test_garbage_collect_list();    //21,24
     test_garbage_collect_bignumbers();
     test_garbage_collect_strings(); //22,24

@@ -8,6 +8,7 @@
 #include "pair.h"
 #include "string.h"
 #include "alloc.h"
+#include "bind.h"
 
 extern object_t t;
 extern object_t nil;
@@ -299,10 +300,12 @@ void test_backquote_arguments()
     int s2 = 2;
     object_t abc = new_pair(new_number(a), new_pair(new_number(b), new_pair(new_number(c), NULLOBJ))); //Переменная-список abc
     find_symbol("ABC")->value = abc;
+    bind_global(NEW_SYMBOL("ABC"));
     object_t CAabc = new_pair(NEW_SYMBOL("COMMA-AT"), new_pair(NEW_SYMBOL("ABC"), NULLOBJ)); // (COMMA-AT abc)
     object_t CA = new_pair(NEW_SYMBOL("COMMA-AT"), new_pair(NULLOBJ, NULLOBJ)); // (COMMA-AT NIL) 
     object_t BQabc = new_pair(NEW_SYMBOL("BACKQUOTE"), new_pair(NEW_SYMBOL("ABC"), NULLOBJ)); // (BACKQUOTE abc) 
     find_symbol("A")->value = new_number(aa);		       
+    bind_global(NEW_SYMBOL("A"));
     object_t obj1 = new_number(s1); 
     object_t obj2 = new_pair(NEW_SYMBOL("COMMA"), new_pair(NEW_SYMBOL("A"), NULLOBJ)); 
     object_t obj3 = new_number(s2); 
@@ -559,7 +562,7 @@ void test_is_lambda_no_body()
 }
 
 /**
- * Вызов (macrocall (lambda (x) (list x)) (10))
+ * Вызов (macrocall (lambda (x) (list x)) (10)) - некорректный макрос
  */
 void test_macro_call()
 {
@@ -568,9 +571,9 @@ void test_macro_call()
     object_t q = new_pair(NEW_SYMBOL("LIST"), //(list x) 
 			  new_pair(p1, NULLOBJ)); 
     object_t lx = new_pair(NEW_SYMBOL("LAMBDA"), new_pair(new_pair(p1, NULLOBJ), new_pair(new_pair(NEW_SYMBOL("LIST"), new_pair(p1, NULLOBJ)), NULLOBJ))); 
-    // (lambda (x) (list x)); 
+    // (lambda (x) (list x));
     object_t args = new_pair(new_number(10), NULLOBJ); 
-    object_t res = macro_call(lx, args, NULLOBJ, NULLOBJ); 
+    object_t res = macro_call(lx, args, NULLOBJ, NULLOBJ);
     ASSERT(get_value(res), 10);
 }
 
@@ -871,7 +874,7 @@ int main()
     test_progn_single_element();
     test_progn_null();
     test_backquote_nulllist();
-    //    test_backquote_arguments();
+    test_backquote_arguments();
     test_atom();//1
     test_atom_null();//52
     test_atom_list();

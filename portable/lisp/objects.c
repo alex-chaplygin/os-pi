@@ -86,10 +86,10 @@ int total_symbols = 0;
 ///Количество созданных пар с момента последней сборки мусора
 int allocated_pairs = 0;
 /// Глобальное окружение
-bind_t global_env[10000];
+bind_t global_env[MAX_GLOBALS];
 int last_global = 0;
 /// Временные объекты, защищенные от сборки мусора
-temp_bind_t protected[1000];
+temp_bind_t protected[PROTECTED_SIZE];
 int last_protected = 0;
 
 /// текущее окружение
@@ -406,7 +406,7 @@ symbol_t *new_symbol(char *str)
     } else
 	symbol = &symbols[last_symbol++];
     strcpy(symbol->str, str);
-    symbol->next_hash = NULL;
+    symbol->next = NULL;
     symbol->value = NOVALUE;
     symbol->func = NULL;
     symbol->lambda = NULLOBJ;
@@ -423,7 +423,10 @@ void free_symbol(symbol_t *s)
 {
     if (s == NULL)
 	error("free_symbol: null pointer: obj");
+    if (s->free)
+	return;
     hash_remove(s);
+    s->free = 1;
     s->next = free_symbols;
     free_symbols = s;
     total_symbols--;
@@ -468,7 +471,7 @@ void free_string(string_t *s)
     }
     if (s->free)
 	return;
-    printf("free_string: %s\n", s->data);
+    //    printf("free_string: %s\n", s->data);
     s->next = free_strings;
     free_strings = s;
     s->free = 1;
@@ -655,25 +658,80 @@ void sweep()
 	    free_pair(pair);
 	else CLEAR_MARK(pair->left);
     }
-    /* for (int i = 0; i < last_string; i++) { */
-    /* 	string_t *str = &strings[i]; */
-    /* 	if ((str->length & mask) == 0) */
-    /* 	    free_string(str); */
-    /* 	else str->length &= ~mask; */
-    /* } */
-    /* for (int i = 0; i < last_array; i++) { */
-    /* 	array_t *arr = &arrays[i]; */
-    /* 	if ((arr->length & mask) == 0) */
-    /* 	    free_array(arr); */
-    /* 	else arr->length &= ~mask; */
-    /* } */
-    /* for (int i = 0; i < last_symbol; i++) { */
-    /* 	symbol_t *symb = &symbols[i]; */
-    /* 	if ((symb->hash_index & mask) == 0) */
-    /* 	    free_symbol(symb); */
-    /* 	else */
-    /* 	    symb->hash_index &= ~mask; */
-    /* } */
+    for (int i = 0; i < last_string; i++) {
+    	string_t *str = &strings[i];
+    	if ((str->length & mask) == 0)
+    	    free_string(str);
+    	else str->length &= ~mask;
+    }
+    for (int i = 0; i < last_array; i++) {
+    	array_t *arr = &arrays[i];
+    	if ((arr->length & mask) == 0)
+    	    free_array(arr);
+    	else arr->length &= ~mask;
+    }
+    for (int i = 0; i < last_symbol; i++) {
+    	symbol_t *symb = &symbols[i];
+    	if ((symb->hash_index & mask) == 0)
+    	    free_symbol(symb);
+    	else
+    	    symb->hash_index &= ~mask;
+    }
+}
+
+void dump_mem()
+{
+    printf("dump_mem:\nbignumbers: ");
+    for (int i = 0; i < last_bignumber; i++) {
+        bignumber_t *big_num = &bignumbers[i];
+	printf("%d %d,", big_num->free, big_num->value);
+    }
+    printf("\nfloats: ");
+    for (int i = 0; i < last_float; i++) {
+	float_t *flt = &floats[i];
+	printf("%d %f,", flt->free, flt->value);
+    }
+    printf("\nfunctions: ");
+    for (int i = 0; i < last_function; i++) {
+	function_t *func = &functions[i];
+	printf("free: %d\n", func->free);
+	printf("args: "); PRINT(func->args);
+	printf("body: "); PRINT(func->body);
+	printf("env: "); PRINT(func->env);
+	printf("func_env: "); PRINT(func->func_env);
+	printf("----------\n");
+    }
+    printf("pairs: ");
+    for (int i = 0; i < last_pair; i++) {
+        pair_t *pair = &pairs[i];
+	printf("free: %d\n", pair->free);
+	printf("left: "); PRINT(pair->left);
+	printf("right: "); PRINT(pair->right);
+	printf("----------\n");
+    }
+    printf("strings: ");
+    for (int i = 0; i < last_string; i++) {
+    	string_t *str = &strings[i];
+	printf("%d %d %s,", str->free, str->length, str->data);
+    }
+    printf("\narrays: ");
+    for (int i = 0; i < last_array; i++) {
+    	array_t *arr = &arrays[i];
+	printf("free: %d\n", arr->free);
+	printf("length: %d\n", arr->length);
+	printf("data: ");
+	for (int j = 0; j < arr->length; j++) {
+	    print_obj(arr->data[j]);
+	    printf(" ");
+	}
+	printf("-----------\n");
+    }
+    printf("symbols: ");
+    for (int i = 0; i < last_symbol; i++) {
+    	symbol_t *symb = &symbols[i];
+	printf("%d %s,", symb->free, symb->str);
+    }
+    printf("\n");
 }
 
 /**
@@ -682,7 +740,8 @@ void sweep()
 void garbage_collect()
 {
     bind_t *cur = global_env;
-    //printf("garbage_collect\nglobal env:");
+    printf("garbage_collect\nglobal env:");
+    //    dump_mem();
     for (int i = 0; i < last_global; i++, cur++) {
 	//	PRINT(cur->obj);
 	//printf("gc print before: %x\n", protected);
@@ -690,35 +749,25 @@ void garbage_collect()
 	//printf("gc print after:  %x\n", protected);
 	//PRINTPROT;
     }
-    //printf("garbage_collect end glob\n");
+    // printf("garbage_collect end glob\n");
 #ifdef DEBUG
     mark_object(debug_stack);
 #endif
     mark_object(current_env);
     mark_object(func_env);
-    //    printf("garbage_collect end env %x\n", protected);    
+    //printf("garbage_collect end env %x\n", protected);    
     temp_bind_t *curp = protected;
     for (int i = 0; i < last_protected; i++, curp++) {
-	//	printf("%x ", curp);
-	//PRINT(*(curp->obj));
+	//printf("%x ", curp);
+	//	PRINT(*(curp->obj));
 	mark_object(*(curp->obj));
     }
     //printf("garbage_collect end protect\n");    
     sweep();
     //    printf("garbage_collect end sweep\n");
+    //    dump_mem();
     allocated_pairs = 0;
 } 
-
-void print_globals()
-{
-    bind_t *cur = global_env;
-    printf("global env:\n");
-    for (int i = 0; i < last_global; i++, cur++) {
-	print_obj(cur->obj);
-	printf(": ");
-	PRINT(GET_SYMBOL(cur->obj)->value);
-    }
-}
 
 int print_counter = 0;
 

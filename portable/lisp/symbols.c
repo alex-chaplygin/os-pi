@@ -43,7 +43,7 @@ symbol_t *check_symbol(char *str)
     symbol_t *el = hash_table[i];
     if (el == NULL)
         return NULL;
-    for (symbol_t *cur = el; cur != NULL; cur = cur->next_hash)
+    for (symbol_t *cur = el; cur != NULL; cur = cur->next)
             if (compare_str(cur->str, str))
                 return cur;    
     return NULL;
@@ -68,16 +68,16 @@ symbol_t *find_symbol(char *str)
         hash_table[i] = new;
         el = new;
     } else {
-        for (symbol_t *cur = el; cur != NULL; cur = cur->next_hash)
+        for (symbol_t *cur = el; cur != NULL; cur = cur->next)
             if (compare_str(cur->str, str))
                 return cur;
                 
         symbol_t *new = new_symbol(str);
 	new->hash_index = i;
         symbol_t *last = el;
-        while (last->next_hash != 0)
-            last = last->next_hash;
-        last->next_hash = new;
+        while (last->next != 0)
+            last = last->next;
+        last->next = new;
         return new;
     }    
     return el;
@@ -89,16 +89,15 @@ symbol_t *find_symbol(char *str)
  */
 void hash_remove(symbol_t *s)
 {
-    //    printf("hash_remove %s\n", s->str);
     symbol_t *el = hash_table[s->hash_index];
     if (el == NULL)
 	error("Hash remove error: got NULL on symbol %s index %d", s->str, s->hash_index);
     if (el == s)
-        hash_table[s->hash_index] = el->next_hash;
+        hash_table[s->hash_index] = el->next;
     else {
-	for (symbol_t *cur = el; cur != NULL; cur = cur->next_hash)
-       	    if (cur->next_hash == s)
-	        cur->next_hash = s->next_hash;
+	for (symbol_t *cur = el; cur != NULL; cur = cur->next)
+       	    if (cur->next == s)
+	        cur->next = s->next;
     }
     
 }
@@ -123,9 +122,9 @@ void print_table()
 	cur = hash_table[i];
 	if (cur != NULL) {
 	    printf("%d ", i);
-	    while (cur->next_hash != NULL) {
+	    while (cur->next != NULL) {
 		printf("%s -> ", cur->str);
-		cur = cur->next_hash;
+		cur = cur->next;
 	    }
 	    printf("%s\n", cur->str);
 	}

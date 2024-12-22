@@ -21,6 +21,8 @@ void bind_global(object_t symbol)
     // printf("bind_global: ");
     //PRINT(symbol);
     bind_t *el = &global_env[last_global++];
+    if (last_global == MAX_GLOBALS)
+	error("MAX GLOBALS");
     el->obj = symbol;
 }
 
