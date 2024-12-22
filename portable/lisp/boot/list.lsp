@@ -70,7 +70,7 @@
   "Правоассоциативная свертка (foldr):"
   "(f elem_1 (f elem_2 ... (f elem_n start) ... ))"
   (if (null list) start
-    (funcall f (foldr f start (cdr list)) (car list))))
+    (funcall f (car list) (foldr f start (cdr list)))))
 
 (defun last (lst)
   "Найти последний элемент списка"

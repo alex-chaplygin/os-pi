@@ -18,9 +18,14 @@
 (assert (nth '(1 2 3) 2) 3)
 (nth '(1 2 3) 10)
 
+(defun fold-test ()
+  (print (assert (foldl #'(lambda (a e) (cons e a)) nil '(1 2 3)) '(3 2 1)))
+  (print (assert (foldr #'cons nil '(1 2 3)) '(1 2 3))))
+
 (defun list-tests ()
   (print (assert (list 1 2 3) '(1 2 3)))
   (print (assert (list '(1 2) 3 4 5) '((1 2) 3 4 5)))
   (print (assert (list "a" "b" "c") '("a" "b" "c"))))
 
 (list-tests)
+(fold-test)
