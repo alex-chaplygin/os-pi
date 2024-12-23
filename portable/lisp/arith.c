@@ -18,8 +18,6 @@ extern object_t nil;
  */
 object_t add_float(object_t list, float sum)
 {
-    if(list == NULLOBJ)
-	error("add: no arguments");
     while(list != NULLOBJ) {
 	object_t first = FIRST(list);
 	if (TYPE(first) == FLOAT)
@@ -69,8 +67,6 @@ object_t add(object_t list)
  */
 object_t sub_float(object_t list, float sub)
 {
-    if(list == NULLOBJ)
-	error("sub: no argements");
     while(list != NULLOBJ) {
 	object_t first = FIRST(list);
 	if (TYPE(first) == FLOAT)
@@ -128,8 +124,6 @@ object_t sub(object_t list)
  */
 object_t mul_float(object_t list, float mul)
 {
-    if(list == NULLOBJ)
-	error("mul: no arguments");
     while(list != NULLOBJ) {
 	object_t first = FIRST(list);
 	if (TYPE(first) == FLOAT)
