@@ -51,6 +51,7 @@
 (defun generate-reg-call (name env args)
   (let ((num (list-length args)))
     (generate-args args 'PUSH)
+    (emit (list 'SAVE-ENV))
     (emit (list 'SET-ENV env))
     (when (> num 0) (emit (list 'ALLOC num)))
     (emit (list 'REG-CALL name))
@@ -59,7 +60,7 @@
 ;; let - форма, расширение окружения, тело lambda без вызова функции
 (defun generate-let (count args body)
   (generate-args args 'PUSH)
-  (emit (list 'SET-ENV 0))
+  (emit (list 'SAVE-ENV))
   (when (> count 0) (emit (list 'ALLOC count)))
   (inner-generate body)
   (emit (list 'RESTORE-ENV)))
