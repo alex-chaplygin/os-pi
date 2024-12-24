@@ -49,11 +49,14 @@
 (defun show-text (text)
   "Вывод текста в текущей позиции"
   (let* ((ctm (get-hash *cur-state* 'ctm))
-	 (p (mat-mul-vec ctm *cur-point*))
-	 (c (get-hash *cur-state* 'color)))
-    (set-cursor (car p) (cdr p))
-    (set-color c)
-    (putstring text)))
+         (p (mat-mul-vec ctm *cur-point*))
+         (c (get-hash *cur-state* 'color))
+         (ofs (<< (+ (* (cdr p) *screen-width*) (car p)) 1)))
+    (for i 0 (string-size text)
+         (setf (aref *text-buffer* ofs) (char-code (char text i)))
+         (incf ofs)
+         (setf (aref *text-buffer* ofs) c)
+         (incf ofs))))
 
 (defun draw-image (image)
   "Вывод изображения в позиции матрицы трансформации"
