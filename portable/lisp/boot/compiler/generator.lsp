@@ -53,7 +53,7 @@
     (generate-args args 'PUSH)
     (emit (list 'SAVE-ENV))
     (emit (list 'SET-ENV env))
-    (when (> num 0) (emit (list 'ALLOC num)))
+    (emit (list 'ALLOC num))
     (emit (list 'REG-CALL name))
     (emit (list 'RESTORE-ENV))))
 
@@ -61,7 +61,7 @@
 (defun generate-let (count args body)
   (generate-args args 'PUSH)
   (emit (list 'SAVE-ENV))
-  (when (> count 0) (emit (list 'ALLOC count)))
+  (emit (list 'ALLOC count))
   (inner-generate body)
   (emit (list 'RESTORE-ENV)))
 
