@@ -5,6 +5,7 @@
     (for y 0 *screen-height*
       (for x 0 *screen-width*
                 (seta *graphics-buffer* (incf i) (& x 0x3f)))))
+  (screen-add-rect '(0 . 0) '(320 . 200))
   (draw-screen))
 
 (defun test-part-screen (x y w h c)
@@ -19,13 +20,14 @@
 
 (defun rect-test ()
   "Тестирование рисования полого прямоугольника"
-  (clear-screen)
+  (screen-add-rect '(30 . 10) '(201 . 101))
   (draw-rect 30 10 200 100 1)
   (draw-screen))
 
 (defun rectf-test ()
   "Тестирование рисования заполненного прямоугольника"
   (clear-screen)
+  (screen-add-rect '(30 . 10) '(200 . 100))
   (draw-rectf 30 10 200 100 1)
   (draw-screen))
 
@@ -33,10 +35,13 @@
   "Тестирование рисования прямой линии"
   (clear-screen)
   (draw-line 100 100 150 100 1)
-  (draw-line 100 100 75 100 2)
-  (draw-line 100 100 100 140 3)
-  (draw-line 100 100 125 75 4)
-  (draw-line 100 100 90 80 5)
+  (draw-line 100 100 50 100 2)
+  (draw-line 100 100 100 170 3)
+  (draw-line 100 100 100 50 4)
+  (draw-line 100 100 160 160 1)
+  (draw-line 100 100 40 160 2)
+  (draw-line 100 100 140 60 3)
+  (draw-line 100 100 60 40 4)
   (draw-screen))
 
 (defun circle-test ()
@@ -87,18 +92,19 @@
     (draw-image image)
     (draw-screen)))
 
+
 ;(draw-screen-test)
 ;(clear-screen)
 ;(test-part-screen 30 10 100 50 1)
 ;(test-part-screen 70 30 120 70 2)
 ;(test-part-screen 148 148 1 1 3)
 
-;(rect-test)
+(rect-test)
 ;(rectf-test)
-(line-test)
+;(line-test)
 ;(circle-test)
 ;(bezier-test)
 ;(test-set-pixel)
 ;(test-fill-triangle)
 ;(test-draw-hline)
-;-(test-draw-image)
+;(test-draw-image)

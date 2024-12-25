@@ -12,8 +12,14 @@
    counter)) ; счетчик для дроби
 
 (defun draw-screen ()
-  "Отобразить графику из внутреннего буфера"
-  (graph-send-buffer *graphics-buffer*))
+  "Перерисовка экрана"
+  (let*  ((x (vec2-x *draw-top-left*))
+	  (y (vec2-y *draw-top-left*))
+	  (width (- (vec2-x *draw-bottom-right*) x))
+	  (height (- (vec2-y *draw-bottom-right*) y)))
+    (when (and (> width 0) (> height 0))
+      (send-graphics-buffer *graphics-buffer* x y width height)))
+  (screen-reset))
 
 (defun clear-screen ()
   "Очистка экрана"
@@ -28,17 +34,13 @@
   (setq *screen-height* h)
   (setq *graphics-buffer* (make-array (* w h (/ +screen-depth+ 8))))
   (bgr-set-res w h +screen-depth+)
-  (clear-screen))
+  (clear-screen)
+  (screen-reset))
 
 (defun set-pixel (x y colour)
   "Установка пикселя"
   "x y - координаты пикселя, colour - цвет"
-  (if (< x *screen-width*)
-    (if (> x -1)
-      (if (< y *screen-height*)
-	  (if (> y -1)
-          (seta *graphics-buffer* (+ x (* y *screen-width*)) colour)
-          nil) nil) nil) nil))
+  (seta *graphics-buffer* (+ x (* y *screen-width*)) colour))
 
 (defun mid-point (x1 y1 x2 y2)
   "Алгоритм средней точки"
