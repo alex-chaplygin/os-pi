@@ -1,8 +1,9 @@
-(defvar *background*)
-(defvar *tile-w* 1)
-(defvar *tile-h* 1)
-(defvar *tile-hash*)
-(defclass Sprite () (image x y width height))
+(defvar *background*) ;; Массив имен изображений, находящихся на фоне
+(defvar *tile-w* 1) ;; Ширина тайла
+(defvar *tile-h* 1) ;; Высота тайла
+(defvar *tile-hash*) ;; Хеш таблица: ключ - имя изображения, значение - само изображение
+(defvar *sprites*) ;; Список спрайтов
+(defclass sprite () (image pos layer))
 
 (defun set-background (matrix)
   "Задать фон двумерным массивом имен изображений"
@@ -11,11 +12,11 @@
   (setq *background* matrix)
   (draw-background))
 
-(defun set-tile-size (w h)
+(defun set-tile-size (size)
   "Установить размеры тайла"
   "set-tile-size 20 10"
-  (setq *tile-w* w)
-  (setq *tile-h* h))
+  (setq *tile-w* (vec2-x size))
+  (setq *tile-h* (vec2-y size)))
 
 (defun set-tiles (tiles)
   "Задать список тайлов"
@@ -23,38 +24,51 @@
   (setq *tile-hash* (make-hash))
   (app #'(lambda (tile) (set-hash *tile-hash* (car tile) (cdr tile))) tiles))
 
-(defun new-sprite (image pos size)
+(defun new-sprite (image pos &rest layer)
   "Создать новый спрайт с заданным изображением и координатами"
-  (let ((sprite (make-Sprite
+  (if (null layer) (setq layer 0) (setq layer (car layer)))
+  (let ((sprite (make-sprite
 		 image
-		 (car pos)
-		 (cdr pos)
-		 (car size)
-		 (cdr size))))
-    (draw-sprite sprite)
+		 pos
+		 layer))
+	(added-flag nil))
+    (setq *sprites* (foldr #'(lambda (spr list)
+				 (if (and (>= (sprite-layer spr) layer) (null added-flag))
+				     (progn
+				       (setq added-flag T)
+				       (cons spr (cons sprite list)))
+				     (cons spr list)))
+			   nil *sprites*))
+    (when (null added-flag) (setq *sprites* (cons sprite *sprites*)))
+    (restore-sprites (vec2-x pos) (vec2-y pos) (image-width image) (image-height image))
     sprite))
 
 (defun set-sprite-pos (sprite pos)
   "Установить позицию переданного спрайта"
-  (delete-sprite sprite)
-  (setf (slot sprite 'x) (car pos))
-  (setf (slot sprite 'y) (cdr pos))
-  (draw-sprite sprite))
-
-(defun set-sprite-image (sprite image)
-  "Установить изображение для переданного спрайта"
-  (setf (slot sprite 'tile) image))
+  (let ((oldx (vec2-x (sprite-pos sprite)))
+	(oldy (vec2-y (sprite-pos sprite))))
+    (sprite-set-pos sprite pos)
+    (restore-sprites oldx oldy (image-width (sprite-image sprite)) (image-height (sprite-image sprite))))
+  (restore-sprites
+   (vec2-x pos)
+   (vec2-y pos)
+   (image-width (sprite-image sprite))
+   (image-height (sprite-image sprite))))
 
 (defun delete-sprite (sprite)
-  "Удалить переданный спрайт с экрана"
-  (draw-part-background (slot sprite 'x) (slot sprite 'y) (slot sprite 'width) (slot sprite 'height)))
+  "Удалить переданный спрайт"
+  (setq *sprites* (filter #'(lambda (spr) (not (eq spr sprite))) *sprites*))
+  (let ((pos (sprite-pos sprite))
+	(width (- (image-width (sprite-image sprite)) 1))
+	(height (- (image-height (sprite-image sprite)) 1)))
+    (restore-sprites (vec2-x pos) (vec2-y pos) width height)))
 
 ;--------------------------------------сверху API-----------------------------
 (defun draw-sprite (sprite)
   "Отрисовать переданный спрайт"
   (gsave)
-  (translate (cons (slot sprite 'x) (slot sprite 'y)))
-  (draw-image (slot sprite 'image))
+  (translate (sprite-pos sprite))
+  (draw-image (sprite-image sprite))
   (grestore))
   
 (defun draw-background ()
@@ -66,7 +80,7 @@
 	 (for c 0 rowsize
 	      (draw-image (get-hash *tile-hash* (aref row c)))
 	      (translate (cons *tile-w* 0)))
-	      (translate (cons (* rowsize (- 0 *tile-w*)) *tile-h*))))
+	      (translate (cons (* rowsize (* -1 *tile-w*)) *tile-h*))))
   (grestore))
 
 (defun get-tile-index (x y)
@@ -90,3 +104,22 @@
 		(translate (cons *tile-w* 0))))
 	 (translate (cons (* (- start-column end-column) *tile-w*) *tile-h*))))
   (grestore))
+
+(defun restore-sprites (x y width height)
+  "Восстанавливает спрайты в заданном регионе"
+  (draw-part-background x y width height)
+  (let* ((x2 (+ x width *tile-w*))
+	 (y2 (+ y height *tile-h*))
+	 (x (- x *tile-w*))
+	 (y (- y *tile-h*)))
+    (app #'(lambda (spr)
+	     (let* ((sprx (car (sprite-pos spr)))
+		    (spry (cdr (sprite-pos spr)))
+		    (sprx2 (+ sprx (image-width (sprite-image spr))))
+		    (spry2 (+ spry (image-height (sprite-image spr)))))
+	       (when (or
+		      (and (and (> sprx x) (< sprx x2)) (and (> spry y) (< spry y2)))
+		      (and (and (> sprx2 x) (< sprx2 x2)) (and (> spry2 y) (< spry2 y2))))
+		   (draw-sprite spr))))
+	 *sprites*)))
+  
