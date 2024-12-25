@@ -145,12 +145,16 @@
 (defun return ()
   (setq *pc* (stack-pop)))
 
+;; SAVE-ENV - сохраняет текуший кадр активации в стек.
+(defun save-env ()
+  (stack-push (cons *env* *env-num*))
+  (incf *pc*))
+
 ;; SET-ENV num - сохраняет текущий кадр окружения в стек и производит переход окружения на кадр с номером num.
 (defun set-env (num)
   (let ((env-diff (- *env-num* num)))
     (when (< env-diff 0)
       (error "SET-ENV: invalid operand"))
-    (stack-push (cons *env* *env-num*))
     (when (!= env-diff 0)
       (while (!= env-diff 0)
         (when (null *env*)
@@ -214,7 +218,7 @@
     (deep-ref . 2) (deep-set . 2)
     (push . 0)
     (reg-call . 1) (return . 0)
-    (fix-closure . 0) (set-env . 1) (restore-env . 0)
+    (fix-closure . 0) (save-env . 0) (set-env . 1) (restore-env . 0)
     (prim1 . 1) (prim2 . 1) (prim3 . 1)))
 
 (defun print-stack ()
@@ -263,11 +267,12 @@
           (11 (funcall #'reg-call op1))
           (12 (funcall #'return))
           (13 nil) ;; fix-closure
-          (14 (funcall #'set-env op1))
-          (15 (funcall #'restore-env))
-          (16 (funcall #'prim1 op1))
-          (17 (funcall #'prim2 op1))
-          (18 (funcall #'prim3 op1))
+          (14 (funcall #'save-env))
+          (15 (funcall #'set-env op1))
+          (16 (funcall #'restore-env))
+          (17 (funcall #'prim1 op1))
+          (18 (funcall #'prim2 op1))
+          (19 (funcall #'prim3 op1))
           (otherwise (error "Unknown instruction opcode")))
         (print-stack)
         (print (list 'env '= *env*))
