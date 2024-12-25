@@ -473,8 +473,8 @@ void test_alloc_region()
     ASSERT((int)reg2 & 0xf, 0);
     //    ASSERT((reg1 - region_data), size);
     //    ASSERT((reg2 - region_data), size + 16 + size);
-    free_region(reg1);
-    free_region(reg2);
+    //free_region(reg1);
+    //free_region(reg2);
 }
 
 /**
@@ -491,6 +491,7 @@ void test_free_region()
     char *reg3 = alloc_region(16);
     char *reg4 = alloc_region(10);
     int offset = sizeof(struct region) - sizeof(char *);
+    printf("offset = %d\n", offset);
     int mask = (1 << MARK_BIT) - 1;
     struct region *r1 = (struct region *)(reg1 - offset);
     struct region *r2 = (struct region *)(reg2 - offset);

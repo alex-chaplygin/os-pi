@@ -6,6 +6,8 @@
 
 /// Список регионов
 struct region *regions;
+/// Указатель на свободный регион, с которого начнется поиск
+struct region *rover;
 
 /**
  * Инициализация свободного региона
@@ -23,11 +25,12 @@ void init_regions()
     regions = (struct region *)((((long long)regions >> MARK_BIT) + 1) << MARK_BIT);
 #endif
     regions->free = 1;
-    regions->next = NULL;
-    regions->prev = NULL;
+    regions->next = regions;
+    regions->prev = regions;
     regions->size = MAX_REGION_SIZE - sizeof(struct region) + sizeof(char *);
     //    for (int i = 0; i < regions->size; i++)
     //	regions->data[i] = 0;
+    rover = regions;
 }
 
 /**
@@ -40,12 +43,12 @@ void *alloc_region(int size)
 {
     /// найти первый свободный регион подходящего размера
     char *p;
-    struct region *r = regions;
+    struct region *r = rover;
     if ((size & ((1 << MARK_BIT) - 1)) != 0)
 	size = ((size >> MARK_BIT) + 1) << MARK_BIT;
     int offset_markup = sizeof(struct region) - sizeof(char *);
     int size2 = size + offset_markup;
-    while (r != NULL) {
+    do {
         if (r->free == 1 && r->size >= size2) {
 	    p = r->data;
             struct region *free_reg = (struct region *)(p + size);
@@ -57,12 +60,12 @@ void *alloc_region(int size)
             r->size = size;
             r->magic = MAGIC;
             r->free = 0;
+	    rover = free_reg;
             return p;
         }
-	    r = r->next;
-    }
+	r = r->next;
+    } while (r != rover);
     error("Alloc region: out of memory\n");
-    return (void *)ERROR;
 }
 
 /**
@@ -83,17 +86,15 @@ void free_region(void *data)
     rprev = r->prev;
     r->free = 1;
     r->magic = 0;
-    if (rnext != NULL && rnext->free == 1) {
+    if (rnext != regions && rnext->free == 1) {
         r->size += offset + rnext->size;
         r->next = rnext->next;
-	if (r->next != NULL)
-	    r->next->prev = r;
+	r->next->prev = r;
     }
-    if (rprev != NULL && rprev->free == 1) {
+    if (r != regions && rprev->free == 1) {
         rprev->size += offset + r->size;
 	rprev->next = r->next;
-	if (rprev->next != NULL)
-	    rprev->next->prev = rprev;
+	rprev->next->prev = rprev;
     }
 }
 
@@ -106,10 +107,10 @@ int regions_mem()
 {
     int m = 0;
     struct region *r = regions;
-    while (r != NULL) {
+    do {
 	if (r->free == 0)
 	    m += r->size + sizeof(struct region);
 	r = r->next;
-    }
+    } while (r != regions);
     return m;
 }
