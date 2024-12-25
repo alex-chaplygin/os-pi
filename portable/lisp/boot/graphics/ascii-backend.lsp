@@ -51,11 +51,13 @@
   (let* ((ctm (get-hash *cur-state* 'ctm))
          (p (mat-mul-vec ctm *cur-point*))
          (c (get-hash *cur-state* 'color))
-         (ofs (<< (+ (* (cdr p) *screen-width*) (car p)) 1)))
-    (for i 0 (string-size text)
-         (setf (aref *text-buffer* ofs) (char-code (char text i)))
+         (ofs (<< (+ (* (cdr p) *screen-width*) (car p)) 1))
+	 (width (string-size text)))
+    (screen-add-rect p (cons width 1))
+    (for i 0 width
+         (seta *text-buffer* ofs (char-code (char text i)))
          (incf ofs)
-         (setf (aref *text-buffer* ofs) c)
+         (seta *text-buffer* ofs c)
          (incf ofs))))
 
 (defun draw-image (image)

@@ -37,4 +37,6 @@
 (translate '(0 . -5))
 (set-colour +yellow+)
 (draw-image im)
+(move-to 40 10)
+(show-text "Hello")
 (draw-screen)
