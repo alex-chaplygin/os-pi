@@ -26,7 +26,9 @@
 
 (defun new-sprite (image pos &rest layer)
   "Создать новый спрайт с заданным изображением и координатами"
-  (if (null layer) (setq layer 0) (setq layer (car layer)))
+  (if (null layer)
+      (setq layer 0)
+      (setq layer (car layer)))
   (let ((sprite (make-sprite
 		 image
 		 pos
@@ -59,8 +61,8 @@
   "Удалить переданный спрайт"
   (setq *sprites* (filter #'(lambda (spr) (not (eq spr sprite))) *sprites*))
   (let ((pos (sprite-pos sprite))
-	(width (- (image-width (sprite-image sprite)) 1))
-	(height (- (image-height (sprite-image sprite)) 1)))
+	(width (image-width (sprite-image sprite)))
+	(height (image-height (sprite-image sprite))))
     (restore-sprites (vec2-x pos) (vec2-y pos) width height)))
 
 ;--------------------------------------сверху API-----------------------------
