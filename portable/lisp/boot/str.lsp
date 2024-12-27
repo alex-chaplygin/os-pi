@@ -41,3 +41,13 @@
       (setq iter (- iter 1))
 	 (setq out-list (cons (char str iter) out-list)))
     out-list))
+
+(defun is-alpha (sym)
+  "Предикат проверки на букву"
+  (let ((c (char-code sym)))
+    (or (and (>= c 65) (<= c 90)) (and (>= c 97) (<= c 122)))))
+
+(defun is-digit (sym)
+  "Предикат проверки на цифру"
+  (let ((c (char-code sym)))
+    (and (>= c 48) (<= c 57))))
