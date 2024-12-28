@@ -2,7 +2,7 @@
 #define BIGNUM_H
 
 #define MAX_BIGNUM_SIZE 100
-#define MAX_BIGNUMS 100
+#define MAX_BIGNUMS 1000
 
 /// Структура большого числа
 typedef struct bign

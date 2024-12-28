@@ -1,12 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <memory.h>
 #include "mpa.h"
 #include "objects.h"
 #include "lexer.h"
 #include "parser.h"
-
 
 /// Все большие числа
 static struct bign bignums[MAX_BIGNUMS];
@@ -24,13 +22,13 @@ bignum_t new_bignum()
 {
     bignum_t number;
     if (last_bignum >= MAX_BIGNUMS) {
-	    if (free_bignums == NULL)
-	        error("Error: out of memory: bignumbers");
-	    number = free_bignums;
-	    free_bignums = free_bignums -> next;
+	if (free_bignums == NULL)
+	    error("Error: out of memory: bignumbers");
+	number = free_bignums;
+	memset(number->data, 0, MAX_BIGNUM_SIZE * sizeof(char));
+	free_bignums = free_bignums -> next;
     } else
-	    number = &bignums[last_bignum++];
-    memset(number->data, 0, MAX_BIGNUM_SIZE*sizeof(char));
+	number = &bignums[last_bignum++];
     return number;
 }
 
@@ -42,9 +40,9 @@ bignum_t new_bignum()
 void free_bignum(bignum_t o)
 {
     if (o == NULL)
-	    error("free_bignumber: null pointer: obj");
+	error("free_bignumber: null pointer: obj");
     if (o->free)
-	    return;
+	return;
     o->next = free_bignums;
     free_bignums = o;
     o->free = 1;
@@ -144,7 +142,6 @@ void print_bignum(bignum_t bignum)
  */
 void bignum_sum(bignum_t n1, bignum_t n2) 
 {
-    
     if (n1->size < n2->size)
         n1->size = n2->size;
     else if (n2->size < n1->size)
@@ -310,69 +307,45 @@ void bignum_div(bignum_t n1, bignum_t n2)
     bignum_t result = bignum_from_int(0);
     int flag = 0;
     
-    //printf("\ntemp: ");
-    //print_bignum(temp);
-    //printf("\nresult: ");
-    //print_bignum(result);
-    
     for (int i = n1->size - 1; i >= 0; i--) {
-	bignum_t temp = bignum_from_int(0); // разряд, с которым работаем
+	bignum_t temp = bignum_from_int(0);
 	temp->data[0] = n1->data[i];
 	bignum_t one = bignum_from_int(1);
 	bignum_sum(div, temp);
-	//printf("\ntemp: ");
-	//print_bignum(temp);
-	//printf("\ndiv: ");
-	//print_bignum(div);
+
 	if (bignum_compare(div, n2) >= 0) {
-	    if(flag != 0) {
-	        result->size += 1;
-	        for (int j = result->size - 1; j >= 0 ; j--) {
-                result->data[j + 1] = result->data[j];
-	        }
-	        result->data[0]=0;
-	    }
-	    else
-	        flag = 1;
-	    while (bignum_compare(div, n2) >= 0)
-	    {
-		//printf("\nresult: ");
-		//print_bignum(result);
+	    if (flag != 0){
+		result->size+=1;
+		for (int j = result->size-1;j>=0;j--)
+		    result->data[j+1]=result->data[j];
+		result->data[0]=0;
+	    } else
+		flag = 1;
+	    while (bignum_compare(div, n2) >= 0) {
 		bignum_sub(div, n2);
 		bignum_sum(result, one);
-		//printf("\nresult: ");
-		//print_bignum(result);
+	    }	    
+	} else {
+	    if(flag != 0) {
+		result->size += 1;
+		for (int j = result->size-1;j>=0;j--)
+		    result->data[j+1]=result->data[j];
+		result->data[0]=0;
 	    }
-	}  
-    else {
-        if(flag != 0){
-            result->size += 1;
-	        for (int j = result->size - 1; j >= 0 ; j--) {
-                result->data[j + 1] = result->data[j];
-	        }
-	        result->data[0]=0;
-        }
-    }
-    if (div->data[div->size-1]!=0) {
-        div->size += 1;
-	    for (int j = div->size - 1; j >= 0 ; j--) {
-		    div->data[j + 1] = div->data[j];
-		//printf("\ndiv: ");
-		//print_bignum(div);
-	    }
+	}
+	if (div->data[div->size-1] != 0) {
+	    div->size += 1;
+	    for (int j = div->size - 1; j >= 0 ; j--)
+		div->data[j + 1] = div->data[j];
 	    div->data[0] = 0;
-	    //printf("\ndiv: ");
-	    //print_bignum(div);
-    }
-      free_bignum(one);
-	  free_bignum(temp); 
+	}
+	free_bignum(temp);
+	free_bignum(one);
     } 
     n1->size = result->size;
     
-    for (int i = 0; i < result->size; i++) {
+    for (int i = 0; i < result->size; i++)
         n1->data[i] = result->data[i];
-    }
-
     free_bignum(result);
     free_bignum(div);
 }
