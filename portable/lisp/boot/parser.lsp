@@ -1,74 +1,91 @@
 (defun parse-elem (sym)
-  "функция, которая создает элементарный парсер, ожидающий заданный элемент в списке"
+  "Элементарный парсер, ожидающий заданный элемент в списке"
   #'(lambda (list)
-      (list (if (= sym (car list))
-		(cons sym (cdr list))
-		(cons nil list)))))
+      (if (null list) nil        
+	  (if (= sym (car list))
+	      (list (cons sym (cdr list)))
+	      nil))))
 
 (defun &&& (transform &rest parsers)
-  "Создает последовательный парсер, который применяет несколько парсеров parsers подряд к списку.
-   Если все парсеры успешно отработали, то результат преобразуется через указанную функцию transform"
+  "Последовательный комбинатор применяет несколько парсеров подряд к списку, каждый следующий parser применяется к остатку от работы предыдущего parser.
+Если все парсеры успешно отработали, то результат как список передается в указанную функцию transform"
   #'(lambda (list)
       (labels ((apply-parser (parsers list res)
-		 (if (null parsers)
-		       (cons (funcall transform res) list)
-		     (let ((parser-res (car (funcall (car parsers) list))))
-		       (unless (null (car parser-res))
-			 (apply-parser (cdr parsers) (cdr parser-res) (append res (list (car parser-res)))))
-		       ))))
-	(let ((res (apply-parser parsers list nil)))
-	  (if (null res) (list (cons nil list)) (list res))))))
+		 (if (null list) (list (list (funcall transform res)))
+		     (if (null parsers)
+			 (if (null res) nil
+			     (list (cons (funcall transform res) list)))
+			 (let ((parser-res (funcall (car parsers) list)))
+			   (if (null parser-res) nil
+			       (apply-parser (cdr parsers) (cdar parser-res) (append res (list (caar parser-res))))))))))
+	(apply-parser parsers list nil))))
 
 (defun parse-or (&rest parsers)
-  "Принимает список парсеров parsers, возвращая список результатов успешных парсеров.
-   Правила применяются только к первому элементу списка."
+  "Параллельный комбинатор принимает список парсеров parsers, объединяя результаты разбора всех парсеров."
   (unless parsers (error "parse-or: no parsers"))
   #'(lambda (list)
-      (let ((parsers-list parsers)
-	    (result nil))
-	(while parsers-list
-	  (let ((parser-result (funcall (car parsers-list) list)))
-	     (setq parsers-list (cdr parsers-list))
-	    (when (caar parser-result)
-	      (setq result parser-result)
-	      (setq parsers-list nil))))
-	(if result
-	    result
-	    (list (cons nil list)))
-	)))
+      (labels ((apply-parser (parsers list res)
+		 (if (null parsers) res
+		     (let ((parser-res (funcall (car parsers) list)))
+		       (apply-parser (cdr parsers) list (append res parser-res))))))
+      (apply-parser parsers list nil))))
+		     
 
 (defun parse-many (parser)
-  "Принимает парсер, применяя его к списку, уменьшая список и
-   сохраняя по одному результату парсера на каждом этапе, если он успешный"
-  #'(lambda (list)
-      (let ((result nil)
-	    (rest nil))
-	(while list
-	  (let ((parser-result
-		 (car (funcall parser list))))
-	    (if (car parser-result)
-		(progn
-		  (setq result (append result (list (car parser-result))))
-		  (setq list (cdr parser-result)))
-		  (progn
-		    (setq rest (cdr parser-result))
-		    (setq list nil)))))
-	(list (cons result rest)))))
+  "Комбинатор - 0 или более повторений заданного парсера. Возвращает список результатов"
+ #'(lambda (list)
+     (labels ((apply (list res)
+		(if (null list) (list (list res))
+		    (let ((parser-res (funcall parser list)))
+		      (if (null parser-res)
+			  (list (cons res list))
+			  (apply (cdar parser-res) (append res (list (caar parser-res)))))))))
+       (apply list nil))))
 
 (defun parse-pred (pred)
-  "Парсинг по предикату, предикат - функция, которая на вход получает символ, на выходе - nil или t.
-   Сама функция парсинга возвращает в результате парсинга этот символ"
+  "Парсер по предикату, предикат - функция, которая на вход получает символ, на выходе - nil или t.
+   Сама функция парсинга возвращает в результате парсинга в случае успешного разбора сам символ, в случае неудачного - nil."
   #'(lambda (list)
-      (list (if (funcall pred (car list))
-		(cons (car list) (cdr list))
-		(cons nil list)))))
+      (if (null list) nil
+	  (if (funcall pred (car list))
+	      (list list)
+	      nil))))
+
+(defun skip-spaces ()
+  "Пропуск 1 или более пробелов"
+  #'(lambda (str)
+      (let ((res (funcall (parse-many (parse-elem #\ )) str)))
+	(list (cons #\ (cdar res))))))
 
 (defun parse-atom ()
-  "Создает парсер, который распознает атомы"
+  "Разбор атома, начинается с буквы, содержит хотя бы одну букву."
   #'(lambda (str)
-      (let ((res (funcall (parse-many (parse-or (parse-pred #'is-alpha) (parse-pred #'is-digit))) str)))
-	(list (cons (intern (implode (caar res))) (cdar res))))))
+      (let ((res (funcall (&&& #'(lambda (l) (cons (cadr l) (caddr l)))
+			       (skip-spaces)
+			       (parse-pred #'is-alpha)
+			       (parse-many (parse-pred #'is-alpha)))
+			  str)))
+	(if res (list (cons (intern (implode (caar res))) (cdar res)))
+	    nil))))
+
+(defun parse-char (char)
+  "Разбор символа char с учетом пробелов"
+  (&&& #'cadr (skip-spaces) (parse-elem char)))
+
+(defun parse-list ()
+  "Разбор списка s-выражений"
+  #'(lambda (str)
+      (let ((res (funcall (&&& #'cadr
+			       (parse-char #\()
+			       (parse-many (parse-s))
+			       (parse-char #\)))
+			  str)))
+	res)))
+
+(defun parse-s ()
+  "Разбор s-выражения"
+  (parse-or (parse-atom) (parse-list)))
 
 (defun parse-lisp (str)
   "Распознать строку с программой Лисп"
-  (caar (funcall (parse-atom) (explode str))))
+  (caar (funcall (parse-s) (explode str))))
