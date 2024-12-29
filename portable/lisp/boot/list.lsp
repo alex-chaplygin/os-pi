@@ -111,6 +111,10 @@
 	(setq result T)))
     result))
 
+(defun reverse (lst)
+  "Переворачивает список"
+  (foldl #'(lambda (acc elem) (cons elem acc)) nil lst))
+
 (defun list-length (list)
   "длина списка list"
   (if (null list)
