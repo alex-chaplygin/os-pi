@@ -115,6 +115,14 @@
   "Переворачивает список"
   (foldl #'(lambda (acc elem) (cons elem acc)) nil lst))
 
+(defun remove-dupl(list)
+  "Удаляет повторяющиеся элементы из списка"
+  (let ((unique NIL))
+    (dolist (elem list)
+      (when (not (contains unique elem))
+	(setq unique (cons elem unique)))) ; элементы добавляются в начало списка
+    (reverse unique))) ; переворачиваем список обратно
+
 (defun list-length (list)
   "длина списка list"
   (if (null list)

@@ -3,14 +3,6 @@
 (defconst *any-char* 'ANY) ; метасимвол, обозначающий любой печатный символ
 (defconst *epsilon* 'E) ; метасимвол, обозначающий безусловный (эпсилон) переход
 
-(defun remove-dupl(list)
-  "Удаляет повторяющиеся элементы из списка (вспомогательная функция)"
-  (let ((unique NIL))
-    (dolist (elem list)
-      (when (not (contains unique elem))
-	(setq unique (cons elem unique)))) ; элементы добавляются в начало списка
-    (reverse-list unique))) ; переворачиваем список обратно
-
 (defun make-nfa(start-states rules final-states)
   "Задаёт недетерминированный автомат"
   "Ввод: список начальных состояний, список правил, список конечных состояний"
