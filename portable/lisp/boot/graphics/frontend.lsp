@@ -37,12 +37,15 @@
   `(move-to ,x ,y))
 
 (defmacro stroke-path ()
-  "Обвести текущий контур"
+  "Обвести текущий контур и добавить точки в область отрисовки"
   `(dolist (line *new-path*)
      (case (car line)
-       (LINE (let ((xy1 (cadr line))
-                   (xy2 (cddr line)))
-               (draw-line (car xy1) (cdr xy1) (car xy2) (cdr xy2) (get-hash *cur-state* 'color)))))))
+       ('LINE (let ((xy1 (caadr line))
+		    (xy2 (cdadr line)))
+               (progn
+                 (screen-add-point xy1)
+                 (screen-add-point xy2)
+		 (draw-line (car xy1) (cdr xy1) (car xy2) (cdr xy2) (get-hash *cur-state* 'color))))))))
 
 (defmacro cubic-bezier (x1 y1 x2 y2 x3 y3 x4 y4)
   "Рисование кубической кривой Безье"
@@ -77,35 +80,3 @@
 (defmacro rotate (a)
   "Поворот"
   '(set-hash *cur-state* 'ctm (mat-rotate (get-hash *cur-state* 'ctm) ,a)))
-
-(defun frontend-test ()
-  (bgr-set-res +screen-width+ +screen-height+ +screen-depth+)
-  (set-colour 15)
-					; (translate 100 100)
-					; (scale 2 1)
-  (new-path)
-  (move-to 100 50)
-  (line-to 200 100)
-  (line-to 50 100)
-  (move-to 100 150)
-  (line-to 150 200)
-  (close-path)
-  (stroke-path)
-  
-					; (cubic-bezier 10 10 200 10 200 150 50 150)
-  (set-colour 2)
-  (rectangle 10 10 30 30)
-  (translate 50 10)
-  (set-colour 3)
-  (new-path)
-  (move-to 100 50)
-  (line-to 200 100)
-  (line-to 50 100)
-  (close-path)
-  (stroke-path)
-  
-  (scale 1 2)
-  (set-colour 4)
-  (rectangle 10 10 30 30)
-  (graph-send-buffer *gr-buf*)
-  *new-path*)
