@@ -5,7 +5,7 @@ BASELISP=boot/lib.lsp boot/list.lsp boot/array.lsp boot/str.lsp boot/hash.lsp bo
 GRAPHICS=$(BASELISP) boot/math.lsp boot/bgr.lsp boot/graphics/matrix.lsp boot/graphics/image.lsp boot/graphics/screen.lsp boot/graphics/backend.lsp boot/graphics/frontend.lsp
 TEST=boot/test.lsp
 ASCII_GRAPHICS=$(GRAPHICS) boot/graphics/ascii-backend.lsp
-GAME=$(ASCII_GRAPHICS) boot/game/graphics.lsp
+GAME=$(ASCII_GRAPHICS) boot/game/graphics.lsp boot/game/mob.lsp boot/game/plat.lsp
 FS=$(BASELISP) boot/ata.lsp boot/mbr.lsp boot/fs/block.lsp boot/fs/fs.lsp boot/fs/fat32fs.lsp boot/fs/fat.lsp boot/fs/dir.lsp boot/fs/fat32test.lsp
 KEYBOARD=$(BASELISP) boot/sys/keyboard.lsp boot/sys/events.lsp
 COMPILER=$(BASELISP) boot/compiler/macro.lsp boot/compiler/compiler.lsp  boot/compiler/generator.lsp
@@ -19,7 +19,7 @@ lisp: /tmp/baselisp.lsp # здесь меняем набор библиотек
 	cat $^ >$@ ;
 	echo -e -n "\xff" >>$@
 # графика
-/tmp/graphics.lsp: $(GRAPHICS) boot/graphics/test/backend.lsp
+/tmp/graphics.lsp: $(GRAPHICS) boot/graphics/test/frontend.lsp
 	cat $^ >$@ ;
 	echo -e -n "\xff" >>$@
 # графика через ASCII в текстовом видеорежиме
@@ -68,14 +68,22 @@ oop-test: $(BASELISP) $(TEST) boot/test/oop.lsp
 queue-test: $(BASELISP) $(TEST) boot/test/queue.lsp
 	make -C test /tmp/repl_lisp
 	cat $^ | /tmp/repl_lisp
+# модульные тесты чтение двоичного потока данных
+bin-reader: $(BASELISP) boot/bin-reader.lsp $(TEST) boot/test/bin-reader.lsp
+	make -C test /tmp/repl_lisp
+	cat $^ | /tmp/repl_lisp
 # модульные тесты двоичное дерево
 bin-tree-test: $(BASELISP) boot/bin-tree.lsp $(TEST) boot/test/bin-tree.lsp
 	make -C test /tmp/repl_lisp
 	cat $^ | /tmp/repl_lisp
 # модульные тесты коды Хаффмана
-huffman-test: $(BASELISP) boot/bin-tree.lsp boot/huffman.lsp $(TEST) boot/test/huffman.lsp
+huffman-test: $(BASELISP) boot/bin-reader.lsp boot/bin-tree.lsp boot/huffman.lsp $(TEST) boot/test/huffman.lsp
 	make -C test /tmp/repl_lisp
 	cat $^ | /tmp/repl_lisp
+# тесты jpeg
+jpeg-test: $(BASELISP) boot/bin-reader.lsp boot/bin-tree.lsp boot/huffman.lsp boot/img/jpeg/data-unit.lsp boot/img/jpeg/main.lsp boot/test/jpeg.lsp
+	make -C test /tmp/lisp
+	cat $^ | /tmp/lisp
 # модульные тесты цикла событий
 key-test: $(BASELISP) boot/sys/keyboard.lsp boot/test/key.lsp boot/sys/events.lsp 
 	make -C test /tmp/lisp
@@ -98,5 +106,9 @@ fat-test: $(BASELISP) boot/fs/fat.lsp $(TEST) boot/fs/test/fat.lsp
 	cat $^ | /tmp/lisp
 # модульные тесты парсера
 parser-test: $(BASELISP) boot/parser.lsp $(TEST) boot/test/parser.lsp
+	make -C test /tmp/lisp
+	cat $^ | /tmp/lisp
+# модульные тесты мобильного объекта
+mob-test: $(BASELISP) boot/game/mob.lsp $(TEST) boot/game/test/mob.lsp 
 	make -C test /tmp/lisp
 	cat $^ | /tmp/lisp
