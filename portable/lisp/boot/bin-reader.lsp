@@ -43,6 +43,14 @@
     (setq *bit-num* (if (eq *endianness* 'big) 8 -1)))
   (& 1 (>> *cur-byte* (setq *bit-num* (if (eq *endianness* 'big) (-- *bit-num*) (++ *bit-num*))))))
 
+(defun get-bits (n)
+  "Читает n бит из источника"
+  (let ((res 0))
+    (for i 0 n
+	 (setq res (<< res 1))
+	 (setq res (+ res (get-bit))))
+    res))
+
 (defun get-array (num)
   "Прочесть массив длиной num байт"
   (let ((arr (make-array num)))
@@ -62,3 +70,4 @@
 	  (let ((table (make-hash)))
 	    (app #'(lambda (x) (set-hash table (car x) (read (cdr x)))) struct)
 	    table)))
+

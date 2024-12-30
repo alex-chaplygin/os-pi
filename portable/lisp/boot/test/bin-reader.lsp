@@ -43,4 +43,9 @@
 (assert (get-hash temp 'width) 512)
 (assert (get-hash temp 'other) '(2 . 3))
 (assert (get-hash temp 'array) #(1 2 3))
+;;Тестирование чтения нескольких бит 10110100
+(set-bin-src #(180))
+(set-big-endian)
+(assert (get-bits 5) 22)
+(assert (get-bits 3) 4)
 
