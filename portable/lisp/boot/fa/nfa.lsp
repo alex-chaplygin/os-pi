@@ -1,7 +1,15 @@
 ; Библиотека функций недетерминированного конечного автомата (НКА)
 
-(defconst +any-char+ 'ANY) ; метасимвол, обозначающий любой печатный символ
-(defconst +epsilon+ 'E) ; метасимвол, обозначающий безусловный (эпсилон) переход
+(defconst *any-char* 'ANY) ; метасимвол, обозначающий любой печатный символ
+(defconst *epsilon* 'E) ; метасимвол, обозначающий безусловный (эпсилон) переход
+
+(defun remove-dupl(list)
+  "Удаляет повторяющиеся элементы из списка (вспомогательная функция)"
+  (let ((unique NIL))
+    (dolist (elem list)
+      (when (not (contains unique elem))
+	(setq unique (cons elem unique)))) ; элементы добавляются в начало списка
+    (reverse-list unique))) ; переворачиваем список обратно
 
 (defun make-nfa(start-states rules final-states)
   "Задаёт недетерминированный автомат"
@@ -22,20 +30,15 @@
     (list start-states nfa final-states)))
 
 (defun process-epsilon (states rules)
-  "Рекурсивно извлекает следующие за эпсилон-переходами состояния и возвращает только их"
-  "Для обычных переходов не возвращается ничего"
-  "states - список идентификаторов состояний без привязки к правилу перехода по символу"
+  "Рекурсивно извлекает следующие за эпсилон-переходами состояния и возвращает их"
+  "Ввод: список состояний, список правил НКА"
+  "Вывод: состояния, следующие за эпсилон переходами, для обычных переходов не возвращается ничего"
   (let ((new-states NIL))
     (dolist (state states)
-      (let ((epsilon-state (cons state +epsilon+)))
+      (let ((epsilon-state (cons state *epsilon*)))
       (when (check-key rules epsilon-state)
-	(setq new-states (cons new-states state)) ; текущее состояние также сохраняется
-	(setq new-states (cons new-states (get-hash rules epsilon-state))) ; если следующее состояние не эпсилон - оно не возвратится (дубликаты состояний удалятся)
+	(setq new-states (append new-states (get-hash rules epsilon-state))) ; если следующее состояние не эпсилон, оно не возвратится - добавляем заранее(дубликаты состояний удалятся)
 	(setq new-states (append new-states (process-epsilon (get-hash rules epsilon-state) rules)))))) ; получаем следующие за эпсилон-переходом состояния
-;      (print "/////")
-;      (print states)
-;      (print new-states)
-;      (print "\\\\\\\\\\")
     new-states))
 
 (defun nfa-input(auto input)
@@ -47,22 +50,14 @@
 	(final-states (caddr auto))  ; список
 	(curr-states NIL)
 	(new-states NIL))
-    
     (setq curr-states (append start-states (process-epsilon start-states rules)))
-    
     (dolist (state curr-states)
       (let ((key (cons state input))
-	    (anychar-key (cons state +any-char+)))
+	    (anychar-key (cons state *any-char*)))
 	(when (check-key rules key)
 	  (setq new-states (append new-states (get-hash rules key))))
 	(when (check-key rules anychar-key)
 	  (setq new-states (append new-states (get-hash rules anychar-key))))))
-;    (print "---")
-;    (print start-states)
-;    (print curr-states)
-;    (print new-states)
-;    (print "/---")
-    
     (list (remove-dupl new-states) rules final-states))) ; удаляем состояния-дубликаты
 
 (defun nfa-end(auto)
