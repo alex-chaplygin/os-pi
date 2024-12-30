@@ -20,4 +20,10 @@
 	  (make-tree (left-tree huff) (huff-add (right-tree huff) code siz val) nil))))))
 
 (defun huff-decode (huff)
-  "Декодирование таблицы huff по данным из потока")
+  "Декодирование данных из двоичного потока, используя заданную таблицу Хаффмана"
+  (if (is-leaf huff)
+      (tree-get-val huff)
+      (let ((bit (get-bit)))
+	(if (= 1 bit)
+	    (huff-decode (right-tree huff))
+	    (huff-decode (left-tree huff))))))
