@@ -4,7 +4,7 @@
   (let ((pos nil)
 	(size (string-size str)))
     (for i 0 size
-	 (when (= (code-char (char str (- size i 1))) c)
+	 (when (= (char str (- size i 1)) c)
 	   (setq pos (- size i 1))))
     pos))
 
@@ -13,7 +13,7 @@
   (let ((pos nil)
 	(size (string-size str)))
     (for i 0 size
-	 (when (= (code-char (char str i)) c)
+	 (when (= (char str i) c)
 	   (setq pos i)))
     pos))
 
