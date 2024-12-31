@@ -43,6 +43,10 @@ oop-test: $(BASELISP) $(TEST) test/oop.lsp
 str-test: $(BASELISP) $(TEST) test/str.lsp
 	make -C ../test /tmp/repl_lisp
 	cat $^ | /tmp/repl_lisp
+# модульные тесты строк
+math-test: $(BASELISP) math.lsp $(TEST) test/math.lsp
+	make -C ../test /tmp/repl_lisp
+	cat $^ | /tmp/repl_lisp
 # модульные тесты чтение двоичного потока данных
 bin-reader: $(BASELISP) bin-reader.lsp $(TEST) test/bin-reader.lsp
 	make -C ../test /tmp/repl_lisp
