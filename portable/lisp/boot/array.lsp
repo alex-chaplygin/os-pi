@@ -34,17 +34,18 @@
 
 (defun arr-get-str (arr ofs size)
   "Прочесть из массива arr по смещению ofs строку размером size"
-  (if (equal size 0) ""
-      (let ((s ""))
-	(for i ofs (+ ofs size)
-	     (setf s (concat s (code-char (aref arr i)))))
-	s)))
+  (let ((s (make-string size #\ )))
+       (for i ofs (+ ofs size)
+	    (sets s (- i ofs) (code-char (aref arr i))))
+    s))
 
 (defun arr-set-str (arr ofs str size)
   "Записать в массив arr по смещению ofs строку str но не превышая размер size"
   (let ((size2 (string-size str)))
     (for i 0 size2
-	 (when (< i size) (seta arr (+ i ofs) (char str i))))))
+	 (when (< i size)
+	   (seta arr (+ i ofs) (char-code (char str i)))
+	   ))))
 
 (defun write-struct (arr offs struct values)
   "Записать в массив arr по смещению ofs значения из хеш объекта values,"

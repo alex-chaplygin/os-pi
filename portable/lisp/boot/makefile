@@ -43,7 +43,11 @@ oop-test: $(BASELISP) $(TEST) test/oop.lsp
 str-test: $(BASELISP) $(TEST) test/str.lsp
 	make -C ../test /tmp/repl_lisp
 	cat $^ | /tmp/repl_lisp
-# модульные тесты строк
+# модульные тесты массивов
+array-test: $(BASELISP) $(TEST) test/array.lsp
+	make -C ../test /tmp/repl_lisp
+	cat $^ | /tmp/repl_lisp
+# модульные тесты математики
 math-test: $(BASELISP) math.lsp $(TEST) test/math.lsp
 	make -C ../test /tmp/repl_lisp
 	cat $^ | /tmp/repl_lisp
