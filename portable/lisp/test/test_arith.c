@@ -425,16 +425,153 @@ void test_div_nulldivisor()
         OK;
 }
 
-//Тест деления чисел с плавающей точкой
-void test_div_float()
+ //Тест деления чисел с плавающей запятой, делимое - float, делитель - integer
+void test_div_float_by_int()
 {
-    printf("test_div_float: \n");
-    float num1 = 8.4f;
+    printf("test_div_float_by_int: \n");
+    float num1 = 7.5f;
     int num2 = 2;
     object_t list = new_pair(new_float(num1),
                         new_pair(new_number(num2), NULLOBJ));
     object_t res = DIV(list);
-    ASSERT_FLOAT(GET_FLOAT(res)->value, 4.2f); 
+    ASSERT_FLOAT(GET_FLOAT(res)->value, 3.75f);
+}
+
+ //Тест деления чисел с плавающей запятой, делимое - integer, делитель - float
+void test_div_int_by_float()
+{
+    printf("test_div_int_by_float: \n");
+    int num1 = 2;
+    float num2 = 0.8f;
+    object_t list = new_pair(new_number(num1),
+                        new_pair(new_float(num2), NULLOBJ));
+    object_t res = DIV(list);
+    ASSERT_FLOAT(GET_FLOAT(res)->value, 2.5f);
+}
+
+
+//Тест деления чисел с плавающей запятой, делимое - float, делитель - float
+void test_div_float_by_float()
+{
+    printf("test_div_float_by_float: \n");
+    float num1 = 9.4f;
+    float num2 = 3.2f;
+    object_t list = new_pair(new_float(num1),
+                        new_pair(new_float(num2), NULLOBJ));
+    object_t res = DIV(list);
+    ASSERT_FLOAT(GET_FLOAT(res)->value, 2.9375f);
+}
+
+//Тест деления чисел, делимое - символ
+void test_div_divisible_is_symbol()
+{
+    printf("test_div_divisible_is_symbol: \n");
+    int num1 = 8;
+    if (setjmp(jmp_env) == 0) {
+        object_t list =  new_pair(NEW_SYMBOL("a"),
+			      new_pair(new_number(num1), NULLOBJ));
+        object_t res =  DIV(list);
+        FAIL;
+    } else 
+        OK;
+}
+
+//Тест деления чисел, делитель - символ
+void test_div_divider_is_symbol()
+{
+    printf("test_div_divider_is_symbol: \n");
+    int num1 = 9;
+    if (setjmp(jmp_env) == 0) {
+        object_t list =  new_pair(new_number(num1),
+			      new_pair(NEW_SYMBOL("b"), NULLOBJ));
+        object_t res =  DIV(list);
+        FAIL;
+    } else 
+        OK;
+}
+
+//Тест деления чисел, делимое - nullobj
+void test_div_divisible_is_nullobj()
+{
+    printf("test_div_divisible_is_nullobj: \n");
+    int num1 = 7;
+    if (setjmp(jmp_env) == 0) {
+        object_t list =  new_pair(new_pair(NULLOBJ, NULLOBJ),
+			      new_pair(new_number(num1), NULLOBJ));
+        object_t res =  DIV(list);
+        FAIL;
+    } else 
+        OK;
+}
+
+//Тест деления чисел, делитель - nullobj
+void test_div_divider_is_nullobj()
+{
+    printf("test_div_divider_is_nullobj: \n");
+    int num1 = 9;
+    if (setjmp(jmp_env) == 0) {
+        object_t list =  new_pair(new_number(num1),
+			      new_pair(new_pair(NULLOBJ, NULLOBJ), NULLOBJ));
+        object_t res =  DIV(list);
+        FAIL;
+    } else 
+        OK;
+}
+
+//Тест деления чисел с плавающей запятой, делитель - символ
+void test_div_float_divider_is_symbol()
+{
+    printf("test_div_float_divider_is_symbol: \n");
+    float num1 = 5.54f;
+    if (setjmp(jmp_env) == 0) {
+        object_t list =  new_pair(new_float(num1),
+				  new_pair(NEW_SYMBOL("a"), NULLOBJ));
+        object_t res =  DIV(list);
+        FAIL;
+    } else 
+        OK;
+}
+
+//Тест деления чисел с плавающей запятой, делимое - символ
+void test_div_float_divisible_is_symbol()
+{
+    printf("test_div_float_divisible_is_symbol: \n");
+    float num1 = 2.34f;
+    if (setjmp(jmp_env) == 0) {
+      object_t list =  new_pair(NEW_SYMBOL("b"),
+				  new_pair(new_float(num1), NULLOBJ));
+        object_t res =  DIV(list);
+        FAIL;
+    } else 
+        OK;
+}
+
+//Тест деления чисел с плавающей запятой, делитель - nullobj
+void test_div_float_divider_is_nullobj()
+{
+    printf("test_div_float_divider_is_nullobj: \n");
+    float num1 = 3.76f;
+    if (setjmp(jmp_env) == 0) {
+        object_t list =  new_pair(new_float(num1),
+				  new_pair(new_pair(NULLOBJ, NULLOBJ), NULLOBJ));
+        object_t res =  DIV(list);
+        FAIL;
+    } else 
+        OK;
+}
+
+//Тест деления чисел с плавающей запятой, делимое - nullobj
+void test_div_float_divisible_is_nullobj()
+{
+    printf("test_div_float_divisible_is_nullobj: \n");
+    float num1 = 2.34f;
+    if (setjmp(jmp_env) == 0) {
+      object_t list =  new_pair(new_pair(NULLOBJ, NULLOBJ),
+				  new_pair(new_float(num1), NULLOBJ));
+        object_t res =  DIV(list);
+        FAIL;
+    } else 
+        OK;
 }
 
 /**
@@ -829,6 +966,21 @@ void test_less_great()
 }
 
 /**
+ * Тест сравнения неравнества меньше для двух чисел, первое - int, второе - float, проверка если первое число будет больше
+ */
+void test_less_float_great()
+{
+    printf("test_less_great: ");
+    float first1 = 2.6f;
+    float second1 = 1.5f;
+    
+    object_t list = new_pair(new_float(first1),
+			     new_pair(new_float(second1), NULLOBJ));
+    object_t res = less(list);
+    ASSERT(res, NULLOBJ);
+}
+
+/**
  * Тест сравнения неравенства меньше для двух чисел - проверка на отсутствие аргументов
  */
 void test_less_no_arguments()
@@ -1029,7 +1181,17 @@ int main()
     test_div_nulllist();
     test_div_zerodivisor();
     test_div_nulldivisor();
-    test_div_float();
+    test_div_float_by_int();
+    test_div_int_by_float();
+    test_div_float_by_float();
+    test_div_divisible_is_symbol();
+    test_div_divider_is_symbol();
+    test_div_divisible_is_nullobj();
+    test_div_divider_is_nullobj();
+    test_div_float_divisible_is_symbol();
+    test_div_float_divider_is_symbol();
+    test_div_float_divisible_is_nullobj();
+    test_div_float_divider_is_nullobj();
     test_bitwise_and(0xA, 2, 2);
     test_bitwise_and(0xB, 2, 2);
     test_bitwise_and(0xA, 5, 0);
@@ -1064,6 +1226,7 @@ int main()
     test_equal_different_types();
     test_less();
     test_less_great();
+    test_less_float_great();
     test_less_no_arguments();
     test_less_one_argument();
     test_gt(5, 3, t);

@@ -267,7 +267,7 @@ object_t gt(object_t list)
     else if (TYPE(first) == FLOAT && TYPE(second) == FLOAT)
 	return (GET_FLOAT(first)->value > GET_FLOAT(second)->value) ? t : NULLOBJ;
     else
-      return NULLOBJ;
+	error("> invalid arguments");
 }
 
 /* Сравнение на меньше (< 8 2) */
@@ -288,7 +288,7 @@ object_t less(object_t list)
     else if (TYPE(first) == FLOAT && TYPE(second) == FLOAT)
 	return (GET_FLOAT(first)->value < GET_FLOAT(second)->value) ? t : NULLOBJ;
     else
-      return NULLOBJ;
+	error("< invalid arguments");
 }
 
 /**
