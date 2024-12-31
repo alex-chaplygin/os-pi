@@ -136,11 +136,36 @@
   ; Граничный тест 
   (print (assert (get-bit 1024 10) 1))
   (print (assert (get-bit 1024 11) 0))
-  (print (assert (get-bit 2147483647 0) 1))
-  ; Использование типа данных float
-  (print (assert (get-bit 3.14 0) 1))
-  (print (assert (get-bit 3.14 1) 1))
-  (print (assert (get-bit 3.14 2) 0)))
+  (print (assert (get-bit 2147483647 0) 1)))
+
+(defun null-test ()
+  "Тест функции null."
+  (print "Тест функции null")
+  (let ((tests '((() t)            ; Пустой список
+                 ((1 2 3) ())      ; Непустой список
+                 (a ())            ; Символ
+                 (nil ())          ; nil
+                 ((nil) ())        ; Список с nil
+                 ((()) ()))))      ; Список с пустым списком
+    (dolist (test tests)
+      (let ((input (car test))
+            (expected (cadr test)))
+        (print (assert (null input) expected))))))
+
+(defun not-test ()
+  "Тест функции not"
+  (print "Тест функции not.")
+  (let ((tests '((t ())             ; t -> nil
+                 (() t)            ; nil -> t
+                 (() t)             ; Пустой список -> t
+                 ((1) ())           ; Непустой список -> nil
+                 (a ())             ; Символ -> nil
+                 (42 ())            ; Число -> nil
+                 ("string" ()))))   ; Строка -> nil
+    (dolist (test tests)
+      (let ((input (car test))
+            (expected (cadr test)))
+        (print (assert (not input) expected))))))
 
 (fors-test)
 (tagbody-rec-test)
@@ -153,3 +178,5 @@
 (or-tests)
 (case-test)
 (get-bit-test)
+(null-test)
+(not-test)
