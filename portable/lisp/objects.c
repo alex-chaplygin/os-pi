@@ -97,6 +97,9 @@ extern object_t current_env;
 /// окружение функции
 extern object_t func_env;
 
+extern continuation_t tagbody_buffers[];
+extern int tb_index_buf;
+
 /**
  * Инициализация объектов
  */
@@ -740,7 +743,7 @@ void dump_mem()
 void garbage_collect()
 {
     bind_t *cur = global_env;
-    printf("garbage_collect\nglobal env:");
+    //    printf("garbage_collect\nglobal env:");
     //    dump_mem();
     for (int i = 0; i < last_global; i++, cur++) {
 	//	PRINT(cur->obj);
@@ -755,6 +758,10 @@ void garbage_collect()
 #endif
     mark_object(current_env);
     mark_object(func_env);
+    for (int i = 0; i < tb_index_buf; i++) {
+	mark_object(tagbody_buffers[i].environment);
+	mark_object(tagbody_buffers[i].func_environment);
+    }
     //printf("garbage_collect end env %x\n", protected);    
     temp_bind_t *curp = protected;
     for (int i = 0; i < last_protected; i++, curp++) {

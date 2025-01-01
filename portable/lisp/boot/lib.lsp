@@ -1,6 +1,6 @@
 (defun null (x)
   "Проверка на пустое значение"
-  (eq x (quote())))
+  (eq x ()))
 
 (defun fac(x)
   (cond
@@ -9,7 +9,7 @@
 
 (defun not(x)
   "Логическое отрицание"
-  (if (eq x t) nil t))
+  (if (eq x nil) t nil))
 
 (defun get-bit (num bit)
   "Получение бита с номером bit у числа num"

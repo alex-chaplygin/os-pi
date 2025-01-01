@@ -72,7 +72,6 @@
 
 ;; Генерация кода
 (defun inner-generate (expr)
-  ;; (print (list 'inner-generate expr))
   (if (contains '(CONST GLOBAL-REF LOCAL-REF DEEP-REF RETURN) (car expr))
       (emit expr)
       (if (contains '(GLOBAL-SET LOCAL-SET DEEP-SET) (car expr))

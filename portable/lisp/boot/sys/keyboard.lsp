@@ -18,13 +18,15 @@
 (defconst +key-9+ 0x0A)
 
 (defvar *keys* (make-array 128)) ; массив нажатий клавиш
+(defvar *status* 0)
+(defvar *scan* 0)
 
 (defun key-handler ()
   "Обработчик прерывания клавиатуры"
   (setq *status* (inb +KEY-STATUS+)) ; получает статус, есть ли данные в буфере клавиатуры
   (if (equal (& *status* 1) 1) ; если есть (младший бит регистра статуса)
       (progn
-	(setq *scan* (inb +KEY-BUFFER+)) ; читаем скан код из буфера
+  	(setq *scan* (inb +KEY-BUFFER+)) ; читаем скан код из буфера
 	(if (< *scan* 128)
 	    (progn (seta *keys* *scan* t) ; если меньше 128, то это нажатие клавиши
 		   (queue-push *events* (cons 'keydown *scan*)))

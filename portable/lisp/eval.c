@@ -169,11 +169,12 @@ void append_env(object_t l1, object_t l2);
 object_t backquote_rec(object_t list) 
 {
     object_t res = NULLOBJ;
+    object_t first = NULLOBJ;
     if (list == NULLOBJ) 
  	return NULLOBJ;
     //    printf("backqoute ");
     //PRINT(list);
-    PROTECT1(list);
+    PROTECT3(list, res, first);
     object_t env = current_env;
     object_t func = func_env;
     if (TYPE(list) == BIGNUMBER) 
@@ -184,10 +185,10 @@ object_t backquote_rec(object_t list)
 	res = list;
     else if (TYPE(list) == ARRAY) { 
  	array_t *arr = new_empty_array(GET_ARRAY(list)->length); 
+ 	res = NEW_OBJECT(ARRAY, arr); 
  	int l = GET_ARRAY(list)->length; 
  	for (int i = 0; i < l; i++) 
  	    arr->data[i] = backquote_rec(GET_ARRAY(list)->data[i]); 
- 	res = NEW_OBJECT(ARRAY, arr); 
     } else if (TYPE(list) == STRING) 
 	res = NEW_STRING(GET_STRING(list)->data); 
     else if (TYPE(list) == PAIR) {
@@ -197,7 +198,7 @@ object_t backquote_rec(object_t list)
 	else if (TYPE(el) == SYMBOL && !strcmp(GET_SYMBOL(el)->str, "COMMA"))
  	    res = eval(SECOND(list), env, func);
 	else {
-	    object_t first = backquote_rec(el); 
+	    first = backquote_rec(el); 
 	    if (first != NULLOBJ && TYPE(first) == PAIR) {  // first = (COMMA-AT B) 
 		object_t comma_at = FIRST(first);
 		if (comma_at != NULLOBJ && TYPE(comma_at) == SYMBOL && !strcmp(GET_SYMBOL(comma_at)->str, "COMMA-AT")) {
@@ -209,9 +210,8 @@ object_t backquote_rec(object_t list)
 		    } else if (TYPE(l) != PAIR)
 			error("COMMA-AT: not list");
 		    else {
-			object_t new_comma = backquote_rec(l); 
-			append_env(new_comma, backquote_rec(TAIL(list))); 
-			res = new_comma;
+			res = backquote_rec(l); 
+			append_env(res, backquote_rec(TAIL(list))); 
 			UNPROTECT;
 			return res;
 		    }
@@ -482,22 +482,22 @@ object_t macro_call(object_t macro, object_t args, object_t env, object_t func)
     object_t body; 
     object_t eval_res = NULLOBJ;
     object_t eval_res2 = NULLOBJ;
-    printf("macro_call ");
-    PRINT(macro);
-    PRINT(args);
+    /* printf("macro_call "); */
+    /* PRINT(macro); */
+    /* PRINT(args); */
     body = TAIL(TAIL(macro));
-    printf("body ");
-    PRINT(body);
+    /* printf("body "); */
+    /* PRINT(body); */
     if (new_env != NULLOBJ)
 	append_env(new_env, env);
     PROTECT3(macro, eval_res, eval_res2);
     while (body != NULLOBJ) {
  	eval_res = eval(FIRST(body), new_env, func);
-	printf("macro expand: ");
-	PRINT(eval_res);
+	/* printf("macro expand: "); */
+	/* PRINT(eval_res); */
  	eval_res2 = eval(eval_res, env, func);
-	printf("eval: ");
-	PRINT(eval_res2);
+	/* printf("eval: "); */
+	/* PRINT(eval_res2); */
  	body = TAIL(body);
     }
     UNPROTECT;
@@ -606,8 +606,12 @@ object_t eval(object_t obj, object_t env, object_t func)
     /* 	PRINT(cur->obj); */
     current_env = env;
     func_env = func;
+    /* printf("before gc:\n"); */
+    /* dump_mem(); */
     if (need_grabage_collect())
 	garbage_collect();
+    /* printf("after gc:\n"); */
+    /* dump_mem(); */
     if (obj == NULLOBJ)
         return NULLOBJ;
     else if (TYPE(obj) == NUMBER || TYPE(obj) == BIGNUMBER || TYPE(obj) == FLOAT || TYPE(obj) == STRING || TYPE(obj) == ARRAY || TYPE(obj) == CHAR)
@@ -646,6 +650,11 @@ object_t eval(object_t obj, object_t env, object_t func)
 #ifdef DEBUG
     	debug_stack = TAIL(debug_stack);
 #endif
+	/* printf("eval: "); */
+	/* PRINT(obj); */
+	/* printf("env: "); PRINT(env); */
+	/* printf("res: "); */
+	/* PRINT(result); */
         return result;
     } else
         error("Unknown object_type");
@@ -680,6 +689,7 @@ void set_in_env(object_t env, object_t sym, object_t val)
  * @param param параметры (символьный объект, значение, окружение) 
  * @return возвращает значение переменной 
  */ 
+
 object_t setq(object_t params) 
 { 
     object_t env = current_env;
@@ -701,7 +711,7 @@ object_t setq(object_t params)
 	    set_in_env(env, FIRST(params), obj); 
 	else {
 	    sym->value = obj;
-	    printf("setq %s = ", sym->str); PRINT(obj);
+	    /* printf("setq %s = ", sym->str); PRINT(obj); */
 	    set_global(sym);
 	}
 	if (TAIL(TAIL(params)) == NULLOBJ) 
@@ -739,7 +749,7 @@ object_t funcall(object_t params)
 object_t lisp_eval(object_t args) 
 {
     object_t res;
-    PROTECT1(res);
+    PROTECT2(args, res);
     res =  eval(FIRST(args), current_env, func_env);
     UNPROTECT;
     return res;

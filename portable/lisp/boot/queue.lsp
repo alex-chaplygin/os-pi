@@ -8,6 +8,7 @@
   "Добавление элемента в очередь"
   "qu - очередь в которую нужно добавить элемент"
   "el - элемент который нужно добавить"
+  (print `(queue-push ,el))
   (labels ((last-pair (list)
 		      (if (null (cdr list)) list
 			(last-pair (cdr list)))))

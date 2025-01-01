@@ -51,7 +51,7 @@
 	(setq ,list (cdr ,list))
 	,@bod
 	,tests
-	(cond ((null ,list) nil) (t (go ,loops))))))
+	(if (null ,list) nil (go ,loops)))))
 	
 (defun map (f list)
   "Применяет функцию f к каждому элементу списка list и возвращает новый список"

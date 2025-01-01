@@ -4,8 +4,8 @@
   "Глобальный цикл обработки событий"
   (while t
 	 (key-handler)
-	 (setq *e* (queue-pop *events*))
+	 (setq *e* nil);(queue-pop *events*))
 	 (if (eq *e* nil) nil
-	     (print *e*))))
+	     (print `(q = ,*events* e = ,*e*)))))
 	  
 (events-loop)

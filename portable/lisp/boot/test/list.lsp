@@ -23,4 +23,9 @@
   (print (assert (list '(1 2) 3 4 5) '((1 2) 3 4 5)))
   (print (assert (list "a" "b" "c") '("a" "b" "c"))))
 
+(defun do-list-test ()
+  (dolist (a '(1 2 3 4 5))
+    (print a)))
+
 (list-tests)
+(do-list-test)

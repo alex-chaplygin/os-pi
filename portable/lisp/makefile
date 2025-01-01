@@ -1,5 +1,5 @@
 SHELL=bash
-SRC=parser.o lexer.o objects.o symbols.o eval.o arith.o array.o str.o pair.o predicates.o alloc.o mpa.o error.o
+SRC=parser.o lexer.o objects.o symbols.o eval.o arith.o array.o str.o pair.o predicates.o alloc.o mpa.o error.o bind.o
 CFLAGS=-g -m32 -nostdlib -nodefaultlibs -Wno-builtin-declaration-mismatch -I../include -D OS -D X32 -DDEBUG -fno-stack-protector -fstack-check=no
 BASELISP=boot/lib.lsp boot/list.lsp boot/array.lsp boot/str.lsp boot/hash.lsp boot/oop.lsp boot/queue.lsp boot/vec2.lsp
 GRAPHICS=$(BASELISP) boot/math.lsp boot/bgr.lsp boot/graphics/matrix.lsp boot/graphics/image.lsp boot/graphics/screen.lsp boot/graphics/backend.lsp boot/graphics/frontend.lsp
@@ -12,7 +12,7 @@ COMPILER=$(BASELISP) boot/compiler/macro.lsp boot/compiler/compiler.lsp  boot/co
 
 all: $(SRC) lisp
 
-lisp: /tmp/baselisp.lsp # здесь меняем набор библиотек
+lisp: /tmp/key.lsp # здесь меняем набор библиотек
 	cp $^ /tmp/lisp.lsp
 # базовый набор
 /tmp/baselisp.lsp: $(BASELISP)  $(TEST) boot/test/list.lsp
