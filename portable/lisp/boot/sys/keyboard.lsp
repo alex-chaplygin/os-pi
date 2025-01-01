@@ -17,7 +17,9 @@
 (defconst +key-8+ 0x09)
 (defconst +key-9+ 0x0A)
 
-(defvar *keys* (make-array 128)) ; массив нажатий клавиш
+(setq *keys* (make-array 128)) ; массив нажатий клавиш
+(print `(keys ,*keys*))
+(dump)
 (defvar *status* 0)
 (defvar *scan* 0)
 

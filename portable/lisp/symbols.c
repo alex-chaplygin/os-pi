@@ -69,7 +69,7 @@ symbol_t *find_symbol(char *str)
         el = new;
     } else {
         for (symbol_t *cur = el; cur != NULL; cur = cur->next)
-            if (compare_str(cur->str, str))
+            if (!strcmp(cur->str, str))
                 return cur;
                 
         symbol_t *new = new_symbol(str);
@@ -89,6 +89,10 @@ symbol_t *find_symbol(char *str)
  */
 void hash_remove(symbol_t *s)
 {
+    int i;
+    if (s->hash_index == 939) {
+	i = 3;
+    }
     symbol_t *el = hash_table[s->hash_index];
     if (el == NULL)
 	error("Hash remove error: got NULL on symbol %s index %d", s->str, s->hash_index);

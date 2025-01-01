@@ -9,6 +9,8 @@
 #include "arith.h"
 #include "bind.h"
 
+object_t dump_mem(object_t);
+
 /// Число кадров стека, которое выводится при отладке
 #define DEBUG_STACK_MAX_FRAME 7
 /// объект истина
@@ -283,7 +285,10 @@ object_t defun(object_t obj)
     symbol_t *name = find_symbol(GET_SYMBOL(FIRST(obj))->str); 
     name->lambda = new_pair(NEW_SYMBOL("LAMBDA"), TAIL(obj));
     set_global(name);
-    return NEW_SYMBOL(name->str);  
+    object_t s = NEW_SYMBOL(name->str);
+    /* printf("defun %s\n", name->str); */
+    /* dump_mem(NULLOBJ); */
+    return s;
 }
 
 /*  
@@ -300,7 +305,10 @@ object_t defmacro(object_t obj)
     symbol_t *name = find_symbol(GET_SYMBOL(FIRST(obj))->str); 
     name->macro = new_pair(NEW_SYMBOL("LAMBDA"), TAIL(obj));
     set_global(name);
-    return NEW_SYMBOL(name->str);
+    object_t s = NEW_SYMBOL(name->str);
+    /* printf("defmacro %s\n", name->str); */
+    /* dump_mem(NULLOBJ); */
+    return s;
 }
 
 /* 
@@ -597,7 +605,7 @@ object_t eval(object_t obj, object_t env, object_t func)
     extern int last_global;
     object_t args;
     object_t res;
-    /* printf("eval: "); PRINT(obj); */
+    printf("eval: "); PRINT(obj);
     /* printf("env: "); PRINT(env); */
     /* printf("func_env: "); PRINT(func_env); */
     /* printf("global_env: %d\n", last_global); */
@@ -711,7 +719,7 @@ object_t setq(object_t params)
 	    set_in_env(env, FIRST(params), obj); 
 	else {
 	    sym->value = obj;
-	    /* printf("setq %s = ", sym->str); PRINT(obj); */
+	    //printf("setq %s = ", sym->str); PRINT(obj);
 	    set_global(sym);
 	}
 	if (TAIL(TAIL(params)) == NULLOBJ) 
@@ -947,6 +955,7 @@ void init_eval()
     register_func("RETURN-FROM", return_from);
     register_func("LABELS", labels);
     register_func("FUNCTION", function);
+    register_func("DUMP", dump_mem);
     t = NEW_SYMBOL("T"); 
     nil = NULLOBJ;
     bind_global(t);

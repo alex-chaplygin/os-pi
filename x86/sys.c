@@ -25,6 +25,8 @@
  */
 object_t INB(object_t args)
 {
+    printf("INB ");
+    PRINT(args);
     if (args == NULLOBJ || TYPE(args) != PAIR)
 	error("INB: port\n");
     int val = inb(get_value(FIRST(args)));

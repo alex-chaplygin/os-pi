@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "alloc.h"
 #include "objects.h"
 #include "bind.h"
@@ -35,9 +36,13 @@ void bind_global(object_t symbol)
 void set_global(symbol_t *symbol)
 {
     bind_t *cur = global_env;
-    //  printf("set_global: %s\n", symbol->str);
-    for (int i = 0; i < last_global; i++, cur++)
-	if (GET_SYMBOL(cur->obj) == symbol)
+    //    printf("set_global: %s %x\n", symbol->str, symbol);
+    for (int i = 0; i < last_global; i++, cur++) {
+	//	if (!strcmp(GET_SYMBOL(cur->obj)->str, symbol->str)) {
+	if (GET_SYMBOL(cur->obj) == symbol) {
+	    //GET_SYMBOL(cur->obj)->value = symbol->value;
 	    return;
+	}
+    }
     bind_global(NEW_OBJECT(SYMBOL, symbol));    
 }

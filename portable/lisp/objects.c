@@ -682,59 +682,61 @@ void sweep()
     }
 }
 
-void dump_mem()
+object_t dump_mem(object_t args)
 {
-    printf("dump_mem:\nbignumbers: ");
-    for (int i = 0; i < last_bignumber; i++) {
-        bignumber_t *big_num = &bignumbers[i];
-	printf("%d %d,", big_num->free, big_num->value);
-    }
-    printf("\nfloats: ");
-    for (int i = 0; i < last_float; i++) {
-	float_t *flt = &floats[i];
-	printf("%d %f,", flt->free, flt->value);
-    }
-    printf("\nfunctions: ");
-    for (int i = 0; i < last_function; i++) {
-	function_t *func = &functions[i];
-	printf("free: %d\n", func->free);
-	printf("args: "); PRINT(func->args);
-	printf("body: "); PRINT(func->body);
-	printf("env: "); PRINT(func->env);
-	printf("func_env: "); PRINT(func->func_env);
-	printf("----------\n");
-    }
-    printf("pairs: ");
-    for (int i = 0; i < last_pair; i++) {
-        pair_t *pair = &pairs[i];
-	printf("free: %d\n", pair->free);
-	printf("left: "); PRINT(pair->left);
-	printf("right: "); PRINT(pair->right);
-	printf("----------\n");
-    }
-    printf("strings: ");
-    for (int i = 0; i < last_string; i++) {
-    	string_t *str = &strings[i];
-	printf("%d %d %s,", str->free, str->length, str->data);
-    }
-    printf("\narrays: ");
-    for (int i = 0; i < last_array; i++) {
-    	array_t *arr = &arrays[i];
-	printf("free: %d\n", arr->free);
-	printf("length: %d\n", arr->length);
-	printf("data: ");
-	for (int j = 0; j < arr->length; j++) {
-	    print_obj(arr->data[j]);
-	    printf(" ");
-	}
-	printf("-----------\n");
-    }
+    /* printf("dump_mem:\nbignumbers: "); */
+    /* for (int i = 0; i < last_bignumber; i++) { */
+    /*     bignumber_t *big_num = &bignumbers[i]; */
+    /* 	printf("%d %d,", big_num->free, big_num->value); */
+    /* } */
+    /* printf("\nfloats: "); */
+    /* for (int i = 0; i < last_float; i++) { */
+    /* 	float_t *flt = &floats[i]; */
+    /* 	printf("%d %f,", flt->free, flt->value); */
+    /* } */
+    /* printf("\nfunctions: "); */
+    /* for (int i = 0; i < last_function; i++) { */
+    /* 	function_t *func = &functions[i]; */
+    /* 	printf("free: %d\n", func->free); */
+    /* 	printf("args: "); PRINT(func->args); */
+    /* 	printf("body: "); PRINT(func->body); */
+    /* 	printf("env: "); PRINT(func->env); */
+    /* 	printf("func_env: "); PRINT(func->func_env); */
+    /* 	printf("----------\n"); */
+    /* } */
+    /* printf("pairs: "); */
+    /* for (int i = 0; i < last_pair; i++) { */
+    /*     pair_t *pair = &pairs[i]; */
+    /* 	printf("free: %d\n", pair->free); */
+    /* 	printf("left: "); PRINT(pair->left); */
+    /* 	printf("right: "); PRINT(pair->right); */
+    /* 	printf("----------\n"); */
+    /* } */
+    /* printf("strings: "); */
+    /* for (int i = 0; i < last_string; i++) { */
+    /* 	string_t *str = &strings[i]; */
+    /* 	printf("%d %d %s,", str->free, str->length, str->data); */
+    /* } */
+    /* printf("\narrays: "); */
+    /* for (int i = 0; i < last_array; i++) { */
+    /* 	array_t *arr = &arrays[i]; */
+    /* 	printf("free: %d\n", arr->free); */
+    /* 	printf("length: %d\n", arr->length); */
+    /* 	printf("data: "); */
+    /* 	for (int j = 0; j < arr->length; j++) { */
+    /* 	    print_obj(arr->data[j]); */
+    /* 	    printf(" "); */
+    /* 	} */
+    /* 	printf("-----------\n"); */
+    /* } */
     printf("symbols: ");
-    for (int i = 0; i < last_symbol; i++) {
+    for (int i = last_symbol - 10; i < last_symbol; i++) {
     	symbol_t *symb = &symbols[i];
-	printf("%d %s,", symb->free, symb->str);
+	printf("%d %s %x,", symb->free, symb->str, symb);
+	//printf("%x,", symb);
     }
     printf("\n");
+    return NULLOBJ;
 }
 
 /**
@@ -762,11 +764,12 @@ void garbage_collect()
 	mark_object(tagbody_buffers[i].environment);
 	mark_object(tagbody_buffers[i].func_environment);
     }
-    //printf("garbage_collect end env %x\n", protected);    
+    //printf("garbage_collect end env %x ", protected);    
     temp_bind_t *curp = protected;
+    //    PRINT(*(curp->obj));
     for (int i = 0; i < last_protected; i++, curp++) {
 	//printf("%x ", curp);
-	//	PRINT(*(curp->obj));
+	//PRINT(*(curp->obj));
 	mark_object(*(curp->obj));
     }
     //printf("garbage_collect end protect\n");    

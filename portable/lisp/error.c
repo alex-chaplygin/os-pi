@@ -28,10 +28,14 @@ void error(char *str, ...)
         putchar('\n');
 #ifdef DEBUG
 	print_debug_stack();
-        debug_stack = NULLOBJ;
-	extern object_t current_env;
-	printf("env: ");
-	PRINT(current_env);
+        /* debug_stack = NULLOBJ; */
+	/* extern object_t current_env; */
+	/* printf("env: "); */
+	/* PRINT(current_env); */
+	dump_mem(NULLOBJ);
+	/* printf("defvar: "); */
+	/* symbol_t *find_symbol(char *str); */
+	/* PRINT(find_symbol("DEFVAR")->macro); */
 #endif
     }
     longjmp(repl_buf, 1);
