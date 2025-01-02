@@ -16,26 +16,23 @@ void print_debug_lines();
  */
 void error(char *str, ...)
 {
-    va_list vals;
-    va_start(vals, str);
+    char *vals;
+    vals = (char *)&str;
 #ifdef OS
     void set_cursor(int x, int y);
     set_cursor(0, 0);
 #endif
     if (str[0] != '\0') {
-        vprintf(str, vals);
-        va_end(vals);
-        putchar('\n');
+        /* vprintf(str, vals); */
+        /* va_end(vals); */
+        /* putchar('\n'); */
 #ifdef DEBUG
-	print_debug_stack();
-        /* debug_stack = NULLOBJ; */
+	//	print_debug_stack();
+        debug_stack = NULLOBJ;
 	/* extern object_t current_env; */
 	/* printf("env: "); */
 	/* PRINT(current_env); */
 	dump_mem(NULLOBJ);
-	/* printf("defvar: "); */
-	/* symbol_t *find_symbol(char *str); */
-	/* PRINT(find_symbol("DEFVAR")->macro); */
 #endif
     }
     longjmp(repl_buf, 1);

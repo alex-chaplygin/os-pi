@@ -3,10 +3,9 @@
 (defun events-loop ()
   "Глобальный цикл обработки событий"
   (while t
-	 ;(dump)
 	 (key-handler)
 	 (setq *e* (queue-pop *events*))
 	 (if (eq *e* nil) nil
 	     (print `(q = ,*events* e = ,*e*)))))
 	  
-;(events-loop)
+(events-loop)

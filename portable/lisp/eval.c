@@ -172,10 +172,12 @@ object_t backquote_rec(object_t list)
 {
     object_t res = NULLOBJ;
     object_t first = NULLOBJ;
+    object_t l = NULLOBJ;
     if (list == NULLOBJ) 
  	return NULLOBJ;
     //    printf("backqoute ");
     //PRINT(list);
+    //    printf("protect backq\n");
     PROTECT3(list, res, first);
     object_t env = current_env;
     object_t func = func_env;
@@ -204,7 +206,7 @@ object_t backquote_rec(object_t list)
 	    if (first != NULLOBJ && TYPE(first) == PAIR) {  // first = (COMMA-AT B) 
 		object_t comma_at = FIRST(first);
 		if (comma_at != NULLOBJ && TYPE(comma_at) == SYMBOL && !strcmp(GET_SYMBOL(comma_at)->str, "COMMA-AT")) {
-		    object_t l = eval(SECOND(first), env, func);
+		    l = eval(SECOND(first), env, func);
 		    if (l == NULLOBJ) {
 			res = backquote_rec(TAIL(list));
 			UNPROTECT;
@@ -262,6 +264,7 @@ object_t IF(object_t obj)
 	error("False is empty");
     else if (TAIL(TAIL(TAIL(obj))) != NULLOBJ)
 	error("if: too many params");
+    /* printf("protect if\n"); */
     PROTECT1(obj);
     if (eval(FIRST(obj), env, func) != nil)
 	res = eval(SECOND(obj), env, func);
@@ -326,7 +329,8 @@ object_t progn(object_t params)
 	return NULLOBJ;
     object_t env = current_env;
     object_t func = func_env;
-    object_t obj;
+    object_t obj = NULLOBJ;
+    //    printf("protect progn\n");
     PROTECT1(params);
     while (params != NULLOBJ) {
 	obj = eval(FIRST(params), env, func);
@@ -469,6 +473,7 @@ object_t eval_func(object_t lambda, object_t args, object_t env, object_t func)
  	new_env = env; 
     else 
  	append_env(new_env, env);
+    //    printf("protect eval func\n");
     PROTECT1(body);
     object_t result = eval(body, new_env, func);
     UNPROTECT;
@@ -498,6 +503,7 @@ object_t macro_call(object_t macro, object_t args, object_t env, object_t func)
     /* PRINT(body); */
     if (new_env != NULLOBJ)
 	append_env(new_env, env);
+    /* printf("protect macro_call\n"); */
     PROTECT3(macro, eval_res, eval_res2);
     while (body != NULLOBJ) {
  	eval_res = eval(FIRST(body), new_env, func);
@@ -529,6 +535,7 @@ object_t eval_args(object_t args, object_t env, object_t func)
     object_t arg;
     object_t vals = new_pair(NULLOBJ, NULLOBJ);
     object_t v = vals;
+    /* printf("protect eval args\n"); */
     PROTECT2(args, vals);
     while (args != NULLOBJ) {
 	f = FIRST(args); 
@@ -605,7 +612,7 @@ object_t eval(object_t obj, object_t env, object_t func)
     extern int last_global;
     object_t args;
     object_t res;
-    printf("eval: "); PRINT(obj);
+    /* printf("eval: "); PRINT(obj); */
     /* printf("env: "); PRINT(env); */
     /* printf("func_env: "); PRINT(func_env); */
     /* printf("global_env: %d\n", last_global); */
@@ -699,11 +706,16 @@ void set_in_env(object_t env, object_t sym, object_t val)
  */ 
 
 object_t setq(object_t params) 
-{ 
+{
+    object_t obj = NULLOBJ;
+    /* printf("setq: "); */
+    /* PRINT(params); */
     object_t env = current_env;
     object_t func = func_env;
     if (params == NULLOBJ)
  	error("setq: params = NULLOBJ"); 
+    //    printf("protect setq\n");
+    PROTECT1(params);
     while (params != NULLOBJ) {
 	symbol_t *sym = GET_SYMBOL(FIRST(params)); 
 	object_t res; 
@@ -712,18 +724,20 @@ object_t setq(object_t params)
 	    sym = find_symbol(GET_SYMBOL(FIRST(params))->str); 
 	if (TAIL(params) == NULLOBJ)
 	    error("setq: no value");
-	PROTECT1(params);
-	object_t obj = eval(SECOND(params), env, func);
-	UNPROTECT;
+	/* printf("res = %d sym = %s\n", find_res, sym->str); */
+	//	dump_mem(NULLOBJ);
+	obj = eval(SECOND(params), env, func);
 	if (find_res) 
 	    set_in_env(env, FIRST(params), obj); 
 	else {
 	    sym->value = obj;
-	    //printf("setq %s = ", sym->str); PRINT(obj);
+	    //	    printf("setq2 %s = ", sym->str); PRINT(obj);
 	    set_global(sym);
 	}
-	if (TAIL(TAIL(params)) == NULLOBJ) 
+	if (TAIL(TAIL(params)) == NULLOBJ) {
+	    UNPROTECT;
 	    return obj;
+	}
 	params = TAIL(TAIL(params));
     }
     error("setq: out of vars");
@@ -757,7 +771,8 @@ object_t funcall(object_t params)
 object_t lisp_eval(object_t args) 
 {
     object_t res;
-    PROTECT2(args, res);
+    /* printf("protect lisp eval\n"); */
+    PROTECT1(args);
     res =  eval(FIRST(args), current_env, func_env);
     UNPROTECT;
     return res;
@@ -790,7 +805,9 @@ object_t tagbody(object_t params)
     object_t tags = NULLOBJ; // Список функций метки
     object_t env;
     object_t func;
-    PROTECT2(params, tags);
+    /* printf("tagbody: "); */
+    /* PRINT(params); */
+    /* printf("protect tagbody\n"); */
     params2 = params;
     while (params != NULLOBJ) {
         obj = FIRST(params);
@@ -798,11 +815,18 @@ object_t tagbody(object_t params)
         if (TYPE(obj) == SYMBOL)
             tags = new_pair(new_pair(obj, params), tags);
     }
+    PROTECT1(tags);
+    /* printf("tagsy: "); */
+    /* PRINT(tags); */
+    /* printf("curlabel: "); */
+    /* PRINT(cur_label); */
 #ifdef DEBUG
     object_t debug = debug_stack;
 #endif
     tagbody_buffers[tb_index_buf].environment = current_env;
     tagbody_buffers[tb_index_buf].func_environment = func_env;
+    tagbody_buffers[tb_index_buf].last_protected = last_protected;
+    cur_label = NULLOBJ;
     if (setjmp(tagbody_buffers[tb_index_buf++].buffer) == 1) {
 	if (tb_index_buf >= MAX_TAGBODY_SIZE)
 	    error("tagbody: buffer haven't true length");
@@ -814,6 +838,8 @@ object_t tagbody(object_t params)
     }
     env = current_env;
     func = func_env;
+    /* printf("tagbody2: "); */
+    /* PRINT(params2); */
     while (params2 != NULLOBJ) {
         obj = FIRST(params2);
 	params2 = TAIL(params2); 
@@ -837,8 +863,11 @@ object_t go(object_t args)
     if (args == NULLOBJ)
 	error("go: no label");
     cur_label = FIRST(args);
+    /* printf("go: "); */
+    /* PRINT(cur_label); */
     current_env = tagbody_buffers[tb_index_buf - 1].environment;
     func_env = tagbody_buffers[tb_index_buf - 1].func_environment;
+    last_protected = tagbody_buffers[tb_index_buf - 1].last_protected;
     longjmp(tagbody_buffers[tb_index_buf - 1].buffer, 1);
 }
 
@@ -869,6 +898,7 @@ object_t block(object_t list)
  */ 
 object_t return_from(object_t args) 
 {
+    /* printf("protect return from\n"); */
     PROTECT1(args);
     cur_label = eval(SECOND(args), current_env, func_env);
     UNPROTECT;

@@ -36,7 +36,7 @@ void bind_global(object_t symbol)
 void set_global(symbol_t *symbol)
 {
     bind_t *cur = global_env;
-    //    printf("set_global: %s %x\n", symbol->str, symbol);
+    /* printf("set_global: %s %x\n", symbol->str, symbol); */
     for (int i = 0; i < last_global; i++, cur++) {
 	//	if (!strcmp(GET_SYMBOL(cur->obj)->str, symbol->str)) {
 	if (GET_SYMBOL(cur->obj) == symbol) {

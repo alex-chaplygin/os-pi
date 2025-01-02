@@ -17,18 +17,17 @@ typedef struct temp_bind_s
 
 #define PRINTPROT\
     temp_bind_t *pprot = protected;\
-    printf("protected list: ");\
-    while (pprot != NULL) {\
-    PRINT(pprot->obj);\
-    pprot = pprot->next;\
-    }
+    printf("protected list: count = %d\n", last_protected);	\
+    for (int i = 0; i < last_protected; i++, pprot++) {		\
+    printf("%d: ", i);\
+	PRINT(*(pprot->obj));					\
+    }\
 
 /// Добавить один объект в список защиты protected
 #define PROTECT1(o)\
    int old_ped = last_protected;		\
    temp_bind_t *p_obj = &protected[last_protected++];\
    p_obj->obj = &o;\
-   //PRINT(o);
    //   PRINTPROT
 
 /// Добавить 2 объекта в список защиты protected
@@ -38,7 +37,7 @@ typedef struct temp_bind_s
    p_obj->obj = &o1;\
    p_obj = &protected[last_protected++];\
    p_obj->obj = &o2;\
-   //   PRINTPROT
+   //PRINTPROT
 
 /// Добавить 3 объекта в список защиты protected
 #define PROTECT3(o1, o2, o3)			\
@@ -49,6 +48,20 @@ typedef struct temp_bind_s
    p_obj->obj = &o2;\
    p_obj = &protected[last_protected++];\
    p_obj->obj = &o3;\
+   //PRINTPROT
+
+/// Добавить 3 объекта в список защиты protected
+#define PROTECT4(o1, o2, o3, o4)			\
+   int old_ped = last_protected;		\
+   temp_bind_t *p_obj = &protected[last_protected++];\
+   p_obj->obj = &o1;\
+   p_obj = &protected[last_protected++];\
+   p_obj->obj = &o2;\
+   p_obj = &protected[last_protected++];\
+   p_obj->obj = &o3;\
+   p_obj = &protected[last_protected++];\
+   p_obj->obj = &o4;\
+   //PRINTPROT
 
 #define UNPROTECT\
     last_protected = old_ped;

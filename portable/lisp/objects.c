@@ -730,11 +730,16 @@ object_t dump_mem(object_t args)
     /* 	printf("-----------\n"); */
     /* } */
     printf("symbols: ");
-    for (int i = last_symbol - 10; i < last_symbol; i++) {
-    	symbol_t *symb = &symbols[i];
-	printf("%d %s %x,", symb->free, symb->str, symb);
-	//printf("%x,", symb);
+    symbol_t *symb = symbols + 700;
+    for (int i = 0; i < 18; i++, symb++) {
+    	printf("%d %s %x\n", symb->free, symb->str, symb);
+    	//printf("%x,", symb);
     }
+    /* bind_t *cur = global_env + 110; */
+    /* for (int i = 0; i < 10; i++, cur++) { */
+    /* 	PRINT(cur->obj); */
+    /* 	PRINT(GET_SYMBOL(cur->obj)->lambda); */
+    /* } */
     printf("\n");
     return NULLOBJ;
 }
@@ -746,7 +751,8 @@ void garbage_collect()
 {
     bind_t *cur = global_env;
     //    printf("garbage_collect\nglobal env:");
-    //    dump_mem();
+    /* printf("before gc\n"); */
+    /* dump_mem(NULLOBJ); */
     for (int i = 0; i < last_global; i++, cur++) {
 	//	PRINT(cur->obj);
 	//printf("gc print before: %x\n", protected);
@@ -760,23 +766,27 @@ void garbage_collect()
 #endif
     mark_object(current_env);
     mark_object(func_env);
+    //    printf("garbage_collect begin tagbody %d\n ", tb_index_buf);    
     for (int i = 0; i < tb_index_buf; i++) {
 	mark_object(tagbody_buffers[i].environment);
 	mark_object(tagbody_buffers[i].func_environment);
     }
-    //printf("garbage_collect end env %x ", protected);    
+    //printf("garbage_collect end env %x\n", protected);    
     temp_bind_t *curp = protected;
     //    PRINT(*(curp->obj));
     for (int i = 0; i < last_protected; i++, curp++) {
-	//printf("%x ", curp);
+	//	printf("%x %x \n", curp, curp->obj);
 	//PRINT(*(curp->obj));
 	mark_object(*(curp->obj));
     }
-    //printf("garbage_collect end protect\n");    
+    //    printf("garbage_collect end protect\n");    
     sweep();
-    //    printf("garbage_collect end sweep\n");
+    //  printf("garbage_collect end sweep\n");
     //    dump_mem();
     allocated_pairs = 0;
+    /* printf("after gc\n"); */
+    /* PRINTPROT; */
+    /* dump_mem(NULLOBJ); */
 } 
 
 int print_counter = 0;
@@ -789,8 +799,9 @@ void print_list(object_t obj)
     if (obj == NULLOBJ)
 	return;
     pair_t *list = (pair_t*)(GET_ADDR(obj));
-    if(list->print_counter == print_counter){
+    if (list->print_counter == print_counter) {
 	printf("...");
+	print_counter++;
 	return;
     }
     list->print_counter = print_counter; //помечаем на текущем
