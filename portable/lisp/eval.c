@@ -7,6 +7,7 @@
 #include "parser.h"
 #include "eval.h"
 #include "arith.h"
+#include "bind.h"
 
 #define DEBUG_STACK_MAX_FRAME 7
 
@@ -166,57 +167,63 @@ void append_env(object_t l1, object_t l2);
  * @return аргумент 
  */ 
 object_t backquote_rec(object_t list) 
-{ 
+{
+    object_t res = NULLOBJ;
+    object_t first = NULLOBJ;
+    object_t l = NULLOBJ;
     if (list == NULLOBJ) 
- 	return NULLOBJ; 
-    //PRINT(list); 
+ 	return NULLOBJ;
+    PROTECT3(list, res, first);
     object_t env = current_env;
     object_t func = func_env;
-    object_t o; 
     if (TYPE(list) == BIGNUMBER) 
-	return new_bignumber(GET_BIGNUMBER(list)->value);
+	res = new_bignumber(GET_BIGNUMBER(list)->value);
     else if (TYPE(list) == FLOAT)
-	return new_float(GET_FLOAT(list)->value);
-    else if (TYPE(list) == CHAR || TYPE(list) == NUMBER)
-	return list;
-    else if (TYPE(list) == SYMBOL) 
-	return NEW_SYMBOL(GET_SYMBOL(list)->str); 
+	res = new_float(GET_FLOAT(list)->value);
+    else if (TYPE(list) == CHAR || TYPE(list) == NUMBER || TYPE(list) == SYMBOL)
+	res = list;
     else if (TYPE(list) == ARRAY) { 
  	array_t *arr = new_empty_array(GET_ARRAY(list)->length); 
+ 	res = NEW_OBJECT(ARRAY, arr); 
  	int l = GET_ARRAY(list)->length; 
  	for (int i = 0; i < l; i++) 
  	    arr->data[i] = backquote_rec(GET_ARRAY(list)->data[i]); 
- 	return NEW_OBJECT(ARRAY, arr); 
     } else if (TYPE(list) == STRING) 
-	return NEW_STRING(GET_STRING(list)->data); 
-    else if (TYPE(list) == PAIR) { 
- 	object_t el = FIRST(list); // list = (COMMA B) 
- 	if (el == NULLOBJ) 
- 	    return new_pair(NULLOBJ, backquote_rec(TAIL(list))); 
- 	if (TYPE(el) == SYMBOL && !strcmp(GET_SYMBOL(el)->str, "BACKQUOTE")) 
- 	    return list; 
- 	if (TYPE(el) == SYMBOL && !strcmp(GET_SYMBOL(el)->str, "COMMA")) 
- 	    return eval(SECOND(list), env, func); 
- 	object_t first = backquote_rec(el); 
- 	if (first != NULLOBJ && TYPE(first) == PAIR) {  // first = (COMMA-AT B) 
- 	    object_t comma_at = FIRST(first); 
- 	    if (comma_at != NULLOBJ && TYPE(comma_at) == SYMBOL && !strcmp(GET_SYMBOL(comma_at)->str, "COMMA-AT")) { 
- 		object_t l = eval(SECOND(first), env, func); 
- 		if (l == NULLOBJ) 
- 		    return backquote_rec(TAIL(list)); 
- 		if (TYPE(l) != PAIR)
-		    error("COMMA-AT: not list"); 
- 		object_t new_comma = backquote_rec(l); 
- 		append_env(new_comma, backquote_rec(TAIL(list))); 
- 		return new_comma; 
- 	    } 
- 	} 
- 	object_t tail = backquote_rec(TAIL(list)); 
- 	return new_pair(first, tail); 
-    } 
-    error("backqoute: unknown type: %d\n", TYPE(list));    
-} 
-
+	res = NEW_STRING(GET_STRING(list)->data); 
+    else if (TYPE(list) == PAIR) {
+ 	object_t el = FIRST(list); // list = (COMMA B)
+	if (TYPE(el) == SYMBOL && !strcmp(GET_SYMBOL(el)->str, "BACKQUOTE"))
+	    res = list;
+	else if (TYPE(el) == SYMBOL && !strcmp(GET_SYMBOL(el)->str, "COMMA"))
+ 	    res = eval(SECOND(list), env, func);
+	else {
+	    first = backquote_rec(el); 
+	    if (first != NULLOBJ && TYPE(first) == PAIR) {  // first = (COMMA-AT B) 
+		object_t comma_at = FIRST(first);
+		if (comma_at != NULLOBJ && TYPE(comma_at) == SYMBOL && !strcmp(GET_SYMBOL(comma_at)->str, "COMMA-AT")) {
+		    l = eval(SECOND(first), env, func);
+		    if (l == NULLOBJ) {
+			res = backquote_rec(TAIL(list));
+			UNPROTECT;
+			return res;
+		    } else if (TYPE(l) != PAIR)
+			error("COMMA-AT: not list");
+		    else {
+			res = backquote_rec(l); 
+			append_env(res, backquote_rec(TAIL(list))); 
+			UNPROTECT;
+			return res;
+		    }
+		}
+	    }
+	    object_t tail = backquote_rec(TAIL(list)); 
+	    res = new_pair(first, tail);
+	}
+    } else
+	error("backqoute: unknown type: %d\n", TYPE(list));    
+    UNPROTECT;
+    return res;
+}
 /* 
  * (BACKQOUTE (a b c)) 
  * 
@@ -238,20 +245,24 @@ object_t backquote(object_t list)
  */ 
 object_t IF(object_t obj)
 {
-    if (obj == NULLOBJ)
+if (obj == NULLOBJ)
 	error("NULLOBJ in IF");    
     object_t env = current_env;
     object_t func = func_env;
+    object_t res;
     if (TAIL(obj) == NULLOBJ)
 	error("True is empty");
     if (TAIL(TAIL(obj)) == NULLOBJ)
 	error("False is empty");
     else if (TAIL(TAIL(TAIL(obj))) != NULLOBJ)
 	error("if: too many params");
+    PROTECT1(obj);
     if (eval(FIRST(obj), env, func) != nil)
-	return eval(SECOND(obj), env, func);
+	res = eval(SECOND(obj), env, func);
     else
-	return eval(THIRD(obj), env, func);
+	res = eval(THIRD(obj), env, func);
+    UNPROTECT;
+    return res;
 }
 
 /*  
@@ -267,6 +278,7 @@ object_t defun(object_t obj)
 	error("defun: empty");
     symbol_t *name = find_symbol(GET_SYMBOL(FIRST(obj))->str); 
     name->lambda = new_pair(NEW_SYMBOL("LAMBDA"), TAIL(obj));
+    set_global(name);
     return NEW_SYMBOL(name->str);  
 }
 
@@ -282,7 +294,8 @@ object_t defmacro(object_t obj)
     if (obj == NULLOBJ)
 	error("defmacro: empty");
     symbol_t *name = find_symbol(GET_SYMBOL(FIRST(obj))->str); 
-    name->macro = new_pair(NEW_SYMBOL("LAMBDA"), TAIL(obj)); 
+    name->macro = new_pair(NEW_SYMBOL("LAMBDA"), TAIL(obj));
+    set_global(name);
     return NEW_SYMBOL(name->str);
 }
 
@@ -301,11 +314,13 @@ object_t progn(object_t params)
 	return NULLOBJ;
     object_t env = current_env;
     object_t func = func_env;
-    object_t obj;
+    object_t obj = NULLOBJ;
+    PROTECT1(params);
     while (params != NULLOBJ) {
 	obj = eval(FIRST(params), env, func);
 	params = TAIL(params);
     }
+    UNPROTECT
     return obj;
 } 
 
@@ -441,8 +456,11 @@ object_t eval_func(object_t lambda, object_t args, object_t env, object_t func)
     if (new_env == NULLOBJ) 
  	new_env = env; 
     else 
- 	append_env(new_env, env); 
-    return eval(body, new_env, func); 
+ 	append_env(new_env, env);
+    PROTECT1(body);
+    object_t result = eval(body, new_env, func);
+    UNPROTECT;
+    return result;
 } 
 
 /* 
@@ -458,16 +476,19 @@ object_t macro_call(object_t macro, object_t args, object_t env, object_t func)
 { 
     object_t new_env = make_env(SECOND(macro), args); 
     object_t body; 
-    object_t eval_res;
+    object_t eval_res = NULLOBJ;
+    object_t eval_res2 = NULLOBJ;
     body = TAIL(TAIL(macro));
     if (new_env != NULLOBJ)
-	append_env(new_env, env); 
+	append_env(new_env, env);
+    PROTECT3(macro, eval_res, eval_res2);
     while (body != NULLOBJ) {
- 	eval_res = eval(FIRST(body), new_env, func); 
- 	eval_res = eval(eval_res, env, func); 
- 	body = TAIL(body); 
-    } 
-    return eval_res; 
+ 	eval_res = eval(FIRST(body), new_env, func);
+ 	eval_res2 = eval(eval_res, env, func);
+ 	body = TAIL(body);
+    }
+    UNPROTECT;
+    return eval_res2;
 } 
     
 /* 
@@ -479,20 +500,28 @@ object_t macro_call(object_t macro, object_t args, object_t env, object_t func)
  */ 
 object_t eval_args(object_t args, object_t env, object_t func) 
 { 
-    //printf("eval_args: "); 
-    //PRINT(args); 
-    //printf(" "); 
-    //PRINT(env); 
     if (args == NULLOBJ) 
  	return NULLOBJ;
     if (TYPE(args) != PAIR)
-	error("arguments are not list");    
-    object_t f = FIRST(args); 
-    //printf("f = %x pair = %x", f, f->u.pair); 
-    //PRINT(f); 
-    object_t arg = eval(f, env, func); 
-    object_t tail = eval_args(TAIL(args), env, func); 
-    return new_pair(arg, tail);  
+	error("arguments are not list");
+    object_t f;
+    object_t arg;
+    object_t vals = new_pair(NULLOBJ, NULLOBJ);
+    object_t v = vals;
+    PROTECT2(args, vals);
+    while (args != NULLOBJ) {
+	f = FIRST(args); 
+	arg = eval(f, env, func);
+	GET_PAIR(v)->left = arg;
+	if (TAIL(args) == NULLOBJ)
+	    GET_PAIR(v)->right = NULLOBJ;
+	else
+	    GET_PAIR(v)->right = new_pair(NULLOBJ, NULLOBJ);
+	args = TAIL(args);
+	v = TAIL(v);
+    }
+    UNPROTECT;
+    return vals;
 } 
 
 /* 
@@ -555,14 +584,16 @@ object_t eval(object_t obj, object_t env, object_t func)
 {
     object_t args;
     object_t res;
-    //     printf("eval: "); PRINT(obj);
-    //    printf("env: "); PRINT(env);
+    /* printf("eval: "); PRINT(obj); */
+    /* printf("env: "); PRINT(env); */
     current_env = env;
     func_env = func;
     if (need_grabage_collect())
 	garbage_collect();
     if (obj == NULLOBJ)
         return NULLOBJ;
+    if (obj == t)
+        return t;
     else if (TYPE(obj) == NUMBER || TYPE(obj) == BIGNUMBER || TYPE(obj) == FLOAT || TYPE(obj) == STRING || TYPE(obj) == ARRAY || TYPE(obj) == CHAR)
 	return obj;
     else if (TYPE(obj) == SYMBOL)
@@ -635,10 +666,12 @@ void set_in_env(object_t env, object_t sym, object_t val)
  */ 
 object_t setq(object_t params) 
 { 
+    object_t obj = NULLOBJ;
     object_t env = current_env;
     object_t func = func_env;
     if (params == NULLOBJ)
  	error("setq: params = NULLOBJ"); 
+    PROTECT1(params);
     while (params != NULLOBJ) {
 	symbol_t *sym = GET_SYMBOL(FIRST(params)); 
 	object_t res; 
@@ -646,14 +679,18 @@ object_t setq(object_t params)
 	if (!find_res) 
 	    sym = find_symbol(GET_SYMBOL(FIRST(params))->str); 
 	if (TAIL(params) == NULLOBJ)
-	    error("setq: no value"); 
-	object_t obj = eval(SECOND(params), env, func); 
+	    error("setq: no value");
+	obj = eval(SECOND(params), env, func);
 	if (find_res) 
 	    set_in_env(env, FIRST(params), obj); 
-	else 
-	    sym->value = obj; 
-	if (TAIL(TAIL(params)) == NULLOBJ) 
+	else {
+	    sym->value = obj;
+	    set_global(sym);
+	}
+	if (TAIL(TAIL(params)) == NULLOBJ) {
+	    UNPROTECT;
 	    return obj;
+	}
 	params = TAIL(TAIL(params));
     }
     error("setq: out of vars");
@@ -686,7 +723,11 @@ object_t funcall(object_t params)
  */ 
 object_t lisp_eval(object_t args) 
 { 
-    return eval(FIRST(args), current_env, func_env); 
+    object_t res;
+    PROTECT1(args);
+    res =  eval(FIRST(args), current_env, func_env);
+    UNPROTECT;
+    return res;
 } 
 
 /* 
@@ -697,6 +738,7 @@ object_t error_func(object_t args)
 {
     printf("ERROR: ");
     PRINT(FIRST(args));
+    last_protected = 0;
     longjmp(repl_buf, 1);
 }
 
@@ -722,11 +764,14 @@ object_t tagbody(object_t params)
         if (TYPE(obj) == SYMBOL)
             tags = new_pair(new_pair(obj, params), tags);
     }
+    PROTECT1(tags);
 #ifdef DEBUG
     object_t debug = debug_stack;
 #endif
     tagbody_buffers[tb_index_buf].environment = current_env;
     tagbody_buffers[tb_index_buf].func_environment = func_env;
+    tagbody_buffers[tb_index_buf].last_protected = last_protected;
+    cur_label = NULLOBJ;
     if (setjmp(tagbody_buffers[tb_index_buf++].buffer) == 1) {
 	if (tb_index_buf >= MAX_TAGBODY_SIZE)
 	    error("tagbody: buffer haven't true length");
@@ -739,8 +784,6 @@ object_t tagbody(object_t params)
     env = current_env;
     func = func_env;
     while (params2 != NULLOBJ) {
-	mark_object(tags);
-	mark_object(cur_label);	
         obj = FIRST(params2);
 	params2 = TAIL(params2); 
         if (TYPE(obj) != SYMBOL)
@@ -750,6 +793,7 @@ object_t tagbody(object_t params)
 #endif
     }
     tb_index_buf--;
+    UNPROTECT;
     return nil;
 }
 
@@ -762,9 +806,9 @@ object_t go(object_t args)
     if (args == NULLOBJ)
 	error("go: no label");
     cur_label = FIRST(args);
-    mark_object(cur_label);
     current_env = tagbody_buffers[tb_index_buf - 1].environment;
     func_env = tagbody_buffers[tb_index_buf - 1].func_environment;
+    last_protected = tagbody_buffers[tb_index_buf - 1].last_protected;
     longjmp(tagbody_buffers[tb_index_buf - 1].buffer, 1);
 }
 
@@ -795,7 +839,9 @@ object_t block(object_t list)
  */ 
 object_t return_from(object_t args) 
 { 
+    PROTECT1(args);
     cur_label = eval(SECOND(args), current_env, func_env);
+    UNPROTECT;
     longjmp(block_buf, 1);
 } 
 
@@ -872,6 +918,7 @@ void init_eval()
     register_func("FUNCALL", funcall); 
     register_func("EVAL", lisp_eval);
     register_func("GC", print_gc_stat);
+    register_func("DUMP-MEM", dump_mem);
     register_func("ERROR", error_func);
     register_func("TAGBODY", tagbody);
     register_func("GO", go);
@@ -881,6 +928,7 @@ void init_eval()
     register_func("FUNCTION", function);
     t = NEW_SYMBOL("T"); 
     nil = NULLOBJ;
+    bind_static(t);
     quote_sym = find_symbol("QUOTE"); 
     backquote_sym = find_symbol("BACKQUOTE"); 
     lambda_sym = find_symbol("LAMBDA");
@@ -888,11 +936,14 @@ void init_eval()
     defun_sym = find_symbol("DEFUN"); 
     defmacro_sym = find_symbol("DEFMACRO"); 
     setq_sym = find_symbol("SETQ"); 
-    t_sym = GET_SYMBOL(t); 
-    t_sym->value = t; 
+    t_sym = GET_SYMBOL(t);
+    t_sym->value = new_number(1);
     nil_sym = find_symbol("NIL"); 
-    nil_sym->value = nil; 
-    rest_sym = find_symbol("&REST"); 
+    nil_sym->value = nil;
+    bind_static(NEW_OBJECT(SYMBOL, nil_sym));
+    rest_sym = find_symbol("&REST");
+    bind_static(NEW_OBJECT(SYMBOL, rest_sym));
+    bind_static(NEW_OBJECT(SYMBOL, lambda_sym));
     tagbody_sym = find_symbol("TAGBODY");
     go_sym = find_symbol("GO");
     block_sym = find_symbol("BLOCK");
