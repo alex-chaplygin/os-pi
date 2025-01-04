@@ -1,6 +1,6 @@
 include boot/common.mak
 SHELL=bash
-SRC=parser.o lexer.o objects.o symbols.o eval.o arith.o array.o str.o pair.o predicates.o alloc.o mpa.o error.o
+SRC=parser.o lexer.o objects.o symbols.o eval.o arith.o array.o str.o pair.o predicates.o alloc.o mpa.o error.o bind.o
 CFLAGS=-g -m32 -nostdlib -nodefaultlibs -Wno-builtin-declaration-mismatch -I../include -MD -D OS -D X32 -DDEBUG -fno-stack-protector -fstack-check=no
 FS=$(BASELISP) boot/ata.lsp boot/mbr.lsp boot/fs/block.lsp boot/fs/fs.lsp boot/fs/fat32fs.lsp boot/fs/fat.lsp boot/fs/dir.lsp boot/fs/fat32test.lsp
 KEYBOARD=$(BASELISP) boot/sys/keyboard.lsp boot/sys/events.lsp
@@ -15,7 +15,7 @@ game:
 
 include $(wildcard *.d) # автоматическая зависимость от заголовочных файлов
 
-lisp: /tmp/game.lsp # здесь меняем набор библиотек
+lisp: /tmp/baselisp.lsp # здесь меняем набор библиотек
 	cp $^ /tmp/lisp.lsp
 
 # файловая система

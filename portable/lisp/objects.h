@@ -18,7 +18,9 @@
 /// Всего продолжений
 #define MAX_CONTINUATIONS 100
 /// Всего функций 
-#define MAX_FUNCTIONS 100
+#define MAX_FUNCTIONS 1000
+/// Число созданных пар, после которого вызвается сборка мусора
+#define GC_THRESHOLD 400
 
 /// Печать объекта с переводом строки и учетом рекурсии
 #define PRINT(o) print_counter++; print_obj(o); printf("\n");
@@ -196,8 +198,12 @@ typedef struct symbol_s
 {
     //имя символа
     char str[MAX_SYM_STR];
-    //указатель на следующий символ в цепочке хеш таблице
+    // признак свободной ячейки для символа
+    int free;
+    //указатель на следующий символ в цепочке хеш таблице или в списке свободных
     struct symbol_s *next;
+    // индекс в хеш-таблице
+    int hash_index;
     // указатель на объект - значение переменной
     object_t value;
     // указатель на объект для функций (lambda выражение)
@@ -208,11 +214,6 @@ typedef struct symbol_s
     func_t func;
     //список функций у метки
     object_t tag_value;
-#ifdef X32
-    int pad[2]; // выравнивание 32 + 24 + 8
-#else
-    int pad[4]; // выравнивание 32 + 48 + 16
-#endif
 } symbol_t;
 
 extern int print_counter;
@@ -233,6 +234,7 @@ void free_object(object_t *obj);
 void free_bignumber(bignumber_t *o);
 void free_float(float_t *f);
 void free_pair(pair_t *p);
+void free_symbol(symbol_t *s);
 void free_function(function_t *f);
 void print_free_objs();
 void print_free_pairs();
@@ -243,5 +245,6 @@ array_t *new_empty_array(int length);
 void free_array(array_t *a);
 object_t print_gc_stat(object_t o);
 int need_grabage_collect();
-void mark_object(object_t obj);
+object_t dump_mem(object_t args);
+void error(char *str, ...);
 #endif

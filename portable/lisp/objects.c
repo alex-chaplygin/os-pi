@@ -9,6 +9,7 @@
 #include "eval.h"
 #include "alloc.h"
 #include "cont.h"
+#include "bind.h"
 
 /// Индекс последнего большого числа
 int last_bignumber = 0;
@@ -34,7 +35,9 @@ pair_t *free_pairs = NULL;
 /// Индекс последнего символа
 int last_symbol = 0;
 /// Хранилище символов
-symbol_t symbols[MAX_SYMBOLS];
+symbol_t *symbols;
+/// Список свободных символов
+symbol_t *free_symbols = NULL;
 
 /// Индекс последней строки
 int last_string = 0;
@@ -78,6 +81,10 @@ int total_arrays = 0;
 int total_continuations = 0;
 ///Количество используемых функций
 int total_functions = 0;
+///Количество используемых символов
+int total_symbols = 0;
+///Количество созданных пар с момента последней сборки мусора
+int allocated_pairs = 0;
 
 /// текущее окружение
 extern object_t current_env;
@@ -89,7 +96,7 @@ extern object_t func_env;
  */
 void init_objects()
 {
-    //alloc_region(1);
+    symbols = (symbol_t *)alloc_region(MAX_SYMBOLS * sizeof(symbol_t));
     bignumbers = (bignumber_t *)alloc_region(MAX_NUMBERS * sizeof(bignumber_t));
     floats = (float_t *)alloc_region(MAX_FLOATS * sizeof(float_t));
     pairs = (pair_t *)alloc_region(MAX_PAIRS * sizeof(pair_t));
@@ -342,15 +349,12 @@ object_t new_pair(object_t left, object_t right)
  	free_pairs = free_pairs->next; 
     } else 
  	pair = &pairs[last_pair++];
-    /*printf("new_pair: ");
-    PRINT(left);
-    PRINT(right);
-    printf("pair = %x %d\n", pair, sizeof(pair_t));*/
     pair->next = NULL; 
     pair->free = 0; 
     pair->left = left; 
     pair->right = right;
     total_pairs++;
+    allocated_pairs++;
     return NEW_OBJECT(PAIR, pair); 
 } 
 
@@ -381,11 +385,16 @@ void free_pair(pair_t *p)
  */
 symbol_t *new_symbol(char *str)
 {
-    if (last_symbol == MAX_SYMBOLS)
-	error("Error: out of memory: symbols");
+    symbol_t *symbol;
     if (*str == 0)
 	return NULL;
-    symbol_t *symbol = &symbols[last_symbol++];
+    if (last_symbol == MAX_SYMBOLS) {
+	if (free_symbols == NULL)
+	    error("Error: out of memory: symbols");
+	symbol = free_symbols;
+	free_symbols = free_symbols->next;
+    } else
+	symbol = &symbols[last_symbol++];
     strcpy(symbol->str, str);
     symbol->next = NULL;
     symbol->value = NOVALUE;
@@ -393,6 +402,24 @@ symbol_t *new_symbol(char *str)
     symbol->lambda = NULLOBJ;
     symbol->macro = NULLOBJ;
     return symbol;
+}
+
+/**
+ * Освобождение памяти для символа
+ *
+ * @param s объект для освобождения
+ */
+void free_symbol(symbol_t *s)
+{
+    if (s == NULL)
+	error("free_symbol: null pointer: obj");
+    if (s->free)
+	return;
+    hash_remove(s);
+    s->free = 1;
+    s->next = free_symbols;
+    free_symbols = s;
+    total_symbols--;
 }
 
 /**
@@ -533,7 +560,7 @@ void free_array(array_t *a)
  * Для больших чисел - старший бит в free 
  * Для чисел с плавающей точкой - старший бит в free
  * Для функций - старший бит в free
- * Для символов - нет 
+ * Для символов - старший бит в hash_index
  * Для пар - markbit в left 
  * Для строк - старший бит в length 
  * Для массивов - старший бит в length 
@@ -550,6 +577,12 @@ void mark_object(object_t obj)
 	SET_MARK(GET_PAIR(obj)->left);
 	mark_object(GET_PAIR(obj)->left);
 	mark_object(GET_PAIR(obj)->right);
+    } else if (TYPE(obj) == SYMBOL) {
+       symbol_t *s = GET_SYMBOL(obj);
+       s->hash_index |= mask;
+       mark_object(s->value);
+       mark_object(s->lambda);
+       mark_object(s->macro);
     } else if (TYPE(obj) == BIGNUMBER) {
 	if (((GET_BIGNUMBER(obj)->free) & mask) != 0)
 	    return;
@@ -617,6 +650,68 @@ void sweep()
 	    free_array(arr);
 	else arr->length &= ~mask;
     }
+    for (int i = 0; i < last_symbol; i++) {
+       symbol_t *symb = &symbols[i];
+       if ((symb->hash_index & mask) == 0)
+           free_symbol(symb);
+       else
+           symb->hash_index &= ~mask;
+    }
+}
+
+object_t dump_mem(object_t args)
+{
+    printf("dump_mem:\nbignumbers: ");
+    for (int i = 0; i < last_bignumber; i++) {
+        bignumber_t *big_num = &bignumbers[i];
+    	printf("%d %d,", big_num->free, big_num->value);
+    }
+    printf("\nfloats: ");
+    for (int i = 0; i < last_float; i++) {
+    	float_t *flt = &floats[i];
+    	printf("%d %f,", flt->free, flt->value);
+    }
+    printf("\nfunctions: ");
+    for (int i = 0; i < last_function; i++) {
+    	function_t *func = &functions[i];
+    	printf("free: %d\n", func->free);
+    	printf("args: "); PRINT(func->args);
+    	printf("body: "); PRINT(func->body);
+    	printf("env: "); PRINT(func->env);
+    	printf("func_env: "); PRINT(func->func_env);
+    	printf("----------\n");
+    }
+    printf("pairs: ");
+    for (int i = 0; i < last_pair; i++) {
+        pair_t *pair = &pairs[i];
+    	printf("free: %d\n", pair->free);
+    	printf("left: "); PRINT(pair->left);
+    	printf("right: "); PRINT(pair->right);
+    	printf("----------\n");
+    }
+    printf("strings: ");
+    for (int i = 0; i < last_string; i++) {
+    	string_t *str = &strings[i];
+    	printf("%d %d %s,", str->free, str->length, str->data);
+    }
+    printf("\narrays: ");
+    for (int i = 0; i < last_array; i++) {
+    	array_t *arr = &arrays[i];
+    	printf("free: %d\n", arr->free);
+    	printf("length: %d\n", arr->length);
+    	printf("data: ");
+    	for (int j = 0; j < arr->length; j++) {
+    	    print_obj(arr->data[j]);
+    	    printf(" ");
+    	}
+    	printf("-----------\n");
+    }
+    printf("symbols: ");
+    symbol_t *symb = symbols;
+    for (int i = 0; i < last_symbol; i++, symb++)
+    	printf("%d %s %x\n", symb->free, symb->str, (int)symb);
+    printf("\n");
+    return NULLOBJ;
 }
 
 /**
@@ -624,17 +719,26 @@ void sweep()
  */
 void garbage_collect()
 {
-    for (int i = 0; i < last_symbol; i++) { 
-	mark_object(symbols[i].value);
-	mark_object(symbols[i].lambda);
-	mark_object(symbols[i].macro);
-    }
+    /* printf("gc\n"); */
+    /* extern continuation_t tagbody_buffers[]; */
+    /* extern int tb_index_buf; */
+    object_t *cur = static_bind;
+    for (int i = 0; i < last_static; i++, cur++)
+	mark_object(*cur);
 #ifdef DEBUG
     mark_object(debug_stack);
 #endif
     mark_object(current_env);
     mark_object(func_env);
+    /* for (int i = 0; i < tb_index_buf; i++) { */
+    /* 	mark_object(tagbody_buffers[i].environment); */
+    /* 	mark_object(tagbody_buffers[i].func_environment); */
+    /* } */
+    object_t **temp = protected;
+    for (int i = 0; i < last_protected; i++, temp++)
+	mark_object(**temp);
     sweep();
+    allocated_pairs = 0;
 } 
 
 int print_counter = 0;
@@ -702,7 +806,7 @@ void print_obj(object_t obj)
     else if (TYPE(obj) == SYMBOL)
  	printf("%s", ((symbol_t *)GET_ADDR(obj))->str);
     else if (TYPE(obj) == CHAR) 
-        printf("#\\%c", GET_CHAR(obj));
+        printf("#\\%c", (int)GET_CHAR(obj));
     else if (TYPE(obj) == PAIR) {
  	    printf("(");
  	    print_list(obj);
@@ -723,7 +827,7 @@ object_t print_gc_stat(object_t o)
     printf("bignumbers: %d(%d) of %d\n", last_bignumber, total_bignumbers, MAX_NUMBERS);
     printf("floats: %d(%d) of %d\n", last_float, total_floats, MAX_FLOATS);
     printf("pairs: %d(%d) of %d\n", last_pair, total_pairs, MAX_PAIRS);
-    printf("symbols: %d of %d\n", last_symbol, MAX_SYMBOLS);
+    printf("symbols: %d(%d) of %d\n", last_symbol, total_symbols, MAX_SYMBOLS);
     printf("strings: %d(%d) of %d\n", last_string, total_strings, MAX_STRINGS);
     printf("arrays: %d(%d) of %d\n", last_array, total_arrays, MAX_ARRAYS);
     printf("functions: %d(%d) of %d\n", last_function, total_functions, MAX_FUNCTIONS);
@@ -738,17 +842,5 @@ object_t print_gc_stat(object_t o)
  */ 
 int need_grabage_collect()
 {
-    if (total_pairs > (MAX_PAIRS - (MAX_PAIRS >> 3)))
-        return 1;
-    if (total_bignumbers > (MAX_NUMBERS - (MAX_NUMBERS >> 3)))
-        return 1;
-    if (total_strings > (MAX_STRINGS - (MAX_STRINGS >> 3)))
-        return 1;
-    if (total_arrays > (MAX_ARRAYS - (MAX_ARRAYS >> 3)))
-        return 1;
-    if (total_floats > (MAX_FLOATS - (MAX_FLOATS >> 3)))
-        return 1;
-    if (total_functions > (MAX_FUNCTIONS - (MAX_FUNCTIONS >> 3)))
-        return 1;
-    return 0;
+    return allocated_pairs > GC_THRESHOLD;
 }
