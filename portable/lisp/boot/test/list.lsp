@@ -104,6 +104,11 @@
   (print (assert (contains '(1 2 3) 5) nil))
   (print (assert (contains '() 1) nil)))
 
+(defun do-list-test ()
+  "Тест dolist"
+  (dolist (a '(1 2 3 4 5))
+    (print a)))
+
 (minp-tests)
 (filter-tests)
 (sort-tests)
@@ -118,3 +123,4 @@
 (foldr-tests)
 (last-tests)
 (contains-tests)
+(do-list-test)
