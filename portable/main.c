@@ -19,6 +19,7 @@
 #include <x86/idt.h>
 #include <portable/keyboard.h>
 #include <portable/syslib.h>
+#include <bind.h>
 
 /// Адрес начала секции .lisp
 const void *_lisp_start;
@@ -48,7 +49,9 @@ void boot_lisp()
 	    if (o == NOVALUE)
 		longjmp(repl_buf, 1);
 	    //printf("parse: "); PRINT(o);
+	    PROTECT1(o);
 	    object_t res = eval(o, NULLOBJ, NULLOBJ);
+	    UNPROTECT;
 	    //printf("res: "); PRINT(res);
 #ifdef REPL
 	    PRINT(res);
