@@ -16,11 +16,14 @@ void print_debug_lines();
  */
 void error(char *str, ...)
 {
-    va_list vals;
-    va_start(vals, str);
 #ifdef OS
     void set_cursor(int x, int y);
     set_cursor(0, 0);
+    char *vals;
+    vals = (char *)&str;
+#else
+    va_list vals;
+    va_start(vals, str);
 #endif
     if (str[0] != '\0') {
         vprintf(str, vals);
