@@ -1,0 +1,37 @@
+;Тестирование функций для строк
+
+(print "Поиск в строке первого вхождения заданного символа")
+(assert (search #\c "a0cbbbcbcbcbcbcbc") 2)
+(assert (search #\ "a0cbb bcbcbcbcbcbc") 5)
+(assert (search #\c "") nil)
+(assert (search #\g "a0cbbbcbcbcbcbcbc") nil)
+(print "______________________________________________________________________")
+
+(print "Поиск в строке последнего вхождения заданного символа")
+(assert (search-back #\d "abvhdhgnvmdhvbtyurd") 18)
+(assert (search-back #\ "ab vhdhgnvmdhvbtyur d") 19)
+(assert (search-back #\d "") nil)
+(assert (search-back #\z "abvhdhgnvmdhvbtyurd") nil)
+(print "______________________________________________________________________")
+
+(print "Разделение строки на элементы по символу-разделителю")
+(assert (split #\a "babab") '("b" "b" "b")) 
+(assert (split #\a " a a ") '(" " " " " ")) 
+(assert (split #\ "b b b") '("b" "b" "b")) 
+(assert (split #\a " ") '(" ")) 
+(assert (split #\a "") '("")) 
+(assert (split #\1 "dbfdb1bfbdfb11dsbds") '("dbfdb" "bfbdfb" "" "dsbds"))
+(print "______________________________________________________________________") 
+
+(print "Преобразование списка печатных символов в строку")
+(assert (implode '(#\a #\b #\c)) "abc")
+(assert (implode '(#\1 #\b #\c)) "1bc")
+(assert (implode '(#\ #\b #\c)) " bc")
+(assert (implode '()) "")
+(print "______________________________________________________________________")
+
+(print "Создание списка из печатных символов строки")
+(assert (explode "abcd") '(#\a #\b #\c #\d))
+(assert (explode "") '())
+(assert (explode "a") '(#\a))
+(assert (explode " a") '(#\ #\a))
