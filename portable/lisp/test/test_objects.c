@@ -6,6 +6,7 @@
 #include "objects.h"
 #include "parser.h"
 #include "alloc.h"
+#include "bind.h"
 
 extern bignumber_t *bignumbers;
 extern bignumber_t *free_bignumbers;
@@ -14,6 +15,7 @@ extern float_t *free_floats;
 extern pair_t *pairs;
 extern string_t *strings;
 extern array_t *arrays;
+extern symbol_t *symbols;
 extern int last_bignumber;
 extern int last_pair;
 extern int last_symbol;
@@ -21,6 +23,7 @@ extern pair_t *free_pairs;
 extern char *region_data;
 extern string_t *free_strings;
 extern array_t *free_arrays;
+extern symbol_t *free_symbols;
 extern struct region *regions;
 extern int last_string;
 extern int last_array;
@@ -49,6 +52,10 @@ void error(char *str, ...)
 symbol_t *find_symbol(char *str)
 {
     return NULL;
+}
+
+void hash_remove(symbol_t *s)
+{
 }
 
 /**
@@ -177,6 +184,7 @@ void reset_mem()
     free_bignumbers = NULL;
     free_arrays = NULL;
     free_functions = NULL;
+    free_symbols = NULL;
 }
 
 /** 
@@ -387,6 +395,7 @@ void test_garbage_collect()
     symbol_t *s = new_symbol("A");
     object_t obj1 = new_bignumber(num1);
     s->value = obj1;
+    bind_static(NEW_OBJECT(SYMBOL, s));
     garbage_collect();
 
     // Проверяем наличие obj1 в списке свободных объектов
@@ -416,11 +425,8 @@ void test_garbage_collect_list()
     object_t obj2 = new_number(2);
     object_t p1 = new_pair(obj1, new_pair(obj2, NULLOBJ));
     s->value = p1;
-    printf("\nbefore gc: ");
-    print_obj(free_pairs);
+    bind_static(NEW_OBJECT(SYMBOL, s));
     garbage_collect();
-    printf("\nafter gc: ");
-    print_obj(free_pairs);
     pair_t *p = free_pairs;
     while (p != NULL)
     {
@@ -453,10 +459,43 @@ void test_garbage_collect_cycle()
     GET_PAIR(p2)->right = p1;
     s1->value = p1;
     s2->value = p2;
+    bind_static(NEW_OBJECT(SYMBOL, s1));
+    bind_static(NEW_OBJECT(SYMBOL, s2));
     garbage_collect();
     ASSERT(GET_PAIR(p1)->free, 0);
     ASSERT(GET_PAIR(p2)->free, 0);
 }
+
+/**
+ * Создать символ B
+ * Присвоить ему значение - большое число 123456789
+ * Создать ещё два больших числа
+ * Выполнить сборку мусора
+ * Проверить, что объект не в списке свободных больших чисел
+ */
+void test_garbage_collect_bignumbers() 
+{ 
+    printf("test_garbage_collect_bignumbers: "); 
+    reset_mem(); 
+    symbol_t *s = new_symbol("B");
+    bind_static(NEW_OBJECT(SYMBOL, s));    
+    object_t obj1 = new_bignumber(1234567890); 
+    object_t obj2 = new_bignumber(-987654321); 
+    object_t obj3 = new_bignumber(555555555); 
+    s->value = obj1;
+    garbage_collect();
+    bignumber_t *fb = free_bignumbers; 
+    while (fb != NULL) {
+       printf("%d ", fb->value);
+       if (fb == (bignumber_t *)GET_ADDR(obj1)) { 
+           printf("fail_bignumbers\n"); 
+           return; 
+       } 
+       fb = fb->next; 
+    } 
+    printf("bignumbers_OK\n");
+}
+
 	
 /**
  * Выделить 2 региона с размерами 5 и 64
@@ -614,6 +653,7 @@ void test_garbage_collect_strings()
     string_t *obj2 = new_string("ff"); 
     string_t *obj3 = new_string("cc"); 
     s->value = NEW_OBJECT(STRING, obj1);
+    bind_static(NEW_OBJECT(SYMBOL, s));    
     garbage_collect(); 
     string_t *fs = free_strings; 
     while (fs != NULL) { 
@@ -645,6 +685,7 @@ void test_garbage_collect_floats()
     object_t obj2 = new_float(0.5f); 
     object_t obj3 = new_float(28391.9213f); 
     s->value = obj1;
+    bind_static(NEW_OBJECT(SYMBOL, s));    
     garbage_collect();
     
     float_t *fs = free_floats; 
@@ -691,6 +732,7 @@ void test_garbage_collect_functions()
 
     symbol_t *s = new_symbol("F");
     s->value = funsum;
+    bind_static(NEW_OBJECT(SYMBOL, s));    
 
     garbage_collect();
 
@@ -749,6 +791,7 @@ void test_garbage_collect_arrays()
     array_t *obj2 = new_array(make_list(10));
     array_t *obj3 = new_array(make_list(20));
     s->value = NEW_OBJECT(ARRAY, obj1);
+    bind_static(NEW_OBJECT(SYMBOL, s));    
     garbage_collect();
     array_t *fa = free_arrays;
     while (fa != NULL)
@@ -766,20 +809,54 @@ void test_garbage_collect_arrays()
     ASSERT((regions->next != NULL), 1);
 }
 
-/* /\** */
-/*  * Печать объекта */
-/*  * Создать объект (4 . 5) */
-/*  *\/ */
-/* void test_print() */
-/* { */
-/*     printf("test_print: "); */
-/*     int n1 = 4; */
-/*     int n2 = 5; */
-    
-/*     object_t *list = new_pair(object_new(NUMBER, &n1), object_new(NUMBER, &n2)); */
-/*     print_obj(list); */
-/*     printf("\n"); */
-/* } */
+/*
+ * Создать символ B
+ * Присвоить ему значение - символ "AB"
+ * Создать ещё два символа
+ * Выполнить сборку мусора
+ * Проверить, что объект не в списке свободных символов
+ */
+void test_garbage_collect_symbols() 
+{ 
+    printf("test_garbage_collect_symbols: "); 
+    reset_mem(); 
+    symbol_t *s = new_symbol("B"); 
+    symbol_t *obj1 = new_symbol("AB"); 
+    symbol_t *obj2 = new_symbol("TEST"); 
+    symbol_t *obj3 = new_symbol("T2"); 
+    s->value = NEW_OBJECT(SYMBOL, obj1);
+    bind_static(NEW_OBJECT(SYMBOL, s));    
+    garbage_collect();
+    symbol_t *fs = free_symbols; 
+    while (fs != NULL) { 
+       if (!strcmp(fs->str, "AB")) { 
+           printf("fail_symbol\n"); 
+           return; 
+       } 
+       fs = fs->next; 
+    } 
+    printf("symbols_OK\n"); 
+}
+
+/**
+ * Создать максимальное количество символов,
+ * освободить первый символ, проверить, что он находится в списке свободных символов
+ * Создать еще один символ и проверить, что его адрес совпадает с первым
+ */
+void test_free_symbol()
+{
+    char str[10];
+    printf("test_free_symbol: ");
+    reset_mem();
+    for (int i = last_symbol; i < MAX_SYMBOLS;i++) {
+       sprintf(str, "s%d", i);
+       new_symbol(str);
+    }
+    free_symbol(&symbols[0]);
+    ASSERT(free_symbols, &symbols[0]);
+    symbol_t *s = new_symbol("1");
+    ASSERT(s, &symbols[0]);
+}
 
 /**
  * Проверить, правильно ли макрос извлекает закодированный тип из объекта
@@ -919,10 +996,12 @@ void main()
     // Тесты сборки мусора
     test_mark();
     test_sweep();    //19,24
-    test_garbage_collect();     //19,24   
+    test_garbage_collect();     //19,24
+    test_garbage_collect_bignumbers();
     test_garbage_collect_list();    //21,24
     test_garbage_collect_strings(); //22,24
     test_garbage_collect_arrays();  //23,24
+    test_garbage_collect_symbols();
     test_garbage_collect_cycle();
     test_garbage_collect_floats();
     test_garbage_collect_functions();
@@ -977,6 +1056,9 @@ void main()
     test_free_pair();
     test_free_pair_empty();
     reset_mem();
+    
+    // Тест символов
+    test_free_symbol();
 
     // Тесты для регионов памяти
     test_alloc_region();

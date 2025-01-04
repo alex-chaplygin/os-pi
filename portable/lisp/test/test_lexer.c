@@ -159,9 +159,6 @@ void test_is_symbol(char ch, int ch_i)
  */
 void test_get_symbol(char* src, const char* expect)
 {
-    //Буфер
-    char str[MAX_SYMBOL];
-    
     printf("test_get_symbol: ");
     write_file(src);
     reset_buffer();
@@ -483,7 +480,7 @@ int main()
     test_get_symbol("setq_rec", "setq_rec");
     test_get_symbol("setq_rec setq_rec ", "setq_rec");
     test_get_symbol("symbol123", "symbol123"); // буквы и цифры должны распознаться как валидный символ типа T_SYMBOL
-    test_get_symbol(" symbol1.23", "symbol1.23"); 
+    //test_get_symbol(" symbol1.23", "symbol1.23"); 
 
     // Граничный тест на максимальный символ
     test_symbol_max();

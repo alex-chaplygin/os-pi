@@ -8,27 +8,27 @@ all: $(TESTS)
 
 /tmp/test_lexer: test_lexer.c ../lexer.c
 	gcc $(CFLAGS) $(LDFLAGS) -o $@ $^
-/tmp/test_eval_int: test_eval_int.c ../eval.c ../symbols.c ../objects.c ../pair.c ../alloc.c
+/tmp/test_eval_int: test_eval_int.c ../eval.c ../symbols.c ../objects.c ../pair.c ../alloc.c ../bind.c
 	gcc $(CFLAGS) $(LDFLAGS) -o $@ $^
-/tmp/test_pair: test_pair.c ../symbols.c ../objects.c ../pair.c ../alloc.c ../eval.c
+/tmp/test_pair: test_pair.c ../symbols.c ../objects.c ../pair.c ../alloc.c ../eval.c ../bind.c
 	gcc $(CFLAGS) $(LDFLAGS) -o $@ $^
-/tmp/test_arith: test_arith.c ../eval.c ../symbols.c ../objects.c ../arith.c ../alloc.c
+/tmp/test_arith: test_arith.c ../eval.c ../symbols.c ../objects.c ../arith.c ../alloc.c ../bind.c
 	gcc $^ $(CFLAGS) $(LDFLAGS) -o $@
 /tmp/test_symbols: test_symbols.c ../symbols.c
 	gcc $(CFLAGS) $(LDFLAGS) -o $@ $^
-/tmp/test_objects: test_objects.c ../objects.c ../alloc.c
+/tmp/test_objects: test_objects.c ../objects.c ../alloc.c ../bind.c
 	gcc $(CFLAGS) $(LDFLAGS) -o $@ $^
-/tmp/test_parser: test_parser.c ../parser.c ../objects.c ../alloc.c ../symbols.c
+/tmp/test_parser: test_parser.c ../parser.c ../objects.c ../alloc.c ../symbols.c ../bind.c
 	gcc $(CFLAGS) $(LDFLAGS) -o $@ $^
-/tmp/test_arrays: test_arrays.c ../symbols.c ../objects.c ../array.c ../alloc.c
+/tmp/test_arrays: test_arrays.c ../symbols.c ../objects.c ../array.c ../alloc.c ../bind.c
 	gcc $(CFLAGS) $(LDFLAGS) -o $@ $^
-/tmp/test_str_int: test_str_int.c ../symbols.c ../objects.c ../str.c ../alloc.c
+/tmp/test_str_int: test_str_int.c ../symbols.c ../objects.c ../str.c ../alloc.c ../bind.c
 	gcc $(CFLAGS) $(LDFLAGS) -o $@ $^
-/tmp/test_sys: test_sys.c ../eval.c ../symbols.c ../objects.c ../parser.c ../lexer.c ../arith.c ../str.c ../array.c ../pair.c ../predicates.c ../alloc.c ../error.c
+/tmp/test_sys: test_sys.c ../eval.c ../symbols.c ../objects.c ../parser.c ../lexer.c ../arith.c ../str.c ../array.c ../pair.c ../predicates.c ../alloc.c ../error.c ../bind.c
 	gcc $^ $(CFLAGS) -D REPL $(LDFLAGS) -o $@
-/tmp/lisp: test_sys.c ../eval.c ../symbols.c ../objects.c ../parser.c ../lexer.c ../arith.c ../str.c ../array.c ../pair.c ../predicates.c ../alloc.c ../error.c
+/tmp/lisp: test_sys.c ../eval.c ../symbols.c ../objects.c ../parser.c ../lexer.c ../arith.c ../str.c ../array.c ../pair.c ../predicates.c ../alloc.c ../error.c ../bind.c
 	gcc $^ $(CFLAGS) -DDEBUG $(LDFLAGS) -o $@
-/tmp/repl_lisp: test_sys.c ../eval.c ../symbols.c ../objects.c ../parser.c ../lexer.c ../arith.c ../str.c ../array.c ../pair.c ../predicates.c ../alloc.c ../error.c
+/tmp/repl_lisp: test_sys.c ../eval.c ../symbols.c ../objects.c ../parser.c ../lexer.c ../arith.c ../str.c ../array.c ../pair.c ../predicates.c ../alloc.c ../error.c ../bind.c
 	gcc $^ $(CFLAGS) -DREPL -DDEBUG $(LDFLAGS) -o $@
 /tmp/test_mpa: test_mpa.c ../mpa.c
 	gcc $^ $(CFLAGS) $(LDFLAGS) -o $@

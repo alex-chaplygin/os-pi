@@ -5,11 +5,16 @@
 #include "objects.h"
 #include "symbols.h"
 
+extern symbol_t *hash_table[HASH_SIZE];
+
 void str_copy (char *str1, char *str2);
-int compare_str(char *str1, char *str2);
 unsigned int hash(char *str);
 
 symbol_t s;
+
+void bind_static(object_t symbol)
+{
+}
 
 symbol_t *new_symbol(char *str)
 {
@@ -17,12 +22,6 @@ symbol_t *new_symbol(char *str)
     memset(symbol, 0, sizeof(symbol_t));
     strcpy(symbol->str, str);
     return symbol;
-}
-
-void test_compare_str(char *str, char *str2, int res)
-{
-    printf("test_compare_str: ");
-    ASSERT(res, compare_str(str, str2));
 }
 
 void test_find_symbol(char *str, char *expected_symbol)
@@ -48,10 +47,10 @@ void test_find_symbol_empty_string()
 void test_find_symbol_invalid_string_length()
 {
     printf("test_find_symbol_invalid_string_length: ");
-    char str[82];
-    for (int i = 0; i < 81; i++)
+    char str[MAX_SYM_STR + 2];
+    for (int i = 0; i < MAX_SYM_STR + 1; i++)
         str[i] = 'a';
-    str[81] = '\0';
+    str[MAX_SYM_STR + 1] = '\0';
     symbol_t *result = find_symbol(str);
     ASSERT(result, NULL);
 }
@@ -62,10 +61,10 @@ void test_find_symbol_invalid_string_length()
 void test_find_symbol_max_string_length()
 {
     printf("test_find_symbol_max_string_length: ");
-    char str[81];
-    for (int i = 0; i < 80; i++)
+     char str[MAX_SYM_STR + 1];
+    for (int i = 0; i < MAX_SYM_STR; i++)
         str[i] = 'a';
-    str[80] = '\0';
+    str[MAX_SYM_STR] = '\0';
     symbol_t *result = find_symbol(str);
     ASSERT(strcmp(result->str, str), 0);
 }
@@ -114,10 +113,10 @@ void test_check_symbol_empty_string()
 void test_check_symbol_invalid_string_length()
 {
     printf("test_check_symbol_invalid_string_length: ");
-    char str[82];
-    for (int i = 0; i < 81; i++)
+    char str[MAX_SYM_STR + 2];
+    for (int i = 0; i < MAX_SYM_STR + 1; i++)
         str[i] = 'a';
-    str[81] = '\0';
+    str[MAX_SYM_STR + 1] = '\0';
     symbol_t *result = check_symbol(str);
     ASSERT(result, NULL);
 }
@@ -128,10 +127,10 @@ void test_check_symbol_invalid_string_length()
 void test_check_symbol_max_string_length()
 {
     printf("test_check_symbol_max_string_length: ");
-    char str[81];
-    for (int i = 0; i < 80; i++)
+    char str[MAX_SYM_STR + 1];
+    for (int i = 0; i < MAX_SYM_STR; i++)
         str[i] = 'a';
-    str[80] = '\0';
+    str[MAX_SYM_STR] = '\0';
     symbol_t *result = check_symbol(str);
     ASSERT(strcmp(result->str, str), 0);
 }
@@ -185,6 +184,31 @@ void test_same_hash_three_symbols()
     ASSERT(((find_symbol(str1) != find_symbol(str2)) || (find_symbol(str1) != find_symbol(str3)) || (find_symbol(str2) != find_symbol(str3))), 1);
 }
 
+/** 
+ * создать цепочку сиволов с одинаковым хэшем  LET -> ARR -> FIELD
+ * удалить символ из середины цепочки
+ * удалить символ из начала цепочки
+ * проверить что данных символов больше нет в цепочке
+ */
+void test_remove_hash()
+{
+    printf("test_remove_hash: ");
+    symbol_t *s1 = find_symbol("LET");
+    symbol_t *s2 = find_symbol("ARR");
+    symbol_t *s3 = find_symbol("FIELD");
+    ASSERT((int)hash_table[s3->hash_index] != 0, 1)
+    hash_remove(s1);
+    hash_remove(s2);
+    ASSERT((int)hash_table[s3->hash_index] != 0, 1)
+    
+    for (symbol_t *cur = hash_table[s3->hash_index]; cur != NULL; cur = cur->next) {
+       if (s1 == cur)
+           FAIL;
+       if (s2 == cur)
+           FAIL;
+    }
+}
+
 /*
 find_symbol
 |условие               |правильный класс                    |неправильный класс  |
@@ -203,8 +227,6 @@ check_symbol
 int main()
 {
     printf("--------------test symbols---------------------\n");
-    test_compare_str("abc", "abc", 1);
-    test_compare_str("abc", "abc1", 0);
     test_find_symbol("a", "a"); // 1, 4
     test_find_symbol("ab", "ab"); // 1, 4
     test_find_symbol_empty_string(); // 2
@@ -218,4 +240,5 @@ int main()
     test_register_func();
     test_same_hash();
     test_same_hash_three_symbols();
+    test_remove_hash();
 }

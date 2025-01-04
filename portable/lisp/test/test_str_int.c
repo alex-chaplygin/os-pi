@@ -642,12 +642,12 @@ void test_subseq_start_greater_than_end()
 void test_subseq_empty_input()
 {
     printf("test_subseq_empty_input: ");
-    object_t string_obj = NEW_STRING(""); 
+    object_t string_obj = NEW_STRING("");
     object_t start_index = new_number(0);
     object_t end_index = new_number(0);
     object_t params = new_pair(string_obj, new_pair(start_index, new_pair(end_index, NULLOBJ)));
-    object_t result = subseq(params); 
-    ASSERT(TYPE(result), STRING); 
+    object_t result = subseq(params);
+    ASSERT(TYPE(result), STRING);
     ASSERT(strcmp(GET_STRING(result)->data, ""), 0);
 }
 /**
@@ -824,6 +824,5 @@ int main()
     test_int_to_str_invalid_arg();
     test_int_to_str_positive();
     test_int_to_str_negative();
-
     return 0;
 }

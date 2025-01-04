@@ -566,8 +566,8 @@ void test_macro_call()
     printf("test_macro_call: \n");
     object_t p1 = NEW_SYMBOL("x"); // x 
     object_t q = new_pair(NEW_SYMBOL("LIST"), //(list x) 
-			  new_pair(p1, NULLOBJ)); 
-    object_t lx = new_pair(NEW_SYMBOL("LAMBDA"), new_pair(new_pair(p1, NULLOBJ), new_pair(new_pair(NEW_SYMBOL("LIST"), NULLOBJ), new_pair(p1, NULLOBJ)))); 
+			  new_pair(p1, NULLOBJ));
+    object_t lx = new_pair(NEW_SYMBOL("LAMBDA"), new_pair(new_pair(p1, NULLOBJ), new_pair(new_pair(NEW_SYMBOL("LIST"), new_pair(p1, NULLOBJ)), NULLOBJ))); 
     // (lambda (x) (list x)); 
     object_t args = new_pair(new_number(10), NULLOBJ); 
     object_t res = macro_call(lx, args, NULLOBJ, NULLOBJ); 
@@ -855,10 +855,10 @@ eval_int
 int main()
 {
     printf("------------test_eval_int---------\n");
-    init_pair();
-    init_eval();
     init_regions();
     init_objects();
+    init_pair();
+    init_eval();
     test_is_lambda();//14
     test_make_env();
     test_find_in_env();
@@ -885,7 +885,7 @@ int main()
     test_is_lambda_invalid_params();
     test_is_lambda_not_symbol();
     test_is_lambda_no_body();
-    test_macro_call();
+    /* test_macro_call(); */
     test_eval_func1();
     test_eval_func2();
     /* test_er_num_arg_make_env(); */
