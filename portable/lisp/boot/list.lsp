@@ -32,9 +32,9 @@
   "Применяет функцию f к каждому элементу списка list"
   "(app '(lambda (x) (set-hash h x nil)) '(x y z))"
   (if (null list) nil
-    (progn
-      (funcall f (car list))
-      (app f (cdr list)))))
+      (progn
+	(funcall f (car list))
+	(app f (cdr list)))))
 
 (defmacro dolist (params &rest bod)
   "Вариант app, обходит список с итерационной переменной"
@@ -51,7 +51,7 @@
 	(setq ,list (cdr ,list))
 	,@bod
 	,tests
-	(cond ((null ,list) nil) (t (go ,loops))))))
+	(if (null ,list) nil (go ,loops)))))
 	
 (defun map (f list)
   "Применяет функцию f к каждому элементу списка list и возвращает новый список"
