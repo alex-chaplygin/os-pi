@@ -1,6 +1,6 @@
 (defun null (x)
   "Проверка на пустое значение"
-  (eq x (quote())))
+  (eq x ()))
 
 (defun fac(x)
   (cond
