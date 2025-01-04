@@ -1,4 +1,6 @@
 (setq q (queue-create))
+(setq d (queue-pop q))
+(assert d nil)
 (queue-push q 1)
 (queue-push q 2)
 (queue-push q 3)
