@@ -153,14 +153,14 @@ object_t subseq(object_t list)
     int start_ind = get_value(SECOND(list));
     int end_ind = get_value(THIRD(list));
 
-    if(start_ind < 0 || end_ind < 0)
-	error("subseq: index can not be negative");
-    if(end_ind - start_ind < 0 || GET_STRING(string)->length <= start_ind || end_ind > GET_STRING(string)->length)
-	error("subseq: invalid index");
+    if (start_ind < 0 || end_ind < 0)
+    	error("subseq: index can not be negative");
+    if (end_ind - start_ind < 0 || GET_STRING(string)->length < start_ind || end_ind > GET_STRING(string)->length)
+    	error("subseq: invalid index");
     char *res = alloc_region(end_ind - start_ind + 1);
     int curr_ind = 0;
     for(int i = start_ind; i < end_ind; i++)
-	res[curr_ind++] = GET_STRING(string)->data[i];
+    	res[curr_ind++] = GET_STRING(string)->data[i];
     res[curr_ind] = 0;
     return NEW_STRING(res);
 }
