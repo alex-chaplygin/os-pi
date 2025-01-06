@@ -134,20 +134,51 @@ object_t atom(object_t list)
 	return nil;
 } 
 
+/** 
+ * Создает копию объекта
+ *
+ * @param o объект
+ *
+ * @return копия объекта
+ */
+object_t make_copy(object_t o)
+{
+    if (o == NULLOBJ) 
+ 	return NULLOBJ;
+    if (TYPE(o) == BIGNUMBER) 
+	return new_bignumber(GET_BIGNUMBER(o)->value);
+    else if (TYPE(o) == FLOAT)
+	return new_float(GET_FLOAT(o)->value);
+    else if (TYPE(o) == CHAR || TYPE(o) == NUMBER || TYPE(o) == SYMBOL)
+	return o;
+    else if (TYPE(o) == ARRAY) { 
+ 	array_t *arr = new_empty_array(GET_ARRAY(o)->length); 
+ 	int l = GET_ARRAY(o)->length; 
+ 	for (int i = 0; i < l; i++) 
+ 	    arr->data[i] = make_copy(GET_ARRAY(o)->data[i]); 
+ 	return NEW_OBJECT(ARRAY, arr); 
+    } else if (TYPE(o) == STRING) 
+	return NEW_STRING(GET_STRING(o)->data); 
+    else if (TYPE(o) == PAIR)
+	return new_pair(make_copy(FIRST(o)), make_copy(TAIL(o)));
+    else
+	error("quote: invalid object");
+}
+
 /*  
  * возвращает свой аргумент без вычисления 
  * 
  * @param list - список параметров (1 параметр) 
  * 
  * @return аргумент 
- */ 
+ */
 object_t quote(object_t list) 
 { 
     if (list == NULLOBJ)
 	error("quote: empty");
     else if (TAIL(list) != NULLOBJ)
  	error("quote: many args");
-    return FIRST(list); 
+    return make_copy(FIRST(list)); 
 } 
 
 void append_env(object_t l1, object_t l2); 
@@ -176,21 +207,15 @@ object_t backquote_rec(object_t list)
     PROTECT3(list, res, first);
     object_t env = current_env;
     object_t func = func_env;
-    if (TYPE(list) == BIGNUMBER) 
-	res = new_bignumber(GET_BIGNUMBER(list)->value);
-    else if (TYPE(list) == FLOAT)
-	res = new_float(GET_FLOAT(list)->value);
-    else if (TYPE(list) == CHAR || TYPE(list) == NUMBER || TYPE(list) == SYMBOL)
-	res = list;
+    if (TYPE(list) == BIGNUMBER || TYPE(list) == FLOAT || TYPE(list) == CHAR || TYPE(list) == NUMBER || TYPE(list) == SYMBOL || TYPE(list) == STRING)
+	res = make_copy(list);
     else if (TYPE(list) == ARRAY) { 
  	array_t *arr = new_empty_array(GET_ARRAY(list)->length); 
  	res = NEW_OBJECT(ARRAY, arr); 
  	int l = GET_ARRAY(list)->length; 
  	for (int i = 0; i < l; i++) 
  	    arr->data[i] = backquote_rec(GET_ARRAY(list)->data[i]); 
-    } else if (TYPE(list) == STRING) 
-	res = NEW_STRING(GET_STRING(list)->data); 
-    else if (TYPE(list) == PAIR) {
+    } else if (TYPE(list) == PAIR) {
  	object_t el = FIRST(list); // list = (COMMA B)
 	if (TYPE(el) == SYMBOL && !strcmp(GET_SYMBOL(el)->str, "BACKQUOTE"))
 	    res = list;
@@ -245,7 +270,7 @@ object_t backquote(object_t list)
  */ 
 object_t IF(object_t obj)
 {
-if (obj == NULLOBJ)
+    if (obj == NULLOBJ)
 	error("NULLOBJ in IF");    
     object_t env = current_env;
     object_t func = func_env;
