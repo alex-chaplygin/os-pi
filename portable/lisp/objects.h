@@ -14,13 +14,13 @@
 /// Всего больших чисел
 #define MAX_NUMBERS 350
 /// Всего вещественных чисел
-#define MAX_FLOATS 350
+#define MAX_FLOATS 2000
 /// Всего продолжений
 #define MAX_CONTINUATIONS 100
 /// Всего функций 
 #define MAX_FUNCTIONS 1000
 /// Число созданных пар, после которого вызвается сборка мусора
-#define GC_THRESHOLD 400
+#define GC_THRESHOLD 400000
 
 /// Печать объекта с переводом строки и учетом рекурсии
 #define PRINT(o) print_counter++; print_obj(o); printf("\n");

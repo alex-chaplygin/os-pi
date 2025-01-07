@@ -720,8 +720,8 @@ object_t dump_mem(object_t args)
 void garbage_collect()
 {
     /* printf("gc\n"); */
-    /* extern continuation_t tagbody_buffers[]; */
-    /* extern int tb_index_buf; */
+    extern continuation_t tagbody_buffers[];
+    extern int tb_index_buf;
     object_t *cur = static_bind;
     for (int i = 0; i < last_static; i++, cur++)
 	mark_object(*cur);
@@ -730,10 +730,10 @@ void garbage_collect()
 #endif
     mark_object(current_env);
     mark_object(func_env);
-    /* for (int i = 0; i < tb_index_buf; i++) { */
-    /* 	mark_object(tagbody_buffers[i].environment); */
-    /* 	mark_object(tagbody_buffers[i].func_environment); */
-    /* } */
+    for (int i = 0; i < tb_index_buf; i++) {
+    	mark_object(tagbody_buffers[i].environment);
+    	mark_object(tagbody_buffers[i].func_environment);
+    }
     object_t **temp = protected;
     for (int i = 0; i < last_protected; i++, temp++)
 	mark_object(**temp);
