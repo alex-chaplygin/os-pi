@@ -1,4 +1,4 @@
-#define MAX_TAGBODY_SIZE 10
+#define MAX_TAGBODY_SIZE 100
 
 object_t eval(object_t obj, object_t env, object_t func_env);
 void init_eval();

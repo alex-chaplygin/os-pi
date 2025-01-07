@@ -5,7 +5,7 @@ SUBDIRS=graphics
 
 all: /tmp/baselisp.lsp /tmp/key.lsp
 
-all-tests: lib-test list-test oop-test str-test array-test vec2-test queue-test parser-test huffman-test math-test bin-reader bin-tree-test
+all-tests: lib-test list-test oop-test str-test array-test vec2-test queue-test parser-test huffman-test math-test bin-reader bin-tree-test regex-test
 
 # модульные тесты двумерного вектора
 vec2-test: $(BASELISP) $(TEST) test/vec2.lsp
@@ -64,6 +64,10 @@ bin-reader: $(BASELISP) bin-reader.lsp $(TEST) test/bin-reader.lsp
 bin-tree-test: $(BASELISP) bin-tree.lsp $(TEST) test/bin-tree.lsp
 	make -C ../test /tmp/repl_lisp
 	cat $^ | /tmp/repl_lisp
+# модульные тесты двоичное дерево
+regex-test: $(BASELISP) fa/nfa.lsp regex.lsp $(TEST) test/regex.lsp
+	make -C ../test /tmp/lisp
+	cat $^ | /tmp/lisp
 
 # базовый набор
 /tmp/baselisp.lsp: $(BASELISP) 
