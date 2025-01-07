@@ -1,5 +1,5 @@
 #define MAX_STATIC 10000	/**< размер массива статических привязок */
-#define MAX_PROTECTED 1000	/**< размер массива временных объектов */
+#define MAX_PROTECTED 10000	/**< размер массива временных объектов */
 /// Печать массива текущих временных объектов
 #define PRINTPROT\
     object_t **pprot = protected;\
@@ -13,6 +13,8 @@
 #define PROTECT1(o)\
    int old_ped = last_protected;               \
    object_t **p_obj = &protected[last_protected++];\
+   if (last_protected == MAX_PROTECTED)\
+        error("Maximum protected objects");\
    *p_obj = &o;\
    //   PRINTPROT
 
@@ -22,6 +24,8 @@
    object_t **p_obj = &protected[last_protected++];\
    *p_obj = &o1;\
    p_obj = &protected[last_protected++];\
+   if (last_protected == MAX_PROTECTED)\
+        error("Maximum protected objects");\
    *p_obj = &o2;\
    //PRINTPROT
 
@@ -33,6 +37,8 @@
    p_obj = &protected[last_protected++];\
    *p_obj = &o2;\
    p_obj = &protected[last_protected++];\
+   if (last_protected == MAX_PROTECTED)\
+        error("Maximum protected objects");\
    *p_obj = &o3;\
    //PRINTPROT
 
