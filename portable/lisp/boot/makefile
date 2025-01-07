@@ -1,6 +1,6 @@
 include common.mak
 KEYBOARD=$(BASELISP) sys/keyboard.lsp sys/events.lsp
-
+SHELL=bash
 SUBDIRS=graphics
 
 all: /tmp/baselisp.lsp /tmp/key.lsp
@@ -67,9 +67,9 @@ bin-tree-test: $(BASELISP) bin-tree.lsp $(TEST) test/bin-tree.lsp
 
 # базовый набор
 /tmp/baselisp.lsp: $(BASELISP) 
-	cat $^ >$@ ;
-	echo -e -n "\xff" >>$@
+	cat $^ >$@
+	@echo -e -n "\xff" >>$@
 # тест клавиатуры
 /tmp/key.lsp: $(KEYBOARD) test/key.lsp
-	cat $^ >$@ ;
-	echo -e -n "\xff" >>$@
+	cat $^ >$@
+	@echo -e -n "\xff" >>$@
