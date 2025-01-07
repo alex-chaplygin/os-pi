@@ -1,6 +1,11 @@
 include common.mak
+KEYBOARD=$(BASELISP) sys/keyboard.lsp sys/events.lsp
 
 SUBDIRS=graphics
+
+all: /tmp/baselisp.lsp /tmp/key.lsp
+
+all-tests: lib-test list-test oop-test str-test array-test vec2-test queue-test parser-test huffman-test math-test bin-reader bin-tree-test
 
 # модульные тесты двумерного вектора
 vec2-test: $(BASELISP) $(TEST) test/vec2.lsp
@@ -62,5 +67,9 @@ bin-tree-test: $(BASELISP) bin-tree.lsp $(TEST) test/bin-tree.lsp
 
 # базовый набор
 /tmp/baselisp.lsp: $(BASELISP) 
+	cat $^ >$@ ;
+	echo -e -n "\xff" >>$@
+# тест клавиатуры
+/tmp/key.lsp: $(KEYBOARD) test/key.lsp
 	cat $^ >$@ ;
 	echo -e -n "\xff" >>$@
