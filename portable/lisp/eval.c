@@ -173,12 +173,12 @@ object_t make_copy(object_t o)
  * @return аргумент 
  */
 object_t quote(object_t list) 
-{ 
+{
     if (list == NULLOBJ)
 	error("quote: empty");
     else if (TAIL(list) != NULLOBJ)
  	error("quote: many args");
-    return make_copy(FIRST(list)); 
+    return FIRST(list); 
 } 
 
 void append_env(object_t l1, object_t l2); 
@@ -482,8 +482,10 @@ object_t eval_func(object_t lambda, object_t args, object_t env, object_t func)
  	new_env = env; 
     else 
  	append_env(new_env, env);
-    PROTECT1(body);
+    PROTECT2(body, new_env);
+    current_env = new_env;
     object_t result = eval(body, new_env, func);
+    current_env = env;
     UNPROTECT;
     return result;
 } 
@@ -508,7 +510,9 @@ object_t macro_call(object_t macro, object_t args, object_t env, object_t func)
 	append_env(new_env, env);
     PROTECT3(macro, eval_res, eval_res2);
     while (body != NULLOBJ) {
+	current_env = new_env;
  	eval_res = eval(FIRST(body), new_env, func);
+	current_env = env;
  	eval_res2 = eval(eval_res, env, func);
  	body = TAIL(body);
     }
@@ -566,9 +570,10 @@ int is_special_form(symbol_t *s)
 /* 
  * Возвращает объект, соответствующий значению символа 
  * @param obj - символьный объект 
+ * @param env - окружение, в котором ищется значение переменной
  * @return объект, соответствующий obj 
  */ 
-object_t eval_symbol(object_t obj) 
+object_t eval_symbol(object_t obj, object_t env) 
 { 
     object_t res; 
     
@@ -577,7 +582,7 @@ object_t eval_symbol(object_t obj)
     //    printf("env: "); 
     //    PRINT(env);   
     
-    if (find_in_env(current_env, obj, &res)) 
+    if (find_in_env(env, obj, &res)) 
 	return res; 
     else { 
  	symbol_t *res_sym = check_symbol(GET_SYMBOL(obj)->str); 
@@ -611,8 +616,6 @@ object_t eval(object_t obj, object_t env, object_t func)
     object_t res;
     /* printf("eval: "); PRINT(obj); */
     /* printf("env: "); PRINT(env); */
-    current_env = env;
-    func_env = func;
     if (need_grabage_collect())
 	garbage_collect();
     if (obj == NULLOBJ)
@@ -622,7 +625,7 @@ object_t eval(object_t obj, object_t env, object_t func)
     else if (TYPE(obj) == NUMBER || TYPE(obj) == BIGNUMBER || TYPE(obj) == FLOAT || TYPE(obj) == STRING || TYPE(obj) == ARRAY || TYPE(obj) == CHAR)
 	return obj;
     else if (TYPE(obj) == SYMBOL)
-        return eval_symbol(obj);
+        return eval_symbol(obj, env);
     else if (TYPE(obj) == PAIR) {
         object_t first = FIRST(obj);
         if (TYPE(first) == PAIR) {
@@ -658,8 +661,6 @@ object_t eval(object_t obj, object_t env, object_t func)
         return result;
     } else
         error("Unknown object_type");
-    current_env = env;
-    func_env = func;
 }
 
 /* 
@@ -883,6 +884,7 @@ object_t labels(object_t param)
     if (param == NULLOBJ)
         error("labels: no parameters");
     object_t forms = FIRST(param);
+    object_t oldf = func_env;
     while (forms != NULLOBJ) {
         object_t first = FIRST(forms);
         if (TYPE(first) != PAIR || TYPE(SECOND(first)) != PAIR)
@@ -890,7 +892,9 @@ object_t labels(object_t param)
         func_env = new_pair(new_pair(FIRST(first), new_pair(NEW_SYMBOL("LAMBDA"), TAIL(first))), func_env);
 	forms = TAIL(forms);
     }
-    return progn(TAIL(param));
+    object_t res = progn(TAIL(param));
+    func_env = oldf;
+    return res;
 }
 
 /** 
