@@ -91,7 +91,7 @@
 	 (type (car fun))
 	 (name (gensym)))
     (case type
-      ('lambda (list 'FIX-CLOSURE name (compile-lambda name (cadr f) `(progn ,@(cddr f)) env)))
+      ('lambda (list 'FIX-CLOSURE name (compile-lambda name (cadr f) (cons 'progn (cddr f)) env)))
       ('func (list 'FIX-CLOSURE f nil))
       (otherwise (comp-err (concat "invalid function argument"))))))
 
@@ -102,7 +102,7 @@
   (let ((name (car expr))
 	(args (cadr expr))
 	(body (cddr expr)))
-    (compile-lambda name args `(progn ,@body) env)))
+    (compile-lambda name args (cons 'progn body) env)))
 
 ;; Добавить глобальную переменную
 ;; Возвращает индекс добавленной переменной

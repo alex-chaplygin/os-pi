@@ -7,32 +7,58 @@
     (print expr)
     (print "Compiler")
     (print program)
-    (print "Generator")
-    (dolist (ins (generate program))
-      (print ins))
-    (print (assert program expected-res))))
+    (when (pairp program)
+      (print "Generator")
+      (dolist (ins (generate program))
+	(print ins))
+      (print (assert program expected-res)))))
 
+;; последовательность
 (test-compile '(progn 1 2 3) '(seq (const 1) (seq (const 2) (const 3))))
+;; пустой progn
 (test-compile '(progn) '(const ()))
+;; условие
 (test-compile '(if 1 (progn 1 3) (progn 2))
 	      '(ALTER (CONST 1) (SEQ (CONST 1) (CONST 3)) (CONST 2)))
 (test-compile '(if t t nil)
 	      '(ALTER (GLOBAL-REF 0) (GLOBAL-REF 0) (GLOBAL-REF 1)))
+;; пустое условие
+(test-compile '(if) '())
+;; неверное число аргументов
+(test-compile '(if 1) '())
+(test-compile '(if 1 2) '())
+(test-compile '(if 1 2 3 4) '())
+;; присваивание
 (test-compile '(progn (setq a 1 b 2) a b)
 	      '(SEQ (SEQ (GLOBAL-SET 2 (CONST 1)) (GLOBAL-SET 3 (CONST 2))) (SEQ (GLOBAL-REF 2) (GLOBAL-REF 3))))
 
 (test-compile '(setq a (+ (* 1 2) (* 2 3)))
 	      '(GLOBAL-SET 2 (PRIM + ((PRIM * ((CONST 1) (CONST 2))) (PRIM * ((CONST 2) (CONST 3)))))))
-
+;; пустое присваивание
+(test-compile '(setq) '())
+;; неверное число аргументов
+(test-compile '(setq a) '())
+(test-compile '(setq a 1 b) '())
+;; не переменная
+(test-compile '(setq 1) '())
+(test-compile '(setq a 1 2) '())
+;; объявление функции
 (test-compile '(defun test (x) (setq a 2) (setq x a) x)
 	      '(LABEL TEST (SEQ (SEQ (GLOBAL-SET 2 (CONST 2)) (SEQ (LOCAL-SET 0 (GLOBAL-REF 2)) (LOCAL-REF 0))) (RETURN))))
-
+;; пустое объявление функции
+;(test-compile '(defun) '())
+;; неправильные параметры
+;(test-compile '(defun ()) '())
+;(test-compile '(defun test t) '())
+;; пустая функция
+(test-compile '(defun test ()) '(LABEL TEST (SEQ (CONST ()) (RETURN))))
+;; вызов функции
 (test-compile '(progn (defun test (x) x x) (test 10))
 	      '(SEQ (LABEL TEST (SEQ (SEQ (LOCAL-REF 0) (LOCAL-REF 0)) (RETURN))) (REG-CALL TEST 0 ((CONST 10)))))
 
 (test-compile '(progn (defun test (x y) (progn x y)) (test 10 (if t 3 4)))
 	      '(SEQ (LABEL TEST (SEQ (SEQ (LOCAL-REF 0) (LOCAL-REF 1)) (RETURN))) (REG-CALL TEST 0 ((CONST 10) (ALTER (GLOBAL-REF 0) (CONST 3) (CONST 4))))))
-
+;; lambda выражение на месте функции
 (test-compile '((lambda (x) ((lambda (y) (cons x y)) 1)) 2)
 	      '(FIX-LET 1 ((CONST 2)) (FIX-LET 1 ((CONST 1)) (PRIM CONS ((DEEP-REF 1 0) (LOCAL-REF 0))))))
 
