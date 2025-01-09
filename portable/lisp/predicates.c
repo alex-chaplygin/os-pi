@@ -25,6 +25,8 @@ object_t name (object_t params)\
 	return nil;\
 }
 
+// Пара
+MAKE_PREDICATE(pairp, TYPE(el) == PAIR)
 // Символ
 MAKE_PREDICATE(symbolp, TYPE(el) == SYMBOL)
 // Число
@@ -33,5 +35,6 @@ MAKE_PREDICATE(integerp, TYPE(el) == NUMBER || TYPE(el) == BIGNUMBER)
 void init_predicates()
 {
     register_func("SYMBOLP", symbolp);
+    register_func("PAIRP", pairp);
     register_func("INTEGERP", integerp);	
 }
