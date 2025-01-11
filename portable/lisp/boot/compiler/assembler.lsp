@@ -57,7 +57,7 @@
 
 ;; Ассемблирование инструкции вызова примитива.
 (defun assemble-prim (inst)
-  (let* ((prim (search-symbol *primitives* (cadr inst)))
+  (let* ((prim (search-symbol *fix-primitives* (cadr inst)))
          (prim-table (case (cdr prim)
                        (1 *prim1-table*)
                        (2 *prim2-table*)

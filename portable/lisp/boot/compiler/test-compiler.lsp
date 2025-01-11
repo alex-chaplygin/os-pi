@@ -33,7 +33,7 @@
 	      '(SEQ (SEQ (GLOBAL-SET 2 (CONST 1)) (GLOBAL-SET 3 (CONST 2))) (SEQ (GLOBAL-REF 2) (GLOBAL-REF 3))))
 
 (test-compile '(setq a (+ (* 1 2) (* 2 3)))
-	      '(GLOBAL-SET 2 (PRIM + ((PRIM * ((CONST 1) (CONST 2))) (PRIM * ((CONST 2) (CONST 3)))))))
+	      '(GLOBAL-SET 2 (FIX-PRIM + ((FIX-PRIM * ((CONST 1) (CONST 2))) (FIX-PRIM * ((CONST 2) (CONST 3)))))))
 ;; пустое присваивание
 (test-compile '(setq) '())
 ;; неверное число аргументов
@@ -42,6 +42,19 @@
 ;; не переменная
 (test-compile '(setq 1) '())
 (test-compile '(setq a 1 2) '())
+;; примитив с фиксированным числом аргументов
+(test-compile '(eq 'a 'a) '(FIX-PRIM EQ ((CONST A) (CONST A))))
+;; неверное число аргументов
+(test-compile '(eq) '())
+(test-compile '(eq 1) '())
+(test-compile '(eq 1 2 2) '())
+;; примитив с переменным числом аргументов
+(test-compile '(+) '(NARY-PRIM + 0 ()))
+(test-compile '(+ 1) '(NARY-PRIM + 0 ((CONST 1))))
+(test-compile '(+ 1 2) '(NARY-PRIM + 0 ((CONST 1) (CONST 2))))
+(test-compile '(+ 1 2 6 87 9 10 20) '(NARY-PRIM + 0 ((CONST 1) (CONST 2) (CONST 6) (CONST 87) (CONST 9) (CONST 10) (CONST 20))))
+;; неверное число аргументов
+(test-compile '(-) '())
 ;; объявление функции
 (test-compile '(defun test (x) (setq a 2) (setq x a) x)
 	      '(LABEL TEST (SEQ (SEQ (GLOBAL-SET 2 (CONST 2)) (SEQ (LOCAL-SET 0 (GLOBAL-REF 2)) (LOCAL-REF 0))) (RETURN))))
@@ -60,13 +73,13 @@
 	      '(SEQ (LABEL TEST (SEQ (SEQ (LOCAL-REF 0) (LOCAL-REF 1)) (RETURN))) (REG-CALL TEST 0 ((CONST 10) (ALTER (GLOBAL-REF 0) (CONST 3) (CONST 4))))))
 ;; lambda выражение на месте функции
 (test-compile '((lambda (x) ((lambda (y) (cons x y)) 1)) 2)
-	      '(FIX-LET 1 ((CONST 2)) (FIX-LET 1 ((CONST 1)) (PRIM CONS ((DEEP-REF 1 0) (LOCAL-REF 0))))))
+	      '(FIX-LET 1 ((CONST 2)) (FIX-LET 1 ((CONST 1)) (FIX-PRIM CONS ((DEEP-REF 1 0) (LOCAL-REF 0))))))
 
 (test-compile '(progn (defun fac (x) (if (equal x 1) 1 (* x (fac (- x 1))))) (fac 4))
-	      '(SEQ (LABEL FAC (SEQ (ALTER (PRIM EQUAL ((LOCAL-REF 0) (CONST 1))) (CONST 1) (PRIM * ((LOCAL-REF 0) (REG-CALL FAC 0 ((PRIM - ((LOCAL-REF 0) (CONST 1)))))))) (RETURN))) (REG-CALL FAC 0 ((CONST 4)))))
+	      '(SEQ (LABEL FAC (SEQ (ALTER (FIX-PRIM EQUAL ((LOCAL-REF 0) (CONST 1))) (CONST 1) (FIX-PRIM * ((LOCAL-REF 0) (REG-CALL FAC 0 ((FIX-PRIM - ((LOCAL-REF 0) (CONST 1)))))))) (RETURN))) (REG-CALL FAC 0 ((CONST 4)))))
 
 (test-compile '(setq a #'(lambda (x y) (+ x y)))
-	      '(GLOBAL-SET 2 (FIX-CLOSURE G598 (LABEL G598 (SEQ (PRIM + ((LOCAL-REF 0) (LOCAL-REF 1))) (RETURN))))))
+	      '(GLOBAL-SET 2 (FIX-CLOSURE G598 (LABEL G598 (SEQ (FIX-PRIM + ((LOCAL-REF 0) (LOCAL-REF 1))) (RETURN))))))
 
 (test-compile '(progn (defun test () 1) (setq a #'test))
 	      '(SEQ (LABEL TEST (SEQ (CONST 1) (RETURN))) (GLOBAL-SET 2 (FIX-CLOSURE TEST ()))))
@@ -75,34 +88,36 @@
 	      '(LABEL TEST (SEQ (FIX-CLOSURE G711 (LABEL G711 (SEQ (LOCAL-REF 0) (RETURN)))) (RETURN))))
 
 (test-compile '(progn (defmacro test (x y) `(+ ,x ,y)) (test 1 2))
-	      '(SEQ (NOP) (PRIM + ((CONST 1) (CONST 2)))))
+	      '(SEQ (NOP) (FIX-PRIM + ((CONST 1) (CONST 2)))))
 
 ;; (test-compile '(progn (setq a 1 b 2) `(a (,a) b (,b)))
-;; 	      '(SEQ (...) (PRIM LIST ((CONST A) (PRIM LIST (GLOBAL-REF 2)) (CONST B) (PRIM LIST (GLOBAL-REF 3))))))
+;; 	      '(SEQ (...) (FIX-PRIM LIST ((CONST A) (FIX-PRIM LIST (GLOBAL-REF 2)) (CONST B) (FIX-PRIM LIST (GLOBAL-REF 3))))))
 
 (test-compile '(progn (setq a 1 b 2) `(a (,a) b (,b)))
-	      '(SEQ (GLOBAL-SET 2 (CONST 1))
-		    (SEQ (GLOBAL-SET 3 (CONST 2))
-			 (PRIM CONS ((CONST A)
-				     (PRIM CONS ((PRIM CONS ((GLOBAL-REF 2)
-							     (CONST NIL)))
-						 (PRIM CONS ((CONST B)
-							     (PRIM CONS ((PRIM CONS ((GLOBAL-REF 3)
-										     (CONST NIL)))
-									 (CONST NIL))))))))))))
+	      '(SEQ
+		(SEQ (GLOBAL-SET 2 (CONST 1)) (GLOBAL-SET 3 (CONST 2)))
+		(FIX-PRIM CONS
+		 ((CONST A)
+		  (FIX-PRIM CONS
+		   ((FIX-PRIM CONS
+		     ((GLOBAL-REF 2) (CONST ())))
+		    (FIX-PRIM CONS
+		     ((CONST B)
+		      (FIX-PRIM CONS
+				((FIX-PRIM CONS ((GLOBAL-REF 3) (CONST ()))) (CONST ())))))))))))
 
 ;; (print 'testing)
 ;; (print
 ;;  (vm-run
 ;;   (assemble
 ;;    (generate
-;;     `(SEQ (GLOBAL-SET 2 (CONST 1))
+;;     (SEQ (GLOBAL-SET 2 (CONST 1))
 ;; 	  (SEQ (GLOBAL-SET 3 (CONST 2))
-;; 	       (PRIM CONS ((CONST A)
-;; 			   (PRIM CONS ((PRIM CONS ((GLOBAL-REF 2)
-;; 						   (CONST ,NIL)))
-;; 				       (PRIM CONS ((CONST B)
-;; 						   (PRIM CONS ((PRIM CONS ((GLOBAL-REF 3)
-;; 									   (CONST ,NIL)))
-;; 							       (CONST ,NIL)))))))))))))))
+;; 	       (FIX-PRIM CONS ((CONST A)
+;; 			   (FIX-PRIM CONS ((FIX-PRIM CONS ((GLOBAL-REF 2)
+;; 						   (CONST ())))
+;; 				       (FIX-PRIM CONS ((CONST B)
+;; 						   (FIX-PRIM CONS ((FIX-PRIM CONS ((GLOBAL-REF 3)
+;; 									   (CONST ())))
+;; 							       (CONST ())))))))))))))))
 ;; (print 'done)

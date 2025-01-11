@@ -2,16 +2,18 @@
 (defvar *global-variables*)
 ;; *global-variables-count* - число глобальных переменных в списке *global-variables*.
 (defvar *global-variables-count*)
-;; *global-functions* - глобальное окружение функций, содержащий названия функций, смещение кадра окружения, кол-во аргументов.
-(defvar *global-functions*)
-;; постоянный список примитивов с количеством их аргументов
-(defvar *primitives*
+;; *fix-functions* - глобальное окружение функций, содержащий названия функций, смещение кадра окружения, кол-во аргументов.
+(defvar *fix-functions*)
+;; список примитивов с фиксированным количеством аргументов
+(defvar *fix-primitives*
   '((car . 1) (cdr . 1) (cons . 2) (rplaca . 2) (rplacd . 2)
-    (+ . 2) (- . 2) (* . 2) (/ . 2) (% . 2) (& . 2) (bitor . 2) (<< . 2) (>> . 2) (equal . 2) (> . 2) (< . 2) (sin . 1) (cos . 1)
-    (intern . 1) (symbol-name . 1) (string-size . 1) (inttostr . 1) (code-char . 1) (print . 1) (putchar . 1) (char . 2) (concat . 2) (subseq . 3)
+    (% . 2) (<< . 2) (>> . 2) (eq . 2) (equal . 2) (> . 2) (< . 2) (sin . 1) (cos . 1)
+    (intern . 1) (symbol-name . 1) (string-size . 1) (inttostr . 1) (code-char . 1) (putchar . 1) (char . 2) (subseq . 3)
     (make-array . 1) (array-size . 1) (aref . 2) (seta . 3)
-    (symbolp . 1) (integerp . 1)))
-
+    (symbolp . 1) (integerp . 1) (pairp . 1)))
+;; список примитивов с переменным количеством аргументов
+(defvar *nary-primitives*
+  '((+ . 0) (- . 1) (* . 0) (/ . 1) (& . 0) (bitor . 0) (concat . 0) (funcall . 1) (print . 0)))
 ;; Устанавливает флаг ошибки компиляции и сохраняет сообщение об ошибке.
 (defun comp-err (msg)
   (return-from 'compiler msg))
@@ -22,7 +24,7 @@
 
 ;; Добавить глобальную функцию с именем, смещением окружения и числом аргументов
 (defun add-func (name env arity)
-  (setq *global-functions* (cons (list name env arity) *global-functions*)))
+  (setq *fix-functions* (cons (list name env arity) *fix-functions*)))
 
 ;; Поиск функции или примитива по имени, возвращет сохраненную функцию или примитив
 (defun search-symbol (list name)
@@ -56,17 +58,19 @@
 		(inner-compile body (extend-env env args))
 		(list 'RETURN)))))
 
-;; Определения типа функции: лямбда, примитив, глобальная функция
+;; Определения типа функции: лямбда, примитив, nary примитив, глобальная функция
 (defun find-func (f)
   (if (and (not (atom f)) (correct-lambda f))
       (list 'lambda (list-length (cadr f)) (gensym)) ; lambda num-args name
       (let ((r (search-symbol *macros* f)))
 	(if r (list 'macro (list-length (cadr r)) (cadr r) (cddr r)) ; macro num-args args body
-	    (let ((r (search-symbol *global-functions* f)))
+	    (let ((r (search-symbol *fix-functions* f)))
 	      (if r (list 'func (caddr r) (cadr r))  ; func num-args env
-		  (let ((r (search-symbol *primitives* f)))
-		    (if r (list 'primitive (cdr r)) ; primitive num-atrgs
-			(comp-err (concat "unknown function " (symbol-name f)))))))))))
+		  (let ((r (search-symbol *fix-primitives* f)))
+		    (if r (list 'fix-prim (cdr r)) ; fix-prim num-args
+			(let ((r (search-symbol *nary-primitives* f)))
+			  (if r (list 'nary-prim (cdr r)) ; nary-prim num-args
+			      (comp-err (concat "unknown function " (symbol-name f)))))))))))))
 
 ;; Применение функции
 ;; f - имя функции или lambda, args - аргументы, env - окружение
@@ -75,15 +79,20 @@
 	 (type (car fun))
 	 (count (cadr fun))
 	 (cur-env (list-length env)))
-    (if (!= count (list-length args))
-	(comp-err (concat "invalid args count"))
-	(if (eq type 'macro)
-	    (inner-compile (macroexpand (caddr fun) args (cadddr fun)) env)
-	    (let ((vals (map #'(lambda (a) (inner-compile a env)) args)))
-	      (case type
-		('lambda (list 'FIX-LET count vals (compile-progn (cddr f) (extend-env env (cadr f)))))
-		('func (list 'REG-CALL f (caddr fun) vals))
-		('primitive (list 'PRIM f vals))))))))
+    (when (contains '(lambda func fix-prim) type)
+      (when (!= count (list-length args))
+	(comp-err (concat "invalid args count"))))
+    (when (contains '(nary-prim) type)
+      (when (> count (list-length args))
+	(comp-err (concat "invalid args count"))))
+    (if (eq type 'macro)
+	(inner-compile (macroexpand (caddr fun) args (cadddr fun)) env)
+	(let ((vals (map #'(lambda (a) (inner-compile a env)) args)))
+	  (case type
+	    ('lambda (list 'FIX-LET count vals (compile-progn (cddr f) (extend-env env (cadr f)))))
+	    ('func (list 'REG-CALL f (caddr fun) vals))
+	    ('fix-prim (list 'FIX-PRIM f vals))
+	    ('nary-prim (list 'NARY-PRIM f (cadr fun) vals)))))))
 
 ;; Создание функции-замыкания
 (defun compile-function (f env)
@@ -205,7 +214,7 @@
       (compile-constant expr)
       (if (equal (car expr) 'COMMA)
 	  (inner-compile (cadr expr) env)
-	(list 'PRIM 'CONS (list (compile-backquote (car expr) env) (compile-backquote (cdr expr) env))))))
+	(list 'FIX-PRIM 'CONS (list (compile-backquote (car expr) env) (compile-backquote (cdr expr) env))))))
 
 ;; Функция компиляции в промежуточную форму
 ;; expr - выражение, env - лексическое окружение
@@ -235,7 +244,7 @@
         *global-variables-count* (list-length *global-variables*)
         *comp-err* nil
         *comp-err-msg* nil
-        *global-functions* nil
+        *fix-functions* nil
         *environment* nil)
   (block compiler
     (inner-compile expr nil)))

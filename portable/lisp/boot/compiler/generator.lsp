@@ -43,9 +43,15 @@
       (incf i))))
 
 ;; Вызов примитива
-(defun generate-prim (type args)
+(defun generate-fix-prim (type args)
   (generate-args args 'PUSH)
   (emit (list 'PRIM type)))
+
+;; Вызов примитива с переменным числом аргументов
+(defun generate-nary-prim (type num args)
+  (generate-args args 'PUSH)
+  (emit (list 'PACK (- (list-length args) num)))
+  (emit (list 'NPRIM type)))
 
 ;; Обычный вызов функции
 (defun generate-reg-call (name env args)
@@ -86,7 +92,8 @@
 		('ALTER (generate-if (cdr expr))) ; ветвление
 		('FIX-LET (generate-let (cadr expr) (caddr expr) (cadddr expr))) ; let форма
 		('FIX-CLOSURE (generate-closure (cadr expr) (caddr expr))) ; замыкание
-		('PRIM (generate-prim (cadr expr) (caddr expr))) ; вызов примитива
+		('FIX-PRIM (generate-fix-prim (cadr expr) (caddr expr))) ; вызов примитива
+		('NARY-PRIM (generate-nary-prim (cadr expr) (caddr expr) (cadddr expr))) ; вызов nary примитива
 		('REG-CALL (generate-reg-call (cadr expr) (caddr expr) (cadddr expr))) ; обычный вызов
 		(otherwise (emit (list 'UNKNOWN (car expr)))))))))
 
