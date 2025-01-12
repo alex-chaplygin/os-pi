@@ -1,24 +1,13 @@
-; Вспомогательные функции
-(defun reverse-list(lst)
-  "Переворачивает список"
-  (foldl #'(lambda (acc elem) (cons elem acc)) NIL lst))
+; Библиотека регулярных выражений
 
-(defun remove-dupl(list)
-  "Удаляет повторяющиеся элементы из списка"
-  (let ((unique NIL))
-    (dolist (elem list)
-      (when (not (contains unique elem))
-	(setq unique (cons elem unique)))) ; элементы добавляются в начало списка
-    (reverse-list unique))) ; переворачиваем список обратно
-
-
-; Высокоуровневые функции обработчика регулярных выражений
+; Функции обработчика регулярных выражений
 (defun match(string regex &rest lazy)
-  "Определяет, соответствует ли строка регулярному выражению, возвращая захваченную строку или NIL"
+  "Определяет, соответствует ли строка регулярному выражению, возвращая захваченную подстроку или NIL"
+  "Третий необязательный параметр - переключение в ленивый режим захвата (по умолчанию жадный)"
   (when (check-correctness regex) ; если автомат некорректен, функция сама выведет error и прервёт выисления
     (match-auto (prepare-auto regex (if lazy (car lazy) NIL)) string))) ; rest возвращает список аргументов
 
-(defun test(string regex)
+(defun test-re(string regex)
   "Определяет, соответствует ли строка регулярному выражению, возвращая T/NIL"
   (when (check-correctness regex)
     (if (not (= (match-auto (prepare-auto regex T) string) NIL))
@@ -26,8 +15,25 @@
       NIL)))
 
 
-(defun check-correct(regex) ; должно быть check-correctness, временно отключено
-  "Проверяет регулярное выражение на корректность"
+; Вспомогательные функции
+(defun reverse-list(lst)
+  "Переворачивает список"
+  (foldl #'(lambda (acc elem) (cons elem acc)) NIL lst))
+
+(defun remove-dupl(lst)
+  "Удаляет повторяющиеся элементы из списка"
+  (let ((unique NIL))
+    (dolist (elem lst)
+      (when (not (contains unique elem))
+	(setq unique (cons elem unique)))) ; элементы добавляются в начало списка
+    (reverse-list unique))) ; переворачиваем список обратно
+
+
+
+; Функции обработки шаблона регулярного выражения
+
+(defun check-correctness(regex)
+  "Проверяет регулярное выражение на корректность, при необходимости выводит ошибку с описанием проблемы"
   (let ((quantifiers (list #\* #\+ #\?))
 	(inside-brackets NIL))
     (when (= regex "")
@@ -55,13 +61,6 @@
   (if inside-brackets
       (error "Missing closing square bracket")
       T)))
-
-(defun check-correctness(regex)
-  "Проверяет регулярное выражение на корректность" ; базовая проверка, пока интерпретатор не поддрерживает полную
-  (when (= regex "")
-    (error "Empty regex"))
-  T)
-
 
 (defun prepare-auto(regex lazy)
   "Создаёт набор параметров и правил для создания НКА, соответствующего регулярному выражению"
