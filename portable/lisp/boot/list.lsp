@@ -5,11 +5,13 @@
 (defun cadr(x) (car (cdr x)))
 (defun caddr(x) (car (cdr (cdr x))))
 (defun cadddr(x) (car (cdr (cdr (cdr x)))))
+(defun caddddr(x) (car (cdr (cdr (cdr (cdr x))))))
 (defun cadar(x) (car (cdr (car x))))
 (defun cdar(x) (cdr (car x)))
 (defun cdadr(x) (cdr (car (cdr x))))
 (defun cddr(x) (cdr (cdr x)))
 (defun cdddr(x) (cdr (cdr (cdr x))))
+(defun cddddr(x) (cdr (cdr (cdr (cdr x)))))
 
 (defun list (&rest args)
   "Функция создания списка"
