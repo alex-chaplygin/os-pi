@@ -123,14 +123,3 @@
 
 (print (assert (nfa-end auto6) T))
 (check auto6 '(b) NIL)
-
-;(defvar auto7 (make-nfa '(0)
-;			'(
-;			  (0 a (1))
-;			  (1 E (2))
-;			  (2 E (1))
-;			  (2 x (3))
-;		         )
-;			'(3)))
-
-;(check auto7 '(a x) T)
