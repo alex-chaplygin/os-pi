@@ -54,12 +54,13 @@
   (emit (list 'NPRIM type)))
 
 ;; Обычный вызов функции
-(defun generate-reg-call (name env args)
+(defun generate-reg-call (name fix-num env args)
   (let ((num (list-length args)))
     (generate-args args 'PUSH)
+    (when fix-num (emit (list 'PACK (- (list-length args) fix-num))))
     (emit (list 'SAVE-ENV))
     (emit (list 'SET-ENV env))
-    (emit (list 'ALLOC num))
+    (emit (list 'ALLOC (if fix-num (++ fix-num) num)))
     (emit (list 'REG-CALL name))
     (emit (list 'RESTORE-ENV))))
 
@@ -94,7 +95,8 @@
 		('FIX-CLOSURE (generate-closure (cadr expr) (caddr expr))) ; замыкание
 		('FIX-PRIM (generate-fix-prim (cadr expr) (caddr expr))) ; вызов примитива
 		('NARY-PRIM (generate-nary-prim (cadr expr) (caddr expr) (cadddr expr))) ; вызов nary примитива
-		('REG-CALL (generate-reg-call (cadr expr) (caddr expr) (cadddr expr))) ; обычный вызов
+		('FIX-CALL (generate-reg-call (cadr expr) nil (caddr expr) (cadddr expr))) ; обычный вызов
+		('NARY-CALL (generate-reg-call (cadr expr) (caddr expr) (cadddr expr) (caddddr expr))) ; вызов с переменным числом аргументов
 		(otherwise (emit (list 'UNKNOWN (car expr)))))))))
 
 (defun generate (expr)
