@@ -3,7 +3,7 @@
 (defvar *no-solid-tiles*)
 (defvar *level*)
 (defvar *back-collision-handler*)
-(defvar *object-collision-handler*)
+(defvar *obj-collision-handler*)
 (defclass entity () (mob sprite mark-add mark-del))
 
 (defun new-entity (pos sprite)
@@ -19,41 +19,42 @@
 
 (defun delete-entity (entity)
   "Удалить игровую сущность"
-  (entity-set-mark-del T))
+  (entity-set-mark-del entity T))
 
 (defmethod update-entity ((self entity))
   "Выполнить движение сущности (можно переопределить метод)"
-  (move-mob (entity-mob entity)))
+  (move-mob (entity-mob self))
+  (set-sprite-pos (entity-sprite self) (mob-pos (entity-mob self))))
 
-(defun platformer-set-level (level)
+(defun plat-set-level (level)
   "Задать уровень двумерным массивом тайлов"
   (setq *level* level)
   (clear-screen)
-  (set-screen *level*))
+  (set-background *level*))
 
-(defun platformer-set-no-solid-tiles (tiles)
+(defun plat-set-no-solid-tiles (tiles)
   "Задать прозрачные тайлы списком тайлов"
   (setq *no-solid-tiles* tiles))
 
-(defun platformer-update ()
+(defun plat-update ()
   "Обновляет состояние игры (передвигает объекты, обрабатывает столкновения)"
   (add-entities)
   (rm-entities)
-  (app #'(lambda (ent) ((resolve-back-collision (get-collided-back-tiles ent) ent)
+  (app #'(lambda (ent) (resolve-back-collision (get-collided-back-tiles ent) ent)
 			(resolve-object-collision (get-collided-objects ent) ent)
-			(update-entity ent)))
+			(update-entity ent))
        *entity-list*))
 	 
 
-(defun platformer-on-back-collision (f)
+(defun plat-on-back-collision (f)
   "Зарегистрировать функцию f, которая обрабатывает столкновения с фоном" 
   "f entity tile: функция, принимающая сущность, которая столкнулась, и тайл, с которым произошло столкновение"
   (setq *back-collision-handler* f))
 
-(defun platformer-on-object-collision (f)
+(defun plat-on-obj-collision (f)
   "Зарегистрировать функцию f, которая обрабатывает столкновения между объектами"
   "f entity1 entity2: функция, принимающая две сущности, между которыми произошло столкновение"
-  (setq *object-collision-handler* f))
+  (setq *obj-collision-handler* f))
 
 ;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^API^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -78,8 +79,8 @@
 
 (defun resolve-object-collision (entities entity)
   "Применяет обработчик столкновений между сущностями"
-  (when (and (not (null *object-collision-handler*)) (not (null entities)))
-    (app #'(lambda (ent) (funcall *object-collision-handler* entity ent)) entities)))
+  (when (and (not (null *obj-collision-handler*)) (not (null entities)))
+    (app #'(lambda (ent) (funcall *obj-collision-handler* entity ent)) entities)))
 
 (defun get-collided-back-tiles (entity)
   "Возвращает список тайлов фона, с которым столкнулась entity"

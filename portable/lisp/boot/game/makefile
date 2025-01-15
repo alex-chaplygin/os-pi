@@ -1,11 +1,18 @@
 include ../common.mak ../graphics/common.mak
-
+SHELL = bash
 VPATH := .. ../graphics
 
 GAME=$(ASCII_GRAPHICS) graphics.lsp mob.lsp plat.lsp
 
+all: /tmp/game-engine.lsp /tmp/game-graphics.lsp
+
+# движок для платформера
+/tmp/game-engine.lsp: $(GAME) test/plat.lsp
+	cat $^ >$@ ;
+	echo -e -n "\xff" >>$@
+
 # графическая система для игр
-/tmp/game.lsp: $(GAME) test/graphics.lsp
+/tmp/game-graphics.lsp: $(GAME) test/graphics.lsp
 	cat $^ >$@ ;
 	echo -e -n "\xff" >>$@
 
