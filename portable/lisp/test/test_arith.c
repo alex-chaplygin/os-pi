@@ -937,6 +937,32 @@ void test_equal_different_types()
     ASSERT(res, nil);
 }
 
+/** 
+ * Сравнение объектов char
+ */
+void test_equal_objects_are_char()
+{
+    printf("test_equal_objects_are_char: ");
+    object_t list = new_pair(NEW_CHAR('A'),
+			     new_pair(NEW_CHAR('B'), NULLOBJ));
+    object_t res = equal(list);
+    ASSERT(res, nil);
+}
+
+/** 
+ * Сравнение объектов float
+ */
+void test_equal_objects_are_float()
+{
+    printf("test_equal_objects_are_float: ");
+    float num1 = 5.2f;
+    float num2 = 5.2f;
+    object_t list = new_pair(new_float(num1),
+			     new_pair(new_float(num2), NULLOBJ));
+    object_t res = equal(list);
+    ASSERT(res, nil);
+}
+
 /**
  * Тест сравнения неравенства меньше для двух чисел
  */
@@ -1224,6 +1250,8 @@ int main()
     test_equal_null_objects();
     test_equal_one_object_is_null();
     test_equal_different_types();
+    test_equal_objects_are_char();
+    test_equal_objects_are_float();
     test_less();
     test_less_great();
     test_less_float_great();
