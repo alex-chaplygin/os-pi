@@ -53,14 +53,14 @@ symbol_t *func_sym;
 object_t current_env = NULLOBJ;
 /// окружение для пользовательских функций
 object_t func_env = NULLOBJ;
+/// точка вычисления меток tagbody
+extern continuation_t tagbody_buffers[MAX_TAGBODY_SIZE];
+///текущий индекс-буфер для tagbody
+extern int tb_index_buf;
 /// точка для возврата в цикл REPL
 jmp_buf repl_buf;
 /// точка возврата из block
 jmp_buf block_buf;
-/// точка вычисления меток tagbody
-continuation_t tagbody_buffers[MAX_TAGBODY_SIZE];
-///текущий индекс-буфер для tagbody
-int tb_index_buf = 0;
 ///текущая метка перехода go
 object_t cur_label = NULLOBJ;
 #ifdef DEBUG

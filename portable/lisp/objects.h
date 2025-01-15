@@ -1,6 +1,5 @@
 #ifndef OBJECTS
 #define OBJECTS
-
 /// Всего пар
 #define MAX_PAIRS 800000
 /// Всего символов
@@ -21,6 +20,8 @@
 #define MAX_FUNCTIONS 1000
 /// Число созданных пар, после которого вызвается сборка мусора
 #define GC_THRESHOLD 400000
+/// Размер стека для tagbody
+#define MAX_TAGBODY_SIZE 100
 
 /// Печать объекта с переводом строки и учетом рекурсии
 #define PRINT(o) print_counter++; print_obj(o); printf("\n");
@@ -247,4 +248,5 @@ object_t print_gc_stat(object_t o);
 int need_grabage_collect();
 object_t dump_mem(object_t args);
 void error(char *str, ...);
+
 #endif

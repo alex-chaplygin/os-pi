@@ -91,6 +91,11 @@ extern object_t current_env;
 /// окружение функции
 extern object_t func_env;
 
+/// точка вычисления меток tagbody
+continuation_t tagbody_buffers[MAX_TAGBODY_SIZE];
+///текущий индекс-буфер для tagbody
+int tb_index_buf = 0;
+
 /**
  * Инициализация объектов
  */
@@ -720,8 +725,6 @@ object_t dump_mem(object_t args)
 void garbage_collect()
 {
     /* printf("gc\n"); */
-    extern continuation_t tagbody_buffers[];
-    extern int tb_index_buf;
     object_t *cur = static_bind;
     for (int i = 0; i < last_static; i++, cur++)
 	mark_object(*cur);
