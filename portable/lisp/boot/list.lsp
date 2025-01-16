@@ -76,7 +76,7 @@
 
 (defun last (lst)
   "Найти последний элемент списка"
-  (if (null lst) '(error "last: empty list")
+  (if (null lst) (error "last: empty list")
       (if (null (cdr lst)) (car lst) (last (cdr lst)))))
 
 (defun filter (pred list)
