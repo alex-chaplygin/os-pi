@@ -196,6 +196,12 @@ void test_bignum_from_int(int num, int size)
     free_bignum(res);
 }
 
+/** 
+ * Тест округления большого числа до целого
+ *
+ * @param num строка с большим числом
+ * @param n ожидаемый результат
+ */
 void test_round_bignum(const char* num, int n)
 {
     printf("test_round_bignum: %s, result: ", num);
@@ -205,6 +211,24 @@ void test_round_bignum(const char* num, int n)
     printf("\n");
 }
 
+/** 
+ * Тест сложения максимального большого числа с 1
+ */
+void test_sum_overflow()
+{
+    bignum_t n1, n2;
+    printf("test_sum_overflow: ");
+    n1 = new_bignum();
+    n1->sign = 1;
+    memset(n1->data, 9, MAX_BIGNUM_SIZE);
+    n1->size = MAX_BIGNUM_SIZE;
+    n2 = bignum_from_int(1);
+    if (setjmp(jmp_env) == 0) {
+	bignum_sum(n1, n2);
+	FAIL;
+    } else
+	OK;
+}
 
 int main()
 {
@@ -231,7 +255,7 @@ int main()
     test_bignum_sum("12.3","14.0005","26.3005");
     test_bignum_sum("12.4","13.6","26.0");
     test_bignum_sum("10.375","10.205","20.580");
-
+    test_sum_overflow();
     /*
       Условия   Правильные классы    Неправильные классы
       n1 > 0        n1 > 0
