@@ -93,11 +93,15 @@ void hash_remove(symbol_t *s)
  * устанавливает функцию для символа примитива
  * @param name имя примитива функции
  * @param func_ptr указатель на функцию 
+ * @param nary 0 - функция с постаянным числом аргументов, 1 - с переменным
+ * @param count требуемое число аргументов (для переменного числа аргументов - минимальное число аргументов)
  */
-void register_func(char *name, func_t func_ptr)
+void register_func(char *name, func_t func_ptr, int nary, int count)
 {
     symbol_t *s = find_symbol(name);
     s->func = func_ptr;
+    s->nary = nary;
+    s->count = count;
     bind_static(NEW_OBJECT(SYMBOL, s));
 }
 
