@@ -41,8 +41,6 @@ object_t add_float(object_t list, float sum)
 object_t add(object_t list)
 {
     int num = 0;
-    if (list == NULLOBJ)
-	error("add: no arguments");
     while (list != NULLOBJ) {
 	object_t first = FIRST(list);
 	if (IS_NUMBER(first)) {  
@@ -87,21 +85,21 @@ object_t sub_float(object_t list, float sub)
  * 
  * @return разность
  */
-object_t sub(object_t list)
+object_t sub(object_t first, object_t list)
 { 
-    if (list == NULLOBJ)
-        error("sub: no arguments");
-    object_t first = FIRST(list);
     int num;
+    if (list == NULLOBJ && TYPE(first) == FLOAT)
+	return new_float(-GET_FLOAT(first)->value);
     if (TYPE(first) == FLOAT) 
-	return sub_float(TAIL(list), GET_FLOAT(first)->value);
+	return sub_float(list, GET_FLOAT(first)->value);
     else if (IS_NUMBER(first))
-	num = get_value(FIRST(list));
+	num = get_value(first);
     else
 	error("sub: Not number");
-    list = TAIL(list);
+    if (list == NULLOBJ)
+	num = -num;
     while (list != NULLOBJ) {
-	object_t first = FIRST(list);
+	first = FIRST(list);
 	if (IS_NUMBER(first)) {  
 	    num -= get_value(first);
 	    list = TAIL(list);
@@ -145,17 +143,7 @@ object_t mul_float(object_t list, float mul)
  */
 object_t mul(object_t list)
 {
-    if (list == NULLOBJ)
-	error("mul: no arguments");
-    object_t first = FIRST(list);
-    int num;
-    if (TYPE(first) == FLOAT) 
-	return mul_float(TAIL(list), GET_FLOAT(first)->value);
-    else if (IS_NUMBER(first))
-	num = get_value(FIRST(list));
-    else
-	error("mul: Not number");
-    list = TAIL(list);
+    int num = 1;
     while(list != NULLOBJ){
 	object_t first = FIRST(list);
 	if(IS_NUMBER(first)){
@@ -178,20 +166,19 @@ object_t mul(object_t list)
  *
  * @return результат от деления
  */
-object_t div_float(object_t first, object_t second)
+object_t div_float(object_t list, float div)
 {
-    float f;
-    float s;
-#define GET_F(o, v)\
-    if (TYPE(o) == FLOAT)\
-	v = GET_FLOAT(o)->value;\
-    else if (IS_NUMBER(o))\
-	v = (float)get_value(o);\
-    else\
-	error("div: Not number");
-    GET_F(first, f);
-    GET_F(second, s);
-    return new_float(f / s);  
+    while(list != NULLOBJ) {
+	object_t first = FIRST(list);
+	if (TYPE(first) == FLOAT)
+	    div /= GET_FLOAT(first)->value;
+	else if(IS_NUMBER(first))
+	    div /= get_value(first);
+	else
+	    error("div: Not number");
+	list = TAIL(list);
+    }
+    return new_float(div);
 }
 
 /**
@@ -201,25 +188,34 @@ object_t div_float(object_t first, object_t second)
  *
  * @return результат от деления
  */
-object_t DIV(object_t list){
-
+object_t DIV(object_t first, object_t list)
+{
+    int num;
+    if (list == NULLOBJ && TYPE(first) == FLOAT)
+	return new_float(1.0f / GET_FLOAT(first)->value);
+    if (TYPE(first) == FLOAT) 
+	return div_float(list, GET_FLOAT(first)->value);
+    else if (IS_NUMBER(first))
+	num = get_value(first);
+    else
+	error("div: Not number");
     if (list == NULLOBJ)
-        error("div: no arguments");
-    if (TAIL(list) == NULLOBJ)
-        error("div: no divisor");
-    object_t first = FIRST(list);
-    object_t second = SECOND(list);
-    if(TYPE(first) == FLOAT || TYPE(second) == FLOAT)
-	return div_float(first, second);
-    if (get_value(second) != 0) {		
-	if (!IS_NUMBER(first))
+	num = 1 / num;
+    while (list != NULLOBJ) {
+	first = FIRST(list);
+	if (IS_NUMBER(first)) {
+	    int d = get_value(first);
+	    if (d == 0)
+		error("div: divisor = 0");
+	    num /= d;
+	    list = TAIL(list);
+	}
+	else if(TYPE(first) == FLOAT)
+	    return div_float(list, num);
+	else
 	    error("div: Not number");
-	if (!IS_NUMBER(second))
-	    error("div: Not number");
-	int num = get_value(first) / get_value(second);
-	return new_number(num);
-    } else 
-        error("div: divisor = 0");
+    }
+    return new_number(num);
 }
 
 /**
