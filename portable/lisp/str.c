@@ -196,23 +196,6 @@ object_t int_to_str(object_t list)
     return NEW_STRING(s);
 }
 
-/** 
- * Определение длины списка
- *
- * @param args список
- *
- * @return длина
- */
-int list_length(object_t args)
-{
-    int c = 0;
-    while (args != NULLOBJ) {
-	args = TAIL(args);
-	c++;
-    }
-    return c;
-}
-
 /**
  * Создаёт символ по коду
  * @param list (индекс)
