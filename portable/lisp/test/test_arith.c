@@ -13,9 +13,9 @@ extern object_t nil;
 
 object_t add(object_t list);
 object_t add_float(object_t list, float sum);
-object_t sub(object_t list);
+object_t sub(object_t first, object_t list);
 object_t mul(object_t list);
-object_t DIV(object_t list);
+object_t DIV(object_t first, object_t list);
 object_t bitwise_and(object_t list);
 object_t bitwise_or(object_t list);
 object_t shift_left(object_t list);
@@ -53,12 +53,9 @@ void test_add()
 void test_add_null()
 {
     printf("test_add_null: ");
-    if (setjmp(jmp_env) == 0) {
-        object_t list = NULLOBJ;
-        object_t res = add(list);
-        FAIL;
-    } else 
-        OK;
+    object_t list = NULLOBJ;
+    object_t res = add(list);
+    ASSERT(get_value(res), 0); 
 }
 
 /**
@@ -110,7 +107,7 @@ void test_add_float_no_number()
 }
 
 /**
- * Тест вычитания 
+ * Тест вычитания (- 10 3 2)
  */
 void test_sub()
 {
@@ -118,11 +115,36 @@ void test_sub()
     int num1 = 10;
     int num2 = 3;
     int num3 = 2;
-    object_t list = new_pair(new_number(num1),
-                        new_pair(new_number(num2), 
-                            new_pair(new_number(num3), NULLOBJ)));
-    object_t res = sub(list);
-    ASSERT(get_value(res),5);
+    object_t first = new_number(num1);
+    object_t list = new_pair(new_number(num2), 
+			     new_pair(new_number(num3), NULLOBJ));
+    object_t res = sub(first, list);
+    ASSERT(get_value(res), 5);
+}
+
+/**
+ * Тест вычитания (- 10)
+ */
+void test_sub_one()
+{
+    printf("test_sub_one: ");
+    int num = 10;
+    object_t first = new_number(num);
+    object_t list = NULLOBJ;
+    object_t res = sub(first, list);
+    ASSERT(get_value(res), -10);
+}
+
+/**
+ * Тест вычитания (- 10)
+ */
+void test_sub_float_one()
+{
+    printf("test_sub_one: ");
+    object_t first = new_float(10.0f);
+    object_t list = NULLOBJ;
+    object_t res = sub(first, list);
+    ASSERT_FLOAT(GET_FLOAT(res)->value, -10.0f);
 }
 
 //Тест вычитания - проверка на NULL.
@@ -130,8 +152,9 @@ void test_sub_null()
 {
     printf("test_sub_null: ");
     if (setjmp(jmp_env) == 0) {
+	object_t first = NULLOBJ;
         object_t list = NULLOBJ;
-        object_t res = sub(list);
+        object_t res = sub(first, list);
         FAIL;
     } else
         OK;
@@ -143,9 +166,9 @@ void test_sub_no_number()
     printf("test_sub_no_number: ");
     int num = 2;
     if (setjmp(jmp_env) == 0) {
-        object_t list = new_pair(new_number(num),
-			         new_pair(new_pair(NULLOBJ, NULLOBJ), NULLOBJ));
-        object_t res = sub(list);
+	object_t first = new_number(num);
+        object_t list = new_pair(new_pair(NULLOBJ, NULLOBJ), NULLOBJ);
+	object_t res = sub(first, list);
         FAIL;
     } else 
         OK;
@@ -160,10 +183,10 @@ void test_sub_float()
     float num1 = 10.26f;
     float num2 = 2.67f;
     float num3 = 5.11f;
-    object_t list = new_pair(new_float(num1),
-                        new_pair(new_float(num2), 
-                            new_pair(new_float(num3), NULLOBJ)));
-    object_t res = sub(list);
+    object_t first = new_float(num1);
+    object_t list = new_pair(new_float(num2), 
+			     new_pair(new_float(num3), NULLOBJ));
+    object_t res = sub(first, list);
     ASSERT_FLOAT(GET_FLOAT(res)->value, 2.48f);
 }
 
@@ -174,10 +197,10 @@ void test_sub_float_number()
     float num1 = 10.22f;
     float num2 = 2.11f;
     int num3 = 5;
-    object_t list = new_pair(new_float(num1),
-                        new_pair(new_float(num2), 
-                            new_pair(new_number(num3), NULLOBJ)));
-    object_t res = sub(list);
+    object_t first = new_float(num1);
+    object_t list = new_pair(new_float(num2), 
+			     new_pair(new_number(num3), NULLOBJ));
+    object_t res = sub(first, list);
     ASSERT_FLOAT(GET_FLOAT(res)->value, 3.11f)
 }
 
@@ -187,9 +210,9 @@ void test_sub_float_no_number()
     printf("test_sub_float_no_number: ");
     float num = 2.11f;
     if (setjmp(jmp_env) == 0) {
-        object_t list = new_pair(new_float(num),
-			         new_pair(new_pair(NULLOBJ, NULLOBJ), NULLOBJ));
-        object_t res = sub(list);
+	object_t first = new_float(num);
+        object_t list = new_pair(new_pair(NULLOBJ, NULLOBJ), NULLOBJ);
+        object_t res = sub(first, list);
         FAIL;
     } else 
         OK;
@@ -216,12 +239,9 @@ void test_mul()
 void test_mul_empty_list()
 {
     printf ("test_mul_empty_list:");
-    if (setjmp(jmp_env) == 0) {
-        object_t empty_list = NULLOBJ;
-        object_t res = mul(empty_list);
-        FAIL;
-    } else 
-        OK;
+    object_t empty_list = NULLOBJ;
+    object_t res = mul(empty_list);
+    ASSERT(get_value(res), 1); 
 }
 
 
@@ -371,9 +391,9 @@ void test_div()
     printf("test_div: \n");
     int num1 = 8;
     int num2 = 2;
-    object_t list = new_pair(new_number(num1),
-                        new_pair(new_number(num2), NULLOBJ));
-    object_t res = DIV(list);
+    object_t first = new_number(num1);
+    object_t list = new_pair(new_number(num2), NULLOBJ);
+    object_t res = DIV(first, list);
     ASSERT(get_value(res), 4); 
 }
 
@@ -385,8 +405,9 @@ void test_div_nulllist()
 {
     printf("test_div_nulllist: \n");
     if (setjmp(jmp_env) == 0) {
+	object_t first = NULLOBJ;
         object_t list = NULLOBJ;
-        object_t res = DIV(list); 
+        object_t res = DIV(first, list); 
         FAIL;
     } else 
         OK;
@@ -402,9 +423,9 @@ void test_div_zerodivisor()
     int num1 = 8;
     int num2 = 0;
     if (setjmp(jmp_env) == 0) {
-        object_t list =  new_pair(new_number(num1),
-			      new_pair(new_number(num2),NULLOBJ));
-        object_t res =  DIV(list);
+	object_t first = new_number(num1);
+        object_t list = new_pair(new_number(num2),NULLOBJ);
+        object_t res = DIV(first, list);
         FAIL;
     } else 
         OK;
@@ -416,24 +437,20 @@ void test_div_zerodivisor()
 void test_div_nulldivisor()
 {
     printf("test_div_nulldivisor: \n");
-    int num1 = 8;
-    if (setjmp(jmp_env) == 0) {
-        object_t list = new_pair(new_number(num1), NULLOBJ);
-        object_t res =  DIV(list);
-        FAIL;
-    } else 
-        OK;
+    object_t first = new_float(8.0f);
+    object_t list = NULLOBJ;
+    object_t res =  DIV(first, list);
+    ASSERT(GET_FLOAT(res)->value, 0.125f); 
 }
 
  //Тест деления чисел с плавающей запятой, делимое - float, делитель - integer
 void test_div_float_by_int()
 {
     printf("test_div_float_by_int: \n");
-    float num1 = 7.5f;
-    int num2 = 2;
-    object_t list = new_pair(new_float(num1),
-                        new_pair(new_number(num2), NULLOBJ));
-    object_t res = DIV(list);
+    int num = 2;
+    object_t first = new_float(7.5f);
+    object_t list = new_pair(new_number(num), NULLOBJ);
+    object_t res = DIV(first, list);
     ASSERT_FLOAT(GET_FLOAT(res)->value, 3.75f);
 }
 
@@ -441,11 +458,10 @@ void test_div_float_by_int()
 void test_div_int_by_float()
 {
     printf("test_div_int_by_float: \n");
-    int num1 = 2;
-    float num2 = 0.8f;
-    object_t list = new_pair(new_number(num1),
-                        new_pair(new_float(num2), NULLOBJ));
-    object_t res = DIV(list);
+    float num = 0.8f;
+    object_t first = new_number(2);
+    object_t list = new_pair(new_float(num), NULLOBJ);
+    object_t res = DIV(first, list);
     ASSERT_FLOAT(GET_FLOAT(res)->value, 2.5f);
 }
 
@@ -454,11 +470,10 @@ void test_div_int_by_float()
 void test_div_float_by_float()
 {
     printf("test_div_float_by_float: \n");
-    float num1 = 9.4f;
-    float num2 = 3.2f;
-    object_t list = new_pair(new_float(num1),
-                        new_pair(new_float(num2), NULLOBJ));
-    object_t res = DIV(list);
+    float num = 3.2f;
+    object_t first = new_float(9.4f);
+    object_t list = new_pair(new_float(num), NULLOBJ);
+    object_t res = DIV(first, list);
     ASSERT_FLOAT(GET_FLOAT(res)->value, 2.9375f);
 }
 
@@ -466,11 +481,11 @@ void test_div_float_by_float()
 void test_div_divisible_is_symbol()
 {
     printf("test_div_divisible_is_symbol: \n");
-    int num1 = 8;
+    int num = 8;
     if (setjmp(jmp_env) == 0) {
-        object_t list =  new_pair(NEW_SYMBOL("a"),
-			      new_pair(new_number(num1), NULLOBJ));
-        object_t res =  DIV(list);
+	object_t first = NEW_SYMBOL("a");
+        object_t list = new_pair(new_number(num), NULLOBJ);
+        object_t res = DIV(first, list);
         FAIL;
     } else 
         OK;
@@ -480,11 +495,10 @@ void test_div_divisible_is_symbol()
 void test_div_divider_is_symbol()
 {
     printf("test_div_divider_is_symbol: \n");
-    int num1 = 9;
     if (setjmp(jmp_env) == 0) {
-        object_t list =  new_pair(new_number(num1),
-			      new_pair(NEW_SYMBOL("b"), NULLOBJ));
-        object_t res =  DIV(list);
+	object_t first = new_number(9);
+        object_t list = new_pair(NEW_SYMBOL("b"), NULLOBJ);
+        object_t res = DIV(first, list);
         FAIL;
     } else 
         OK;
@@ -494,11 +508,11 @@ void test_div_divider_is_symbol()
 void test_div_divisible_is_nullobj()
 {
     printf("test_div_divisible_is_nullobj: \n");
-    int num1 = 7;
+    int num = 7;
     if (setjmp(jmp_env) == 0) {
-        object_t list =  new_pair(new_pair(NULLOBJ, NULLOBJ),
-			      new_pair(new_number(num1), NULLOBJ));
-        object_t res =  DIV(list);
+	object_t first = NULLOBJ;
+        object_t list = new_pair(new_number(num), NULLOBJ);
+        object_t res = DIV(first, list);
         FAIL;
     } else 
         OK;
@@ -508,11 +522,10 @@ void test_div_divisible_is_nullobj()
 void test_div_divider_is_nullobj()
 {
     printf("test_div_divider_is_nullobj: \n");
-    int num1 = 9;
     if (setjmp(jmp_env) == 0) {
-        object_t list =  new_pair(new_number(num1),
-			      new_pair(new_pair(NULLOBJ, NULLOBJ), NULLOBJ));
-        object_t res =  DIV(list);
+	object_t first = new_number(9);
+        object_t list = new_pair(new_pair(NULLOBJ, NULLOBJ), NULLOBJ);
+	object_t res = DIV(first, list);
         FAIL;
     } else 
         OK;
@@ -524,9 +537,9 @@ void test_div_float_divider_is_symbol()
     printf("test_div_float_divider_is_symbol: \n");
     float num1 = 5.54f;
     if (setjmp(jmp_env) == 0) {
-        object_t list =  new_pair(new_float(num1),
-				  new_pair(NEW_SYMBOL("a"), NULLOBJ));
-        object_t res =  DIV(list);
+	object_t first = new_float(5.54f);
+        object_t list = new_pair(NEW_SYMBOL("a"), NULLOBJ);
+        object_t res = DIV(first, list);
         FAIL;
     } else 
         OK;
@@ -538,9 +551,9 @@ void test_div_float_divisible_is_symbol()
     printf("test_div_float_divisible_is_symbol: \n");
     float num1 = 2.34f;
     if (setjmp(jmp_env) == 0) {
-      object_t list =  new_pair(NEW_SYMBOL("b"),
-				  new_pair(new_float(num1), NULLOBJ));
-        object_t res =  DIV(list);
+	object_t first = NEW_SYMBOL("b");
+	object_t list = new_pair(new_float(num1), NULLOBJ);
+        object_t res = DIV(first, list);
         FAIL;
     } else 
         OK;
@@ -552,9 +565,9 @@ void test_div_float_divider_is_nullobj()
     printf("test_div_float_divider_is_nullobj: \n");
     float num1 = 3.76f;
     if (setjmp(jmp_env) == 0) {
-        object_t list =  new_pair(new_float(num1),
-				  new_pair(new_pair(NULLOBJ, NULLOBJ), NULLOBJ));
-        object_t res =  DIV(list);
+	object_t first = new_float(3.76f);
+        object_t list = new_pair(new_pair(NULLOBJ, NULLOBJ), NULLOBJ);
+        object_t res = DIV(first, list);
         FAIL;
     } else 
         OK;
@@ -566,9 +579,9 @@ void test_div_float_divisible_is_nullobj()
     printf("test_div_float_divisible_is_nullobj: \n");
     float num1 = 2.34f;
     if (setjmp(jmp_env) == 0) {
-      object_t list =  new_pair(new_pair(NULLOBJ, NULLOBJ),
-				  new_pair(new_float(num1), NULLOBJ));
-        object_t res =  DIV(list);
+	object_t first = NULLOBJ;
+	object_t list = new_pair(new_float(num1), NULLOBJ);
+        object_t res = DIV(first, list);
         FAIL;
     } else 
         OK;
@@ -1187,6 +1200,8 @@ int main()
     test_add_float();
     test_add_float_no_number();
     test_sub();
+    test_sub_one();
+    test_sub_float_one();
     test_sub_null();
     test_sub_no_number();
     test_sub_float();
