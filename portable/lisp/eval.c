@@ -87,6 +87,23 @@ void print_debug_stack()
 }
 #endif
 
+/** 
+ * Определение длины списка
+ *
+ * @param args список
+ *
+ * @return длина
+ */
+int list_length(object_t args)
+{
+    int c = 0;
+    while (args != NULLOBJ) {
+	args = TAIL(args);
+	c++;
+    }
+    return c;
+}
+
 // (eq 'a 'a) -> T 
 // (eq 'a 'b) -> () 
 /*  
@@ -593,6 +610,50 @@ object_t eval_symbol(object_t obj, object_t env)
     } 
 } 
 
+/** 
+ * Вызов примитива или встроенной формы
+ *
+ * @param s символ формы
+ * @param args список аргументов
+ * @param args_count фактическое число аргументов
+ *
+ * @return результат вычислений
+ */
+object_t call_form(symbol_t *s, object args, int args_count)
+{
+    if (s->nary == 0)
+	switch (args_count) {
+	case 0:
+	    return s->func();
+	case 1:
+	    return (func1_t)(s->func)(FIRST(args));
+	case 2:
+	    return (func2_t)(s->func)(FIRST(args), SECOND(args));
+	case 3:
+	    return (func3_t)(s->func)(FIRST(args), SECOND(args), THIRD(args));
+	case 4:
+	    return (func4_t)(s->func)(FIRST(args), SECOND(args), THIRD(args), TAIL(args));
+	default:
+	    error("primitive %s with %d arguments", s->str, args_count);
+	
+	}
+    else
+	switch (s->count) {
+	case 0:
+	    return (func1_t)s->func(args);
+	case 1:
+	    return (func2_t)(s->func)(FIRST(args), TAIL(args));
+	case 2:
+	    return (func3_t)(s->func)(FIRST(args), SECOND(args), TAIL(TAIL(args)));
+	case 3:
+	    return (func4_t)(s->func)(FIRST(args), SECOND(args), THIRD(args), TAIL(TAIL(TAIL(args))));
+	case 4:
+	    return (func5_t)(s->func)(FIRST(args), SECOND(args), THIRD(args), THIRD(TAIL(args)), TAIL(TAIL(TAIL(TAIL(args)))));
+	default:
+	    error("nary primitive %s with %d arguments", s->str, s->count);
+	} 
+}
+
 /**
  * Вычисление выражения
  * Если выражение число или строка, массив, одиночный символ, возвращаем его же
@@ -641,6 +702,14 @@ object_t eval(object_t obj, object_t env, object_t func)
 #ifdef DEBUG
     	debug_stack = new_pair(obj, debug_stack);
 #endif
+	int args_count = list_length(obj);
+	if (s->nary == 0) {
+	    if (s->count != args_count)
+		error("%s: invalid arguments count", s->str);
+	} else {
+	    if (s->count > args_count)
+		error("%s: invalid arguments count", s->str);
+	}	    
         if (is_special_form(s) || s->macro != NULLOBJ)
             args = TAIL(obj);
         else
@@ -652,7 +721,7 @@ object_t eval(object_t obj, object_t env, object_t func)
         else if (s->lambda != NULLOBJ)
             result = eval_func(s->lambda, args, env, func);
         else if (s->func != NULL)
-            result = s->func(args);
+	    result = call_form(s, args, args_count);
         else if (s->macro != NULLOBJ)
             result = macro_call(s->macro, args, env, func);
         else
@@ -957,27 +1026,27 @@ object_t function(object_t param)
  */ 
 void init_eval() 
 { 
-    register_func("ATOM", atom); 
-    register_func("EQ", eq); 
-    register_func("QUOTE", quote); 
-    register_func("BACKQUOTE",backquote);
-    register_func("IF", IF);
-    register_func("DEFUN", defun); 
-    register_func("DEFMACRO", defmacro); 
-    register_func("PROGN", progn); 
-    register_func("SETQ", setq); 
-    register_func("FUNCALL", funcall); 
-    register_func("APPLY", apply); 
-    register_func("EVAL", lisp_eval);
-    register_func("GC", print_gc_stat);
-    register_func("DUMP-MEM", dump_mem);
-    register_func("ERROR", error_func);
-    register_func("TAGBODY", tagbody);
-    register_func("GO", go);
-    register_func("CATCH", catch); 
-    register_func("THROW", throw);
-    register_func("LABELS", labels);
-    register_func("FUNCTION", function);
+    register_func("ATOM", atom, 0, 1); 
+    register_func("EQ", eq, 0, 2); 
+    register_func("QUOTE", quote, 0, 1); 
+    register_func("BACKQUOTE",backquote, 0, 1);
+    register_func("IF", IF, 0, 3);
+    register_func("DEFUN", defun, 1, 2); 
+    register_func("DEFMACRO", defmacro, 1, 2); 
+    register_func("PROGN", progn, 1, 0); 
+    register_func("SETQ", setq, 1, 0); 
+    register_func("FUNCALL", funcall, 1, 1); 
+    register_func("APPLY", apply, 0, 2); 
+    register_func("EVAL", lisp_eval, 0, 1);
+    register_func("GC", print_gc_stat, 0, 0);
+    register_func("DUMP-MEM", dump_mem, 0, 0);
+    register_func("ERROR", error_func, 0, 1);
+    register_func("TAGBODY", tagbody, 1, 0);
+    register_func("GO", go, 0, 1);
+    register_func("BLOCK", block, 1, 0); 
+    register_func("RETURN-FROM", return_from, 0, 2);
+    register_func("LABELS", labels, 1, 1);
+    register_func("FUNCTION", function, 0, 1);
     t = NEW_SYMBOL("T"); 
     nil = NULLOBJ;
     bind_static(t);
