@@ -6,6 +6,8 @@
 (defvar *fix-functions*)
 ;; список функций с переменным числом аргументов
 (defvar *nary-functions*)
+;; список локальных функций (локальное имя, смещение кадра, кол-во аргументов, скомплированное имя)
+(defvar *local-functions*)
 ;; список примитивов с фиксированным количеством аргументов
 (defvar *fix-primitives*
   '((car . 1) (cdr . 1) (cons . 2) (rplaca . 2) (rplacd . 2)
@@ -25,11 +27,12 @@
   (cons args env))
 
 ;; Добавить глобальную функцию с именем, смещением окружения и числом аргументов
-(defmacro mk/add-func (name list)
-  `(defun ,name (name env arity)
-     (setq ,list (cons (list name env arity) ,list))))
+(defmacro mk/add-func (name list &rest other)
+  `(defun ,name (name env arity ,@other)
+     (setq ,list (cons (list name env arity ,@other) ,list))))
 (mk/add-func add-func *fix-functions*) ;; фиксированное число аргументов
 (mk/add-func add-nary-func *nary-functions*) ;; переменное число аргументов
+(mk/add-func add-local-func *local-functions* real-name) ;; локальные функции
 
 ;; Поиск функции или примитива по имени, возвращет сохраненную функцию или примитив
 (defun search-symbol (list name)
@@ -53,6 +56,13 @@
                           nil))))
          (is-args-sym (cadr f)))))
 
+;; Компиляция тела функции
+(defun compile-func-body (name args body env)
+  (list 'LABEL name
+	(list 'SEQ
+	      (inner-compile body (extend-env env args))
+	      (list 'RETURN)))))
+
 ;; Комплирует лямбда-абстракцию.
 ;; (список аргументов, тело функции, локальное окружение).
 (defun compile-lambda (name args body env)
@@ -67,10 +77,7 @@
     (if (is-nary-function)
 	(add-nary-func name (list-length env) (num-fix-args args 0))
 	(add-func name (list-length env) (list-length args)))
-    (list 'LABEL name
-	  (list 'SEQ
-		(inner-compile body (extend-env env (remove-rest args)))
-		(list 'RETURN)))))
+    (compile-func-body name (remove-rest args) body env)))
 
 ;; Определения типа функции: лямбда, примитив, nary примитив, глобальная функция, nary функция
 (defun find-func (f)
@@ -80,6 +87,8 @@
 	(cond
 	  ((setq r (search-symbol *macros* f))
 	   (list 'macro (list-length (cadr r)) (cadr r) (cddr r))) ; macro num-args args body
+	  ((setq r (search-symbol *local-functions* f))
+	   (list 'local-func (caddr r) (cadr r) (cadddr r)))  ; local-func num-args env real-name
 	  ((setq r (search-symbol *fix-functions* f))
 	   (list 'fix-func (caddr r) (cadr r)))  ; fix-func num-args env
 	  ((setq r (search-symbol *nary-functions* f))
@@ -97,7 +106,7 @@
 	 (type (car fun))
 	 (count (cadr fun))
 	 (cur-env (list-length env)))
-    (when (contains '(lambda func fix-prim macro) type)
+    (when (contains '(lambda fix-func local-func fix-prim macro) type)
       (when (!= count (list-length args))
 	(comp-err (concat "invalid args count"))))
     (when (contains '(nary-prim nary-func) type)
@@ -108,6 +117,7 @@
 	(let ((vals (map #'(lambda (a) (inner-compile a env)) args)))
 	  (case type
 	    ('lambda (list 'FIX-LET count vals (compile-progn (cddr f) (extend-env env (cadr f)))))
+	    ('local-func (list 'FIX-CALL (cadddr fun) (caddr fun) vals))
 	    ('fix-func (list 'FIX-CALL f (caddr fun) vals))
 	    ('nary-func (list 'NARY-CALL f count (caddr fun) vals))
 	    ('fix-prim (list 'FIX-PRIM f vals))
@@ -183,6 +193,28 @@
 	(inner-compile (car lst) env)
       (list 'SEQ (inner-compile (car lst) env) (compile-progn (cdr lst) env)))))
 
+;; Компилирует labels.
+;; lst - (<список функций> <форма1> ... <формаn>).
+(defun compile-labels (lst env)
+  (let ((old *local-functions*))
+    (labels ((extend-func (funcs)
+	       (app
+		#'(lambda (f)
+		    (add-local-func (car f) (list-length env) (list-length (cadr f)) (gensym))) funcs))
+	     (compile-funcs (funcs)
+	       (cons 'SEQ (map
+			   #'(lambda (f)
+			       (let ((name (cadddr (find-func (car f))))
+				     (args (cadr f))
+				     (body (cddr f)))
+				 (compile-func-body name args (cons 'progn body) env)))
+			   funcs))))
+      (extend-func (car lst))
+      (let ((f (compile-funcs (car lst)))
+	    (body (compile-progn (cdr lst) env)))
+	(setq *local-functions* old)
+	(list 'SEQ f body)))))
+
 ;; Производит поиск переменной по символу сначала в локальном, а затем в глобальном окружении.
 ;; Возвращает список, состоящий из символа - GLOBAL или LOCAL, DEEP,
 ;; env - локальное окружение
@@ -251,6 +283,7 @@
 	  ('if (compile-if args env))
 	  ('setq (compile-setq args env))
 	  ('defun (compile-defun args env))
+	  ('labels (compile-labels args env))
 	  ('function (compile-function (cadr expr) env))
 	  ('defmacro (progn (make-macro args) (list 'NOP)))
 	  ('backquote (compile-backquote (cadr expr) env))

@@ -67,6 +67,12 @@
 ;(test-compile '(defun ()) '())
 ;(test-compile '(defun test t) '())
 
+(print "форма labels")
+(test-compile '(labels ((test (x) (+ x x))
+			(test2 (y) (* y y)))
+		(test2 (test 10)))
+	      '(SEQ (SEQ (LABEL G387 (SEQ (NARY-PRIM + 0 ((LOCAL-REF 0) (LOCAL-REF 0))) (RETURN))) (LABEL G388 (SEQ (NARY-PRIM * 0 ((LOCAL-REF 0) (LOCAL-REF 0))) (RETURN)))) (FIX-CALL G388 0 ((FIX-CALL G387 0 ((CONST 10)))))))
+
 (print "пустая функция")
 (test-compile '(defun test ()) '(LABEL TEST (SEQ (CONST ()) (RETURN))))
 
