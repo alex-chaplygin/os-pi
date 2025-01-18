@@ -107,7 +107,13 @@ typedef long long object_t;
 typedef unsigned int object_t;
 #endif
 
-typedef  object_t (*func_t)(object_t); // указатель на функцию примитив
+// указатели на функции для примитивов
+typedef  object_t (*func0_t)(); 
+typedef  object_t (*func1_t)(object_t);
+typedef  object_t (*func2_t)(object_t, object_t);
+typedef  object_t (*func3_t)(object_t, object_t, object_t);
+typedef  object_t (*func4_t)(object_t, object_t, object_t, object_t);
+typedef  object_t (*func5_t)(object_t, object_t, object_t, object_t, object_t);
 
 /* Структуры объектов должны иметь размер, кратный 2^MARKBIT (сейчас 32 байт) */
 /* Структура региона должна иметь размер, кратный 2^MARKBIT (сейчас 32 байт) */
@@ -212,9 +218,18 @@ typedef struct symbol_s
     // указатель на объект для макроса
     object_t macro;
     //указатель на функцию для примитивов
-    func_t func;
+    func0_t func;
     //список функций у метки
     object_t tag_value;
+    //переменное количество аргументов
+    int nary;
+    //количество аргументов
+    int count;
+#ifdef X32
+    int pad[6]; // выравнивание 72 + 24
+#else
+    int pad[4]; // выравнивание 112 + 16
+#endif
 } symbol_t;
 
 extern int print_counter;
