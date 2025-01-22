@@ -39,4 +39,7 @@
 (draw-image im)
 (move-to 40 10)
 (show-text "Hello")
+(set-colour +cyan+)
+(translate '(10 . 0))
+(fill-rect 0 0 12 5)
 (draw-screen)

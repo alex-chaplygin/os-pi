@@ -1,6 +1,9 @@
 include ../common.mak common.mak
 
+SHELL = bash
 VPATH := ..
+
+all: /tmp/graphics.lsp /tmp/ascii-graphics.lsp
 
 # графика
 /tmp/graphics.lsp: $(GRAPHICS) test/backend.lsp

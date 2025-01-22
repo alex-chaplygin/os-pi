@@ -29,7 +29,8 @@
 
 (defun fill-rect (x y w h)
   "Заполняет область пробелом с учетом матрицы преобразования"
-  (let* ((c (get-hash *cur-state* 'color))
+  (let* ((ctm (get-hash *cur-state* 'ctm))
+	 (c (get-hash *cur-state* 'color))
          (x2 (+ x w))
          (y2 (+ y h))
          (top-left (mat-mul-vec ctm (cons x y)))
@@ -39,12 +40,16 @@
          (tx2 (car bottom-right))
          (ty2 (cdr bottom-right))
          (new-w (- tx2 tx1))
-         (new-h (- ty2 ty1)))
-    (set-color c)
-    (set-back-color c)
+         (new-h (- ty2 ty1))
+         (ofs (<< (+ (* ty1 *screen-width*) tx1) 1)))
     (for i ty1 (+ ty1 new-h)
-      (set-cursor tx1 i)
-      (fill-row new-w #\ ))))
+      (for j tx1 (+ tx1 new-w)
+        (seta *text-buffer* ofs (char-code #\ ))
+        (incf ofs)
+	(seta *text-buffer* ofs (+ c (<< c 4)))
+        (incf ofs))
+      (setq ofs (+ ofs (<< *screen-width* 1) (- 0 (<< new-w 1)))))))
+
 
 (defun show-text (text)
   "Вывод текста в текущей позиции"
