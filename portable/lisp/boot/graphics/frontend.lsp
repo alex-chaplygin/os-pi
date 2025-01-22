@@ -79,4 +79,4 @@
 
 (defmacro rotate (a)
   "Поворот"
-  '(set-hash *cur-state* 'ctm (mat-rotate (get-hash *cur-state* 'ctm) ,a)))
+  `(set-hash *cur-state* 'ctm (mat-rotate (get-hash *cur-state* 'ctm) ,a)))

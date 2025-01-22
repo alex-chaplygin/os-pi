@@ -3,8 +3,8 @@
   "Тестирование вывода экрана"
   (let ((i -1))
     (for y 0 *screen-height*
-      (for x 0 *screen-width*
-                (seta *graphics-buffer* (incf i) (& x 0x3f)))))
+	 (for x 0 *screen-width*
+	      (seta *graphics-buffer* (incf i) (& x 0x3f)))))
   (screen-add-rect '(0 . 0) '(320 . 200))
   (draw-screen))
 
@@ -16,25 +16,22 @@
 	 (for xx x (+ x w)
 	      (seta *graphics-buffer* (incf i) c))
 	 (setq i (- (+ i *screen-width*) w)))
-  (send-graphics-buffer *graphics-buffer* x y w h)))
+    (send-graphics-buffer *graphics-buffer* x y w h)))
 
 (defun rect-test ()
   "Тестирование рисования полого прямоугольника"
-  (screen-add-rect '(30 . 10) '(201 . 101))
   (draw-rect 30 10 200 100 1)
   (draw-screen))
 
 (defun rectf-test ()
   "Тестирование рисования заполненного прямоугольника"
   (clear-screen)
-  (screen-add-rect '(30 . 10) '(200 . 100))
   (draw-rectf 30 10 200 100 1)
   (draw-screen))
 
 (defun line-test ()
   "Тестирование рисования прямой линии"
   (clear-screen)
-  (screen-add-rect '(30 . 10) '(200 . 100))
   (draw-line 100 100 150 100 1)
   (draw-line 100 100 50 100 2)
   (draw-line 100 100 100 170 3)
@@ -48,7 +45,6 @@
 (defun circle-test ()
   "Тестирование рисования круга"
   (clear-screen)
-  (screen-add-rect '(30 . 10) '(200 . 100))
   (draw-circle 100 100 20 1)
   (draw-screen))
 
@@ -74,14 +70,12 @@
 (defun test-fill-triangle ()
   "Тестирование заливки треугольника"
   (clear-screen)
-  (screen-add-rect '(0 . 0) '(20 . 20))
   (fill-triangle '(10 . 1) '(1 . 8) '(20 . 20) 2)
   (draw-screen))
 
 (defun test-draw-hline ()
   "Тестирование рисования горизонтальной линии"
   (clear-screen)
-  (screen-add-rect '(50 . 80) '(100 . 80))
   (draw-hline 50 100 80 3)
   (draw-screen))
 
