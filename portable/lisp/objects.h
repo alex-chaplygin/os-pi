@@ -17,7 +17,7 @@
 /// Всего продолжений
 #define MAX_CONTINUATIONS 100
 /// Всего функций 
-#define MAX_FUNCTIONS 1000
+#define MAX_FUNCTIONS 4000
 /// Число созданных пар, после которого вызвается сборка мусора
 #define GC_THRESHOLD 400000
 /// Размер стека для tagbody
