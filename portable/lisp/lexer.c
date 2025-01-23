@@ -296,6 +296,8 @@ void get_string(char *cur_str)
 		    cur_symbol = '\n';
 		else if (cur_symbol == '\\')
 		    cur_symbol = '\\';
+		else if (cur_symbol == '"')
+		    cur_symbol = '"';
 		else if (cur_symbol == 'x') {
 		    int code = hex_num();
 		    
