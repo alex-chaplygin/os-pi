@@ -33,6 +33,8 @@
 (mk/add-func add-func *fix-functions*) ;; фиксированное число аргументов
 (mk/add-func add-nary-func *nary-functions*) ;; переменное число аргументов
 (mk/add-func add-local-func *local-functions* real-name) ;; локальные функции
+(mk/add-func add-fix-macro *fix-macros* args body) ;; макросы - фиксированное число аргументов
+(mk/add-func add-nary-macro *nary-macros* args body) ;; макросы - переменное число аргументов
 
 ;; Поиск функции или примитива по имени, возвращет сохраненную функцию или примитив
 (defun search-symbol (list name)
@@ -61,23 +63,26 @@
   (list 'LABEL name
 	(list 'SEQ
 	      (inner-compile body (extend-env env args))
-	      (list 'RETURN)))))
+	      (list 'RETURN))))
+
+(defun is-nary (args) ;; переменное число аргументов?
+  (contains args '&rest))
+
+(defun num-fix-args (list num) ;; определить число фиксированных аргументов
+  (if (eq (car list) '&rest) num (num-fix-args (cdr list) (++ num))))
+
+(defun remove-rest (list) ;; удалить &rest из списка аргументов
+  (if (null list) nil
+      (if (eq (car list) '&rest) (cdr list)
+	  (cons (car list) (remove-rest (cdr list))))))
 
 ;; Комплирует лямбда-абстракцию.
 ;; (список аргументов, тело функции, локальное окружение).
 (defun compile-lambda (name args body env)
-  (labels ((is-nary-function () ;; переменное число аргументов?
-	     (contains args '&rest))
-	   (num-fix-args (list num) ;; определить число фиксированных аргументов
-	     (if (eq (car list) '&rest) num (num-fix-args (cdr list) (++ num))))
-	   (remove-rest (list) ;; удалить &rest из списка аргументов
-	     (if (null list) nil
-		 (if (eq (car list) '&rest) (cdr list)
-		     (cons (car list) (remove-rest (cdr list)))))))
-    (if (is-nary-function)
+    (if (is-nary args)
 	(add-nary-func name (list-length env) (num-fix-args args 0))
 	(add-func name (list-length env) (list-length args)))
-    (compile-func-body name (remove-rest args) body env)))
+    (compile-func-body name args body env))
 
 ;; Определения типа функции: лямбда, примитив, nary примитив, глобальная функция, nary функция
 (defun find-func (f)
@@ -85,8 +90,10 @@
       (list 'lambda (list-length (cadr f)) (gensym)) ; lambda num-args name
       (let ((r nil))
 	(cond
-	  ((setq r (search-symbol *macros* f))
-	   (list 'macro (list-length (cadr r)) (cadr r) (cddr r))) ; macro num-args args body
+	  ((setq r (search-symbol *fix-macros* f))
+	   (list 'fix-macro (caddr r) (cadddr r) (caddddr r))) ; fix-macro num-args args body
+	  ((setq r (search-symbol *nary-macros* f))
+	   (list 'nary-macro (caddr r) (cadddr r) (caddddr r))) ; nary-macro num-args args body
 	  ((setq r (search-symbol *local-functions* f))
 	   (list 'local-func (caddr r) (cadr r) (cadddr r)))  ; local-func num-args env real-name
 	  ((setq r (search-symbol *fix-functions* f))
@@ -106,14 +113,17 @@
 	 (type (car fun))
 	 (count (cadr fun))
 	 (cur-env (list-length env)))
-    (when (contains '(lambda fix-func local-func fix-prim macro) type)
+    (when (contains '(lambda fix-func local-func fix-prim fix-macro) type)
       (when (!= count (list-length args))
 	(comp-err (concat "invalid args count"))))
-    (when (contains '(nary-prim nary-func) type)
+    (when (contains '(nary-prim nary-func nary-macro) type)
       (when (> count (list-length args))
-	(comp-err (concat "invalid args count"))))
-    (if (eq type 'macro)
+	(comp-err (concat "invalid nary args count"))))
+    (if (eq type 'fix-macro)
 	(inner-compile (macroexpand (caddr fun) args (cadddr fun)) env)
+	(if (eq type 'nary-macro)
+	    (let ((r (macroexpand (caddr fun) (make-nary-args count args) (cadddr fun))))
+	      (inner-compile r env))
 	(let ((vals (map #'(lambda (a) (inner-compile a env)) args)))
 	  (case type
 	    ('lambda (list 'FIX-LET count vals (compile-progn (cddr f) (extend-env env (cadr f)))))
@@ -121,7 +131,7 @@
 	    ('fix-func (list 'FIX-CALL f (caddr fun) vals))
 	    ('nary-func (list 'NARY-CALL f count (caddr fun) vals))
 	    ('fix-prim (list 'FIX-PRIM f vals))
-	    ('nary-prim (list 'NARY-PRIM f count vals)))))))
+	    ('nary-prim (list 'NARY-PRIM f count vals))))))))
 
 ;; Создание функции-замыкания
 (defun compile-function (f env)

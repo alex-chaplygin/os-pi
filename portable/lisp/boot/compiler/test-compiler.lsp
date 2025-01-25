@@ -104,9 +104,13 @@
 
 (test-compile '(defun test () #'(lambda (x) x))
 	      '(LABEL TEST (SEQ (FIX-CLOSURE G844 (LABEL G844 (SEQ (LOCAL-REF 0) (RETURN)))) (RETURN))))
-
+(print "Тест macro")
 (test-compile '(progn (defmacro test (x y) `(+ ,x ,y)) (test 1 2))
-	      '(SEQ (NOP) (FIX-PRIM + ((CONST 1) (CONST 2)))))
+	      '(SEQ (NOP) (NARY-PRIM + 0 ((CONST 1) (CONST 2)))))
+
+(print "Тест comma-at")
+(test-compile '(progn (defmacro test2 (&rest y) `(+ ,@y)) (test2) (test2 1) (test2 1 2) (test2 1 2 3))
+	      '(SEQ (NOP) (SEQ (NARY-PRIM + 0 ()) (SEQ (NARY-PRIM + 0 ((CONST 1))) (SEQ (NARY-PRIM + 0 ((CONST 1) (CONST 2))) (NARY-PRIM + 0 ((CONST 1) (CONST 2) (CONST 3))))))))
 
 ;; (test-compile '(progn (setq a 1 b 2) `(a (,a) b (,b)))
 ;; 	      '(SEQ (...) (FIX-PRIM LIST ((CONST A) (FIX-PRIM LIST (GLOBAL-REF 2)) (CONST B) (FIX-PRIM LIST (GLOBAL-REF 3))))))
