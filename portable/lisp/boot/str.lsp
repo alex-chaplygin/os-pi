@@ -51,3 +51,32 @@
   "Предикат проверки на цифру"
   (let ((c (char-code sym)))
     (and (>= c 48) (<= c 57))))
+
+(defun strtoint (str base)
+  "Конвертирует строку str в число в системе счисления base"
+  (let ((res 0))
+    (for i 0 (string-size str)
+         (let* ((char (toupper (char str i)))
+                (c (char-code char))
+                (c-num (+ (- c (char-code #\A)) 10)))
+           (if (>= c-num 10)
+               (unless (< c-num base)
+                 (error "strtoint: invalid digit"))
+               (setq c-num (- c (char-code #\0))))
+           (setq res (+ (* res base) c-num))))
+    res))
+
+(defun toupper (char)
+  "Преобразовать символ char в верхний регистр"
+  (let ((c (char-code char)))
+    (if (and (>= c (char-code #\a))
+             (<= c (char-code #\z)))
+        (code-char (- c (- (char-code #\a) (char-code #\A))))
+        char)))
+
+(defun is-hex-sym (sym)
+  "Предикат проверки на символ шестнадцатеричного числа"
+  (let ((c (char-code sym)))
+    (or (is-digit sym)
+        (and (>= c (char-code #\a)) (<= c (char-code #\f)))
+        (and (>= c (char-code #\A)) (<= c (char-code #\F))))))
