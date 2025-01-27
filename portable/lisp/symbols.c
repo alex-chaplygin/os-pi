@@ -96,7 +96,7 @@ void hash_remove(symbol_t *s)
  * @param nary 0 - функция с постаянным числом аргументов, 1 - с переменным
  * @param count требуемое число аргументов (для переменного числа аргументов - минимальное число аргументов)
  */
-void register_func(char *name, func_t func_ptr, int nary, int count)
+void register_func(char *name, func0_t func_ptr, int nary, int count)
 {
     symbol_t *s = find_symbol(name);
     s->func = func_ptr;
