@@ -20,7 +20,12 @@
 
 (defvar *quant-tables*) ;Массив таблиц квантования
 (defvar *huff-tables-ac*) ;Массив таблиц AC Хаффмана
+(defvar *huff-tables-ac-0*)
+(defvar *huff-tables-ac-1*)
 (defvar *huff-tables-dc*) ;Массив таблиц DC Хаффмана
+(defvar *huff-tables-dc-0*)
+(defvar *huff-tables-dc-1*)
+(defvar *sample-precision*) ;Коэффициент сжатия
 (defvar *num-lines*) ;Кол-во строк в изображении
 (defvar *num-samples-per-line*) ;Кол-во элементов в строке изображения
 (defvar *num-components*) ;Кол-во цветовых компонентов в изображении
@@ -31,6 +36,7 @@
 (defvar *compoments-h*) ;Горизонтальныe коэф компонентов
 (defvar *compoments-v*) ;Вертикальныe коэф компонентов
 (defvar *compoments-quant-table*) ;Номера таблиц квантования компонентов
+(defvar *mcu*) ;Список с сохраненными MCU в виде массива YCbCr
 
 (defun next-segment (ln struct-ln)
   "Пропустить байты сегмента, которые лежат за пределами структуры"
@@ -39,13 +45,14 @@
 
 (defun read-marker (marker)
   "Ожидание маркера marker"
-  (if (= (eval marker) (get-word)) t (error `(,marker not found))))
+  (if (= (eval marker) (get-word)) t (print `(,marker not found))))
 
 (defun read-quant-table ()
   "Чтение сегмента таблицы квантования"
   (let ((tbl (get-struct '((ln . word) (tq . byte) (array . ,+block-size+)))))
-    (next-segment (get-hash tbl 'ln) +quant-struct-size+)
-    (seta *quant-tables* (get-hash tbl 'tq) (get-hash tbl 'array))))
+    (seta *quant-tables* (get-hash tbl 'tq) (get-hash tbl 'array))
+    (while (not (= 0xFF (get-next-byte)))
+      (seta *quant-tables* (get-byte) (get-array +block-size+)))))
 
 (defun arr-get-sum (arr size)
   "Вычисление суммы элементов массива arr длиной size"
@@ -97,9 +104,23 @@
     (print (get-hash tbl 'tcth))
     (setq marker (get-hash tbl 'tcth))
     (setq temp (get-huff-table (make-len-arr (get-hash tbl 'l))))
+    ;(print temp)
     (if (= 0 (car marker))
-	(seta *huff-tables-dc* (cdr marker) temp)
-	(seta *huff-tables-ac* (cdr marker) temp))))
+	(progn
+	  (seta *huff-tables-dc* (cdr marker) temp)
+	  (print `(dc ,(cdr marker)))
+	  (print (aref *huff-tables-dc* (cdr marker)))
+	  (if (= 0 (cdr marker))
+	      (setq *huff-tables-dc-0* temp)
+	      (setq *huff-tables-dc-1* temp)))
+	(progn
+	  (seta *huff-tables-ac* (cdr marker) temp)
+	  (print `(ac ,(cdr marker)))
+	  (print (aref *huff-tables-ac* (cdr marker)))
+	  (if (= 0 (cdr marker))
+	      (setq *huff-tables-ac-0* temp)
+	      (setq *huff-tables-ac-1* temp))))
+    t))
 
 (defun read-restart-interval()
 (print "read-restart-table")
@@ -131,6 +152,8 @@
   "Прочесть заголовок кадра"
   (let ((frm (get-struct '((lf . word) (p . byte) (y . word) (x . word) (nf . byte)))))
     (print "SOF")
+    (print frm)
+    (setq *sample-precision* (get-hash frm 'p))
     (setq *num-lines* (get-hash frm 'y))
     (setq *num-samples-per-line* (get-hash frm 'x))
     (setq *num-components* (get-hash frm 'nf))
@@ -148,19 +171,41 @@
 (defun read-scan-header ()
   "Прочесть заголовок скана"
   (let* ((tbl (get-struct '((ls . word) (ns . byte))))
-	 (temp nil))
-    (setq temp (get-hash 'ns))
+	 (temp (get-hash tbl 'ns)))
+    (print "SOS")
+    (print "scan-header")
     (setq *scan-cs* (make-array temp))
     (setq *scan-td* (make-array temp))
     (setq *scan-ta* (make-array temp))
-    (for i 0 (get-hash tbl ns)
+    (for i 0 (get-hash tbl 'ns)
 	 (seta *scan-cs* i (get-byte))
 	 (setq temp (get-4bit))
-	 (seta *scan-td* (car temp))
-	 (seta *scan-ta* (cdr temp)))
+	 (seta *scan-td* i (car temp))
+	 (seta *scan-ta* i (cdr temp)))
     (set-hash tbl 'ss (get-byte))
     (set-hash tbl 'se (get-byte))
     (set-hash tbl 'ahal (get-4bit))))
+
+(defun decode-mcu ()
+  "Чтение одного MCU"
+  (let ((mcuArr nil);Массив с data-unit
+	(numDU (make-array *num-components*)));Массив с количеством data-unit для каждого компонента
+    (for i 0 *num-components*
+	 (seta numDU i (* (aref *compoments-h*
+				(-- (aref *compoments-id* i)))
+			  (aref *compoments-v*
+				(-- (aref *compoments-id* i))))))
+    (let* ((sumDU (arr-get-sum numDU *num-components*));Всего data-unit в MCU
+	   (count 0));Счетчик data-unit
+      (setq mcuArr (make-array sumDU))
+      (for i 0 *num-components*
+	   (for j 0 (aref numDU i)
+		(seta mcuArr count
+		      (dequant (aref *quant-tables* (aref *compoments-quant-table* i))
+			 (decode-data-unit i (aref *huff-tables-dc* (aref *scan-td* i))
+					   (aref *huff-tables-ac* (aref *scan-ta* i)))))
+		(setq count (++ count))))
+      (setq *mcu* (list (append *mcu* mcuArr))))))
 
 (defun scan ()
   "Чтение сегмента скан"
@@ -169,13 +214,34 @@
   (print `(scan-cs ,*scan-cs*))
   (print `(scan-td ,*scan-td*))
   (print `(scan-ta ,*scan-ta*))
+  (print "data-unit")
+  ;;(print (aref *quant-tables* 0))
+  (setq *pred* (make-array *num-components*))
+  (for i 0 *num-components*
+       (seta *pred* i 0))
+  (print (decode-mcu))
+  (print (decode-mcu))
+  (print (decode-mcu))
+  ;;(print *pred*)
+  ;;(print (dequant (aref *quant-tables* 0)
+;;		  (decode-data-unit 0 (aref *huff-tables-dc* (aref *scan-td* 0))
+;;				    (aref *huff-tables-ac* (aref *scan-ta* 0)))))
   )
-  ;(decode-data-unit))
 
 (defun read-frame ()
   "Чтение кадра"
   (read-tables)
+  (print `(quant-tables ,*quant-tables*))
+  (get-word)
   (read-frame-header)
+  (print `(sample-precision ,*sample-precision*))
+  (print `(y ,*num-lines*))
+  (print `(x ,*num-samples-per-line*))
+  (print `(components ,*num-components*))
+  (print `(id ,*compoments-id*))
+  (print `(h ,*compoments-h*))
+  (print `(v ,*compoments-v*))
+  (print `(quant-table-selector ,*compoments-quant-table*))
   (scan)
   )
 
