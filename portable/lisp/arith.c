@@ -221,77 +221,71 @@ object_t DIV(object_t first, object_t list)
 /**
  * Остаток от деления (% 8 2)
  * 
- * @param list - список чисел (8 2)
+ * @param obj1, obj2 - числа (8, 2)
  *
  * @return остаток от деления
  */
-object_t mod(object_t list){
-
-    if (list == NULLOBJ)
-        error("mod: no arguments");
-    if (TAIL(list) == NULLOBJ)
-        error("mod: no modisor");
-    object_t first = FIRST(list);
-    if (!IS_NUMBER(first))
-	 error("mod: Not number");
-    object_t second = SECOND(list);
-    if (!IS_NUMBER(first))
-	 error("mod: Not number");
-    if (get_value(second) != 0) {
-        int num = get_value(first) % get_value(second);
+object_t mod(object_t obj1, object_t obj2)
+{
+    if (obj1 == NULLOBJ || obj2 == NULLOBJ)
+        return 1;
+    if (!IS_NUMBER(obj1) || !IS_NUMBER(obj2))
+	return 1;
+    if (get_value(obj2) != 0) {
+        int num = get_value(obj1) % get_value(obj2);
         return new_number(num);
     } else 
-        error("mod: divisor = 0");
+        return 1;
 }
 
-/* Сравнение на больше (> 8 2) */
-
-/* @param list - список чисел (8 2) */
-
-/* @return результат от сравнения */
-
-object_t gt(object_t list)
+/**
+ * Сравнение на больше (> 8 2)
+ *
+ * @param obj1 - первое число
+ * @param obj2 - второе число
+ *
+ * @return результат от сравнения
+ */
+object_t gt(object_t obj1, object_t obj2)
 {
-    if (list == NULLOBJ)
-        error(">: no arguments");
-    if (TAIL(list) == NULLOBJ)
-        error(">: one argument");
-    object_t first = FIRST(list);
-    object_t second = SECOND(list);
-    if (IS_NUMBER(first))
-	return (get_value(first) >  get_value(second)) ? t : NULLOBJ;
-    else if (TYPE(first) == FLOAT && TYPE(second) == FLOAT)
-	return (GET_FLOAT(first)->value > GET_FLOAT(second)->value) ? t : NULLOBJ;
+    if (obj1 == NULLOBJ || obj2 == NULLOBJ)
+        return t;
+    if (IS_NUMBER(obj1))
+	return (get_value(obj1) >  get_value(obj2)) ? t : NULLOBJ;
+    else if (TYPE(obj1) == FLOAT && TYPE(obj2) == FLOAT)
+	return (GET_FLOAT(obj1)->value > GET_FLOAT(obj2)->value) ? t : NULLOBJ;
     else
-	error("> invalid arguments");
+	return t;
 }
 
-/* Сравнение на меньше (< 8 2) */
-
-/* @param list - список чисел (8 2) */
-
-/* @return результат от сравнения */
-object_t less(object_t list)
+/**
+ * Сравнение на меньше (< 8 2)
+ *
+ * @param obj1 - первое число
+ * @param obj2 - второе число
+ *
+ * @return результат от сравнения
+ */
+object_t less(object_t obj1, object_t obj2)
 {
-    if (list == NULLOBJ)
-        error("<: no arguments");
-    if (TAIL(list) == NULLOBJ)
-        error("<: one argument");
-    object_t first = FIRST(list);
-    object_t second = SECOND(list);
-    if (IS_NUMBER(first))
-	return (get_value(first) <  get_value(second)) ? t : NULLOBJ;
-    else if (TYPE(first) == FLOAT && TYPE(second) == FLOAT)
-	return (GET_FLOAT(first)->value < GET_FLOAT(second)->value) ? t : NULLOBJ;
+    if (obj1 == NULLOBJ || obj2 == NULLOBJ)
+        return t;
+    if (IS_NUMBER(obj1))
+	return (get_value(obj1) <  get_value(obj2)) ? t : NULLOBJ;
+    else if (TYPE(obj1) == FLOAT && TYPE(obj2) == FLOAT)
+	return (GET_FLOAT(obj1)->value < GET_FLOAT(obj2)->value) ? t : NULLOBJ;
     else
-	error("< invalid arguments");
+	return t;
 }
 
 /**
  * Функция сравнения объектов
- * возвращает 1 если значения объектов равны, иначе 0
+ * 
+ * @param obj1, obj2 - объекты для сравнения
+ *
+ * @return 1 если значения объектов равны, иначе 0
  */
-int compare_obj(object_t obj1, object_t obj2)
+object_t compare_obj(object_t obj1, object_t obj2) 
 {
     if (obj1 == NULLOBJ && obj2 == NULLOBJ)
 	return 1;
@@ -310,7 +304,7 @@ int compare_obj(object_t obj1, object_t obj2)
     else if (TYPE(obj1) == FLOAT)
 	return GET_FLOAT(obj1)->value == GET_FLOAT(obj2)->value;
     else if (TYPE(obj1) == PAIR) {
-	if (!compare_obj(FIRST(obj1), FIRST(obj2)))
+	if (!compare_obj(obj1, obj2))
 	    return 0;
 	else
 	    return compare_obj(TAIL(obj1), TAIL(obj2));
@@ -327,23 +321,8 @@ int compare_obj(object_t obj1, object_t obj2)
 	error("equal: unknown object types");
 }
 
-/** 
- * Сравнение аргументов по значению (equal 1 2)
- *
- * @param list - список любых двух объектов (1 2)
- *
- * @return T - если равно, иначе NIL
- */
-object_t equal(object_t list)
+object_t equal(object_t obj1, object_t obj2)
 {
-    if (list == NULLOBJ)
-        error("equal: no arguments");
-    object_t obj1 = FIRST(list);
-    if (TAIL(list) == NULLOBJ)
-        error("equal: no second argument");
-    object_t obj2 = SECOND(list);
-    if (TAIL(TAIL(list)) != NULLOBJ)
-        error("equal: too many arguments");
     return compare_obj(obj1, obj2) ? t : nil;
 }
 
@@ -352,12 +331,10 @@ object_t equal(object_t list)
  *
  * @param list - список чисел (1 2 3)
  *
- * @return побитовое И
+ * @return результат побитового И
  */
 object_t bitwise_and(object_t list)
 {
-    if (list == NULLOBJ)
-	error("bitwise_and: no arguments");
     if (!IS_NUMBER(FIRST(list))) 
 	error("bitwise_and: Not a number");
     int num = get_value(FIRST(list));
@@ -379,7 +356,7 @@ object_t bitwise_and(object_t list)
  *
  * @param list - список чисел (1 2 3)
  *
- * @return побитовое ИЛИ
+ * @return результат побитового ИЛИ
  */
 object_t bitwise_or(object_t list)
 {
@@ -427,38 +404,32 @@ object_t bitwise_xor(object_t list)
 /**
  * Побитовый сдвиг влево (<< 8 2)
  * 
- * @param list - список (<Любое число> <Число бит>)
+ * @param obj1 - любое число
+ * @param obj2 - число бит
  *
  * @return результат сдвига
  */
-object_t shift_left(object_t list)
+object_t shift_left(object_t obj1, object_t obj2)
 {
-    if (list == NULLOBJ)
-        error("shift_left: no arguments");
-    if (TAIL(list) == NULLOBJ)
-        error("shift_left: no second param");
-    object_t first = FIRST(list);
-    object_t second = SECOND(list);
-    int num = get_value(first) << get_value(second);
+    if (obj1 == NULLOBJ || obj2 == NULLOBJ)
+        return 1;
+    int num = get_value(obj1) << get_value(obj2);
     return new_number(num);
 }
 
 /**
  * Побитовый сдвиг вправо (>> 8 2)
  * 
- * @param list - список (<Любое число> <Число бит>)
+ * @param obj1 - любое число
+ * @param obj2 - число бит
  *
  * @return результат сдвига
  */
-object_t shift_right(object_t list)
+object_t shift_right(object_t obj1, object_t obj2)
 {
-    if (list == NULLOBJ)
-        error("shift_right: no arguments");
-    if (TAIL(list) == NULLOBJ)
-        error("shift_right: no second param");
-    object_t first = FIRST(list);
-    object_t second = SECOND(list);
-    int num = get_value(first) >> get_value(second);
+    if (obj1 == NULLOBJ || obj2 == NULLOBJ)
+        return 1;
+    int num = get_value(obj1) >> get_value(obj2);
     return new_number(num);
 }
 
@@ -470,53 +441,50 @@ float sqrtf(float v);
 /**
  * Вычисление синуса
  *
- * @param list - список аргументов
+ * @param obj1 - число
  *
  * @return результат вычисления
  */
-object_t SIN(object_t list)
+object_t SIN(object_t obj1)
 {
-    object_t arg = FIRST(list);
     float num = 0;
-    if(TYPE(arg) != FLOAT)
-	error("sin: invalid argument");
+    if(TYPE(obj1) != FLOAT)
+	return 1;
     else
-	return new_float(sinf(GET_FLOAT(arg)->value));
+	return new_float(sinf(GET_FLOAT(obj1)->value));
 }
 
 /**
  * Вычисление косинуса
  *
- * @param list - список аргументов
+ * @param obj1 - число
  *
  * @return результат вычисления
  */
-object_t COS(object_t list)
+object_t COS(object_t obj1)
 {
-    object_t arg = FIRST(list);
     float num = 0;
-    if(TYPE(arg) != FLOAT)
-	error("cos: invalid argument");
+    if(TYPE(obj1) != FLOAT)
+	return 1;
     else
-	return new_float(cosf(GET_FLOAT(arg)->value));
+	return new_float(cosf(GET_FLOAT(obj1)->value));
 }
 
 /**
  * Округление числа с плавающей точкой до целого
  *
- * @param list - список аргументов
+ * @param obj1 - число
  *
  * @return результат вычисления
  */
-object_t ROUND(object_t list)
+object_t ROUND(object_t obj1)
 {
-    if (list == NULLOBJ)
-        error("ROUND: no arguments");
-    object_t arg = FIRST(list);
-    if (TYPE(arg) != FLOAT)
-	error("ROUND: invalid argument");
+    if (obj1 == NULLOBJ)
+        return 1;
+    if (TYPE(obj1) != FLOAT)
+	return 1;
     else {
-	int v = (int)roundf(GET_FLOAT(arg)->value);
+	int v = (int)roundf(GET_FLOAT(obj1)->value);
 	return new_number(v);
     }
 }
@@ -524,26 +492,23 @@ object_t ROUND(object_t list)
 /**
  * Вычисление квадратного корня
  *
- * @param list - список аргументов (одно число)
+ * @param obj1 - число
  *
  * @return квадратный корень числа
  */
-object_t SQRT(object_t list)
+object_t SQRT(object_t obj1)
 {
-    if (list == NULLOBJ)
-        error("SQRT: no arguments");
-
-    object_t arg = FIRST(list);
+    if (obj1 == NULLOBJ)
+        return 1;
     float num;
-
-    if (TYPE(arg) == FLOAT) {
-        num = GET_FLOAT(arg)->value;
-    } else if (IS_NUMBER(arg)) {
-        num = (float)get_value(arg);
+    if (TYPE(obj1) == FLOAT) {
+        num = GET_FLOAT(obj1)->value;
+    } else if (IS_NUMBER(obj1)) {
+        num = (float)get_value(obj1);
     } else
-        error("SQRT: invalid argument");
+        return 1;
     if (num < 0) 
-        error("SQRT: negative number");
+       return 1;
 
     return new_float(sqrtf(num));
 }
@@ -553,21 +518,21 @@ object_t SQRT(object_t list)
  */
 void init_arith()
 {
-    register_func("+", add);
-    register_func("-", sub);
-    register_func("*", mul);
-    register_func("EQUAL", equal);
-    register_func("/", DIV);
-    register_func("%", mod);
-    register_func("&", bitwise_and);
-    register_func("BITOR", bitwise_or);
-    register_func("^", bitwise_xor);
-    register_func("<<", shift_left);
-    register_func(">>", shift_right);
-    register_func(">", gt);
-    register_func("<", less);
-    register_func("SIN", SIN);
-    register_func("COS", COS);
-    register_func("ROUND", ROUND);
-    register_func("SQRT", SQRT);
+    register_func("+", add, 1, 0);
+    register_func("-", sub, 1, 1);
+    register_func("*", mul, 1, 0);
+    register_func("EQUAL", equal, 0, 2);
+    register_func("/", DIV, 1, 1);
+    register_func("%", mod, 0, 2);
+    register_func("&", bitwise_and, 1, 0);
+    register_func("BITOR", bitwise_or, 1, 0);
+    register_func("^", bitwise_xor, 1, 0);
+    register_func("<<", shift_left, 0, 2);
+    register_func(">>", shift_right, 0, 2);
+    register_func(">", gt, 0, 2);
+    register_func("<", less, 0, 2);
+    register_func("SIN", SIN, 0, 1);
+    register_func("COS", COS, 0, 1);
+    register_func("ROUND", ROUND, 0, 1);
+    register_func("SQRT", SQRT, 0, 1);
 }
