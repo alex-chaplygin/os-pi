@@ -18,15 +18,13 @@ int find_in_env(object_t env, object_t sym, object_t *res);
 int is_lambda(object_t list);
 void append_env(object_t l1, object_t l2);
 object_t setq(object_t params);
-object_t atom(object_t params);
+object_t atom(object_t obj1);
 object_t defvar(object_t params);
-object_t progn(object_t list);
-object_t defun(object_t list);
-object_t quote(object_t list);
-object_t eq(object_t list);
+object_t progn(object_t params);
+object_t quote(object_t obj1);
+object_t eq(object_t p1, object_t p2);
 object_t backquote(object_t list);
-object_t defmacro(object_t list);
-object_t eval_symbol(object_t list);
+object_t eval_symbol(object_t obj, object_t env);
 object_t macro_call(object_t macro, object_t args, object_t env, object_t func);
 object_t eval_func(object_t lambda, object_t args, object_t env, object_t func);
 object_t eval_args(object_t args, object_t env, object_t func);
@@ -112,35 +110,6 @@ void test_find_in_env()
     ASSERT(get_value(res), 2);
 }
 
-/**
- * Создать функцию (defun null (x) (eq x '()))
- * Проверить значение символа null
- */
-void test_defun()
-{
-    printf("test_defun: "); 
-    object_t body = new_pair(NEW_SYMBOL("EQ"), new_pair(NEW_SYMBOL("X"), new_pair(NULLOBJ, NULLOBJ))); 
-    object_t args = new_pair(NEW_SYMBOL("X"), NULLOBJ); 
-    object_t res = defun(new_pair(NEW_SYMBOL("NULL"), new_pair(args, new_pair(body, NULLOBJ)))); 
-    ASSERT(TYPE(res), SYMBOL); 
-    symbol_t *null = find_symbol("NULL"); 
-    ASSERT(GET_SYMBOL(res), null); 
-    ASSERT(TYPE(null->lambda), PAIR); 
-    ASSERT(GET_SYMBOL(FIRST(null->lambda)), find_symbol("LAMBDA"));
-}
-
-/**
- * Вызвать defun без аргументов
- */
-void test_defun_null()
-{
-    printf("test_defun_null: ");
-    if (setjmp(jmp_env) == 0) {
-        object_t res = defun(NULLOBJ);
-        FAIL;
-    } else
-        OK;
-}
 
 /**
  * Создать окружение с числовыми переменными X, Y
@@ -436,55 +405,27 @@ void test_eq()
     // Одинаковые числа
     object_t n1 = new_number(1);
     object_t n2 = new_number(1);
-    object_t res1 = eq(new_pair(n1, new_pair(n2, NULLOBJ)));
+    object_t res1 = eq(n1, n2);
     ASSERT(res1, t);
 
-    // Одинаковые строки, но разные объекты
+    // Одинаковые строки
     object_t s1 = NEW_STRING("test");
     object_t s2 = NEW_STRING("test");
-    object_t res2 = eq(new_pair(s1, new_pair(s2, NULLOBJ)));
-    ASSERT(res2, nil);
+    object_t res2 = eq(s1,s2);
+    ASSERT(res2, t);
 
     // Одинаковые символы
     object_t sym1 = NEW_SYMBOL("x");
     object_t sym2 = NEW_SYMBOL("x");
-    object_t res3 = eq(new_pair(sym1, new_pair(sym2, NULLOBJ)));
+    object_t res3 = eq(sym1, sym2);
     ASSERT(res3, t);
 
     // Разные символы
     object_t sym3 = NEW_SYMBOL("x");
     object_t sym4 = NEW_SYMBOL("y");
-    object_t res4 = eq(new_pair(sym3, new_pair(sym4, NULLOBJ)));
+    object_t res4 = eq(sym3, sym4);
     ASSERT(res4, nil);
 
-    // Нет аргументов
-    if (setjmp(jmp_env) == 0) {
-        eq(NULLOBJ);
-        FAIL;
-    } else {
-        OK;
-    }
-
-    // Один аргумент
-    if (setjmp(jmp_env) == 0) {
-        eq(new_pair(n1, NULLOBJ));
-        FAIL;
-    } else {
-        OK;
-    }
-
-    // Больше двух аргументов
-    object_t too_many_args = new_pair(n1, new_pair(n2, new_pair(s2, NULLOBJ)));
-    if (setjmp(jmp_env) == 0) {
-        eq(too_many_args);
-        FAIL;
-    } else {
-        OK;
-    }
-
-    // Одинаковые объекты
-    object_t res5 = eq(new_pair(s1, new_pair(s1, NULLOBJ)));
-    ASSERT(res5, t);
 }
  
 /**
@@ -623,31 +564,7 @@ void test_eval_func2()
 /*     ASSERT(res, ERROR); */
 /* } */
 
-/** 
- * Определение нового макроса
- */
-void test_defmacro()
-{
-    printf("test_defmacro: ");
-    object_t arg1 = NEW_SYMBOL("test"); 
-    object_t arg2 = new_pair(nil, new_pair(nil, NULLOBJ)); 
-    object_t arg3 = new_number(1);
-    object_t args = new_pair(arg1, new_pair(arg2, new_pair(arg3, NULLOBJ))); 
-    object_t result = defmacro(args);
-    PRINT(result);
-    ASSERT(TYPE(result), SYMBOL); 
-    ASSERT(strcmp(GET_SYMBOL(result)->str, "test"), 0); 
-}
 
-void test_defmacro_null()
-{
-    printf("test_defmacro_null: ");
-    if (setjmp(jmp_env) == 0) {
-        object_t result = defmacro(NULLOBJ);
-        FAIL;
-    } else
-        OK;
-}
 
 /**
  * Проверка значения созданной переменной
@@ -862,8 +779,6 @@ int main()
     test_is_lambda();//14
     test_make_env();
     test_find_in_env();
-    test_defun();//18
-    test_defun_null();
     test_setq_set_env();
     /* test_setq_global_set(); */
     test_append();
@@ -889,8 +804,6 @@ int main()
     test_eval_func1();
     test_eval_func2();
     /* test_er_num_arg_make_env(); */
-    test_defmacro();
-    test_defmacro_null();
     test_eval_symbol_with_defined_variable();
     test_eval_symbol_environment_variable();
     test_eval_symbol_undefined_variable();

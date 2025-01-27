@@ -217,7 +217,7 @@ object_t new_function(object_t args, object_t body, object_t env, object_t func_
  * @param func имя примитива
  * @return указатель на объект функции
  */
-object_t new_prim_function(func_t f)
+object_t new_prim_function(func0_t f)
 {
     function_t *func;
     if (last_function == MAX_FUNCTIONS)

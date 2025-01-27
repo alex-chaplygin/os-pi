@@ -107,24 +107,17 @@ int list_length(object_t args)
 // (eq 'a 'a) -> T 
 // (eq 'a 'b) -> () 
 /*  
- * возвращает t если значения первых двух элементов списка это один и тот же символ а иначе возвращает nil 
+ * возвращает t если значения двух элементов это один и тот же символ а иначе возвращает nil 
  * 
- * @param list - список параметров 
+ * @param p1, p2 - два элемента
  * 
  * @return t или nil 
  */ 
-object_t eq(object_t list) 
+object_t eq(object_t p1, object_t p2) 
 { 
     //printf("eq: "); 
     //PRINT(list); 
-    if (list == NULLOBJ)
-	error("eq: no args"); 
-    if (TAIL(list) == NULLOBJ)
-	error("eq: one arg"); 
-    if (TAIL(TAIL(list)) != NULLOBJ) 
-	error("eq: too many args"); 
-    object_t p1 = FIRST(list); 
-    object_t p2 = SECOND(list);  
+                              
     if (p1 == p2)
 	return t; 
     else 
@@ -134,18 +127,14 @@ object_t eq(object_t list)
 /*  
  * если аргумент атом, то возвращает T, иначе NIL 
  * 
- * @param list - список параметров 
+ * @param obj - аргумент 
  * 
  * @return t или nil 
  */ 
-object_t atom(object_t list) 
+object_t atom(object_t obj1) 
 { 
-    if (list == NULLOBJ)
-	error("atom: no args");
-    else if (TAIL(list) != NULLOBJ)
-	error("atom: many args"); 
-    object_t obj = FIRST(list); 
-    if (obj == NULLOBJ || TYPE(obj) != PAIR) 
+     
+    if (obj1 == NULLOBJ || TYPE(obj1) != PAIR) 
 	return t; 
     else 
 	return nil;
@@ -185,17 +174,14 @@ object_t make_copy(object_t o)
 /*  
  * возвращает свой аргумент без вычисления 
  * 
- * @param list - список параметров (1 параметр) 
+ * @param obj1 - 1 аргумент 
  * 
  * @return аргумент 
  */
-object_t quote(object_t list) 
+object_t quote(object_t obj1) 
 {
-    if (list == NULLOBJ)
-	error("quote: empty");
-    else if (TAIL(list) != NULLOBJ)
- 	error("quote: many args");
-    return FIRST(list); 
+   
+    return obj1; 
 } 
 
 void append_env(object_t l1, object_t l2); 
@@ -210,11 +196,11 @@ void append_env(object_t l1, object_t l2);
  * b = (1 2) `(a ,@b c) -> (a 1 2 c) 
  * (A (COMMA-AT B) C) 
  * 
- * @param list - список параметров (1 парамет) 
+ * @param list - 1 парамет 
  * 
  * @return аргумент 
  */ 
-object_t backquote_rec(object_t list) 
+object_t backquote(object_t list) 
 {
     object_t res = NULLOBJ;
     object_t first = NULLOBJ;
@@ -231,34 +217,34 @@ object_t backquote_rec(object_t list)
  	res = NEW_OBJECT(ARRAY, arr); 
  	int l = GET_ARRAY(list)->length; 
  	for (int i = 0; i < l; i++) 
- 	    arr->data[i] = backquote_rec(GET_ARRAY(list)->data[i]); 
+ 	    arr->data[i] = backquote(GET_ARRAY(list)->data[i]); 
     } else if (TYPE(list) == PAIR) {
- 	object_t el = FIRST(list); // list = (COMMA B)
+ 	object_t el = list; // list = (COMMA B)
 	if (TYPE(el) == SYMBOL && !strcmp(GET_SYMBOL(el)->str, "BACKQUOTE"))
 	    res = list;
 	else if (TYPE(el) == SYMBOL && !strcmp(GET_SYMBOL(el)->str, "COMMA") && TAIL(list) != NULLOBJ)
  	    res = eval(SECOND(list), env, func);
 	else {
-	    first = backquote_rec(el); 
+	    first = backquote(el); 
 	    if (first != NULLOBJ && TYPE(first) == PAIR) {  // first = (COMMA-AT B) 
 		object_t comma_at = FIRST(first);
 		if (comma_at != NULLOBJ && TYPE(comma_at) == SYMBOL && !strcmp(GET_SYMBOL(comma_at)->str, "COMMA-AT") && TAIL(first) != NULLOBJ) {
 		    l = eval(SECOND(first), env, func);
 		    if (l == NULLOBJ) {
-			res = backquote_rec(TAIL(list));
+			res = backquote(TAIL(list));
 			UNPROTECT;
 			return res;
 		    } else if (TYPE(l) != PAIR)
 			error("COMMA-AT: not list");
 		    else {
-			res = backquote_rec(l); 
-			append_env(res, backquote_rec(TAIL(list))); 
+			res = backquote(l); 
+			append_env(res, backquote(TAIL(list))); 
 			UNPROTECT;
 			return res;
 		    }
 		}
 	    }
-	    object_t tail = backquote_rec(TAIL(list)); 
+	    object_t tail = backquote(TAIL(list)); 
 	    res = new_pair(first, tail);
 	}
     } else
@@ -266,43 +252,27 @@ object_t backquote_rec(object_t list)
     UNPROTECT;
     return res;
 }
-/* 
- * (BACKQOUTE (a b c)) 
- * 
- */ 
-object_t backquote(object_t list) 
-{ 
-    if (list == NULLOBJ)
- 	error("backquote: NULLOBJ"); 
-    //PRINT(list); 
-    return backquote_rec(FIRST(list)); 
-}
+
 
 /* 
  * (if test True False)
  * Обработка условия. Истинное условие - не nil
  * Возвращаем список объектов из выражения, оцененных  eval 
- * @param obj - список парамметров (<Условие> <Выражение по истине> <Выражение по лжи>)
+ * @param obj1 - условие
+ * @param obj2 - выражение по истине
+ * @param obj3 - выражение по лжи
  * @return возвращает значение соответствующего выражения
  */ 
-object_t IF(object_t obj)
+object_t IF(object_t obj1, object_t obj2, object_t obj3)
 {
-    if (obj == NULLOBJ)
-	error("NULLOBJ in IF");    
+     object_t res = NULLOBJ;
     object_t env = current_env;
     object_t func = func_env;
-    object_t res;
-    if (TAIL(obj) == NULLOBJ)
-	error("True is empty");
-    if (TAIL(TAIL(obj)) == NULLOBJ)
-	error("False is empty");
-    else if (TAIL(TAIL(TAIL(obj))) != NULLOBJ)
-	error("if: too many params");
-    PROTECT1(obj);
-    if (eval(FIRST(obj), env, func) != nil)
-	res = eval(SECOND(obj), env, func);
+    PROTECT3(obj1, obj2, obj3);
+    if (eval(obj1, env, func) != nil)
+	res = eval(obj2, env, func);
     else
-	res = eval(THIRD(obj), env, func);
+	res = eval(obj3, env, func);
     UNPROTECT;
     return res;
 }
@@ -310,16 +280,16 @@ object_t IF(object_t obj)
 /*  
  * Создаёт новую функцию 
  * 
- * @param obj (имя_функции список_аргументов тело_функции) 
- * 
+ * @param name - имя_функции
+ * @param t - тело_функции
+ *
  * @return символ имени новой функции 
  */ 
-object_t defun(object_t obj) 
+object_t defun(object_t name1, object_t list, object_t body) 
 {
-    if (obj == NULLOBJ)
-	error("defun: empty");
-    symbol_t *name = find_symbol(GET_SYMBOL(FIRST(obj))->str); 
-    name->lambda = new_pair(NEW_SYMBOL("LAMBDA"), TAIL(obj));
+    
+    symbol_t *name = find_symbol(GET_SYMBOL(name1)->str); 
+    name->lambda = new_pair(NEW_SYMBOL("LAMBDA"), body);
     set_global(name);
     return NEW_SYMBOL(name->str);  
 }
@@ -331,12 +301,11 @@ object_t defun(object_t obj)
  * 
  * @return символ имени нового макроса 
  */ 
-object_t defmacro(object_t obj) 
+object_t defmacro(object_t name1, object_t list, object_t body) 
 { 
-    if (obj == NULLOBJ)
-	error("defmacro: empty");
-    symbol_t *name = find_symbol(GET_SYMBOL(FIRST(obj))->str); 
-    name->macro = new_pair(NEW_SYMBOL("LAMBDA"), TAIL(obj));
+    
+    symbol_t *name = find_symbol(GET_SYMBOL(name1)->str); 
+    name->macro = new_pair(NEW_SYMBOL("LAMBDA"), TAIL(list));
     set_global(name);
     return NEW_SYMBOL(name->str);
 }
@@ -352,8 +321,7 @@ object_t defmacro(object_t obj)
  */ 
 object_t progn(object_t params) 
 { 
-    if (params == NULLOBJ)
-	return NULLOBJ;
+   
     object_t env = current_env;
     object_t func = func_env;
     object_t obj = NULLOBJ;
@@ -619,7 +587,7 @@ object_t eval_symbol(object_t obj, object_t env)
  *
  * @return результат вычислений
  */
-object_t call_form(symbol_t *s, object args, int args_count)
+object_t call_form(symbol_t *s, object_t args, int args_count)
 {
     if (s->nary == 0)
 	switch (args_count) {
@@ -766,8 +734,7 @@ object_t setq(object_t params)
     object_t obj = NULLOBJ;
     object_t env = current_env;
     object_t func = func_env;
-    if (params == NULLOBJ)
- 	error("setq: params = NULLOBJ"); 
+    
     PROTECT1(params);
     while (params != NULLOBJ) {
 	symbol_t *sym = GET_SYMBOL(FIRST(params)); 
@@ -798,15 +765,9 @@ object_t setq(object_t params)
  * @param param параметры (функция аргумент 1, аргумент 2 ...) 
  * @return возвращает результат выполнения функции 
  */ 
-object_t funcall(object_t params) 
+object_t funcall(object_t fun, object_t args) 
 { 
-    if (params == NULLOBJ)
-	error("funcall: no arguments"); 
-    object_t func = FIRST(params); 
-    if (func == NULLOBJ || TYPE(func) != FUNCTION)
-	error("funcall: invalid func"); 
-    object_t args = TAIL(params);
-    function_t *f = GET_FUNCTION(func);
+    function_t *f = GET_FUNCTION(fun);
     if (f->func != NULL) 
  	return f->func(args);
     else 
@@ -842,7 +803,7 @@ object_t lisp_eval(object_t args)
 { 
     object_t res;
     PROTECT1(args);
-    res =  eval(FIRST(args), current_env, func_env);
+    res =  eval(args, current_env, func_env);
     UNPROTECT;
     return res;
 } 
@@ -854,7 +815,7 @@ object_t lisp_eval(object_t args)
 object_t error_func(object_t args)
 {
     printf("ERROR: ");
-    PRINT(FIRST(args));
+    PRINT(args);
     last_protected = 0;
     longjmp(repl_buf, 1);
 }
@@ -920,9 +881,8 @@ object_t tagbody(object_t params)
  */ 
 object_t go(object_t args)
 {
-    if (args == NULLOBJ)
-	error("go: no label");
-    cur_label = FIRST(args);
+    
+    cur_label = args;
     current_env = tagbody_buffers[tb_index_buf - 1].environment;
     func_env = tagbody_buffers[tb_index_buf - 1].func_environment;
     last_protected = tagbody_buffers[tb_index_buf - 1].last_protected;
@@ -930,8 +890,8 @@ object_t go(object_t args)
 }
 
 /** 
- * Создает блок с лексическим именем, из которого можно выйти
- * с помощью return-from и вычисляет внутренние формы как progn
+ * Создает блок с динамическим именем, из которого можно выйти
+ * с помощью throw и вычисляет внутренние формы как progn
  *
  * @param list (<символ - имя блока> <форма_1> ... <форма_n>)
  *
@@ -951,7 +911,7 @@ object_t catch(object_t list)
 }
 
 /* 
- * Выходит из лексического блока, созданного catch
+ * Выходит из динамического блока, созданного catch
  * @param args (имя блока, результат)
  */ 
 object_t throw(object_t args) 
@@ -970,11 +930,10 @@ object_t throw(object_t args)
  *
  * @return значение последней формы
  */
-object_t labels(object_t param) 
+object_t labels(object_t param, object_t forms) 
 { 
-    if (param == NULLOBJ)
-        error("labels: no parameters");
-    object_t forms = FIRST(param);
+    
+    
     object_t oldf = func_env;
     while (forms != NULLOBJ) {
         object_t first = FIRST(forms);
@@ -991,18 +950,13 @@ object_t labels(object_t param)
 /** 
  * Создаёт объект типа функция - лексическое замыкание. 
  * Один параметр - или lambda функция или символ - имя функции: локальная, глобальная или встроенная
- * @param param список парметров - один параметр - функция
+ * @param func - один параметр - функция
  *
  * @return объект функция. 
  */
-object_t function(object_t param) 
+object_t function(object_t func) 
 {
-    if (param == NULLOBJ)
-	error("function: no arguments");
-    if (GET_PAIR(param)->right != NULLOBJ)
-	error("function: more than one argument is given");
-
-    object_t func = FIRST(param);
+    
     if (is_lambda(func)) ;
     else if (TYPE(func) == SYMBOL) {
 	symbol_t *s = find_symbol(GET_SYMBOL(func)->str);
@@ -1023,7 +977,7 @@ object_t function(object_t param)
 
 /*  
  * инициализация примитивов  
- */ 
+ */
 void init_eval() 
 { 
     register_func("ATOM", atom, 0, 1); 

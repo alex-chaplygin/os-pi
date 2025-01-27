@@ -17,7 +17,7 @@
 /// Всего продолжений
 #define MAX_CONTINUATIONS 100
 /// Всего функций 
-#define MAX_FUNCTIONS 4000
+#define MAX_FUNCTIONS 1000
 /// Число созданных пар, после которого вызвается сборка мусора
 #define GC_THRESHOLD 400000
 /// Размер стека для tagbody
@@ -136,7 +136,7 @@ typedef struct function_s
 {
     object_t args; // аргументы функции
     object_t body; // тело функции
-    func_t func; // указатель на функцию примитив, если = NULL, то функция пользовательская, иначе встроенная
+    func0_t func; // указатель на функцию примитив, если = NULL, то функция пользовательская, иначе встроенная
     object_t env; // окружение для переменных
     object_t func_env; // окружение для функций
     struct function_s *next;// указатель на следующую свободную функцию
@@ -239,7 +239,7 @@ object_t new_bignumber(int num);
 object_t new_number(int num);
 object_t new_float(float nuw);
 object_t new_function(object_t args, object_t body, object_t env, object_t func_env);
-object_t new_prim_function(func_t func);
+object_t new_prim_function(func0_t func);
 int get_value(object_t obj);
 object_t new_pair(object_t left, object_t right);
 struct symbol_s *new_symbol(char *str);

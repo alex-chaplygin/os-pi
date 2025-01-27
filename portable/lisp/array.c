@@ -7,13 +7,15 @@
 /**
  * Создание пустого массива заданной длины
  * 
- * @param list <размер>
+ * @param size <размер>
  * 
  * @return объект массива
 */
-object_t make_array(object_t list)
+object_t make_array(object_t size)
 {
-    array_t *new_arr = new_empty_array(get_value(FIRST(list)));
+    if (TYPE(size) != NUMBER && TYPE(size) != BIGNUMBER)
+	error("make_array: not numder");
+    array_t *new_arr = new_empty_array(get_value(size));
     object_t new_obj = NEW_OBJECT(ARRAY, new_arr);
     return new_obj;
 }
@@ -21,50 +23,40 @@ object_t make_array(object_t list)
 /**
  * Присвоение значения элементу массива
  * 
- * @param list <объект массив> <индекс> <объект значение>
+ * @param list <объект массив> index_obj <индекс> value <объект значение>
  * 
  * @return объект изменённого массива
 */
-object_t seta(object_t list)
+object_t seta(object_t  arr_o, object_t index_obj, object_t value)
 {
-    if (list == NULLOBJ || TAIL(list) == NULLOBJ || TAIL(TAIL(list)) == NULLOBJ)
-	error("seta: invalid arguments");
-    if (TAIL(TAIL(TAIL(list))) != NULLOBJ)
-        error("seta: many args");
-    object_t arr_o = FIRST(list);
     if (TYPE(arr_o) != ARRAY)
 	error("seta: not array");
-    int index = get_value(SECOND(list));
+    if (TYPE(index_obj) != NUMBER && TYPE(index_obj) != BIGNUMBER)
+	error("seta: index not numder");
+    int index = get_value(index_obj);
     if (index >= GET_ARRAY(arr_o)->length || index < 0)
 	error("seta: index out of range");
-    object_t obj = THIRD(list);
-    GET_ARRAY(arr_o)->data[index] = obj;
+    GET_ARRAY(arr_o)->data[index] = value;
     return arr_o;
 }
 
 /**
  * Чтение элемента массива
  * 
- * @param list <массив> <индекс>
+ * @param list <массив> index_obj <индекс>
  * 
  * @return объект по указанному индексу массива
 */
-object_t aref(object_t list)
+object_t aref(object_t  arr_o, object_t index_obj)
 {
-    if (list == NULLOBJ || TAIL(list) == NULLOBJ)
-        error("aref: invalid arguments");
-    if (TAIL(TAIL(list)) != NULLOBJ)
-        error("aref: extra arguments");
-    object_t arr_o = FIRST(list);
     if (TYPE(arr_o) != ARRAY)
 	error("aref: not an array");
-    object_t index_obj = SECOND(list);
-    if (TYPE(index_obj) != NUMBER && TYPE(index_obj) != BIGNUMBER)
-        error("aref: index should be a number");
+     if (TYPE(index_obj) != NUMBER && TYPE(index_obj) != BIGNUMBER)
+	error("seta: index not numder");
     int index = get_value(index_obj);
     if (index >= GET_ARRAY(arr_o)->length || index < 0)
 	error("aref: index out of range");
-    return GET_ARRAY(arr_o)->data[index];
+    return GET_ARRAY(arr_o)->data[index];  
 }
 
 /**
@@ -74,30 +66,19 @@ object_t aref(object_t list)
  * 
  * @return число элементов
 */
-object_t array_size(object_t list)
+object_t array_size(object_t arr_o)
 {
-    if (list == NULLOBJ || FIRST(list) == NULLOBJ)
-        error("array_size: invalid arguments");
-
-    if (TAIL(list) != NULLOBJ)
-        error("array_size: extra arguments");
-
-    object_t arr_o = FIRST(list);
     if (TYPE(arr_o) != ARRAY)
         error("array_size: first element is not an array");
-
-    array_t *a = GET_ARRAY(arr_o);
-    if (a == NULL)
-        error("array_size: array is NULL");
-
-    return new_number(a->length);
+    
+    return new_number(GET_ARRAY(arr_o)->length);   
 }
 
 
 void init_arrays()
 {
-    register_func("MAKE-ARRAY", make_array);
-    register_func("ARRAY-SIZE", array_size);
-    register_func("SETA", seta);
-    register_func("AREF", aref);
+    register_func("MAKE-ARRAY", make_array, 0, 1);
+    register_func("ARRAY-SIZE", array_size, 0, 1);
+    register_func("SETA", seta, 0, 3);
+    register_func("AREF", aref, 0, 2);
 }

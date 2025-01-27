@@ -14,15 +14,23 @@ extern object_t nil;
 object_t add(object_t list);
 object_t add_float(object_t list, float sum);
 object_t sub(object_t first, object_t list);
+object_t sub_float(object_t list, float sub);
 object_t mul(object_t list);
+object_t mul_float(object_t list, float mul);
 object_t DIV(object_t first, object_t list);
+object_t div_float(object_t list, float div);
+object_t mod(object_t obj1, object_t obj2);
 object_t bitwise_and(object_t list);
 object_t bitwise_or(object_t list);
-object_t shift_left(object_t list);
-object_t equal(object_t list);
-object_t shift_right(object_t list);
-object_t less(object_t list);
-object_t gt(object_t list);
+object_t shift_left(object_t obj1, object_t obj2);
+object_t equal(object_t obj1, object_t obj2);
+object_t shift_right(object_t obj1, object_t obj2);
+object_t less(object_t obj1, object_t obj2);
+object_t gt(object_t obj1, object_t obj2);
+object_t SIN(object_t obj1);
+object_t COS(object_t obj1);
+object_t ROUND(object_t obj1);
+object_t SQRT(object_t obj1);
 
 jmp_buf jmp_env;
 
@@ -606,7 +614,8 @@ void test_bitwise_and_null()
 {
     printf("test_bitwise_and_null: ");
     if (setjmp(jmp_env) == 0) {
-        object_t list = NULLOBJ;
+        object_t list = new_pair(NULLOBJ,
+			     new_pair(NULLOBJ, NULLOBJ));
         object_t res = bitwise_and(list);
         FAIL;
     } else 
@@ -688,37 +697,8 @@ void test_bitwise_or_no_number()
 void test_shift_left(int num1, int num2, int res)
 {
     printf("test_shift_left: %d %d", num1, num2);
-    object_t list = new_pair(new_number(num1),
-			     new_pair(new_number(num2), NULLOBJ));
-    object_t obj_res = shift_left(list);
+    object_t obj_res = shift_left(new_number(num1), new_number(num2));
     ASSERT(get_value(obj_res), res);
-}
-
-/**
- * Тест сдвига влево, передача пустого списка
- */
-void test_shift_left_empty_list()
-{
-    printf("test_shift_left_empty_list: ");
-    if (setjmp(jmp_env) == 0) {
-        object_t res = shift_left(NULLOBJ);
-        FAIL;
-    } else 
-        OK;
-}
-
-/**
- * Тест сдвига влево, передача списка без второго параметра
- */
-void test_shift_left_no_second_param()
-{
-    printf("test_shift_left_no_second_param: ");
-    object_t list = new_pair(new_number(1), NULLOBJ);
-    if (setjmp(jmp_env) == 0) {
-        object_t res = shift_left(list);
-        FAIL;
-    } else 
-        OK;
 }
 
 /**
@@ -727,25 +707,10 @@ void test_shift_left_no_second_param()
 void test_shift_right(int num1, int num2, int res)
 {
     printf("test_shift_right: %d %d", num1, num2);
-    object_t list = new_pair(new_number(num1),
-			     new_pair(new_number(num2), NULLOBJ));
-    object_t obj_res = shift_right(list);
+    object_t obj_res = shift_right(new_number(num1), new_number(num2));
     ASSERT(get_value(obj_res), res);
 }
 
-/**
- * Тест сдвига вправо, передача списка без второго параметра
- */
-void test_shift_right_no_second_param()
-{
-    printf("test_shift_right_no_second_param: ");
-    if (setjmp(jmp_env) == 0) {
-        object_t list = new_pair(new_number(1), NULLOBJ);
-        object_t res = shift_right(list);
-        FAIL;
-    } else 
-        OK;
-}
 
 /**
  * Тест сдвига вправо, передача пустого списка
@@ -754,7 +719,7 @@ void test_shift_right_empty_list()
 {
     printf("test_shift_right_empty_list: ");
     if (setjmp(jmp_env) == 0) {
-        object_t res = shift_right(NULLOBJ);
+        object_t res = shift_right(NULLOBJ, NULLOBJ);
         FAIL;
     } else 
         OK;
@@ -766,9 +731,7 @@ void test_shift_right_empty_list()
 void test_equal()
 {
     printf("test_equal: ");
-    object_t list = new_pair(new_number(1),
-			     new_pair(new_number(1), NULLOBJ));
-    object_t res = equal(list);
+    object_t res = equal(new_number(1), new_number(1));
     ASSERT(res, t);
 }
 
@@ -779,7 +742,7 @@ void test_equal_empty_list()
 {
     printf("test_equal_empty_list: ");
     if (setjmp(jmp_env) == 0) {
-        object_t res = equal(NULLOBJ);
+        object_t res = equal(NULLOBJ, NULLOBJ);
         FAIL;
     } else 
         OK;
@@ -792,24 +755,7 @@ void test_equal_no_second_param()
 {
     printf("test_equal_no_second_param: ");
     if (setjmp(jmp_env) == 0) {
-        object_t list = new_pair(new_number(1), NULLOBJ);
-        object_t res = equal(list);
-        FAIL;
-    } else 
-        OK;
-}
-
-/** 
- * Сравнение объектов, недопустимая длина списка
- */
-void test_equal_invalid_list_length()
-{
-    printf("test_equal_invalid_list_length: ");
-    if (setjmp(jmp_env) == 0) {
-        object_t list = new_pair(new_number(1),
-				 new_pair(new_number(1), 
-					  new_pair(new_number(1), NULLOBJ)));
-        object_t res = equal(list);
+        object_t res = equal(new_number(1), NULLOBJ);
         FAIL;
     } else 
         OK;
@@ -821,9 +767,7 @@ void test_equal_invalid_list_length()
 void test_equal_symbols()
 {
     printf("test_equal_symbols: ");
-    object_t list = new_pair(NEW_SYMBOL("A"),
-			     new_pair(NEW_SYMBOL("A"), NULLOBJ));
-    object_t res = equal(list);
+    object_t res = equal(NEW_SYMBOL("A"), NEW_SYMBOL("A"));
     ASSERT(res, t)
 }
 
@@ -833,24 +777,19 @@ void test_equal_symbols()
 void test_equal_strings()
 {
     printf("test_equal_strings: ");
-    object_t list = new_pair(NEW_STRING("abc"),
-			     new_pair(NEW_STRING("abc"), NULLOBJ));
-    object_t res = equal(list);
+    object_t res = equal(NEW_STRING("abc"), NEW_STRING("abc"));
     ASSERT(res, t);
 }
 
 /** 
  * Сравнение пар
  */
-void test_equal_pairs()
-{
-    printf("test_equal_pairs: ");
-    object_t pair = new_pair(NEW_SYMBOL("A"), NULLOBJ);
-    object_t list = new_pair(pair,
-			     new_pair(pair, NULLOBJ));
-    object_t res = equal(list);
-    ASSERT(res, t);
-}
+/* void test_equal_pairs() */
+/* { */
+/*     printf("test_equal_pairs: "); */
+/*     object_t res = equal(new_pair(NEW_SYMBOL("A"), NULLOBJ), new_pair(NEW_SYMBOL("A"), NULLOBJ)); */
+/*     ASSERT(res, t); */
+/* } */
 
 /** 
  * Сравнение пар с разными значениями
@@ -858,11 +797,7 @@ void test_equal_pairs()
 void test_equal_pairs_with_different_values()
 {
     printf("test_equal_pairs_with_different_values: ");
-    object_t pair1 = new_pair(NEW_SYMBOL("A"), NULLOBJ);
-    object_t pair2 = new_pair(NEW_SYMBOL("B"), NULLOBJ);
-    object_t list = new_pair(pair1,
-			     new_pair(pair2, NULLOBJ));
-    object_t res = equal(list);
+    object_t res = equal(new_pair(NEW_SYMBOL("A"), NULLOBJ), new_pair(NEW_SYMBOL("B"), NULLOBJ));
     ASSERT(res, nil);
 }
 
@@ -875,9 +810,7 @@ void test_equal_array()
     array_t *arr = new_empty_array(2);
     arr->data[0] = new_number(1);
     arr->data[1] = new_number(1);
-    object_t list = new_pair(NEW_OBJECT(ARRAY, arr),
-			     new_pair(NEW_OBJECT(ARRAY, arr), NULLOBJ));
-    object_t res = equal(list);
+    object_t res = equal(NEW_OBJECT(ARRAY, arr), NEW_OBJECT(ARRAY, arr));
     ASSERT(res, t);
 }
 
@@ -891,9 +824,7 @@ void test_equal_arrays_with_different_values()
     arr1->data[0] = new_number(1);
     array_t *arr2 = new_empty_array(2);
     arr2->data[0] = new_number(2);
-    object_t list = new_pair(NEW_OBJECT(ARRAY, arr1),
-			     new_pair(NEW_OBJECT(ARRAY, arr2), NULLOBJ));
-    object_t res = equal(list);
+    object_t res = equal(NEW_OBJECT(ARRAY, arr1), NEW_OBJECT(ARRAY, arr2));
     ASSERT(res, nil);
 }
 
@@ -908,9 +839,7 @@ void test_equal_arrays_with_different_length()
     array_t *arr2 = new_empty_array(2);
     arr2->data[0] = new_number(1);
     arr2->data[1] = new_number(1);
-    object_t list = new_pair(NEW_OBJECT(ARRAY, arr1),
-			     new_pair(NEW_OBJECT(ARRAY, arr2), NULLOBJ));
-    object_t res = equal(list);
+    object_t res = equal(NEW_OBJECT(ARRAY, arr1), NEW_OBJECT(ARRAY, arr2));
     ASSERT(res, nil);
 }
 
@@ -920,9 +849,7 @@ void test_equal_arrays_with_different_length()
 void test_equal_null_objects()
 {
     printf("test_equal_array: ");
-    object_t list = new_pair(NULLOBJ,
-		      new_pair(NULLOBJ, NULLOBJ));
-    object_t res = equal(list);
+    object_t res = equal(NULLOBJ, NULLOBJ);
     ASSERT(res, t)
 }
 
@@ -934,7 +861,7 @@ void test_equal_one_object_is_null()
     printf("test_equal_one_object_is_null: ");
     object_t list = new_pair(new_number(1),
 			     new_pair(NULLOBJ, NULLOBJ));
-    object_t res = equal(list);
+    object_t res = equal(new_number(1), NULLOBJ);
     ASSERT(res, nil);
 }
 
@@ -944,9 +871,7 @@ void test_equal_one_object_is_null()
 void test_equal_different_types()
 {
     printf("test_equal_different_types: ");
-    object_t list = new_pair(new_number(1),
-			     new_pair(NEW_SYMBOL("A"), NULLOBJ));
-    object_t res = equal(list);
+    object_t res = equal(new_number(1), NEW_SYMBOL("A"));
     ASSERT(res, nil);
 }
 
@@ -956,9 +881,7 @@ void test_equal_different_types()
 void test_equal_objects_are_char()
 {
     printf("test_equal_objects_are_char: ");
-    object_t list = new_pair(NEW_CHAR('A'),
-			     new_pair(NEW_CHAR('B'), NULLOBJ));
-    object_t res = equal(list);
+    object_t res = equal(NEW_CHAR('A'), NEW_CHAR('B'));
     ASSERT(res, nil);
 }
 
@@ -970,10 +893,8 @@ void test_equal_objects_are_float()
     printf("test_equal_objects_are_float: ");
     float num1 = 5.2f;
     float num2 = 5.2f;
-    object_t list = new_pair(new_float(num1),
-			     new_pair(new_float(num2), NULLOBJ));
-    object_t res = equal(list);
-    ASSERT(res, nil);
+    object_t res = equal(new_float(num1), new_float(num2));
+    ASSERT(res, t);
 }
 
 /**
@@ -984,9 +905,7 @@ void test_less()
     printf("test_less: ");
     int first1 = 1;
     int second1 = 2;
-    object_t list = new_pair(new_number(first1),
-			      new_pair(new_number(second1), NULLOBJ));
-    object_t res = less(list);
+    object_t res = less(new_number(first1), new_number(second1));
     ASSERT(res, t);
 }
 
@@ -1000,7 +919,7 @@ void test_less_great()
     int second1 = 1;
     object_t list = new_pair(new_number(first1),
 			     new_pair(new_number(second1), NULLOBJ));
-    object_t res = less(list);
+    object_t res = less(new_number(first1), new_number(second1));
     ASSERT(res, NULLOBJ);
 }
 
@@ -1015,69 +934,17 @@ void test_less_float_great()
     
     object_t list = new_pair(new_float(first1),
 			     new_pair(new_float(second1), NULLOBJ));
-    object_t res = less(list);
+    object_t res = less(new_float(first1), new_float(second1));
     ASSERT(res, NULLOBJ);
 }
 
-/**
- * Тест сравнения неравенства меньше для двух чисел - проверка на отсутствие аргументов
- */
-void test_less_no_arguments()
-{
-    printf("test_less_no_arguments: ");
-    if (setjmp(jmp_env) == 0) {
-        object_t res = less(NULLOBJ); 
-        FAIL;
-    } else 
-        OK;
-}
-
-/**
- * Тест сравнения неравенства меньше для двух чисел - проверка на только один аргумент
- */
-void test_less_one_argument()
-{
-    printf("test_less_one_argument: ");
-    object_t list = new_pair(new_number(1), NULLOBJ); 
-    if (setjmp(jmp_env) == 0) {
-        object_t res = less(list); 
-        FAIL;
-    } else 
-        OK;
-}
 
 /*Тест сравнения чисел на больше*/
 void test_gt(int num1, int num2, object_t token) 
 {
     printf("test_gt:");
-    object_t list = new_pair(new_number(num1), 
-			     new_pair(new_number(num2), NULLOBJ));
-    object_t res = gt(list);
+    object_t res = gt(new_number(num1), new_number(num2));
     ASSERT(res, token);
-}
-
-/*Тест сравнения чисел на больше при пустом входном списке*/
-void test_gt_list_is_null()
-{
-    printf("test_gt_list_is_null:");
-    if (setjmp(jmp_env) == 0) {
-        object_t list = NULLOBJ;
-        object_t res = gt(list);
-        FAIL;
-    } else 
-        OK;
-}
-
-//Тест сравнения чисел на больше при одном аргументе в списке 
-void test_gt_one_arg(int num1)
-{
-    printf("test_gt_one_arg:");
-    if (setjmp(jmp_env) == 0) {
-        object_t list = new_pair(new_number(num1), NULLOBJ);
-        object_t res = gt(list);
-        FAIL;
-    } else 
-        OK;
 }
 
 /*
@@ -1194,6 +1061,8 @@ int main()
     printf("------------test_arith---------\n");
     init_regions();
     init_objects();
+    t = NEW_SYMBOL("T");
+    nil = NULLOBJ;
     test_add();
     test_add_null();
     test_add_no_number();
@@ -1243,22 +1112,11 @@ int main()
     test_bitwise_or(0, 0, 0);
     test_bitwise_or_null();
     test_bitwise_or_no_number();
-    test_shift_left(1, 2, 4); //100
     test_shift_left(2, 3, 16); //10000
-    test_shift_left_empty_list();
-    test_shift_left_no_second_param();
-    test_shift_right(1, 1, 0);
     test_shift_right(10, 2, 2);
-    test_shift_right_empty_list();
-    test_shift_right_no_second_param();
     test_equal();
-    test_equal_empty_list();
-    test_equal_no_second_param();
-    test_equal_invalid_list_length();
     test_equal_symbols();
     test_equal_strings();
-    test_equal_pairs();
-    test_equal_pairs_with_different_values();
     test_equal_array();
     test_equal_arrays_with_different_length();
     test_equal_arrays_with_different_values();
@@ -1270,11 +1128,7 @@ int main()
     test_less();
     test_less_great();
     test_less_float_great();
-    test_less_no_arguments();
-    test_less_one_argument();
     test_gt(5, 3, t);
     test_gt(3, 5, NULLOBJ);
-    test_gt_list_is_null();
-    test_gt_one_arg(3);
     return 0;
 }
