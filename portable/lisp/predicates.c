@@ -12,13 +12,8 @@ int list_length(object_t args);
  * @param cond условие, когда функция возвращает Т
  */
 #define MAKE_PREDICATE(name, cond)\
-object_t name (object_t params)\
-{   \
-    if (params == NULLOBJ) \
-	error(#name": no params");    \
-     else if (TAIL(params) != NULLOBJ) \
-	 error(#name": many params"); \
-    object_t el  = FIRST(params);\
+object_t name (object_t el)\
+{\    	  
     if (cond)\
 	return t;\
     else\
@@ -31,12 +26,22 @@ MAKE_PREDICATE(pairp, TYPE(el) == PAIR)
 MAKE_PREDICATE(symbolp, TYPE(el) == SYMBOL)
 // Число
 MAKE_PREDICATE(integerp, TYPE(el) == NUMBER || TYPE(el) == BIGNUMBER)
+// Функция
 MAKE_PREDICATE(functionp, TYPE(el) == FUNCTION)
+// Строка
+MAKE_PREDICATE(stringp, TYPE(el) == STRING)
+// Массив
+MAKE_PREDICATE(arrayp, TYPE(el) == ARRAY)
+// Число с плавающей точкой 
+MAKE_PREDICATE(floatp, TYPE(el) == FLOAT)
 
 void init_predicates()
 {
-    register_func("SYMBOLP", symbolp);
-    register_func("PAIRP", pairp);
-    register_func("INTEGERP", integerp);	
-    register_func("FUNCTIONP", functionp);	
+    register_func("SYMBOLP", symbolp, 0, 1);
+    register_func("PAIRP", pairp, 0, 1);
+    register_func("INTEGERP", integerp, 0, 1);
+    register_func("STRINGP", stringp, 0, 1);
+    register_func("ARRAYP", arrayp, 0, 1);
+    register_func("FLOATP", floatp, 0, 1);
+    register_func("FUNCTIONP", functionp, 0, 1);
 }
