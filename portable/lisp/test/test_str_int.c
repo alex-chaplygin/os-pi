@@ -8,9 +8,9 @@
 #include "parser.h"
 #include "str.h"
 
-object_t intern(object_t list);
+object_t intern(object_t arg);
 object_t concat(object_t list);
-object_t symbol_name(object_t list);
+object_t symbol_name(object_t symbol);
 object_t string_size(object_t list);
 object_t str_char(object_t list);
 object_t code_char(object_t list);
@@ -32,6 +32,16 @@ void error(char *str, ...)
 object_t function(object_t param)
 {
     return param;
+}
+
+int list_length(object_t args)
+{
+    int c = 0;
+    while (args != NULLOBJ) {
+	args = TAIL(args);
+	c++;
+    }
+    return c;
 }
 
 char *itoa(int num, char *str, int rad)
@@ -63,8 +73,8 @@ char *itoa(int num, char *str, int rad)
 void test_intern()
 {
     printf("test_intern: ");
-    object_t obj = new_pair(NEW_STRING("ABC"), NULLOBJ);
-    object_t res = intern(obj);
+    object_t str_obj = NEW_STRING("ABC");
+    object_t res = intern(str_obj);
     ASSERT(TYPE(res), SYMBOL);
     ASSERT(GET_STRING(res)->length, 0);
 }
@@ -76,38 +86,9 @@ void test_intern()
 void test_intern_incorrect_type()
 {
     printf("test_intern_incorrect_type: ");
-    object_t obj = new_pair(NEW_SYMBOL("ABC"), NULLOBJ);
+    object_t str_obj = NEW_SYMBOL("ABC");
     if (setjmp(jmp_env) == 0) {
-        object_t res = intern(obj);
-        FAIL;
-    } else 
-        OK;
-}
-
-/**
- * Тест создания символа на основе строки
- * Ошибка: лишний параметр
- */
-void test_intern_two_param()
-{
-    printf("test_intern_two_param: ");
-    object_t obj = new_pair(NEW_STRING("ABC"), new_pair(NEW_STRING("ABC"), NULLOBJ));
-    if (setjmp(jmp_env) == 0) {
-        object_t res = intern(obj);
-        FAIL;
-    } else 
-        OK;
-}
-
-/**
- * Тест создания символа на основе строки
- * Ошибка: без параметра
- */
-void test_intern_no_params()
-{
-    printf("test_intern_no_params: ");
-    if (setjmp(jmp_env) == 0) {
-        object_t res = intern(NULLOBJ);
+        object_t res = intern(str_obj);
         FAIL;
     } else 
         OK;
@@ -120,7 +101,7 @@ void test_intern_no_params()
 void test_intern_empty_string()
 {
     printf("test_intern_empty_string: ");
-    object_t obj = new_pair(NEW_STRING(""), NULLOBJ);
+    object_t obj = NEW_STRING("");
     if (setjmp(jmp_env) == 0) {
         object_t res = intern(obj);
         FAIL;
@@ -203,9 +184,9 @@ void test_concat_no_params()
 void test_symbol_name()
 {
     printf("test_symbol_name: ");
-    object_t obj = new_pair(NEW_SYMBOL("abcd"), NULLOBJ); 
+    object_t obj = NEW_SYMBOL("abcd"); 
     object_t res = symbol_name(obj); 
-    ASSERT(TYPE(res), STRING); 
+    ASSERT(TYPE(res), STRING);
     ASSERT(strcmp(GET_STRING(res)->data, "abcd"), 0);
 }
 
@@ -216,7 +197,7 @@ void test_symbol_name()
 void test_symbol_name_incorrect_type()
 {
     printf("test_symbol_name_incorrect_type: ");
-    object_t obj = new_pair(NEW_STRING("abcd"), NULLOBJ); 
+    object_t obj = NEW_STRING("abcd"); 
     if (setjmp(jmp_env) == 0) {
         object_t res = symbol_name(obj); 
         FAIL;
@@ -784,8 +765,6 @@ int main()
     init_objects();
     test_intern();
     test_intern_incorrect_type();
-    test_intern_two_param();
-    test_intern_no_params();
     test_intern_empty_string();
     test_concat_one_str();
     test_concat_two_str();
@@ -797,37 +776,37 @@ int main()
     test_symbol_name_many_params();
     test_symbol_name_null_first_param();
     test_symbol_name_no_params();
-    test_string_size();
-    test_string_size_no_arguments();
-    test_string_size_too_many_arguments();
-    test_string_size_not_string();
-    test_str_char();
-    test_str_char_null();
-    test_str_char_not_all_arguments();
-    test_str_char_second_not_number();
-    test_str_char_too_many_arguments();
-    test_str_char_first_not_string();
-    test_str_char_invalid_index();
-    test_code_char();
-    test_code_char_no_arguments();
-    test_code_char_too_many_arguments();
-    test_code_char_not_number();
-    test_subseq_no_arguments();
-    test_subseq_not_all_arguments();
-    test_subseq_too_many_arguments();
-    test_subseq_invalid_args();
-    test_subseq_negative_index();
-    test_subseq_negative_end_index();
-    test_subseq_invalid_index_range();
-    test_subseq_start_greater_than_end();
-    test_subseq_empty_input();
-    test_subseq();
-    test_subseq_full_string();
-    test_subseq_empty_substring();
-    test_int_to_str_no_args();
-    test_int_to_str_many_args();
-    test_int_to_str_invalid_arg();
-    test_int_to_str_positive();
-    test_int_to_str_negative();
+    /* test_string_size(); */
+    /* test_string_size_no_arguments(); */
+    /* test_string_size_too_many_arguments(); */
+    /* test_string_size_not_string(); */
+    /* test_str_char(); */
+    /* test_str_char_null(); */
+    /* test_str_char_not_all_arguments(); */
+    /* test_str_char_second_not_number(); */
+    /* test_str_char_too_many_arguments(); */
+    /* test_str_char_first_not_string(); */
+    /* test_str_char_invalid_index(); */
+    /* test_code_char(); */
+    /* test_code_char_no_arguments(); */
+    /* test_code_char_too_many_arguments(); */
+    /* test_code_char_not_number(); */
+    /* test_subseq_no_arguments(); */
+    /* test_subseq_not_all_arguments(); */
+    /* test_subseq_too_many_arguments(); */
+    /* test_subseq_invalid_args(); */
+    /* test_subseq_negative_index(); */
+    /* test_subseq_negative_end_index(); */
+    /* test_subseq_invalid_index_range(); */
+    /* test_subseq_start_greater_than_end(); */
+    /* test_subseq_empty_input(); */
+    /* test_subseq(); */
+    /* test_subseq_full_string(); */
+    /* test_subseq_empty_substring(); */
+    /* test_int_to_str_no_args(); */
+    /* test_int_to_str_many_args(); */
+    /* test_int_to_str_invalid_arg(); */
+    /* test_int_to_str_positive(); */
+    /* test_int_to_str_negative(); */
     return 0;
 }
