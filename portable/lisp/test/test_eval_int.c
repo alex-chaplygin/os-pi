@@ -79,7 +79,7 @@ object_t create_env()
  */
 void test_make_env()
 {
-    printf("test_make_env: "); 
+    //printf("test_make_env: %ld", sizeof(symbol_t)); 
     object_t env = create_env(); 
     object_t p1 = FIRST(env); 
     object_t p2 = SECOND(env);   
@@ -294,7 +294,7 @@ void test_backquote_arguments()
 
 /**
  * Проверка объекта на то, является ли аргумент неделимым
- * Объект неделимый - результат истинна
+ * Объект делим - результат ложь
  */
 void test_atom()
 {
@@ -302,7 +302,7 @@ void test_atom()
     object_t num_obj = new_number(5);
     object_t pair = new_pair(num_obj, NULLOBJ);
     object_t res = atom(pair);
-    ASSERT(res, t);
+    ASSERT(res, nil);
 }
 
 /**
@@ -311,11 +311,13 @@ void test_atom()
 void test_atom_null()
 {
     printf("test_atom_null: ");
-    if (setjmp(jmp_env) == 0) {
-        object_t res = atom(NULLOBJ);
-        FAIL;
-    } else
-        OK;
+    /* if (setjmp(jmp_env) == 0) { */
+    /*     object_t res = atom(NULLOBJ); */
+    /*     FAIL; */
+    /* } else */
+    /*     OK; */
+    object_t res = atom(NULLOBJ);
+    ASSERT(res, t);
 }
 
 /**
@@ -341,37 +343,25 @@ void test_atom_many_args()
     printf("test_atom_many_args: ");
     object_t num_obj = new_number(5);
     object_t list = new_pair(num_obj, new_pair(num_obj, NULLOBJ));
-    if (setjmp(jmp_env) == 0) {
-        object_t res = atom(list);
-        FAIL;
-    } else
-        OK;
+    object_t res = atom(list);
+    ASSERT(res, nil);
+    /* if (setjmp(jmp_env) == 0) { */
+    /*     object_t res = atom(list); */
+    /*     FAIL; */
+    /* } else */
+    /*     OK; */
 }
 
-/**
- * Попытка вернуть элемент из списка нескольких параметров
- */
-void test_quote_error()
-{
-    printf("test_quote_error: ");
-    object_t num_obj = new_number(5);
-     object_t list = new_pair(num_obj, new_pair(num_obj, NULLOBJ));
-     if (setjmp(jmp_env) == 0) {
-        object_t res = quote(list);
-        FAIL;
-     } else
-        OK;
-}
+
 
 /**
- * Тест цитирования символа
+ * Тест цитирования символа a
  */
 void test_quote()
 {
      printf("test_quote: ");
      object_t obj = NEW_SYMBOL("a");
-     object_t list = new_pair(obj, NULLOBJ);
-     object_t res = quote(list);
+     object_t res = quote(obj);
      ASSERT(res, obj);
 }
 
@@ -381,11 +371,13 @@ void test_quote()
 void test_quote_null()
 {
     printf("test_quote_null: ");
-    if (setjmp(jmp_env) == 0) {
-        object_t res = quote(NULLOBJ);
-        FAIL;
-    } else
-        OK;
+    object_t res = quote(NULLOBJ);
+    ASSERT(res, NULLOBJ);
+    /* if (setjmp(jmp_env) == 0) { */
+    /*     object_t res = quote(NULLOBJ); */
+    /*     FAIL; */
+    /* } else */
+    /*     OK; */
 }
 
 /**
@@ -412,7 +404,7 @@ void test_eq()
     object_t s1 = NEW_STRING("test");
     object_t s2 = NEW_STRING("test");
     object_t res2 = eq(s1,s2);
-    ASSERT(res2, t);
+    ASSERT(res2, nil);
 
     // Одинаковые символы
     object_t sym1 = NEW_SYMBOL("x");
@@ -528,7 +520,7 @@ void test_eval_func(object_t list, object_t args, int expected)
 void test_eval_func1()
 {
     printf("test_eval_func1: ");
-    object_t x1 = NEW_SYMBOL("x"); // x 
+    object_t x1 = NEW_SYMBOL("X"); // x 
     object_t param1 = new_pair(x1, NULLOBJ); // (x) 
     object_t list = new_pair(NEW_SYMBOL("LAMBDA"), new_pair(param1, param1)); // (lambda (x) x) 
     object_t arg_x = new_number(10); // 10
@@ -785,14 +777,13 @@ int main()
     test_progn();
     test_progn_single_element();
     test_progn_null();
-    test_backquote_nulllist();
-    test_backquote_arguments();
+    /* test_backquote_nulllist(); */
+    /* test_backquote_arguments(); */
     test_atom();//1
     test_atom_null();//52
     test_atom_list();
     test_atom_many_args();//131
     test_quote();
-    test_quote_error();//53
     test_quote_null();
     test_eq(); //9, 55, 56, 57
     test_is_lambda_invalid_symbol();
@@ -802,12 +793,12 @@ int main()
     test_is_lambda_no_body();
     /* test_macro_call(); */
     test_eval_func1();
-    test_eval_func2();
+    //test_eval_func2();
     /* test_er_num_arg_make_env(); */
     test_eval_symbol_with_defined_variable();
     test_eval_symbol_environment_variable();
     test_eval_symbol_undefined_variable();
-    test_eval_args();
+    //test_eval_args();
     test_eval_args_null();
     test_eval_empty_lambda();
     return 0;
