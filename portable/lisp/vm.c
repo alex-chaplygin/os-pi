@@ -1,8 +1,8 @@
-#include "alloc.h"
-#include "vm.h"
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include "alloc.h"
+#include "vm.h"
 
 //Размер памяти программы
 int program_size;
@@ -60,7 +60,7 @@ void vm_init(object_t *prog_mem, int prog_size, object_t *const_mem, int const_c
  */
 int fetch()
 {
-    return *pc_register++ >> MARK_BIT;
+    return *pc_reg++ >> MARK_BIT;
 }
 
 /**
@@ -85,6 +85,7 @@ void jmp_inst()
  */
 void jnt_inst()
 {
+    extern object_t t;
     if (acc_reg != t)
         pc_reg += fetch();
 }
@@ -116,7 +117,7 @@ void global_ref_inst()
 void global_set_inst()
 {
     int i = fetch();
-    frame_reg->local_args[i] = acc_reg;
+    //    frame_reg->local_args[i] = acc_reg;
     printf("Значение ACC сохранено в глобальной переменной с индексом %d", i);
 }
 
@@ -126,7 +127,7 @@ void global_set_inst()
 void local_ref_inst()
 {
     int i = fetch();
-    acc_reg = frame_reg->local_args[i];
+    //    acc_reg = frame_reg->local_args[i];
     printf("Локальная переменная с индексом %d загружена в ACC\n", i);
 }
 
@@ -136,7 +137,7 @@ void local_ref_inst()
 void local_set_inst()
 {
     int i =  fetch();
-    frame_reg->local_args[i] = acc_reg;
+    //    frame_reg->local_args[i] = acc_reg;
     printf("Значение ACC сохранено в локальной переменной с индексом %d", i);
 }
 
@@ -150,10 +151,10 @@ void deep_ref_inst()
     frame_t *target_frame = frame_reg;
 
     for (int d = 0; d < depth; d++) {
-        target_frame = target_frame->prev;
+	//        target_frame = target_frame->prev;
     }
 
-    acc_reg = target_frame->local_args[i];
+    //    acc_reg = target_frame->local_args[i];
 }
 
 /**
@@ -165,10 +166,10 @@ void deep_set_inst()
     int depth = fetch();
     frame_t *target_frame = frame_reg;
 
-    for (int d = 0; d < depth; d++)
-        target_frame = target_frame->prev;
+    //    for (int d = 0; d < depth; d++)
+    //    target_frame = target_frame->prev;
 
-    target_frame->local_args[i] = acc_reg;
+    //target_frame->local_args[i] = acc_reg;
 }
 
 /**
@@ -200,8 +201,8 @@ void pack_inst()
  * @brief  Функция, добавляющая адрес следующей инструкции в стэк и производит переход по смещению ofs
  */
 void reg_call_inst() {
-    object_t *return_address = pc_register++; 
-    *stack_top++ = pc_register; 
+    object_t *return_address = pc_reg++; 
+    *stack_top++ = pc_reg; 
     int ofs =  fetch(); 
     pc_reg += ofs; 
 }
@@ -220,7 +221,7 @@ void return_inst() {
  */
 void fix_closure_inst() {
     int ofs = fetch();
-    acc_reg = *frame_reg;
+    //    acc_reg = *frame_reg;
     pc_reg += ofs;
     printf("Создано замыкание с текущим кадром и смещением %d\n", ofs);
 }
@@ -238,7 +239,7 @@ void save_frame_inst() {
  */
 void set_frame_inst() {
     int num = fetch();
-    frame_reg = frame_activation_list[num];  
+    // frame_reg = frame_activation_list[num];  
 }
 
 /**
@@ -255,7 +256,7 @@ void restore_frame_inst() {
  */
 void prim_inst() {
     object_t n = fetch();
-    instructions[n]();
+    //instructions[n]();
 }
 
 
@@ -268,11 +269,11 @@ void nprim_inst() {
     args[0] = arg;
     int i = 1;
 
-    while ((arg = fetch()) != NIL) {
-        args[i++] = arg;
-    }
+    /* while ((arg = fetch()) != NIL) { */
+    /*     args[i++] = arg; */
+    /* } */
 
-    instructions[args[0]]();
+    //instructions[args[0]]();
 }
 
 /**
@@ -284,7 +285,7 @@ void halt()
     working = 0;
 }
 
-void (*instructions)()[] =
+void (*instructions[])() =
     {
 	const_inst,
 	jmp_inst,
