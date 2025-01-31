@@ -62,7 +62,7 @@ void test_make_array_invalid_argument()
 }
 
 /**
- * Проверка присваивания значения объекту и NULL
+ * Проверка присваивания значения объекту c index NULLOBJ
 */
 void test_seta_invalid_arguments()
 {
@@ -72,12 +72,7 @@ void test_seta_invalid_arguments()
     object_t obj = new_number(num);
     object_t result;
     if (setjmp(jmp_env) == 0) {
-        result = seta(arr_o, new_number(0), NULL);
-        FAIL;
-    } else
-        OK;
-    if (setjmp(jmp_env) == 0) {
-        result = seta(arr_o, new_number(0), NULLOBJ);
+        result = seta(arr_o, NULLOBJ, obj);
         FAIL;
     } else
         OK;
@@ -119,9 +114,23 @@ void test_seta_update_value()
  */
 void test_seta_out_of_bounds()
 {
-    printf("test_seta_out_of_bounds: ");
-    object_t arr_o = make_array(new_number(10));
-    ASSERT(get_value(seta(arr_o, 0, new_number(10))), NULLOBJ);
+   printf("test_seta_out_of_bounds: ");
+    object_t arr_o = make_array(new_number(5)); 
+    object_t value = new_number(42); 
+
+    if (setjmp(jmp_env) == 0) {
+        object_t result = seta(arr_o, new_number(-1), value); 
+        FAIL; 
+    } else {
+        OK; 
+    }
+
+    if (setjmp(jmp_env) == 0) {
+        object_t result = seta(arr_o, new_number(5), value); 
+        FAIL; 
+    } else {
+        OK; 
+    }
 }
 
 /**
@@ -184,8 +193,6 @@ void test_array_size_null()
         OK; 
     
 }
-
-
 
 int main()
 {
