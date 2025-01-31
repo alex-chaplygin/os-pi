@@ -225,11 +225,7 @@ typedef struct symbol_s
     int nary;
     //количество аргументов
     int count;
-#ifdef X32
     int pad[6]; // выравнивание 72 + 24
-#else
-    int pad[4]; // выравнивание 112 + 16
-#endif
 } symbol_t;
 
 extern int print_counter;
