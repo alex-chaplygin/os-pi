@@ -2,13 +2,12 @@
 #include <stdlib.h>
 #include "objects.h"
 
-#define STACK_SIZE = 1024;
-#define FRAME_SIZE = 1024;
-#define MAX_LOCAL_ARGS = 16;
+#define STACK_SIZE 1024
+#define FRAME_SIZE 1024
+#define MAX_LOCAL_ARGS 16
 
 //Структура кадра активации
-typedef struct frame
-{
+typedef struct frame {
     //Число аргументов в кадре
     int count_args;
     //Массив, в котором хранятся локальные аргументы кадра
@@ -17,7 +16,7 @@ typedef struct frame
     struct frame *prev;
     //Номер глубины вызова
     int call_number;
-} *frame_t;
+} frame_t;
 
 //Функция инициализации виртуальной машины
 void vm_init(object_t *prog_mem, int prog_size,
