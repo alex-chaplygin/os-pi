@@ -34,6 +34,8 @@ all: $(TESTS)
 	gcc $^ $(CFLAGS) $(LDFLAGS) -o $@
 /tmp/test_libc: ../mpa.c ../../float.c test_libc.c
 	gcc $^ $(CFLAGS) $(LDFLAGS) -o $@
+/tmp/test_vm: ../vm.c test_vm.c
+	gcc $^ $(CFLAGS) $(LDFLAGS) -o $@
 
 test: $(TESTS) /tmp/test_sys
 	for test in $(TESTS); do bash -c $$test ; done
