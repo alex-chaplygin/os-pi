@@ -14,21 +14,17 @@ char *itoa(int num, char *str, int rad);
 
 /**
  * Создание символа на основе строки
- * @param list (строка)
+ * @param arg - аргумент строка
  * @return созданный символ
  */
-object_t intern(object_t list)
+object_t intern(object_t arg)
 {
-    if (list == NULLOBJ)
-        error("intern: no arguments");
-    if (FIRST(list) == NULLOBJ || TYPE(FIRST(list)) != STRING)
-        error("intern: not string in params");
-    if (TAIL(list) != NULLOBJ)
-        error("intern: too many parameters");
-    char *str = GET_STRING(FIRST(list))->data;
+    if (TYPE(arg) != STRING)
+	error("intern: argument is not a string");
+    char *str = GET_STRING(arg)->data;
     symbol_t *sym = find_symbol(str);
     if (sym == NULL)
-	error("intern: empty string");
+    	error("intern: empty string");
     return NEW_OBJECT(SYMBOL, sym);
 }
 
@@ -119,17 +115,13 @@ object_t concat(object_t list)
  * @param list (символ)
  * @return имя символа
  */
-object_t symbol_name(object_t list)
+object_t symbol_name(object_t symbol)
 {
-    if (list == NULLOBJ)
+    if (symbol == NULLOBJ)
         error("symbol-name: no arguments");
-    if (FIRST(list) == NULLOBJ)
-        return NEW_STRING("NIL");
-    if (TYPE(FIRST(list)) != SYMBOL)
-        error("symbol-name: not symbol in params");
-    if (TAIL(list) != NULLOBJ)
-        error("symbol-name: too many parameters");
-    char *str = GET_SYMBOL(FIRST(list))->str;
+    if (TYPE(symbol) != SYMBOL)
+        error("symbol-name: argument is not a symbol");
+    char *str = GET_SYMBOL(symbol)->str;
     return NEW_STRING(str);
 }
 
@@ -203,8 +195,6 @@ object_t int_to_str(object_t list)
 **/
 object_t code_char(object_t list)
 {
-    if (list_length(list) != 1)
-	error("code-char: invalid arguments number");
     object_t o = FIRST(list);
     if (!IS_NUMBER(o))
     	error("code-char: not number in params");
@@ -219,8 +209,6 @@ object_t code_char(object_t list)
 **/
 object_t char_code(object_t list)
 {
-    if (list_length(list) != 1)
-	error("char-code: invalid arguments number");
     object_t o = FIRST(list);
     if (TYPE(o) != CHAR)
     	error("char-code: not char");
@@ -236,8 +224,6 @@ object_t char_code(object_t list)
  */
 object_t make_string(object_t args)
 {
-    if (list_length(args) != 2)
-	error("make-string: invalid arguments count");
     object_t co = FIRST(args);
     object_t ch = SECOND(args);
     if (!IS_NUMBER(co))
@@ -263,8 +249,6 @@ object_t make_string(object_t args)
  */
 object_t sets(object_t args)
 {
-    if (list_length(args) != 3)
-	error("sets: invalid arguments count");
     object_t a1 = FIRST(args);
     if (TYPE(a1) != STRING)
 	error("sets: not string");
@@ -322,7 +306,7 @@ object_t PUTCHAR(object_t args)
  *
  * @return новый уникальный символ
  */
-object_t gensym(object_t args)
+object_t gensym()
 {
     char str[MAX_ITOA_STR];
     char *s = itoa(++gensym_counter, str + 1, 10);    
@@ -332,19 +316,19 @@ object_t gensym(object_t args)
 
 void init_strings()
 {
-    register_func("INTERN", intern);
-    register_func("CONCAT", concat);
-    register_func("SYMBOL-NAME", symbol_name);
-    register_func("SYMBOL-FUNCTION", symbol_function);
-    register_func("STRING-SIZE", string_size);
-    register_func("CHAR", str_char);
-    register_func("SUBSEQ", subseq);
-    register_func("MAKE-STRING", make_string);
-    register_func("SETS", sets);
-    register_func("INTTOSTR", int_to_str);
-    register_func("CODE-CHAR",code_char);
-    register_func("CHAR-CODE",char_code);
-    register_func("PRINT", print_object);
-    register_func("PUTCHAR", PUTCHAR);
-    register_func("GENSYM", gensym);
+    register_func("INTERN", intern, 0, 1);
+    register_func("CONCAT" ,concat, 1, 0);
+    register_func("SYMBOL-NAME", symbol_name, 0, 1);
+    register_func("SYMBOL-FUNCTION", symbol_function, 0, 1);
+    register_func("STRING-SIZE", string_size, 0, 1);
+    register_func("CHAR", str_char, 0, 1);
+    register_func("SUBSEQ", subseq, 0, 3);
+    register_func("MAKE-STRING", make_string, 0, 2);
+    register_func("SETS", sets, 0, 3);
+    register_func("INTTOSTR", int_to_str, 0, 1);
+    register_func("CODE-CHAR",code_char, 0, 1);
+    register_func("CHAR-CODE",char_code, 0, 1);
+    register_func("PRINT", print_object, 1, 0);
+    register_func("PUTCHAR", PUTCHAR, 0, 1);
+    register_func("GENSYM", gensym, 0, 0);
 }
