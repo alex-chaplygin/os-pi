@@ -115,9 +115,6 @@ int list_length(object_t args)
  */ 
 object_t eq(object_t p1, object_t p2) 
 { 
-    //printf("eq: "); 
-    //PRINT(list); 
-                              
     if (p1 == p2)
 	return t; 
     else 
@@ -132,8 +129,7 @@ object_t eq(object_t p1, object_t p2)
  * @return t или nil 
  */ 
 object_t atom(object_t obj1) 
-{ 
-     
+{      
     if (obj1 == NULLOBJ || TYPE(obj1) != PAIR) 
 	return t; 
     else 
@@ -180,8 +176,7 @@ object_t make_copy(object_t o)
  */
 object_t quote(object_t obj1) 
 {
-   
-    return obj1; 
+    return obj1;
 } 
 
 void append_env(object_t l1, object_t l2); 
@@ -265,7 +260,7 @@ object_t backquote(object_t list)
  */ 
 object_t IF(object_t obj1, object_t obj2, object_t obj3)
 {
-     object_t res = NULLOBJ;
+    object_t res = NULLOBJ;
     object_t env = current_env;
     object_t func = func_env;
     PROTECT3(obj1, obj2, obj3);
@@ -303,7 +298,6 @@ object_t defun(object_t name1, object_t list, object_t body)
  */ 
 object_t defmacro(object_t name1, object_t list, object_t body) 
 { 
-    
     symbol_t *name = find_symbol(GET_SYMBOL(name1)->str); 
     name->macro = new_pair(NEW_SYMBOL("LAMBDA"), TAIL(list));
     set_global(name);
@@ -321,7 +315,6 @@ object_t defmacro(object_t name1, object_t list, object_t body)
  */ 
 object_t progn(object_t params) 
 { 
-   
     object_t env = current_env;
     object_t func = func_env;
     object_t obj = NULLOBJ;
@@ -457,7 +450,7 @@ void append_env(object_t l1, object_t l2)
  */ 
 object_t eval_func(object_t lambda, object_t args, object_t env, object_t func) 
 { 
-    object_t new_env = make_env(SECOND(lambda), args); 
+    object_t new_env = make_env(SECOND(lambda), args);    
     object_t body; 
     if (GET_PAIR(TAIL(TAIL(lambda)))->right == NULLOBJ) 
  	body = THIRD(lambda); 
