@@ -7,7 +7,7 @@
 ;; list (name args body)
 (defun make-macro (list)
   (let ((name (car list))
-	(args (cadr list))
+	(args (second list))
 	(body (cddr list)))
     (if (is-nary args)
 	(add-nary-macro name 0 (num-fix-args args 0) (remove-rest args) body)
@@ -32,19 +32,49 @@
 (defun macro-eval-backquote (expr env)
   (if (null expr) nil
       (if (atom expr) expr
-	  (cond ((eq (car expr) 'comma) (macro-eval (cadr expr) env))
+	  (cond ((eq (car expr) 'comma) (macro-eval (second expr) env))
 		((and (pairp (car expr)) (eq (caar expr) 'comma-at))
 		 (append (macro-eval (cadar expr) env) (macro-eval-backquote (cdr expr) env)))
 		(t
 		 (cons (macro-eval-backquote (car expr) env) (macro-eval-backquote (cdr expr) env)))))))
 
+; условие
+(defun macro-eval-if (expr env)
+  (when (!= (list-length expr) 3)
+    (comp-err "macro-eval-if: invalid arguments count"))
+  (let ((cond (car expr))
+	(true (second expr))
+	(false (third expr)))
+    (if (null (macro-eval cond env)) (macro-eval false env) (macro-eval true env))))
+
+;; вычисление аргументов
+(defun macro-eval-args (args env)
+  (map #'(lambda (a) (macro-eval a env)) args))
+
+;; вычисление примитива
+(defmacro eval-prim (expr)
+  `(funcall #',(car expr) ,@(cdr expr)))
+
+;; применение функции
+(defun macro-eval-app (f args env)
+  (let* ((fun (find-func f))
+	 (type (car fun))
+	 (count (second fun)))
+    (check-arguments type count args)
+    (if (contains '(fix-prim nary-prim) type) (eval-prim `(,f ,@args))
+	(comp-err "macro-eval-app: invalid function" f))))
+
 ;; раскрытие макроса
 (defun macro-eval (expr env)
   (if (atom expr)
       (if (symbolp expr) (subst expr env) expr)
-      (case (car expr)
-	('quote (cadr expr))
-	('backquote (macro-eval-backquote (cadr expr) env)))))
+      (let ((f (car expr))
+	    (args (cdr expr)))
+	(case f
+	  ('if (macro-eval-if args env))
+	  ('quote (car args))
+	  ('backquote (macro-eval-backquote (car args) env))
+	  (otherwise (macro-eval-app f (macro-eval-args args env) env))))))
 
 ;; раскрытие последовательности
 (defun macro-eval-progn (expr env)
@@ -59,6 +89,8 @@
   (labels ((make (args vals)
 	     (if (null args) nil
 		 (if (eq (car args) '&rest)
-		     (list (cons (cadr args) vals))
+		     (list (cons (second args) vals))
 		     (cons (cons (car args) (car vals)) (make (cdr args) (cdr vals)))))))
-    (macro-eval-progn body (make args vals))))
+    (let ((r (macro-eval-progn body (make args vals))))
+;      (print `(macro-expand ,r))
+      r)))
