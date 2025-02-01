@@ -2,16 +2,17 @@
 
 ;; Тест компиляции программы.
 (defun test-compile (expr expected-res)
-  (let ((program (compile expr)))
+  (print (block compiler
     (print "Expression")
     (print expr)
     (print "Compiler")
-    (print program)
-    (when (pairp program)
-      (print "Generator")
-      (dolist (ins (generate program))
-	(print ins))
-      (print (assert program expected-res)))))
+    (let ((program (compile expr)))
+      (print program)
+      (when (pairp program)
+	(print "Generator")
+	(dolist (ins (generate program))
+	  (print ins))
+	(return-from 'compiler (assert program expected-res)))))))
 
 (print "последовательность")
 (test-compile '(progn 1 2 3) '(seq (const 1) (seq (const 2) (const 3))))
@@ -114,6 +115,20 @@
 
 ;; (test-compile '(progn (setq a 1 b 2) `(a (,a) b (,b)))
 ;; 	      '(SEQ (...) (FIX-PRIM LIST ((CONST A) (FIX-PRIM LIST (GLOBAL-REF 2)) (CONST B) (FIX-PRIM LIST (GLOBAL-REF 3))))))
+
+(print "Тест macro if неверное число аргументов")
+(test-compile '(progn (defmacro test-a1 () (if 1)) (test-a1)) '())
+(test-compile '(progn (defmacro test-a2 () (if 1 2)) (test-a2)) '())
+(test-compile '(progn (defmacro test-a4 () (if 1 2 3 4)) (test-a4)) '())
+(print "Тест macro if true")
+(test-compile '(progn (defmacro test-if-t(&rest body) (if body `(car ',body) `(progn 1))) (test-if-t 2 3))
+	      '(SEQ (NOP) (FIX-PRIM CAR ((CONST (2 3))))))
+(print "Тест macro if false")
+(test-compile '(progn (defmacro test-if-f(&rest body) (if body `(car ',body) `(progn 1))) (test-if-f))
+	      '(SEQ (NOP) (CONST 1)))
+(print "Тест macro primitive")
+(test-compile '(progn (defmacro test-p() `(progn ,(+ 1 2))) (test-p))
+	      '(SEQ (NOP) (CONST 3)))
 
 (test-compile '(progn (setq a 1 b 2) `(a (,a) b (,b)))
 	      '(SEQ
