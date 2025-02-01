@@ -19,8 +19,8 @@
 (defvar *nary-primitives*
   '((+ . 0) (- . 1) (* . 0) (/ . 1) (& . 0) (bitor . 0) (concat . 0) (funcall . 1) (print . 0)))
 ;; Устанавливает флаг ошибки компиляции и сохраняет сообщение об ошибке.
-(defun comp-err (msg)
-  (return-from 'compiler msg))
+(defun comp-err (msg &rest other)
+  (return-from 'compiler (cons msg other)))
 
 ;; Расширить окружение новым кадром аргументов
 (defun extend-env (env args)
@@ -30,7 +30,7 @@
 (defmacro mk/add-func (name list &rest other)
   `(defun ,name (name env arity ,@other)
      (setq ,list (cons (list name env arity ,@other) ,list))))
-(mk/add-func add-func *fix-functions*) ;; фиксированное число аргументов
+(mk/add-func add-func *fix-functions* args body) ;; фиксированное число аргументов
 (mk/add-func add-nary-func *nary-functions*) ;; переменное число аргументов
 (mk/add-func add-local-func *local-functions* real-name) ;; локальные функции
 (mk/add-func add-fix-macro *fix-macros* args body) ;; макросы - фиксированное число аргументов
@@ -49,14 +49,14 @@
   (and (not (atom f))
        (>= (list-length f) 3)
        (equal (car f) 'lambda)
-       (or (null (cadr f))
-           (not (atom (cadr f))))
+       (or (null (second f))
+           (not (atom (second f))))
        (labels ((is-args-sym (args)
                   (if (null args) t
                       (if (symbolp (car args))
                           (is-args-sym (cdr args))
                           nil))))
-         (is-args-sym (cadr f)))))
+         (is-args-sym (second f)))))
 
 ;; Компиляция тела функции
 (defun compile-func-body (name args body env)
@@ -81,55 +81,59 @@
 (defun compile-lambda (name args body env)
     (if (is-nary args)
 	(add-nary-func name (list-length env) (num-fix-args args 0))
-	(add-func name (list-length env) (list-length args)))
+	(add-func name (list-length env) (list-length args) args body))
     (compile-func-body name args body env))
 
 ;; Определения типа функции: лямбда, примитив, nary примитив, глобальная функция, nary функция
 (defun find-func (f)
   (if (and (not (atom f)) (correct-lambda f))
-      (list 'lambda (list-length (cadr f)) (gensym)) ; lambda num-args name
+      (list 'lambda (list-length (second f)) (gensym)) ; lambda num-args name
       (let ((r nil))
 	(cond
 	  ((setq r (search-symbol *fix-macros* f))
-	   (list 'fix-macro (caddr r) (cadddr r) (caddddr r))) ; fix-macro num-args args body
+	   (list 'fix-macro (third r) (forth r) (fifth r))) ; fix-macro num-args args body
 	  ((setq r (search-symbol *nary-macros* f))
-	   (list 'nary-macro (caddr r) (cadddr r) (caddddr r))) ; nary-macro num-args args body
+	   (list 'nary-macro (third r) (forth r) (fifth r))) ; nary-macro num-args args body
 	  ((setq r (search-symbol *local-functions* f))
-	   (list 'local-func (caddr r) (cadr r) (cadddr r)))  ; local-func num-args env real-name
+	   (list 'local-func (third r) (second r) (forth r)))  ; local-func num-args env real-name
 	  ((setq r (search-symbol *fix-functions* f))
-	   (list 'fix-func (caddr r) (cadr r)))  ; fix-func num-args env
+	   (list 'fix-func (third r) (second r) (forth r) (fifth r)))  ; fix-func num-args env args body
 	  ((setq r (search-symbol *nary-functions* f))
-	   (list 'nary-func (caddr r) (cadr r)))  ; nary-func num-args env
+	   (list 'nary-func (third r) (second r)))  ; nary-func num-args env
 	  ((setq r (search-symbol *fix-primitives* f))
 	   (list 'fix-prim (cdr r))) ; fix-prim num-args
 	  ((setq r (search-symbol *nary-primitives* f))
 	   (list 'nary-prim (cdr r))) ; nary-prim num-args
-	  (t (comp-err (concat "unknown function " (symbol-name f))))))))
+	  (t (comp-err "unknown function " f))))))
+
+;; Проверка числа аргументов
+(defun check-arguments (type count args)
+    (when (contains '(lambda fix-func local-func fix-prim fix-macro) type)
+      (when (!= count (list-length args))
+	(comp-err "invalid args count")))
+    (when (contains '(nary-prim nary-func nary-macro) type)
+      (when (> count (list-length args))
+	(comp-err "invalid nary args count"))))
 
 ;; Применение функции
 ;; f - имя функции или lambda, args - аргументы, env - окружение
 (defun compile-application (f args env)
   (let* ((fun (find-func f))
 	 (type (car fun))
-	 (count (cadr fun))
+	 (count (second fun))
 	 (cur-env (list-length env)))
-    (when (contains '(lambda fix-func local-func fix-prim fix-macro) type)
-      (when (!= count (list-length args))
-	(comp-err (concat "invalid args count"))))
-    (when (contains '(nary-prim nary-func nary-macro) type)
-      (when (> count (list-length args))
-	(comp-err (concat "invalid nary args count"))))
+    (check-arguments type count args)
     (if (eq type 'fix-macro)
-	(inner-compile (macroexpand (caddr fun) args (cadddr fun)) env)
+	(inner-compile (macroexpand (third fun) args (forth fun)) env)
 	(if (eq type 'nary-macro)
-	    (let ((r (macroexpand (caddr fun) (make-nary-args count args) (cadddr fun))))
+	    (let ((r (macroexpand (third fun) (make-nary-args count args) (forth fun))))
 	      (inner-compile r env))
 	(let ((vals (map #'(lambda (a) (inner-compile a env)) args)))
 	  (case type
-	    ('lambda (list 'FIX-LET count vals (compile-progn (cddr f) (extend-env env (cadr f)))))
-	    ('local-func (list 'FIX-CALL (cadddr fun) (caddr fun) vals))
-	    ('fix-func (list 'FIX-CALL f (caddr fun) vals))
-	    ('nary-func (list 'NARY-CALL f count (caddr fun) vals))
+	    ('lambda (list 'FIX-LET count vals (compile-progn (cddr f) (extend-env env (second f)))))
+	    ('local-func (list 'FIX-CALL (forth fun) (third fun) vals))
+	    ('fix-func (list 'FIX-CALL f (third fun) vals))
+	    ('nary-func (list 'NARY-CALL f count (third fun) vals))
 	    ('fix-prim (list 'FIX-PRIM f vals))
 	    ('nary-prim (list 'NARY-PRIM f count vals))))))))
 
@@ -139,16 +143,16 @@
 	 (type (car fun))
 	 (name (gensym)))
     (case type
-      ('lambda (list 'FIX-CLOSURE name (compile-lambda name (cadr f) (cons 'progn (cddr f)) env)))
+      ('lambda (list 'FIX-CLOSURE name (compile-lambda name (second f) (cons 'progn (cddr f)) env)))
       ('fix-func (list 'FIX-CLOSURE f nil))
-      (otherwise (comp-err (concat "invalid function argument"))))))
+      (otherwise (comp-err "invalid function argument")))))
 
 ;; Компилирует объявление функции с помощью DEFUN.
 ;; expr - список, состоящий из названия, списка аргументов и тела функции.
 (defun compile-defun (expr env)
   ;; проверка на правильность expr
   (let ((name (car expr))
-	(args (cadr expr))
+	(args (second expr))
 	(body (cddr expr)))
     (compile-lambda name args (cons 'progn body) env)))
 
@@ -172,16 +176,16 @@
 		 (if (< (list-length body) 2)
 		     (comp-err "setq: no expression to set")
 		     (let* ((var (car body))
-			    (val (inner-compile (cadr body) env))
+			    (val (inner-compile (second body) env))
 			    (res (find-var var env)))
 		       (if (not (symbolp var))
-			   (comp-err (concat "setq: invalid variable: " (symbol-name setq-sym)))
+			   (comp-err "setq: invalid variable: " (symbol-name setq-sym))
 			   (if (null res)
 			       (list 'GLOBAL-SET (add-global var) val)
 			       (case (car res)
-				 ('global (list 'GLOBAL-SET (cadr res) val))
-				 ('local (list 'LOCAL-SET (cadr res) val))
-				 ('deep (list 'DEEP-SET (cadr res) (caddr res) val))
+				 ('global (list 'GLOBAL-SET (second res) val))
+				 ('local (list 'LOCAL-SET (second res) val))
+				 ('deep (list 'DEEP-SET (second res) (third res) val))
 				 (otherwise (error "Unreachable")))))))))
 	    (compile-all-setq body))))
 
@@ -191,8 +195,8 @@
   (if (!= (list-length expr) 3)
       (comp-err "if: invalid params")  
       (let ((cond (inner-compile (car expr) env))
-	    (true (inner-compile (cadr expr) env))
-	    (false (inner-compile (caddr expr) env)))
+	    (true (inner-compile (second expr) env))
+	    (false (inner-compile (third expr) env)))
       (list 'ALTER cond true false))))
 
 ;; Компилирует блок progn.
@@ -210,12 +214,12 @@
     (labels ((extend-func (funcs)
 	       (app
 		#'(lambda (f)
-		    (add-local-func (car f) (list-length env) (list-length (cadr f)) (gensym))) funcs))
+		    (add-local-func (car f) (list-length env) (list-length (second f)) (gensym))) funcs))
 	     (compile-funcs (funcs)
 	       (cons 'SEQ (map
 			   #'(lambda (f)
-			       (let ((name (cadddr (find-func (car f))))
-				     (args (cadr f))
+			       (let ((name (forth (find-func (car f))))
+				     (args (second f))
 				     (body (cddr f)))
 				 (compile-func-body name args (cons 'progn body) env)))
 			   funcs))))
@@ -255,11 +259,11 @@
 (defun compile-variable (v env)
   (let ((res (find-var v env)))
     (if (null res)
-	(comp-err (concat "Unknown symbol " (symbol-name v)))
+	(comp-err "Unknown symbol " (symbol-name v))
       (case (car res)
-	    ('local (list 'LOCAL-REF (cadr res)))
-	    ('global (list 'GLOBAL-REF (cadr res)))
-	    ('deep (list 'DEEP-REF (cadr res) (caddr res)))))))
+	    ('local (list 'LOCAL-REF (second res)))
+	    ('global (list 'GLOBAL-REF (second res)))
+	    ('deep (list 'DEEP-REF (second res) (third res)))))))
 
 ;; Компиляция константы
 (defun compile-constant (c)
@@ -274,7 +278,7 @@
   (if (atom expr)
       (compile-constant expr)
       (if (equal (car expr) 'COMMA)
-	  (inner-compile (cadr expr) env)
+	  (inner-compile (second expr) env)
 	(list 'FIX-PRIM 'CONS (list (compile-backquote (car expr) env) (compile-backquote (cdr expr) env))))))
 
 ;; Функция компиляции в промежуточную форму
@@ -288,15 +292,15 @@
       (let ((func (car expr))
 	    (args (cdr expr)))
 	(case func
-	  ('quote (compile-constant (cadr expr)))
+	  ('quote (compile-constant (second expr)))
 	  ('progn (compile-progn args env))
 	  ('if (compile-if args env))
 	  ('setq (compile-setq args env))
 	  ('defun (compile-defun args env))
 	  ('labels (compile-labels args env))
-	  ('function (compile-function (cadr expr) env))
+	  ('function (compile-function (second expr) env))
 	  ('defmacro (progn (make-macro args) (list 'NOP)))
-	  ('backquote (compile-backquote (cadr expr) env))
+	  ('backquote (compile-backquote (second expr) env))
 	  (otherwise (compile-application func args env))))))
 
 ;; Анализ S-выражения и преобразование в эквивалентное выражение
@@ -308,5 +312,4 @@
         *comp-err-msg* nil
         *fix-functions* nil
         *environment* nil)
-  (block compiler
-    (inner-compile expr nil)))
+    (inner-compile expr nil))
