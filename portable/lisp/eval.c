@@ -633,8 +633,10 @@ object_t eval(object_t obj, object_t env, object_t func)
 		error("Invalid lambda function");
 	    else
 		return eval_func(first, eval_args(TAIL(obj), env, func), env, func);
-        } else if (TYPE(first) != SYMBOL)
+        } else if (TYPE(first) != SYMBOL) {
+	    PRINT(first);
 	    error("not function");
+	}
         symbol_t *s = find_symbol(GET_SYMBOL(first)->str);
 #ifdef DEBUG
     	debug_stack = new_pair(obj, debug_stack);
@@ -866,7 +868,7 @@ object_t block(object_t list)
 object_t return_from(object_t args) 
 { 
     PROTECT1(args);
-    cur_label = eval(SECOND(args), current_env, func_env);
+    cur_label = SECOND(args);
     UNPROTECT;
     longjmp(block_buf, 1);
 } 
