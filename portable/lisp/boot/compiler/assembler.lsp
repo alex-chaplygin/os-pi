@@ -9,9 +9,15 @@
     push
     reg-call return
     fix-closure save-env set-env restore-env
-    prim1 prim2 prim3))
+    pack
+    prim nprim
+    halt))
 ;; *inst-jmp-table* - список номеров инструкций перехода.
-(defvar *inst-jmp-table* '(jmp jnt reg-call))
+(defvar *inst-jmp-table* '(jmp jnt fix-closure reg-call))
+;; *consts* - список констант.
+(defvar *consts*)
+;; *func-args-hash* - хэш-таблица, в которой ключ - адрес функции, а значение - её тип и число аргументов.
+(defvar *func-args-hash*)
 
 ;; Превращает список инструкций с метками в байт-код.
 (defun assemble (program)
@@ -21,6 +27,8 @@
 ;; (замена мнемоник инструкций соответствующими байтами
 ;; и сбор информации о метках и переходах).
 (defun assemble-first-pass (program)
+  (setq *consts* (list t nil)
+        *func-args-hash* (make-hash))
   (let ((bytecode nil)
         (pc 0)
         (jmp-labels nil)
@@ -30,10 +38,14 @@
                      pc (+ pc (list-length bytes)))))
       (app #'(lambda (inst)
                (case (car inst)
-                 ('label (set-hash jmp-addrs (cadr inst) (++ pc)))
+                 ('label (assemble-label inst))
+                 ('const (assemble-const inst))
                  ('prim (assemble-prim inst))
+                 ('nprim (assemble-prim inst))
                  (otherwise (setq jmp-labels (assemble-inst inst jmp-labels)))))
            program))
+    (setq bytecode (append bytecode (list (list-search *inst-table* 'HALT)))
+          pc (++ pc))
     (list bytecode pc jmp-labels jmp-addrs)))
 
 ;; Второй проход ассемблера
@@ -51,37 +63,52 @@
       (foldl #'(lambda (_ addr-label)
                  (seta bytecode-arr
                        (car addr-label)
-                       (- (get-hash jmp-addrs (cdr addr-label)) (car addr-label))))
+                       (- (get-hash jmp-addrs (cdr addr-label)) (-- (car addr-label)))))
              nil jmp-labels)
       bytecode-arr)))
 
+;; Ассемблирование метки.
+(defun assemble-label (inst)
+  (set-hash jmp-addrs (cadr inst) pc)
+  (let ((fun nil)
+        (type nil))
+    (cond
+      ((setq fun (search-symbol *fix-functions* (cadr inst)))
+       (setq type 'fix))
+      ((setq fun (search-symbol *nary-functions* (cadr inst)))
+       (setq res 'nary)))
+    (when type
+      (set-hash *func-args-hash* pc (cons type (caddr fun))))))
+
+;; Ассемблирование инструкции загрузки константы в ACC.
+(defun assemble-const (inst)
+  (let* ((c (cadr inst))
+         (i (list-search *consts* c)))
+    (when (null i)
+      (setq i (++ (list-length *consts*))
+            *consts* (append *consts* (list c)))
+      (decf i))
+    (asm-emit (list-search *inst-table* 'CONST) i)))
+
 ;; Ассемблирование инструкции вызова примитива.
 (defun assemble-prim (inst)
-  (let* ((prim (search-symbol *fix-primitives* (cadr inst)))
-         (prim-table (case (cdr prim)
-                       (1 *prim1-table*)
-                       (2 *prim2-table*)
-                       (3 *prim3-table*)
-                       (otherwise (error "Unreachable"))))
-         (prim-i nil))
-    (for i 0 (array-size prim-table)
-         (when (eq (aref prim-table i) (car prim))
-           (setq prim-i i
-                 i (array-size prim-table))))
+  (let* ((prim-type (car inst))
+         (lst (case prim-type
+                ('prim *fix-primitives*)
+                ('nprim *nary-primitives*)
+                (otherwise (error "Unreachable"))))
+         (prim (search-symbol lst (cadr inst)))
+         (prim-i (list-search lst prim)))
     (when (null prim-i)
-      (error "Unreachable"))
-    (asm-emit
-     (list-search *inst-table*
-                  (case (cdr  prim)
-                    (1 'prim1)
-                    (2 'prim2)
-                    (3 'prim3)
-                    (otherwise (error "Unreachable"))))
-     prim-i)))
+      (error (concat "Unknown " (symbol-name prim-type)
+                     ": " (symbol-name prim))))
+    (asm-emit (list-search *inst-table* prim-type) prim-i)))
 
 ;; Ассемблирование инструкции общего вида.
 (defun assemble-inst (inst jmp-labels)
   (let ((opcode (list-search *inst-table* (car inst))))
+    (when (null opcode)
+      (error (concat "Unknown inst: " (symbol-name (car inst)))))
     (when (contains *inst-jmp-table* (car inst))
       (setq jmp-labels
             (append jmp-labels

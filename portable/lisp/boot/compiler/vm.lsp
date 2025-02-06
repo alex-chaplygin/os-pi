@@ -1,7 +1,5 @@
 ;; *cur-bytecode* - хранит текущий исполняемый байт-код.
 (defvar *cur-bytecode* nil)
-;; *cur-inst* - хранит текущую инструкцию для выполнения макросом inner-vm-exec-inst.
-(defvar *cur-inst* nil)
 ;; *prim1-table* - таблица примитивов, принимающих 1 аргумент.
 (defvar *prim1-table*
   #(car cdr
@@ -19,15 +17,27 @@
 (defvar *prim3-table*
   #(subseq
     seta))
+;; Таблица примитивов с фиксированным числом аргументов
+(defvar *fix-prim-table* (make-array (list-length *fix-primitives*)))
+(foldl #'(lambda (i prim)
+           (seta *fix-prim-table* i prim)
+           (++ i))
+       0 *fix-primitives*)
+;; Таблица примитивов с переменным числом аргументов
+(defvar *nary-prim-table* (make-array (list-length *nary-primitives*)))
+(foldl #'(lambda (i prim)
+           (seta *nary-prim-table* i prim)
+           (++ i))
+       0 *nary-primitives*)
 ;; *cur-prim-func* - функция для выполнения примитива.
 (defvar *cur-prim-func* nil)
 
 ;; Регистры:
 
 ;; *acc* - хранит результат последней операции.
-(defvar *acc* nil)
+(defvar *acc*)
 ;; *globals-mem* - хранит значения глобальных переменных.
-(defvar *globals-mem* nil)
+(defvar *globals-mem*)
 ;; *pc* - хранит адрес текущей выполняемой инструкции.
 (defvar *pc* 0)
 ;; *stack-max* - размер стека.
@@ -40,12 +50,14 @@
 (defvar *env*)
 ;; *env-num* - номер глубины кадра окружения.
 (defvar *env-num*)
+;; *const-mem* - хранит значения констант.
+(defvar *const-mem*)
 
 ;; Инструкции:
 
-;; CONST expr - поместить S-выражение expr в регистр ACC.
-(defun const (expr)
-  (setq *acc* expr
+;; CONST i - поместить i-ое константное выражение из CONST-MEM в регистр ACC.
+(defun const (i)
+  (setq *acc* (aref *const-mem* i)
         *pc* (+ *pc* 2)))
 
 ;; JMP - безусловный относительный переход на адрес addr.
@@ -74,7 +86,8 @@
 
 ;; GLOBAL-REF - загружает в ACC значение глобальной переменной с индексом i.
 (defun global-ref (i)
-  (const (aref *globals-mem* i)))
+  (setq *acc* (aref *globals-mem* i)
+        *pc* (+ *pc* 2)))
 
 ;; GLOBAL-SET - присваивает глобальной переменной с индексом i значение регистра ACC.
 (defun global-set (i)
@@ -83,7 +96,8 @@
 
 ;; LOCAL-REF - загружает в ACC значение i локальной переменной.
 (defun local-ref (i)
-  (const (aref (cdr *env*) i)))
+  (setq *acc* (aref (cdr *env*) i)
+        *pc* (+ *pc* 2)))
 
 ;; LOCAL-SET i - присваивает локальной переменной i значение регистра ACC.
 (defun local-set (i)
@@ -145,6 +159,11 @@
 (defun return ()
   (setq *pc* (stack-pop)))
 
+;; FIX-CLOSURE - в регистр ACC добавляется объект замыкание с текущим кадром активации и смещением на код функции относительно текущего адреса addr.
+(defun fix-closure (addr)
+  (setq *acc* (cons (+ *pc* addr) *env-num*)
+        *pc* (+ *pc* 2)))
+
 ;; SAVE-ENV - сохраняет текуший кадр активации в стек.
 (defun save-env ()
   (stack-push (cons *env* *env-num*))
@@ -173,37 +192,69 @@
             *env-num* env-num)
       (incf *pc*))))
 
-;; PRIM1 - вызывает примитив от 1 аргумента по индексу i в таблице примитивов *prim1-table*.
-(defun prim1 (i)
-  (setq *cur-prim-func*
-        (list (aref *prim1-table* i)
-              (stack-peek 0)))
-  (const (vm-exec-prim))
-  (stack-drop 1))
+;; PACK n - упаковка n верхних элементов в стеке в список.
+(defun pack (n)
+  (let ((lst ()))
+    (for i 0 n
+         (setq lst (cons (stack-pop) lst)))
+    (stack-push lst)
+    (setq *pc* (+ *pc* 2))))
 
-;; PRIM2 - вызывает примитив от 2 аргументов по индексу i в таблице примитивов *prim2-table*.
-(defun prim2 (i)
-  (setq *cur-prim-func*
-        (list (aref *prim2-table* i)
-	      ;; (stack-peek 1)
-              ;; (stack-peek 0)
-              ;; (list 'quote (stack-peek 1))
-              ;; (list 'quote (stack-peek 0))
-	      (if (null (stack-peek 1)) nil (list 'quote (stack-peek 1)))
-	      (if (null (stack-peek 0)) nil (list 'quote (stack-peek 0)))
-	      ))
-  (const (vm-exec-prim))
-  (stack-drop 2))
+;; Вызывает примитив из таблицы примитивов *fix-prim-table* с индексом i.
+(defun prim (i)
+  (let* ((cur-prim (aref *fix-prim-table* i))
+         (args (cdr cur-prim)))
+    (setq *cur-prim-func* (list (car cur-prim)))
+    (while (!= args 0)
+      (setq *cur-prim-func* (append *cur-prim-func* (list (list 'QUOTE (stack-peek (decf args)))))))
+    (stack-drop (cdr cur-prim))
+    (setq *acc* (vm-exec-prim)
+          *pc* (+ *pc* 2))))
 
-;; PRIM3 - вызывает примитив от 3 аргументов по индексу i в таблице примитивов *prim3-table*.
-(defun prim3 (i)
-  (setq *cur-prim-func*
-        (list (aref *prim3-table* i)
-              (stack-peek 2)
-              (stack-peek 1)
-              (stack-peek 0)))
-  (const (vm-exec-prim))
-  (stack-drop 3))
+;; Особый случай примтива - вызов funcall.
+(defun nprim-funcall ()
+  (let* ((args (stack-pop))
+         (closure (stack-pop))
+         (addr (car closure))
+         (env-num (cdr closure)))
+    (when (not (and (pairp closure)
+                    (integerp (car closure))
+                    (integerp (cdr closure))))
+      (error "funcall: invalid closure"))
+    (let* ((fun (get-hash *func-args-hash* addr))
+           (type (car fun))
+           (count (cdr fun)))
+      (when (or (and (equal type 'fix) (!= (list-length args) count))
+                (and (equal type 'nary) (< (list-length args) count)))
+        (error "funcall: invalid number of args")))
+    (app #'(lambda (arg) (stack-push arg)) args)
+    (save-env)
+    (set-env env-num)
+    (alloc (list-length args))
+    (setq *pc* (- *pc* 7))
+    (let ((ret-addr (+ *pc* 2)))
+      (reg-call (- addr *pc*))
+      (while (!= *pc* ret-addr)
+        (vm-exec-inst)))
+    (restore-env)
+    (incf *pc*)))
+
+;; Вызывает примитив из таблицы примитивов *nary-prim-table* с индексом i.
+(defun nprim (i)
+  (if (equal (car (aref *nary-prim-table* i)) 'funcall)
+      (nprim-funcall)
+      (let ((cur-prim (aref *nary-prim-table* i))
+            (rest (map #'(lambda (arg) (list 'QUOTE arg)) (stack-pop)))
+            (args ())
+            (n 0))
+        (setq n (cdr cur-prim))
+        (while (!= n 0)
+          (setq args (append args (list (list 'QUOTE (stack-peek (decf n)))))))
+        (setq args (append args rest)
+              *cur-prim-func* (cons (car cur-prim) args))
+        (stack-drop (cdr cur-prim))
+        (setq *acc* (vm-exec-prim)
+              *pc* (+ *pc* 2)))))
 
 ;; Выполняет функцию примитива *cur-prim-func*
 (defmacro vm-exec-prim ()
@@ -218,8 +269,9 @@
     (deep-ref . 2) (deep-set . 2)
     (push . 0)
     (reg-call . 1) (return . 0)
-    (fix-closure . 0) (save-env . 0) (set-env . 1) (restore-env . 0)
-    (prim1 . 1) (prim2 . 1) (prim3 . 1)))
+    (fix-closure . 1) (save-env . 0) (set-env . 1) (restore-env . 0)
+    (pack . 1) (prim . 1) (nprim . 1)
+    (halt . 0)))
 
 (defun print-stack ()
   (labels ((collect-stack (i)
@@ -228,55 +280,62 @@
                  (append (list (aref *stack* i)) (collect-stack (++ i))))))
     (print (list 'stack '= (collect-stack 0)))))
 
+;; Выполняет текущую инструкцию.
+(defun vm-exec-inst ()
+  (let ((op1 (if (< (++ *pc*) (array-size *cur-bytecode*))
+                 (aref *cur-bytecode* (++ *pc*)) nil))
+        (op2 (if (< (+ *pc* 2) (array-size *cur-bytecode*))
+                 (aref *cur-bytecode* (+ *pc* 2)) nil)))
+    (case (aref *cur-bytecode* *pc*)
+      (0  (funcall #'const op1))
+      (1  (funcall #'jmp op1))
+      (2  (funcall #'jnt op1))
+      (3  (funcall #'alloc op1))
+      (4  (funcall #'global-ref op1))
+      (5  (funcall #'global-set op1))
+      (6  (funcall #'local-ref op1))
+      (7  (funcall #'local-set op1))
+      (8  (funcall #'deep-ref op1 op2))
+      (9  (funcall #'deep-set op1 op2))
+      (10 (funcall #'push))
+      (11 (funcall #'reg-call op1))
+      (12 (funcall #'return))
+      (13 (funcall #'fix-closure op1))
+      (14 (funcall #'save-env))
+      (15 (funcall #'set-env op1))
+      (16 (funcall #'restore-env))
+      (17 (funcall #'pack op1))
+      (18 (funcall #'prim op1))
+      (19 (funcall #'nprim op1))
+      (20 t)
+      (otherwise (error "Unknown instruction opcode")))))
+
 ;; Выполняет байт-код на виртуальной машине.
 (defun vm-run (bytecode)
-  (setq *acc* nil
+  (setq *cur-bytecode* bytecode
+        *acc* nil
         *pc* 0
         *stack-head* 0
         *env* nil
-        *env-num* 0)
-  (setq *globals-mem*
-        (make-array *global-variables-count*))
-  (seta *globals-mem* 0 t)
-  (seta *globals-mem* 1 nil)
-  (let ((bytecode-len (array-size bytecode)))
-    (while (< *pc* bytecode-len)
-      (let ((op1 (if (< (++ *pc*) bytecode-len)
-                     (aref bytecode (++ *pc*)) nil))
-            (op2 (if (< (+ *pc* 2) bytecode-len)
-                     (aref bytecode (+ *pc* 2)) nil)))
-        (let* ((cur-inst-pair (nth *insts* (aref bytecode *pc*)))
-               (cur-inst (car cur-inst-pair))
-               (cur-inst-args-len (cdr cur-inst-pair)))
-          (print (case cur-inst-args-len
-                   (0 (list '--> *pc* cur-inst))
-                   (1 (list '--> *pc* cur-inst (aref bytecode (++ *pc*))))
-                   (2 (list '--> *pc* cur-inst (aref bytecode (++ *pc*)) (aref bytecode (+ *pc* 2)))))))
-        (case (aref bytecode *pc*)
-          (0  (funcall #'const op1))
-          (1  (funcall #'jmp op1))
-          (2  (funcall #'jnt op1))
-          (3  (funcall #'alloc op1))
-          (4  (funcall #'global-ref op1))
-          (5  (funcall #'global-set op1))
-          (6  (funcall #'local-ref op1))
-          (7  (funcall #'local-set op1))
-          (8  (funcall #'deep-ref op1 op2))
-          (9  (funcall #'deep-set op1 op2))
-          (10 (funcall #'push))
-          (11 (funcall #'reg-call op1))
-          (12 (funcall #'return))
-          (13 nil) ;; fix-closure
-          (14 (funcall #'save-env))
-          (15 (funcall #'set-env op1))
-          (16 (funcall #'restore-env))
-          (17 (funcall #'prim1 op1))
-          (18 (funcall #'prim2 op1))
-          (19 (funcall #'prim3 op1))
-          (otherwise (error "Unknown instruction opcode")))
-        (print-stack)
-        (print (list 'env '= *env*))
-        (print (list 'acc '= *acc*))
-        (print '-----)
-        )))
+        *env-num* 0
+        *globals-mem* (make-array *global-variables-count*)
+        *const-mem* (make-array (list-length *consts*)))
+  (for i 0 (array-size *const-mem*)
+       (seta *const-mem* i (nth *consts* i)))
+  (seta *globals-mem* 0 0)
+  (seta *globals-mem* 1 1)
+  (let ((halt (list-search *insts* (cons 'HALT 0))))
+    (while (!= (aref *cur-bytecode* *pc*) halt)
+      (let* ((cur-inst-pair (nth *insts* (aref *cur-bytecode* *pc*)))
+             (cur-inst (car cur-inst-pair))
+             (cur-inst-args-len (cdr cur-inst-pair)))
+        (print (case cur-inst-args-len
+                 (0 (list '--> *pc* cur-inst))
+                 (1 (list '--> *pc* cur-inst (aref *cur-bytecode* (++ *pc*))))
+                 (2 (list '--> *pc* cur-inst (aref *cur-bytecode* (++ *pc*)) (aref *cur-bytecode* (+ *pc* 2)))))))
+      (vm-exec-inst)
+      (print-stack)
+      (print (list 'env '= *env*))
+      (print (list 'acc '= *acc*))
+      (print '-----)))
   *acc*)
