@@ -1,7 +1,8 @@
 (defvar f)
 
 (defun fopen-test()
-  (setq f (fopen "BOOT/ATA.LSP")))
+  (setq f (fopen "BOOT/ATA.LSP"))
+  (fclose f))
 
 (defun upd-dir-en-test()
   "Обновление даты создания в файле"
@@ -74,3 +75,6 @@
 (defun fat-fc-test ()
   "Тест удаления цепочки FAT"
   (get-fat-chain 11))
+
+(print *root-directory*)
+(print (listdir "/"))
