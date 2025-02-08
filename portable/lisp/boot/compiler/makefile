@@ -15,9 +15,9 @@ test: $(COMPILER) ../test.lsp vm.lsp test.lsp
 .PHONY: target
 target: $(SOURCE)
 	echo "" >$(TARGET)
-	echo "(print (block compiler (generate (compile '(progn" >>$(TARGET)
+	echo "(dolist (x (block compiler (generate (compile '(progn" >>$(TARGET)
 	cat $(SOURCE) >>$(TARGET)
-	echo ")))))" >>$(TARGET)
+	echo "))))) (print x))" >>$(TARGET)
 
 compile-file: $(COMPILER) $(TARGET)
 	make -C ../../test /tmp/lisp
