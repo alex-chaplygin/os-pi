@@ -109,6 +109,11 @@
   (dolist (a '(1 2 3 4 5))
     (print a)))
 
+(defun zip-with-test ()
+  "Тест zip-with"
+  (print (assert (zip-with #'+ '(1 2) '(3 4)) '(4 6)))
+  (zip-with #'+ '(1) ()))
+
 (minp-tests)
 (filter-tests)
 (sort-tests)
@@ -124,3 +129,4 @@
 (last-tests)
 (contains-tests)
 (do-list-test)
+(zip-with-test)

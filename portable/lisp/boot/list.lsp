@@ -157,3 +157,13 @@
 	 (seta arr i (car list))
 	 (setq list (cdr list)))
     arr))
+
+(defun zip-with (f list1 list2)
+  "Соединить два списка list1 и list2 с помощью функции от 2-х аргументов f"
+  "Списки должны иметь одинаковую длину"
+  (when (!= (list-length list1) (list-length list2))
+    (error "zip-with: lists have different length"))
+  (labels ((z (l1 l2)
+	     (if (null l1) nil
+		 (cons (funcall f (car l1) (car l2)) (z (cdr l1) (cdr l2))))))
+    (z list1 list2)))
