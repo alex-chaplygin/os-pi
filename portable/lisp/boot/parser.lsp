@@ -1,3 +1,11 @@
+(defun parse-suc (val)
+  "Элементарный парсер - успешный разбор со значением val"
+  #'(lambda (list) (list (cons val list))))
+
+(defun parse-fail ()
+  "Элементарный парсер - неудачный разбор"
+  #'(lambda (list) nil))
+
 (defun parse-pred (pred)
   "Парсер по предикату, предикат - функция, которая на вход получает символ, на выходе - nil или t.
    Сама функция парсинга возвращает в результате парсинга в случае успешного разбора сам символ, в случае неудачного - nil."
@@ -9,18 +17,14 @@
   "Элементарный парсер, ожидающий заданный элемент в списке"
   (parse-pred #'(lambda (x) (= x sym))))
 
-(defun &&& (transform &rest parsers)
-  "Последовательный комбинатор применяет несколько парсеров подряд к списку, каждый следующий parser применяется к остатку от работы предыдущего parser.
-Если все парсеры успешно отработали, то результат как список передается в указанную функцию transform"
+(defun &&& (&rest parsers)
+  "Последовательный комбинатор применяет несколько парсеров подряд к списку, каждый следующий parser применяется к остатку от работы предыдущего parser."
   #'(lambda (list)
       (labels ((apply-parser (parsers list res)
-		 (if (null parsers)
-		     (if (null res) nil
-			 (list (cons (funcall transform res) list)))
+		 (if (null parsers) (list (cons res list))
 		     (let ((parser-res (funcall (car parsers) list)))
 		       (if (null parser-res) nil
-			   (apply-parser (cdr parsers)
-                                         (when (cdar parser-res) (cdar parser-res))
+			   (apply-parser (cdr parsers) (cdar parser-res)
                                          (append res (list (caar parser-res)))))))))
 	(apply-parser parsers list nil))))
 
@@ -55,4 +59,4 @@
   "Пропуск 0 или более пробелов"
   #'(lambda (str)
       (let ((res (funcall (parse-many (parse-elem #\ )) str)))
- (cons #\ (cdar res))))))
+ (cons #\ (cdar res)))))
