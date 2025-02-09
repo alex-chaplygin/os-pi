@@ -34,6 +34,12 @@
   (print (assert (funcall (parse-many (parse-or (parse-elem 'A) (parse-elem 'B))) '(A A b A B C A)) '(((a a b a b) . (c a)))))
   (print (assert (funcall (parse-many (parse-elem 'B)) '(A C B)) '((() . (a c b))))))
 
+(defun test-parse-some ()
+  (print "parse-some")
+  (print (assert (funcall (parse-some (parse-elem 'A)) '(A A A A B C A)) '(((a a a a) . (b c a)))))
+  (print (assert (funcall (parse-some (parse-or (parse-elem 'A) (parse-elem 'B))) '(A A b A B C A)) '(((a a b a b) . (c a)))))
+  (print (assert (funcall (parse-some (parse-elem 'B)) '(A C B)) nil)))
+
 (defun test-parse-pred ()
   (print "parse-pred")
   (print (assert (funcall (parse-pred #'is-digit) '(#\1 B C)) '((#\1 . (b c)))))
@@ -44,4 +50,5 @@
 (test-parse-parse-or)
 (test-parse-app)
 (test-parse-many)
+(test-parse-some)
 (test-parse-pred)

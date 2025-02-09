@@ -55,8 +55,11 @@
 			  (apply (cdar parser-res) (append res (list (caar parser-res)))))))))
        (apply list nil))))
 
+(defun parse-some (parser)
+  "Комбинатор - 1 или более повторений заданного парсера. Возвращает список результатов"
+  (parse-app (&&& parser (parse-many parser))
+	     #'(lambda (x) (cons (car x) (second x)))))
+
 (defun skip-spaces ()
   "Пропуск 0 или более пробелов"
-  #'(lambda (str)
-      (let ((res (funcall (parse-many (parse-elem #\ )) str)))
- (cons #\ (cdar res)))))
+  (parse-many (parse-elem #\ )))
