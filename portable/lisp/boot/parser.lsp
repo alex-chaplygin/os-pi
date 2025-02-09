@@ -1,10 +1,13 @@
+(defun parse-pred (pred)
+  "Парсер по предикату, предикат - функция, которая на вход получает символ, на выходе - nil или t.
+   Сама функция парсинга возвращает в результате парсинга в случае успешного разбора сам символ, в случае неудачного - nil."
+  #'(lambda (list)
+      (if (null list) nil
+	  (if (funcall pred (car list)) (list list) nil))))
+
 (defun parse-elem (sym)
   "Элементарный парсер, ожидающий заданный элемент в списке"
-  #'(lambda (list)
-      (if (null list) nil        
-	  (if (= sym (car list))
-	      (list (cons sym (cdr list)))
-	      nil))))
+  (parse-pred #'(lambda (x) (= x sym))))
 
 (defun &&& (transform &rest parsers)
   "Последовательный комбинатор применяет несколько парсеров подряд к списку, каждый следующий parser применяется к остатку от работы предыдущего parser.
@@ -31,6 +34,11 @@
 		       (apply-parser (cdr parsers) list (append res parser-res))))))
       (apply-parser parsers list nil))))
 		     
+(defun parse-app (parser f)
+  "Комбинатор применения функции ко всем результатам разбора"
+  #'(lambda (list)
+      (let ((res (funcall parser list)))
+	(map #'(lambda (r) (cons (funcall f (car r)) (cdr r))) res))))
 
 (defun parse-many (parser)
   "Комбинатор - 0 или более повторений заданного парсера. Возвращает список результатов"
@@ -43,17 +51,8 @@
 			  (apply (cdar parser-res) (append res (list (caar parser-res)))))))))
        (apply list nil))))
 
-(defun parse-pred (pred)
-  "Парсер по предикату, предикат - функция, которая на вход получает символ, на выходе - nil или t.
-   Сама функция парсинга возвращает в результате парсинга в случае успешного разбора сам символ, в случае неудачного - nil."
-  #'(lambda (list)
-      (if (null list) nil
-	  (if (funcall pred (car list))
-	      (list list)
-	      nil))))
-
 (defun skip-spaces ()
   "Пропуск 0 или более пробелов"
   #'(lambda (str)
       (let ((res (funcall (parse-many (parse-elem #\ )) str)))
-	(list (cons #\ (cdar res))))))
+ (cons #\ (cdar res))))))
