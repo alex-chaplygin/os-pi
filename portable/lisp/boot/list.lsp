@@ -167,3 +167,11 @@
 	     (if (null l1) nil
 		 (cons (funcall f (car l1) (car l2)) (z (cdr l1) (cdr l2))))))
     (z list1 list2)))
+
+(defun concatl (l)
+  "Соединить все списки внутри списка"
+  "((1 2) (3 4) (5 6)) -> (1 2 3 4 5 6)"
+  (if (null l) nil
+      (let ((e (car l)))
+	(if (pairp e) (append e (concatl (cdr l)))
+	    (error "concatl: not list in list")))))

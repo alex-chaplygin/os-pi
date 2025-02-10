@@ -114,6 +114,11 @@
   (print (assert (zip-with #'+ '(1 2) '(3 4)) '(4 6)))
   (zip-with #'+ '(1) ()))
 
+(defun concatl-test ()
+  "Тест concatl"
+  (print (assert (concatl '((1 2) (3 4) (5 6))) '(1 2 3 4 5 6)))
+  (concatl '(1 2)))
+
 (minp-tests)
 (filter-tests)
 (sort-tests)
@@ -130,3 +135,4 @@
 (contains-tests)
 (do-list-test)
 (zip-with-test)
+(concatl-test)

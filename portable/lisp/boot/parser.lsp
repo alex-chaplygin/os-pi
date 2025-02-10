@@ -19,14 +19,36 @@
 
 (defun &&& (&rest parsers)
   "Последовательный комбинатор применяет несколько парсеров подряд к списку, каждый следующий parser применяется к остатку от работы предыдущего parser."
+  ;; (&&& (parse-or (parse-suc 'A) (parse-suc 'B))
+  ;;      (parse-or (parse-suc 'C) (parse-suc 'D))
+  ;; 	  (parse-elem 'C)) '(C D)
+  ;; 1. (parse-or (parse-suc 'A) (parse-suc 'B)) '(C D)
+  ;;       ((A . (C D)) (B . (C D)))
+  ;; 2. (parse-or (parse-suc 'C) (parse-suc 'D)) '((A . (C D)) (B . (C D)))
+  ;;     ((C . (C D)) (D . (C D)))
+  ;;     ((((A C) . (C D)) ((A D) . (C D))) (((B C) . (C D)) ((B D) . (C D))))
+  ;;    concatl
+  ;; (((A C) . (C D)) ((A D) . (C D)) ((B C) . (C D)) ((B D) . (C D)))
   #'(lambda (list)
-      (labels ((apply-parser (parsers list res)
-		 (if (null parsers) (list (cons res list))
-		     (let ((parser-res (funcall (car parsers) list)))
-		       (if (null parser-res) nil
-			   (apply-parser (cdr parsers) (cdar parser-res)
-                                         (append res (list (caar parser-res)))))))))
-	(apply-parser parsers list nil))))
+      (labels (; генерация результатов парсера p от списка - первый список
+	       (gen-parser (p list) 
+		 (if (null list) nil (funcall p list)))
+	       (merge-result (r1 res2) ; соединить результат r1 в список r2
+		 (print `(merge ,r1 ,res2))
+		 (map #'(lambda (r2)
+			  (cons (append (if (pairp r1) r1 (list r1)) (list (car r2)))
+				(cdr r2)))
+		      res2))
+	       (app-parsers (parsers res) ; применить список парсеров после результата
+		 (print `(app ,res))
+		 (if (null res) nil
+		     (if (null parsers) res
+			 (app-parsers (cdr parsers)
+				      (concatl (map #'(lambda (r)
+							(merge-result (car r)
+								      (funcall (car parsers) (cdr r))))
+						    res)))))))
+	(app-parsers (cdr parsers) (gen-parser (car parsers) list)))))
 
 (defun parse-or (&rest parsers)
   "Параллельный комбинатор принимает список парсеров parsers, объединяя результаты разбора всех парсеров."
@@ -46,19 +68,28 @@
 
 (defun parse-many (parser)
   "Комбинатор - 0 или более повторений заданного парсера. Возвращает список результатов"
+  ;; (parse-many (parse-elem 'A)) '(A A B) -> ((NIL A A B) ((A) A B) ((A A) B))
+  ;; parser (A A B) NIL -> ((A) A B)
+  ;; parser (A B) (A) -> ((A A) B)
+  ;; parser (B) (A A) -> (A A)
+  (parse-or (parse-suc nil)
   #'(lambda (list)
       (labels ((apply (list res)
-		(if (null list) (list (list res))
-		    (let ((parser-res (funcall parser list)))
-		      (if (null parser-res)
-			  (list (cons res list))
-			  (apply (cdar parser-res) (append res (list (caar parser-res)))))))))
-       (apply list nil))))
+		 (if (null list) (list (list res))
+		     (let ((parser-res (funcall parser list)))
+		       (if (null parser-res)
+			   (list (cons res list))
+			   (apply (cdar parser-res) (append res (list (caar parser-res)))))))))
+	(apply list nil))))
 
 (defun parse-some (parser)
   "Комбинатор - 1 или более повторений заданного парсера. Возвращает список результатов"
   (parse-app (&&& parser (parse-many parser))
 	     #'(lambda (x) (cons (car x) (second x)))))
+
+(defun parser-value (parser str)
+  "Вернуть значение результата разбора строки str парсером parser"
+  (caar (funcall parser (explode str))))
 
 (defun skip-spaces ()
   "Пропуск 0 или более пробелов"

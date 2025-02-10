@@ -1,28 +1,17 @@
-(defun parse-tarray ()
-  "Разбор массива"
-  (&&& #'(lambda (l) (list-to-array (second l)))
-       (parse-char #\#)
-       (parse-list)))
-
 (defun parse-char (char)
   "Разбор символа char с учетом пробелов"
-  (&&& #'second (skip-spaces) (parse-elem char)))
+  (parse-app (&&& (skip-spaces) (parse-elem char)) #'second))
 
 (defun parse-decimal ()
   "Разбор десятичного числа"
-  (&&& #'(lambda (l) (strtoint (implode (cons (second l) (third l))) 10))
-       (skip-spaces)
-       (parse-pred #'is-digit)
-       (parse-many (parse-pred #'is-digit))))
+  (parse-app (&&& (skip-spaces) (parse-some (parse-pred #'is-digit)))
+	     #'(lambda (l) (strtoint (implode (second l)) 10))))
 
 (defun parse-hex ()
   "Разбор шестнадцатеричного числа"
-  (&&& #'(lambda (l) (strtoint (implode (cons (forth l) (fifth l))) 16))
-       (skip-spaces)
-       (parse-char #\0)
-       (parse-char #\x)
-       (parse-pred #'is-hex-sym)
-       (parse-many (parse-pred #'is-hex-sym))))
+  (parse-app (&&& (skip-spaces) (parse-char #\0) (parse-elem #\x)
+		  (parse-some (parse-pred #'is-hex-sym)))
+   #'(lambda (l) (strtoint (implode (forth l)) 16))))
 
 (defun parse-tnumber ()
   "Разбор десятичного или шестнадцатеричного числа"
@@ -34,71 +23,61 @@
 
 (defun parse-tsymbol ()
   "Разбор символа"
-  (&&& #'(lambda (l) (intern (implode (map #'(lambda (char) (toupper char)) (cons (second l) (third l))))))
-       (skip-spaces)
-       (parse-or (parse-pred #'is-alpha)
-                 (parse-pred #'is-lisp-symbol))
-       (parse-many (parse-or (parse-pred #'is-alpha)
-			     (parse-pred #'is-digit)
-			     (parse-pred #'is-lisp-symbol)))))
+  (parse-app (&&& (skip-spaces) (parse-or (parse-pred #'is-alpha)
+					  (parse-pred #'is-lisp-symbol))
+		  (parse-many (parse-or (parse-pred #'is-alpha)
+					(parse-pred #'is-digit)
+					(parse-pred #'is-lisp-symbol))))
+	     #'(lambda (l) (intern (implode (map #'(lambda (char) (toupper char)) (cons (second l) (third l))))))))
 
 (defun parse-tchar ()
   "Разбор lisp-символа #\\"
-  (&&& #'(lambda (l) (forth l))
-       (skip-spaces)
-       (parse-char #\#)
-       (parse-char #\\)
-       (parse-pred #'(lambda (sym) t))))
+  (parse-app (&&& (parse-char #\#) (parse-elem #\\) #'(lambda (l) (list l)))
+	     #'third))
 
 (defun parse-tfunction ()
   "Разбор символа функции '#"
-  (&&& #'(lambda (l) (list 'FUNCTION (forth l)))
-       (skip-spaces)
-       (parse-char #\#)
-       (parse-char #\')
-       (parse-s)))
+  (parse-app (&&& (parse-char #\#) (parse-elem #\') (parse-s))
+	     #'(lambda (l) (list 'FUNCTION (third l)))))
 
-(defun parse-escape (char value)
+(defun parse-escape (char val)
   "Разбор экранирования"
-  (&&& #'(lambda (l) (list value))
-       (parse-char #\\)
-       (parse-char char)))
+  (parse-app (&&& (parse-char #\\) (parse-elem char)) #'(lambda (l) (list val))))
 
 (defun parse-tstring ()
   "Разбор строки"
-  (&&& #'(lambda (l) (implode (third l)))
-       (skip-spaces)
-       (parse-char #\")
-       (parse-many (parse-or (parse-escape #\n (code-char 0xa))
-                             (parse-pred #'(lambda (sym) (!= sym #\")))))
-       (parse-char #\")))
+  (parse-app
+   (&&& (parse-char #\")
+	(parse-many (parse-or (parse-escape #\n (code-char 0xa))
+			      (parse-pred #'(lambda (sym) (!= sym #\")))))
+	(parse-elem #\"))
+   (o #'implode #'second)))
+
+(defun parse-tarray ()
+  "Разбор массива"
+  (parse-app (&&& (parse-char #\#) (parse-list)) (o #'list-to-array #'second)))
 
 (defun parse-atom ()
-  "Разбор атома, начинается с буквы, содержит хотя бы одну букву."
-  #'(lambda (str)
-      (let ((res (funcall (parse-or (parse-tnumber)
-				    (parse-tsymbol)
-				    (parse-tarray)
-				    (parse-tchar)
-				    (parse-tfunction)
-				    (parse-tstring)) str)))
-        (if res (list (car res))
-	    nil))))
+  "Разбор атомарного объекта."
+  #'(lambda (l)
+      (let ((r (funcall (parse-or (parse-tnumber) (parse-tsymbol)
+  	    ;;(parse-tarray)
+  	    (parse-tchar)
+  	    ;;(parse-tfunction)
+  	    (parse-tstring)) l)))
+	(print `(parse-atom ,r)))))
 
 (defun parse-list ()
   "Разбор списка s-выражений"
-  #'(lambda (str)
-      (let ((res (funcall (&&& #'second
-			       (parse-char #\()
-			       (parse-many (parse-s))
-			       (parse-char #\)))
-			  str)))
-	res)))
-
+  (parse-app (&&& (parse-char #\() (parse-many (parse-s)) (parse-char #\)))
+	     #'second))
+  
 (defun parse-s ()
   "Разбор s-выражения"
-  (parse-or (parse-atom) (parse-list)))
+  #'(lambda (l)
+      (let ((r (funcall (parse-atom) l)))
+	(if r r (funcall (parse-list) l)))))
 
 (defun parse-lisp (str)
   "Распознать строку с программой Лисп"
-  (caar (funcall (parse-s) (explode str))))
+  (parser-value (parse-s) str))
