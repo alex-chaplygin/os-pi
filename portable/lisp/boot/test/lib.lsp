@@ -167,6 +167,30 @@
             (expected (cadr test)))
         (print (assert (not input) expected))))))
 
+(defun inc-test ()
+  "Тест функции ++"
+  (print "Тест функции ++.")
+  (let ((tests '((5 6)             
+                 (-3 -2)           
+                 (0 1))))            
+    (dolist (test tests)
+      (let ((input (car test))
+            (expected (cadr test)))
+        (print (assert (++ input) expected))))))
+
+(defun dec-test ()
+  "Тест функции --"
+  (print "Тест функции --.")
+  (let ((tests '((5 4)           
+                 (-3 -4)         
+                 (0 -1))))         
+    (dolist (test tests)
+      (let ((input (car test))
+            (expected (cadr test)))
+        (print (assert (-- input) expected))))))
+
+
+
 (fors-test)
 (tagbody-rec-test)
 (lex-test)
@@ -180,3 +204,5 @@
 (get-bit-test)
 (null-test)
 (not-test)
+(inc-test)
+(dec-test)
