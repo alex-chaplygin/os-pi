@@ -114,6 +114,15 @@
   (print (assert (zip-with #'+ '(1 2) '(3 4)) '(4 6)))
   (zip-with #'+ '(1) ()))
 
+(defun remove-dupl-tests ()
+  "Тесты функции удаления повторяющихся элементов"
+  (print "Тесты функции удаления повторяющихся элементов")
+  (print (assert (remove-dupl '(1 2 3 4 5 3 6 7)) '(1 2 3 4 5 6 7)))
+  (print (assert (remove-dupl '("a" "b" "c" "d" 4 5 "b" 4)) '("a" "b" "c" "d" 4 5) ))
+  (print (assert (remove-dupl '(1 2 3 4 5)) '(1 2 3 4 5) ))
+  (print (assert (remove-dupl '()) '() )))
+  
+
 (minp-tests)
 (filter-tests)
 (sort-tests)
@@ -130,3 +139,4 @@
 (contains-tests)
 (do-list-test)
 (zip-with-test)
+(remove-dupl-tests)
