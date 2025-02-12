@@ -14,3 +14,10 @@
   (print(assert b 2))
   (print(assert c 3))
   (assert d nil))
+
+(defun empty-queue-tests ()
+  (print "Создание пустой очереди и попытка извлечь элемент")
+  (let ((q (queue-create)))
+    (print (assert (queue-pop q) nil))))
+
+(empty-queue-tests)
