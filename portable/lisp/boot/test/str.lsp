@@ -14,7 +14,11 @@
 (defun test-explode (str res)
   (print (assert (explode str) res)))
 
+(defun test-is-alpha (sym res)
+  (print (assert (is-alpha sym) res)))
 
+(defun test-strtoint (str base res)
+  (print (assert (strtoint str base) res)))
 
 (test-search #\c "a0cbbbcbcbcbcbcbc" 2)
 (test-search #\ "a0cbb bcbcbcbcbcbc" 5)
@@ -49,4 +53,17 @@
 (test-explode "" '())
 (test-explode "a" '(#\a))
 (test-explode " a" '(#\ #\a))
+(print "______________________________________________________________________")
 
+(test-is-alpha #\A t)
+(test-is-alpha #\a t)
+(test-is-alpha #\0 nil)
+(print "______________________________________________________________________")
+
+(test-strtoint  "1010" 2 10)
+(test-strtoint "1F" 16 31)
+(test-strtoint "123" 10 123)
+(test-strtoint "10" 8 8)
+(test-strtoint "A" 16 10)
+(test-strtoint "Z" 36 35)
+(print "______________________________________________________________________")
