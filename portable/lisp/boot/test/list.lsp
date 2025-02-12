@@ -122,6 +122,21 @@
   (print (assert (remove-dupl '(1 2 3 4 5)) '(1 2 3 4 5) ))
   (print (assert (remove-dupl '()) '() )))
   
+(defun reverse-tests ()
+  "Тесты функции reverse"
+  (print "Тесты функции reverse")
+  (print (assert  (reverse '(1 2 3)) '(3 2 1))) ;3 числа
+  (print (assert  (reverse '(1)) '(1))) ;1 число
+  (print (assert  (reverse '()) '())) ;пустой текст
+  (print (assert  (reverse '((1 2) (3 4))) '((3 4) (1 2)))))
+
+(defun list-to-array-tests ()
+  "Тесты ф-ции преобразования списка в массив"
+  (print   "Тесты ф-ции преобразования списка в массив")
+  (print (assert (list-to-array '(1 2 3)) #(1 2 3)))
+  (print (assert (list-to-array '(a b c)) #(a b c)))
+  (print (assert (list-to-array '()) #())) 
+  (print (assert (list-to-array '("kakoj-to text")) #("kakoj-to text"))))
 
 (minp-tests)
 (filter-tests)
@@ -140,3 +155,5 @@
 (do-list-test)
 (zip-with-test)
 (remove-dupl-tests)
+(reverse-tests)
+(list-to-array-tests)
