@@ -21,6 +21,11 @@
 
 (test-expt 10 3 1000)
 (test-expt (/ 1.0 10.0) 3 (/ 1.0 1000.0))
+(test-expt 2 0 1)
+(test-expt 0 5 0)
+(test-expt 5 1 5)
+(test-expt -2 3 -8)
+(test-expt -2 4 16)
 
 (test-randint 0 3 10)
 (abs-tests)
