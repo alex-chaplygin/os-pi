@@ -28,3 +28,6 @@
 (test-vec2-scale 23 32.6 5)
 (test-vec2-scale 2.14 10.11 3)
 (test-vec2-scale 2.5 4.1 10.5)
+(print (assert (vec2-length (make-vec2 3 4)) 5.0))
+(print (assert (vec2-length (make-vec2 0 1)) 1.0))
+(print (assert (vec2-length (make-vec2 1.0 1.0)) 1.4142135))

@@ -17,3 +17,9 @@
 (defun vec2-scale (v s)
   "Умножить вектор на скаляр"
   (make-vec2 (* (vec2-x v) s) (* (vec2-y v) s)))
+
+(defun vec2-length (v)
+  "Вычислить длину вектора"
+  (let ((x (vec2-x v))
+        (y (vec2-y v)))
+    (sqrt (+ (* x x) (* y y)))))
