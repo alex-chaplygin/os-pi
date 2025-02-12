@@ -40,6 +40,10 @@ lib-test: $(BASELISP) $(TEST) test/lib.lsp
 list-test: $(BASELISP) $(TEST) test/list.lsp
 	make -C ../test /tmp/repl_lisp
 	cat $^ | /tmp/repl_lisp
+# модульные тесты хеш таблиц
+hash-test: $(BASELISP) $(TEST) test/hash.lsp
+	make -C ../test /tmp/repl_lisp
+	cat $^ | /tmp/repl_lisp
 # модульные тесты ООП
 oop-test: $(BASELISP) $(TEST) test/oop.lsp
 	make -C ../test /tmp/repl_lisp
