@@ -11,9 +11,18 @@
            (set-hash count-table random-number (+ (get-hash count-table random-number) 1)))))
     (print count-table)))
 
+(defun abs-tests ()
+  "Тестирование функции abs"
+  (print "Тестирование функции abs")
+  (print (assert (abs -5) 5))   ; тест: отрицательное число
+  (print (assert (abs 5) 5))    ; тест: положительное число
+  (print (assert (abs 0) 0)))    ; тест: ноль
+
+
 (test-expt 10 3 1000)
 (test-expt (/ 1.0 10.0) 3 (/ 1.0 1000.0))
 
 (test-randint 0 3 10)
+(abs-tests)
 
 
