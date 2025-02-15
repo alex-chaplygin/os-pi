@@ -63,6 +63,8 @@
 (defun case-func (p val)
   "(e v) -> ((equal val e) v)"
   "(otherwise v) -> (t v)"
+  (when (or (not (pairp p)) (null p))
+    (error "case: invalid condition"))
   (if (eq (car p) 'otherwise)
       (list t (cadr p))
       (list (list 'equal (car p) val) (cadr p))))

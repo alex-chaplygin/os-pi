@@ -117,9 +117,41 @@
   (print (assert (or nil nil nil) nil)))
 
 (defun case-test ()
+  "Тест для проверки макроса case"
+  ;; Тест для проверки случая, когда значение совпадает с одним из вариантов
+  (print (assert (case 1
+                   (1 2)
+                   (otherwise 3)) 2))
+  ;; Тест для проверки случая, когда значение не совпадает ни с одним из вариантов
   (print (assert (case 10
-		   (1 2)
-		   (otherwise 3)) 3)))
+                   (1 2)
+                   (otherwise 3)) 3))
+  ;; Тест для проверки случая с несколькими вариантами
+  (print (assert (case 2
+                   (1 2)
+                   (2 3)
+                   (otherwise 4)) 3))
+  ;; Тест для проверки случая с otherwise
+  (print (assert (case 5
+                   (1 2)
+                   (2 3)
+                   (otherwise 4)) 4))
+  ;; Тест для проверки случая с пустым списком вариантов
+  (print (assert (case 5
+                   (otherwise 4)) 4))
+  ;; Тест для проверки случая с несколькими otherwise (должен использоваться первый)
+  (print (assert (case 5
+                   (otherwise 4)
+                   (otherwise 5)) 4))
+  ;; Тест для проверки случая с вложенными case
+  (print (assert (case 1
+                   (1 (case 2
+                        (2 3)
+                        (otherwise 4)))
+                   (otherwise 5)) 3))
+  ;; Тест для проверки случая с пустым списком вариантов и без otherwise
+  (case 3
+    ()))
 
 (defun get-bit-test ()
   "Тест для проверки функции get-bit"
