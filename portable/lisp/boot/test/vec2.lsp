@@ -3,6 +3,11 @@
     (print (assert (vec2-x vec) x))
     (print (assert (vec2-y vec) y))))
 
+(defun test-make-vec2-polar (angle len x y)
+  (let ((vec (make-vec2-polar angle len)))
+    (print (assert (vec2-x vec) x))
+    (print (assert (vec2-y vec) y))))
+    
 (defun test-vec2-add (x1 y1 x2 y2)
   (let* ((vec1 (make-vec2 x1 y1))
 	(vec2 (make-vec2 x2 y2))
@@ -19,6 +24,9 @@
 (test-make-vec2 4.1 2)
 (test-make-vec2 1 2.5)
 (test-make-vec2 4.1 10.2)
+(test-make-vec2-polar 90 10 0.0 10.0)
+(test-make-vec2-polar 45 7 4.949748 4.949748)
+(test-make-vec2-polar 30 8 6.928203 4.0)
 (test-vec2-add 4 6 6 10)
 (test-vec2-add 4.1 2.1 6 10)
 (test-vec2-add 10 0 6.6 50.1)
