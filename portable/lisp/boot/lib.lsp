@@ -2,10 +2,34 @@
   "Проверка на пустое значение"
   (eq x ()))
 
-(defun fac(x)
-  (cond
-    ((< x 2) 1)
-    (t (* x (fac (- x 1))))))
+(defun list (&rest args)
+  "Функция создания списка"
+  args)
+
+(defun caar(x) (car (car x)))
+(defun caadr(x) (car (car (cdr x))))
+(defun cadr(x) (car (cdr x)))
+(defun second(x) (car (cdr x)))
+(defun caddr(x) (car (cdr (cdr x))))
+(defun third(x) (car (cdr (cdr x))))
+(defun cadddr(x) (car (cdr (cdr (cdr x)))))
+(defun forth(x) (car (cdr (cdr (cdr x)))))
+(defun caddddr(x) (car (cdr (cdr (cdr (cdr x))))))
+(defun fifth(x) (car (cdr (cdr (cdr (cdr x))))))
+(defun cadar(x) (car (cdr (car x))))
+(defun cdar(x) (cdr (car x)))
+(defun cdadr(x) (cdr (car (cdr x))))
+(defun cddr(x) (cdr (cdr x)))
+(defun cdddr(x) (cdr (cdr (cdr x))))
+(defun cddddr(x) (cdr (cdr (cdr (cdr x)))))
+
+(defmacro incf (var)
+  "Увеличивает значение переменной на 1"
+  `(setq ,var (++ ,var)))
+
+(defmacro decf (var)
+  "Увеличивает значение переменной на 1"
+  `(setq ,var (-- ,var)))
 
 (defun not(x)
   "Логическое отрицание"
@@ -51,7 +75,6 @@
           (car args)
           `(if ,(car args) t (or ,@(cdr args))))))
 
-
 (defmacro case (val &rest list)
   "(setq k 10)"
   "(case k ((1 2)(2 3)(otherwise 4)))"
@@ -72,9 +95,9 @@
 (defmacro inner-for (name var start end &rest body)
   "Вспомогательная функция для for"
   `(defun ,name (,var)
-     (cond ((= ,var ,end) 'end)
-	   (t (progn ,@body 
-		     (,name (+ ,var 1))))))
+     (if (= ,var ,end) 'end
+	 (progn ,@body 
+		     (,name (+ ,var 1)))))
   `(,name ,start))
 
 (defmacro for (var start end &rest body)
@@ -190,22 +213,8 @@
   (for i 0 (string-size s) 
        (putchar (char s i))))
 
-(setq *gensym-counter* 0) ;счетчик уникальных символов
-
-(defun gensym ()
-  "Возвращает уникальный символ типа G<n>, где n - новое число"
-  (intern (concat "G" (inttostr (incf *gensym-counter*)))))
-
 (defun clone (obj)
   "Делает копию объекта (кроме чисел, массивов и строк)"
   (cond ((null obj) nil)
 	((atom obj) obj)
 	(t (cons (clone (car obj)) (clone (cdr obj))))))
-
-(defmacro incf (var)
-  "Увеличивает значение переменной на 1"
-  `(setq ,var (++ ,var)))
-
-(defmacro decf (var)
-  "Увеличивает значение переменной на 1"
-  `(setq ,var (-- ,var)))
