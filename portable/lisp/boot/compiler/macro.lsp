@@ -56,7 +56,7 @@
 	 (body (cdr args))
 	 (vars (get-vars decl))
 	 (vals (macro-eval-args (get-vals decl) env)))
-    (macro-eval-progn body (append (zip-with #'cons vars vals) env))))
+    (macro-eval-progn body (extend-macro-env env vars vals))))
 
 ;; вычисление аргументов
 (defun macro-eval-args (args env)
@@ -66,9 +66,13 @@
 (defmacro eval-prim (expr)
   `(funcall #',(car expr) ,@(cdr expr)))
 
+;; расширение окружения подстановки
+(defun extend-macro-env (env args vals)
+  (append (zip-with #'cons args vals) env))
+
 ;; применение пользовательской функции внутри макроса
 (defun macro-eval-app-func (args body vals env)
-  (macro-eval body (append (zip-with #'cons args vals) env)))
+  (macro-eval body (extend-macro-env env args vals)))
 
 ;; применение функции
 (defun macro-eval-app (f args env)
@@ -88,6 +92,15 @@
       (if (null (cdr expr)) (macro-eval (car expr) env)
 	  (macro-eval-progn (cdr expr) env))))
 
+;; вычисление вызова функции
+;; подставить тело lambda, расширить окружение подстановки
+(defun macro-eval-funcall (f args env)
+  (let ((type (car f))
+	(lam (second f)))
+    (if (and (eq type 'function) (correct-lambda lam))
+      (macro-eval-progn (cddr lam) (extend-macro-env env (second lam) args))
+      (comp-err "macro-eval-funcall: invalid function" f))))
+
 ;; раскрытие макроса
 (defun macro-eval (expr env)
 ;  (print `(meval ,expr ,env))
@@ -101,6 +114,8 @@
 	  ('let (macro-eval-let args env))
 	  ('quote (car args))
 	  ('backquote (macro-eval-backquote (car args) env))
+	  ('function expr)
+	  ('funcall (macro-eval-funcall (macro-eval (car args) env) (macro-eval-args (cdr args) env) env))
 	  (otherwise (macro-eval-app f (macro-eval-args args env) env))))))
 
 ;; раскрытие последовательности
@@ -119,5 +134,5 @@
 		     (list (cons (second args) vals))
 		     (cons (cons (car args) (car vals)) (make (cdr args) (cdr vals)))))))
     (let ((r (macro-expand-progn body (make args vals))))
-      (print `(macro-expand ,r))
+;      (print `(macro-expand ,r))
       r)))
