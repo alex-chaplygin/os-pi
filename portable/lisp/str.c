@@ -6,7 +6,8 @@
 #include "eval.h"
 #include "parser.h"
 #include "str.h"
-
+/// Счетчик для gensym
+int gensym_counter = 0;
 char *itoa(int num, char *str, int rad);
 
 // ()
@@ -319,6 +320,21 @@ object_t PUTCHAR(object_t args)
     return NULLOBJ;
 }
 
+/** 
+ * Генерация уникального символа
+ *
+ * @param args нет
+ *
+ * @return новый уникальный символ
+ */
+object_t gensym(object_t args)
+{
+    char str[MAX_ITOA_STR];
+    char *s = itoa(++gensym_counter, str + 1, 10);    
+    *--s = 'G';
+    return NEW_SYMBOL(s);
+}
+
 void init_strings()
 {
     register_func("INTERN", intern);
@@ -334,4 +350,5 @@ void init_strings()
     register_func("CHAR-CODE",char_code);
     register_func("PRINT", print_object);
     register_func("PUTCHAR", PUTCHAR);
+    register_func("GENSYM", gensym);
 }
