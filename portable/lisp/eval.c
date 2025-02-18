@@ -888,9 +888,7 @@ object_t block(object_t list)
  */ 
 object_t return_from(object_t name, object_t res) 
 { 
-    PROTECT1(args);
-    cur_label = SECOND(args);
-    UNPROTECT;
+    cur_label = res;
     longjmp(block_buf, 1);
 } 
 
