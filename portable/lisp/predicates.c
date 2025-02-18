@@ -13,7 +13,7 @@ int list_length(object_t args);
  */
 #define MAKE_PREDICATE(name, cond)\
 object_t name (object_t el)\
-{\    	  
+{\
     if (cond)\
 	return t;\
     else\
