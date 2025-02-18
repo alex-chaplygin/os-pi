@@ -907,10 +907,10 @@ object_t catch(object_t list)
  * Выходит из динамического блока, созданного catch
  * @param args (имя блока, результат)
  */ 
-object_t throw(object_t args) 
+object_t throw(object_t tag, object_t res) 
 { 
     PROTECT1(args);
-    cur_label = SECOND(args);
+    cur_label = res;
     UNPROTECT;
     longjmp(catch_buf, 1);
 } 
