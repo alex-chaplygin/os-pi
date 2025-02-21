@@ -221,7 +221,18 @@
             (expected (cadr test)))
         (print (assert (-- input) expected))))))
 
-
+(defun setf-test ()
+  (print "Тест для проверки работы макроса setf")
+  (let ((x 10)
+        (hash (make-hash)))
+    ;; Тест для проверки установки значения переменной
+    (setf x 20)
+    (print (assert (= x 20) t))
+    ;; Тест для проверки установки значения в хеш-таблице
+    (setf (slot hash 'key) 42)
+    (print (assert (= (get-hash hash 'key) 42) t))
+    ;; Тест для проверки ошибки при передаче некорректного аргумента
+    (print (assert (equal (setf '(1 2 3) 5) "setf: invalid var") t))))
 
 (fors-test)
 (tagbody-rec-test)
@@ -238,3 +249,4 @@
 (not-test)
 (inc-test)
 (dec-test)
+(setf-test)
