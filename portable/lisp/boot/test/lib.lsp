@@ -234,6 +234,21 @@
     ;; Тест для проверки ошибки при передаче некорректного аргумента
     (print (assert (equal (setf '(1 2 3) 5) "setf: invalid var") t))))
 
+(defun defvar-test ()
+  (print "Тест для проверки работы макроса defvar")
+  ;; Тест для проверки ссздания переменной без значения (должна быть инициализирована nil)
+  (defvar *test-var1*)
+  (print (assert (null *test-var1*) t))
+  ;; Тест для проверки ссздания переменной со значением
+  (defvar *test-var2* 42)
+  (print (assert (= *test-var2* 42) t))
+  ;; Тест для проверки ссздания переменной с nil в качестве значения
+  (defvar *test-var3* nil)
+  (print (assert (null *test-var3*) t))
+  ;; Тест для проверки ссздания переменной с выражением в качестве значения
+  (defvar *test-var4* (+ 10 20))
+  (print (assert (= *test-var4* 30) t)))
+
 (fors-test)
 (tagbody-rec-test)
 (lex-test)
@@ -250,3 +265,4 @@
 (inc-test)
 (dec-test)
 (setf-test)
+(defvar-test)
