@@ -10,7 +10,7 @@
 (defvar *local-functions*)
 ;; список примитивов с фиксированным количеством аргументов
 (defvar *fix-primitives*
-  '((car . 1) (cdr . 1) (cons . 2) (rplaca . 2) (rplacd . 2)
+  '((car . 1) (cdr . 1) (atom . 1) (cons . 2) (rplaca . 2) (rplacd . 2)
     (% . 2) (<< . 2) (>> . 2) (eq . 2) (equal . 2) (> . 2) (< . 2) (sin . 1) (cos . 1)
     (intern . 1) (symbol-name . 1) (string-size . 1) (inttostr . 1) (code-char . 1) (putchar . 1) (char . 2) (subseq . 3)
     (make-array . 1) (array-size . 1) (aref . 2) (seta . 3)
@@ -281,6 +281,14 @@
 	  (inner-compile (second expr) env)
 	(list 'FIX-PRIM 'CONS (list (compile-backquote (car expr) env) (compile-backquote (cdr expr) env))))))
 
+;; Компиляция tagbody
+(defun compile-tagbody (body env)
+  (if (null body) (list 'CONST 'nil)
+      (list 'SEQ (let ((e (car body)))
+		   (if (symbolp e) (list 'LABEL e)
+		       (inner-compile e env)))
+	    (compile-tagbody (cdr body) env))))
+
 ;; Функция компиляции в промежуточную форму
 ;; expr - выражение, env - лексическое окружение
 (defun inner-compile (expr env)
@@ -301,6 +309,8 @@
 	  ('function (compile-function (second expr) env))
 	  ('defmacro (progn (make-macro args) (list 'NOP)))
 	  ('backquote (compile-backquote (second expr) env))
+	  ('tagbody (compile-tagbody (cdr expr) env))
+	  ('go (list 'GOTO (second expr)))
 	  (otherwise (compile-application func args env))))))
 
 ;; Анализ S-выражения и преобразование в эквивалентное выражение

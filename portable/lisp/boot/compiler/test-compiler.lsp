@@ -130,6 +130,18 @@
 (test-compile '(progn (defmacro test-p() `(progn ,(+ 1 2))) (test-p))
 	      '(SEQ (NOP) (CONST 3)))
 
+(print "Тест tagbody")
+(test-compile '(tagbody
+		(setq i 0)
+		(setq a 0)
+		(go test)
+		loop
+		(setq i (+ i 1))
+		(setq a (+ a 10))
+		test
+		(if (equal i 10) nil (go loop)))
+	      '(SEQ (GLOBAL-SET 2 (CONST 0)) (SEQ (GLOBAL-SET 3 (CONST 0)) (SEQ (GOTO TEST) (SEQ (LABEL LOOP) (SEQ (GLOBAL-SET 2 (NARY-PRIM + 0 ((GLOBAL-REF 2) (CONST 1)))) (SEQ (GLOBAL-SET 3 (NARY-PRIM + 0 ((GLOBAL-REF 3) (CONST 10)))) (SEQ (LABEL TEST) (SEQ (ALTER (FIX-PRIM EQUAL ((GLOBAL-REF 2) (CONST 10))) (GLOBAL-REF 1) (GOTO LOOP)) (CONST NIL))))))))))
+
 (test-compile '(progn (setq a 1 b 2) `(a (,a) b (,b)))
 	      '(SEQ
 		(SEQ (GLOBAL-SET 2 (CONST 1)) (GLOBAL-SET 3 (CONST 2)))

@@ -21,11 +21,13 @@
 
 ;; Генерация функций с 2-мя параметрами
 (defun generate-2-params (expr)
-  (let ((l (gensym)))
-    (emit (list 'JMP l))
-    (emit (list (car expr) (cadr expr)))
-    (inner-generate (caddr expr))
-    (emit (list 'LABEL l))))
+  (if (null (cddr expr))
+      (emit (list 'LABEL (second expr)))
+      (let ((l (gensym)))
+	(emit (list 'JMP l))
+	(emit (list (car expr) (second expr)))
+	(inner-generate (third expr))
+	(emit (list 'LABEL l)))))
 
 ;; Генерация кода для присваиваний
 (defun generate-set (expr)
@@ -97,6 +99,7 @@
 		('NARY-PRIM (generate-nary-prim (cadr expr) (caddr expr) (cadddr expr))) ; вызов nary примитива
 		('FIX-CALL (generate-reg-call (cadr expr) nil (caddr expr) (cadddr expr))) ; обычный вызов
 		('NARY-CALL (generate-reg-call (cadr expr) (caddr expr) (cadddr expr) (caddddr expr))) ; вызов с переменным числом аргументов
+		('GOTO (emit (list 'JMP (second expr))))
 		(otherwise (emit (list 'UNKNOWN (car expr)))))))))
 
 (defun generate (expr)
