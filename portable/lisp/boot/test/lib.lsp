@@ -14,6 +14,27 @@
 		      (for m 0 3
 			   (print `(,i ,j ,k ,l ,m))))))))
 
+(defun while-test ()
+  (print "Тесты для проверки работы макроса while")
+  ;; Простой тест
+  (let ((x 0))
+    (while (< x 5)
+      (setq x (++ x)))
+    (print (assert x 5)))
+  ;; Тест с нулевым количеством итераций
+  (let ((x 0))
+    (while nil
+      (setq x (++ x)))
+    (print (assert x 0)))
+  ;; Тест вложенных циклов
+  (let ((x 0) (y 0))
+    (while (< x 3)
+      (setq y 0)
+      (while (< y 2)
+        (print `(x ,x y ,y))
+        (setq y (++ y)))
+      (setq x (++ x)))))
+
 (defun tagbody-rec-test ()
   "Тест рекурсивного вызова при последовательном чтении массива для JPEG"
   "Вместо while цикла надо использовать unless"
@@ -250,6 +271,7 @@
   (print (assert (= *test-var4* 30) t)))
 
 (fors-test)
+(while-test)
 (tagbody-rec-test)
 (lex-test)
 (compose-test)
