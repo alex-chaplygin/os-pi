@@ -289,6 +289,28 @@
             (expected (cadr test)))
         (print (assert (-- input) expected))))))
 
+(defun incf-test ()
+  "Тест функции incf (с использованием ++)."
+  (print "Тест функции incf.")
+  (let ((tests '((5 6) 
+                 (-3 -2) 
+                 (0 1))))
+    (dolist (test tests)
+      (let ((x (car test)))
+        (incf x)
+        (print (assert (= x (second test)) t))))))
+
+(defun decf-test ()
+  "Тест функции decf (с использованием --)."
+  (print "Тест функции decf.")
+  (let ((tests '((5 4) 
+                 (-3 -4) 
+                 (0 -1))))
+    (dolist (test tests)
+      (let ((x (car test)))
+        (decf x)
+        (print (assert (= x (second test)) t))))))
+
 (defun setf-test ()
   (print "Тест для проверки работы макроса setf")
   (let ((x 10)
@@ -336,3 +358,5 @@
 (setf-test)
 (defvar-test)
 (let-test)
+(incf-test)
+(decf-test)
