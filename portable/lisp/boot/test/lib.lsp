@@ -111,8 +111,7 @@
 
 (defun compose-test ()
   "Тест композиции функций"
-  (labels ((o (f g) #'(lambda (x) (funcall f (funcall g x))))
-	   (sqr (x) (* x x)))
+  (labels ((sqr (x) (* x x)))
 	  (print (assert (funcall (o #'sqr #'sqr) 10) 10000))))
 
 (defun dyn-test ()

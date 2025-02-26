@@ -35,6 +35,8 @@
   "Логическое отрицание"
   (if (eq x nil) t nil))
 
+(defun o (f g) #'(lambda (x) (funcall f (funcall g x)))) ; математическая композиция функций f и g
+
 (defun get-bit (num bit)
   "Получение бита с номером bit у числа num"
   (& (>> num bit) 1))

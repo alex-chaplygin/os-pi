@@ -11,8 +11,6 @@
 	(cons (car list1) list2)
       (cons (car list1) (append (cdr list1) list2)))))
 
-(defun o (f g) #'(lambda (x) (funcall f (funcall g x)))) ; математическая композиция функция f и g
-
 (defun app (f list)
   "Применяет функцию f к каждому элементу списка list"
   "(app '(lambda (x) (set-hash h x nil)) '(x y z))"
