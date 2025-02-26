@@ -1,4 +1,15 @@
-					; тестирование функций для списков
+;; тестирование функций для списков
+
+(defun app-tests ()
+  "Тесты функции app"
+  (print "Тесты функции app")
+  ;; Тест 1: Пустой список
+  (print (assert (app #'(lambda (x) (print x)) nil) nil))
+  ;; Тест 2: Список с одним элементом
+  (print (assert (app #'(lambda (x) (print x)) '(a)) nil))
+  ;; Тест 3: Список с несколькими элементами
+  (print (assert (app #'(lambda (x) (print x)) '(1 2 3)) nil)))
+
 (defun minp-tests ()
   "Тесты возврата минимального элемента списка по предикату"
   (print "Тесты возврата минимального элемента списка по предикату")
@@ -150,6 +161,7 @@
   (print (assert (list-to-array '()) #())) 
   (print (assert (list-to-array '("kakoj-to text")) #("kakoj-to text"))))
 
+(app-tests)
 (minp-tests)
 (filter-tests)
 (sort-tests)
