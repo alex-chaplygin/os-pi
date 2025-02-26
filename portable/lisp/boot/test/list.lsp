@@ -163,6 +163,7 @@
 (foldl-tests)
 (foldr-tests)
 (last-tests)
+(last 10)
 (contains-tests)
 (do-list-test)
 (zip-with-test)
