@@ -84,7 +84,7 @@ void test_seta_invalid_arguments()
 void test_seta_not_array()
 {
     printf("test_seta_not_array: ");
-    object_t arr_o = make_array(10); 
+    object_t arr_o = make_array(new_number(10)); 
     int num = 42;
     int index = 0;
     object_t obj = new_number(num);
@@ -142,9 +142,9 @@ void test_seta_out_of_bounds()
 void test_aref()
 {
     printf("test_aref: ");
-    object_t arr_o = make_array(3);
-    seta(arr_o, 1, 4);
-    ASSERT(get_value(aref(arr_o, 4)), 4)
+    object_t arr_o = make_array(new_number(3));
+    seta(arr_o, new_number(1), new_number(4));
+    ASSERT(get_value(aref(arr_o, new_number(1))), 4);
 }
 
 
@@ -154,12 +154,9 @@ void test_aref()
 void test_correct_array_size()
 {
   printf("test_correct_array_size: ");
-  object_t arr_o = make_array(10);
-  if (setjmp(jmp_env) == 0) {
-      object_t result = array_size(arr_o);
-        FAIL;
-    } else
-       OK;
+  object_t arr_o = make_array(new_number(10));
+  object_t result = array_size(arr_o);
+  ASSERT(get_value(result), 10);
 }
 
 
