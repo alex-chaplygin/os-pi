@@ -1,6 +1,6 @@
 ; функции для работы со списками
 
-(defun append (list1 list2)
+(defun append2 (list1 list2)
   "объединение двух списков (1 . (2 . nil)) (a . (b . nil))"
   "(append '(1 2) '(a b))"
   "(1 . (append (2) '(a b)))"
@@ -11,6 +11,11 @@
 	(cons (car list1) list2)
       (cons (car list1) (append (cdr list1) list2)))))
 
+(defmacro append (&rest lists)
+  "Объединение произвольного количества списков. Если нет аргументов, возвращает nil."
+  (if (null lists) nil
+      `(append2 ,(car lists) (append ,@(cdr lists)))))
+      
 (defun app (f list)
   "Применяет функцию f к каждому элементу списка list"
   "(app '(lambda (x) (set-hash h x nil)) '(x y z))"
