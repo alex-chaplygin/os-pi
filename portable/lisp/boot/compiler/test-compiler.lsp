@@ -155,6 +155,17 @@
 		      (FIX-PRIM CONS
 				((FIX-PRIM CONS ((GLOBAL-REF 3) (CONST ()))) (CONST ())))))))))))
 
+(print "Тест cond в макросе")
+(test-compile '(progn (defmacro test-cond (a)
+			(cond ((eq a ()) 1)
+			      (t 2))) (test-cond ()) (test-cond (1 2)))
+	      '(SEQ (NOP) (SEQ (CONST 1) (CONST 2))))
+(test-compile '(progn (defmacro test-cond (a) (cond)) (test-cond ()))
+	      '(SEQ (NOP) (CONST ())))
+(test-compile '(progn (defmacro test-cond (a) (cond ())) (test-cond ())) '())
+(test-compile '(progn (defmacro test-cond (a) (cond (1))) (test-cond ())) '())
+(test-compile '(progn (defmacro test-cond (a) (cond (1 2 3))) (test-cond ())) '())
+
 ;; (print 'testing)
 ;; (print
 ;;  (vm-run

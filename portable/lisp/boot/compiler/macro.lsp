@@ -101,6 +101,15 @@
       (macro-eval-progn (cddr lam) (extend-macro-env env (second lam) args))
       (comp-err "macro-eval-funcall: invalid function" f))))
 
+;; вычисление cond
+(defun macro-eval-cond (list env)
+  (if (null list) nil
+      (let ((e (car list)))
+	(when (or (not (pairp e)) (null e) (null (cdr e)) (not (null (cddr e))))
+	  (comp-err "macro-eval: invalid expression in cond" e))
+	(if (not (eq (macro-eval (car e) env) nil)) (macro-eval (second e) env)
+	    (macro-eval-cond (cdr list) env)))))
+
 ;; раскрытие макроса
 (defun macro-eval (expr env)
 ;  (print `(meval ,expr ,env))
@@ -110,6 +119,7 @@
 	    (args (cdr expr)))
 	(case f
 	  ('if (macro-eval-if args env))
+	  ('cond (macro-eval-cond args env))
 	  ('progn (macro-eval-progn args env))
 	  ('let (macro-eval-let args env))
 	  ('quote (car args))
@@ -134,5 +144,5 @@
 		     (list (cons (second args) vals))
 		     (cons (cons (car args) (car vals)) (make (cdr args) (cdr vals)))))))
     (let ((r (macro-expand-progn body (make args vals))))
-;      (print `(macro-expand ,r))
+      (print `(macro-expand args ,args vals ,vals body ,body res ,r))
       r)))
