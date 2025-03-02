@@ -1,7 +1,7 @@
 include ../common.mak
 VPATH := ..
 COMPILER = $(BASELISP) macro.lsp compiler.lsp generator.lsp assembler.lsp
-SOURCE = ../lib.lsp ../test/lib.lsp
+SOURCE = ../lib.lsp ../test.lsp ../test/lib.lsp
 TARGET = /tmp/compile
 
 compiler-test: $(COMPILER) ../test.lsp test-compiler.lsp
