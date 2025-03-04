@@ -91,7 +91,11 @@
   (print "Тесты функций объединения списков")
   (print (assert (append '(1 2) '(3 4)) '(1 2 3 4)))
   (print (assert (append '() '(1 2)) '(1 2)))
-  (print (assert (append '(1 2) '()) '(1 2))))
+  (print (assert (append '(1 2) '()) '(1 2)))
+  (print (assert (append) nil))
+  (print (assert (append '(1)) '(1)))
+  (print (assert (append '(1 2) '(3 4) '(5 6)) '(1 2 3 4 5 6)))
+  (print (assert (append '() '() '()) '())))
 
 ; тесты для o (композиция функций)
 
