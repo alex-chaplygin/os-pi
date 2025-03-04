@@ -49,45 +49,40 @@ int is_params_string(object_t list)
  * @param list (строка)
  * @return длина строки
 **/
-object_t string_size(object_t list)
+object_t string_size(object_t str)
 {
-    if (list == NULLOBJ)
-	error("string-size: no arguments");
-    if (TAIL(list) != NULLOBJ)
-	error("string-size: too many arguments");
-    if (is_params_string(list) == 0)
-	error("string-size: not string in params");
-    return new_number(GET_STRING(FIRST(list))->length);
+    if (TYPE(str) != STRING)
+	error("string_size: argument (str) is not a string");
+    
+    return new_number(GET_STRING(str)->length);
 }
 
 /**
  * Получает символ по индексу
- * @param list (строка индекс)
+ * @param str строка
+ * @param index индекс
  * @return объект символа
 **/
-object_t str_char(object_t list)
+object_t str_char(object_t str, object_t index)
 {
-    if (list == NULLOBJ)
-	error("str-char: no arguments");
-    if (TAIL(list) == NULLOBJ)
-	error("str-char: not all arguments");
-    if (TYPE(SECOND(list)) != NUMBER)
-    	error("str-char: not number in params");
-    if (TAIL(TAIL(list)) != NULLOBJ)
-	error("str-size: too many arguments");
-    object_t str = FIRST(list);
-    int ind = get_value(SECOND(list));
     if (TYPE(str) != STRING)
-    	error("str-char: not string in params");
+    	error("str-char: first argument (str) is not a string");
+    
+    if (TYPE(index) != NUMBER)
+	error("str-char: second argument (index) is not a number");
+    
+    int ind = get_value(index);
+  
     if (ind >= GET_STRING(str)->length || ind < 0)
 	error("str-char: invalid index");
+    
     int c = GET_STRING(str)->data[ind];
     return NEW_CHAR(c);
 }
 
 /**
  * Объединение 2-х строк
- * @param list (строка_1 строка_2)
+ * @param list (строка_1 строка_2 ...)
  * @return объединившая строка
  */
 object_t concat(object_t list)
@@ -112,15 +107,17 @@ object_t concat(object_t list)
 
 /**
  * Получение имени символа
- * @param list (символ)
+ * @param symbol (символ)
  * @return имя символа
  */
 object_t symbol_name(object_t symbol)
 {
     if (symbol == NULLOBJ)
-        error("symbol-name: no arguments");
+	return NEW_STRING("NIL");
+    
     if (TYPE(symbol) != SYMBOL)
-        error("symbol-name: argument is not a symbol");
+        error("symbol-name: argument (symbol) is not a symbol");
+    
     char *str = GET_SYMBOL(symbol)->str;
     return NEW_STRING(str);
 }
@@ -140,98 +137,94 @@ object_t symbol_function(object_t list)
 /** 
  * Получение подстроки из строки
  *
- * @param list (строка начальный_индекс конечный_индекс(не включается))
+ * @param str строка 
+ * @param start_index начальный_индекс
+ * @param end_index конечный_индекс (не включается)
  *
  * @return объект-строка
  */
-object_t subseq(object_t list)
+object_t subseq(object_t str, object_t start_index, object_t end_index)
 {
-    if (list == NULLOBJ)
-        error("subseq: no arguments");
-    if (TAIL(list) == NULLOBJ || TAIL(TAIL(list)) == NULLOBJ)
-	error("subseq: not all arguments");
-    if (TAIL(TAIL(TAIL(list))) != NULLOBJ)
-	error("subseq: too many arguments");
-    if (TYPE(FIRST(list)) != STRING || TYPE(SECOND(list)) != NUMBER || TYPE(THIRD(list)) != NUMBER)
-        error("subseq: invalid args");
-    object_t string = FIRST(list);
-    int start_ind = get_value(SECOND(list));
-    int end_ind = get_value(THIRD(list));
+    if (TYPE(str) != STRING)
+	error("subseq: first argument (str) is not a string");
+
+    if (TYPE(start_index) != NUMBER)
+	error("subseq: second argument (start_index) is not a number");
+
+    if (TYPE(end_index) != NUMBER)
+	error("subseq: third argument (end_index) is not a number");
+
+    int start_ind = get_value(start_index);
+    int end_ind = get_value(end_index);
 
     if (start_ind < 0 || end_ind < 0)
     	error("subseq: index can not be negative");
-    if (end_ind - start_ind < 0 || GET_STRING(string)->length < start_ind || end_ind > GET_STRING(string)->length)
+    if (end_ind - start_ind < 0 || GET_STRING(str)->length < start_ind || end_ind > GET_STRING(str)->length)
     	error("subseq: invalid index");
     char *res = alloc_region(end_ind - start_ind + 1);
     int curr_ind = 0;
     for(int i = start_ind; i < end_ind; i++)
-    	res[curr_ind++] = GET_STRING(string)->data[i];
+    	res[curr_ind++] = GET_STRING(str)->data[i];
     res[curr_ind] = 0;
     return NEW_STRING(res);
 }
 
 /**
  * Перевод целочисленного числа в строку
- * @param list (число)
+ * @param number (число)
  * @return строка из числа
  */
-object_t int_to_str(object_t list)
+object_t int_to_str(object_t number)
 {
-    if (list == NULLOBJ)
-	error("inttostr: no args");
-    if (TAIL(list) != NULLOBJ)
-	error("inttostr: many args");
-    if (TYPE(FIRST(list)) != NUMBER)
-	error("inttostr: invalid arg");
+    if (TYPE(number) != NUMBER)
+	error("inttostr: argument (number) is not a number");
+    
     char str[MAX_ITOA_STR];
-    char *s = itoa(get_value(FIRST(list)), str, 10);    
+    char *s = itoa(get_value(number), str, 10);    
     return NEW_STRING(s);
 }
 
 /**
  * Создаёт символ по коду
- * @param list (индекс)
- * @return код символа - число
+ * @param code (код)
+ * @return символ по коду
 **/
-object_t code_char(object_t list)
+object_t code_char(object_t code)
 {
-    object_t o = FIRST(list);
-    if (!IS_NUMBER(o))
-    	error("code-char: not number in params");
-    int code = get_value(o);
-    return NEW_CHAR(code);
+    if (!IS_NUMBER(code))
+    	error("code-char: argument (code) is not a number");
+    int res = get_value(code);
+    return NEW_CHAR(res);
 }
 
 /**
  * Получает код символа
- * @param list (символ)
+ * @param char_obj (символ)
  * @return код символа - число
 **/
-object_t char_code(object_t list)
+object_t char_code(object_t char_obj)
 {
-    object_t o = FIRST(list);
-    if (TYPE(o) != CHAR)
-    	error("char-code: not char");
-    return new_number(GET_CHAR(o));
+    if (TYPE(char_obj) != CHAR)
+    	error("char-code: argument (char_obj) is not a char");
+    return new_number(GET_CHAR(char_obj));
 }
 
 /** 
  * Создание строки заднной длины с заполнение символом:
  *
- * @param args (размер символ)
+ * @param size размер
+ * @param char_obj символ для заполнения
  *
  * @return созданная строка
  */
-object_t make_string(object_t args)
+object_t make_string(object_t size, object_t char_obj)
 {
-    object_t co = FIRST(args);
-    object_t ch = SECOND(args);
-    if (!IS_NUMBER(co))
-	error("make-string: invalid size");
-    if (TYPE(ch) != CHAR)
-	error("make-string: invalid char");
-    int count = get_value(co);
-    char c = GET_CHAR(ch);
+    if (!IS_NUMBER(size))
+	error("make-string: first argument (size) is not a number");
+    if (TYPE(char_obj) != CHAR)
+	error("make-string: second argument (char_obj) is not a char");
+    int count = get_value(size);
+    char c = GET_CHAR(char_obj);
     char *buf = alloc_region(count + 1);
     for (int i = 0; i < count; i++)
 	buf[i] = c;
@@ -243,59 +236,55 @@ object_t make_string(object_t args)
 /** 
  * Замена символа в строке
  *
- * @param args (строка индекс символ)
+ * @param str строка
+ * @param index индекс
+ * @param char_obj символ
  *
  * @return символ
  */
-object_t sets(object_t args)
+object_t sets(object_t str, object_t index, object_t char_obj)
 {
-    object_t a1 = FIRST(args);
-    if (TYPE(a1) != STRING)
-	error("sets: not string");
-    string_t *s = GET_STRING(a1);
-    object_t a2 = SECOND(args);
-    if (!IS_NUMBER(a2))
-	error("sets: not number in index");
-    int idx = get_value(a2);
+    if (TYPE(str) != STRING)
+	error("sets: first argument (str)  is not a string");
+    string_t *s = GET_STRING(str);
+    if (!IS_NUMBER(index))
+	error("sets: second argument (index) is not a number");
+    int idx = get_value(index);
     if (idx < 0 || idx >= s->length)
 	error("sets: index out if bounds");
-    object_t ch = THIRD(args);
-    if (TYPE(ch) != CHAR)
-	error("sets: not char");
-    s->data[idx] = GET_CHAR(ch);
-    return ch;
+    if (TYPE(char_obj) != CHAR)
+	error("sets: third argument (char_obj) is not a char");
+    s->data[idx] = GET_CHAR(char_obj);
+    return char_obj;
 }
 
 /** 
  * Печать объекта
  *
- * @param args <объект>
+ * @param obj (объект)
  *
  * @return nil 
  */
-object_t print_object(object_t args)
+object_t print_object(object_t obj)
 {
-     if (args == NULLOBJ)
+     if (obj == NULLOBJ)
 	error("PRINT: invalid params\n");
-     PRINT(FIRST(args));
+     PRINT(obj);
      return NULLOBJ;
 }
 
 /** 
  * Печать символа 
  *
- * @param args (объект символ)
+ * @param char_obj (символ)
  *
  * @return nil
  */
-object_t PUTCHAR(object_t args)
+object_t PUTCHAR(object_t char_obj)
 {
-    if (args == NULLOBJ || TAIL(args) != NULLOBJ)
-	error("PUTCHAR: char");
-    object_t c = FIRST(args);
-    if (TYPE(c) != CHAR) 
-	error("PUTCHAR: not a char");
-    putchar(GET_CHAR(c));
+    if (TYPE(char_obj) != CHAR) 
+	error("PUTCHAR: argument (char_obj)  is not a char");
+    putchar(GET_CHAR(char_obj));
     return NULLOBJ;
 }
 
