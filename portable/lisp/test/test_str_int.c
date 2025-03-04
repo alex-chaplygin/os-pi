@@ -11,11 +11,11 @@
 object_t intern(object_t arg);
 object_t concat(object_t list);
 object_t symbol_name(object_t symbol);
-object_t string_size(object_t list);
-object_t str_char(object_t list);
-object_t code_char(object_t list);
-object_t subseq(object_t list);
-object_t int_to_str(object_t list);
+object_t string_size(object_t str);
+object_t str_char(object_t str, object_t index);
+object_t code_char(object_t code);
+object_t subseq(object_t str, object_t start_index, object_t end_index);
+object_t int_to_str(object_t number);
 
 /// текущее окружение
 object_t current_env = NULLOBJ;
@@ -205,69 +205,40 @@ void test_symbol_name_incorrect_type()
         OK;
 }
 
-/**
- * Тест функции получения имени символа
- * Ошибка: лишний параметр
- */
-void test_symbol_name_many_params()
-{
-    printf("test_symbol_name_many_params: ");
-    object_t obj = new_pair(NEW_SYMBOL("abcd"), new_pair(NEW_SYMBOL("ef"), NULLOBJ)); 
-    if (setjmp(jmp_env) == 0) {
-        object_t res = symbol_name(obj); 
-        FAIL;
-    } else 
-        OK;
-}
 
 /**
  * Тест функции получения имени символа
  * Ошибка: NULL в параметре-списке
  */
-void test_symbol_name_null_first_param()
+void test_symbol_name_null()
 {
     printf("test_symbol_name_null_first_param: ");
-    object_t obj = new_pair(NULLOBJ, NULLOBJ); 
-    object_t res = symbol_name(obj); 
+    object_t res = symbol_name(NULLOBJ); 
     ASSERT(TYPE(res), STRING); 
     ASSERT(strcmp(GET_STRING(res)->data, "NIL"), 0);
 }
 
-/**
- * Тест функции получения имени символа
- * Ошибка: без параметра
- */
-void test_symbol_name_no_params()
-{
-    printf("test_symbol_name_no_params: ");
-    if (setjmp(jmp_env) == 0) {
-        object_t res = symbol_name(NULLOBJ); 
-        FAIL;
-    } else 
-        OK;
-}
 
 /**
- * Тест функции получения длинны строки
+ * Тест функции получения длины строки
  */
 void test_string_size()
 {
     printf("test_string_size: ");
     char *str = "Hello";
     object_t string_obj = NEW_STRING(str);
-    object_t params = new_pair(string_obj, NULLOBJ);
-    object_t res = string_size(params);
+    object_t res = string_size(string_obj);
     ASSERT(TYPE(res), NUMBER);
     ASSERT(get_value(res), strlen(str));
 }
 
 /**
- * Тест функции получения длинны строки
+ * Тест функции получения длины строки
  * Ошибка: без параметра
  */
-void test_string_size_no_arguments()
+void test_string_size_null()
 {
-    printf("test_string_size_no_arguments: ");
+    printf("test_string_size_null: ");
     if (setjmp(jmp_env) == 0) {
         string_size(NULLOBJ);
         FAIL;
@@ -275,33 +246,17 @@ void test_string_size_no_arguments()
         OK;
 }
 
-/**
- * Тест функции получения длинны строки
- * Ошибка: несколько аргументов
- */
-void test_string_size_too_many_arguments()
-{
-    printf("test_string_size_too_many_arguments: ");
-    object_t number_obj = new_number(5);
-    object_t params = new_pair(number_obj, new_pair(number_obj, NULLOBJ));
-     if (setjmp(jmp_env) == 0) {
-        string_size(params);
-        FAIL;
-    } else 
-        OK;
-}
 
 /**
- * Тест функции получения длинны строки
+ * Тест функции получения длины строки
  * Ошибка: аргумент не строка
  */
 void test_string_size_not_string()
 {
     printf("test_string_size_not_string: ");
     object_t number_obj = new_number(5);
-    object_t params = new_pair(number_obj, NULLOBJ);
     if (setjmp(jmp_env) == 0) {
-        string_size(params);
+        string_size(number_obj);
         FAIL;
     } else 
         OK;
@@ -318,8 +273,7 @@ void test_str_char()
     char *str = "Hello";
     object_t string_obj = NEW_STRING(str);
     object_t index_obj = new_number(1);
-    object_t params = new_pair(string_obj, new_pair(index_obj, NULLOBJ));
-    object_t result = str_char(params);
+    object_t result = str_char(string_obj, index_obj);
     ASSERT(TYPE(result), CHAR);
     ASSERT(GET_CHAR(result), 'e');
 }
@@ -332,7 +286,7 @@ void test_str_char_null()
 {
     printf("test_str_char_null: ");
     if (setjmp(jmp_env) == 0) {
-        object_t result = str_char(NULLOBJ);
+        object_t result = str_char(NULLOBJ, NULLOBJ);
         FAIL;
     } else 
         OK;
@@ -347,9 +301,8 @@ void test_str_char_not_all_arguments()
     printf("test_str_char_not_all_arguments: ");
     char *str = "Hello";
     object_t string_obj = NEW_STRING(str);
-    object_t params = new_pair(string_obj, NULLOBJ);
     if (setjmp(jmp_env) == 0) {
-        object_t result = str_char(params);
+        object_t result = str_char(string_obj, NULLOBJ);
         FAIL;
     } else 
         OK;
@@ -365,32 +318,13 @@ void test_str_char_second_not_number()
     char *str = "Hello";
     object_t string_obj = NEW_STRING(str);
     object_t not_number = NEW_STRING("abc");
-    object_t params = new_pair(string_obj, new_pair(not_number, NULLOBJ));
     if (setjmp(jmp_env) == 0) {
-        object_t result = str_char(params);
+        object_t result = str_char(string_obj, not_number);
         FAIL;
     } else 
         OK;
 }
 
-/**
- * Тест функции получения символа по индексу в строке
- * Ошибка: аргументов больше чем 2
- */
-void test_str_char_too_many_arguments()
-{
-    printf("test_str_char_too_many_arguments: ");
-    char *str = "Hello";
-    object_t string_obj = NEW_STRING(str);
-    object_t index_obj = new_number(0);
-    object_t extra_arg = new_number(0);
-    object_t params = new_pair(string_obj, new_pair(index_obj, new_pair(extra_arg, NULLOBJ)));
-    if (setjmp(jmp_env) == 0) {
-        object_t result = str_char(params);
-        FAIL;
-    } else 
-        OK;
-}
 
 /**
  * Тест функции получения символа по индексу в строке
@@ -401,9 +335,8 @@ void test_str_char_first_not_string()
     printf("test_str_char_first_not_string: ");
     object_t not_string = new_number(0);
     object_t index_obj = new_number(0);
-    object_t params = new_pair(not_string, new_pair(index_obj, NULLOBJ));
     if (setjmp(jmp_env) == 0) {
-        object_t result = str_char(params);
+        object_t result = str_char(not_string, index_obj);
         FAIL;
     } else 
         OK;
@@ -419,9 +352,8 @@ void test_str_char_invalid_index()
     char *str = "Hello";
     object_t string_obj = NEW_STRING(str);
     object_t index_obj = new_number(10);
-    object_t params = new_pair(string_obj, new_pair(index_obj, NULLOBJ));
     if (setjmp(jmp_env) == 0) {
-        object_t result = str_char(params);
+        object_t result = str_char(string_obj, index_obj);
         FAIL;
     } else 
         OK;
@@ -434,40 +366,24 @@ void test_str_char_invalid_index()
 void test_code_char()
 {
     printf("test_code_char: ");
-    object_t params = new_pair(new_number(110), NULLOBJ); 
-    object_t res = code_char(params); 
+    object_t num_obj = new_number(110); 
+    object_t res = code_char(num_obj); 
     ASSERT(TYPE(res), CHAR); 
     ASSERT(GET_CHAR(res), 'n');
 }
 
 /**
  * Тест функции создания символа-строки по коду
- * Ошибка: нет аргументов
+ * Ошибка: передан null
  */
-void test_code_char_no_arguments()
+void test_code_char_null()
 {
-    printf("test_code_char_no_arguments: ");
+    printf("test_code_char_null: ");
     if (setjmp(jmp_env) == 0) {
 	object_t result = code_char(NULLOBJ); 
 	FAIL;
     } else 
 	OK;
-}
-
-/**
- * Тест функции создания символа-строки по коду
- * Ошибка: слишком много аргументов
- */
-void test_code_char_too_many_arguments()
-{
-    printf("test_code_char_too_many_arguments: ");
-    object_t number_obj = new_number(2); 
-    object_t params = new_pair(number_obj, new_pair(number_obj, NULLOBJ)); 
-    if (setjmp(jmp_env) == 0) {
-        object_t result = code_char(params); 
-        FAIL;
-    } else 
-        OK;
 }
 
 /**
@@ -478,62 +394,14 @@ void test_code_char_not_number()
 {
     printf("test_code_char_not_number: ");
     object_t not_number = NEW_STRING("Hello"); 
-    object_t params = new_pair(not_number, NULLOBJ);  
     if (setjmp(jmp_env) == 0) {
-        object_t result = code_char(params); 
+        object_t result = code_char(not_number); 
         FAIL;
     } else 
         OK;
 }
 
-/**
- * Тест функции получения подстроки из строки
- * Ошибка: без параметров
- */
-void test_subseq_no_arguments()
-{
-    printf("test_subseq_no_arguments: ");
-    if (setjmp(jmp_env) == 0) {
-        object_t result = subseq(NULLOBJ); 
-        FAIL;
-    } else 
-        OK;
-}
 
-/**
- * Тест функции получения подстроки из строки
- * Ошибка: не хватает аргументов
- */
-void test_subseq_not_all_arguments()
-{
-    printf("test_subseq_not_all_arguments: ");
-    object_t string_obj = NEW_STRING("Hello"); 
-    object_t params = new_pair(string_obj, NULLOBJ); 
-    if (setjmp(jmp_env) == 0) {
-        object_t result = subseq(params); 
-        FAIL;
-    } else 
-        OK;
-}
-
-/**
- * Тест функции получения подстроки из строки
- * Ошибка: аргументов больше чем требуется
- */
-void test_subseq_too_many_arguments()
-{
-    printf("test_subseq_too_many_arguments: ");
-    object_t string_obj = NEW_STRING("Hello"); 
-    object_t start_index = new_number(1); 
-    object_t end_index = new_number(4); 
-    object_t extra_arg = new_number(5); 
-    object_t params = new_pair(string_obj, new_pair(start_index, new_pair(end_index, new_pair(extra_arg, NULLOBJ)))); 
-    if (setjmp(jmp_env) == 0) {
-        object_t result = subseq(params); 
-        FAIL;
-    } else 
-        OK;
-}
 
 /**
  * Тест функции получения подстроки из строки
@@ -545,9 +413,8 @@ void test_subseq_invalid_args()
     object_t not_string = new_number(123); 
     object_t start_index = new_number(1); 
     object_t end_index = new_number(4); 
-    object_t params = new_pair(not_string, new_pair(start_index, new_pair(end_index, NULLOBJ))); 
     if (setjmp(jmp_env) == 0) {
-        object_t result = subseq(params); 
+        object_t result = subseq(not_string, start_index, end_index); 
         FAIL;
     } else 
         OK;
@@ -562,10 +429,9 @@ void test_subseq_negative_index()
     printf("test_subseq_negative_index: ");
     object_t string_obj = NEW_STRING("Hello"); 
     object_t start_index = new_number(-1); 
-    object_t end_index = new_number(4); 
-    object_t params = new_pair(string_obj, new_pair(start_index, new_pair(end_index, NULLOBJ))); 
+    object_t end_index = new_number(4);  
     if (setjmp(jmp_env) == 0) {
-        object_t result = subseq(params); 
+        object_t result = subseq(string_obj, start_index, end_index); 
         FAIL;
     } else 
         OK;
@@ -580,9 +446,8 @@ void test_subseq_negative_end_index()
     object_t string_obj = NEW_STRING("Hello");
     object_t start_index = new_number(0);
     object_t end_index = new_number(-1);
-    object_t params = new_pair(string_obj, new_pair(start_index, new_pair(end_index, NULLOBJ)));
     if (setjmp(jmp_env) == 0) {
-        object_t result = subseq(params);
+        object_t result = subseq(string_obj, start_index, end_index); 
         FAIL;
     } else 
         OK;
@@ -597,9 +462,8 @@ void test_subseq_invalid_index_range()
     object_t string_obj = NEW_STRING("Hello"); 
     object_t start_index = new_number(1); 
     object_t end_index = new_number(10); 
-    object_t params = new_pair(string_obj, new_pair(start_index, new_pair(end_index, NULLOBJ))); 
     if (setjmp(jmp_env) == 0) {
-        object_t result = subseq(params); 
+        object_t result = subseq(string_obj, start_index, end_index);  
         FAIL;
     } else 
         OK;
@@ -614,9 +478,8 @@ void test_subseq_start_greater_than_end()
     object_t string_obj = NEW_STRING("Hello");
     object_t start_index = new_number(4);
     object_t end_index = new_number(2);
-    object_t params = new_pair(string_obj, new_pair(start_index, new_pair(end_index, NULLOBJ)));
     if (setjmp(jmp_env) == 0) {
-        object_t result = subseq(params);
+        object_t result = subseq(string_obj, start_index, end_index);
         FAIL;
     } else 
         OK;
@@ -631,8 +494,7 @@ void test_subseq_empty_input()
     object_t string_obj = NEW_STRING("");
     object_t start_index = new_number(0);
     object_t end_index = new_number(0);
-    object_t params = new_pair(string_obj, new_pair(start_index, new_pair(end_index, NULLOBJ)));
-    object_t result = subseq(params);
+    object_t result = subseq(string_obj, start_index, end_index);
     ASSERT(TYPE(result), STRING);
     ASSERT(strcmp(GET_STRING(result)->data, ""), 0);
 }
@@ -645,9 +507,8 @@ void test_subseq()
     printf("test_subseq: ");
     object_t string_obj = NEW_STRING("Hello"); 
     object_t start_index = new_number(1); 
-    object_t end_index = new_number(3); 
-    object_t params = new_pair(string_obj, new_pair(start_index, new_pair(end_index, NULLOBJ))); 
-    object_t result = subseq(params); 
+    object_t end_index = new_number(3);
+    object_t result = subseq(string_obj, start_index, end_index);  
     ASSERT(TYPE(result), STRING); 
     ASSERT(strcmp(GET_STRING(result)->data, "el"), 0);
 }
@@ -661,8 +522,7 @@ void test_subseq_full_string()
     object_t string_obj = NEW_STRING("Hello, World!");
     object_t start_index = new_number(0);
     object_t end_index = new_number(13); 
-    object_t params = new_pair(string_obj, new_pair(start_index, new_pair(end_index, NULLOBJ)));
-    object_t result = subseq(params);
+    object_t result = subseq(string_obj, start_index, end_index); 
     ASSERT(TYPE(result), STRING);
     ASSERT(strcmp(GET_STRING(result)->data, "Hello, World!"), 0);
 }
@@ -677,19 +537,18 @@ void test_subseq_full_string()
     object_t string_obj = NEW_STRING("Hello");
     object_t start_index = new_number(2);
     object_t end_index = new_number(2);
-    object_t params = new_pair(string_obj, new_pair(start_index, new_pair(end_index, NULLOBJ)));
-    object_t result = subseq(params);
+    object_t result = subseq(string_obj, start_index, end_index);
     ASSERT(TYPE(result), STRING);
     ASSERT(strcmp(GET_STRING(result)->data, ""), 0);
 }
 
 /**
  * Тест функции перевода целочисленного числа в строку
- * Ошибка: без параметров
+ * Ошибка: передается null 
  */
-void test_int_to_str_no_args()
+void test_int_to_str_null()
 {
-    printf("test_int_to_str_no_args: ");
+    printf("test_int_to_str_null: ");
     if (setjmp(jmp_env) == 0) {
         object_t result = int_to_str(NULLOBJ); 
         FAIL;
@@ -700,31 +559,14 @@ void test_int_to_str_no_args()
 
 /**
  * Тест функции перевода целочисленного числа в строку
- * Ошибка: больше 1 параметра
- */
-void test_int_to_str_many_args()
-{
-    printf("test_int_to_str_many_args: ");
-    object_t number_obj = new_number(123); 
-    object_t params = new_pair(number_obj, new_pair(number_obj, NULLOBJ)); 
-    if (setjmp(jmp_env) == 0) {
-        object_t result = int_to_str(params); 
-        FAIL;
-    } else 
-        OK;
-}
-
-/**
- * Тест функции перевода целочисленного числа в строку
  * Ошибка: неверный параметр
  */
 void test_int_to_str_invalid_arg()
 {
     printf("test_int_to_str_invalid_arg: ");
     object_t string_obj = NEW_STRING("Number"); 
-    object_t params = new_pair(string_obj, NULLOBJ); 
     if (setjmp(jmp_env) == 0) {
-        object_t result = int_to_str(params); 
+        object_t result = int_to_str(string_obj); 
         FAIL;
     } else 
         OK;
@@ -738,8 +580,7 @@ void test_int_to_str_positive()
 {
     printf("test_int_to_str_positive: ");
     object_t number_obj = new_number(123); 
-    object_t params = new_pair(number_obj, NULLOBJ); 
-    object_t result = int_to_str(params); 
+    object_t result = int_to_str(number_obj); 
     ASSERT(TYPE(result), STRING);
     ASSERT(strcmp(GET_STRING(result)->data, "123"), 0);
 }
@@ -752,8 +593,7 @@ void test_int_to_str_negative()
 {
     printf("test_int_to_str_negative: ");
     object_t number_obj = new_number(-123);
-    object_t params = new_pair(number_obj, NULLOBJ); 
-    object_t result = int_to_str(params); 
+    object_t result = int_to_str(number_obj); 
     ASSERT(TYPE(result), STRING); 
     ASSERT(strcmp(GET_STRING(result)->data, "-123"), 0);
 }
@@ -763,50 +603,49 @@ int main()
     printf("------------test_str_int---------\n");
     init_regions();
     init_objects();
+    
     test_intern();
     test_intern_incorrect_type();
     test_intern_empty_string();
+    
     test_concat_one_str();
     test_concat_two_str();
     test_concat_three_str();
     test_concat_incorrect_type();
     test_concat_no_params();
+    
     test_symbol_name();
     test_symbol_name_incorrect_type();
-    test_symbol_name_many_params();
-    test_symbol_name_null_first_param();
-    test_symbol_name_no_params();
-    /* test_string_size(); */
-    /* test_string_size_no_arguments(); */
-    /* test_string_size_too_many_arguments(); */
-    /* test_string_size_not_string(); */
-    /* test_str_char(); */
-    /* test_str_char_null(); */
-    /* test_str_char_not_all_arguments(); */
-    /* test_str_char_second_not_number(); */
-    /* test_str_char_too_many_arguments(); */
-    /* test_str_char_first_not_string(); */
-    /* test_str_char_invalid_index(); */
-    /* test_code_char(); */
-    /* test_code_char_no_arguments(); */
-    /* test_code_char_too_many_arguments(); */
-    /* test_code_char_not_number(); */
-    /* test_subseq_no_arguments(); */
-    /* test_subseq_not_all_arguments(); */
-    /* test_subseq_too_many_arguments(); */
-    /* test_subseq_invalid_args(); */
-    /* test_subseq_negative_index(); */
-    /* test_subseq_negative_end_index(); */
-    /* test_subseq_invalid_index_range(); */
-    /* test_subseq_start_greater_than_end(); */
-    /* test_subseq_empty_input(); */
-    /* test_subseq(); */
-    /* test_subseq_full_string(); */
-    /* test_subseq_empty_substring(); */
-    /* test_int_to_str_no_args(); */
-    /* test_int_to_str_many_args(); */
-    /* test_int_to_str_invalid_arg(); */
-    /* test_int_to_str_positive(); */
-    /* test_int_to_str_negative(); */
+    test_symbol_name_null();
+    
+    test_string_size();
+    test_string_size_null();
+    test_string_size_not_string();
+    
+    test_str_char();
+    test_str_char_null();
+    test_str_char_second_not_number();
+    test_str_char_first_not_string();
+    test_str_char_invalid_index();
+    
+    test_code_char();
+    test_code_char_null();
+    test_code_char_not_number();
+    
+    test_subseq_invalid_args();
+    test_subseq_negative_index();
+    test_subseq_negative_end_index();
+    test_subseq_invalid_index_range();
+    test_subseq_start_greater_than_end();
+    test_subseq_empty_input();
+    test_subseq();
+    test_subseq_full_string();
+    test_subseq_empty_substring();
+    
+    test_int_to_str_null();
+    test_int_to_str_invalid_arg();
+    test_int_to_str_positive();
+    test_int_to_str_negative();
+    
     return 0;
 }
