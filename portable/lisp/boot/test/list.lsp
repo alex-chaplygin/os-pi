@@ -10,6 +10,27 @@
   ;; Тест 3: Список с несколькими элементами
   (print (assert (app #'(lambda (x) (print x)) '(1 2 3)) nil)))
 
+(defun do-list-test ()
+  (print "Тест dolist")
+  (dolist (a '(1 2 3 4 5))
+    (print a))
+  (dolist (a '())
+    (print x))
+  (dolist (a '(42))
+    (print a))
+  (dolist (a '(1 2))
+    (dolist (y '(a b))
+      (print (list a y))))
+  (dolist (x 10)
+    (print x))
+  (dolist (x '(1 2 3) extra)
+    (print x))
+  (dolist ())
+  (dolist (x)
+    (print x))
+  (dolist (10 '(1 2 3))
+    (print 1)))
+
 (defun minp-tests ()
   "Тесты возврата минимального элемента списка по предикату"
   (print "Тесты возврата минимального элемента списка по предикату")
@@ -130,11 +151,6 @@
   (print (assert (contains '(1 2 3) 2) t))
   (print (assert (contains '(1 2 3) 5) nil))
   (print (assert (contains '() 1) nil)))
-
-(defun do-list-test ()
-  "Тест dolist"
-  (dolist (a '(1 2 3 4 5))
-    (print a)))
 
 (defun zip-with-test ()
   "Тест zip-with"
