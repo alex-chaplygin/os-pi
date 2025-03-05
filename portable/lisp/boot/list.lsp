@@ -62,8 +62,9 @@
 
 (defun last (lst)
   "Найти последний элемент списка"
-  (if (null lst) (error "last: empty list")
-      (if (null (cdr lst)) (car lst) (last (cdr lst)))))
+  (if (not (pairp lst)) (error "last: not list")
+      (if (null lst) (error "last: empty list")
+          (if (null (cdr lst)) (car lst) (last (cdr lst))))))
 
 (defun filter (pred list)
   "Остаются только те элементы списка list, для которых предикат pred с одним параметров возвращает t"
