@@ -27,6 +27,8 @@
 (defmacro dolist (params &rest bod)
   "Вариант app, обходит список с итерационной переменной"
   "(dolist (x list) (setq a x) (setq b x))"
+  (if (not (and (pairp params) (= (list-length params) 2) (symbolp (car params)) (pairp (second params))))
+      (error "dolist: incorrect arguments")
   (let ((loops (gensym))
 	(tests (gensym))
 	(var (car params))
@@ -39,7 +41,7 @@
 	(setq ,list (cdr ,list))
 	,@bod
 	,tests
-	(if (null ,list) nil (go ,loops)))))
+	(if (null ,list) nil (go ,loops))))))
 	
 (defun map (f list)
   "Применяет функцию f к каждому элементу списка list и возвращает новый список"
