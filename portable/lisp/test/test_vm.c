@@ -42,12 +42,12 @@ void *alloc_region(int size)
 
 object_t new_number(int num)
 {
-    return (object_t)num;
+    return (object_t)(num << MARK_BIT);
 }
 
 int get_value(object_t o)
 {
-    return (int)o;
+    return ((int)o) >> MARK_BIT;
 }
 
 /**
@@ -84,7 +84,7 @@ void test_jmp()
     object_t pc_constmem[] = {N(1), N(2), N(3)};
     vm_init(pc_progmem, 17, pc_constmem, 3 ,0);
     vm_run();
-    ASSERT(get_value(acc_reg),2);
+    ASSERT(get_value(acc_reg), 2);
 }
 
 /**
@@ -106,7 +106,7 @@ void test_jnt()
 	N(HALT)
     };
     object_t pc_constmem[] = {N(1), N(1), N(0), N(2), N(3)};
-    vm_init(pc_progmem,17,pc_constmem,5,0);
+    vm_init(pc_progmem, 17, pc_constmem, 5, 0);
     vm_run();
     ASSERT(get_value(acc_reg),2);
 }
@@ -127,5 +127,6 @@ void test_halt()
 int main()
 {
     test_const();
+    test_jmp();
     return 0;
 }
