@@ -69,7 +69,6 @@ int fetch()
 void const_inst()
 {
     acc_reg = const_memory[fetch()];
-    printf("Константа с номером помещена в регистр АСС");
 }
 
 /**
@@ -281,7 +280,6 @@ void nprim_inst() {
  */
 void halt()
 {
-    printf("!!!machine stopped!!!");
     working = 0;
 }
 
