@@ -47,6 +47,17 @@
   ;; (progn (let (x 1) nil)))
   )
 
+(defun when-test ()
+  "Тест функции when"
+  (print "Тест функции when")
+  (print (assert (when t 78) 78))     
+  (print (assert (when nil 78) nil)))
+
+(defun unless-test ()
+  (print "Тест для проверки функции unless")
+  (print (assert (unless t 42) nil))
+  (print (assert (unless nil 42) 42)))
+
 (defun for-test ()
   "Тест для проверки захвата переменной c, которая есть в цикле и в параметре функции"
   (labels ((test (c) c))
@@ -339,6 +350,8 @@
   (defvar *test-var4* (+ 10 20))
   (print (assert (= *test-var4* 30) t)))
 
+(when-test)
+(unless-test)
 (fors-test)
 (while-test)
 (tagbody-rec-test)
