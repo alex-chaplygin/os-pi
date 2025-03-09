@@ -18,9 +18,9 @@ $(TARGET): $(SOURCE)
 
 target: $(SOURCE)
 	echo "" >$(TARGET)
-	echo "(print (block compiler (let ((x (generate (compile '(progn" >>$(TARGET)
+	echo "(print (block compiler (let ((comp (compile '(progn" >>$(TARGET)
 	cat $(SOURCE) >>$(TARGET)
-	echo "))))) (dolist (l x) (print l)) (print (assemble x)) *consts*)))" >>$(TARGET)
+	echo ")))) (print comp) (let ((gen (generate comp))) (dolist (l gen) (print l)) (print (assemble gen))) *consts*)))" >>$(TARGET)
 
 compile-file: $(COMPILER) $(TARGET)
 	make -C ../../test /tmp/lisp
