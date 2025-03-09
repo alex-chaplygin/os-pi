@@ -79,11 +79,12 @@
   (let* ((fun (find-func f))
 	 (type (car fun))
 	 (count (second fun)))
+;;    (print `(eval-app ,f ,args ,env ,fun))
     (check-arguments type count args)
     (let ((r
     (cond ((contains '(fix-prim nary-prim) type) (eval-prim `(,f ,@(map #'(lambda (a) (list 'quote a)) (macro-eval-args args env)))))
 	  ((eq 'fix-func type) (macro-eval-app-func (forth fun) (fifth fun) (macro-eval-args args env) env))
-	  ((eq 'nary-func type) (macro-eval-app-func (forth fun) (fifth fun) (macro-eval-args (make-nary-args count args) env) env))
+	  ((eq 'nary-func type) (macro-eval-app-func (remove-rest (forth fun)) (fifth fun) (make-nary-args count (macro-eval-args args env)) env))
 	  ((eq 'fix-macro type) (macroexpand (third fun) args (forth fun)))
 	  ((eq 'nary-macro type) (macroexpand (third fun) (make-nary-args count args) (forth fun)))
 	  (t (comp-err "macro-eval-app: invalid function" f type)))))
@@ -115,7 +116,7 @@
 
 ;; раскрытие макроса
 (defun macro-eval (expr env)
-;  (print `(meval ,expr ,env))
+;;  (print `(meval ,expr ,env))
   (if (atom expr)
       (if (symbolp expr) (subst expr env) expr)
       (let ((f (car expr))
@@ -147,5 +148,5 @@
 		     (list (cons (second args) vals))
 		     (cons (cons (car args) (car vals)) (make (cdr args) (cdr vals)))))))
     (let ((r (macro-expand-progn body (make args vals))))
-      (print `(macro-expand args ,args vals ,vals body ,body res ,r))
+  ;;    (print `(macro-expand ,r))
       r)))
