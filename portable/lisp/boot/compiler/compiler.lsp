@@ -205,7 +205,7 @@
   (if (null lst) (compile-constant '())
     (if (null (cdr lst))
 	(inner-compile (car lst) env)
-      (list 'SEQ (inner-compile (car lst) env) (compile-progn (cdr lst) env)))))
+      (cons 'SEQ (map #'(lambda (x) (inner-compile x env)) lst)))))
 
 ;; Компилирует labels.
 ;; lst - (<список функций> <форма1> ... <формаn>).
