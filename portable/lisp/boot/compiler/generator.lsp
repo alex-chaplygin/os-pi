@@ -29,6 +29,11 @@
 	(inner-generate (third expr))
 	(emit (list 'LABEL l)))))
 
+;; Генерация DEEP-SET
+(defun generate-deep (i j expr)
+  (inner-generate expr)
+  (emit (list 'DEEP-SET i j)))
+
 ;; Генерация кода для присваиваний
 (defun generate-set (expr)
   (inner-generate (caddr expr))
@@ -83,24 +88,24 @@
 ;; Генерация кода
 (defun inner-generate (expr)
   ;; (print (list 'inner-generate expr))
-  (if (contains '(CONST GLOBAL-REF LOCAL-REF DEEP-REF RETURN) (car expr))
-      (emit expr)
-      (if (contains '(GLOBAL-SET LOCAL-SET DEEP-SET) (car expr))
-	  (generate-set expr)
-	  (if (eq 'LABEL (car expr))
-	      (generate-2-params expr)
-	      (case (car expr)
-		('NOP nil)
-		('SEQ (app #'inner-generate (cdr expr))) ; последовательность
-		('ALTER (generate-if (cdr expr))) ; ветвление
-		('FIX-LET (generate-let (cadr expr) (caddr expr) (cadddr expr))) ; let форма
-		('FIX-CLOSURE (generate-closure (cadr expr) (caddr expr))) ; замыкание
-		('FIX-PRIM (generate-fix-prim (cadr expr) (caddr expr))) ; вызов примитива
-		('NARY-PRIM (generate-nary-prim (cadr expr) (caddr expr) (cadddr expr))) ; вызов nary примитива
-		('FIX-CALL (generate-reg-call (cadr expr) nil (caddr expr) (cadddr expr))) ; обычный вызов
-		('NARY-CALL (generate-reg-call (cadr expr) (caddr expr) (cadddr expr) (caddddr expr))) ; вызов с переменным числом аргументов
-		('GOTO (emit (list 'JMP (second expr))))
-		(otherwise (emit (list 'UNKNOWN (car expr)))))))))
+  (let ((op (car expr)))
+    (cond
+      ((contains '(CONST GLOBAL-REF LOCAL-REF DEEP-REF RETURN) op) (emit expr))
+      ((contains '(GLOBAL-SET LOCAL-SET) op) (generate-set expr))
+      (t (case op
+	   ('NOP nil)
+	   ('DEEP-SET  (generate-deep (second expr) (third expr) (forth expr)))
+	   ('LABEL (generate-2-params expr))
+	   ('SEQ (app #'inner-generate (cdr expr))) ; последовательность
+	   ('ALTER (generate-if (cdr expr))) ; ветвление
+	   ('FIX-LET (generate-let (cadr expr) (caddr expr) (cadddr expr))) ; let форма
+	   ('FIX-CLOSURE (generate-closure (cadr expr) (caddr expr))) ; замыкание
+	   ('FIX-PRIM (generate-fix-prim (cadr expr) (caddr expr))) ; вызов примитива
+	   ('NARY-PRIM (generate-nary-prim (cadr expr) (caddr expr) (cadddr expr))) ; вызов nary примитива
+	   ('FIX-CALL (generate-reg-call (cadr expr) nil (caddr expr) (cadddr expr))) ; обычный вызов
+	   ('NARY-CALL (generate-reg-call (cadr expr) (caddr expr) (cadddr expr) (caddddr expr))) ; вызов с переменным числом аргументов
+	   ('GOTO (emit (list 'JMP (second expr))))
+	   (otherwise (emit (list 'UNKNOWN op))))))))
 
 (defun generate (expr)
   (setq *program* nil)
