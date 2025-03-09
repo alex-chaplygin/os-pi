@@ -136,31 +136,10 @@
   `((lambda ,(get-vars vars) ,@body)
     ,@(get-vals vars)))
 
-"(let* ((x 0)
-        (y (+ x 1))
-        (z (* y 5)))
-     (+ x y))"
-"((lambda (x)
-    ((lambda (y)
-      ((lambda (z)
-         (+ x y z)) 
-       (* y 5))
-     (+ x 1))) 
-   0)"
-
-"(inner-let* (x y z) (0 (+ x 1) (*y 5)) (+ x y z))"
-
-(defmacro inner-let* (vars vals &rest body)
-  "Вспомогательная функция для let"
-  `((lambda (,(car vars)) (if ,(null (cdr vars))
-			       (progn ,@body)
-			       (inner-let* ,(cdr vars) ,(cdr vals) ,@body)))
-			     ,(car vals)))
-
 (defmacro let* (vars &rest body)
   "Создаёт блок из локальных переменных, которые могут использовать друг друга при задании начального значения"
-  `(inner-let* ,(get-vars vars) ,(get-vals vars) ,@body))
-
+  (if (null (cdr vars)) `(let ,vars ,@body)
+      `(let (,(car vars)) (let* ,(cdr vars) ,@body))))
 
 (defun get-vars (v)
   "Получение списка переменных для let"
