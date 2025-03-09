@@ -9,7 +9,7 @@
   (if (null list1) list2
     (if (null (cdr list1))
 	(cons (car list1) list2)
-      (cons (car list1) (append (cdr list1) list2)))))
+      (cons (car list1) (append2 (cdr list1) list2)))))
 
 (defmacro append (&rest lists)
   "Объединение произвольного количества списков. Если нет аргументов, возвращает nil."
@@ -24,16 +24,27 @@
 	(funcall f (car list))
 	(app f (cdr list)))))
 
+(defun list-length (list)
+  "длина списка list"
+  (if (null list)
+      0
+      (++ (list-length (cdr list))))) 
+
 (defmacro dolist (params &rest bod)
   "Вариант app, обходит список с итерационной переменной"
   "(dolist (x list) (setq a x) (setq b x))"
-  (if (not (and (pairp params) (= (list-length params) 2) (symbolp (car params)) (pairp (second params))))
-      (error "dolist: incorrect arguments")
+  (if (not (and (pairp params)
+   		(= (list-length params) 2)
+   		(symbolp (car params))
+		))
+		     (error "dolist: incorrect arguments")
   (let ((loops (gensym))
 	(tests (gensym))
 	(var (car params))
 	(list (gensym)))
-    `(tagbody
+    `(if (not (pairp ,(second params)))
+	 (error "dolist: incorrect list")
+    (tagbody
 	(setq ,list ,(second params))
 	(go ,tests)
 	,loops
@@ -41,7 +52,7 @@
 	(setq ,list (cdr ,list))
 	,@bod
 	,tests
-	(if (null ,list) nil (go ,loops))))))
+	(if (null ,list) nil (go ,loops)))))))
 	
 (defun map (f list)
   "Применяет функцию f к каждому элементу списка list и возвращает новый список"
@@ -113,12 +124,6 @@
       (when (not (contains unique elem))
 	(setq unique (cons elem unique)))) ; элементы добавляются в начало списка
     (reverse unique))) ; переворачиваем список обратно
-
-(defun list-length (list)
-  "длина списка list"
-  (if (null list)
-      0
-      (++ (list-length (cdr list))))) 
 
 (defun list-search (list element)
   "Находит индекс элемента element в списке list."
