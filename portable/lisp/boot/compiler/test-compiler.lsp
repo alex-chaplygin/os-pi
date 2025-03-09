@@ -166,6 +166,37 @@
 (test-compile '(progn (defmacro test-cond (a) (cond (1))) (test-cond ())) '())
 (test-compile '(progn (defmacro test-cond (a) (cond (1 2 3))) (test-cond ())) '())
 
+(test-compile '(progn
+(defun list (&rest args)
+  "Функция создания списка"
+  args)
+
+(defun case-func (p val)
+  (if (eq (car p) 'otherwise)
+      (list t (car (cdr p)))
+      (list (list 'equal (car p) val) (car (cdr p)))))
+
+(defmacro cond (&rest body)
+  "Условный оператор cond"
+  (if (eq body ())
+      nil
+      (let ((c (car body)))
+	(if (cdr c)
+	    `(if ,(car c)
+		 (progn ,@(cdr c))
+		 (cond ,@(cdr body)))
+	    (car c)))))
+
+(defun map (f list)
+  (if (eq list ()) nil
+    (cons (funcall f (car list)) (map f (cdr list)))))
+
+(defmacro case (val &rest list)
+  `(cond ,@(map #'(lambda (x) (case-func x val)) list)))
+
+(case 1 (1 2) (3 4) (otherwise 5)))
+'(SEQ (LABEL LIST (SEQ (SEQ (CONST "Функция создания списка") (LOCAL-REF 1)) (RETURN))) (SEQ (LABEL CASE-FUNC (SEQ (ALTER (FIX-PRIM EQ ((FIX-PRIM CAR ((LOCAL-REF 0))) (CONST OTHERWISE))) (NARY-CALL LIST 0 0 ((GLOBAL-REF 0) (FIX-PRIM CAR ((FIX-PRIM CDR ((LOCAL-REF 0))))))) (NARY-CALL LIST 0 0 ((NARY-CALL LIST 0 0 ((CONST EQUAL) (FIX-PRIM CAR ((LOCAL-REF 0))) (LOCAL-REF 1))) (FIX-PRIM CAR ((FIX-PRIM CDR ((LOCAL-REF 0)))))))) (RETURN))) (SEQ (NOP) (SEQ (LABEL MAP (SEQ (ALTER (FIX-PRIM EQ ((LOCAL-REF 1) (CONST ()))) (GLOBAL-REF 1) (FIX-PRIM CONS ((NARY-PRIM FUNCALL 1 ((LOCAL-REF 0) (FIX-PRIM CAR ((LOCAL-REF 1))))) (FIX-CALL MAP 0 ((LOCAL-REF 0) (FIX-PRIM CDR ((LOCAL-REF 1)))))))) (RETURN))) (SEQ (NOP) (SEQ (CONST "Условный оператор cond") (ALTER (FIX-PRIM EQUAL ((CONST 1) (CONST 1))) (CONST 2) (SEQ (CONST "Условный оператор cond") (ALTER (FIX-PRIM EQUAL ((CONST 3) (CONST 1))) (CONST 4) (SEQ (CONST "Условный оператор cond") (ALTER (GLOBAL-REF 0) (CONST 5) (SEQ (CONST "Условный оператор cond") (CONST ()))))))))))))))
+
 ;; (print 'testing)
 ;; (print
 ;;  (vm-run
