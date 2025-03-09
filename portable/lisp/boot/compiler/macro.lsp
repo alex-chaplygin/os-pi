@@ -81,9 +81,12 @@
 	 (count (second fun)))
     (check-arguments type count args)
     (let ((r
-    (cond ((contains '(fix-prim nary-prim) type) (eval-prim `(,f ,@(map #'(lambda (a) (list 'quote a)) args))))
-	  ((eq 'fix-func type) (macro-eval-app-func (forth fun) (fifth fun) args env))
-	  (t (comp-err "macro-eval-app: invalid function" f)))))
+    (cond ((contains '(fix-prim nary-prim) type) (eval-prim `(,f ,@(map #'(lambda (a) (list 'quote a)) (macro-eval-args args env)))))
+	  ((eq 'fix-func type) (macro-eval-app-func (forth fun) (fifth fun) (macro-eval-args args env) env))
+	  ((eq 'nary-func type) (macro-eval-app-func (forth fun) (fifth fun) (macro-eval-args (make-nary-args count args) env) env))
+	  ((eq 'fix-macro type) (macroexpand (third fun) args (forth fun)))
+	  ((eq 'nary-macro type) (macroexpand (third fun) (make-nary-args count args) (forth fun)))
+	  (t (comp-err "macro-eval-app: invalid function" f type)))))
       r)))
 
 ;; вычисление последовательности
@@ -126,7 +129,7 @@
 	  ('backquote (macro-eval-backquote (car args) env))
 	  ('function expr)
 	  ('funcall (macro-eval-funcall (macro-eval (car args) env) (macro-eval-args (cdr args) env) env))
-	  (otherwise (macro-eval-app f (macro-eval-args args env) env))))))
+	  (otherwise (macro-eval-app f args env))))))
 
 ;; раскрытие последовательности
 (defun macro-expand-progn (expr env)
