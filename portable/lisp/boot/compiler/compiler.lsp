@@ -31,7 +31,7 @@
   `(defun ,name (name env arity ,@other)
      (setq ,list (cons (list name env arity ,@other) ,list))))
 (mk/add-func add-func *fix-functions* args body) ;; фиксированное число аргументов
-(mk/add-func add-nary-func *nary-functions*) ;; переменное число аргументов
+(mk/add-func add-nary-func *nary-functions* args body) ;; переменное число аргументов
 (mk/add-func add-local-func *local-functions* real-name) ;; локальные функции
 (mk/add-func add-fix-macro *fix-macros* args body) ;; макросы - фиксированное число аргументов
 (mk/add-func add-nary-macro *nary-macros* args body) ;; макросы - переменное число аргументов
@@ -80,7 +80,7 @@
 ;; (список аргументов, тело функции, локальное окружение).
 (defun compile-lambda (name args body env)
     (if (is-nary args)
-	(add-nary-func name (list-length env) (num-fix-args args 0))
+	(add-nary-func name (list-length env) (num-fix-args args 0) args body)
 	(add-func name (list-length env) (list-length args) args body))
     (compile-func-body name args body env))
 
@@ -99,7 +99,7 @@
 	  ((setq r (search-symbol *fix-functions* f))
 	   (list 'fix-func (third r) (second r) (forth r) (fifth r)))  ; fix-func num-args env args body
 	  ((setq r (search-symbol *nary-functions* f))
-	   (list 'nary-func (third r) (second r)))  ; nary-func num-args env
+	   (list 'nary-func (third r) (second r) (forth r) (fifth r)))  ; nary-func num-args env args body
 	  ((setq r (search-symbol *fix-primitives* f))
 	   (list 'fix-prim (cdr r))) ; fix-prim num-args
 	  ((setq r (search-symbol *nary-primitives* f))
