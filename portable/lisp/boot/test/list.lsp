@@ -1,5 +1,16 @@
 ;; тестирование функций для списков
 
+(defun append-tests ()
+  "Тесты функций объединения списков"
+  (print "Тесты функций объединения списков")
+  (print (assert (append '(1 2) '(3 4)) '(1 2 3 4)))
+  (print (assert (append '() '(1 2)) '(1 2)))
+  (print (assert (append '(1 2) '()) '(1 2)))
+  (print (assert (append) nil))
+  (print (assert (append '(1)) '(1)))
+  (print (assert (append '(1 2) '(3 4) '(5 6)) '(1 2 3 4 5 6)))
+  (print (assert (append '() '() '()) '())))
+
 (defun app-tests ()
   "Тесты функции app"
   (print "Тесты функции app")
@@ -9,6 +20,14 @@
   (print (assert (app #'(lambda (x) (print x)) '(a)) nil))
   ;; Тест 3: Список с несколькими элементами
   (print (assert (app #'(lambda (x) (print x)) '(1 2 3)) nil)))
+
+(defun list-length-tests ()
+  "Тесты возвращения длины списка"
+  (print "Тесты возвращения длины списка")
+  (print (assert (list-length '(4 1 5 2)) 4))
+  (print (assert (list-length '(a)) 1))
+  (print (assert (list-length nil) 0))
+  (print (assert (list-length '()) 0)))
 
 (defun do-list-test ()
   (print "Тест dolist")
@@ -30,6 +49,27 @@
     (print x))
   (dolist (10 '(1 2 3))
     (print 1)))
+
+(defun map-tests ()
+  "Тесты функции map"
+  (print "Тесты функции map")
+  (print (assert (map #'(lambda (x) (* x x)) '(1 2 3 4)) '(1 4 9 16)))
+  (print (assert (map #'(lambda (x) (+ x 1)) '()) nil)))
+
+(defun foldl-tests ()
+  "Тесты левоассоциативной свертки"
+  (print "Тесты левоассоциативной свертки")
+  (print (assert (foldl #'+ 0 '(1 2 3 4)) 10))
+  (print (assert (foldl #'(lambda (acc x) (* acc x)) 1 '(1 2 3 4)) 24))
+  (print (assert (foldl #'+ 0 '()) 0))
+  (foldl "not-a-function" 0 '(1 2 3))
+  (foldl #'+ 0 42))
+
+(defun foldr-tests ()
+  "Тесты правоассоциативной свертки"
+  (print "Тесты правоассоциативной свертки")
+  (print (assert (foldr #'+ 0 '(1 2 3 4)) 10))
+  (print (assert (foldr #'(lambda (x acc) (* x acc)) 1 '(1 2 3 4)) 24)))
 
 (defun minp-tests ()
   "Тесты возврата минимального элемента списка по предикату"
@@ -63,14 +103,6 @@
   ;; Тест на одинаковые элементы
   (print (assert (sort #'< '(7 7 7 7)) '(7 7 7 7)))
   (print (assert (sort #'> '(7 7 7 7)) '(7 7 7 7))))
-
-(defun list-length-tests ()
-  "Тесты возвращения длины списка"
-  (print "Тесты возвращения длины списка")
-  (print (assert (list-length '(4 1 5 2)) 4))
-  (print (assert (list-length '(a)) 1))
-  (print (assert (list-length nil) 0))
-  (print (assert (list-length '()) 0)))
 
 (defun list-search-tests ()
   "Тесты поиска элемента в списке"
@@ -107,36 +139,7 @@
   (print (assert (cdadr '((1 2) (3 4))) '(4)))
   (print (assert (cddr '(1 2 3)) '(3))))
 
-(defun append-tests ()
-  "Тесты функций объединения списков"
-  (print "Тесты функций объединения списков")
-  (print (assert (append '(1 2) '(3 4)) '(1 2 3 4)))
-  (print (assert (append '() '(1 2)) '(1 2)))
-  (print (assert (append '(1 2) '()) '(1 2)))
-  (print (assert (append) nil))
-  (print (assert (append '(1)) '(1)))
-  (print (assert (append '(1 2) '(3 4) '(5 6)) '(1 2 3 4 5 6)))
-  (print (assert (append '() '() '()) '())))
-
 ; тесты для o (композиция функций)
-
-(defun map-tests ()
-  "Тесты функции map"
-  (print "Тесты функции map")
-  (print (assert (map #'(lambda (x) (* x x)) '(1 2 3 4)) '(1 4 9 16)))
-  (print (assert (map #'(lambda (x) (+ x 1)) '()) nil)))
-
-(defun foldl-tests ()
-  "Тесты левоассоциативной свертки"
-  (print "Тесты левоассоциативной свертки")
-  (print (assert (foldl #'+ 0 '(1 2 3 4)) 10))
-  (print (assert (foldl #'(lambda (acc x) (* acc x)) 1 '(1 2 3 4)) 24)))
-
-(defun foldr-tests ()
-  "Тесты правоассоциативной свертки"
-  (print "Тесты правоассоциативной свертки")
-  (print (assert (foldr #'+ 0 '(1 2 3 4)) 10))
-  (print (assert (foldr #'(lambda (x acc) (* x acc)) 1 '(1 2 3 4)) 24)))
 
 (defun last-tests ()
   "Тесты функции возвращения последнего элемента списка"
@@ -181,23 +184,23 @@
   (print (assert (list-to-array '()) #())) 
   (print (assert (list-to-array '("kakoj-to text")) #("kakoj-to text"))))
 
+(append-tests)
 (app-tests)
+(list-length-tests)
+(do-list-test)
+(map-tests)
+(foldl-tests)
+(foldr-tests)
 (minp-tests)
 (filter-tests)
 (sort-tests)
-(list-length-tests)
 (list-search-tests)
 (nth-tests)
 (list-tests)
 (list-get-tests)
-(append-tests)
-(map-tests)
-(foldl-tests)
-(foldr-tests)
 (last-tests)
 (last 10)
 (contains-tests)
-(do-list-test)
 (zip-with-test)
 (remove-dupl-tests)
 (reverse-tests)
