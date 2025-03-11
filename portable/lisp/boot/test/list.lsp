@@ -54,7 +54,9 @@
   "Тесты функции map"
   (print "Тесты функции map")
   (print (assert (map #'(lambda (x) (* x x)) '(1 2 3 4)) '(1 4 9 16)))
-  (print (assert (map #'(lambda (x) (+ x 1)) '()) nil)))
+  (print (assert (map #'(lambda (x) (+ x 1)) '()) nil))
+  (map "not-a-function" '(1 2 3))
+  (map #'(lambda (x) (* x x)) 42))
 
 (defun foldl-tests ()
   "Тесты левоассоциативной свертки"
