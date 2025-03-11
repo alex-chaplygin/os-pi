@@ -71,7 +71,10 @@
   "Тесты правоассоциативной свертки"
   (print "Тесты правоассоциативной свертки")
   (print (assert (foldr #'+ 0 '(1 2 3 4)) 10))
-  (print (assert (foldr #'(lambda (x acc) (* x acc)) 1 '(1 2 3 4)) 24)))
+  (print (assert (foldr #'(lambda (x acc) (* x acc)) 1 '(1 2 3 4)) 24))
+  (print (assert (foldr #'+ 0 '()) 0))
+  (foldr "not-a-function" 0 '(1 2 3))
+  (foldr #'+ 0 42))
 
 (defun minp-tests ()
   "Тесты возврата минимального элемента списка по предикату"
