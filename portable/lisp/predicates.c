@@ -31,10 +31,12 @@ MAKE_PREDICATE(pairp, TYPE(el) == PAIR)
 MAKE_PREDICATE(symbolp, TYPE(el) == SYMBOL)
 // Число
 MAKE_PREDICATE(integerp, TYPE(el) == NUMBER || TYPE(el) == BIGNUMBER)
+MAKE_PREDICATE(functionp, TYPE(el) == FUNCTION)
 
 void init_predicates()
 {
     register_func("SYMBOLP", symbolp);
     register_func("PAIRP", pairp);
     register_func("INTEGERP", integerp);	
+    register_func("FUNCTIONP", functionp);	
 }
