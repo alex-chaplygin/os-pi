@@ -14,7 +14,7 @@
     (% . 2) (<< . 2) (>> . 2) (eq . 2) (equal . 2) (> . 2) (< . 2) (sin . 1) (cos . 1)
     (intern . 1) (symbol-name . 1) (string-size . 1) (inttostr . 1) (code-char . 1) (putchar . 1) (char . 2) (subseq . 3)
     (make-array . 1) (array-size . 1) (aref . 2) (seta . 3)
-    (symbolp . 1) (integerp . 1) (pairp . 1) (gensym . 0)))
+    (symbolp . 1) (integerp . 1) (pairp . 1) (functionp . 1) (gensym . 0)))
 ;; список примитивов с переменным количеством аргументов
 (defvar *nary-primitives*
   '((+ . 0) (- . 1) (* . 0) (/ . 1) (& . 0) (bitor . 0) (concat . 0) (funcall . 1) (print . 0) (error . 0)))
@@ -145,7 +145,8 @@
     (case type
       ('lambda (list 'FIX-CLOSURE name (compile-lambda name (second f) (cons 'progn (cddr f)) env)))
       ('fix-func (list 'FIX-CLOSURE f nil))
-      (otherwise (comp-err "invalid function argument")))))
+      ('local-func (list 'FIX-CLOSURE (forth fun) nil))
+      (otherwise (comp-err "invalid function argument" f fun)))))
 
 ;; Компилирует объявление функции с помощью DEFUN.
 ;; expr - список, состоящий из названия, списка аргументов и тела функции.
