@@ -35,14 +35,14 @@
 (defun check-key (hash key)
   (if (empty-hash hash) nil (check-key* (cdr hash) key)))
 
-(defun remove-key (hash key)
-  "Удаляет ключ key в таблице hash, без проверки вхождения"
-  (when (empty-hash hash) (error "remove-key: empty hash"))
-  (remove-key* hash (cdr hash) key))
 (defun remove-key* (prev hash key)
   (when (null hash) (error (concat "remove-key: no key " (symbol-name key))))
   (if (equal key (caar hash)) (rplacd prev (cdr hash))
       (remove-key* (cdr prev) (cdr hash) key)))
+(defun remove-key (hash key)
+  "Удаляет ключ key в таблице hash, без проверки вхождения"
+  (when (empty-hash hash) (error "remove-key: empty hash"))
+  (remove-key* hash (cdr hash) key))
 
 (defun hash-first (hash)
   "Вернуть первый элемент hash"
