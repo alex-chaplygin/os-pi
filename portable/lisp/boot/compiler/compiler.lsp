@@ -11,9 +11,9 @@
 ;; список примитивов с фиксированным количеством аргументов
 (defvar *fix-primitives*
   '((car . 1) (cdr . 1) (atom . 1) (cons . 2) (rplaca . 2) (rplacd . 2)
-    (% . 2) (<< . 2) (>> . 2) (eq . 2) (equal . 2) (> . 2) (< . 2) (sin . 1) (cos . 1)
-    (intern . 1) (symbol-name . 1) (string-size . 1) (inttostr . 1) (code-char . 1) (putchar . 1) (char . 2) (subseq . 3)
-    (make-array . 1) (array-size . 1) (aref . 2) (seta . 3)
+    (% . 2) (<< . 2) (>> . 2) (eq . 2) (equal . 2) (> . 2) (< . 2) (sin . 1) (cos . 1) (sqrt . 1)
+    (intern . 1) (symbol-name . 1) (string-size . 1) (inttostr . 1) (code-char . 1) (char-code . 1) (putchar . 1) (char . 2) (subseq . 3)
+    (make-array . 1) (make-string . 2) (array-size . 1) (aref . 2) (seta . 3) (sets . 3)
     (symbolp . 1) (integerp . 1) (pairp . 1) (functionp . 1) (gensym . 0)))
 ;; список примитивов с переменным количеством аргументов
 (defvar *nary-primitives*
@@ -110,7 +110,7 @@
 (defun check-arguments (type count args)
     (when (contains '(lambda fix-func local-func fix-prim fix-macro) type)
       (when (!= count (list-length args))
-	(comp-err "invalid args count")))
+	(comp-err "invalid args count" count args)))
     (when (contains '(nary-prim nary-func nary-macro) type)
       (when (> count (list-length args))
 	(comp-err "invalid nary args count"))))
