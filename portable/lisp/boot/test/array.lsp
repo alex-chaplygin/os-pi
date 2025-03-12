@@ -27,6 +27,12 @@
 (test-arr-set-num #(0 0 0 0) 2 0x3130 2)
 
 (defun test-arr-get-num (arr ofs size)
-    (print (assert (arr-get-num arr ofs size) 0x3130)))
+  (print (assert (arr-get-num arr ofs size) 0x3130)))
+
+(defun test-array-to-list (arr list)
+  (print (assert (array-to-list arr) list)))
 
 (test-arr-get-num #(0 0 0x30 0x31 0x32 0x33) 2 2)
+(test-array-to-list #() ())
+(test-array-to-list #(1) '(1))
+(test-array-to-list #(1 2 3 4 5) '(1 2 3 4 5))

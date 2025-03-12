@@ -91,3 +91,11 @@
 	(arr #(0 0 0x30 0x31 0x32 0x33 0x34 0x35 0x36 0x37 0x38 0x39 0x20 1 0 0 0)))
     (write-struct arr 2 s '((f2 . 10)(name . "abc")(test . 10)))
     arr))
+
+(defun array-to-list (a)
+  "Пеобразовать массив a в список"
+  (let ((s (array-size a))
+	(l nil))
+    (for i 0 s
+	 (setq l (cons (aref a (- s i 1)) l)))
+      l))
