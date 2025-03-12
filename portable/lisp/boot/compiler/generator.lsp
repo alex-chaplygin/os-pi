@@ -1,10 +1,15 @@
 ;; Генерация кода после анализа компилятора
-
+;; максимальный размер программы
+(defconst +max-prog-size+ 100000)
 ;; *program* - хранит накопленный результат компиляции.
-(defvar *program*)
+(defvar *program* (make-array +max-prog-size+))
+;; *program-size* - размер программы на выходе
+(defvar *program-size*)
 
 ;; Добавить инструкцию в программу
 (defun emit (val)
+;;  (seta *program* *program-size* val)
+  ;;  (incf *program-size*))
   (setq *program* (append *program* (list val))))
 
 ;; Ветвление (cond true false)
@@ -108,6 +113,9 @@
 	   (otherwise (emit (list 'UNKNOWN op))))))))
 
 (defun generate (expr)
+  ;;  (setq *program-size* 0)
   (setq *program* nil)
   (inner-generate expr)
-  *program*)
+  *program*
+  ;;(array-to-list (array-seq *program* 0 *program-size*)))
+)
