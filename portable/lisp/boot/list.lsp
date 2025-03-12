@@ -62,10 +62,12 @@
 (defun foldl (f start list)
   "Левоассоциативная свертка (foldl):"
   "(f ... (f (f start elem_1) elem_2) ... elem_n)"
-  (defun foldl*(list a)
-    (if (null list) a
-      (foldl* (cdr list) (funcall f a (car list)))))
-  (foldl* list start))
+  (if (not (and (pairp list) (functionp f)))
+      (error "foldl: incorrect arguments")
+      (labels ((foldl* (lst acc)
+		 (if (null lst) acc
+		     (foldl* (cdr lst) (funcall f acc (car lst))))))
+	(foldl* list start))))
 
 (defun foldr (f start list)
   "Правоассоциативная свертка (foldr):"
