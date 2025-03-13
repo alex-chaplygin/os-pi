@@ -56,8 +56,10 @@
 	
 (defun map (f list)
   "Применяет функцию f к каждому элементу списка list и возвращает новый список"
+  (if (not (and (pairp list) (functionp f)))
+      (error "map: incorrect arguments")
   (if (null list) nil
-    (cons (funcall f (car list)) (map f (cdr list)))))
+    (cons (funcall f (car list)) (map f (cdr list))))))
 
 (defun foldl (f start list)
   "Левоассоциативная свертка (foldl):"
