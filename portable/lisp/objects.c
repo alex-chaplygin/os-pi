@@ -607,9 +607,12 @@ void mark_object(object_t obj)
 	    return;
 	GET_STRING(obj)->length |= mask;
     } else if (TYPE(obj) == ARRAY) {
-        if (((GET_ARRAY(obj)->length) & mask) != 0)
+	array_t *a = GET_ARRAY(obj);
+        if (((a->length) & mask) != 0)
 	    return;
-	GET_ARRAY(obj)->length |= mask;
+	for (int i = 0; i < a->length; i++)
+	    mark_object(a->data[i]);
+	a->length |= mask;
     } 
 }
 
