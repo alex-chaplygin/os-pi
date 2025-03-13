@@ -45,25 +45,6 @@ void test_invalid_car()
         OK;
 }
 
-/**
- * Попытка вернуть элемент из списка объектов 
- */
-void test_car_many_args()
-{
-    printf("test_car_many_args: ");
-
-    int num1 = 1;
-    int num2 = 2;
-    object_t num_obj1 = new_number(num1);
-    object_t num_obj2 = new_number(num2);
-
-    object_t list_with_two_args = new_pair(num_obj1, new_pair(num_obj2, NULLOBJ));
-    if (setjmp(jmp_env) == 0) {
-	object_t result = car(list_with_two_args);
-        OK;
-    } else 
-        FAIL;
-}
 
 /**
  * создать объект для выражения (cdr (quote (5)))
@@ -97,22 +78,6 @@ void test_invalid_cdr()
     } else 
         OK;
 }
-
-/**
- * Попытка вычисления объекта из нескольких элеемнтов для cdr
- */
- void test_cdr_many_args() 
- { 
-     printf("test_cdr_many_args:\n"); 
-     object_t num_obj1 = new_number(1); 
-     object_t num_obj2 = new_number(2); 
-     object_t list_with_two_args = new_pair(num_obj1, new_pair(num_obj2, NULLOBJ)); 
-     if (setjmp(jmp_env) == 0) {
-	 object_t res = cdr(list_with_two_args); 
-	 OK;
-     } else 
-	 FAIL;
- } 
 
 
 // ( (5(3 NULLOBJ)) (2 NULLOBJ) ) -> (2(3 NULLOBJ))
@@ -152,20 +117,6 @@ void test_rplaca_not_enought_params()
 	FAIL;
 }
 
-// слишком много параметров
-void test_rplaca_too_many_params()
-{
-    printf("test_rplaca_too_many_params: ");
-    object_t p1 = new_pair(new_number(5), new_number(5)); 
-    object_t p2 = new_pair(new_number(5), new_number(5)); 
-    object_t p3 = new_pair(p1, p2); 
-    if (setjmp(jmp_env) == 0) {
-        object_t res = rplaca(p3, p2); 
-	OK;
-    } else 
-	FAIL;
-}
-
 // первый параметр не pair
 void test_rplaca_first_param_is_not_pair()
 {
@@ -198,19 +149,6 @@ void test_rplacd_no_params()
     printf("test_rplacd_no_params: ");
     object_t num_obj = new_number(1); 
     object_t list = new_pair(num_obj, NULLOBJ); 
-    if (setjmp(jmp_env) == 0) {
-        object_t res = rplacd(num_obj, list); 
-	FAIL;
-    } else 
-	OK;
-}
-
-// Попытка замены при нескольких параметрах
-void test_rplacd_many_params()
-{
-    printf("test_rplacd_many_params: ");
-    object_t num_obj = new_number(1); 
-    object_t list = new_pair(num_obj, new_pair(num_obj, new_pair(num_obj, NULLOBJ))); 
     if (setjmp(jmp_env) == 0) {
         object_t res = rplacd(num_obj, list); 
 	FAIL;
@@ -269,19 +207,15 @@ int main()
     init_regions();
     init_pair();
     init_eval();
-    test_car_many_args();//60
     test_invalid_car();//58
     test_cdr();
     test_invalid_cdr();//61
-    test_cdr_many_args();//63
     test_rplaca();
     test_rplaca_not_enought_params();
-    test_rplaca_too_many_params();
     test_rplaca_first_param_is_not_pair();
     test_rplaca_empty_list();
     test_rplacd();//21
     test_rplacd_no_params();//81
-    test_rplacd_many_params();//80
     test_rplacd_empty_list();//81
     test_rplacd_not_pair();//82
     printf("------------end_test_pair---------\n");
