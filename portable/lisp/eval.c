@@ -663,7 +663,7 @@ object_t eval(object_t obj, object_t env, object_t func)
 #ifdef DEBUG
     	debug_stack = new_pair(obj, debug_stack);
 #endif
-	int args_count = list_length(obj);
+	int args_count = list_length(TAIL(obj));
 	if (s->nary == 0) {
 	    if (s->count != args_count)
 		error("%s: invalid arguments count", s->str);
