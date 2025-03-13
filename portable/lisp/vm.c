@@ -53,6 +53,7 @@ void vm_init(object_t *prog_mem, int prog_size, object_t *const_mem, int const_c
     pc_reg = program_memory;
     acc_reg = NULLOBJ;
     frame_reg = NULL;
+    working = 1;
 }
 
 /**
@@ -60,7 +61,7 @@ void vm_init(object_t *prog_mem, int prog_size, object_t *const_mem, int const_c
  */
 int fetch()
 {
-    return *pc_reg++ >> MARK_BIT;
+    return get_value(*pc_reg++);
 }
 
 /**
