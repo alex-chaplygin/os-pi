@@ -78,11 +78,11 @@ void test_jmp()
         N(CONST), N(1),
 	N(HALT),
 	N(CONST), N(2),
-	N(JMP), N(-3),
+	N(JMP), N(-7),
 	N(HALT)
     };
     object_t pc_constmem[] = {N(1), N(2), N(3)};
-    vm_init(pc_progmem, 17, pc_constmem, 3 ,0);
+    vm_init(pc_progmem, 16, pc_constmem, 3 ,0);
     vm_run();
     ASSERT(get_value(acc_reg), 2);
 }
@@ -106,27 +106,15 @@ void test_jnt()
 	N(HALT)
     };
     object_t pc_constmem[] = {N(1), N(1), N(0), N(2), N(3)};
-    vm_init(pc_progmem, 17, pc_constmem, 5, 0);
+    vm_init(pc_progmem,17,pc_constmem, 5, 0);
     vm_run();
-    ASSERT(get_value(acc_reg),2);
-}
-
-/**
- * Тест инструкции HALT
- */
-void test_halt()
-{
-    printf("test_halt: ");
-    object_t pc_progmem[] = {};
-    object_t pc_constmem[] = {N(2),N(3)};
-    vm_init(pc_progmem,5,pc_constmem,2,0);
-    vm_run();
-    ASSERT(get_value(acc_reg),3);
+    ASSERT(get_value(acc_reg), 2);
 }
 
 int main()
 {
     test_const();
     test_jmp();
+    test_jnt();
     return 0;
 }
