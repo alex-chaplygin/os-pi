@@ -89,7 +89,9 @@
   (labels ((pred (x) (>= x 4)))
     (print (assert (filter #'pred '(4 2 5 1)) '(4 5))))
   (print (assert (filter #'(lambda (x) t) '(1 2 3)) '(1 2 3)))
-  (print (assert (filter #'(lambda (x) nil) '(1 2 3)) nil)))
+  (print (assert (filter #'(lambda (x) nil) '(1 2 3)) nil))
+  (filter 123 '(1 2 3))
+  (filter #'(lambda (x) (< x 3)) 123))
 
 (defun sort-tests ()
   "Тесты сортировки списка"
