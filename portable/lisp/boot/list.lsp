@@ -74,8 +74,12 @@
 (defun foldr (f start list)
   "Правоассоциативная свертка (foldr):"
   "(f elem_1 (f elem_2 ... (f elem_n start) ... ))"
-  (if (null list) start
-    (funcall f (car list) (foldr f start (cdr list)))))
+  (if (not (and (pairp list) (functionp f)))
+      (error "foldr: incorrect arguments")
+      (labels ((foldr* (list start)
+		 (if (null list) start
+		     (funcall f (car list) (foldr f start (cdr list))))))
+	(foldr* list start))))
 
 (defun last (lst)
   "Найти последний элемент списка"
