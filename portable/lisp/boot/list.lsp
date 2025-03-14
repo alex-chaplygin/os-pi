@@ -76,10 +76,10 @@
   "(f elem_1 (f elem_2 ... (f elem_n start) ... ))"
   (if (not (and (pairp list) (functionp f)))
       (error "foldr: incorrect arguments")
-      (labels ((foldr* (list start)
+      (labels ((foldr* (start list)
 		 (if (null list) start
-		     (funcall f (car list) (foldr f start (cdr list))))))
-	(foldr* list start))))
+		     (funcall f (car list) (foldr* start (cdr list))))))
+	(foldr* start list))))
 
 (defun last (lst)
   "Найти последний элемент списка"
@@ -89,10 +89,16 @@
 
 (defun filter (pred list)
   "Остаются только те элементы списка list, для которых предикат pred с одним параметров возвращает t"
-  (if (null list) nil
-      (let ((h (car list))
-	    (tail (filter pred (cdr list))))
-	(if (funcall pred h) (cons h tail) tail))))
+  (unless (functionp pred)
+    (error "filter: not function in argument"))
+  (unless (pairp list)
+    (error "filter: incorrect list"))
+  (labels ((filter* (list)
+	     (if (null list) nil
+		 (let ((h (car list))
+		       (tail (filter* (cdr list))))
+		   (if (funcall pred h) (cons h tail) tail)))))
+    (filter* list)))
 
 (defun sort (pr list)
   "Быстрая сортировка списка list по предикату pr (2 параметра)"
