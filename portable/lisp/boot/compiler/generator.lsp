@@ -8,9 +8,12 @@
 
 ;; Добавить инструкцию в программу
 (defun emit (val)
-  (seta *program* *program-size* val)
-  (incf *program-size*))
-
+  (let ((v (list val)))
+    (if (null *program*)
+	  (setq *program* v)
+	  (rplacd *program-size* v))
+    (setq *program-size* v)))
+	  
 ;; Ветвление (cond true false)
 (defun generate-if (expr)
   (let ((label-false (gensym))
@@ -112,6 +115,7 @@
 	   (otherwise (emit (list 'UNKNOWN op))))))))
 
 (defun generate (expr)
+  (setq *program* nil)
   (setq *program-size* 0)
   (inner-generate expr)
-  (array-to-list (array-seq *program* 0 *program-size*)))
+  *program*)
