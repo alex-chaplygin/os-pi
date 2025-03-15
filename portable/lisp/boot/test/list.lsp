@@ -163,9 +163,14 @@
   (print (assert (contains '() 1) nil)))
 
 (defun zip-with-test ()
-  "Тест zip-with"
+  (print "Тест zip-with")
   (print (assert (zip-with #'+ '(1 2) '(3 4)) '(4 6)))
-  (zip-with #'+ '(1) ()))
+  (print (assert (zip-with #'+ '() '()) '()))  
+  (print (assert (zip-with #'+ '(42) '(1)) '(43)))
+  (zip-with #'+ '(1) ())
+  (zip-with 42 '(1 2 3) '(4 5 6))
+  (zip-with #'+ 42 '(1 2 3))
+  (zip-with #'+ '(1 2 3) 42))
 
 (defun remove-dupl-tests ()
   "Тесты функции удаления повторяющихся элементов"
