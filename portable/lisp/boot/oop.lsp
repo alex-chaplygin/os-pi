@@ -46,9 +46,10 @@
 (defmacro make-instance (class)
   "Создать экземпляр объекта класса class"
   "(make-instance 'point) -> ((X.nil)(Y.nil))"
-  (if (not (check-key *class-table* class)) (error (concat "no class " (symbol-name class)))
-      (let ((o (gensym)))
-	`(let ((,o (make-hash)))
+  (let ((o (gensym)))
+    `(if (not (check-key *class-table* ',class))
+	 (error (concat "no class " (symbol-name ',class)))
+	 (let ((,o (make-hash)))
 	   (set-hash ,o 'class ',class)
 	   (app #'(lambda (x) (set-hash ,o x nil)) ',(get-slots class))
 	   ,o))))
@@ -78,11 +79,10 @@
   "Определяет метод с именем name"
   "args - аргументы, первый аргумент состоит из имени экземпляра объекта и имени класса"
   "body - тело метода"
-  (let ((class (slot *class-table* (cadar args))))
-    `(progn
-       (set-hash ',class ',name #'(lambda ,(cons (caar args) (cdr args)) ,@body))
-       (defun ,name ,(cons (caar args) (cdr args))
-	 (funcall (get-method (slot ,(caar args) 'class) ',name) ,(caar args) ,@(cdr args))))))
+  `(let ((class (slot *class-table* ',(cadar args))))
+     (set-hash class ',name #'(lambda ,(cons (caar args) (cdr args)) ,@body)))
+  `(defun ,name ,(cons (caar args) (cdr args))
+     (funcall (get-method (slot ,(caar args) 'class) ',name) ,(caar args) ,@(cdr args))))
 
 (defmacro super (method-name obj &rest args)
   "Вызов метода method-name родителя экземпляра класса obj с аргументами args"
