@@ -16,6 +16,8 @@
 (defvar *inst-jmp-table* '(jmp jnt fix-closure reg-call))
 ;; *consts* - список констант.
 (defvar *consts*)
+;; *consts-end* - указатель на конец *consts*
+(defvar *consts-end*)
 ;; *func-args-hash* - хэш-таблица, в которой ключ - адрес функции, а значение - её тип и число аргументов.
 (defvar *func-args-hash*)
 
@@ -28,14 +30,22 @@
 ;; и сбор информации о метках и переходах).
 (defun assemble-first-pass (program)
   (setq *consts* (list t nil)
+	*consts-end* (cdr *consts*)
         *func-args-hash* (make-hash))
   (let ((bytecode nil)
+	(end nil)
         (pc 0)
         (jmp-labels nil)
         (jmp-addrs (make-hash)))
-    (labels ((asm-emit (&rest bytes)
-               (setq bytecode (append bytecode bytes)
-                     pc (+ pc (list-length bytes)))))
+    (labels ((last-cdr (list)
+	       (if (null (cdr list)) list
+		   (last-cdr (cdr list))))
+	     (asm-emit (&rest bytes)
+	       (if (null bytecode)
+		   (setq bytecode bytes)
+		   (rplacd end bytes))
+               (setq end (last-cdr bytes)
+		     pc (+ pc (list-length bytes)))))
       (app #'(lambda (inst)
                (case (car inst)
                  ('label (assemble-label inst))
@@ -43,18 +53,18 @@
                  ('prim (assemble-prim inst))
                  ('nprim (assemble-prim inst))
                  (otherwise (setq jmp-labels (assemble-inst inst jmp-labels)))))
-           program))
-    (setq bytecode (append bytecode (list (list-search *inst-table* 'HALT)))
-          pc (++ pc))
+           program)
+      (asm-emit (list (list-search *inst-table* 'HALT)))
+      (setq pc (++ pc)))
     (list bytecode pc jmp-labels jmp-addrs)))
 
 ;; Второй проход ассемблера
 ;; (замена меток переходов на относительные адреса).
 (defun assemble-second-pass (first-pass-res)
-  (let ((bytecode (nth first-pass-res 0))
-        (bytecode-len (nth first-pass-res 1))
-        (jmp-labels (nth first-pass-res 2))
-        (jmp-addrs (nth first-pass-res 3)))
+  (let ((bytecode (car first-pass-res))
+        (bytecode-len (second first-pass-res))
+        (jmp-labels (third first-pass-res))
+        (jmp-addrs (forth first-pass-res)))
     (let ((bytecode-arr (make-array bytecode-len)))
       (foldl #'(lambda (pc elem)
                  (seta bytecode-arr pc elem)
@@ -83,10 +93,12 @@
 ;; Ассемблирование инструкции загрузки константы в ACC.
 (defun assemble-const (inst)
   (let* ((c (cadr inst))
+	 (lc (list c))
          (i (list-search *consts* c)))
     (when (null i)
-      (setq i (++ (list-length *consts*))
-            *consts* (append *consts* (list c)))
+      (setq i (++ (list-length *consts*)))
+      (rplacd *consts-end* lc)
+      (setq *consts-end* lc)
       (decf i))
     (asm-emit (list-search *inst-table* 'CONST) i)))
 
