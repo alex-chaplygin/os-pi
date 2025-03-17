@@ -171,14 +171,6 @@
   (zip-with 42 '(1 2 3) '(4 5 6))
   (zip-with #'+ 42 '(1 2 3))
   (zip-with #'+ '(1 2 3) 42))
-
-(defun remove-dupl-tests ()
-  "Тесты функции удаления повторяющихся элементов"
-  (print "Тесты функции удаления повторяющихся элементов")
-  (print (assert (remove-dupl '(1 2 3 4 5 3 6 7)) '(1 2 3 4 5 6 7)))
-  (print (assert (remove-dupl '("a" "b" "c" "d" 4 5 "b" 4)) '("a" "b" "c" "d" 4 5) ))
-  (print (assert (remove-dupl '(1 2 3 4 5)) '(1 2 3 4 5) ))
-  (print (assert (remove-dupl '()) '() )))
   
 (defun reverse-tests ()
   "Тесты функции reverse"
@@ -187,6 +179,17 @@
   (print (assert  (reverse '(1)) '(1))) ;1 число
   (print (assert  (reverse '()) '())) ;пустой текст
   (print (assert  (reverse '((1 2) (3 4))) '((3 4) (1 2)))))
+
+(defun remove-dupl-tests ()
+  "Тесты функции удаления повторяющихся элементов"
+  (print "Тесты функции удаления повторяющихся элементов")
+  (print (assert (remove-dupl '(1 2 3 2 1 4 5 6 5 6 4)) '(1 2 3 4 5 6)))
+  (print (assert (remove-dupl '("a" "b" "c" "d" "b" "d" "b" "c")) '("a" "b" "c" "d") ))
+  (print (assert (remove-dupl '(1 1 1 1 1)) '(1)))
+  (print (assert (remove-dupl '(1 2 3 4 5)) '(1 2 3 4 5)))
+  (print (assert (remove-dupl '()) '()))
+  (print (assert (remove-dupl '(24)) '(24)))
+  (remove-dupl 24))
 
 (defun list-to-array-tests ()
   "Тесты ф-ции преобразования списка в массив"
@@ -214,6 +217,6 @@
 (last 10)
 (contains-tests)
 (zip-with-test)
-(remove-dupl-tests)
 (reverse-tests)
+(remove-dupl-tests)
 (list-to-array-tests)
