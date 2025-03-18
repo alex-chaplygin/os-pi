@@ -56,36 +56,37 @@
 	
 (defun map (f list)
   "Применяет функцию f к каждому элементу списка list и возвращает новый список"
-  (if (not (and (pairp list) (functionp f)))
-      (error "map: incorrect arguments")
+  (when (not (and (pairp list) (functionp f)))
+      (error "map: incorrect arguments"))
   (if (null list) nil
-    (cons (funcall f (car list)) (map f (cdr list))))))
+    (cons (funcall f (car list)) (map f (cdr list)))))
 
 (defun foldl (f start list)
   "Левоассоциативная свертка (foldl):"
   "(f ... (f (f start elem_1) elem_2) ... elem_n)"
-  (if (not (and (pairp list) (functionp f)))
-      (error "foldl: incorrect arguments")
-      (labels ((foldl* (lst acc)
-		 (if (null lst) acc
-		     (foldl* (cdr lst) (funcall f acc (car lst))))))
-	(foldl* list start))))
+  (when (not (and (pairp list) (functionp f)))
+      (error "foldl: incorrect arguments"))
+  (labels ((foldl* (lst acc)
+	     (if (null lst) acc
+		 (foldl* (cdr lst) (funcall f acc (car lst))))))
+    (foldl* list start)))
 
 (defun foldr (f start list)
   "Правоассоциативная свертка (foldr):"
   "(f elem_1 (f elem_2 ... (f elem_n start) ... ))"
-  (if (not (and (pairp list) (functionp f)))
-      (error "foldr: incorrect arguments")
-      (labels ((foldr* (start list)
-		 (if (null list) start
-		     (funcall f (car list) (foldr* start (cdr list))))))
-	(foldr* start list))))
+  (when (not (and (pairp list) (functionp f)))
+    (error "foldr: incorrect arguments"))
+  (labels ((foldr* (start list)
+	     (if (null list) start
+		 (funcall f (car list) (foldr* start (cdr list))))))
+    (foldr* start list)))
 
 (defun last (lst)
   "Найти последний элемент списка"
-  (if (not (pairp lst)) (error "last: not list")
-      (if (null lst) (error "last: empty list")
-          (if (null (cdr lst)) (car lst) (last (cdr lst))))))
+  (cond ((not (pairp lst)) (error "last: not list"))
+	((null lst) (error "last: empty list"))
+	((null (cdr lst)) (car lst))
+	(t (last (cdr lst)))))
 
 (defun filter (pred list)
   "Остаются только те элементы списка list, для которых предикат pred с одним параметров возвращает t"
@@ -133,6 +134,8 @@
 
 (defun remove-dupl(list)
   "Удаляет повторяющиеся элементы из списка"
+  (when (not (pairp list))
+      (error "remove-dupl: incorrect arguments"))
   (let ((unique NIL))
     (dolist (elem list)
       (when (not (contains unique elem))
