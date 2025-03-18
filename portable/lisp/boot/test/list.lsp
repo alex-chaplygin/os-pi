@@ -178,7 +178,8 @@
   (print (assert  (reverse '(1 2 3)) '(3 2 1))) ;3 числа
   (print (assert  (reverse '(1)) '(1))) ;1 число
   (print (assert  (reverse '()) '())) ;пустой текст
-  (print (assert  (reverse '((1 2) (3 4))) '((3 4) (1 2)))))
+  (print (assert  (reverse '((1 2) (3 4))) '((3 4) (1 2))))
+  (reverse 42))
 
 (defun remove-dupl-tests ()
   "Тесты функции удаления повторяющихся элементов"
