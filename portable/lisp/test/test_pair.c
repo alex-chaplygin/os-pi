@@ -143,19 +143,6 @@ void test_rplaca_empty_list()
 	FAIL;
 }
 
-// Попытка замены пары без параметра
-void test_rplacd_no_params()
-{
-    printf("test_rplacd_no_params: ");
-    object_t num_obj = new_number(1); 
-    object_t list = new_pair(num_obj, NULLOBJ); 
-    if (setjmp(jmp_env) == 0) {
-        object_t res = rplacd(num_obj, list); 
-	FAIL;
-    } else 
-	OK;
-}
-
 // Попытка замены для пустой первой пары
 void test_rplacd_empty_list()
 {
@@ -198,6 +185,30 @@ void test_rplacd()
     ASSERT(get_value(FIRST(res)), 1); 
 }
 
+// Попытка замены для NIL
+// (RPLACA NIL 2)
+void test_rplaca_null()
+{
+    printf("test_rplaca_null: ");
+    if (setjmp(jmp_env) == 0) {
+        object_t res = rplaca(NULLOBJ, new_number(2)); 
+	FAIL;
+    } else 
+	OK;
+}
+
+// Попытка замены для NIL
+// (RPLACD NIL 2)
+void test_rplacd_null()
+{
+    printf("test_rplacd_null: ");
+    if (setjmp(jmp_env) == 0) {
+        object_t res = rplacd(NULLOBJ, new_number(2)); 
+	FAIL;
+    } else 
+	OK;
+}
+
 
 int main()
 {
@@ -215,9 +226,10 @@ int main()
     test_rplaca_first_param_is_not_pair();
     test_rplaca_empty_list();
     test_rplacd();//21
-    test_rplacd_no_params();//81
     test_rplacd_empty_list();//81
     test_rplacd_not_pair();//82
+    test_rplaca_null();
+    test_rplacd_null();
     printf("------------end_test_pair---------\n");
     return 0;
 }
