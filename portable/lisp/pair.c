@@ -39,8 +39,10 @@ object_t cdr(object_t arg)
  */
 object_t rplaca(object_t p1, object_t p2)
 {
+    if (p1 == NULLOBJ)
+	error("RPLACA: list is empty");
     if (TYPE(p1) != PAIR)
-	    error("RPLACA: first param is not pair");
+	error("RPLACA: first param is not list");
     object_t list = p1;
     GET_PAIR(list)->left = p2;
     return list;
@@ -53,8 +55,10 @@ object_t rplaca(object_t p1, object_t p2)
  */
 object_t rplacd(object_t p1, object_t p2)
 {
+    if (p1 == NULLOBJ)
+	error("RPLACD: list is empty");
     if (TYPE(p1) != PAIR)
-	error("RPLACD: first param is not pair");
+	error("RPLACD: first param is not list");
     object_t list = p1;
     GET_PAIR(list)->right = p2;
     return list;

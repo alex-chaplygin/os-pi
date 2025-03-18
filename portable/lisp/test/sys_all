@@ -53,8 +53,8 @@ sh sys_test "(atom '(a b c))" "NIL" # 7
 sh sys_test "(atom '())" "T" # 7
 sh sys_test "(atom (atom 'a))" "T" # 7
 sh sys_test "(atom '(atom 'a))" "NIL" # 7
-sh sys_test "(atom )" "atom: no args" # 52 54
-sh sys_test "(atom 'a 'd)" "atom: many args" # 131
+sh sys_test "(atom )" "ATOM: invalid arguments count" # 52 54
+sh sys_test "(atom 'a 'd)" "ATOM: invalid arguments count" # 131
 sh sys_test "(atom \"abc\")" "T" # 3
 sh sys_test "(atom #(1 2 3 4))" "T" # 4
 
@@ -62,7 +62,7 @@ echo "---Тесты QUOTE---"
 sh sys_test "'a" "A" # 5 6
 sh sys_test "'()" "NIL"
 sh sys_test "(quote())" "NIL"
-sh sys_test "(quote a b)" "quote: many args" #53
+sh sys_test "(quote a b)" "QUOTE: invalid arguments count" #53
 
 echo "---Тесты BACKQUOTE---"
 sh sys_test "\`(,@())" "NIL" #43 48
