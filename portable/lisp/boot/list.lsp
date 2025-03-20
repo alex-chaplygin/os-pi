@@ -130,6 +130,8 @@
 
 (defun reverse (lst)
   "Переворачивает список"
+  (when (not (pairp lst))
+    (error "reverse: not list"))
   (foldl #'(lambda (acc elem) (cons elem acc)) nil lst))
 
 (defun remove-dupl(list)
