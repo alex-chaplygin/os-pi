@@ -109,7 +109,9 @@
   (print (assert (sort #'> '(5 4 3 2 1)) '(5 4 3 2 1)))
   ;; Тест на одинаковые элементы
   (print (assert (sort #'< '(7 7 7 7)) '(7 7 7 7)))
-  (print (assert (sort #'> '(7 7 7 7)) '(7 7 7 7))))
+  (print (assert (sort #'> '(7 7 7 7)) '(7 7 7 7)))
+  (sort #'> 'b)
+  (sort 42 '(1 2 3)))
 
 (defun list-search-tests ()
   "Тесты поиска элемента в списке"
