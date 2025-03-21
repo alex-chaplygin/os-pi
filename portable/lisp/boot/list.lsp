@@ -103,12 +103,16 @@
 
 (defun sort (pr list)
   "Быстрая сортировка списка list по предикату pr (2 параметра)"
-  (cond ((null list) nil)
-	((null (cdr list)) list)
-	(t (let ((head (car list))
-		 (tail (cdr list)))
-	     (append (sort pr (filter #'(lambda (x) (funcall pr x head)) tail))
-		     (cons head (sort pr (filter #'(lambda (x) (not (funcall pr x head))) tail))))))))
+  (unless (pairp list)
+    (error "sort: incorrect list"))
+  (labels ((sort* (list)
+             (cond ((null list) nil)
+                   ((null (cdr list)) list)
+                   (t (let ((head (car list))
+                            (tail (cdr list)))
+                        (append (sort* (filter #'(lambda (x) (funcall pr x head)) tail))
+                                (cons head (sort* (filter #'(lambda (x) (not (funcall pr x head))) tail)))))))))
+    (sort* list)))
 
 (defun minp* (pred min list)
   (if (null list) min
