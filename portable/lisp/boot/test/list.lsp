@@ -119,7 +119,11 @@
   (print (assert (list-search '(1 2 3) 1) 0))
   (print (assert (list-search '(1 2 3) 6) nil))
   (print (assert (list-search '(1 2 3) 3) 2))
-  (print (assert (list-search '() 3) nil)))
+  (print (assert (list-search '(1 2 3 1 2 3) 2) 1))
+  (print (assert (list-search '() 3) nil))
+  (print (assert (list-search '(1) 1) 0))
+  (print (assert (list-search '(1) 2) nil))
+  (list-search 123 1))
 
 (defun nth-tests ()
   "Тесты возврата n-го элемента списка"
