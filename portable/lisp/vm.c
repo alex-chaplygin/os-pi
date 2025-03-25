@@ -69,7 +69,9 @@ int fetch()
  */
 void const_inst()
 {
-    acc_reg = const_memory[fetch()];
+    int n = fetch();
+    acc_reg = const_memory[n];
+    printf("CONST %d\n", n);
 }
 
 /**
@@ -77,17 +79,20 @@ void const_inst()
  */
 void jmp_inst()
 {
-    pc_reg += fetch();
+    int ofs = fetch(); 
+    pc_reg += ofs;
+    printf("JMP %d\n", ofs);
 }
 
 /**
- * @brief Функция относительного перехода на смещение ofs, если ACC != T
+ * @brief Функция относительного перехода на смещение ofs, если ACC == NIL
  */
 void jnt_inst()
 {
-    extern object_t t;
-    if (acc_reg != t)
-        pc_reg += fetch();
+    int ofs = fetch();
+    if (acc_reg == NULLOBJ)
+        pc_reg += ofs;
+    printf("JNT %d\n", ofs);
 }
 
 /**
@@ -99,6 +104,7 @@ void alloc_inst()
     int n =  fetch(); 
     frame_reg = (frame_t *)stack_top; 
     stack_top += n;
+    printf("ALLOC %d\n", n);
 }
 
 /**
@@ -108,7 +114,7 @@ void global_ref_inst()
 {
     int i = fetch();
     acc_reg = global_var_memory[i]; 
-    printf("Глобальная переменная с индексом %d в ACC", i);
+    printf("GLOBAL-REF %d\n", i);
 }
 
 /**
@@ -117,8 +123,8 @@ void global_ref_inst()
 void global_set_inst()
 {
     int i = fetch();
-    //    frame_reg->local_args[i] = acc_reg;
-    printf("Значение ACC сохранено в глобальной переменной с индексом %d", i);
+    global_var_memory[i] = acc_reg;
+    printf("GLOBAL-SET %d\n", i);
 }
 
 /**
@@ -281,6 +287,7 @@ void nprim_inst() {
  */
 void halt()
 {
+    printf("HALT\n");
     working = 0;
 }
 
@@ -315,5 +322,9 @@ void (*instructions[])() =
 void vm_run()
 {
     while (working == 1)
+    {
+	printf("%d: ", (pc_reg - program_memory));
 	instructions[fetch()]();
+    }
 }
+
