@@ -166,7 +166,11 @@
   (print "Тесты функции проверки наличия элемента в списке")
   (print (assert (contains '(1 2 3) 2) t))
   (print (assert (contains '(1 2 3) 5) nil))
-  (print (assert (contains '() 1) nil)))
+  (print (assert (contains '() 1) nil))
+  (print (assert (contains '(1) 1) t))   ;; Список с одним элементом, элемент есть в списке
+  (print (assert (contains '(1) 2) nil)) ;; Список с одним элементом, элемента нет  в списке
+  (print (assert (contains '(1 2 2 3) 2) t)) ;; Элементы повторяются в списке
+  (print (assert (contains "hello" "h") nil)))
 
 (defun zip-with-test ()
   (print "Тест zip-with")
