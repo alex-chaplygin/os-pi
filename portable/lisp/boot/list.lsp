@@ -126,11 +126,13 @@
 
 (defun contains (list elem)
   "Предикат - элемент elem содержится в списке list"
-  (let ((result NIL))
-    (dolist (current list)
-      (when (= current elem)
-	(setq result T)))
-    result))
+  (unless (pairp list)
+    (error "contains: incorrect list"))  
+  (labels ((contains* (lst)
+        (cond ((null lst) nil)
+	      ((equal (car lst) elem) t)
+	      (t (contains* (cdr lst))))))
+    (contains* list)))
 
 (defun reverse (lst)
   "Переворачивает список"
