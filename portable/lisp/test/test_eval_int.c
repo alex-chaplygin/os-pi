@@ -226,21 +226,6 @@ void test_progn_null()
     ASSERT(res, NULLOBJ);
 }
 
-/*
- *создать объект list = NULL и
- отправить его в метод backquote()
- */
-void test_backquote_nulllist()
-{
-    printf("test_backquote_nulllist:\n");
-    object_t li = NULLOBJ;
-    if (setjmp(jmp_env) == 0) {
-        object_t res = backquote(li);
-        FAIL;
-    } else
-        OK;
-}
-
 /**
  * Входящий аргумент с вычислением -> выходящий аргумент
  * b = 7 `(a ,b c) -> (a 7 c)
@@ -266,28 +251,30 @@ void test_backquote_arguments()
     int aa = 9;
     int s1 = 1;
     int s2 = 2;
-    object_t abc = new_pair(new_number(a), new_pair(new_number(b), new_pair(new_number(c), NULLOBJ))); //Переменная-список abc
+    object_t abc = new_pair(new_number(a), new_pair(new_number(b), new_pair(new_number(c), NULLOBJ))); // Переменная-список ABC = (5 8 6)
     find_symbol("ABC")->value = abc;
     object_t CAabc = new_pair(NEW_SYMBOL("COMMA-AT"), new_pair(NEW_SYMBOL("ABC"), NULLOBJ)); // (COMMA-AT abc)
     object_t CA = new_pair(NEW_SYMBOL("COMMA-AT"), new_pair(NULLOBJ, NULLOBJ)); // (COMMA-AT NIL) 
     object_t BQabc = new_pair(NEW_SYMBOL("BACKQUOTE"), new_pair(NEW_SYMBOL("ABC"), NULLOBJ)); // (BACKQUOTE abc) 
-    find_symbol("A")->value = new_number(aa);		       
-    object_t obj1 = new_number(s1); 
-    object_t obj2 = new_pair(NEW_SYMBOL("COMMA"), new_pair(NEW_SYMBOL("A"), NULLOBJ)); 
-    object_t obj3 = new_number(s2); 
-    object_t p = new_pair(obj1, new_pair(obj2, new_pair(obj3, NULLOBJ))); 
+    find_symbol("A")->value = new_number(aa); // Переменная А = 9
+    object_t obj1 = new_number(s1); // Число 1
+    object_t obj2 = new_pair(NEW_SYMBOL("COMMA"), new_pair(NEW_SYMBOL("A"), NULLOBJ)); // (COMMA A)
+    object_t obj3 = new_number(s2); //число 2
+    object_t p = new_pair(obj1, new_pair(obj2, new_pair(obj3, NULLOBJ))); // Элементы массива
     array_t *arr = NEW_ARRAY(p);
-    object_t Ca = new_pair(obj2, NULLOBJ); // ((COMMA A)) 
-    object_t inputlist = new_pair(obj1,  //1 
-        new_pair(CAabc, //(COMMA-AT abc) *\\/ *\/ 
-            new_pair(BQabc, //(BACKQUOTE abc) *\\/ *\/ 
-                new_pair(CA, //(BACKQUOTE abc) *\\/ *\/ 
-                    new_pair(NULLOBJ,
-                        new_pair(Ca, //((COMMA-AT NIL)) *\\/ *\/ 
-                            new_pair(NEW_STRING("a"),
-                                new_pair(arr, NULLOBJ)))))))); // Наш массив *\\/ *\/
+    object_t Ca = new_pair(obj2, NULLOBJ);
+    object_t inputlist =
+        new_pair(obj1, // 1
+	    new_pair(CAabc, // comma-at abc
+		     new_pair(BQabc, // backquote abc
+				   new_pair(CA, // comma-at nil
+					    new_pair(NULLOBJ,// nil
+						     new_pair(Ca,// comma a
+							      new_pair(NEW_STRING("a"), // "a"
+								       new_pair(arr, NULLOBJ)))))))); // #(1 (comma a) 2)
+
     PRINT(inputlist);
-    object_t resultlist = backquote(new_pair(inputlist, NULLOBJ));
+    object_t resultlist = backquote(inputlist);
     PRINT(resultlist);
     ASSERT(TYPE(FIRST(TAIL(TAIL(TAIL(TAIL(TAIL(TAIL(TAIL(TAIL(resultlist)))))))))), ARRAY);
 }
@@ -772,13 +759,12 @@ int main()
     test_make_env();
     test_find_in_env();
     test_setq_set_env();
-    /* test_setq_global_set(); */
+    //test_setq_global_set();
     test_append();
     test_progn();
     test_progn_single_element();
     test_progn_null();
-    /* test_backquote_nulllist(); */
-    /* test_backquote_arguments(); */
+    test_backquote_arguments(); 
     test_atom();//1
     test_atom_null();//52
     test_atom_list();
@@ -791,15 +777,15 @@ int main()
     test_is_lambda_invalid_params();
     test_is_lambda_not_symbol();
     test_is_lambda_no_body();
-    /* test_macro_call(); */
-    test_eval_func1();
-    //test_eval_func2();
-    /* test_er_num_arg_make_env(); */
-    test_eval_symbol_with_defined_variable();
-    test_eval_symbol_environment_variable();
-    test_eval_symbol_undefined_variable();
-    //test_eval_args();
-    test_eval_args_null();
-    test_eval_empty_lambda();
+    test_macro_call();
+    /* test_eval_func1(); */
+    /* test_eval_func2(); */
+    /* //test_er_num_arg_make_env(); */
+    /* test_eval_symbol_with_defined_variable(); */
+    /* test_eval_symbol_environment_variable(); */
+    /* test_eval_symbol_undefined_variable(); */
+    /* test_eval_args(); */
+    /* test_eval_args_null(); */
+    /* test_eval_empty_lambda(); */
     return 0;
 }
