@@ -205,35 +205,44 @@ object_t backquote(object_t list)
     PROTECT3(list, res, first);
     object_t env = current_env;
     object_t func = func_env;
-    if (TYPE(list) == BIGNUMBER || TYPE(list) == FLOAT || TYPE(list) == CHAR || TYPE(list) == NUMBER || TYPE(list) == SYMBOL || TYPE(list) == STRING)
+    
+    if (TYPE(list) == BIGNUMBER
+	|| TYPE(list) == FLOAT
+	|| TYPE(list) == CHAR
+	|| TYPE(list) == NUMBER
+	|| TYPE(list) == SYMBOL
+	|| TYPE(list) == STRING)
 	res = make_copy(list);
     else if (TYPE(list) == ARRAY) { 
  	array_t *arr = new_empty_array(GET_ARRAY(list)->length); 
  	res = NEW_OBJECT(ARRAY, arr); 
  	int l = GET_ARRAY(list)->length; 
- 	for (int i = 0; i < l; i++) 
- 	    arr->data[i] = backquote(GET_ARRAY(list)->data[i]); 
+ 	for (int i = 0; i < l; i++)
+ 	    arr->data[i] = backquote(GET_ARRAY(list)->data[i]);
     } else if (TYPE(list) == PAIR) {
- 	object_t el = list; // list = (COMMA B)
+ 	object_t el = FIRST(list);	
 	if (TYPE(el) == SYMBOL && !strcmp(GET_SYMBOL(el)->str, "BACKQUOTE"))
-	    res = list;
-	else if (TYPE(el) == SYMBOL && !strcmp(GET_SYMBOL(el)->str, "COMMA") && TAIL(list) != NULLOBJ)
- 	    res = eval(SECOND(list), env, func);
+	    res = list;	
+	else if (TYPE(el) == SYMBOL && !strcmp(GET_SYMBOL(el)->str, "COMMA") && TAIL(list) != NULLOBJ) 
+	    res = eval(SECOND(list), env, func);
 	else {
-	    first = backquote(el); 
-	    if (first != NULLOBJ && TYPE(first) == PAIR) {  // first = (COMMA-AT B) 
-		object_t comma_at = FIRST(first);
-		if (comma_at != NULLOBJ && TYPE(comma_at) == SYMBOL && !strcmp(GET_SYMBOL(comma_at)->str, "COMMA-AT") && TAIL(first) != NULLOBJ) {
-		    l = eval(SECOND(first), env, func);
-		    if (l == NULLOBJ) {
-			res = backquote(TAIL(list));
-			UNPROTECT;
-			return res;
-		    } else if (TYPE(l) != PAIR)
-			error("COMMA-AT: not list");
-		    else {
-			res = backquote(l); 
-			append_env(res, backquote(TAIL(list))); 
+	    first = backquote(el);
+	    if (TAIL(list) == NULLOBJ) {
+		res = new_pair(first, NULLOBJ);
+		UNPROTECT;
+		return res;
+	    }
+	    if (TYPE(TAIL(list)) == PAIR) {
+		object_t comma_at_pair = FIRST(TAIL(list));
+		
+		if (comma_at_pair != NULLOBJ && TYPE(comma_at_pair) == PAIR) {
+		    object_t comma_at = FIRST(comma_at_pair);
+		    if (TYPE(comma_at) == SYMBOL && !strcmp(GET_SYMBOL(comma_at)->str, "COMMA-AT") && TAIL(first) != NULLOBJ) {
+			l = eval(SECOND(comma_at_pair), env, func);
+			res = new_pair(first, NULLOBJ);
+			if (l != NULLOBJ)
+			    append_env(res, backquote(l));
+			append_env(res, backquote(TAIL(TAIL(list))));
 			UNPROTECT;
 			return res;
 		    }
@@ -242,8 +251,7 @@ object_t backquote(object_t list)
 	    object_t tail = backquote(TAIL(list)); 
 	    res = new_pair(first, tail);
 	}
-    } else
-	error("backqoute: unknown type: %d\n", TYPE(list));    
+    }
     UNPROTECT;
     return res;
 }
@@ -663,7 +671,7 @@ object_t eval(object_t obj, object_t env, object_t func)
 #ifdef DEBUG
     	debug_stack = new_pair(obj, debug_stack);
 #endif
-	int args_count = list_length(TAIL(obj));
+	int args_count = list_length(obj);
 	if (s->nary == 0) {
 	    if (s->count != args_count)
 		error("%s: invalid arguments count", s->str);
