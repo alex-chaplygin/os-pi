@@ -1,6 +1,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include "objects.h"
 #include "alloc.h"
 #include "vm.h"
 
@@ -52,6 +53,7 @@ void vm_init(object_t *prog_mem, int prog_size, object_t *const_mem, int const_c
     global_var_memory = alloc_region(global_var_count * sizeof(object_t));
     pc_reg = program_memory;
     acc_reg = NULLOBJ;
+    stack_top = stack;
     frame_reg = NULL;
     working = 1;
 }
@@ -184,7 +186,17 @@ void deep_set_inst()
 void push_inst()
 {
     *stack_top++ = acc_reg; 
-    printf("Значение ACC помещено в стек");
+    printf("PUSH\n");
+}
+
+/** 
+ * Выталкивание значения из стека
+ *
+ * @return объект из стека
+ */
+object_t pop()
+{
+    return *--stack_top;
 }
 
 /**
@@ -192,15 +204,13 @@ void push_inst()
  */
 void pack_inst()
 {
-    int n =  fetch();
-    int i=0;
-    object_t list[100];
-    while(n!=0){
-	list[i]=*stack_top;
-	stack_top--;
-	n--;
-    }
-    *stack_top++ = list; 
+    int n = fetch();
+    object_t list = NULLOBJ;
+    
+    for (int i = 0; i < n; i++)
+	list = new_pair(pop(), list);
+    *stack_top++ = list;
+    printf("PACK %d\n", n);
 }
 
 /**

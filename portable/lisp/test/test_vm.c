@@ -34,10 +34,18 @@ enum {
 extern object_t *pc_reg;
 extern object_t acc_reg;
 extern object_t *global_var_memory;
+extern object_t *stack_top;
 
 void *alloc_region(int size)
 {
     return malloc(size);
+}
+
+pair_t* alloc_for_pair()
+{
+    object_t pair = (object_t)malloc(sizeof(pair_t) * 2);
+    pair = (pair >> MARK_BIT) + 1 << MARK_BIT;
+    return (pair_t*)pair;
 }
 
 object_t new_number(int num)
@@ -49,6 +57,19 @@ int get_value(object_t o)
 {
     return ((int)o) >> MARK_BIT;
 }
+
+object_t new_pair(object_t left, object_t right) 
+{ 
+    pair_t *pair = alloc_for_pair();
+    
+    pair->next = NULL; 
+    pair->free = 0; 
+    pair->left = left; 
+    pair->right = right;
+    return NEW_OBJECT(PAIR, pair);
+} 
+
+/**
 
 /**
  * Тест инструкции const
@@ -116,7 +137,7 @@ void test_jnt()
  */
 void test_global_ref_set()
 {
-    printf("test_global_set:\n");
+    printf("test_global_ref_set:\n");
     object_t pc_progmem[] = {
 	N(CONST), N(0),
 	N(GLOBALSET), N(0),
@@ -126,7 +147,7 @@ void test_global_ref_set()
     };
 
     object_t pc_constmem[] = { N(10), N(20) };
-    vm_init(pc_progmem, 5, pc_constmem, 1, 1);
+    vm_init(pc_progmem, 5, pc_constmem, 2, 1);
     vm_run();
 
     int n = get_value(global_var_memory[0]);
@@ -134,11 +155,37 @@ void test_global_ref_set()
     ASSERT(get_value(acc_reg), 10);
 }
 
-int main()
+/*
+ * Тест инструкций PUSH и POP.
+ * Помещает в стек числа 0, 1, 2, а затем, используя команду PACK 2, записывает перед 0 список, состоящий из двух чисел: 1 и 2. POP помещает созданный список в ACC
+ */
+void test_push_pack()
 {
+    printf("test_push_pack:\n");
+    object_t pc_progmem[] = {
+	N(CONST), N(0),
+	N(PUSH),
+	N(CONST), N(1),
+	N(PUSH),
+	N(CONST), N(2),
+	N(PUSH),
+	N(PACK), N(2),
+	N(HALT)
+    };
+
+    object_t pc_constmem[] = { N(0), N(1), N(2) };
+    vm_init(pc_progmem, 12, pc_constmem, 3, 1);
+    vm_run();
+    ASSERT(get_value(FIRST(stack_top[-1])), 1);
+    ASSERT(get_value(SECOND(stack_top[-1])), 2);
+}
+
+int main()
+{  
     test_const();
     test_jmp();
     test_jnt();
     test_global_ref_set();
+    test_push_pack();
     return 0;
 }
