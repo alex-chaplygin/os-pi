@@ -87,8 +87,8 @@
   (emit (list 'RESTORE-ENV)))
 
 ;; генерация замыкания
-(defun generate-closure (name body)
-  (emit (list 'FIX-CLOSURE name))
+(defun generate-closure (op name body)
+  (emit (list op name))
   (when body
     (inner-generate body)))
 
@@ -99,6 +99,7 @@
     (cond
       ((contains '(CONST GLOBAL-REF LOCAL-REF DEEP-REF RETURN) op) (emit expr))
       ((contains '(GLOBAL-SET LOCAL-SET) op) (generate-set expr))
+      ((contains '(PRIM-CLOSURE NPRIM-CLOSURE) op) (generate-closure op (cadr expr) nil))
       (t (case op
 	   ('NOP nil)
 	   ('DEEP-SET  (generate-deep (second expr) (third expr) (forth expr)))
@@ -106,7 +107,7 @@
 	   ('SEQ (app #'inner-generate (cdr expr))) ; последовательность
 	   ('ALTER (generate-if (cdr expr))) ; ветвление
 	   ('FIX-LET (generate-let (cadr expr) (caddr expr) (cadddr expr))) ; let форма
-	   ('FIX-CLOSURE (generate-closure (cadr expr) (caddr expr))) ; замыкание
+	   ('FIX-CLOSURE (generate-closure op (cadr expr) (caddr expr))) ; замыкание функции
 	   ('FIX-PRIM (generate-fix-prim (cadr expr) (caddr expr))) ; вызов примитива
 	   ('NARY-PRIM (generate-nary-prim (cadr expr) (caddr expr) (cadddr expr))) ; вызов nary примитива
 	   ('FIX-CALL (generate-reg-call (cadr expr) nil (caddr expr) (cadddr expr))) ; обычный вызов

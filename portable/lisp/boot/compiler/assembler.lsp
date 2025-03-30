@@ -7,11 +7,13 @@
     local-ref local-set
     deep-ref deep-set
     push
+    pack
     reg-call return
     fix-closure save-env set-env restore-env
-    pack
     prim nprim
-    halt))
+    halt
+    prim-closure
+    nprim-closure))
 ;; *inst-jmp-table* - список номеров инструкций перехода.
 (defvar *inst-jmp-table* '(jmp jnt fix-closure reg-call))
 ;; *consts* - список констант.
@@ -47,14 +49,15 @@
                (setq end (last-cdr bytes)
 		     pc (+ pc (list-length bytes)))))
       (app #'(lambda (inst)
-               (case (car inst)
-                 ('label (assemble-label inst))
-                 ('const (assemble-const inst))
-                 ('prim (assemble-prim inst))
-                 ('nprim (assemble-prim inst))
-                 (otherwise (setq jmp-labels (assemble-inst inst jmp-labels)))))
+	       (cond
+		 ((contains '(prim nprim prim-closure nprim-closure) (car inst))
+		  (assemble-prim inst))
+		 (t (case (car inst)
+		      ('label (assemble-label inst))
+		      ('const (assemble-const inst))
+		      (otherwise (setq jmp-labels (assemble-inst inst jmp-labels)))))))
            program)
-      (asm-emit (list (list-search *inst-table* 'HALT)))
+      (asm-emit (list-search *inst-table* 'HALT))
       (setq pc (++ pc)))
     (list bytecode pc jmp-labels jmp-addrs)))
 
@@ -107,8 +110,10 @@
   (let* ((prim-type (car inst))
          (lst (case prim-type
                 ('prim *fix-primitives*)
+                ('prim-closure *fix-primitives*)
                 ('nprim *nary-primitives*)
-                (otherwise (error "Unreachable"))))
+                ('nprim-closure *nary-primitives*)
+                (otherwise (error "assemble-prim: invalid prim"))))
          (prim (search-symbol lst (cadr inst)))
          (prim-i (list-search lst prim)))
     (when (null prim-i)
