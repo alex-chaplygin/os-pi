@@ -160,9 +160,14 @@
 
 (defun nth (list n)
   "Получает n-й элемент списка list"
-  (if (null list) (error "nth: invalid index")
-    (if (= n 0) (car list)
-      (nth (cdr list) (- n 1)))))
+  (unless (pairp list)
+    (error "nth: incorrect list"))  
+  (labels ((nth* (lst n)
+             (cond
+               ((null lst) (error "nth: invalid index"))
+               ((= n 0) (car lst))
+               (t (nth* (cdr lst) (- n 1))))))
+    (nth* list n)))
 
 (defun list-to-array (list)
   "Преобразование списка в массив"
