@@ -209,7 +209,9 @@
   (print (assert (list-to-array '(1 2 3)) #(1 2 3)))
   (print (assert (list-to-array '(a b c)) #(a b c)))
   (print (assert (list-to-array '()) #())) 
-  (print (assert (list-to-array '("kakoj-to text")) #("kakoj-to text"))))
+  (print (assert (list-to-array '("kakoj-to text")) #("kakoj-to text")))
+  (print (assert (list-to-array '(nil)) #(nil)))
+  (list-to-array 42))
 
 (append-tests)
 (app-tests)
