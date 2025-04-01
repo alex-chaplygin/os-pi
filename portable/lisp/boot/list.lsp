@@ -162,6 +162,8 @@
   "Получает n-й элемент списка list"
   (unless (pairp list)
     (error "nth: incorrect list"))  
+  (unless (and (integerp n) (>= n 0))
+    (error "nth: invalid index"))
   (labels ((nth* (lst n)
              (cond
                ((null lst) (error "nth: invalid index"))
