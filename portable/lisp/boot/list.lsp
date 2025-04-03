@@ -173,6 +173,8 @@
 
 (defun list-to-array (list)
   "Преобразование списка в массив"
+  (unless (pairp list)
+    (error "list-to-array: incorrect list"))
   (let* ((n (list-length list))
 	 (arr (make-array n)))
     (for i 0 n
