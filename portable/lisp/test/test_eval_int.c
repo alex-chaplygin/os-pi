@@ -8,6 +8,7 @@
 #include "pair.h"
 #include "string.h"
 #include "alloc.h"
+#include "pair.h"
 
 extern object_t t;
 extern object_t nil;
@@ -224,6 +225,21 @@ void test_progn_null()
     printf("test_progn_null: ");
     object_t res = progn(NULLOBJ);
     ASSERT(res, NULLOBJ);
+}
+
+/*
+ *создать объект list = NULL и
+ отправить его в метод backquote()
+ */
+void test_backquote_nulllist()
+{
+    printf("test_backquote_nulllist:\n");
+    object_t li = NULLOBJ;
+    if (setjmp(jmp_env) == 0) {
+        object_t res = backquote(li);
+        FAIL;
+    } else
+        OK;
 }
 
 /**
@@ -479,23 +495,25 @@ void test_is_lambda_no_body()
 }
 
 /**
- * Вызов (macrocall (lambda (x) (list x)) (10))
+ * Вызов (macrocall (lambda (x) (backquote (cons (comma x) 2))))
  */
 void test_macro_call()
 {
     printf("test_macro_call: \n");
-    object_t p1 = NEW_SYMBOL("x"); // x 
-    object_t q = new_pair(NEW_SYMBOL("LIST"), //(list x) 
-			  new_pair(p1, NULLOBJ));
-    object_t lx = new_pair(NEW_SYMBOL("LAMBDA"), new_pair(new_pair(p1, NULLOBJ), new_pair(new_pair(NEW_SYMBOL("LIST"), new_pair(p1, NULLOBJ)), NULLOBJ))); 
-    // (lambda (x) (list x)); 
+    object_t cons = new_pair(NEW_SYMBOL("CONS"), new_pair(new_pair(NEW_SYMBOL("COMMA"), new_pair(NEW_SYMBOL("X"), NULLOBJ)), new_pair(new_number(2), NULLOBJ))); // (cons (comma x) 2)
+    object_t backquote = new_pair(NEW_SYMBOL("BACKQUOTE"),new_pair(cons, NULLOBJ)); // (backquote (cons (comma x) 2))
+    object_t obj = new_pair(NEW_SYMBOL("LAMBDA"), new_pair(new_pair(NEW_SYMBOL("X"), NULLOBJ), new_pair(backquote, NULLOBJ))); // (lambda (x) (backquote (cons (comma x) 2)))
+
+    PRINT(obj);
     object_t args = new_pair(new_number(10), NULLOBJ); 
-    object_t res = macro_call(lx, args, NULLOBJ, NULLOBJ); 
-    ASSERT(get_value(res), 10);
+    object_t res = macro_call(obj, args, NULLOBJ, NULLOBJ);
+    PRINT(res);
+    ASSERT(get_value(FIRST(res)), 10);
 }
 
 void test_eval_func(object_t list, object_t args, int expected)
 {
+    
     object_t res = eval_func(list, args, NULLOBJ, NULLOBJ);
     ASSERT(TYPE(res), NUMBER);
     ASSERT(get_value(res), expected);
@@ -755,15 +773,17 @@ int main()
     init_objects();
     init_pair();
     init_eval();
+    init_pair();
     test_is_lambda();//14
     test_make_env();
     test_find_in_env();
     test_setq_set_env();
-    //test_setq_global_set();
+    /* test_setq_global_set(); */
     test_append();
     test_progn();
     test_progn_single_element();
     test_progn_null();
+    test_backquote_nulllist(); 
     test_backquote_arguments(); 
     test_atom();//1
     test_atom_null();//52
@@ -778,14 +798,14 @@ int main()
     test_is_lambda_not_symbol();
     test_is_lambda_no_body();
     test_macro_call();
-    /* test_eval_func1(); */
-    /* test_eval_func2(); */
-    /* //test_er_num_arg_make_env(); */
-    /* test_eval_symbol_with_defined_variable(); */
-    /* test_eval_symbol_environment_variable(); */
-    /* test_eval_symbol_undefined_variable(); */
-    /* test_eval_args(); */
-    /* test_eval_args_null(); */
-    /* test_eval_empty_lambda(); */
+    test_eval_func1();
+    test_eval_func2();
+    /* test_er_num_arg_make_env(); */
+    test_eval_symbol_with_defined_variable();
+    test_eval_symbol_environment_variable();
+    test_eval_symbol_undefined_variable();
+    test_eval_args();
+    test_eval_args_null();
+    test_eval_empty_lambda();
     return 0;
 }

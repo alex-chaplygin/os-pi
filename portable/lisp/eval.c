@@ -234,7 +234,6 @@ object_t backquote(object_t list)
 	    }
 	    if (TYPE(TAIL(list)) == PAIR) {
 		object_t comma_at_pair = FIRST(TAIL(list));
-		
 		if (comma_at_pair != NULLOBJ && TYPE(comma_at_pair) == PAIR) {
 		    object_t comma_at = FIRST(comma_at_pair);
 		    if (TYPE(comma_at) == SYMBOL && !strcmp(GET_SYMBOL(comma_at)->str, "COMMA-AT") && TAIL(first) != NULLOBJ) {
@@ -488,22 +487,24 @@ object_t eval_func(object_t lambda, object_t args, object_t env, object_t func)
 object_t macro_call(object_t macro, object_t args, object_t env, object_t func) 
 { 
     object_t new_env = make_env(SECOND(macro), args); 
-    object_t body; 
+    object_t body  = TAIL(TAIL(macro)); 
     object_t eval_res = NULLOBJ;
     object_t eval_res2 = NULLOBJ;
-    body = TAIL(TAIL(macro));
+    
     if (new_env != NULLOBJ)
-	append_env(new_env, env);
+    	append_env(new_env, env);
+    
     PROTECT3(macro, eval_res, eval_res2);
     while (body != NULLOBJ) {
 	current_env = new_env;
- 	eval_res = eval(FIRST(body), new_env, func);
+	eval_res = eval(FIRST(body), new_env, func);
 	current_env = env;
- 	eval_res2 = eval(eval_res, env, func);
- 	body = TAIL(body);
+       	eval_res2 = eval(eval_res, env, func);
+	body = TAIL(body);
     }
     UNPROTECT;
     return eval_res2;
+   
 } 
     
 /* 
@@ -525,7 +526,7 @@ object_t eval_args(object_t args, object_t env, object_t func)
     object_t v = vals;
     PROTECT2(args, vals);
     while (args != NULLOBJ) {
-	f = FIRST(args); 
+	f = FIRST(args);
 	arg = eval(f, env, func);
 	GET_PAIR(v)->left = arg;
 	if (TAIL(args) == NULLOBJ)
@@ -664,14 +665,15 @@ object_t eval(object_t obj, object_t env, object_t func)
 	    else
 		return eval_func(first, eval_args(TAIL(obj), env, func), env, func);
         } else if (TYPE(first) != SYMBOL) {
-	    PRINT(first);
+	    PRINT(first);    
 	    error("not function");
 	}
+	
         symbol_t *s = find_symbol(GET_SYMBOL(first)->str);
 #ifdef DEBUG
     	debug_stack = new_pair(obj, debug_stack);
 #endif
-	int args_count = list_length(obj);
+	int args_count = list_length(TAIL(obj));
 	if (s->nary == 0) {
 	    if (s->count != args_count)
 		error("%s: invalid arguments count", s->str);
@@ -680,7 +682,7 @@ object_t eval(object_t obj, object_t env, object_t func)
 		error("%s: invalid arguments count", s->str);
 	}	    
         if (is_special_form(s) || s->macro != NULLOBJ)
-            args = TAIL(obj);
+	    args = TAIL(obj);
         else
             args = eval_args(TAIL(obj), env, func);
 
