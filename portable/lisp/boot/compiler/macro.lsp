@@ -80,7 +80,7 @@
 	 (type (car fun))
 	 (count (second fun)))
     ;;(print `(eval-app ,f ,args ,env ,fun))
-    (check-arguments type count args)
+    (check-arguments f type count args)
     (let ((r
     (cond ((contains '(fix-prim nary-prim) type) (eval-prim `(,f ,@(map #'(lambda (a) (list 'quote a)) (macro-eval-args args env)))))
 	  ((eq 'fix-func type) (macro-eval-app-func (forth fun) (fifth fun) (macro-eval-args args env) env))

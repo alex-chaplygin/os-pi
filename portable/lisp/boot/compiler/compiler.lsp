@@ -107,13 +107,13 @@
 	  (t (comp-err "unknown function " f))))))
 
 ;; Проверка числа аргументов
-(defun check-arguments (type count args)
+(defun check-arguments (f type count args)
     (when (contains '(lambda fix-func local-func fix-prim fix-macro) type)
       (when (!= count (list-length args))
-	(comp-err "invalid args count" count args)))
+	(comp-err "invalid args count" f count args)))
     (when (contains '(nary-prim nary-func nary-macro) type)
       (when (> count (list-length args))
-	(comp-err "invalid nary args count"))))
+	(comp-err "invalid nary args count" f count args))))
 
 ;; Применение функции
 ;; f - имя функции или lambda, args - аргументы, env - окружение
@@ -122,7 +122,7 @@
 	 (type (car fun))
 	 (count (second fun))
 	 (cur-env (list-length env)))
-    (check-arguments type count args)
+    (check-arguments f type count args)
     (if (eq type 'fix-macro)
 	(inner-compile (macroexpand (third fun) args (forth fun)) env)
 	(if (eq type 'nary-macro)
