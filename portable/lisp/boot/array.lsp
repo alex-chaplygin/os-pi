@@ -77,20 +77,20 @@
     a))
 
 ; тесты
-(defun with-struct-test ()
-  (let ((s '((str name . 10) ; строковое поле из 10 байт
-	     (f2 . 4)))
-	(arr #(0 0 0x30 0x31 0x32 0x33 0x34 0x35 0x36 0x37 0x38 0x39 1 0 0 0)))
-    (with-struct s arr 2
-      `(,name ,f2))))
+;; (defun with-struct-test ()
+;;   (let ((s '((str name . 10) ; строковое поле из 10 байт
+;; 	     (f2 . 4)))
+;; 	(arr #(0 0 0x30 0x31 0x32 0x33 0x34 0x35 0x36 0x37 0x38 0x39 1 0 0 0)))
+;;     (with-struct s arr 2
+;;       `(,name ,f2))))
 
-(defun write-struct-test ()
-  (let ((s '((str name . 10) ; строковое поле из 10 байт
-	     (res . 1)
-	     (f2 . 4)))
-	(arr #(0 0 0x30 0x31 0x32 0x33 0x34 0x35 0x36 0x37 0x38 0x39 0x20 1 0 0 0)))
-    (write-struct arr 2 s '((f2 . 10)(name . "abc")(test . 10)))
-    arr))
+;; (defun write-struct-test ()
+;;   (let ((s '((str name . 10) ; строковое поле из 10 байт
+;; 	     (res . 1)
+;; 	     (f2 . 4)))
+;; 	(arr #(0 0 0x30 0x31 0x32 0x33 0x34 0x35 0x36 0x37 0x38 0x39 0x20 1 0 0 0)))
+;;     (write-struct arr 2 s '((f2 . 10)(name . "abc")(test . 10)))
+;;     arr))
 
 (defun array-to-list (a)
   "Пеобразовать массив a в список"
