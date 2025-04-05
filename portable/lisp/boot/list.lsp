@@ -152,6 +152,8 @@
 
 (defun list-search (list element)
   "Находит индекс элемента element в списке list."
+  (unless (pairp list)
+    (error "list-search: incorrect list"))
   (labels ((search (list index)
 	     (if (null list) nil ; Возвращаем nil, если элемент не найден
 		 (if (equal element (car list)) index ; Возвращаем индекс при совпадении
