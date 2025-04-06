@@ -2,6 +2,8 @@
 (defvar *fix-macros*)
 ;; глобальный список nary макросов (имя <минимальное число аргументов> аргументы тело)
 (defvar *nary-macros*)
+;; глобальные переменные макро мира
+(defvar *macro-globals* (make-hash))
 
 ;; добавить новый макрос
 ;; list (name args body)
@@ -24,10 +26,12 @@
 (defun subst (sym env)
   (if (eq sym 'nil) nil
       (if (eq sym 't) t
-  (let ((r (search-symbol env sym)))
-    (if (null r) 
-      (comp-err (concat "Unknown symbol in macro " (symbol-name sym)))
-      (cdr r))))))
+	  (let ((r (search-symbol env sym)))
+	   ;; (print `(subst ,sym ,r ,env))
+    (if (null r)
+	(if (check-key *macro-globals* sym) (get-hash *macro-globals* sym)
+	    (comp-err "Unknown symbol in macro "  sym env))
+	(cdr r))))))
 
 ;; квазицитирование
 (defun macro-eval-backquote (expr env)
@@ -92,9 +96,12 @@
 
 ;; вычисление последовательности
 (defun macro-eval-progn (expr env)
+;;  (print `(eval-progn ,expr))
   (if (null expr) nil
       (if (null (cdr expr)) (macro-eval (car expr) env)
-	  (macro-eval-progn (cdr expr) env))))
+	  (progn
+	    (macro-eval (car expr) env)
+	    (macro-eval-progn (cdr expr) env)))))
 
 ;; вычисление вызова функции
 ;; подставить тело lambda, расширить окружение подстановки
@@ -114,9 +121,16 @@
 	(if (not (eq (macro-eval (car e) env) nil)) (macro-eval (second e) env)
 	    (macro-eval-cond (cdr list) env)))))
 
+;; присвоение глобальной переменной в мире макросов
+(defun macro-eval-setq (var expr env)
+  (unless (symbolp var)
+    (comp-err "macro setq: not variable" var))
+  (let ((val (macro-eval expr env)))
+    (set-hash *macro-globals* var val)))
+
 ;; раскрытие макроса
 (defun macro-eval (expr env)
-;;  (print `(meval ,expr ,env))
+  ;;(print `(meval ,expr ,env))
   (if (atom expr)
       (if (symbolp expr) (subst expr env) expr)
       (let ((f (car expr))
@@ -125,6 +139,7 @@
 	  ('if (macro-eval-if args env))
 	  ('cond (macro-eval-cond args env))
 	  ('progn (macro-eval-progn args env))
+	  ('setq (macro-eval-setq (car args) (second args) env))
 	  ('let (macro-eval-let args env))
 	  ('quote (car args))
 	  ('backquote (macro-eval-backquote (car args) env))
@@ -148,5 +163,5 @@
 		     (list (cons (second args) vals))
 		     (cons (cons (car args) (car vals)) (make (cdr args) (cdr vals)))))))
     (let ((r (macro-expand-progn body (make args vals))))
-;;      (print `(macro-expand ,r))
+      ;;(print `(macro-expand ,r))
       r)))
