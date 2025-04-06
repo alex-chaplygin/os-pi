@@ -3,6 +3,18 @@
 (defconst *any-char* 'ANY) ; метасимвол, обозначающий любой печатный символ
 (defconst *epsilon* 'E) ; метасимвол, обозначающий безусловный (эпсилон) переход
 
+(defun process-epsilon (states rules)
+  "Рекурсивно извлекает следующие за эпсилон-переходами состояния и возвращает их"
+  "Ввод: список состояний, список правил НКА"
+  "Вывод: состояния, следующие за эпсилон переходами, для обычных переходов не возвращается ничего"
+  (let ((new-states NIL))
+    (dolist (state states)
+      (let ((epsilon-state (cons state *epsilon*)))
+      (when (check-key rules epsilon-state)
+	(setq new-states (append new-states (get-hash rules epsilon-state))) ; если следующее состояние не эпсилон, оно не возвратится - добавляем заранее(дубликаты состояний удалятся)
+	(setq new-states (append new-states (process-epsilon (get-hash rules epsilon-state) rules)))))) ; получаем следующие за эпсилон-переходом состояния
+    new-states))
+
 (defun make-nfa(start-states rules final-states)
   "Задаёт недетерминированный автомат"
   "Ввод: список начальных состояний, список правил, список конечных состояний"
@@ -20,18 +32,6 @@
 	    (set-hash nfa pair next-states))))
     (setq start-states (append start-states (process-epsilon start-states nfa)))
     (list start-states nfa final-states)))
-
-(defun process-epsilon (states rules)
-  "Рекурсивно извлекает следующие за эпсилон-переходами состояния и возвращает их"
-  "Ввод: список состояний, список правил НКА"
-  "Вывод: состояния, следующие за эпсилон переходами, для обычных переходов не возвращается ничего"
-  (let ((new-states NIL))
-    (dolist (state states)
-      (let ((epsilon-state (cons state *epsilon*)))
-      (when (check-key rules epsilon-state)
-	(setq new-states (append new-states (get-hash rules epsilon-state))) ; если следующее состояние не эпсилон, оно не возвратится - добавляем заранее(дубликаты состояний удалятся)
-	(setq new-states (append new-states (process-epsilon (get-hash rules epsilon-state) rules)))))) ; получаем следующие за эпсилон-переходом состояния
-    new-states))
 
 (defun nfa-input(auto input)
   "Добавляет символ на ленту автомата"

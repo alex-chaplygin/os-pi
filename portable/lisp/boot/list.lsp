@@ -56,7 +56,7 @@
 	
 (defun map (f list)
   "Применяет функцию f к каждому элементу списка list и возвращает новый список"
-  (when (not (and (pairp list) (functionp f)))
+  (unless (pairp list)
       (error "map: incorrect arguments"))
   (if (null list) nil
     (cons (funcall f (car list)) (map f (cdr list)))))

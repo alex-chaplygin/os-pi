@@ -1,34 +1,5 @@
 ; Библиотека регулярных выражений
 
-; Функции обработчика регулярных выражений
-(defun match(string regex &rest lazy)
-  "Определяет, соответствует ли строка регулярному выражению, возвращая захваченную подстроку или NIL"
-  "Третий необязательный параметр - переключение в ленивый режим захвата (по умолчанию жадный)"
-  (when (check-correctness regex)
-    (match-auto (prepare-parsed-auto (parse-flags (parse-quantifiers (parse-brackets-any (parse-escape (explode regex))))) (if lazy (car lazy) NIL)) string)))
-
-(defun test-re(string regex)
-  "Определяет, соответствует ли строка регулярному выражению, возвращая T/NIL"
-  (when (check-correctness regex)
-    (if (not (= (match-auto (prepare-parsed-auto (parse-flags (parse-quantifiers (parse-brackets-any (parse-escape (explode regex))))) T) string) NIL))
-	T
-      NIL)))
-
-
-; Вспомогательные функции
-(defun reverse-list(lst)
-  "Переворачивает список"
-  (foldl #'(lambda (acc elem) (cons elem acc)) NIL lst))
-
-(defun remove-dupl(lst)
-  "Удаляет повторяющиеся элементы из списка"
-  (let ((unique NIL))
-    (dolist (elem lst)
-      (when (not (contains unique elem))
-	(setq unique (cons elem unique)))) ; элементы добавляются в начало списка
-    (reverse-list unique))) ; переворачиваем список обратно
-
-
 ; Функции обработки шаблона регулярного выражения
 (defun check-correctness(regex)
   "Проверяет регулярное выражение на корректность, при необходимости выводит ошибку с описанием проблемы"
@@ -62,6 +33,71 @@
       (error "Missing closing square bracket")
       T)))
 
+(defun match-auto(prepared-auto string)
+  "Определяет, соответствует ли строка недетерминированному автомату, возвращая захваченную строку или NIL"
+  (let* ((auto-params (car prepared-auto))
+	 (match-str "")
+	(nfa (make-nfa (car auto-params) (cadr auto-params) (caddr auto-params)))
+	 (finished NIL)
+	 (break-after-match NIL))
+    (for i -1 (string-size string) ; + проверка на завершение автомата на пустую строку
+	 (when (or (= finished NIL) (and (cadddr prepared-auto) (= break-after-match NIL)))
+	   (when (>= i 0)
+	     (setq nfa (nfa-input nfa (char string i)))
+	     (setq match-str (concat match-str (make-string 1 (char string i)))))
+	   ; проверка автомата разрешена только если либо нет поиска с конца строки, либо на последнем символе 
+	   (if (and (or (= (caddr prepared-auto) NIL)
+			(and (caddr prepared-auto) (= i (- (string-size string) 1))))
+		    (nfa-end nfa)) ; автомат подошёл - завершаем работу
+	       (setq finished T)
+	     (progn ; выполнить последовательность действий в списке
+	       (if (and finished (cadddr prepared-auto))
+		   (progn
+		     (setq break-after-match T)
+		     (setq match-str (subseq match-str 0 (- (string-size match-str) 1))))
+	       (when (= (nfa-states nfa) NIL) ; автомат разрушился - сбрасывем его и пробуем заново, иначе продолжаем работу
+		 (if (cadr prepared-auto)
+		     (setq nfa (nfa-reset nfa NIL)) ; если поиск с начала - делаем пустой автомат
+		     (setq nfa (nfa-reset nfa (car auto-params))))
+		 (setq match-str "")))))))
+    (if finished match-str NIL)))
+
+(defun prepare-parsed-auto (parsed-list lazy)
+  "Создаёт набор параметров и правил для создания НКА, соответствующего регулярному выражению, принимая на вход список с результатом парсинга шаблона"
+  (let ((rules-list NIL)
+	(parsed-re (car parsed-list))
+	(curr-state 0))
+    (labels ((add-rule (current-state input next-states)
+	     (if (atom input) ; если на вход подан символ (не список)
+		 (setq rules-list (cons (list current-state input next-states) rules-list))
+	       (if (= (car input) 'ESC)
+		   (setq rules-list (cons (list current-state (cdr input) next-states) rules-list))
+	       (dolist (chr input)
+		 (if (and (not (atom chr)) (= (car chr) 'ESC))
+		     (setq rules-list (cons (list current-state (cdr chr) next-states) rules-list))
+		   (setq rules-list (cons (list current-state chr next-states) rules-list))))))))
+    (dolist (elem parsed-re)
+      (cond
+       ((atom elem)
+	(add-rule curr-state elem (list (incf curr-state))))
+       ((= (car elem) 'ESC)
+	(add-rule curr-state (cdr elem) (list (incf curr-state))))
+       ((= (car elem) 'MANY)
+	(add-rule curr-state 'E (list (incf curr-state)))
+	  (add-rule curr-state (cdr elem) (list curr-state)))
+       ((= (car elem) 'MANY+)
+	  (add-rule curr-state (cdr elem) (list (incf curr-state)))
+	  (add-rule curr-state (cdr elem) (list curr-state)))
+       ((= (car elem) 'MAYBE)
+	(add-rule curr-state 'E (list (+ curr-state 1)))
+	(add-rule curr-state (cdr elem) (list (incf curr-state))))
+       ((add-rule curr-state elem (list (incf curr-state))))))
+    (list
+     (list (list 0) (reverse rules-list) (list curr-state))
+     (cadr parsed-list)
+     (caddr parsed-list)
+     (not lazy)))))
+
 (defun parse-escape (lst)
   "Парсит экранированные символы из списка печатных символов шаблона регулярного выражения"
   "Подразумевается, что шаблон проверен на корректность"
@@ -72,7 +108,7 @@
 	      (setq new-lst (cons (cons 'ESC (nth lst (+ i 1))) new-lst))
 	      (incf i))
 	   (setq new-lst (cons (nth lst i) new-lst))))
-    (reverse-list new-lst)))
+    (reverse new-lst)))
 
 (defun parse-brackets-any (lst)
   "Парсит группы символов в квадратных скобках, а также метасимвол ."
@@ -90,15 +126,15 @@
 	   (if (= (nth lst i) #\.)
 	       (setq new-lst (cons 'ANY new-lst))
 	     (setq new-lst (cons (nth lst i) new-lst)))))
-    (reverse-list new-lst)))
+    (reverse new-lst)))
 
 (defun parse-quantifiers (lst)
   "Парсит метасимволы-квантификаторы (* + ?)"
-  (labels ((n-from-end (n)
-		       (nth lst (- list-len n 1))))
-	  (let ((list-len (list-length lst))
-		(new-lst NIL)
-		(curr-elem NIL))
+  (let ((list-len (list-length lst))
+	(new-lst NIL)
+	(curr-elem NIL))
+    (labels ((n-from-end (n)
+	       (nth lst (- list-len n 1))))
 	    (for i 0 list-len
 		 (setq curr-elem (n-from-end i))
 		       (cond
@@ -128,67 +164,30 @@
       (setq lst (remove-last lst)))
     (list lst from-start from-end))))
 
-(defun prepare-parsed-auto (parsed-list lazy)
-  "Создаёт набор параметров и правил для создания НКА, соответствующего регулярному выражению, принимая на вход список с результатом парсинга шаблона"
-  (labels ((add-rule (current-state input next-states)
-	     (if (atom input) ; если на вход подан символ (не список)
-		 (setq rules-list (cons (list current-state input next-states) rules-list))
-	       (if (= (car input) 'ESC)
-		   (setq rules-list (cons (list current-state (cdr input) next-states) rules-list))
-	       (dolist (chr input)
-		 (if (and (not (atom chr)) (= (car chr) 'ESC))
-		     (setq rules-list (cons (list current-state (cdr chr) next-states) rules-list))
-		   (setq rules-list (cons (list current-state chr next-states) rules-list))))))))
-  (let ((rules-list NIL)
-	(parsed-re (car parsed-list))
-	(curr-state 0))
-    (dolist (elem parsed-re)
-      (cond
-       ((atom elem)
-	(add-rule curr-state elem (list (incf curr-state))))
-       ((= (car elem) 'ESC)
-	(add-rule curr-state (cdr elem) (list (incf curr-state))))
-       ((= (car elem) 'MANY)
-	(add-rule curr-state 'E (list (incf curr-state)))
-	  (add-rule curr-state (cdr elem) (list curr-state)))
-       ((= (car elem) 'MANY+)
-	  (add-rule curr-state (cdr elem) (list (incf curr-state)))
-	  (add-rule curr-state (cdr elem) (list curr-state)))
-       ((= (car elem) 'MAYBE)
-	(add-rule curr-state 'E (list (+ curr-state 1)))
-	(add-rule curr-state (cdr elem) (list (incf curr-state))))
-       ((add-rule curr-state elem (list (incf curr-state))))))
-    (list
-     (list (list 0) (reverse-list rules-list) (list curr-state))
-     (cadr parsed-list)
-     (caddr parsed-list)
-     (not lazy)))))
+; Функции обработчика регулярных выражений
+(defun match(string regex &rest lazy)
+  "Определяет, соответствует ли строка регулярному выражению, возвращая захваченную подстроку или NIL"
+  "Третий необязательный параметр - переключение в ленивый режим захвата (по умолчанию жадный)"
+  (when (check-correctness regex)
+    (match-auto (prepare-parsed-auto (parse-flags (parse-quantifiers (parse-brackets-any (parse-escape (explode regex))))) (if lazy (car lazy) NIL)) string)))
 
-(defun match-auto(prepared-auto string)
-  "Определяет, соответствует ли строка недетерминированному автомату, возвращая захваченную строку или NIL"
-  (let* ((auto-params (car prepared-auto))
-	 (match-str "")
-	(nfa (make-nfa (car auto-params) (cadr auto-params) (caddr auto-params)))
-	 (finished NIL)
-	 (break-after-match NIL))
-    (for i -1 (string-size string) ; + проверка на завершение автомата на пустую строку
-	 (when (or (= finished NIL) (and (cadddr prepared-auto) (= break-after-match NIL)))
-	   (when (>= i 0)
-	     (setq nfa (nfa-input nfa (char string i)))
-	     (setq match-str (concat match-str (make-string 1 (char string i)))))
-	   ; проверка автомата разрешена только если либо нет поиска с конца строки, либо на последнем символе 
-	   (if (and (or (= (caddr prepared-auto) NIL)
-			(and (caddr prepared-auto) (= i (- (string-size string) 1))))
-		    (nfa-end nfa)) ; автомат подошёл - завершаем работу
-	       (setq finished T)
-	     (progn ; выполнить последовательность действий в списке
-	       (if (and finished (cadddr prepared-auto))
-		   (progn
-		     (setq break-after-match T)
-		     (setq match-str (subseq match-str 0 (- (string-size match-str) 1))))
-	       (when (= (nfa-states nfa) NIL) ; автомат разрушился - сбрасывем его и пробуем заново, иначе продолжаем работу
-		 (if (cadr prepared-auto)
-		     (setq nfa (nfa-reset nfa NIL)) ; если поиск с начала - делаем пустой автомат
-		     (setq nfa (nfa-reset nfa (car auto-params))))
-		 (setq match-str "")))))))
-    (if finished match-str NIL)))
+(defun test-re(string regex)
+  "Определяет, соответствует ли строка регулярному выражению, возвращая T/NIL"
+  (when (check-correctness regex)
+    (if (not (= (match-auto (prepare-parsed-auto (parse-flags (parse-quantifiers (parse-brackets-any (parse-escape (explode regex))))) T) string) NIL))
+	T
+      NIL)))
+
+
+;; ; Вспомогательные функции
+;; (defun reverse-list(lst)
+;;   "Переворачивает список"
+;;   (foldl #'(lambda (acc elem) (cons elem acc)) NIL lst))
+
+;; (defun remove-dupl(lst)
+;;   "Удаляет повторяющиеся элементы из списка"
+;;   (let ((unique NIL))
+;;     (dolist (elem lst)
+;;       (when (not (contains unique elem))
+;; 	(setq unique (cons elem unique)))) ; элементы добавляются в начало списка
+;;     (reverse-list unique))) ; переворачиваем список обратно
