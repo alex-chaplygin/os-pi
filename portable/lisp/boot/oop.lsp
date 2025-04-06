@@ -15,6 +15,11 @@
 					;((class . line)(x . 10)(y . 20)(x2 . 5)(y2 . 10))
 (defvar *class-table* (make-hash))
 
+(defmacro init-class-table ()
+  (let ((a (setq *class-table* (make-hash))))
+    nil))
+(init-class-table)
+
 (defmacro gen-class-functions (class slots)
   "Генерация функций селекторов - <class>-<slot>"
   "мутаторов - <class>-set-<slot>"
@@ -31,11 +36,13 @@
   name - имя, parent - родительский класс,
   slots - список полей"
   "(defclass point () (x y))"
+  (let ((class (list 'hash (cons 'parent parent) (cons 'slots slots))))
+    (setq *class-table* (append (list 'hash) (list (cons name class)) (cdr *class-table*)))
+    `',name)
   `(let ((class (make-hash)))
-	   (set-hash class 'parent ',parent)
-	   (set-hash class 'slots ',slots)
-	   (set-hash *class-table* ',name class)
-	   ',name)
+    (set-hash class 'parent ',parent)
+    (set-hash class 'slots ',slots)
+    (set-hash *class-table* ',name class))
   `(defun ,(intern (concat "MAKE-" (symbol-name name))) ,(get-slots name)
      (let ((obj (make-instance ,name)))
 	 ,@(map #'(lambda(s) `(setf (slot obj ',s) ,s)) (get-slots name))
@@ -69,7 +76,7 @@
 
 (defun get-method (class-name method-name)
   "Рекурсивно возвращает тело метода method-name из класса class-name"
-  (if (null class-name) (concat "no method " (symbol-name method-name))
+  (if (null class-name) (error (concat "no method " (symbol-name method-name)))
     (let ((class (slot *class-table* class-name)))
       (if (check-key class method-name)
 	  (slot class method-name)
