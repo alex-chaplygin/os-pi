@@ -18,31 +18,14 @@
 ;; список примитивов с переменным количеством аргументов
 (defvar *nary-primitives*
   '((+ . 0) (- . 1) (* . 0) (/ . 1) (& . 0) (bitor . 0) (concat . 0) (funcall . 1) (print . 0) (error . 0)))
-;; Устанавливает флаг ошибки компиляции и сохраняет сообщение об ошибке.
-(defun comp-err (msg &rest other)
-  (return-from 'compiler (cons msg other)))
 
 ;; Расширить окружение новым кадром аргументов
 (defun extend-env (env args)
   (cons args env))
 
-;; Добавить глобальную функцию с именем, смещением окружения и числом аргументов
-(defmacro mk/add-func (name list &rest other)
-  `(defun ,name (name env arity ,@other)
-     (setq ,list (cons (list name env arity ,@other) ,list))))
 (mk/add-func add-func *fix-functions* args body) ;; фиксированное число аргументов
 (mk/add-func add-nary-func *nary-functions* args body) ;; переменное число аргументов
 (mk/add-func add-local-func *local-functions* real-name) ;; локальные функции
-(mk/add-func add-fix-macro *fix-macros* args body) ;; макросы - фиксированное число аргументов
-(mk/add-func add-nary-macro *nary-macros* args body) ;; макросы - переменное число аргументов
-
-;; Поиск функции или примитива по имени, возвращет сохраненную функцию или примитив
-(defun search-symbol (list name)
-  (labels ((search (list)
-	     (if (null list) nil
-		 (if (eq (caar list) name) (car list)
-		     (search (cdr list))))))
-    (search list)))
 
 ;; Проверка на правильность lambda выражения, или ошибка
 (defun correct-lambda (f)
@@ -64,17 +47,6 @@
 	(list 'SEQ
 	      (inner-compile body (extend-env env args))
 	      (list 'RETURN))))
-
-(defun is-nary (args) ;; переменное число аргументов?
-  (contains args '&rest))
-
-(defun num-fix-args (list num) ;; определить число фиксированных аргументов
-  (if (eq (car list) '&rest) num (num-fix-args (cdr list) (++ num))))
-
-(defun remove-rest (list) ;; удалить &rest из списка аргументов
-  (if (null list) nil
-      (if (eq (car list) '&rest) (cdr list)
-	  (cons (car list) (remove-rest (cdr list))))))
 
 ;; Комплирует лямбда-абстракцию.
 ;; (список аргументов, тело функции, локальное окружение).
