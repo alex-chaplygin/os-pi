@@ -7,7 +7,7 @@
 
 ;; Устанавливает флаг ошибки компиляции и сохраняет сообщение об ошибке.
 (defun comp-err (msg &rest other)
-  (return-from 'compiler (cons msg other)))
+  (throw 'compiler (cons msg other)))
 
 (defun is-nary (args) ;; переменное число аргументов?
   (contains args '&rest))

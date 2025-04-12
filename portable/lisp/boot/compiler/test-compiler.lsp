@@ -2,7 +2,7 @@
 
 ;; Тест компиляции программы.
 (defun test-compile (expr expected-res)
-  (print (block compiler
+  (print (catch 'compiler
     (print "Expression")
     (print expr)
     (print "Compiler")
@@ -12,7 +12,7 @@
 	(print "Generator")
 	(dolist (ins (generate program))
 	  (print ins))
-	(return-from 'compiler (assert program expected-res)))))))
+	(throw 'compiler (assert program expected-res)))))))
 
 (print "последовательность")
 (test-compile '(progn 1 2 3) '(seq (const 1) (seq (const 2) (const 3))))

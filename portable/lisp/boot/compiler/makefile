@@ -1,7 +1,7 @@
 include ../common.mak
 VPATH := ..
 COMPILER = $(BASELISP) macro.lsp compiler.lsp generator.lsp assembler.lsp
-SOURCE = ../lib.lsp ../list.lsp ../test.lsp ../test/lib.lsp
+SOURCE = ../lib.lsp ../list.lsp ../hash.lsp ../test.lsp ../compiler/macro.lsp
 TARGET = /tmp/compile
 
 compiler-test: $(COMPILER) ../test.lsp test-compiler.lsp
@@ -18,7 +18,7 @@ $(TARGET): $(SOURCE)
 
 target: $(SOURCE)
 	echo "" >$(TARGET)
-	echo "(print (block compiler (let ((comp (compile '(progn" >>$(TARGET)
+	echo "(print (catch 'compiler (let ((comp (compile '(progn" >>$(TARGET)
 	cat $(SOURCE) >>$(TARGET)
 	echo ")))) (print comp) (let ((gen (generate comp))) (dolist (l gen) (print l)) (print (assemble gen))) *consts*)))" >>$(TARGET)
 

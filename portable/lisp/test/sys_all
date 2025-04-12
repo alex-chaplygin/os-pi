@@ -81,6 +81,7 @@ quote: no args" #115
 sh sys_test "\`5" "5" #116
 sh sys_test "\`#(1 2 3 4)" "#(1 2 3 4)" #117
 sh sys_test "\`\"A\"" "\"A\"" #118
+sh sys_test "\`('(comma (setq a 1)))" "((QUOTE (COMMA (SETQ A 1))))" 
 
 echo  "---Тесты IF---"
 # выражение истино
@@ -518,10 +519,10 @@ sh sys_test "(integerp 125)" "T"
 echo "---Тест ERROR---"
 sh sys_test "(progn 1 2 3 (error \"e\") 4 5 6)" "ERROR: \"e\""
 
-echo "---Тесты BLOCK---"
-sh sys_test "(BLOCK)" "block: no arguments"
-sh sys_test "(BLOCK A)" "NIL"
-sh sys_test "(BLOCK A 1 2 3)" "3"
+echo "---Тесты CATCH---"
+sh sys_test "(CATCH)" "catch: no arguments"
+sh sys_test "(CATCH 'A)" "NIL"
+sh sys_test "(CATCH 'A 1 2 3)" "3"
 
 echo "---Тесты PROGN---"
 sh sys_test "(PROGN)" "NIL"
