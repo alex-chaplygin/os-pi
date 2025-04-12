@@ -39,10 +39,10 @@ symbol_t *rest_sym;
 symbol_t *tagbody_sym;
 /// символ "GO"
 symbol_t *go_sym;
-/// символ "BLOCK"
-symbol_t *block_sym;
-/// символ "RETURN_FROM"
-symbol_t *return_from_sym;
+/// символ "CATCH"
+symbol_t *catch_sym;
+/// символ "THROW"
+symbol_t *throw_sym;
 /// символ "LABELS"
 symbol_t *labels_sym;
 /// символ "PROGN"
@@ -59,8 +59,8 @@ extern continuation_t tagbody_buffers[MAX_TAGBODY_SIZE];
 extern int tb_index_buf;
 /// точка для возврата в цикл REPL
 jmp_buf repl_buf;
-/// точка возврата из block
-jmp_buf block_buf;
+/// точка возврата из catch
+jmp_buf catch_buf;
 ///текущая метка перехода go
 object_t cur_label = NULLOBJ;
 #ifdef DEBUG
@@ -218,6 +218,8 @@ object_t backquote_rec(object_t list)
     } else if (TYPE(list) == PAIR) {
  	object_t el = FIRST(list); // list = (COMMA B)
 	if (TYPE(el) == SYMBOL && !strcmp(GET_SYMBOL(el)->str, "BACKQUOTE"))
+	    res = list;
+	else if (TYPE(el) == SYMBOL && !strcmp(GET_SYMBOL(el)->str, "QUOTE"))
 	    res = list;
 	else if (TYPE(el) == SYMBOL && !strcmp(GET_SYMBOL(el)->str, "COMMA"))
  	    res = eval(SECOND(list), env, func);
@@ -562,9 +564,9 @@ int is_special_form(symbol_t *s)
 { 
     return s == quote_sym || s == defun_sym || s == defmacro_sym
 	|| s == setq_sym || s == backquote_sym || s == if_sym 
-	|| s == return_from_sym
+	|| s == throw_sym
 	|| s == labels_sym || s == tagbody_sym || s == progn_sym
-	|| s == go_sym || s == block_sym || s == func_sym; 
+	|| s == go_sym || s == catch_sym || s == func_sym; 
 } 
 
 /* 
@@ -848,29 +850,29 @@ object_t go(object_t args)
  *
  * @return 
  */
-object_t block(object_t list) 
+object_t catch(object_t list) 
 { 
     object_t obj; 
     if (list == NULLOBJ)
-	error("block: no arguments");
-    object_t first_param = FIRST(list);
+	error("catch: no arguments");
+    object_t first_param = eval(FIRST(list), current_env, func_env);
     object_t rest_params = TAIL(list);
-    if (setjmp(block_buf) == 0)
+    if (setjmp(catch_buf) == 0)
         return progn(rest_params);
     else
 	return cur_label;
 }
 
 /* 
- * Выходит из лексического блока, созданного block
+ * Выходит из лексического блока, созданного catch
  * @param args (имя блока, результат)
  */ 
-object_t return_from(object_t args) 
+object_t throw(object_t args) 
 { 
     PROTECT1(args);
     cur_label = SECOND(args);
     UNPROTECT;
-    longjmp(block_buf, 1);
+    longjmp(catch_buf, 1);
 } 
 
 /** 
@@ -953,8 +955,8 @@ void init_eval()
     register_func("ERROR", error_func);
     register_func("TAGBODY", tagbody);
     register_func("GO", go);
-    register_func("BLOCK", block); 
-    register_func("RETURN-FROM", return_from);
+    register_func("CATCH", catch); 
+    register_func("THROW", throw);
     register_func("LABELS", labels);
     register_func("FUNCTION", function);
     t = NEW_SYMBOL("T"); 
@@ -977,7 +979,7 @@ void init_eval()
     bind_static(NEW_OBJECT(SYMBOL, lambda_sym));
     tagbody_sym = find_symbol("TAGBODY");
     go_sym = find_symbol("GO");
-    block_sym = find_symbol("BLOCK");
+    catch_sym = find_symbol("CATCH");
     labels_sym = find_symbol("LABELS"); 
     progn_sym = find_symbol("PROGN");
     func_sym = find_symbol("FUNCTION");
