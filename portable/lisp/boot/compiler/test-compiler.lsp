@@ -130,6 +130,9 @@
 (test-compile '(progn (defmacro test-p() `(progn ,(+ 1 2))) (test-p))
 	      '(SEQ (NOP) (CONST 3)))
 
+(test-compile '(progn (defmacro test-p2() `(progn ,(setq a 2) ,(+ a 2))) (test-p2))
+	      '(SEQ (NOP) (SEQ (CONST 2) (CONST 4))))
+
 (print "Тест tagbody")
 (test-compile '(tagbody
 		(setq i 0)
