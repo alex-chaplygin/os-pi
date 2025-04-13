@@ -264,6 +264,14 @@
 		       (inner-compile e env)))
 	    (compile-tagbody (cdr body) env))))
 
+;; Компиляция CATCH
+(defun compile-catch (args env)
+     (list 'CATCH (inner-compile (car args) env) (compile-progn (cdr args) env)))
+
+;; Компиляция THROW
+(defun compile-throw (args env)
+     (list 'THROW (inner-compile (car args) env) (inner-compile (second args) env)))
+
 ;; Функция компиляции в промежуточную форму
 ;; expr - выражение, env - лексическое окружение
 (defun inner-compile (expr env)
@@ -286,6 +294,8 @@
 	  ('backquote (compile-backquote (second expr) env))
 	  ('tagbody (compile-tagbody (cdr expr) env))
 	  ('go (list 'GOTO (second expr)))
+	  ('catch (compile-catch (cdr expr) env))
+	  ('throw (compile-throw (cdr expr) env))
 	  (otherwise (compile-application func args env))))))
 
 ;; Анализ S-выражения и преобразование в эквивалентное выражение

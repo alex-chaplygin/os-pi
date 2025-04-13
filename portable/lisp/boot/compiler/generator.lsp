@@ -92,6 +92,21 @@
   (when body
     (inner-generate body)))
 
+;; Генерация кода для CATCH
+(defun generate-catch (tag body)
+  (let ((label (gensym)))
+    (inner-generate tag)
+    (emit (list 'CATCH label))
+    (inner-generate body)
+    (emit (list 'LABEL label))))
+
+;; Генерация кода для THROW
+(defun generate-throw (tag res)
+  (inner-generate tag)
+  (emit (list 'PUSH))
+  (inner-generate res)
+  (emit (list 'THROW)))
+
 ;; Генерация кода
 (defun inner-generate (expr)
   ;; (print (list 'inner-generate expr))
@@ -113,6 +128,8 @@
 	   ('FIX-CALL (generate-reg-call (cadr expr) nil (caddr expr) (cadddr expr))) ; обычный вызов
 	   ('NARY-CALL (generate-reg-call (cadr expr) (caddr expr) (cadddr expr) (caddddr expr))) ; вызов с переменным числом аргументов
 	   ('GOTO (emit (list 'JMP (second expr))))
+	   ('CATCH (generate-catch (second expr) (third expr)))
+	   ('THROW (generate-throw (second expr) (third expr)))
 	   (otherwise (emit (list 'UNKNOWN op))))))))
 
 (defun generate (expr)

@@ -197,6 +197,14 @@
 (case 1 (1 2) (3 4) (otherwise 5)))
 '(SEQ (LABEL LIST (SEQ (SEQ (CONST "Функция создания списка") (LOCAL-REF 1)) (RETURN))) (SEQ (LABEL CASE-FUNC (SEQ (ALTER (FIX-PRIM EQ ((FIX-PRIM CAR ((LOCAL-REF 0))) (CONST OTHERWISE))) (NARY-CALL LIST 0 0 ((GLOBAL-REF 0) (FIX-PRIM CAR ((FIX-PRIM CDR ((LOCAL-REF 0))))))) (NARY-CALL LIST 0 0 ((NARY-CALL LIST 0 0 ((CONST EQUAL) (FIX-PRIM CAR ((LOCAL-REF 0))) (LOCAL-REF 1))) (FIX-PRIM CAR ((FIX-PRIM CDR ((LOCAL-REF 0)))))))) (RETURN))) (SEQ (NOP) (SEQ (LABEL MAP (SEQ (ALTER (FIX-PRIM EQ ((LOCAL-REF 1) (CONST ()))) (GLOBAL-REF 1) (FIX-PRIM CONS ((NARY-PRIM FUNCALL 1 ((LOCAL-REF 0) (FIX-PRIM CAR ((LOCAL-REF 1))))) (FIX-CALL MAP 0 ((LOCAL-REF 0) (FIX-PRIM CDR ((LOCAL-REF 1)))))))) (RETURN))) (SEQ (NOP) (SEQ (CONST "Условный оператор cond") (ALTER (FIX-PRIM EQUAL ((CONST 1) (CONST 1))) (CONST 2) (SEQ (CONST "Условный оператор cond") (ALTER (FIX-PRIM EQUAL ((CONST 3) (CONST 1))) (CONST 4) (SEQ (CONST "Условный оператор cond") (ALTER (GLOBAL-REF 0) (CONST 5) (SEQ (CONST "Условный оператор cond") (CONST ()))))))))))))))
 
+;; тест CATCH/THROW
+(test-compile '(progn
+		(defun throw-test (x)
+		  (throw 'test x))
+		(catch 'test
+		  (throw-test 10)))
+	      '(SEQ (LABEL THROW-TEST (SEQ (THROW (CONST TEST) (LOCAL-REF 0)) (RETURN))) (CATCH (CONST TEST) (FIX-CALL THROW-TEST 0 ((CONST 10))))))
+
 ;; (print 'testing)
 ;; (print
 ;;  (vm-run
