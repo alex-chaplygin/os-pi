@@ -13,9 +13,11 @@
     prim nprim
     halt
     prim-closure
-    nprim-closure))
+    nprim-closure
+    catch
+    throw))
 ;; *inst-jmp-table* - список номеров инструкций перехода.
-(defvar *inst-jmp-table* '(jmp jnt fix-closure reg-call))
+(defvar *inst-jmp-table* '(jmp jnt fix-closure reg-call catch))
 ;; *consts* - список констант.
 (defvar *consts*)
 ;; *consts-end* - указатель на конец *consts*
