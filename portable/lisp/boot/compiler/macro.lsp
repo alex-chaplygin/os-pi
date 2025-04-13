@@ -64,6 +64,8 @@
 	    (comp-err "Unknown symbol in macro "  sym env))
 	(cdr r))))))
 
+(defun macro-eval (expr env) nil)
+
 ;; квазицитирование
 (defun macro-eval-backquote (expr env)
   (if (null expr) nil
@@ -83,6 +85,23 @@
 	(false (third expr)))
     (if (null (macro-eval cond env)) (macro-eval false env) (macro-eval true env))))
 
+;; вычисление аргументов
+(defun macro-eval-args (args env)
+  (map #'(lambda (a) (macro-eval a env)) args))
+
+;; вычисление последовательности
+(defun macro-eval-progn (expr env)
+;;  (print `(eval-progn ,expr))
+  (if (null expr) nil
+      (if (null (cdr expr)) (macro-eval (car expr) env)
+	  (progn
+	    (macro-eval (car expr) env)
+	    (macro-eval-progn (cdr expr) env)))))
+
+;; расширение окружения подстановки
+(defun extend-macro-env (env args vals)
+  (append (zip-with #'cons args vals) env))
+
 ;; связвание переменных let
 (defun macro-eval-let (args env)
   (when (< (list-length args) 1)
@@ -93,21 +112,25 @@
 	 (vals (macro-eval-args (get-vals decl) env)))
     (macro-eval-progn body (extend-macro-env env vars vals))))
 
-;; вычисление аргументов
-(defun macro-eval-args (args env)
-  (map #'(lambda (a) (macro-eval a env)) args))
-
 ;; вычисление примитива
 (defmacro eval-prim (expr)
   `(funcall #',(car expr) ,@(cdr expr)))
 
-;; расширение окружения подстановки
-(defun extend-macro-env (env args vals)
-  (append (zip-with #'cons args vals) env))
-
 ;; применение пользовательской функции внутри макроса
 (defun macro-eval-app-func (args body vals env)
   (macro-eval body (extend-macro-env env args vals)))
+
+(defun find-func (f)
+  nil)
+
+;; Проверка числа аргументов
+(defun check-arguments (f type count args)
+    (when (contains '(lambda fix-func local-func fix-prim fix-macro) type)
+      (when (!= count (list-length args))
+	(comp-err "invalid args count" f count args)))
+    (when (contains '(nary-prim nary-func nary-macro) type)
+      (when (> count (list-length args))
+	(comp-err "invalid nary args count" f count args))))
 
 ;; применение функции
 (defun macro-eval-app (f args env)
@@ -117,22 +140,13 @@
     ;;(print `(eval-app ,f ,args ,env ,fun))
     (check-arguments f type count args)
     (let ((r
-    (cond ((contains '(fix-prim nary-prim) type) (eval-prim `(,f ,@(map #'(lambda (a) (list 'quote a)) (macro-eval-args args env)))))
+	    (cond ((contains '(fix-prim nary-prim) type) (eval-prim `(,f ,@(map #'(lambda (a) (list 'quote a)) (macro-eval-args args env)))))
 	  ((eq 'fix-func type) (macro-eval-app-func (forth fun) (fifth fun) (macro-eval-args args env) env))
 	  ((eq 'nary-func type) (macro-eval-app-func (remove-rest (forth fun)) (fifth fun) (make-nary-args count (macro-eval-args args env)) env))
 	  ((eq 'fix-macro type) (macro-eval (macroexpand (third fun) args (forth fun)) env))
 	  ((eq 'nary-macro type) (macro-eval (macroexpand (third fun) (make-nary-args count args) (forth fun)) env))
 	  (t (comp-err "macro-eval-app: invalid function" f type)))))
       r)))
-
-;; вычисление последовательности
-(defun macro-eval-progn (expr env)
-;;  (print `(eval-progn ,expr))
-  (if (null expr) nil
-      (if (null (cdr expr)) (macro-eval (car expr) env)
-	  (progn
-	    (macro-eval (car expr) env)
-	    (macro-eval-progn (cdr expr) env)))))
 
 ;; вычисление вызова функции
 ;; подставить тело lambda, расширить окружение подстановки
@@ -194,5 +208,5 @@
 		     (list (cons (second args) vals))
 		     (cons (cons (car args) (car vals)) (make (cdr args) (cdr vals)))))))
     (let ((r (macro-expand-progn body (make args vals))))
-      ;;(print `(macro-expand ,r))
+      (print `(macro-expand ,r))
       r)))

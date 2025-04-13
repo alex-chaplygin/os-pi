@@ -78,15 +78,6 @@
 	   (list 'nary-prim (cdr r))) ; nary-prim num-args
 	  (t (comp-err "unknown function " f))))))
 
-;; Проверка числа аргументов
-(defun check-arguments (f type count args)
-    (when (contains '(lambda fix-func local-func fix-prim fix-macro) type)
-      (when (!= count (list-length args))
-	(comp-err "invalid args count" f count args)))
-    (when (contains '(nary-prim nary-func nary-macro) type)
-      (when (> count (list-length args))
-	(comp-err "invalid nary args count" f count args))))
-
 ;; Применение функции
 ;; f - имя функции или lambda, args - аргументы, env - окружение
 (defun compile-application (f args env)
