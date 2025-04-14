@@ -397,10 +397,33 @@ object_t bitwise_or(object_t list)
 	    num |= get_value(first);
 	    list = TAIL(list);
 	}
-	else {
+	else
 	    error("bitwise_or: Not number");
-	    return ERROR;
+    }
+    return new_number(num);
+}
+
+/** 
+ * Побитовое исключающее ИЛИ (^ 1 2 3)
+ *
+ * @param list - список чисел (1 2 3)
+ *
+ * @return побитовое исключающее ИЛИ
+ */
+object_t bitwise_xor(object_t list)
+{
+    if (list == NULLOBJ)
+	error("bitwise_xor: no arguments");
+    int num = get_value(FIRST(list));
+    list = TAIL(list);
+    while (list != NULLOBJ) {
+	object_t first = FIRST(list);
+	if (IS_NUMBER(first)) {  
+	    num ^= get_value(first);
+	    list = TAIL(list);
 	}
+	else
+	    error("bitwise_xor: Not number");
     }
     return new_number(num);
 }
@@ -542,6 +565,7 @@ void init_arith()
     register_func("%", mod);
     register_func("&", bitwise_and);
     register_func("BITOR", bitwise_or);
+    register_func("^", bitwise_xor);
     register_func("<<", shift_left);
     register_func(">>", shift_right);
     register_func(">", gt);
