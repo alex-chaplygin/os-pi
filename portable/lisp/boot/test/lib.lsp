@@ -1,5 +1,7 @@
 ; модульный тест для библиотечных функций
-(defun let-test ()
+(unit-tests 'lib)
+
+(deftest let-test ()
   "Тесты для макроса let (метод черного ящика)."
 
   (print "Простое присваивание")
@@ -47,24 +49,23 @@
   ;; (progn (let (x 1) nil)))
   )
 
-(defun when-test ()
+(deftest when-test ()
   "Тест функции when"
-  (print "Тест функции when")
   (print (assert (when t 78) 78))     
   (print (assert (when nil 78) nil)))
 
-(defun unless-test ()
-  (print "Тест для проверки функции unless")
+(deftest unless-test ()
+  "Тест для проверки функции unless"
   (print (assert (unless t 42) nil))
   (print (assert (unless nil 42) 42)))
 
-(defun for-test ()
+(deftest for-test ()
   "Тест для проверки захвата переменной c, которая есть в цикле и в параметре функции"
   (labels ((test (c) c))
     (for c 0 10
 	 (print (test "10")))))
 
-(defun fors-test ()
+(deftest fors-test ()
   "Тест вложенных циклов"
   (for i 0 3
        (for j 0 2
@@ -73,8 +74,8 @@
 		      (for m 0 3
 			   (print `(,i ,j ,k ,l ,m))))))))
 
-(defun while-test ()
-  (print "Тесты для проверки работы макроса while")
+(deftest while-test ()
+  "Тесты для проверки работы макроса while"
   ;; Простой тест
   (let ((x 0))
     (while (< x 5)
@@ -94,9 +95,9 @@
         (setq y (++ y)))
       (setq x (++ x)))))
 
-(defun tagbody-rec-test ()
-  "Тест рекурсивного вызова при последовательном чтении массива для JPEG"
-  "Вместо while цикла надо использовать unless"
+(deftest tagbody-rec-test ()
+  "Тест рекурсивного вызова при последовательном чтении массива для JPEG
+  Вместо while цикла надо использовать unless"
   (let ((ar #(10 20 30 10 20 30))
 	(i 0))
     (labels ((read-num ()
@@ -115,18 +116,18 @@
       (read)
       (print (read-num)))))
 
-(defun lex-test ()
-  "Тест лексической переменной, где параметр list у функции map закрывает свободную переменную list в let"
-  "В динамическом Лиспе - результат (0 0 0), в лексическом - правильный"
+(deftest lex-test ()
+  "Тест лексической переменной, где параметр list у функции map закрывает свободную переменную list в let
+  В динамическом Лиспе - результат (0 0 0), в лексическом - правильный"
   (let ((list '(a b c)))
     (print (assert (map #'(lambda (x) (nth list x)) '(2 1 0)) '(c b a)))))
 
-(defun compose-test ()
+(deftest compose-test ()
   "Тест композиции функций"
   (labels ((sqr (x) (* x x)))
 	  (print (assert (funcall (o #'sqr #'sqr) 10) 10000))))
 
-(defun dyn-test ()
+(deftest dyn-test ()
   "Тест динамических переменных"
   (defvar *g* 10)
   (labels ((test (x) (+ x *g*)))
@@ -134,7 +135,7 @@
 	  (setq *g* 20)
 	  (print (assert (test 1) 21))))
 
-(defun closure-test ()
+(deftest closure-test ()
   "Тест лексических замыканий"
   (labels ((make (am) (let ((bal am))
 			#'(lambda (act)
@@ -165,7 +166,8 @@
 	    (print "a = ")
 	    (pr 'a a))))
 
-(defun cond-tests ()
+(deftest cond-tests ()
+  "Тесты cond"
   (labels ((cond-test (val)
 	     (cond
 	       ((> val 10) ">10")
@@ -177,7 +179,8 @@
     (print (assert (cond-test 12) ">10"))
     (print (assert (cond) nil))))
 
-(defun and-tests ()
+(deftest and-tests ()
+  "Тесты and"
   (print (assert (and nil nil) nil))
   (print (assert (and (= 1 1) nil) nil))
   (print (assert (and nil t) nil))
@@ -187,7 +190,8 @@
   (print (assert (and t t t) t))
   (print (assert (and nil nil nil) nil)))
 
-(defun or-tests ()
+(deftest or-tests ()
+  "Тесты or"  
   (print (assert (or nil nil) nil))
   (print (assert (or nil t) t))
   (print (assert (or t nil) t))
@@ -195,7 +199,7 @@
   (print (assert (or (= 1 1) nil nil) t))
   (print (assert (or nil nil nil) nil)))
 
-(defun case-test ()
+(deftest case-test ()
   "Тест для проверки макроса case"
   ;; Тест для проверки случая, когда значение совпадает с одним из вариантов
   (print (assert (case 1
@@ -233,7 +237,7 @@
   ;;   ())
   )
 
-(defun get-bit-test ()
+(deftest get-bit-test ()
   "Тест для проверки функции get-bit"
   ; Тесты для числа 5 (двоичное представление: 101)
   (print (assert (get-bit 5 0) 1)) 
@@ -250,9 +254,8 @@
   (print (assert (get-bit 1024 11) 0))
   (print (assert (get-bit 2147483647 0) 1)))
 
-(defun null-test ()
-  "Тест функции null."
-  (print "Тест функции null")
+(deftest null-test ()
+  "Тесты функции null."
   (let ((tests '((() t)            ; Пустой список
                  ((1 2 3) ())      ; Непустой список
                  (a ())            ; Символ
@@ -264,9 +267,8 @@
             (expected (cadr test)))
         (print (assert (null input) expected))))))
 
-(defun not-test ()
-  "Тест функции not"
-  (print "Тест функции not.")
+(deftest not-test ()
+  "Тесты функции not"
   (let ((tests '((t ())             ; t -> nil
                  (() t)            ; nil -> t
                  (() t)             ; Пустой список -> t
@@ -279,7 +281,7 @@
             (expected (cadr test)))
         (print (assert (not input) expected))))))
 
-(defun inc-test ()
+(deftest inc-test ()
   "Тест функции ++"
   (print "Тест функции ++.")
   (let ((tests '((5 6)             
@@ -290,7 +292,7 @@
             (expected (cadr test)))
         (print (assert (++ input) expected))))))
 
-(defun dec-test ()
+(deftest dec-test ()
   "Тест функции --"
   (print "Тест функции --.")
   (let ((tests '((5 4)           
@@ -301,7 +303,7 @@
             (expected (cadr test)))
         (print (assert (-- input) expected))))))
 
-(defun incf-test ()
+(deftest incf-test ()
   "Тест функции incf (с использованием ++)."
   (print "Тест функции incf.")
   (let ((tests '((5 6) 
@@ -312,7 +314,7 @@
         (incf x)
         (print (assert (= x (second test)) t))))))
 
-(defun decf-test ()
+(deftest decf-test ()
   "Тест функции decf (с использованием --)."
   (print "Тест функции decf.")
   (let ((tests '((5 4) 
@@ -323,7 +325,7 @@
         (decf x)
         (print (assert (= x (second test)) t))))))
 
-(defun setf-test ()
+(deftest setf-test ()
   (print "Тест для проверки работы макроса setf")
   ;; (let ((x 10)
   ;;       (hash (make-hash)))
@@ -337,9 +339,8 @@
   ;;   (print (assert (equal (setf '(1 2 3) 5) "setf: invalid var") t)))
   )
 
-(defun defvar-test ()
-  (print "Тест для проверки работы макроса defvar")
-  ;; Тест для проверки ссздания переменной без значения (должна быть инициализирована nil)
+(deftest defvar-test ()
+  "Тест для проверки создания переменной без значения (должна быть инициализирована nil)"
   (defvar *test-var1*)
   (print (assert (null *test-var1*) t))
   ;; Тест для проверки ссздания переменной со значением
@@ -352,26 +353,4 @@
   (defvar *test-var4* (+ 10 20))
   (print (assert (= *test-var4* 30) t)))
 
-(when-test)
-(unless-test)
-(fors-test)
-(while-test)
-(tagbody-rec-test)
-(lex-test)
-(compose-test)
-(dyn-test)
-(closure-test)
-(cond-tests)
-(and-tests)
-(or-tests)
-(case-test)
-(get-bit-test)
-(null-test)
-(not-test)
-(inc-test)
-(dec-test)
-(setf-test)
-(defvar-test)
-(let-test)
-(incf-test)
-(decf-test)
+(run-tests)
