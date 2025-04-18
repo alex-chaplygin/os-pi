@@ -13,7 +13,7 @@
   "Новый драйвер тестов с именем name"
   (setq *test-list* nil))
 
-(defmacro deftest (name doc params &rest body)
+(defmacro deftest (name params doc &rest body)
   "Создать тест с именем name документацией doc и телом body"
   `(defun ,name ()
      (print ,doc)
