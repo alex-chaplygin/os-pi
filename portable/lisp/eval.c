@@ -219,8 +219,6 @@ object_t backquote_rec(object_t list)
  	object_t el = FIRST(list); // list = (COMMA B)
 	if (TYPE(el) == SYMBOL && !strcmp(GET_SYMBOL(el)->str, "BACKQUOTE"))
 	    res = list;
-	else if (TYPE(el) == SYMBOL && !strcmp(GET_SYMBOL(el)->str, "QUOTE"))
-	    res = list;
 	else if (TYPE(el) == SYMBOL && !strcmp(GET_SYMBOL(el)->str, "COMMA"))
  	    res = eval(SECOND(list), env, func);
 	else {
