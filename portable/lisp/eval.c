@@ -219,13 +219,13 @@ object_t backquote_rec(object_t list)
  	object_t el = FIRST(list); // list = (COMMA B)
 	if (TYPE(el) == SYMBOL && !strcmp(GET_SYMBOL(el)->str, "BACKQUOTE"))
 	    res = list;
-	else if (TYPE(el) == SYMBOL && !strcmp(GET_SYMBOL(el)->str, "COMMA"))
+	else if (TYPE(el) == SYMBOL && !strcmp(GET_SYMBOL(el)->str, "COMMA") && TAIL(list) != NULLOBJ)
  	    res = eval(SECOND(list), env, func);
 	else {
 	    first = backquote_rec(el); 
 	    if (first != NULLOBJ && TYPE(first) == PAIR) {  // first = (COMMA-AT B) 
 		object_t comma_at = FIRST(first);
-		if (comma_at != NULLOBJ && TYPE(comma_at) == SYMBOL && !strcmp(GET_SYMBOL(comma_at)->str, "COMMA-AT")) {
+		if (comma_at != NULLOBJ && TYPE(comma_at) == SYMBOL && !strcmp(GET_SYMBOL(comma_at)->str, "COMMA-AT") && TAIL(first) != NULLOBJ) {
 		    l = eval(SECOND(first), env, func);
 		    if (l == NULLOBJ) {
 			res = backquote_rec(TAIL(list));
