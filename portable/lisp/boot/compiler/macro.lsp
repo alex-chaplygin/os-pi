@@ -5,28 +5,8 @@
 ;; глобальные переменные макро мира
 (defvar *macro-globals* (make-hash))
 
-;; Устанавливает флаг ошибки компиляции и сохраняет сообщение об ошибке.
-(defun comp-err (msg &rest other)
-  (throw 'compiler (cons msg other)))
-
-(defun is-nary (args) ;; переменное число аргументов?
-  (contains args '&rest))
-
-;; Добавить глобальную функцию с именем, смещением окружения и числом аргументов
-(defmacro mk/add-func (name list &rest other)
-  `(defun ,name (name env arity ,@other)
-     (setq ,list (cons (list name env arity ,@other) ,list))))
-
 (mk/add-func add-fix-macro *fix-macros* args body) ;; макросы - фиксированное число аргументов
 (mk/add-func add-nary-macro *nary-macros* args body) ;; макросы - переменное число аргументов
-
-(defun num-fix-args (list num) ;; определить число фиксированных аргументов
-  (if (eq (car list) '&rest) num (num-fix-args (cdr list) (++ num))))
-
-(defun remove-rest (list) ;; удалить &rest из списка аргументов
-  (if (null list) nil
-      (if (eq (car list) '&rest) (cdr list)
-	  (cons (car list) (remove-rest (cdr list))))))
 
 ;; добавить новый макрос
 ;; list (name args body)
@@ -38,22 +18,7 @@
 	(add-nary-macro name 0 (num-fix-args args 0) (remove-rest args) body)
 	(add-fix-macro name 0 (list-length args) args body))))
 
-;; Сформировать правильный список аргументов
-;; count - число постоянных аргументов
-;; args - список аргументов
-(defun make-nary-args (count args)
-  (if (equal count 0) (list args)
-      (cons (car args) (make-nary-args (-- count) (cdr args)))))
-
-;; Поиск функции или примитива по имени, возвращет сохраненную функцию или примитив
-(defun search-symbol (list name)
-  (labels ((search (list)
-	     (if (null list) nil
-		 (if (eq (caar list) name) (car list)
-		     (search (cdr list))))))
-    (search list)))
-
-;; подстановка символа
+;; подстановка символа или значения переменной из глобального состояния
 (defun subst (sym env)
   (if (eq sym 'nil) nil
       (if (eq sym 't) t
@@ -112,9 +77,12 @@
 	 (vals (macro-eval-args (get-vals decl) env)))
     (macro-eval-progn body (extend-macro-env env vars vals))))
 
-;; вычисление примитива
-(defmacro eval-prim (expr)
-  `(funcall #',(car expr) ,@(cdr expr)))
+;; генерация функции вычисления примитива
+(defmacro gen-eval-prim (prims)
+  `(defun eval-prim (f args)
+     (apply (case f ,@(map #'(lambda (pr) `(',(car pr) #',(car pr))) ,prims)) args)))
+
+(gen-eval-prim (append *fix-primitives* *nary-primitives*))
 
 ;; применение пользовательской функции внутри макроса
 (defun macro-eval-app-func (args body vals env)
@@ -140,7 +108,7 @@
     ;;(print `(eval-app ,f ,args ,env ,fun))
     (check-arguments f type count args)
     (let ((r
-	    (cond ((contains '(fix-prim nary-prim) type) (eval-prim `(,f ,@(map #'(lambda (a) (list 'quote a)) (macro-eval-args args env)))))
+	    (cond ((contains '(fix-prim nary-prim) type) (eval-prim f (macro-eval-args args env)))
 	  ((eq 'fix-func type) (macro-eval-app-func (forth fun) (fifth fun) (macro-eval-args args env) env))
 	  ((eq 'nary-func type) (macro-eval-app-func (remove-rest (forth fun)) (fifth fun) (make-nary-args count (macro-eval-args args env)) env))
 	  ((eq 'fix-macro type) (macro-eval (macroexpand (third fun) args (forth fun)) env))
@@ -208,5 +176,5 @@
 		     (list (cons (second args) vals))
 		     (cons (cons (car args) (car vals)) (make (cdr args) (cdr vals)))))))
     (let ((r (macro-expand-progn body (make args vals))))
-      (print `(macro-expand ,r))
+;;      (print `(macro-expand ,r))
       r)))
