@@ -745,6 +745,26 @@ object_t funcall(object_t params)
 } 
 
 /* 
+ * Применияет функцию к списку аргументов
+ * @param param параметры (функция <список аргументов>)
+ * @return возвращает результат выполнения функции 
+ */ 
+object_t apply(object_t params) 
+{ 
+    if (params == NULLOBJ)
+	error("apply: no arguments"); 
+    object_t func = FIRST(params); 
+    if (func == NULLOBJ || TYPE(func) != FUNCTION)
+	error("apply: invalid func"); 
+    object_t args = SECOND(params);
+    function_t *f = GET_FUNCTION(func);
+    if (f->func != NULL) 
+ 	return f->func(args);
+    else 
+	return eval_func(new_pair(NEW_SYMBOL("LAMBDA"), new_pair(f->args, f->body)), args, f->env, f->func_env); 
+} 
+
+/* 
  * Вычисляет свой аргумент 
  * @param args (выражение) 
  * @return возвращает список из аргументов 
@@ -947,6 +967,7 @@ void init_eval()
     register_func("PROGN", progn); 
     register_func("SETQ", setq); 
     register_func("FUNCALL", funcall); 
+    register_func("APPLY", apply); 
     register_func("EVAL", lisp_eval);
     register_func("GC", print_gc_stat);
     register_func("DUMP-MEM", dump_mem);
