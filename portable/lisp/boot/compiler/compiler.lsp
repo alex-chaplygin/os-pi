@@ -8,16 +8,6 @@
 (defvar *nary-functions*)
 ;; список локальных функций (локальное имя, смещение кадра, кол-во аргументов, скомплированное имя)
 (defvar *local-functions*)
-;; список примитивов с фиксированным количеством аргументов
-(defvar *fix-primitives*
-  '((car . 1) (cdr . 1) (atom . 1) (cons . 2) (rplaca . 2) (rplacd . 2)
-    (% . 2) (<< . 2) (>> . 2) (eq . 2) (equal . 2) (> . 2) (< . 2) (sin . 1) (cos . 1) (sqrt . 1)
-    (intern . 1) (symbol-name . 1) (string-size . 1) (inttostr . 1) (code-char . 1) (char-code . 1) (putchar . 1) (char . 2) (subseq . 3)
-    (make-array . 1) (make-string . 2) (array-size . 1) (aref . 2) (seta . 3) (sets . 3)
-    (symbolp . 1) (integerp . 1) (pairp . 1) (functionp . 1) (gensym . 0)))
-;; список примитивов с переменным количеством аргументов
-(defvar *nary-primitives*
-  '((+ . 0) (- . 1) (* . 0) (/ . 1) (& . 0) (bitor . 0) (^ . 0) (concat . 0) (funcall . 1) (print . 0) (error . 0)))
 
 ;; Расширить окружение новым кадром аргументов
 (defun extend-env (env args)
