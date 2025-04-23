@@ -6,6 +6,8 @@
 #include "test.h"
 
 #define N(x) new_number(x)
+#define PRIM1(x) object_t x(object_t args) { return NULLOBJ; }
+#define PRIM2(x) object_t x(object_t arg1, object_t args) { return NULLOBJ; }
 
 enum {
     CONST,
@@ -67,9 +69,7 @@ object_t new_pair(object_t left, object_t right)
     pair->left = left; 
     pair->right = right;
     return NEW_OBJECT(PAIR, pair);
-} 
-
-/**
+}
 
 /**
  * Тест инструкции const
@@ -180,6 +180,51 @@ void test_push_pack()
     ASSERT(get_value(SECOND(stack_top[-1])), 2);
 }
 
+
+/** 
+ * @brief Заглушка для тестирования сложения.
+ */
+object_t add(object_t args)
+{
+    int result = 0;
+    while (args != NULLOBJ) {       
+        object_t n = get_value(FIRST(args));
+	result += n;
+        args = TAIL(args);
+    }
+    return new_number(result);
+}
+
+// Функции заглушки для примитивов
+PRIM2(sub)
+PRIM1(mul)
+PRIM2(DIV)
+PRIM1(bitwise_and)
+PRIM1(bitwise_or)
+PRIM1(bitwise_xor)
+PRIM1(concat)
+PRIM2(funcall)
+PRIM1(print_object)
+PRIM1(error_func)
+
+void test_nprim()
+{    
+    printf("test_nprim:\n");
+    object_t pc_progmem[] = {
+	N(CONST), N(0),
+	N(PUSH),
+	N(CONST), N(1),
+	N(PUSH),
+	N(PACK), N(2),
+	N(NPRIM), N(0),
+	N(HALT)
+    };
+    object_t pc_constmem[] = { N(5), N(10) };
+    vm_init(pc_progmem, 12, pc_constmem, 3, 1);
+    vm_run();
+    ASSERT(get_value(acc_reg), 15);
+}
+
 int main()
 {  
     test_const();
@@ -187,5 +232,6 @@ int main()
     test_jnt();
     test_global_ref_set();
     test_push_pack();
+    test_nprim();
     return 0;
 }

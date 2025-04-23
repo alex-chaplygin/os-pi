@@ -4,6 +4,28 @@
 #include "objects.h"
 #include "alloc.h"
 #include "vm.h"
+#include "symbols.h"
+#include "arith.h"
+#include "str.h"
+#include "eval.h"
+
+//Таблица примитивов
+struct prim {
+    void* func; 
+    int args_count;
+} prims[] = {
+    { add, 0 },
+    { sub, 1 },
+    { mul, 0 },
+    { DIV, 1 },
+    { bitwise_and, 0 },
+    { bitwise_or, 0 },
+    { bitwise_xor, 0 },
+    { concat, 0 },
+    { funcall, 1 },
+    { print_object, 0 },
+    { error_func, 0 }
+};
 
 //Размер памяти программы
 int program_size;
@@ -25,6 +47,8 @@ object_t *stack_top;
 //Хранит указатель на последний кадр активации машины 
 frame_t frame_activation_list[FRAME_SIZE];
 
+//Хранит количество объектов в стеке
+int stack_c = 0;
 //Хранит указатель на текущую выполняемую инструкцию
 object_t *pc_reg;
 //Хранит результат последней операции
@@ -54,6 +78,7 @@ void vm_init(object_t *prog_mem, int prog_size, object_t *const_mem, int const_c
     pc_reg = program_memory;
     acc_reg = NULLOBJ;
     stack_top = stack;
+    stack_c = 0;
     frame_reg = NULL;
     working = 1;
 }
@@ -185,7 +210,10 @@ void deep_set_inst()
  */
 void push_inst()
 {
-    *stack_top++ = acc_reg; 
+    if(++stack_c > STACK_SIZE)
+	printf("stack overflow!");
+    else
+	*stack_top++ = acc_reg;
     printf("PUSH\n");
 }
 
@@ -196,6 +224,7 @@ void push_inst()
  */
 object_t pop()
 {
+    stack_c--;
     return *--stack_top;
 }
 
@@ -275,21 +304,25 @@ void prim_inst() {
     //instructions[n]();
 }
 
-
 /**
- * @brief Функция, вызывающая примитив с номером n из таблицы примитивов с переменным числом аргументов
+ * @brief Функция, берет из стека нужное число аргументов, это число фиксированных аргументов + 1 (список переменных аргументов), вызывает функцию примитива с аргументами, результат записывается в ACC.
  */
-void nprim_inst() {
-    object_t arg = fetch();
-    object_t args[100];
-    args[0] = arg;
-    int i = 1;
-
-    /* while ((arg = fetch()) != NIL) { */
-    /*     args[i++] = arg; */
-    /* } */
-
-    //instructions[args[0]]();
+void nprim_inst()
+{
+    int n = fetch();
+    object_t args = pop();
+    switch (prims[n].args_count) {
+	case 0:
+	    acc_reg = ((func1_t)prims[n].func)(args);
+	    break;
+	case 1:
+	    acc_reg = ((func2_t)prims[n].func)(pop(), args);
+	    break;
+	default:
+	    printf("nary primitive with %d arguments", prims[n].args_count);
+	    break;
+    }    
+    printf("NPRIM %d\n", n);
 }
 
 /**
