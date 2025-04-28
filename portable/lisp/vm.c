@@ -47,8 +47,6 @@ object_t *stack_top;
 //Хранит указатель на последний кадр активации машины 
 frame_t frame_activation_list[FRAME_SIZE];
 
-//Хранит количество объектов в стеке
-int stack_c = 0;
 //Хранит указатель на текущую выполняемую инструкцию
 object_t *pc_reg;
 //Хранит результат последней операции
@@ -77,8 +75,7 @@ void vm_init(object_t *prog_mem, int prog_size, object_t *const_mem, int const_c
     global_var_memory = alloc_region(global_var_count * sizeof(object_t));
     pc_reg = program_memory;
     acc_reg = NULLOBJ;
-    stack_top = stack;
-    stack_c = 0;
+    stack_top = &(stack[STACK_SIZE - 1]);
     frame_reg = NULL;
     working = 1;
 }
@@ -204,16 +201,23 @@ void deep_set_inst()
 
     //target_frame->local_args[i] = acc_reg;
 }
+/** 
+ * @brief Помещает объект в стек
+ */
+void push(object_t obj)
+{
+    if (stack_top < stack)
+	error("stack overflow");
+    else
+    	*stack_top-- = obj;
+}
 
 /**
  * @brief Функция, добавляющая значение регистра ACC в стэк
  */
 void push_inst()
 {
-    if(++stack_c > STACK_SIZE)
-	printf("stack overflow!");
-    else
-	*stack_top++ = acc_reg;
+    push(acc_reg);
     printf("PUSH\n");
 }
 
@@ -224,8 +228,7 @@ void push_inst()
  */
 object_t pop()
 {
-    stack_c--;
-    return *--stack_top;
+    return *(++stack_top);
 }
 
 /**
@@ -235,10 +238,10 @@ void pack_inst()
 {
     int n = fetch();
     object_t list = NULLOBJ;
-    
     for (int i = 0; i < n; i++)
-	list = new_pair(pop(), list);
-    *stack_top++ = list;
+    	list = new_pair(pop(), list);
+
+    push(list);
     printf("PACK %d\n", n);
 }
 
