@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <objects.h>
 #include <test.h>
+#include <setjmp.h>
 #include "alloc.h"
 #include "vm.h"
 #include "test.h"
@@ -37,6 +38,15 @@ extern object_t *pc_reg;
 extern object_t acc_reg;
 extern object_t *global_var_memory;
 extern object_t *stack_top;
+void push(object_t obj);
+
+jmp_buf jmp_env;
+
+void error(char *str, ...)
+{
+  printf("%s", str);
+  longjmp(jmp_env, 1);
+}
 
 void *alloc_region(int size)
 {
@@ -176,8 +186,26 @@ void test_push_pack()
     object_t pc_constmem[] = { N(0), N(1), N(2) };
     vm_init(pc_progmem, 12, pc_constmem, 3, 1);
     vm_run();
-    ASSERT(get_value(FIRST(stack_top[-1])), 1);
-    ASSERT(get_value(SECOND(stack_top[-1])), 2);
+
+    ASSERT(get_value(stack_top[2]), 0);
+    ASSERT(get_value(FIRST(stack_top[1])), 1);
+    ASSERT(get_value(SECOND(stack_top[1])), 2);
+}
+
+/*
+ * Тест переполнения стека
+ */
+void test_stack_overflow()
+{
+    printf("test_stack_overflow:\n");
+    if (setjmp(jmp_env) == 0) {
+	vm_init(0, 0, 0, 0, 0);
+	for (int i = 0; i < STACK_SIZE + 1; i++)
+	    push(N(1));
+	FAIL;
+    }
+    else
+	OK;
 }
 
 
@@ -207,6 +235,9 @@ PRIM2(funcall)
 PRIM1(print_object)
 PRIM1(error_func)
 
+/*
+ * Тест вызова примитива с переменным числом аргументов
+ */
 void test_nprim()
 {    
     printf("test_nprim:\n");
@@ -233,5 +264,6 @@ int main()
     test_global_ref_set();
     test_push_pack();
     test_nprim();
+    test_stack_overflow();
     return 0;
 }
