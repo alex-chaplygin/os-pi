@@ -7,7 +7,7 @@
 /// Всего строк
 #define MAX_STRINGS 20000
 /// Всего массивов
-#define MAX_ARRAYS 200
+#define MAX_ARRAYS 400
 /// Максимальная длина символа
 #define MAX_SYM_STR 32
 /// Всего больших чисел
