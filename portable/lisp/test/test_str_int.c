@@ -29,6 +29,11 @@ void error(char *str, ...)
     longjmp(jmp_env, 1);
 }
 
+object_t function(object_t param)
+{
+    return param;
+}
+
 char *itoa(int num, char *str, int rad)
 {
     int i = MAX_ITOA_STR;

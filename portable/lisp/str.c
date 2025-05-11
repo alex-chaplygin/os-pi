@@ -133,6 +133,18 @@ object_t symbol_name(object_t list)
     return NEW_STRING(str);
 }
 
+object_t function(object_t param);
+/**
+ * Получение функционального объекта из символа
+ * Может быть пользовательской функцией или встроенным примитивом
+ * @param list (символ)
+ * @return функциональный объект
+ */
+object_t symbol_function(object_t list)
+{
+    return function(list);
+}
+
 /** 
  * Получение подстроки из строки
  *
@@ -338,8 +350,9 @@ object_t gensym(object_t args)
 void init_strings()
 {
     register_func("INTERN", intern);
-    register_func("CONCAT" ,concat);
+    register_func("CONCAT", concat);
     register_func("SYMBOL-NAME", symbol_name);
+    register_func("SYMBOL-FUNCTION", symbol_function);
     register_func("STRING-SIZE", string_size);
     register_func("CHAR", str_char);
     register_func("SUBSEQ", subseq);

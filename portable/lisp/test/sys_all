@@ -76,12 +76,17 @@ sh sys_test "(setq abc '(a b c))
 (1 A B C (9) \"a\" #(1 9 2))" # 25 26 27 49 45
 sh sys_test "\`y" "Y" #42
 sh sys_test "\` " "\` 
-
 quote: no args" #115
 sh sys_test "\`5" "5" #116
 sh sys_test "\`#(1 2 3 4)" "#(1 2 3 4)" #117
 sh sys_test "\`\"A\"" "\"A\"" #118
-sh sys_test "\`('(comma (setq a 1)))" "((QUOTE (COMMA (SETQ A 1))))" 
+sh sys_test "\`('(comma (setq a 1)))" "((QUOTE 1))"
+# COMMA как символ
+sh sys_test "\`(= a 'COMMA)" "(= A (QUOTE COMMA))"
+# COMMA внутри COMMA
+sh sys_test "\`(1 ,(+ 1 ,(+ 2 3))) " "Unknown func: COMMA"
+# COMMA внутри COMMA_AT
+sh sys_test "\`(1 ,@(cons ,(+ 2 3) nil)) " "ERROR: comma inside comma-at"
 
 echo  "---Тесты IF---"
 # выражение истино
@@ -584,3 +589,6 @@ sh sys_test "(cos 0.0)" "1.000000"
 echo "---Тесты ROUND ---"
 sh sys_test "(round 1.3)" "1"
 sh sys_test "(round 2.5)" "3"
+
+echo "---Тесты SYMBOL-FUNCTION ---"
+sh sys_test "(symbol-function (intern (concat \"C\" \"AR\")))" "(Function NIL NIL 4ff2b0)"
