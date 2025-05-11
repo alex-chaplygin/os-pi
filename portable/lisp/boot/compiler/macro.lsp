@@ -77,13 +77,6 @@
 	 (vals (macro-eval-args (get-vals decl) env)))
     (macro-eval-progn body (extend-macro-env env vars vals))))
 
-;; генерация функции вычисления примитива
-(defmacro gen-eval-prim (prims)
-  `(defun eval-prim (f args)
-     (apply (case f ,@(map #'(lambda (pr) `(',(car pr) #',(car pr))) ,prims)) args)))
-
-(gen-eval-prim (append *fix-primitives* *nary-primitives*))
-
 ;; применение пользовательской функции внутри макроса
 (defun macro-eval-app-func (args body vals env)
   (macro-eval body (extend-macro-env env args vals)))
@@ -100,15 +93,17 @@
       (when (> count (list-length args))
 	(comp-err "invalid nary args count" f count args))))
 
+(defun macroexpand (args vals body) nil)
+
 ;; применение функции
 (defun macro-eval-app (f args env)
   (let* ((fun (find-func f))
 	 (type (car fun))
 	 (count (second fun)))
-    ;;(print `(eval-app ,f ,args ,env ,fun))
+;;    (print `(eval-app ,f ,args ,env ,fun))
     (check-arguments f type count args)
     (let ((r
-	    (cond ((contains '(fix-prim nary-prim) type) (eval-prim f (macro-eval-args args env)))
+	    (cond ((contains '(fix-prim nary-prim) type) (apply (symbol-function f) (macro-eval-args args env)))
 	  ((eq 'fix-func type) (macro-eval-app-func (forth fun) (fifth fun) (macro-eval-args args env) env))
 	  ((eq 'nary-func type) (macro-eval-app-func (remove-rest (forth fun)) (fifth fun) (make-nary-args count (macro-eval-args args env)) env))
 	  ((eq 'fix-macro type) (macro-eval (macroexpand (third fun) args (forth fun)) env))
@@ -120,7 +115,7 @@
 ;; подставить тело lambda, расширить окружение подстановки
 (defun macro-eval-funcall (f args env)
   (let ((type (car f))
-	(lam (second f)))
+  	(lam (second f)))
     (if (and (eq type 'function) (correct-lambda lam))
       (macro-eval-progn (cddr lam) (extend-macro-env env (second lam) args))
       (comp-err "macro-eval-funcall: invalid function" f))))
@@ -141,9 +136,16 @@
   (let ((val (macro-eval expr env)))
     (set-hash *macro-globals* var val)))
 
+;; вычисление объекта-функции
+(defun macro-eval-function (s)
+  (if (symbolp s) (symbol-function s)
+      (if (correct-lambda s) (list 'function s)
+	  (error "macro-eval-function: invalid function" s))))
+   
 ;; раскрытие макроса
 (defun macro-eval (expr env)
-  ;;(print `(meval ,expr ,env))
+;;  (print `(meval ,expr ,env))
+  (if (functionp expr) expr
   (if (atom expr)
       (if (symbolp expr) (subst expr env) expr)
       (let ((f (car expr))
@@ -156,9 +158,9 @@
 	  ('let (macro-eval-let args env))
 	  ('quote (car args))
 	  ('backquote (macro-eval-backquote (car args) env))
-	  ('function expr)
+	  ('function (macro-eval-function (second expr)))
 	  ('funcall (macro-eval-funcall (macro-eval (car args) env) (macro-eval-args (cdr args) env) env))
-	  (otherwise (macro-eval-app f args env))))))
+	  (otherwise (macro-eval-app f args env)))))))
 
 ;; раскрытие последовательности
 (defun macro-expand-progn (expr env)
