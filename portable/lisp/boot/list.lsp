@@ -56,8 +56,8 @@
 	
 (defun map (f list)
   "Применяет функцию f к каждому элементу списка list и возвращает новый список"
-  (unless (functionp f)
-      (error "map: not function"))
+  ;; (unless (functionp f)
+  ;;     (error "map: not function"))
   (unless (pairp list)
       (error "map: incorrect arguments"))
   (if (null list) nil
