@@ -799,10 +799,12 @@ void print_obj(object_t obj)
     else if (TYPE(obj) == BIGNUMBER)
 	printf("%d", GET_BIGNUMBER(obj)->value);
     else if (TYPE(obj) == FUNCTION) {
-	printf("(LAMBDA ");
+	printf("(Function ");
 	print_obj(GET_FUNCTION(obj)->args);
 	printf(" ");
 	print_obj(GET_FUNCTION(obj)->body);
+	printf(" ");
+	printf("%x", GET_FUNCTION(obj)->func);
 	printf(")");
     }
     else if (TYPE(obj) == FLOAT)
