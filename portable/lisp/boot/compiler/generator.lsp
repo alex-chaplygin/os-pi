@@ -13,7 +13,9 @@
 	  (setq *program* v)
 	  (rplacd *program-size* v))
     (setq *program-size* v)))
-	  
+
+(defun inner-generate (expr) nil)
+
 ;; Ветвление (cond true false)
 (defun generate-if (expr)
   (let ((label-false (gensym))

@@ -24,69 +24,33 @@
 (defvar *consts-end*)
 ;; *func-args-hash* - хэш-таблица, в которой ключ - адрес функции, а значение - её тип и число аргументов.
 (defvar *func-args-hash*)
+;; адреса где нужно изменить переходы с абсолютных на относительные
+(defvar jmp-addrs)
+;; счетчик комманд
+(defvar pc)
+;; генерируемый код
+(defvar bytecode)
+;; конец списка генерируемого кода
+(defvar bytecode-end)
 
-;; Превращает список инструкций с метками в байт-код.
-(defun assemble (program)
-  (assemble-second-pass (assemble-first-pass program)))
+;; Найти последний cdr в списке
+(defun last-cdr (list)
+  (if (null (cdr list)) list
+      (last-cdr (cdr list))))
 
-;; Первый проход ассемблера
-;; (замена мнемоник инструкций соответствующими байтами
-;; и сбор информации о метках и переходах).
-(defun assemble-first-pass (program)
-  (setq *consts* (list t nil)
-	*consts-end* (cdr *consts*)
-        *func-args-hash* (make-hash))
-  (let ((bytecode nil)
-	(end nil)
-        (pc 0)
-        (jmp-labels nil)
-        (jmp-addrs (make-hash)))
-    (labels ((last-cdr (list)
-	       (if (null (cdr list)) list
-		   (last-cdr (cdr list))))
-	     (asm-emit (&rest bytes)
-	       (if (null bytecode)
-		   (setq bytecode bytes)
-		   (rplacd end bytes))
-               (setq end (last-cdr bytes)
-		     pc (+ pc (list-length bytes)))))
-      (app #'(lambda (inst)
-	       (cond
-		 ((contains '(prim nprim prim-closure nprim-closure) (car inst))
-		  (assemble-prim inst))
-		 (t (case (car inst)
-		      ('label (assemble-label inst))
-		      ('const (assemble-const inst))
-		      (otherwise (setq jmp-labels (assemble-inst inst jmp-labels)))))))
-           program)
-      (asm-emit (list-search *inst-table* 'HALT))
-      (setq pc (++ pc)))
-    (list bytecode pc jmp-labels jmp-addrs)))
-
-;; Второй проход ассемблера
-;; (замена меток переходов на относительные адреса).
-(defun assemble-second-pass (first-pass-res)
-  (let ((bytecode (car first-pass-res))
-        (bytecode-len (second first-pass-res))
-        (jmp-labels (third first-pass-res))
-        (jmp-addrs (forth first-pass-res)))
-    (let ((bytecode-arr (make-array bytecode-len)))
-      (foldl #'(lambda (pc elem)
-                 (seta bytecode-arr pc elem)
-                 (++ pc))
-             0 bytecode)
-      (foldl #'(lambda (_ addr-label)
-                 (seta bytecode-arr
-                       (car addr-label)
-                       (- (get-hash jmp-addrs (cdr addr-label)) (-- (car addr-label)))))
-             nil jmp-labels)
-      bytecode-arr)))
+;; Запись кода в список
+(defun asm-emit (&rest bytes)
+  (if (null bytecode)
+      (setq bytecode bytes)
+      (rplacd bytecode-end bytes))
+  (setq bytecode-end (last-cdr bytes)
+	pc (+ pc (list-length bytes))))
 
 ;; Ассемблирование метки.
 (defun assemble-label (inst)
   (set-hash jmp-addrs (cadr inst) pc)
   (let ((fun nil)
-        (type nil))
+	(type nil))
     (cond
       ((setq fun (search-symbol *fix-functions* (cadr inst)))
        (setq type 'fix))
@@ -138,3 +102,50 @@
                (asm-emit elem))
            (cdr inst))))
   jmp-labels)
+
+;; Первый проход ассемблера
+;; (замена мнемоник инструкций соответствующими байтами
+;; и сбор информации о метках и переходах).
+(defun assemble-first-pass (program)
+  (setq *consts* (list t nil)
+	*consts-end* (cdr *consts*)
+        *func-args-hash* (make-hash)
+	jmp-addrs (make-hash)
+	pc 0
+	bytecode nil
+	bytecode-end nil)
+  (let ((jmp-labels nil))
+    (app #'(lambda (inst)
+	     (cond
+	       ((contains '(prim nprim prim-closure nprim-closure) (car inst))
+		(assemble-prim inst))
+	       (t (case (car inst)
+		    ('label (assemble-label inst))
+		    ('const (assemble-const inst))
+		    (otherwise (setq jmp-labels (assemble-inst inst jmp-labels)))))))
+	 program)
+    (asm-emit (list-search *inst-table* 'HALT))
+    (setq pc (++ pc))
+    (list bytecode pc jmp-labels)))
+
+;; Второй проход ассемблера
+;; (замена меток переходов на относительные адреса).
+(defun assemble-second-pass (first-pass-res)
+  (let ((bytecode (car first-pass-res))
+        (bytecode-len (second first-pass-res))
+        (jmp-labels (third first-pass-res)))
+    (let ((bytecode-arr (make-array bytecode-len)))
+      (foldl #'(lambda (pc elem)
+                 (seta bytecode-arr pc elem)
+                 (++ pc))
+             0 bytecode)
+      (foldl #'(lambda (_ addr-label)
+                 (seta bytecode-arr
+                       (car addr-label)
+                       (- (get-hash jmp-addrs (cdr addr-label)) (-- (car addr-label)))))
+             nil jmp-labels)
+      bytecode-arr)))
+
+;; Превращает список инструкций с метками в байт-код.
+(defun assemble (program)
+  (assemble-second-pass (assemble-first-pass program)))

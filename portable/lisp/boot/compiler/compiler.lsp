@@ -17,19 +17,7 @@
 (mk/add-func add-nary-func *nary-functions* args body) ;; переменное число аргументов
 (mk/add-func add-local-func *local-functions* real-name) ;; локальные функции
 
-;; Проверка на правильность lambda выражения, или ошибка
-(defun correct-lambda (f)
-  (and (not (atom f))
-       (>= (list-length f) 3)
-       (equal (car f) 'lambda)
-       (or (null (second f))
-           (not (atom (second f))))
-       (labels ((is-args-sym (args)
-                  (if (null args) t
-                      (if (symbolp (car args))
-                          (is-args-sym (cdr args))
-                          nil))))
-         (is-args-sym (second f)))))
+(defun inner-compile (expr env) nil)
 
 ;; Компиляция тела функции
 (defun compile-func-body (name args body env)
@@ -67,6 +55,8 @@
 	  ((setq r (search-symbol *nary-primitives* f))
 	   (list 'nary-prim (cdr r))) ; nary-prim num-args
 	  (t (comp-err "unknown function " f))))))
+
+(defun compile-progn (lst env) nil)
 
 ;; Применение функции
 ;; f - имя функции или lambda, args - аргументы, env - окружение
@@ -119,6 +109,32 @@
   (incf *global-variables-count*)
   (- *global-variables-count* 1))
 
+;; Производит поиск переменной в глобальном окружении по символу.
+;; Возвращает индекс в массиве глобального окружения, если символ найден, иначе nil.
+(defun find-global-var (var)
+  (let ((i (list-search *global-variables* var)))
+    (if (null i) nil
+	(list 'global i))))
+
+;; Производит поиск переменной в локальном окружении по символу.
+;; Возвращает индекс переменной в стеке, если символ найден, иначе nil.
+(defun find-local-var (var env)
+  (labels ((find-frame (frames i)
+	     (if (null frames) nil
+		 (let ((j (list-search (car frames) var)))
+		   (if (null j) (find-frame (cdr frames) (++ i))
+		       (if (= i 0) (list 'local j)
+			   (list 'deep i j)))))))
+	  (find-frame env 0)))
+
+;; Производит поиск переменной по символу сначала в локальном, а затем в глобальном окружении.
+;; Возвращает список, состоящий из символа - GLOBAL или LOCAL, DEEP,
+;; env - локальное окружение
+(defun find-var (var env)
+  (let ((local (find-local-var var env)))
+    (if (not (null local)) local
+        (find-global-var var))))
+
 ;; Компилирует setq-выражение.
 ;; setq-body - пара из символа и выражения, которое необходимо установить этому символу.
 (defun compile-setq (body env)
@@ -135,7 +151,7 @@
 			    (val (inner-compile (second body) env))
 			    (res (find-var var env)))
 		       (if (not (symbolp var))
-			   (comp-err "setq: invalid variable: " (symbol-name setq-sym))
+			   (comp-err "setq: invalid variable: " var)
 			   (if (null res)
 			       (list 'GLOBAL-SET (add-global var) val)
 			       (case (car res)
@@ -154,6 +170,11 @@
 	    (true (inner-compile (second expr) env))
 	    (false (inner-compile (third expr) env)))
       (list 'ALTER cond true false))))
+
+;; Компиляция константы
+(defun compile-constant (c)
+  ;; (print (list 'compile-constant c))
+  (list 'CONST c))
 
 ;; Компилирует блок progn.
 ;; lst - список S-выражений внутри блока progn.
@@ -185,31 +206,6 @@
 	(setq *local-functions* old)
 	(list 'SEQ f body)))))
 
-;; Производит поиск переменной по символу сначала в локальном, а затем в глобальном окружении.
-;; Возвращает список, состоящий из символа - GLOBAL или LOCAL, DEEP,
-;; env - локальное окружение
-(defun find-var (var env)
-  (let ((local (find-local-var var env)))
-    (if (not (null local)) local
-        (find-global-var var))))
-
-;; Производит поиск переменной в глобальном окружении по символу.
-;; Возвращает индекс в массиве глобального окружения, если символ найден, иначе nil.
-(defun find-global-var (var)
-  (let ((i (list-search *global-variables* var)))
-    (if (null i) nil
-	(list 'global i))))
-
-;; Производит поиск переменной в локальном окружении по символу.
-;; Возвращает индекс переменной в стеке, если символ найден, иначе nil.
-(defun find-local-var (var env)
-  (labels ((find-frame (frames i)
-	     (if (null frames) nil
-		 (let ((j (list-search (car frames) var)))
-		   (if (null j) (find-frame (cdr frames) (++ i))
-		       (if (= i 0) (list 'local j)
-			   (list 'deep i j)))))))
-	  (find-frame env 0)))
 
 ;; Компиляция перемнной
 (defun compile-variable (v env)
@@ -220,11 +216,6 @@
 	    ('local (list 'LOCAL-REF (second res)))
 	    ('global (list 'GLOBAL-REF (second res)))
 	    ('deep (list 'DEEP-REF (second res) (third res)))))))
-
-;; Компиляция константы
-(defun compile-constant (c)
-  ;; (print (list 'compile-constant c))
-  (list 'CONST c))
 
 ;; Комиляция квазицитирования
 (defun compile-backquote (expr env)
