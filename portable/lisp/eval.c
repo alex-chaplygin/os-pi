@@ -104,6 +104,27 @@ int list_length(object_t args)
     return c;
 }
 
+/** 
+ * Проверка нахождения символа в списке
+ *
+ * @param list список
+ * @param symbol символ
+ *
+ * @return позицию первого вхождения сивола в списке или -1 если символ не найден
+ */
+int list_contains(object_t list, symbol_t* symbol) 
+{
+    int c = 0;
+    while (list != NULLOBJ) {
+        object_t obj = FIRST(list);
+        if (TYPE(obj) == SYMBOL && GET_SYMBOL(obj) == symbol)
+            return c;
+        list = TAIL(list);
+        c++;
+    }
+    return -1;
+}
+
 // (eq 'a 'a) -> T 
 // (eq 'a 'b) -> () 
 /*  
@@ -227,21 +248,19 @@ object_t backquote(object_t list)
 	    res = eval(SECOND(list), env, func);
 	else {
 	    first = backquote(el);
-	    if (TAIL(list) == NULLOBJ) {
-		res = new_pair(first, NULLOBJ);
-		UNPROTECT;
-		return res;
-	    }
-	    if (TYPE(TAIL(list)) == PAIR) {
-		object_t comma_at_pair = FIRST(TAIL(list));
-		if (comma_at_pair != NULLOBJ && TYPE(comma_at_pair) == PAIR) {
-		    object_t comma_at = FIRST(comma_at_pair);
-		    if (TYPE(comma_at) == SYMBOL && !strcmp(GET_SYMBOL(comma_at)->str, "COMMA-AT") && TAIL(first) != NULLOBJ) {
-			l = eval(SECOND(comma_at_pair), env, func);
-			res = new_pair(first, NULLOBJ);
-			if (l != NULLOBJ)
-			    append_env(res, backquote(l));
-			append_env(res, backquote(TAIL(TAIL(list))));
+	    if (first != NULLOBJ && TYPE(first) == PAIR) {  // first = (COMMA-AT B) 
+		object_t comma_at = FIRST(first);
+		if (comma_at != NULLOBJ && TYPE(comma_at) == SYMBOL && !strcmp(GET_SYMBOL(comma_at)->str, "COMMA-AT") && TAIL(first) != NULLOBJ) {
+		    l = eval(SECOND(first), env, func);
+		    if (l == NULLOBJ) {
+			res = backquote(TAIL(list));
+			UNPROTECT;
+			return res;
+		    } else if (TYPE(l) != PAIR)
+			error("COMMA-AT: not list");
+		    else {
+			res = backquote(l); 
+			append_env(res, backquote(TAIL(list))); 
 			UNPROTECT;
 			return res;
 		    }
@@ -282,16 +301,25 @@ object_t IF(object_t obj1, object_t obj2, object_t obj3)
 /*  
  * Создаёт новую функцию 
  * 
- * @param name - имя_функции
- * @param t - тело_функции
+ * @param name1 - имя_функции
+ * @param list - список аргументов
+ * @param body - тело_функции
  *
  * @return символ имени новой функции 
  */ 
 object_t defun(object_t name1, object_t list, object_t body) 
 {
-    
     symbol_t *name = find_symbol(GET_SYMBOL(name1)->str); 
-    name->lambda = new_pair(NEW_SYMBOL("LAMBDA"), body);
+    name->lambda = new_pair(NEW_SYMBOL("LAMBDA"), new_pair(list, body));
+    int rest = list_contains(list, rest_sym);
+    if (rest == -1) {
+        name->nary = 0;
+        name->count = list_length(list);
+    }
+    else {
+        name->nary = 1;
+        name->count = rest;
+    }
     set_global(name);
     return NEW_SYMBOL(name->str);  
 }
@@ -919,7 +947,7 @@ object_t catch(object_t list)
  */ 
 object_t throw(object_t tag, object_t res) 
 { 
-    PROTECT1(args);
+    PROTECT1(res);
     cur_label = res;
     UNPROTECT;
     longjmp(catch_buf, 1);
@@ -1000,8 +1028,8 @@ void init_eval()
     register_func("ERROR", error_func, 0, 1);
     register_func("TAGBODY", tagbody, 1, 0);
     register_func("GO", go, 0, 1);
-    register_func("BLOCK", block, 1, 0); 
-    register_func("RETURN-FROM", return_from, 0, 2);
+    register_func("CATCH", catch, 1, 0); 
+    register_func("THROW", throw, 0, 2);
     register_func("LABELS", labels, 1, 1);
     register_func("FUNCTION", function, 0, 1);
     t = NEW_SYMBOL("T"); 
