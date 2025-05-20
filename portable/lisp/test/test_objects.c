@@ -161,7 +161,7 @@ void test_print_obj(object_t obj, const char *expected_output)
     
     FILE *output_file = fopen("/tmp/test.txt", "r");
     char output_buffer[20];
-    fgets(output_buffer, sizeof(output_buffer), output_file);
+    char *s = fgets(output_buffer, sizeof(output_buffer), output_file);
     fclose(output_file);
 
     ASSERT(strcmp(output_buffer, expected_output), 0);
