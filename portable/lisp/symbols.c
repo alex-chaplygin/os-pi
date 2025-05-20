@@ -47,7 +47,8 @@ symbol_t *check_symbol(char *str)
  */
 symbol_t *find_symbol(char *str) 
 {
-    if (str[0] == '\0' || strlen(str) > MAX_SYM_STR)
+    // строка длиной MAX_SYM_STR - 1, последний байт 0
+    if (str[0] == '\0' || strlen(str) >= MAX_SYM_STR)
         return NULL;
     int i = hash(str) % HASH_SIZE;
     symbol_t *el = hash_table[i];
