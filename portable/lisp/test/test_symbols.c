@@ -66,7 +66,7 @@ void test_find_symbol_max_string_length()
         str[i] = 'a';
     str[MAX_SYM_STR] = '\0';
     symbol_t *result = find_symbol(str);
-    ASSERT(strcmp(result->str, str), 0);
+    ASSERT(result, NULL);
 }
 
 /** 
@@ -132,7 +132,7 @@ void test_check_symbol_max_string_length()
         str[i] = 'a';
     str[MAX_SYM_STR] = '\0';
     symbol_t *result = check_symbol(str);
-    ASSERT(strcmp(result->str, str), 0);
+    ASSERT(result, NULL);
 }
 
 object_t test(object_t list)
