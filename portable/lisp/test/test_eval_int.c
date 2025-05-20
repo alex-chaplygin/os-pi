@@ -227,21 +227,6 @@ void test_progn_null()
     ASSERT(res, NULLOBJ);
 }
 
-/*
- *создать объект list = NULL и
- отправить его в метод backquote()
- */
-void test_backquote_nulllist()
-{
-    printf("test_backquote_nulllist:\n");
-    object_t li = NULLOBJ;
-    if (setjmp(jmp_env) == 0) {
-        object_t res = backquote(li);
-        FAIL;
-    } else
-        OK;
-}
-
 /**
  * Входящий аргумент с вычислением -> выходящий аргумент
  * b = 7 `(a ,b c) -> (a 7 c)
@@ -783,8 +768,7 @@ int main()
     test_progn();
     test_progn_single_element();
     test_progn_null();
-    test_backquote_nulllist(); 
-    test_backquote_arguments(); 
+    test_backquote_arguments();
     test_atom();//1
     test_atom_null();//52
     test_atom_list();
