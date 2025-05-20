@@ -804,7 +804,7 @@ void print_obj(object_t obj)
 	printf(" ");
 	print_obj(GET_FUNCTION(obj)->body);
 	printf(" ");
-	printf("%x", GET_FUNCTION(obj)->func);
+	printf("%x", (unsigned int)GET_FUNCTION(obj)->func);
 	printf(")");
     }
     else if (TYPE(obj) == FLOAT)
