@@ -8,12 +8,13 @@
 #include "arith.h"
 #include "str.h"
 #include "eval.h"
+#include "pair.h"
 
 //Таблица примитивов
 struct prim {
     void* func; 
     int args_count;
-} prims[] = {
+} nprims[] = {
     { add, 0 },
     { sub, 1 },
     { mul, 0 },
@@ -25,6 +26,9 @@ struct prim {
     { funcall, 1 },
     { print_object, 0 },
     { error_func, 0 }
+}, prims[] = {
+    car , 1, cdr , 1, atom , 1, new_pair , 2, rplaca , 2, rplacd , 2,
+    mod , 2, shift_left , 2, shift_left , 2, eq , 2, equal , 2, gt , 2, less , 2,
 };
 
 //Размер памяти программы
@@ -95,7 +99,9 @@ void const_inst()
 {
     int n = fetch();
     acc_reg = const_memory[n];
+#ifdef DEBUG    
     printf("CONST %d\n", n);
+#endif    
 }
 
 /**
@@ -104,8 +110,10 @@ void const_inst()
 void jmp_inst()
 {
     int ofs = fetch(); 
-    pc_reg += ofs;
+    pc_reg += ofs - 2;
+#ifdef DEBUG    
     printf("JMP %d\n", ofs);
+#endif    
 }
 
 /**
@@ -115,8 +123,10 @@ void jnt_inst()
 {
     int ofs = fetch();
     if (acc_reg == NULLOBJ)
-        pc_reg += ofs;
+        pc_reg += ofs - 2;
+#ifdef DEBUG
     printf("JNT %d\n", ofs);
+#endif    
 }
 
 /**
@@ -128,7 +138,9 @@ void alloc_inst()
     int n =  fetch(); 
     frame_reg = (frame_t *)stack_top; 
     stack_top += n;
+#ifdef DEBUG
     printf("ALLOC %d\n", n);
+#endif    
 }
 
 /**
@@ -138,7 +150,9 @@ void global_ref_inst()
 {
     int i = fetch();
     acc_reg = global_var_memory[i]; 
+#ifdef DEBUG
     printf("GLOBAL-REF %d\n", i);
+#endif    
 }
 
 /**
@@ -148,7 +162,9 @@ void global_set_inst()
 {
     int i = fetch();
     global_var_memory[i] = acc_reg;
+#ifdef DEBUG
     printf("GLOBAL-SET %d\n", i);
+#endif    
 }
 
 /**
@@ -158,7 +174,9 @@ void local_ref_inst()
 {
     int i = fetch();
     //    acc_reg = frame_reg->local_args[i];
+#ifdef DEBUG
     printf("Локальная переменная с индексом %d загружена в ACC\n", i);
+#endif    
 }
 
 /**
@@ -168,7 +186,9 @@ void local_set_inst()
 {
     int i =  fetch();
     //    frame_reg->local_args[i] = acc_reg;
+#ifdef DEBUG
     printf("Значение ACC сохранено в локальной переменной с индексом %d", i);
+#endif    
 }
 
 /**
@@ -218,7 +238,9 @@ void push(object_t obj)
 void push_inst()
 {
     push(acc_reg);
+#ifdef DEBUG
     printf("PUSH\n");
+#endif    
 }
 
 /** 
@@ -242,7 +264,9 @@ void pack_inst()
     	list = new_pair(pop(), list);
 
     push(list);
+#ifdef DEBUG
     printf("PACK %d\n", n);
+#endif    
 }
 
 /**
@@ -261,7 +285,9 @@ void reg_call_inst() {
 void return_inst() {
     stack_top--;
     pc_reg = *stack_top; 
+#ifdef DEBUG
     printf("Возврат к адресу %p", pc_reg);
+#endif    
 }
 
 /**
@@ -302,9 +328,30 @@ void restore_frame_inst() {
 /**
  * @brief Функция, вызывающая примитив с номером n из таблицы примитивов с фиксированным числом аргументов
  */
-void prim_inst() {
-    object_t n = fetch();
-    //instructions[n]();
+void prim_inst()
+{
+    int n = fetch();
+    object_t arg1, arg2;
+    struct prim *pr = &prims[n];
+    switch (pr->args_count) {
+	case 0:
+	    acc_reg = ((func0_t)pr->func)();
+	    break;
+	case 1:
+	    acc_reg = ((func1_t)pr->func)(pop());
+	    break;
+	case 2:
+	    arg2 = pop();
+	    arg1 = pop();
+	    acc_reg = ((func2_t)pr->func)(arg1, arg2);
+	    break;
+	default:
+	    printf("primitive with %d arguments", pr->args_count);
+	    break;
+    }    
+#ifdef DEBUG
+    printf("NPRIM %d\n", n);
+#endif    
 }
 
 /**
@@ -314,18 +361,21 @@ void nprim_inst()
 {
     int n = fetch();
     object_t args = pop();
-    switch (prims[n].args_count) {
+    struct prim *pr = &nprims[n];
+    switch (pr->args_count) {
 	case 0:
-	    acc_reg = ((func1_t)prims[n].func)(args);
+	    acc_reg = ((func1_t)pr->func)(args);
 	    break;
 	case 1:
-	    acc_reg = ((func2_t)prims[n].func)(pop(), args);
+	    acc_reg = ((func2_t)pr->func)(pop(), args);
 	    break;
 	default:
-	    printf("nary primitive with %d arguments", prims[n].args_count);
+	    printf("nary primitive with %d arguments", pr->args_count);
 	    break;
     }    
+#ifdef DEBUG
     printf("NPRIM %d\n", n);
+#endif    
 }
 
 /**
@@ -333,7 +383,9 @@ void nprim_inst()
  */
 void halt()
 {
+#ifdef DEBUG
     printf("HALT\n");
+#endif    
     working = 0;
 }
 
@@ -369,7 +421,9 @@ void vm_run()
 {
     while (working == 1)
     {
+#ifdef DEBUG    
 	printf("%d: ", (pc_reg - program_memory));
+#endif
 	instructions[fetch()]();
     }
 }
