@@ -1,5 +1,5 @@
 SHELL=bash
-CFLAGS=-I. -I../ -I../../../include --coverage -g -Wno-pointer-to-int-cast -Wno-int-to-pointer-cast -Wno-int-conversion
+CFLAGS=-DX32 -DDEBUG -I. -I../ -I../../../include -O3 -g -Wno-pointer-to-int-cast -Wno-int-to-pointer-cast -Wno-int-conversion
 LDFLAGS=-lgcov -lm
 TESTS=/tmp/test_lexer /tmp/test_symbols /tmp/test_objects /tmp/test_parser /tmp/test_eval_int /tmp/test_arrays /tmp/test_arith /tmp/test_str_int /tmp/test_pair /tmp/test_mpa
 PROFILE=/tmp/baselisp.lsp
@@ -25,6 +25,8 @@ all: $(TESTS)
 /tmp/test_str_int: test_str_int.c ../symbols.c ../objects.c ../str.c ../alloc.c ../bind.c
 	gcc $(CFLAGS) $(LDFLAGS) -o $@ $^
 /tmp/test_sys: test_sys.c ../eval.c ../symbols.c ../objects.c ../parser.c ../lexer.c ../arith.c ../str.c ../array.c ../pair.c ../predicates.c ../alloc.c ../error.c ../bind.c
+	gcc $^ $(CFLAGS) -D REPL $(LDFLAGS) -o $@
+/tmp/test_comp: test_comp.c ../eval.c ../objects.c ../parser.c ../lexer.c ../arith.c ../str.c ../array.c ../pair.c ../predicates.c ../alloc.c ../error.c ../vm.c ../bind.c ../predicates.c ../symbols.c
 	gcc $^ $(CFLAGS) -D REPL $(LDFLAGS) -o $@
 /tmp/lisp: test_sys.c ../eval.c ../symbols.c ../objects.c ../parser.c ../lexer.c ../arith.c ../str.c ../array.c ../pair.c ../predicates.c ../alloc.c ../error.c ../bind.c
 	gcc $^ $(CFLAGS) -DDEBUG $(LDFLAGS) -o $@
