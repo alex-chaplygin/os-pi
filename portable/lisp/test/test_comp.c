@@ -6,10 +6,13 @@
  * @brief  Системный тест запуска скомпилированного кода виртуальной машиной
  */
 
+#include <setjmp.h>
 #include "../init.c"
 #include "objects.h"
 #include "parser.h"
 #include "vm.h"
+
+extern jmp_buf repl_buf;
 
 char *itoa(int num, char *str, int rad)
 {
@@ -41,7 +44,9 @@ int main()
     array_t *prog_a = GET_ARRAY(prog);
     object_t consts = parse();
     array_t *const_a = GET_ARRAY(consts);
-    vm_init(prog_a->data, prog_a->length, const_a->data, const_a->length, 10);
-    vm_run();    
+    int num_vars = get_value(parse());
+    vm_init(prog_a->data, prog_a->length, const_a->data, const_a->length, num_vars);
+    if (setjmp(repl_buf) == 0)
+	vm_run();
     return 0;
 }
