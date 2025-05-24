@@ -11,4 +11,7 @@ object_t shift_right(object_t obj1, object_t obj2);
 object_t less(object_t obj1, object_t obj2);
 object_t gt(object_t obj1, object_t obj2);
 object_t equal(object_t obj1, object_t obj2);
+object_t SIN(object_t obj1);
+object_t COS(object_t obj1);
+object_t SQRT(object_t obj1);
 void init_arith();
