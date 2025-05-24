@@ -9,6 +9,36 @@
 #include "str.h"
 #include "eval.h"
 #include "pair.h"
+#include "str.h"
+#include "array.h"
+#include "predicates.h"
+
+//Размер памяти программы
+int program_size;
+//Количество констант, переданных виртуальной машине
+int const_count;
+//Количество глобальных переменных, переданных виртуальной машине
+int global_var_count;
+
+//Память программы, в которой хранятся инструкции в виде типа NUMBER
+int *program_memory;
+//Указатель, ссылающийся на память, в которой хранятся константы
+object_t *const_memory;
+//Указатель, ссылающийся на память, в которой хранятся глобальные переменные
+object_t *global_var_memory;
+//Стек, хранящий объекты любых типов
+object_t stack[STACK_SIZE];
+//Указатель на вершину стека
+object_t *stack_top;
+
+//Хранит указатель на текущую выполняемую инструкцию
+int *pc_reg;
+//Хранит результат последней операции
+object_t acc_reg;
+//Хранит текущий кадр активации
+object_t frame_reg;
+//хранит флаг работы машины
+int working = 1;
 
 //Таблица примитивов
 struct prim {
@@ -29,36 +59,11 @@ struct prim {
 }, prims[] = {
     car , 1, cdr , 1, atom , 1, new_pair , 2, rplaca , 2, rplacd , 2,
     mod , 2, shift_left , 2, shift_left , 2, eq , 2, equal , 2, gt , 2, less , 2,
+    SIN , 1, COS , 1, SQRT , 1,
+    intern , 1, symbol_name , 1, symbol_function , 1, string_size , 1, int_to_str , 1, code_char , 1, char_code , 1, putchar , 1, str_char , 2, subseq , 3,
+    make_array , 1, make_string , 2, array_size , 1, aref , 2, seta , 3, sets , 3,
+    symbolp , 1, integerp , 1, pairp , 1, functionp , 1, gensym , 0, apply , 2,
 };
-
-//Размер памяти программы
-int program_size;
-//Количество констант, переданных виртуальной машине
-int const_count;
-//Количество глобальных переменных, переданных виртуальной машине
-int global_var_count;
-
-//Память программы, в которой хранятся инструкции в виде типа NUMBER
-object_t *program_memory;
-//Указатель, ссылающийся на память, в которой хранятся константы
-object_t *const_memory;
-//Указатель, ссылающийся на память, в которой хранятся глобальные переменные
-object_t *global_var_memory;
-//Стек, хранящий объекты любых типов
-object_t stack[STACK_SIZE];
-//Указатель на вершину стека
-object_t *stack_top;
-//Хранит указатель на последний кадр активации машины 
-frame_t frame_activation_list[FRAME_SIZE];
-
-//Хранит указатель на текущую выполняемую инструкцию
-object_t *pc_reg;
-//Хранит результат последней операции
-object_t acc_reg;
-//Хранит текущий кадр активации
-frame_t *frame_reg;
-//хранит флаг работы машины
-int working = 1;
 
 /** 
  * @brief Инициализирует виртуальную машину 
@@ -72,15 +77,20 @@ int working = 1;
 void vm_init(object_t *prog_mem, int prog_size, object_t *const_mem, int const_c, int glob_var_c)
 {
     program_size = prog_size;
-    program_memory = prog_mem;
+    program_memory = alloc_region(prog_size * sizeof(int));
+    int *p = program_memory;
+    for (int i = 0; i < prog_size; i++)
+	*p++ = get_value(*prog_mem++);
     const_count = const_c;
     const_memory = const_mem;
     global_var_count = glob_var_c;
     global_var_memory = alloc_region(global_var_count * sizeof(object_t));
+    global_var_memory[0] = 1;
+    global_var_memory[1] = NULLOBJ;
     pc_reg = program_memory;
     acc_reg = NULLOBJ;
     stack_top = &(stack[STACK_SIZE - 1]);
-    frame_reg = NULL;
+    frame_reg = NULLOBJ;
     working = 1;
 }
 
@@ -89,7 +99,7 @@ void vm_init(object_t *prog_mem, int prog_size, object_t *const_mem, int const_c
  */
 int fetch()
 {
-    return get_value(*pc_reg++);
+    return *pc_reg++;
 }
 
 /**
@@ -100,7 +110,8 @@ void const_inst()
     int n = fetch();
     acc_reg = const_memory[n];
 #ifdef DEBUG    
-    printf("CONST %d\n", n);
+    printf("CONST %d ", n);
+    PRINT(acc_reg);
 #endif    
 }
 
@@ -125,21 +136,8 @@ void jnt_inst()
     if (acc_reg == NULLOBJ)
         pc_reg += ofs - 2;
 #ifdef DEBUG
-    printf("JNT %d\n", ofs);
-#endif    
-}
-
-/**
- * @brief Функция, создающая новый кадр активации с числом аргументов n.
- * Извлекает из стека аргументы начиная с позиции 1 (0-й элемент остается в стеке)
- */
-void alloc_inst()
-{
-    int n =  fetch(); 
-    frame_reg = (frame_t *)stack_top; 
-    stack_top += n;
-#ifdef DEBUG
-    printf("ALLOC %d\n", n);
+    printf("JNT %d ", ofs);
+    PRINT(acc_reg);
 #endif    
 }
 
@@ -151,7 +149,8 @@ void global_ref_inst()
     int i = fetch();
     acc_reg = global_var_memory[i]; 
 #ifdef DEBUG
-    printf("GLOBAL-REF %d\n", i);
+    printf("GLOBAL-REF %d ", i);
+    PRINT(acc_reg);
 #endif    
 }
 
@@ -163,7 +162,8 @@ void global_set_inst()
     int i = fetch();
     global_var_memory[i] = acc_reg;
 #ifdef DEBUG
-    printf("GLOBAL-SET %d\n", i);
+    printf("GLOBAL-SET %d ", i);
+    PRINT(acc_reg);
 #endif    
 }
 
@@ -173,9 +173,10 @@ void global_set_inst()
 void local_ref_inst()
 {
     int i = fetch();
-    //    acc_reg = frame_reg->local_args[i];
+    acc_reg = GET_ARRAY(frame_reg)->data[i + 2];
 #ifdef DEBUG
-    printf("Локальная переменная с индексом %d загружена в ACC\n", i);
+    printf("LOCAL-REF %d ", i);
+    PRINT(acc_reg);
 #endif    
 }
 
@@ -185,9 +186,10 @@ void local_ref_inst()
 void local_set_inst()
 {
     int i =  fetch();
-    //    frame_reg->local_args[i] = acc_reg;
+    GET_ARRAY(frame_reg)->data[i + 2] = acc_reg;
 #ifdef DEBUG
-    printf("Значение ACC сохранено в локальной переменной с индексом %d", i);
+    printf("LOCAL-SET %d ", i);
+    PRINT(acc_reg);
 #endif    
 }
 
@@ -196,15 +198,16 @@ void local_set_inst()
  */
 void deep_ref_inst()
 {
-    int i = fetch();
-    int depth = fetch();
-    frame_t *target_frame = frame_reg;
-
-    for (int d = 0; d < depth; d++) {
-	//        target_frame = target_frame->prev;
-    }
-
-    //    acc_reg = target_frame->local_args[i];
+    int frame_num = fetch();
+    int var_num = fetch();
+    object_t frame = frame_reg;
+    for (int i = 0; i < frame_num; i++)
+	frame = GET_ARRAY(frame)->data[0];
+    acc_reg = GET_ARRAY(frame)->data[var_num + 2];
+#ifdef DEBUG
+    printf("DEEP-REF %d %d ", frame_num, var_num);
+    PRINT(acc_reg);
+#endif    
 }
 
 /**
@@ -212,15 +215,18 @@ void deep_ref_inst()
  */
 void deep_set_inst()
 {
-    int i = fetch();
-    int depth = fetch();
-    frame_t *target_frame = frame_reg;
-
-    //    for (int d = 0; d < depth; d++)
-    //    target_frame = target_frame->prev;
-
-    //target_frame->local_args[i] = acc_reg;
+    int frame_num = fetch();
+    int var_num = fetch();
+    object_t frame = frame_reg;
+    for (int i = 0; i < frame_num; i++)
+	frame = GET_ARRAY(frame)->data[0];
+    GET_ARRAY(frame)->data[var_num + 2] = acc_reg;
+#ifdef DEBUG
+    printf("DEEP-SET %d %d ", frame_num, var_num);
+    PRINT(acc_reg);
+#endif    
 }
+
 /** 
  * @brief Помещает объект в стек
  */
@@ -239,7 +245,8 @@ void push_inst()
 {
     push(acc_reg);
 #ifdef DEBUG
-    printf("PUSH\n");
+    printf("PUSH ");
+    PRINT(acc_reg);
 #endif    
 }
 
@@ -254,6 +261,35 @@ object_t pop()
 }
 
 /**
+ * @brief Функция, создающая новый кадр активации с числом аргументов n.
+ * Извлекает из стека аргументы начиная с позиции 1 (0-й элемент остается в стеке)
+ */
+void alloc_inst()
+{
+    int n =  fetch();
+    array_t *ar = new_empty_array(n + 2);
+    object_t frame = NEW_OBJECT(ARRAY, ar);
+    ar->data[0] = frame_reg;
+    if (frame_reg == NULLOBJ)
+	ar->data[1] = 0;
+    else
+#ifdef DEBUG
+	ar->data[1] = new_number(get_value(GET_ARRAY(frame_reg)->data[1]) + 1);
+#else	
+    ar->data[1] = (object_t)(GET_ARRAY(frame_reg)->data[1] + 1);
+#endif    
+    object_t fr = pop();
+    for (int i = 0; i < n; i++)
+	ar->data[n - i + 1] = pop();
+    push(fr);
+    frame_reg = frame;
+#ifdef DEBUG
+    printf("ALLOC %d ", n);
+    PRINT(frame_reg);
+#endif    
+}
+
+/**
  * @brief Функция, собирающая последние n элементов из стека в список и добавляет его в стек
  */
 void pack_inst()
@@ -262,38 +298,45 @@ void pack_inst()
     object_t list = NULLOBJ;
     for (int i = 0; i < n; i++)
     	list = new_pair(pop(), list);
-
     push(list);
 #ifdef DEBUG
-    printf("PACK %d\n", n);
+    printf("PACK %d ", n);
+    PRINT(list);
 #endif    
 }
 
 /**
- * @brief  Функция, добавляющая адрес следующей инструкции в стэк и производит переход по смещению ofs
+ * @brief Вызов подпрограммы
+ * Функция, добавляющая адрес следующей инструкции в стэк и производит переход по смещению ofs
  */
-void reg_call_inst() {
-    object_t *return_address = pc_reg++; 
-    *stack_top++ = pc_reg; 
-    int ofs =  fetch(); 
-    pc_reg += ofs; 
+void reg_call_inst()
+{
+    int ofs = fetch();
+    push((object_t)pc_reg);
+    pc_reg += ofs - 2;
+#ifdef DEBUG
+    printf("REG-CALL %d\n", ofs);
+#endif    
 }
 
 /**
- * @brief Функция, производящая переход на адрес из верхушки стэка, при этом удаляет этот адрес из стека
+ * @brief Возврат из подпрограммы
+ * Функция, производящая переход на адрес из верхушки стэка, при этом удаляет этот адрес из стека
  */
-void return_inst() {
-    stack_top--;
-    pc_reg = *stack_top; 
+void return_inst()
+{
+    pc_reg = (int *)pop();
 #ifdef DEBUG
-    printf("Возврат к адресу %p", pc_reg);
+    printf("RETURN\n");
 #endif    
 }
 
 /**
  * @brief Функция, добавляющая в регистр ACC объект замыкание с текущим кадром активации и смещением на код функции относительно текущего адреса ofs
  */
-void fix_closure_inst() {
+void fix_closure_inst()
+{
+    error("FIX-CLOSURE");
     int ofs = fetch();
     //    acc_reg = *frame_reg;
     pc_reg += ofs;
@@ -304,25 +347,49 @@ void fix_closure_inst() {
 /**
  * @brief Функция, сохраняющая кадр активации в стеке
  */
-void save_frame_inst() {
-    *stack_top++ = (object_t)frame_reg;
+void save_frame_inst()
+{
+    push(frame_reg);
+#ifdef DEBUG
+    printf("SAVE-FRAME ");
+    PRINT(frame_reg);
+#endif    
 }
 
 /**
  * @brief Функция, устанавливающая кадр активации с номером num относительно начала глубины вызовов
  */
-void set_frame_inst() {
+void set_frame_inst()
+{
     int num = fetch();
-    // frame_reg = frame_activation_list[num];  
+    object_t frame = frame_reg;
+    int count;
+    if (frame != NULLOBJ) {
+#ifdef DEBUG	
+	count = get_value(GET_ARRAY(frame)->data[1]) - num;
+#else	
+	count = (int)(GET_ARRAY(frame)->data[1] - num);
+#endif	
+	for (int i = 0; i < count; i++)
+	    frame = GET_ARRAY(frame)->data[0];
+	frame_reg = frame;
+    }
+#ifdef DEBUG
+    printf("SET-FRAME %d ", num);
+    PRINT(frame_reg);
+#endif    
 }
 
 /**
  * @brief Функция, восстанавливающая кадр активации из стека
  */
-void restore_frame_inst() {
-    stack_top--;
-    frame_reg = (frame_t *)*stack_top;
-    printf("Кадр активации восстановлен");
+void restore_frame_inst()
+{
+    frame_reg = pop();
+#ifdef DEBUG
+    printf("RESTORE-FRAME ");
+    PRINT(frame_reg);
+#endif    
 }
 
 /**
@@ -350,7 +417,8 @@ void prim_inst()
 	    break;
     }    
 #ifdef DEBUG
-    printf("NPRIM %d\n", n);
+    printf("NPRIM %d ", n);
+    PRINT(acc_reg);
 #endif    
 }
 
@@ -374,7 +442,8 @@ void nprim_inst()
 	    break;
     }    
 #ifdef DEBUG
-    printf("NPRIM %d\n", n);
+    printf("NPRIM %d ", n);
+    PRINT(acc_reg);
 #endif    
 }
 
