@@ -208,6 +208,30 @@
 		  (throw-test 10)))
 	      '(SEQ (LABEL THROW-TEST (SEQ (THROW (CONST TEST) (LOCAL-REF 0)) (RETURN))) (CATCH (CONST TEST) (FIX-CALL THROW-TEST 0 ((CONST 10))))))
 
+;; тест append
+(test-compile '(progn
+		(defun null (x)
+		  "Проверка на пустое значение"
+		  (eq x ()))
+		(defun append2 (list1 list2)
+		  "объединение двух списков (1 . (2 . nil)) (a . (b . nil))"
+		  "(append '(1 2) '(a b))"
+		  "(1 . (append (2) '(a b)))"
+		  "(1 2 . (a b))"
+		  "(1 2 a b)"
+		  (if (null list1) list2
+		      (if (null (cdr list1))
+			  (cons (car list1) list2)
+			  (cons (car list1) (append2 (cdr list1) list2)))))
+		(defmacro append (&rest lists)
+		  "Объединение произвольного количества списков. Если нет аргументов, возвращает nil."
+		  (if (null lists) nil
+		      `(append2 ,(car lists) (append ,@(cdr lists)))))
+
+		(append '(1 2) '(3 4))
+		(append '(1 2))
+		(append '(1 2) '())) '())
+
 ;; (print 'testing)
 ;; (print
 ;;  (vm-run
