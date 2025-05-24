@@ -129,6 +129,19 @@
         (^ x 27)
         x)))
 
+(defun mul (a b)
+  ; Умножение байтов в GF(2^8)
+  (let ((p 0))
+    (for i 0 8
+      (when (!= (% b 2) 0)
+        (setf p (^ p a)))
+      (setf b (/ b 2))   
+      (let ((hi-bit-set (> a 127)))
+        (setf a (% (* a 2) 256))
+        (when hi-bit-set
+          (setf a (^ a 27)))))
+    p))
+
 (defun mix-columns (state)
   ; Микширование колонок состояния с использованием матричного умножения в GF(2^8)
   (let ((out (make-array 16)))
@@ -209,19 +222,6 @@
 	 (seta out i (aref state (++ i))))
     (seta out 15 (aref state 12))
     out))
-
-(defun mul (a b)
-  ; Умножение байтов в GF(2^8)
-  (let ((p 0))
-    (for i 0 8
-      (when (!= (% b 2) 0)
-        (setf p (^ p a)))
-      (setf b (/ b 2))   
-      (let ((hi-bit-set (> a 127)))
-        (setf a (% (* a 2) 256))
-        (when hi-bit-set
-          (setf a (^ a 27)))))
-    p))
 
 (defun inv-mix-columns (state)
   ; Обратное микширование колонок состояния
