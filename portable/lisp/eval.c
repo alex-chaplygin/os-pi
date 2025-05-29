@@ -847,8 +847,10 @@ object_t error_func(object_t args)
 {
     printf("ERROR: ");
     PRINT(args);
+#ifndef VM    
     last_protected = 0;
     longjmp(repl_buf, 1);
+#endif    
 }
 
 /** 
