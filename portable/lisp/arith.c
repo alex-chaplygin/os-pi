@@ -304,7 +304,7 @@ object_t compare_obj(object_t obj1, object_t obj2)
     else if (TYPE(obj1) == FLOAT)
 	return GET_FLOAT(obj1)->value == GET_FLOAT(obj2)->value;
     else if (TYPE(obj1) == PAIR) {
-	if (!compare_obj(obj1, obj2))
+	if (!compare_obj(FIRST(obj1), FIRST(obj2)))
 	    return 0;
 	else
 	    return compare_obj(TAIL(obj1), TAIL(obj2));
