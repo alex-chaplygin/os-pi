@@ -48,5 +48,7 @@ int main()
     vm_init(prog_a->data, prog_a->length, const_a->data, const_a->length, num_vars);
     if (setjmp(repl_buf) == 0)
 	vm_run();
+    else 
+	vm_dump();
     return 0;
 }
