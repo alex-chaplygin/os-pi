@@ -85,11 +85,11 @@ void vm_init(object_t *prog_mem, int prog_size, object_t *const_mem, int const_c
     const_memory = const_mem;
     global_var_count = glob_var_c;
     global_var_memory = alloc_region(global_var_count * sizeof(object_t));
-    global_var_memory[0] = 1;
-    global_var_memory[1] = NULLOBJ;
+    //    global_var_memory[0] = 1;
+    global_var_memory[1] = const_memory[1] = NULLOBJ;
     pc_reg = program_memory;
     acc_reg = NULLOBJ;
-    stack_top = &(stack[STACK_SIZE - 1]);
+    stack_top = stack + STACK_SIZE - 1;
     frame_reg = NULLOBJ;
     working = 1;
 }
@@ -312,7 +312,11 @@ void pack_inst()
 void reg_call_inst()
 {
     int ofs = fetch();
+#ifdef DEBUG
+    push(new_number(pc_reg - program_memory));
+#else
     push((object_t)pc_reg);
+#endif    
     pc_reg += ofs - 2;
 #ifdef DEBUG
     printf("REG-CALL %d\n", ofs);
@@ -325,7 +329,11 @@ void reg_call_inst()
  */
 void return_inst()
 {
+#ifdef DEBUG
+    pc_reg = program_memory + get_value(pop());
+#else
     pc_reg = (int *)pop();
+#endif    
 #ifdef DEBUG
     printf("RETURN\n");
 #endif    
@@ -417,7 +425,7 @@ void prim_inst()
 	    break;
     }    
 #ifdef DEBUG
-    printf("NPRIM %d ", n);
+    printf("PRIM %d ", n);
     PRINT(acc_reg);
 #endif    
 }
@@ -483,6 +491,25 @@ void (*instructions[])() =
 	halt
     };
 
+/** 
+ * Печать состояния виртуальной машины
+ */
+void vm_dump()
+{
+    object_t o;
+    printf("--------vm_dump--------------\n");
+    printf("ACC: ");
+    PRINT(acc_reg);
+    printf("FRAME: ");
+    PRINT(frame_reg);
+    printf("STACK: \n");
+    for (int i = stack_top - stack + 1; i < STACK_SIZE; i++) {
+	o = stack[i];
+	PRINT(o);
+    }
+    printf("-------------------------\n");
+}
+
 /**
  * @brief Запускает виртуальную машину
  */
@@ -494,6 +521,9 @@ void vm_run()
 	printf("%d: ", (pc_reg - program_memory));
 #endif
 	instructions[fetch()]();
+#ifdef DEBUG    
+	vm_dump();
+#endif
     }
 }
 
