@@ -24,7 +24,4 @@ void vm_init(object_t *prog_mem, int prog_size,
 
 //Функция запуска виртуальной машины
 void vm_run();
-
-
-
-
+void vm_dump();
