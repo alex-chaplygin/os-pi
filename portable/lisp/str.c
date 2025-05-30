@@ -267,10 +267,14 @@ object_t sets(object_t str, object_t index, object_t char_obj)
  */
 object_t print_object(object_t obj)
 {
-     if (obj == NULLOBJ)
-	error("PRINT: invalid params\n");
-     PRINT(obj);
-     return NULLOBJ;
+    while (obj != NULLOBJ) {
+	print_counter++;
+	print_obj(FIRST(obj));
+	printf(" ");
+	obj = TAIL(obj);
+    }
+    printf("\n");
+    return NULLOBJ;
 }
 
 /** 
