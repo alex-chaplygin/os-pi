@@ -35,11 +35,12 @@
 (defun macro-eval-backquote (expr env)
   (if (null expr) nil
       (if (atom expr) expr
-	  (cond ((eq (car expr) 'comma) (macro-eval (second expr) env))
-		((and (pairp (car expr)) (eq (caar expr) 'comma-at))
+	  (let ((el (car expr)))
+	    (cond ((eq el 'comma) (macro-eval (second expr) env))
+		  ((and (pairp el) (not (null el)) (eq (caar expr) 'comma-at))
 		 (append (macro-eval (cadar expr) env) (macro-eval-backquote (cdr expr) env)))
 		(t
-		 (cons (macro-eval-backquote (car expr) env) (macro-eval-backquote (cdr expr) env)))))))
+		 (cons (macro-eval-backquote (car expr) env) (macro-eval-backquote (cdr expr) env))))))))
 
 ; условие
 (defun macro-eval-if (expr env)
@@ -177,6 +178,7 @@
 		 (if (eq (car args) '&rest)
 		     (list (cons (second args) vals))
 		     (cons (cons (car args) (car vals)) (make (cdr args) (cdr vals)))))))
+;;    (print `(macro expand ,args ,vals ,body))
     (let ((r (macro-expand-progn body (make args vals))))
-;;      (print `(macro-expand ,r))
+  ;;    (print `(macro-expand-res ,r))
       r)))
