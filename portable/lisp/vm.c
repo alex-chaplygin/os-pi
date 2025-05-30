@@ -344,11 +344,11 @@ void return_inst()
  */
 void fix_closure_inst()
 {
-    error("FIX-CLOSURE");
     int ofs = fetch();
-    //    acc_reg = *frame_reg;
-    pc_reg += ofs;
-    printf("Создано замыкание с текущим кадром и смещением %d\n", ofs);
+    acc_reg = new_function(NULLOBJ, NEW_OBJECT(NUMBER, pc_reg + ofs), frame_reg, NULLOBJ);
+#ifdef DEBUG
+    printf("FIX-CLOSURE %d\n", ofs);
+#endif    
 }
 
 
