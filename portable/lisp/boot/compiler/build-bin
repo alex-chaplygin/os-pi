@@ -1,0 +1,30 @@
+#!/bin/bash
+BASE="../lib.lsp ../list.lsp"
+TEST="../test.lsp"
+COMPILER="$BASE ../hash.lsp common.lsp macro.lsp compiler.lsp generator.lsp assembler.lsp"
+TARGET="/tmp/compile"
+TARGETS=(lib list array str hash oop vec2 aes regexp)
+declare -a SOURCES
+SOURCES=("$BASE $TEST ../test/lib.lsp"
+	 "$BASE $TEST ../test/list.lsp"
+	 "$BASE ../hash.lsp ../array.lsp $TEST ../test/array.lsp"
+	 "$BASE ../str.lsp $TEST ../test/str.lsp"
+	 "$BASE ../hash.lsp $TEST ../test/hash.lsp"
+	 "$BASE ../hash.lsp ../oop.lsp $TEST ../test/oop.lsp"
+	 "$BASE ../vec2.lsp $TEST ../test/vec2.lsp"
+	 "$BASE ../hash.lsp ../array.lsp ../crypt/aes.lsp $TEST ../crypt/test/aes.lsp"
+	 "$BASE ../str.lsp ../hash.lsp ../fa/nfa.lsp ../regex.lsp $TEST ../test/regex.lsp"
+	)
+
+make -C ../../test /tmp/lisp
+
+#for i in ${!TARGETS[*]}; do echo "${TARGETS[$i]}"; done
+i=8
+SOURCE=${SOURCES[$i]}
+T=${TARGETS[$i]}
+echo "Compiling: $T"
+echo "" >$TARGET
+echo "(print (catch 'compiler (let ((comp (compile '(progn" >>$TARGET
+cat $SOURCE >>$TARGET
+echo ")))) (let ((gen (generate comp))) (print (assemble gen))) *consts*))) (print *global-variables-count*)" >>$TARGET
+cat $COMPILER $TARGET | /tmp/lisp | sed -e "s/^(T/#(T/">/tmp/$T
