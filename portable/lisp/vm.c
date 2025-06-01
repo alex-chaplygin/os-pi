@@ -482,7 +482,7 @@ void vm_apply(object_t fun, object_t args)
 void prim_inst()
 {
     int n = fetch();
-    object_t arg1, arg2;
+    object_t arg1, arg2, arg3;
 #ifdef DEBUG
     printf("PRIM %d ", n);
 #endif
@@ -502,6 +502,12 @@ void prim_inst()
 	    arg2 = pop();
 	    arg1 = pop();
 	    acc_reg = ((func2_t)pr->func)(arg1, arg2);
+	    break;
+	case 3:
+	    arg3 = pop();
+	    arg2 = pop();
+	    arg1 = pop();
+	    acc_reg = ((func3_t)pr->func)(arg1, arg2, arg3);
 	    break;
 	default:
 	    printf("primitive with %d arguments", pr->args_count);
