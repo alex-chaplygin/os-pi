@@ -116,12 +116,23 @@
     (if (null i) nil
 	(list 'global i))))
 
+;; Вычисление порядкового номера переменной в списке с учетом &rest
+;; Если не найдено - возвращает nil
+(defun var-search(params var)
+  (labels ((find (list pos)
+	     (cond
+	       ((null list) nil)
+	       ((eq (car list) '&rest) (find (cdr list) pos))
+	       ((eq (car list) var) pos)
+	       (t (find (cdr list) (++ pos))))))
+    (find params 0)))
+
 ;; Производит поиск переменной в локальном окружении по символу.
 ;; Возвращает индекс переменной в стеке, если символ найден, иначе nil.
 (defun find-local-var (var env)
   (labels ((find-frame (frames i)
 	     (if (null frames) nil
-		 (let ((j (list-search (car frames) var)))
+		 (let ((j (var-search (car frames) var)))
 		   (if (null j) (find-frame (cdr frames) (++ i))
 		       (if (= i 0) (list 'local j)
 			   (list 'deep i j)))))))

@@ -83,7 +83,11 @@
 
 (print "функция с переменным числом аргументов")
 (test-compile '(progn (defun test (x &rest list) (cons x list)) (test 10) (test 10 20) (test 10 20 30))
-	      '(SEQ (LABEL TEST (SEQ (FIX-PRIM CONS ((LOCAL-REF 0) (LOCAL-REF 1))) (RETURN))) (SEQ (NARY-CALL TEST 1 0 ((CONST 10))) (SEQ (NARY-CALL TEST 1 0 ((CONST 10) (CONST 20))) (NARY-CALL TEST 1 0 ((CONST 10) (CONST 20) (CONST 30)))))))
+	      '(SEQ (LABEL TEST (SEQ (FIX-PRIM CONS ((LOCAL-REF 0) (LOCAL-REF 1))) (RETURN))) (NARY-CALL TEST 1 0 ((CONST 10))) (NARY-CALL TEST 1 0 ((CONST 10) (CONST 20))) (NARY-CALL TEST 1 0 ((CONST 10) (CONST 20) (CONST 30))))))
+
+(print "функция когда только переменное число аргументов")
+(test-compile '(progn (defun rest-test (&rest list) list) (test 1 2 3))
+	      '(SEQ (LABEL REST-TEST (SEQ (LOCAL-REF 0) (RETURN))) (NARY-CALL TEST 1 0 ((CONST 1) (CONST 2) (CONST 3)))))
 
 (print "неверное число аргументов")
 (test-compile '(progn (defun test (x &rest list) (cons x list)) (test)) '())
