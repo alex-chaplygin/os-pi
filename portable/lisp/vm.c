@@ -452,7 +452,7 @@ void restore_frame_inst()
  */
 void vm_apply(object_t fun, object_t args)
 {
-    if (!functionp(fun))
+    if (TYPE(fun) != FUNCTION)
 	error("vm_apply: not function\n");
     function_t *f = GET_FUNCTION(fun);
     int c = 0;
