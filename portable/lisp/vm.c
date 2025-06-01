@@ -13,6 +13,10 @@
 #include "array.h"
 #include "predicates.h"
 
+#define FUNCALL 8 // номер примитива funcall
+#define APPLY 37 // номер примитива apply
+#define RETURN_OP 13 // операция return
+
 //Размер памяти программы
 int program_size;
 //Количество констант, переданных виртуальной машине
@@ -64,6 +68,35 @@ struct prim {
     make_array , 1, make_string , 2, array_size , 1, aref , 2, seta , 3, sets , 3,
     symbolp , 1, integerp , 1, pairp , 1, functionp , 1, gensym , 0, apply , 2,
 };
+
+void (*instructions[])() =
+    {
+	const_inst,
+	jmp_inst,
+	jnt_inst,
+	alloc_inst,
+	global_ref_inst,
+	global_set_inst,
+	local_ref_inst,
+	local_set_inst,
+	deep_ref_inst,
+	deep_set_inst,
+	push_inst,
+	pack_inst,
+	reg_call_inst,
+	return_inst,
+	fix_closure_inst,
+	save_frame_inst,
+	set_frame_inst,
+	restore_frame_inst,
+	prim_inst,
+	nprim_inst,
+	halt,
+	prim_closure,
+	nprim_closure,
+	catch_inst,
+	throw_inst,
+    };
 
 /** 
  * @brief Инициализирует виртуальную машину 
@@ -264,9 +297,8 @@ object_t pop()
  * @brief Функция, создающая новый кадр активации с числом аргументов n.
  * Извлекает из стека аргументы начиная с позиции 1 (0-й элемент остается в стеке)
  */
-void alloc_inst()
+void alloc(int n)
 {
-    int n =  fetch();
     array_t *ar = new_empty_array(n + 2);
     object_t frame = NEW_OBJECT(ARRAY, ar);
     ar->data[0] = frame_reg;
@@ -283,6 +315,12 @@ void alloc_inst()
 	ar->data[n - i + 1] = pop();
     push(fr);
     frame_reg = frame;
+}
+
+void alloc_inst()
+{
+    int n =  fetch();
+    alloc(n);
 #ifdef DEBUG
     printf("ALLOC %d ", n);
     PRINT(frame_reg);
@@ -309,15 +347,20 @@ void pack_inst()
  * @brief Вызов подпрограммы
  * Функция, добавляющая адрес следующей инструкции в стэк и производит переход по смещению ofs
  */
-void reg_call_inst()
+void call(int *addr)
 {
-    int ofs = fetch();
 #ifdef DEBUG
     push(new_number(pc_reg - program_memory));
 #else
     push((object_t)pc_reg);
 #endif    
-    pc_reg += ofs - 2;
+    pc_reg = addr;
+}
+
+void reg_call_inst()
+{
+    int ofs = fetch();
+    call(pc_reg + ofs - 2);
 #ifdef DEBUG
     printf("REG-CALL %d\n", ofs);
 #endif    
@@ -345,7 +388,11 @@ void return_inst()
 void fix_closure_inst()
 {
     int ofs = fetch();
-    acc_reg = new_function(NULLOBJ, NEW_OBJECT(NUMBER, pc_reg + ofs), frame_reg, NULLOBJ);
+#ifdef DEBUG
+    acc_reg = new_function(NULLOBJ, new_number(pc_reg + ofs - program_memory), frame_reg, NULLOBJ);
+#else
+    acc_reg = new_function(NULLOBJ, (object_t)(pc_reg + ofs), frame_reg, NULLOBJ);
+#endif    
 #ifdef DEBUG
     printf("FIX-CLOSURE %d\n", ofs);
 #endif    
@@ -401,14 +448,50 @@ void restore_frame_inst()
 }
 
 /**
+ * @brief Применение пользовательской функции fun к аргументам args
+ */
+void vm_apply(object_t fun, object_t args)
+{
+    if (!functionp(fun))
+	error("vm_apply: not function\n");
+    function_t *f = GET_FUNCTION(fun);
+    int c = 0;
+    while (args != NULLOBJ) {
+	push(FIRST(args));
+	args = TAIL(args);
+	c++;
+    }
+    push(frame_reg);
+    frame_reg = f->env;
+    alloc(c);
+#ifdef DEBUG    
+    call(program_memory + get_value(f->body));
+#else    
+    call((int *)f->body);
+#endif
+    do {
+	c = fetch();
+	instructions[c]();
+    } while (c != RETURN_OP);
+    frame_reg = pop();
+}
+
+/**
  * @brief Функция, вызывающая примитив с номером n из таблицы примитивов с фиксированным числом аргументов
  */
 void prim_inst()
 {
     int n = fetch();
     object_t arg1, arg2;
-    struct prim *pr = &prims[n];
-    switch (pr->args_count) {
+#ifdef DEBUG
+    printf("PRIM %d ", n);
+#endif
+    if (n == APPLY) {
+	arg1 = pop();
+	vm_apply(pop(), arg1);
+    } else {
+	struct prim *pr = &prims[n];
+	switch (pr->args_count) {
 	case 0:
 	    acc_reg = ((func0_t)pr->func)();
 	    break;
@@ -423,9 +506,9 @@ void prim_inst()
 	default:
 	    printf("primitive with %d arguments", pr->args_count);
 	    break;
-    }    
+	}
+    }
 #ifdef DEBUG
-    printf("PRIM %d ", n);
     PRINT(acc_reg);
 #endif    
 }
@@ -436,9 +519,15 @@ void prim_inst()
 void nprim_inst()
 {
     int n = fetch();
+#ifdef DEBUG
+    printf("NPRIM %d ", n);
+#endif    
     object_t args = pop();
-    struct prim *pr = &nprims[n];
-    switch (pr->args_count) {
+    if (n == FUNCALL)
+	vm_apply(pop(), args);
+    else {
+	struct prim *pr = &nprims[n];
+	switch (pr->args_count) {
 	case 0:
 	    acc_reg = ((func1_t)pr->func)(args);
 	    break;
@@ -448,9 +537,9 @@ void nprim_inst()
 	default:
 	    printf("nary primitive with %d arguments", pr->args_count);
 	    break;
-    }    
+	}
+    }
 #ifdef DEBUG
-    printf("NPRIM %d ", n);
     PRINT(acc_reg);
 #endif    
 }
@@ -466,30 +555,25 @@ void halt()
     working = 0;
 }
 
-void (*instructions[])() =
-    {
-	const_inst,
-	jmp_inst,
-	jnt_inst,
-	alloc_inst,
-	global_ref_inst,
-	global_set_inst,
-	local_ref_inst,
-	local_set_inst,
-	deep_ref_inst,
-	deep_set_inst,
-	push_inst,
-	pack_inst,
-	reg_call_inst,
-	return_inst,
-	fix_closure_inst,
-	save_frame_inst,
-	set_frame_inst,
-	restore_frame_inst,
-	prim_inst,
-	nprim_inst,
-	halt
-    };
+void prim_closure()
+{
+    error("PRIM_CLOSURE");
+}
+
+void nprim_closure()
+{
+    error("NPRIM_CLOSURE");
+}
+
+void catch_inst()
+{
+    error("CATCH");
+}
+
+void throw_inst()
+{
+    error("THROW");
+}   
 
 /** 
  * Печать состояния виртуальной машины
@@ -518,7 +602,7 @@ void vm_run()
     while (working == 1)
     {
 #ifdef DEBUG    
-	printf("%d: ", (pc_reg - program_memory));
+	printf("%ld: ", pc_reg - program_memory);
 #endif
 	instructions[fetch()]();
 #ifdef DEBUG    
