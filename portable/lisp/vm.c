@@ -62,7 +62,7 @@ struct prim {
     { error_func, 0 }
 }, prims[] = {
     car , 1, cdr , 1, atom , 1, new_pair , 2, rplaca , 2, rplacd , 2,
-    mod , 2, shift_left , 2, shift_left , 2, eq , 2, equal , 2, gt , 2, less , 2,
+    mod , 2, shift_left , 2, shift_right , 2, eq , 2, equal , 2, gt , 2, less , 2,
     SIN , 1, COS , 1, SQRT , 1,
     intern , 1, symbol_name , 1, symbol_function , 1, string_size , 1, int_to_str , 1, code_char , 1, char_code , 1, putchar , 1, str_char , 2, subseq , 3,
     make_array , 1, make_string , 2, array_size , 1, aref , 2, seta , 3, sets , 3,
@@ -389,9 +389,9 @@ void fix_closure_inst()
 {
     int ofs = fetch();
 #ifdef DEBUG
-    acc_reg = new_function(NULLOBJ, new_number(pc_reg + ofs - program_memory), frame_reg, NULLOBJ);
+    acc_reg = new_function(NULLOBJ, new_number(pc_reg + ofs - program_memory - 2), frame_reg, NULLOBJ);
 #else
-    acc_reg = new_function(NULLOBJ, (object_t)(pc_reg + ofs), frame_reg, NULLOBJ);
+    acc_reg = new_function(NULLOBJ, (object_t)(pc_reg + ofs - 2), frame_reg, NULLOBJ);
 #endif    
 #ifdef DEBUG
     printf("FIX-CLOSURE %d\n", ofs);
@@ -448,13 +448,17 @@ void restore_frame_inst()
 }
 
 /**
- * @brief Применение пользовательской функции fun к аргументам args
+ * @brief Применение объекта функции (примитива) fun к аргументам args
  */
 void vm_apply(object_t fun, object_t args)
 {
     if (TYPE(fun) != FUNCTION)
 	error("vm_apply: not function\n");
     function_t *f = GET_FUNCTION(fun);
+    if (f->func != NULL) {
+	acc_reg = call_nary_form(f->func, args, (int)f->func_env);
+	return;
+    }
     int c = 0;
     while (args != NULLOBJ) {
 	push(FIRST(args));
@@ -568,7 +572,12 @@ void prim_closure()
 
 void nprim_closure()
 {
-    error("NPRIM_CLOSURE");
+    int n = fetch();
+    acc_reg = new_prim_function((func0_t)nprims[n].func);
+    GET_FUNCTION(acc_reg)->func_env = (object_t)nprims[n].args_count;
+#ifdef DEBUG
+    printf("NPRIM_CLOSURE %d\n", n);
+#endif    
 }
 
 void catch_inst()
