@@ -652,6 +652,33 @@ object_t call_form(symbol_t *s, object_t args, int args_count)
 	} 
 }
 
+/** 
+ * Вызов примитива или встроенной формы с переменным числом аргументов
+ *
+ * @param s символ формы
+ * @param args список аргументов
+ * @param args_count фактическое число аргументов
+ *
+ * @return результат вычислений
+ */
+object_t call_nary_form(func0_t f, object_t args, int count)
+{
+    switch (count) {
+    case 0:
+	return (func1_t)f(args);
+    case 1:
+	return (func2_t)f(FIRST(args), TAIL(args));
+    case 2:
+	return (func3_t)f(FIRST(args), SECOND(args), TAIL(TAIL(args)));
+    case 3:
+	return (func4_t)f(FIRST(args), SECOND(args), THIRD(args), TAIL(TAIL(TAIL(args))));
+    case 4:
+	return (func5_t)f(FIRST(args), SECOND(args), THIRD(args), THIRD(TAIL(args)), TAIL(TAIL(TAIL(TAIL(args)))));
+    default:
+	error("call nary form %d arguments", count);
+    } 
+}
+
 /**
  * Вычисление выражения
  * Если выражение число или строка, массив, одиночный символ, возвращаем его же
