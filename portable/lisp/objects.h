@@ -1,13 +1,21 @@
 #ifndef OBJECTS
 #define OBJECTS
 /// Всего пар
+#ifdef VM
+#define MAX_PAIRS 400000
+#else
 #define MAX_PAIRS 800000
+#endif
 /// Всего символов
 #define MAX_SYMBOLS 64000
 /// Всего строк
 #define MAX_STRINGS 20000
 /// Всего массивов
+#ifdef VM
+#define MAX_ARRAYS 800000
+#else
 #define MAX_ARRAYS 400
+#endif
 /// Максимальная длина символа
 #define MAX_SYM_STR 32
 /// Всего больших чисел
@@ -134,8 +142,14 @@ typedef struct bignumber_s
 /// Структура функции
 typedef struct function_s
 {
-    object_t args; // аргументы функции
-    object_t body; // тело функции
+    union {
+	object_t args; // аргументы функции
+	int count; // число аргументов для примитива (фиксированных)
+    };
+    union {
+	object_t body; // тело функции
+	int nary; // если 1 - то примитив с переменным числом аргументов;
+    };
     func0_t func; // указатель на функцию примитив, если = NULL, то функция пользовательская, иначе встроенная
     object_t env; // окружение для переменных
     object_t func_env; // окружение для функций
@@ -235,7 +249,7 @@ object_t new_bignumber(int num);
 object_t new_number(int num);
 object_t new_float(float nuw);
 object_t new_function(object_t args, object_t body, object_t env, object_t func_env);
-object_t new_prim_function(func0_t func);
+object_t new_prim_function(func0_t f, int nary, int count);
 int get_value(object_t obj);
 object_t new_pair(object_t left, object_t right);
 struct symbol_s *new_symbol(char *str);
