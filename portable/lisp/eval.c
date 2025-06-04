@@ -609,74 +609,47 @@ object_t eval_symbol(object_t obj, object_t env)
 } 
 
 /** 
- * Вызов примитива или встроенной формы
- *
- * @param s символ формы
- * @param args список аргументов
- * @param args_count фактическое число аргументов
- *
- * @return результат вычислений
- */
-object_t call_form(symbol_t *s, object_t args, int args_count)
-{
-    if (s->nary == 0)
-	switch (args_count) {
-	case 0:
-	    return s->func();
-	case 1:
-	    return (func1_t)(s->func)(FIRST(args));
-	case 2:
-	    return (func2_t)(s->func)(FIRST(args), SECOND(args));
-	case 3:
-	    return (func3_t)(s->func)(FIRST(args), SECOND(args), THIRD(args));
-	case 4:
-	    return (func4_t)(s->func)(FIRST(args), SECOND(args), THIRD(args), TAIL(args));
-	default:
-	    error("primitive %s with %d arguments", s->str, args_count);
-	
-	}
-    else
-	switch (s->count) {
-	case 0:
-	    return (func1_t)s->func(args);
-	case 1:
-	    return (func2_t)(s->func)(FIRST(args), TAIL(args));
-	case 2:
-	    return (func3_t)(s->func)(FIRST(args), SECOND(args), TAIL(TAIL(args)));
-	case 3:
-	    return (func4_t)(s->func)(FIRST(args), SECOND(args), THIRD(args), TAIL(TAIL(TAIL(args))));
-	case 4:
-	    return (func5_t)(s->func)(FIRST(args), SECOND(args), THIRD(args), THIRD(TAIL(args)), TAIL(TAIL(TAIL(TAIL(args)))));
-	default:
-	    error("nary primitive %s with %d arguments", s->str, s->count);
-	} 
-}
-
-/** 
  * Вызов примитива или встроенной формы с переменным числом аргументов
  *
  * @param s символ формы
  * @param args список аргументов
  * @param args_count фактическое число аргументов
+ * @param count фиксированное число аргументов для nary
  *
  * @return результат вычислений
  */
-object_t call_nary_form(func0_t f, object_t args, int count)
+object_t call_form(func0_t f, object_t args, int nary, int args_count, int count)
 {
-    switch (count) {
-    case 0:
-	return (func1_t)f(args);
-    case 1:
-	return (func2_t)f(FIRST(args), TAIL(args));
-    case 2:
-	return (func3_t)f(FIRST(args), SECOND(args), TAIL(TAIL(args)));
-    case 3:
-	return (func4_t)f(FIRST(args), SECOND(args), THIRD(args), TAIL(TAIL(TAIL(args))));
-    case 4:
-	return (func5_t)f(FIRST(args), SECOND(args), THIRD(args), THIRD(TAIL(args)), TAIL(TAIL(TAIL(TAIL(args)))));
-    default:
-	error("call nary form %d arguments", count);
-    } 
+    if (nary == 0)
+	switch (args_count) {
+	case 0:
+	    return f();
+	case 1:
+	    return (func1_t)f(FIRST(args));
+	case 2:
+	    return (func2_t)f(FIRST(args), SECOND(args));
+	case 3:
+	    return (func3_t)f(FIRST(args), SECOND(args), THIRD(args));
+	case 4:
+	    return (func4_t)f(FIRST(args), SECOND(args), THIRD(args), TAIL(args));
+	default:
+	    error("call form with %d arguments", args_count);	
+	}
+    else
+	switch (count) {
+	case 0:
+	    return (func1_t)f(args);
+	case 1:
+	    return (func2_t)f(FIRST(args), TAIL(args));
+	case 2:
+	    return (func3_t)f(FIRST(args), SECOND(args), TAIL(TAIL(args)));
+	case 3:
+	    return (func4_t)f(FIRST(args), SECOND(args), THIRD(args), TAIL(TAIL(TAIL(args))));
+	case 4:
+	    return (func5_t)f(FIRST(args), SECOND(args), THIRD(args), THIRD(TAIL(args)), TAIL(TAIL(TAIL(TAIL(args)))));
+	default:
+	    error("call nary form with %d arguments", count);
+	} 
 }
 
 /**
@@ -747,7 +720,7 @@ object_t eval(object_t obj, object_t env, object_t func)
         else if (s->lambda != NULLOBJ)
             result = eval_func(s->lambda, args, env, func);
         else if (s->func != NULL)
-	    result = call_form(s, args, args_count);
+	    result = call_form(s->func, args, s->nary, args_count, s->count);
         else if (s->macro != NULLOBJ)
             result = macro_call(s->macro, args, env, func);
         else
@@ -1016,7 +989,6 @@ object_t labels(object_t param, object_t forms)
  */
 object_t function(object_t func) 
 {
-    
     if (is_lambda(func)) ;
     else if (TYPE(func) == SYMBOL) {
 	symbol_t *s = find_symbol(GET_SYMBOL(func)->str);
@@ -1026,7 +998,7 @@ object_t function(object_t func)
 	else if (s->lambda != NULLOBJ) // если символ - пользовательская функция
 	    func = s->lambda;
 	else if (s->func != NULL) // если символ - примитив
-	    return new_prim_function(s->func);
+	    return new_prim_function(s->func, s->nary, s->count);
 	else
 	    error("function: unknown symbol %s", s->str);
     } else
