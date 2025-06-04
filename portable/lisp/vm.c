@@ -456,7 +456,7 @@ void vm_apply(object_t fun, object_t args)
 	error("vm_apply: not function\n");
     function_t *f = GET_FUNCTION(fun);
     if (f->func != NULL) {
-	acc_reg = call_nary_form(f->func, args, (int)f->func_env);
+	acc_reg = call_form(f->func, args, f->nary, f->count, f->count);
 	return;
     }
     int c = 0;
@@ -567,14 +567,17 @@ void halt()
 
 void prim_closure()
 {
-    error("PRIM_CLOSURE");
+    int n = fetch();
+    acc_reg = new_prim_function((func0_t)prims[n].func, 0, prims[n].args_count);
+#ifdef DEBUG
+    printf("PRIM_CLOSURE %d\n", n);
+#endif    
 }
 
 void nprim_closure()
 {
     int n = fetch();
-    acc_reg = new_prim_function((func0_t)nprims[n].func);
-    GET_FUNCTION(acc_reg)->func_env = (object_t)nprims[n].args_count;
+    acc_reg = new_prim_function((func0_t)nprims[n].func, 1, nprims[n].args_count);
 #ifdef DEBUG
     printf("NPRIM_CLOSURE %d\n", n);
 #endif    
