@@ -217,7 +217,7 @@ object_t new_function(object_t args, object_t body, object_t env, object_t func_
  * @param func имя примитива
  * @return указатель на объект функции
  */
-object_t new_prim_function(func0_t f)
+object_t new_prim_function(func0_t f, int nary, int count)
 {
     function_t *func;
     if (last_function == MAX_FUNCTIONS)
@@ -233,6 +233,8 @@ object_t new_prim_function(func0_t f)
     func->args = NULLOBJ;
     func->body = NULLOBJ;
     func->func = f;
+    func->nary = nary;
+    func->count = count;
     total_functions++;
     return NEW_OBJECT(FUNCTION, func);
 }
@@ -799,12 +801,15 @@ void print_obj(object_t obj)
     else if (TYPE(obj) == BIGNUMBER)
 	printf("%d", GET_BIGNUMBER(obj)->value);
     else if (TYPE(obj) == FUNCTION) {
+	function_t *f = GET_FUNCTION(obj);
 	printf("(Function ");
-	print_obj(GET_FUNCTION(obj)->args);
-	printf(" ");
-	print_obj(GET_FUNCTION(obj)->body);
-	printf(" ");
-	printf("%x", (unsigned int)GET_FUNCTION(obj)->func);
+	if (f->func == NULL) {
+	    print_obj(f->args);
+	    printf(" ");
+	    print_obj(f->body);
+	    printf(" ");
+	} else 
+	    printf("primitive %d %d", f->nary, f->count);
 	printf(")");
     }
     else if (TYPE(obj) == FLOAT)
