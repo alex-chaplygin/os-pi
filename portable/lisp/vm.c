@@ -15,6 +15,7 @@
 
 #define FUNCALL 8 // номер примитива funcall
 #define APPLY 37 // номер примитива apply
+#define REG_CALL 12 // операция return
 #define RETURN_OP 13 // операция return
 
 //Размер памяти программы
@@ -452,6 +453,7 @@ void restore_frame_inst()
  */
 void vm_apply(object_t fun, object_t args)
 {
+    int calls = 1;
     if (TYPE(fun) != FUNCTION)
 	error("vm_apply: not function\n");
     function_t *f = GET_FUNCTION(fun);
@@ -475,8 +477,12 @@ void vm_apply(object_t fun, object_t args)
 #endif
     do {
 	c = fetch();
+	if (c == REG_CALL)
+	    calls++;
+	else if (c == RETURN_OP)
+	    calls--;
 	instructions[c]();
-    } while (c != RETURN_OP);
+    } while (calls != 0);
     frame_reg = pop();
 }
 
