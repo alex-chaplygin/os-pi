@@ -417,7 +417,7 @@ void save_frame_inst()
  */
 void set_frame_inst()
 {
-    int num = fetch();
+    int num = fetch() - 1;
     object_t frame = frame_reg;
     int count;
     if (frame != NULLOBJ) {
