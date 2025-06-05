@@ -793,7 +793,7 @@ void print_array(object_t obj)
 void print_obj(object_t obj)
 {
     if (obj == NULLOBJ)
- 	printf("NIL");
+ 	printf("()");
     else if (TYPE(obj) == NUMBER)
  	printf("%d", get_value(obj));
     else if (TYPE(obj) == BIGNUMBER)
