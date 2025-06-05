@@ -9,6 +9,7 @@
 #include <setjmp.h>
 #include "../init.c"
 #include "objects.h"
+#include "alloc.h"
 #include "parser.h"
 #include "vm.h"
 
@@ -40,12 +41,15 @@ char *itoa(int num, char *str, int rad)
 int main()
 {
     init_all();
-    object_t prog = parse();
-    array_t *prog_a = GET_ARRAY(prog);
+    int prog_size = get_value(parse());
+    int *prog = alloc_region(prog_size * sizeof(int));
+    int *p = prog;
+    for (int i = 0; i < prog_size; i++)
+	*p++ = get_value(parse());
     object_t consts = parse();
     array_t *const_a = GET_ARRAY(consts);
     int num_vars = get_value(parse());
-    vm_init(prog_a->data, prog_a->length, const_a->data, const_a->length, num_vars);
+    vm_init(prog, prog_size, const_a->data, const_a->length, num_vars);
     if (setjmp(repl_buf) == 0)
 	vm_run();
     else

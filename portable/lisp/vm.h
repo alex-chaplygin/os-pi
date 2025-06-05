@@ -19,7 +19,7 @@ typedef struct frame {
 } frame_t;
 
 //Функция инициализации виртуальной машины
-void vm_init(object_t *prog_mem, int prog_size,
+void vm_init(int *prog_mem, int prog_size,
 			  object_t *const_mem, int const_c, int glob_var_c);
 
 //Функция запуска виртуальной машины

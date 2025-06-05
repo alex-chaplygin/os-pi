@@ -108,18 +108,15 @@ void (*instructions[])() =
  * @param const_c - количество констант, переданных виртуальной машине
  * @param glob_var_c - количество глобальных переменных, переданных виртуальной машине
  */
-void vm_init(object_t *prog_mem, int prog_size, object_t *const_mem, int const_c, int glob_var_c)
+void vm_init(int *prog_mem, int prog_size, object_t *const_mem, int const_c, int glob_var_c)
 {
     program_size = prog_size;
-    program_memory = alloc_region(prog_size * sizeof(int));
-    int *p = program_memory;
-    for (int i = 0; i < prog_size; i++)
-	*p++ = get_value(*prog_mem++);
+    program_memory = prog_mem;
     const_count = const_c;
     const_memory = const_mem;
     global_var_count = glob_var_c;
     global_var_memory = alloc_region(global_var_count * sizeof(object_t));
-    //    global_var_memory[0] = 1;
+    global_var_memory[0] = t;
     global_var_memory[1] = const_memory[1] = NULLOBJ;
     pc_reg = program_memory;
     acc_reg = NULLOBJ;
@@ -591,12 +588,14 @@ void nprim_closure()
 
 void catch_inst()
 {
-    error("CATCH");
+    fetch();
+    //    error("CATCH");
 }
 
 void throw_inst()
 {
-    error("THROW");
+    pop();
+    //error("THROW");
 }   
 
 /** 
