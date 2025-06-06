@@ -334,7 +334,16 @@ object_t defun(object_t name1, object_t list, object_t body)
 object_t defmacro(object_t name1, object_t list, object_t body) 
 { 
     symbol_t *name = find_symbol(GET_SYMBOL(name1)->str); 
-    name->macro = new_pair(NEW_SYMBOL("LAMBDA"), TAIL(list));
+    name->macro = new_pair(NEW_SYMBOL("LAMBDA"), new_pair(list, body));
+    int rest = list_contains(list, rest_sym);
+    if (rest == -1) {
+        name->nary = 0;
+        name->count = list_length(list);
+    }
+    else {
+        name->nary = 1;
+        name->count = rest;
+    }
     set_global(name);
     return NEW_SYMBOL(name->str);
 }
