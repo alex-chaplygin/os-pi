@@ -6,8 +6,8 @@
 ;; *program-size* - размер программы на выходе
 (defvar *program-size*)
 
-;; Добавить инструкцию в программу
 (defun emit (val)
+"Добавить инструкцию в программу"
   (let ((v (list val)))
     (if (null *program*)
 	  (setq *program* v)
@@ -16,8 +16,8 @@
 
 (defun inner-generate (expr) nil)
 
-;; Ветвление (cond true false)
 (defun generate-if (expr)
+"Генерация ветвления (cond true false)"
   (let ((label-false (gensym))
 	(label-after (gensym)))
     (inner-generate (car expr)) ; условие
@@ -28,8 +28,8 @@
     (inner-generate (caddr expr)) ; код по лжи
     (emit (list 'LABEL label-after))))
 
-;; Генерация функций с 2-мя параметрами
 (defun generate-2-params (expr)
+"Генерация функций с 2-мя параметрами"
   (if (null (cddr expr))
       (emit (list 'LABEL (second expr)))
       (let ((l (gensym)))
@@ -38,18 +38,18 @@
 	(inner-generate (third expr))
 	(emit (list 'LABEL l)))))
 
-;; Генерация DEEP-SET
 (defun generate-deep (i j expr)
+"Генерация DEEP-SET"
   (inner-generate expr)
   (emit (list 'DEEP-SET i j)))
 
-;; Генерация кода для присваиваний
 (defun generate-set (expr)
+"Генерация кода для присваиваний"
   (inner-generate (caddr expr))
   (emit (list (car expr) (cadr expr))))
 
-;; Генерация вычисления аргументов
 (defun generate-args (args set)
+"Генерация вычисления аргументов"
   (let ((i 0))
     (dolist (a args)
       (inner-generate a) ; код аргумента
@@ -58,19 +58,19 @@
 		(list set i)))
       (incf i))))
 
-;; Вызов примитива
 (defun generate-fix-prim (type args)
+"Генерация вызова примитива"
   (generate-args args 'PUSH)
   (emit (list 'PRIM type)))
 
-;; Вызов примитива с переменным числом аргументов
 (defun generate-nary-prim (type num args)
+"Генерация вызова примитива с переменным числом аргументов"
   (generate-args args 'PUSH)
   (emit (list 'PACK (- (list-length args) num)))
   (emit (list 'NPRIM type)))
 
-;; Обычный вызов функции
 (defun generate-reg-call (name fix-num env args)
+"Обычный вызов функции"
   (let ((num (list-length args)))
     (generate-args args 'PUSH)
     (when fix-num (emit (list 'PACK (- (list-length args) fix-num))))
@@ -80,37 +80,37 @@
     (emit (list 'REG-CALL name))
     (emit (list 'RESTORE-ENV))))
 
-;; let - форма, расширение окружения, тело lambda без вызова функции
 (defun generate-let (count args body)
+  "Генерация let - форма, расширение окружения, тело lambda без вызова функции"
   (generate-args args 'PUSH)
   (emit (list 'SAVE-ENV))
   (emit (list 'ALLOC count))
   (inner-generate body)
   (emit (list 'RESTORE-ENV)))
 
-;; генерация замыкания
 (defun generate-closure (op name body)
+"генерация замыкания"
   (emit (list op name))
   (when body
     (inner-generate body)))
 
-;; Генерация кода для CATCH
 (defun generate-catch (tag body)
+"Генерация кода для CATCH"
   (let ((label (gensym)))
     (inner-generate tag)
     (emit (list 'CATCH label))
     (inner-generate body)
     (emit (list 'LABEL label))))
 
-;; Генерация кода для THROW
 (defun generate-throw (tag res)
+"Генерация кода для THROW"
   (inner-generate tag)
   (emit (list 'PUSH))
   (inner-generate res)
   (emit (list 'THROW)))
 
-;; Генерация кода
 (defun inner-generate (expr)
+"Рекурсивная генерация кода для скомпилированного выражения"
   ;; (print (list 'inner-generate expr))
   (let ((op (car expr)))
     (cond
@@ -135,6 +135,7 @@
 	   (otherwise (emit (list 'UNKNOWN op))))))))
 
 (defun generate (expr)
+"Генерация кода для скомпилированного выражения"
   (setq *program* nil)
   (setq *program-size* 0)
   (inner-generate expr)
