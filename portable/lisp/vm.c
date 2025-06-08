@@ -478,7 +478,13 @@ void vm_apply(object_t fun, object_t args)
 	    calls++;
 	else if (c == RETURN_OP)
 	    calls--;
+#ifdef DEBUG    
+	printf("%d: ", pc_reg - program_memory);
+#endif
 	instructions[c]();
+#ifdef DEBUG    
+	vm_dump();
+#endif
     } while (calls != 0);
     frame_reg = pop();
 }
@@ -625,7 +631,7 @@ void vm_run()
     while (working == 1)
     {
 #ifdef DEBUG    
-	printf("%ld: ", pc_reg - program_memory);
+	printf("%d: ", pc_reg - program_memory);
 #endif
 	instructions[fetch()]();
 #ifdef DEBUG    
