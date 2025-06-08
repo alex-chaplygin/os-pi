@@ -44,15 +44,16 @@
 	(list (gensym)))
     `(if (not (pairp ,(second params)))
 	 (error "dolist: incorrect list")
+	 (let ((,var ())
+	       (,list ,(second params)))
     (tagbody
-	(setq ,list ,(second params))
 	(go ,tests)
 	,loops
 	(setq ,var (car ,list))
 	(setq ,list (cdr ,list))
 	,@bod
 	,tests
-	(if (null ,list) nil (go ,loops)))))))
+	(if (null ,list) nil (go ,loops))))))))
 	
 (defun map (f list)
   "Применяет функцию f к каждому элементу списка list и возвращает новый список"
