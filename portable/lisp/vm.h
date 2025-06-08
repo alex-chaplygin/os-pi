@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "objects.h"
 
-#define STACK_SIZE 1024
+#define STACK_SIZE (1024 * 64)
 #define FRAME_SIZE 1024
 #define MAX_LOCAL_ARGS 16
 
@@ -52,3 +52,4 @@ void prim_closure();
 void nprim_closure();
 void catch_inst();
 void throw_inst();
+void vm_garbage_collect();
