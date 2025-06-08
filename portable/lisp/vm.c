@@ -17,6 +17,7 @@
 #define APPLY 37 // номер примитива apply
 #define REG_CALL 12 // операция return
 #define RETURN_OP 13 // операция return
+#define VM_THRESHOLD 2000 // порог сборки мусора
 
 //Размер памяти программы
 int program_size;
@@ -303,11 +304,7 @@ void alloc(int n)
     if (frame_reg == NULLOBJ)
 	ar->data[1] = 0;
     else
-#ifdef DEBUG
-	ar->data[1] = new_number(get_value(GET_ARRAY(frame_reg)->data[1]) + 1);
-#else	
-    ar->data[1] = (object_t)(GET_ARRAY(frame_reg)->data[1] + 1);
-#endif    
+    ar->data[1] = (object_t)(GET_ARRAY(frame_reg)->data[1] + (1 << MARK_BIT));
     object_t fr = pop();
     for (int i = 0; i < n; i++)
 	ar->data[n - i + 1] = pop();
@@ -347,11 +344,7 @@ void pack_inst()
  */
 void call(int *addr)
 {
-#ifdef DEBUG
-    push(new_number(pc_reg - program_memory));
-#else
-    push((object_t)pc_reg);
-#endif    
+    push((object_t)(pc_reg - program_memory << MARK_BIT));
     pc_reg = addr;
 }
 
@@ -370,11 +363,7 @@ void reg_call_inst()
  */
 void return_inst()
 {
-#ifdef DEBUG
-    pc_reg = program_memory + get_value(pop());
-#else
-    pc_reg = (int *)pop();
-#endif    
+    pc_reg = program_memory + (pop() >> MARK_BIT);
 #ifdef DEBUG
     printf("RETURN\n");
 #endif    
@@ -386,11 +375,7 @@ void return_inst()
 void fix_closure_inst()
 {
     int ofs = fetch();
-#ifdef DEBUG
-    acc_reg = new_function(NULLOBJ, new_number(pc_reg + ofs - program_memory - 2), frame_reg, NULLOBJ);
-#else
-    acc_reg = new_function(NULLOBJ, (object_t)(pc_reg + ofs - 2), frame_reg, NULLOBJ);
-#endif    
+    acc_reg = new_function(NULLOBJ, (pc_reg + ofs - program_memory - 2 << MARK_BIT), frame_reg, NULLOBJ);
 #ifdef DEBUG
     printf("FIX-CLOSURE %d\n", ofs);
 #endif    
@@ -418,11 +403,7 @@ void set_frame_inst()
     object_t frame = frame_reg;
     int count;
     if (frame != NULLOBJ) {
-#ifdef DEBUG	
-	count = get_value(GET_ARRAY(frame)->data[1]) - num;
-#else	
-	count = (int)(GET_ARRAY(frame)->data[1] - num);
-#endif	
+	count = (GET_ARRAY(frame)->data[1] >> MARK_BIT) - num;
 	for (int i = 0; i < count; i++)
 	    frame = GET_ARRAY(frame)->data[0];
 	frame_reg = frame;
@@ -467,11 +448,7 @@ void vm_apply(object_t fun, object_t args)
     push(frame_reg);
     frame_reg = f->env;
     alloc(c);
-#ifdef DEBUG    
-    call(program_memory + get_value(f->body));
-#else    
-    call((int *)f->body);
-#endif
+    call(program_memory + (f->body >> MARK_BIT));
     do {
 	c = fetch();
 	if (c == REG_CALL)
@@ -483,7 +460,7 @@ void vm_apply(object_t fun, object_t args)
 #endif
 	instructions[c]();
 #ifdef DEBUG    
-	vm_dump();
+	//	vm_dump();
 #endif
     } while (calls != 0);
     frame_reg = pop();
@@ -601,7 +578,7 @@ void catch_inst()
 void throw_inst()
 {
     pop();
-    //error("THROW");
+    error("THROW");
 }   
 
 /** 
@@ -623,19 +600,49 @@ void vm_dump()
     printf("-------------------------\n");
 }
 
+/** 
+ * Сборка мусора при работе виртуальной машины
+ */
+void vm_garbage_collect()
+{
+    int i;
+    object_t *c;
+    extern int total_arrays;
+    //    printf("VM garbage collect: arrays = %d\n", total_arrays);
+    //    printf("mark const\n");
+    for (i = 0, c = const_memory; i < const_count; i++)
+	mark_object(*c++);
+    //    printf("mark globals\n");
+    for (i = 0, c = global_var_memory; i < global_var_count; i++)
+	mark_object(*c++);
+    //    printf("mark stack\n");
+    //    for (i = stack_top - stack + 1, c = stack_top + 1; i < STACK_SIZE; i++)
+    for (c = stack_top; c < stack + STACK_SIZE;)
+	mark_object(*c++);
+    //    printf("mark registers\n");
+    mark_object(acc_reg);
+    mark_object(frame_reg);
+    //    printf("sweep\n");
+    sweep();
+    //printf("VM garbage collect done: arrays = %d\n", total_arrays);
+}
+
 /**
  * @brief Запускает виртуальную машину
  */
 void vm_run()
 {
+    extern int total_arrays;
     while (working == 1)
     {
+	if (total_arrays >= VM_THRESHOLD)
+	    vm_garbage_collect();
 #ifdef DEBUG    
 	printf("%d: ", pc_reg - program_memory);
 #endif
 	instructions[fetch()]();
 #ifdef DEBUG    
-	vm_dump();
+	//	vm_dump();
 #endif
     }
 }
