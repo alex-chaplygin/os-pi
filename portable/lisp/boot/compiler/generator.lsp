@@ -53,7 +53,7 @@
   (let ((i 0))
     (dolist (a args)
       (inner-generate a) ; код аргумента
-      (emit (if (equal set 'PUSH)
+      (emit (if (eq set 'PUSH)
 		(list set)
 		(list set i)))
       (incf i))))
