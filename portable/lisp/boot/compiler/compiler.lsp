@@ -9,8 +9,8 @@
 ;; список локальных функций (локальное имя, смещение кадра, кол-во аргументов, скомплированное имя)
 (defvar *local-functions*)
 
-;; Расширить окружение новым кадром аргументов
 (defun extend-env (env args)
+";; Расширить окружение новым кадром аргументов"
   (cons args env))
 
 (mk/add-func add-func *fix-functions* args body) ;; фиксированное число аргументов
@@ -19,23 +19,23 @@
 
 (defun inner-compile (expr env) nil)
 
-;; Компиляция тела функции
 (defun compile-func-body (name args body env)
+";; Компиляция тела функции"
   (list 'LABEL name
 	(list 'SEQ
 	      (inner-compile body (extend-env env args))
 	      (list 'RETURN))))
 
-;; Комплирует лямбда-абстракцию.
-;; (список аргументов, тело функции, локальное окружение).
 (defun compile-lambda (name args body env)
+";; Комплирует лямбда-абстракцию."
+;; (список аргументов, тело функции, локальное окружение).
     (if (is-nary args)
 	(add-nary-func name (list-length env) (num-fix-args args 0) args body)
 	(add-func name (list-length env) (list-length args) args body))
     (compile-func-body name args body env))
 
-;; Определения типа функции: лямбда, примитив, nary примитив, глобальная функция, nary функция
 (defun find-func (f)
+";; Определения типа функции: лямбда, примитив, nary примитив, глобальная функция, nary функция"
   (if (and (not (atom f)) (correct-lambda f))
       (list 'lambda (list-length (second f)) (gensym)) ; lambda num-args name
       (let ((r nil))
@@ -58,9 +58,9 @@
 
 (defun compile-progn (lst env) nil)
 
-;; Применение функции
-;; f - имя функции или lambda, args - аргументы, env - окружение
 (defun compile-application (f args env)
+";; Применение функции"
+;; f - имя функции или lambda, args - аргументы, env - окружение
   (let* ((fun (find-func f))
 	 (type (car fun))
 	 (count (second fun))
@@ -80,8 +80,8 @@
 	    ('fix-prim (list 'FIX-PRIM f vals))
 	    ('nary-prim (list 'NARY-PRIM f count vals))))))))
 
-;; Создание функции-замыкания
 (defun compile-function (f env)
+";; Создание функции-замыкания"
   (let* ((fun (find-func f))
 	 (type (car fun))
 	 (name (gensym)))
@@ -93,32 +93,32 @@
       ('nary-prim (list 'NPRIM-CLOSURE f))
       (otherwise (comp-err "invalid function argument" f fun)))))
 
-;; Компилирует объявление функции с помощью DEFUN.
-;; expr - список, состоящий из названия, списка аргументов и тела функции.
 (defun compile-defun (expr env)
+";; Компилирует объявление функции с помощью DEFUN."
+;; expr - список, состоящий из названия, списка аргументов и тела функции.
   ;; проверка на правильность expr
   (let ((name (car expr))
 	(args (second expr))
 	(body (cddr expr)))
     (compile-lambda name args (cons 'progn body) env)))
 
-;; Добавить глобальную переменную
-;; Возвращает индекс добавленной переменной
 (defun add-global (sym)
+";; Добавить глобальную переменную"
+;; Возвращает индекс добавленной переменной
   (setq *global-variables* (append *global-variables* (list sym)))
   (incf *global-variables-count*)
   (- *global-variables-count* 1))
 
-;; Производит поиск переменной в глобальном окружении по символу.
-;; Возвращает индекс в массиве глобального окружения, если символ найден, иначе nil.
 (defun find-global-var (var)
+";; Производит поиск переменной в глобальном окружении по символу."
+;; Возвращает индекс в массиве глобального окружения, если символ найден, иначе nil.
   (let ((i (list-search *global-variables* var)))
     (if (null i) nil
 	(list 'global i))))
 
-;; Вычисление порядкового номера переменной в списке с учетом &rest
-;; Если не найдено - возвращает nil
 (defun var-search(params var)
+";; Вычисление порядкового номера переменной в списке с учетом &rest"
+;; Если не найдено - возвращает nil
   (labels ((find (list pos)
 	     (cond
 	       ((null list) nil)
@@ -127,9 +127,9 @@
 	       (t (find (cdr list) (++ pos))))))
     (find params 0)))
 
-;; Производит поиск переменной в локальном окружении по символу.
-;; Возвращает индекс переменной в стеке, если символ найден, иначе nil.
 (defun find-local-var (var env)
+";; Производит поиск переменной в локальном окружении по символу."
+;; Возвращает индекс переменной в стеке, если символ найден, иначе nil.
   (labels ((find-frame (frames i)
 	     (if (null frames) nil
 		 (let ((j (var-search (car frames) var)))
@@ -138,17 +138,17 @@
 			   (list 'deep i j)))))))
 	  (find-frame env 0)))
 
-;; Производит поиск переменной по символу сначала в локальном, а затем в глобальном окружении.
+(defun find-var (var env)
+";; Производит поиск переменной по символу сначала в локальном, а затем в глобальном окружении."
 ;; Возвращает список, состоящий из символа - GLOBAL или LOCAL, DEEP,
 ;; env - локальное окружение
-(defun find-var (var env)
   (let ((local (find-local-var var env)))
     (if (not (null local)) local
         (find-global-var var))))
 
-;; Компилирует setq-выражение.
-;; setq-body - пара из символа и выражения, которое необходимо установить этому символу.
 (defun compile-setq (body env)
+";; Компилирует setq-выражение."
+;; setq-body - пара из символа и выражения, которое необходимо установить этому символу.
   (if (null body)
       (comp-err "setq: no params")
       (labels ((compile-all-setq (body)
@@ -172,9 +172,9 @@
 				 (otherwise (error "Unreachable")))))))))
 	    (compile-all-setq body))))
 
-;; Компилирует if-выражение.
-;; if-body - тело if-выражения (условие, ветка по "Да" и по "Нет").
 (defun compile-if (expr env)
+";; Компилирует if-выражение."
+;; if-body - тело if-выражения (условие, ветка по "Да" и по "Нет").
   (if (!= (list-length expr) 3)
       (comp-err "if: invalid params")  
       (let ((cond (inner-compile (car expr) env))
@@ -182,22 +182,22 @@
 	    (false (inner-compile (third expr) env)))
       (list 'ALTER cond true false))))
 
-;; Компиляция константы
 (defun compile-constant (c)
+";; Компиляция константы"
   ;; (print (list 'compile-constant c))
   (list 'CONST c))
 
-;; Компилирует блок progn.
-;; lst - список S-выражений внутри блока progn.
 (defun compile-progn (lst env)
+";; Компилирует блок progn."
+;; lst - список S-выражений внутри блока progn.
   (if (null lst) (compile-constant '())
     (if (null (cdr lst))
 	(inner-compile (car lst) env)
       (cons 'SEQ (map #'(lambda (x) (inner-compile x env)) lst)))))
 
-;; Компилирует labels.
-;; lst - (<список функций> <форма1> ... <формаn>).
 (defun compile-labels (lst env)
+";; Компилирует labels."
+;; lst - (<список функций> <форма1> ... <формаn>).
   (let ((old *local-functions*))
     (labels ((extend-func (funcs)
 	       (app
@@ -218,8 +218,8 @@
 	(list 'SEQ f body)))))
 
 
-;; Компиляция перемнной
 (defun compile-variable (v env)
+";; Компиляция перемнной"
   (let ((res (find-var v env)))
     (if (null res)
 	(comp-err "Unknown symbol" v)
@@ -228,8 +228,8 @@
 	    ('global (list 'GLOBAL-REF (second res)))
 	    ('deep (list 'DEEP-REF (second res) (third res)))))))
 
-;; Комиляция квазицитирования
 (defun compile-backquote (expr env)
+";; Комиляция квазицитирования"
   ;; (print (list 'compile-backquote expr))
   ;; (when (null expr)
   ;;   (comp-err "backquote: no body"))
@@ -239,25 +239,25 @@
 	  (inner-compile (second expr) env)
 	(list 'FIX-PRIM 'CONS (list (compile-backquote (car expr) env) (compile-backquote (cdr expr) env))))))
 
-;; Компиляция tagbody
 (defun compile-tagbody (body env)
+";; Компиляция tagbody"
   (if (null body) (list 'CONST 'nil)
       (list 'SEQ (let ((e (car body)))
 		   (if (symbolp e) (list 'LABEL e)
 		       (inner-compile e env)))
 	    (compile-tagbody (cdr body) env))))
 
-;; Компиляция CATCH
 (defun compile-catch (args env)
+";; Компиляция CATCH"
      (list 'CATCH (inner-compile (car args) env) (compile-progn (cdr args) env)))
 
-;; Компиляция THROW
 (defun compile-throw (args env)
+";; Компиляция THROW"
      (list 'THROW (inner-compile (car args) env) (inner-compile (second args) env)))
 
-;; Функция компиляции в промежуточную форму
-;; expr - выражение, env - лексическое окружение
 (defun inner-compile (expr env)
+"Рекурсивная функция компиляции в промежуточную форму"
+;; expr - выражение, env - лексическое окружение
   ;; (print (list 'inner-compile expr))
   (if (atom expr)
       (if (symbolp expr)
@@ -281,9 +281,8 @@
 	  ('throw (compile-throw (cdr expr) env))
 	  (otherwise (compile-application func args env))))))
 
-;; Анализ S-выражения и преобразование в эквивалентное выражение
-;; из более простых операций
 (defun compile (expr)
+"Компиляция в промежуточную форму"
   (setq *global-variables* '(t nil)
         *global-variables-count* (list-length *global-variables*)
         *comp-err* nil

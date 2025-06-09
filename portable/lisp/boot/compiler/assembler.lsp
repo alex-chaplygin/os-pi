@@ -33,21 +33,21 @@
 ;; конец списка генерируемого кода
 (defvar bytecode-end)
 
-;; Найти последний cdr в списке
 (defun last-cdr (list)
+";; Найти последний cdr в списке"
   (if (null (cdr list)) list
       (last-cdr (cdr list))))
 
-;; Запись кода в список
 (defun asm-emit (&rest bytes)
+";; Запись кода в список"
   (if (null bytecode)
       (setq bytecode bytes)
       (rplacd bytecode-end bytes))
   (setq bytecode-end (last-cdr bytes)
 	pc (+ pc (list-length bytes))))
 
-;; Ассемблирование метки.
 (defun assemble-label (inst)
+";; Ассемблирование метки."
   (set-hash jmp-addrs (cadr inst) pc)
   (let ((fun nil)
 	(type nil))
@@ -59,8 +59,8 @@
     (when type
       (set-hash *func-args-hash* pc (cons type (caddr fun))))))
 
-;; Ассемблирование инструкции загрузки константы в ACC.
 (defun assemble-const (inst)
+";; Ассемблирование инструкции загрузки константы в ACC."
   (let* ((c (cadr inst))
 	 (lc (list c))
          (i (list-search *consts* c)))
@@ -71,8 +71,8 @@
       (decf i))
     (asm-emit (list-search *inst-table* 'CONST) i)))
 
-;; Ассемблирование инструкции вызова примитива.
 (defun assemble-prim (inst)
+";; Ассемблирование инструкции вызова примитива."
   (let* ((prim-type (car inst))
          (lst (case prim-type
                 ('prim *fix-primitives*)
@@ -87,8 +87,8 @@
                      ": " (symbol-name prim))))
     (asm-emit (list-search *inst-table* prim-type) prim-i)))
 
-;; Ассемблирование инструкции общего вида.
 (defun assemble-inst (inst jmp-labels)
+";; Ассемблирование инструкции общего вида."
   (let ((opcode (list-search *inst-table* (car inst))))
     (when (null opcode)
       (error (concat "Unknown inst: " (symbol-name (car inst)))))
@@ -103,10 +103,10 @@
            (cdr inst))))
   jmp-labels)
 
-;; Первый проход ассемблера
+(defun assemble-first-pass (program)
+";; Первый проход ассемблера"
 ;; (замена мнемоник инструкций соответствующими байтами
 ;; и сбор информации о метках и переходах).
-(defun assemble-first-pass (program)
   (setq *consts* (list t nil)
 	*consts-end* (cdr *consts*)
         *func-args-hash* (make-hash)
@@ -128,9 +128,9 @@
     (setq pc (++ pc))
     (list bytecode pc jmp-labels)))
 
-;; Второй проход ассемблера
-;; (замена меток переходов на относительные адреса).
 (defun assemble-second-pass (first-pass-res)
+";; Второй проход ассемблера"
+;; (замена меток переходов на относительные адреса).
   (let ((bytecode (car first-pass-res))
         (bytecode-len (second first-pass-res))
         (jmp-labels (third first-pass-res)))
@@ -146,6 +146,6 @@
              nil jmp-labels)
       bytecode-arr)))
 
-;; Превращает список инструкций с метками в байт-код.
 (defun assemble (program)
+";; Превращает список инструкций с метками в байт-код."
   (assemble-second-pass (assemble-first-pass program)))

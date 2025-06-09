@@ -9,11 +9,12 @@
 (defvar *nary-primitives*
   '((+ . 0) (- . 1) (* . 0) (/ . 1) (& . 0) (bitor . 0) (^ . 0) (concat . 0) (funcall . 1) (print . 0) (error . 0)))
 
-;; Устанавливает флаг ошибки компиляции и сохраняет сообщение об ошибке.
 (defun comp-err (msg &rest other)
+";; Устанавливает флаг ошибки компиляции и сохраняет сообщение об ошибке."
   (throw 'compiler (cons msg other)))
 
-(defun is-nary (args) ;; переменное число аргументов?
+(defun is-nary (args)
+  ";; переменное число аргументов?"
   (contains args '&rest))
 
 ;; Добавить глобальную функцию с именем, смещением окружения и числом аргументов
@@ -21,31 +22,33 @@
   `(defun ,name (name env arity ,@other)
      (setq ,list (cons (list name env arity ,@other) ,list))))
 
-(defun num-fix-args (list num) ;; определить число фиксированных аргументов
+(defun num-fix-args (list num)
+  ";; определить число фиксированных аргументов"
   (if (eq (car list) '&rest) num (num-fix-args (cdr list) (++ num))))
 
-(defun remove-rest (list) ;; удалить &rest из списка аргументов
+(defun remove-rest (list)
+  ";; удалить &rest из списка аргументов"
   (if (null list) nil
       (if (eq (car list) '&rest) (cdr list)
 	  (cons (car list) (remove-rest (cdr list))))))
 
-;; Сформировать правильный список аргументов
+(defun make-nary-args (count args)
+";; Сформировать правильный список аргументов"
 ;; count - число постоянных аргументов
 ;; args - список аргументов
-(defun make-nary-args (count args)
   (if (equal count 0) (list args)
       (cons (car args) (make-nary-args (-- count) (cdr args)))))
 
-;; Поиск функции или примитива по имени, возвращет сохраненную функцию или примитив
 (defun search-symbol (list name)
+";; Поиск функции или примитива по имени, возвращет сохраненную функцию или примитив"
   (labels ((search (list)
 	     (if (null list) nil
 		 (if (eq (caar list) name) (car list)
 		     (search (cdr list))))))
     (search list)))
 
-;; Проверка на правильность lambda выражения, или ошибка
 (defun correct-lambda (f)
+";; Проверка на правильность lambda выражения, или ошибка"
   (and (not (atom f))
        (>= (list-length f) 3)
        (equal (car f) 'lambda)
