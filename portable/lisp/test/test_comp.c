@@ -14,6 +14,7 @@
 #include "vm.h"
 
 extern jmp_buf repl_buf;
+object_t consts;
 
 char *itoa(int num, char *str, int rad)
 {
@@ -46,7 +47,7 @@ int main()
     int *p = prog;
     for (int i = 0; i < prog_size; i++)
 	*p++ = get_value(parse());
-    object_t consts = parse();
+    consts = parse();
     array_t *const_a = GET_ARRAY(consts);
     int num_vars = get_value(parse());
     vm_init(prog, prog_size, const_a->data, const_a->length, num_vars);
