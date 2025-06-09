@@ -2,30 +2,42 @@
 #define OBJECTS
 /// Всего пар
 #ifdef VM
-#define MAX_PAIRS 400000
+#define MAX_PAIRS (1024 * 1024)
 #else
 #define MAX_PAIRS 800000
 #endif
 /// Всего символов
-#define MAX_SYMBOLS 64000
+#define MAX_SYMBOLS (2*1024)
 /// Всего строк
 #define MAX_STRINGS 20000
 /// Всего массивов
 #ifdef VM
-#define MAX_ARRAYS 800000
+#define MAX_ARRAYS 2 * 1024 * 1024
 #else
 #define MAX_ARRAYS 400
 #endif
 /// Максимальная длина символа
 #define MAX_SYM_STR 32
 /// Всего больших чисел
+#ifdef VM
+#define MAX_NUMBERS 16
+#else
 #define MAX_NUMBERS 350
+#endif
 /// Всего вещественных чисел
+#ifdef VM
+#define MAX_FLOATS 2
+#else
 #define MAX_FLOATS 2000
+#endif
 /// Всего продолжений
-#define MAX_CONTINUATIONS 100
+#define MAX_CONTINUATIONS 1
 /// Всего функций 
-#define MAX_FUNCTIONS 1000
+#ifdef VM
+#define MAX_FUNCTIONS (16*1024)
+#else
+#define MAX_FUNCTIONS 10000
+#endif
 /// Число созданных пар, после которого вызвается сборка мусора
 #define GC_THRESHOLD 400000
 /// Размер стека для tagbody
@@ -273,5 +285,8 @@ object_t print_gc_stat(object_t o);
 int need_grabage_collect();
 object_t dump_mem(object_t args);
 void error(char *str, ...);
+void mark_object(object_t obj);
+void sweep();
+void vm_garbage_collect();
 
 #endif
