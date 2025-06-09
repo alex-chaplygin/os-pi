@@ -17,7 +17,7 @@
 #define APPLY 37 // номер примитива apply
 #define REG_CALL 12 // операция return
 #define RETURN_OP 13 // операция return
-#define VM_THRESHOLD 2000 // порог сборки мусора
+#define VM_THRESHOLD (1824*1024) // порог сборки мусора
 
 //Размер памяти программы
 int program_size;
@@ -608,23 +608,29 @@ void vm_garbage_collect()
     int i;
     object_t *c;
     extern int total_arrays;
-    //    printf("VM garbage collect: arrays = %d\n", total_arrays);
+    extern object_t consts;
+#ifdef DEBUG
+    printf("VM garbage collect: arrays = %d\n", total_arrays);
     //    printf("mark const\n");
-    for (i = 0, c = const_memory; i < const_count; i++)
-	mark_object(*c++);
+#endif
+    mark_object(consts);
+    /* for (i = 0, c = const_memory; i < const_count; i++) */
+    /* 	mark_object(*c++); */
     //    printf("mark globals\n");
     for (i = 0, c = global_var_memory; i < global_var_count; i++)
 	mark_object(*c++);
     //    printf("mark stack\n");
-    //    for (i = stack_top - stack + 1, c = stack_top + 1; i < STACK_SIZE; i++)
-    for (c = stack_top; c < stack + STACK_SIZE;)
+    for (i = stack_top - stack + 1, c = stack_top + 1; i < STACK_SIZE; i++)
+    //    for (c = stack_top; c < stack + STACK_SIZE;)
 	mark_object(*c++);
     //    printf("mark registers\n");
     mark_object(acc_reg);
     mark_object(frame_reg);
     //    printf("sweep\n");
     sweep();
-    //printf("VM garbage collect done: arrays = %d\n", total_arrays);
+#ifdef DEBUG
+    printf("VM garbage collect done: arrays = %d\n", total_arrays);
+#endif
 }
 
 /**
