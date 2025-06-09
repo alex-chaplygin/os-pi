@@ -560,6 +560,7 @@ void free_array(array_t *a)
     a->free = 1;
     total_arrays--;
     free_region(a->data);
+    //    printf("free array %d free = %x\n", a - arrays, free_arrays);
 }
 /**
  * Пометить объект как используемый 
@@ -599,11 +600,16 @@ void mark_object(object_t obj)
 	    return;
 	GET_FLOAT(obj)->free |= mask;
     } else if (TYPE(obj) == FUNCTION) {
-        if (((GET_FUNCTION(obj)->free) & mask) != 0)
+	function_t *f = GET_FUNCTION(obj);
+        if ((f->free & mask) != 0)
 	    return;
-	mark_object(GET_FUNCTION(obj)->env);
-	mark_object(GET_FUNCTION(obj)->func_env);
-	GET_FUNCTION(obj)->free |= mask;
+	mark_object(f->env);
+	mark_object(f->func_env);
+	if (f->func == NULL) {
+	    mark_object(f->body);
+	    mark_object(f->args);
+	}
+	f->free |= mask;
     } else if (TYPE(obj) == STRING) {
         if (((GET_STRING(obj)->length) & mask) != 0)
 	    return;
@@ -782,11 +788,19 @@ void print_list(object_t obj)
 void print_array(object_t obj)
 {
     array_t *a = (array_t*)(GET_ADDR(obj));
-    for (int i = 0; i < a->length; i++) {
+    int len;
+    len = a->length;
+#ifdef VM
+    if (len > 100)
+	len = 100;
+#endif
+    for (int i = 0; i < len; i++) {
     	print_obj(a->data[i]);
     	if (i < a->length - 1)
     	    printf(" ");
     }
+    if (len < a->length)
+	printf("...");
 }
     
 /**
