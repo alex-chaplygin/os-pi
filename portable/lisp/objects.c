@@ -791,17 +791,11 @@ void print_array(object_t obj)
     array_t *a = (array_t*)(GET_ADDR(obj));
     int len;
     len = a->length;
-#ifdef VM
-    if (len > 100)
-	len = 100;
-#endif
     for (int i = 0; i < len; i++) {
     	print_obj(a->data[i]);
     	if (i < a->length - 1)
     	    printf(" ");
     }
-    if (len < a->length)
-	printf("...");
 }
     
 /**

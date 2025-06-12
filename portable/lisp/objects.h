@@ -2,7 +2,7 @@
 #define OBJECTS
 /// Всего пар
 #ifdef VM
-#define MAX_PAIRS (1024 * 1024)
+#define MAX_PAIRS (3 * 1024 * 1024)
 #else
 #define MAX_PAIRS 800000
 #endif
@@ -12,7 +12,7 @@
 #define MAX_STRINGS 20000
 /// Всего массивов
 #ifdef VM
-#define MAX_ARRAYS 2 * 1024 * 1024
+#define MAX_ARRAYS 3 * 1024 * 1024
 #else
 #define MAX_ARRAYS 400
 #endif
@@ -20,13 +20,13 @@
 #define MAX_SYM_STR 32
 /// Всего больших чисел
 #ifdef VM
-#define MAX_NUMBERS 16
+#define MAX_NUMBERS 32
 #else
 #define MAX_NUMBERS 350
 #endif
 /// Всего вещественных чисел
 #ifdef VM
-#define MAX_FLOATS 2
+#define MAX_FLOATS 128
 #else
 #define MAX_FLOATS 2000
 #endif
