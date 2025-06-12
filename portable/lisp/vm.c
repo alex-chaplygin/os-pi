@@ -17,7 +17,7 @@
 #define APPLY 37 // номер примитива apply
 #define REG_CALL 12 // операция return
 #define RETURN_OP 13 // операция return
-#define VM_THRESHOLD (1824*1024) // порог сборки мусора
+#define VM_THRESHOLD (512*1024) // порог сборки мусора
 
 //Размер памяти программы
 int program_size;
@@ -632,6 +632,7 @@ void vm_garbage_collect()
 #ifdef DEBUG
     printf("VM garbage collect done: arrays = %d\n", total_arrays);
 #endif
+    total_arrays = 0;
 }
 
 /**

@@ -5,7 +5,7 @@
 #define MEM_START 0x200000 
 /// Всего байт для регионов
 #ifdef VM
-#define MAX_REGION_SIZE 256 * 1024 * 1024
+#define MAX_REGION_SIZE 512 * 1024 * 1024
 #else
 #define MAX_REGION_SIZE 1000000000
 #endif
