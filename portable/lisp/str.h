@@ -14,5 +14,6 @@ object_t char_code(object_t code);
 object_t make_string(object_t size, object_t char_obj);
 object_t sets(object_t str, object_t index, object_t char_obj);
 object_t gensym();
+object_t PUTCHAR(object_t char_obj);
 
 void init_strings();
