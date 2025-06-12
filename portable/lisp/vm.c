@@ -66,7 +66,7 @@ struct prim {
     car , 1, cdr , 1, atom , 1, new_pair , 2, rplaca , 2, rplacd , 2,
     mod , 2, shift_left , 2, shift_right , 2, eq , 2, equal , 2, gt , 2, less , 2,
     SIN , 1, COS , 1, SQRT , 1,
-    intern , 1, symbol_name , 1, symbol_function , 1, string_size , 1, int_to_str , 1, code_char , 1, char_code , 1, putchar , 1, str_char , 2, subseq , 3,
+    intern , 1, symbol_name , 1, symbol_function , 1, string_size , 1, int_to_str , 1, code_char , 1, char_code , 1, PUTCHAR , 1, str_char , 2, subseq , 3,
     make_array , 1, make_string , 2, array_size , 1, aref , 2, seta , 3, sets , 3,
     symbolp , 1, integerp , 1, pairp , 1, functionp , 1, gensym , 0, apply , 2,
 };
