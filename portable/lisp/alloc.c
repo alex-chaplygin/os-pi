@@ -90,11 +90,16 @@ void free_region(void *data)
         rprev->size += offset + r->size;
 	rprev->next = r->next;
 	r->next->prev = rprev;
+	if (r == rover)
+	    rover = rprev;
+	r = rprev;
     }
     if (rnext != regions && rnext->free == 1) {
         r->size += offset + rnext->size;
-	rnext->next->prev = r;
         r->next = rnext->next;
+	r->next->prev = r;
+	if (rnext == rover)
+	    rover = r;
     }
 }
 
