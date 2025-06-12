@@ -86,15 +86,15 @@ void free_region(void *data)
     rprev = r->prev;
     r->free = 1;
     r->magic = 0;
-    if (rnext != regions && rnext->free == 1) {
-        r->size += offset + rnext->size;
-        r->next = rnext->next;
-	r->next->prev = r;
-    }
     if (r != regions && rprev->free == 1) {
         rprev->size += offset + r->size;
 	rprev->next = r->next;
-	rprev->next->prev = rprev;
+	r->next->prev = rprev;
+    }
+    if (rnext != regions && rnext->free == 1) {
+        r->size += offset + rnext->size;
+	rnext->next->prev = r;
+        r->next = rnext->next;
     }
 }
 
