@@ -578,6 +578,7 @@ void catch_inst()
 void throw_inst()
 {
     pop();
+    PRINT(acc_reg);
     error("THROW");
 }   
 
