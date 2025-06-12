@@ -406,6 +406,7 @@ symbol_t *new_symbol(char *str)
     symbol->next = NULL;
     symbol->value = NOVALUE;
     symbol->func = NULL;
+    symbol->free = 0;
     symbol->lambda = NULLOBJ;
     symbol->macro = NULLOBJ;
     return symbol;
@@ -618,9 +619,9 @@ void mark_object(object_t obj)
 	array_t *a = GET_ARRAY(obj);
         if (((a->length) & mask) != 0)
 	    return;
+	a->length |= mask;
 	for (int i = 0; i < a->length; i++)
 	    mark_object(a->data[i]);
-	a->length |= mask;
     } 
 }
 
