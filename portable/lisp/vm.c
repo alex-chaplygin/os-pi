@@ -12,12 +12,13 @@
 #include "str.h"
 #include "array.h"
 #include "predicates.h"
+#include "bind.h"
 
 #define FUNCALL 8 // номер примитива funcall
 #define APPLY 37 // номер примитива apply
 #define REG_CALL 12 // операция return
 #define RETURN_OP 13 // операция return
-#define VM_THRESHOLD (512*1024) // порог сборки мусора
+#define VM_THRESHOLD (1) // порог сборки мусора
 
 //Размер памяти программы
 int program_size;
@@ -610,6 +611,7 @@ void vm_garbage_collect()
     object_t *c;
     extern int total_arrays;
     extern object_t consts;
+    extern object_t static_bind[];
 #ifdef DEBUG
     printf("VM garbage collect: arrays = %d\n", total_arrays);
     //    printf("mark const\n");
@@ -618,6 +620,8 @@ void vm_garbage_collect()
     /* for (i = 0, c = const_memory; i < const_count; i++) */
     /* 	mark_object(*c++); */
     //    printf("mark globals\n");
+    for (i = 0, c = static_bind; i < last_static; i++)
+	mark_object(*c++);    
     for (i = 0, c = global_var_memory; i < global_var_count; i++)
 	mark_object(*c++);
     //    printf("mark stack\n");
