@@ -270,8 +270,9 @@ object_t print_object(object_t obj)
     while (obj != NULLOBJ) {
 	print_counter++;
 	print_obj(FIRST(obj));
-	printf(" ");
 	obj = TAIL(obj);
+	if (obj != NULLOBJ)
+	    printf(" ");
     }
     printf("\n");
     return NULLOBJ;
