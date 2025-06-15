@@ -1,7 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include "objects.h"
-
 #define STACK_SIZE (1024 * 64)
 #define FRAME_SIZE 1024
 #define MAX_LOCAL_ARGS 16

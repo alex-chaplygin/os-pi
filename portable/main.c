@@ -20,6 +20,7 @@
 #include <portable/keyboard.h>
 #include <portable/syslib.h>
 #include <bind.h>
+#include <vm.h>
 
 /// Адрес начала секции .lisp
 const void *_lisp_start;
@@ -43,6 +44,21 @@ void boot_lisp()
 #ifdef REPL
     printf("boot = %x\n", &_lisp_start);
 #endif
+#ifdef VM
+    int prog_size = get_value(parse());
+    int *prog = alloc_region(prog_size * sizeof(int));
+    int *p = prog;
+    for (int i = 0; i < prog_size; i++)
+	*p++ = get_value(parse());
+    consts = parse();
+    array_t *const_a = GET_ARRAY(consts);
+    int num_vars = get_value(parse());
+    vm_init(prog, prog_size, const_a->data, const_a->length, num_vars);
+    if (setjmp(repl_buf) == 0)
+	vm_run();
+    else
+	;
+#else    
     if (setjmp(repl_buf) == 0) {
 	do {
 	    object_t o = parse();
@@ -62,6 +78,7 @@ void boot_lisp()
     reset_buffer();
 #ifdef REPL    
     print_gc_stat(1);
+#endif
 #endif
 }
 
