@@ -634,28 +634,28 @@ object_t call_form(func0_t f, object_t args, int nary, int args_count, int count
 	case 0:
 	    return f();
 	case 1:
-	    return (func1_t)f(FIRST(args));
+	    return ((func1_t)f)(FIRST(args));
 	case 2:
-	    return (func2_t)f(FIRST(args), SECOND(args));
+	    return ((func2_t)f)(FIRST(args), SECOND(args));
 	case 3:
-	    return (func3_t)f(FIRST(args), SECOND(args), THIRD(args));
+	    return ((func3_t)f)(FIRST(args), SECOND(args), THIRD(args));
 	case 4:
-	    return (func4_t)f(FIRST(args), SECOND(args), THIRD(args), TAIL(args));
+	    return ((func4_t)f)(FIRST(args), SECOND(args), THIRD(args), TAIL(args));
 	default:
 	    error("call form with %d arguments", args_count);	
 	}
     else
 	switch (count) {
 	case 0:
-	    return (func1_t)f(args);
+	    return ((func1_t)f)(args);
 	case 1:
-	    return (func2_t)f(FIRST(args), TAIL(args));
+	    return ((func2_t)f)(FIRST(args), TAIL(args));
 	case 2:
-	    return (func3_t)f(FIRST(args), SECOND(args), TAIL(TAIL(args)));
+	    return ((func3_t)f)(FIRST(args), SECOND(args), TAIL(TAIL(args)));
 	case 3:
-	    return (func4_t)f(FIRST(args), SECOND(args), THIRD(args), TAIL(TAIL(TAIL(args))));
+	    return ((func4_t)f)(FIRST(args), SECOND(args), THIRD(args), TAIL(TAIL(TAIL(args))));
 	case 4:
-	    return (func5_t)f(FIRST(args), SECOND(args), THIRD(args), THIRD(TAIL(args)), TAIL(TAIL(TAIL(TAIL(args)))));
+	    return ((func5_t)f)(FIRST(args), SECOND(args), THIRD(args), THIRD(TAIL(args)), TAIL(TAIL(TAIL(TAIL(args)))));
 	default:
 	    error("call nary form with %d arguments", count);
 	} 
