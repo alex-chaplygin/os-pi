@@ -228,6 +228,7 @@ object_t make_string(object_t size, object_t char_obj)
     char *buf = alloc_region(count + 1);
     for (int i = 0; i < count; i++)
 	buf[i] = c;
+    buf[count] = 0;
     object_t str = NEW_STRING(buf);
     free_region(buf);
     return str;
