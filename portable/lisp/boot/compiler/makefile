@@ -12,7 +12,7 @@ test: $(COMPILER) ../test.lsp vm.lsp test.lsp
 	make -C ../../test /tmp/lisp
 	cat $^ | /tmp/lisp
 
-.PHONY: target compile
+.PHONY: target compile compiler
 $(TARGET): $(SOURCE)
 	make target
 
@@ -26,8 +26,18 @@ compile-file: $(COMPILER) $(TARGET)
 	make -C ../../test /tmp/lisp
 	cat $^ | /tmp/lisp | sed -e "s/^(T/#(T/" | tr '\n' ' ' >/tmp/bin
 
-compile: $(TARGET)
+compile-test: $(TARGET)
+	make -C ../../test /tmp/test_comp
 	cat $(SOURCE) > $(TARGET) 
 	./compile
 	/tmp/test_comp </tmp/bin | sed -e "s/^(T/#(T/" | tr '\n' ' ' >/tmp/res
 	/tmp/test_comp </tmp/res
+
+compiler: $(COMPILER)
+	make -C ../../test /tmp/test_comp
+	cat $^ >$(TARGET)
+	echo "(print (catch 'compiler (let ((comp (compile '(progn" >>$(TARGET)
+	echo "*TARGET*" >>$(TARGET)
+	echo ")))) (let* ((gen (assemble (generate comp))) (s (-- (array-size gen)))) (print s) (for i 0 s (print (aref gen i)))) *consts*))) (print *global-variables-count*)" >>$(TARGET)
+	./compile
+	/tmp/test_comp </tmp/bin | sed -e "s/^(T/#(T/" | tr '\n' ' ' >/tmp/comp
