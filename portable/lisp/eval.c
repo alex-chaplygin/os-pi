@@ -806,11 +806,13 @@ object_t setq(object_t params)
  * @return возвращает результат выполнения функции 
  */ 
 object_t funcall(object_t fun, object_t args) 
-{ 
+{
+    if (TYPE(fun) != FUNCTION)
+	error("funcall: not function");
     function_t *f = GET_FUNCTION(fun);
-    if (f->func != NULL) 
- 	return f->func(args);
-    else 
+    if (f->func != NULL) {
+ 	return call_form(f->func, args, f->nary, list_length(args), f->count);
+    } else 
 	return eval_func(new_pair(NEW_SYMBOL("LAMBDA"), new_pair(f->args, f->body)), args, f->env, f->func_env); 
 } 
 
@@ -819,19 +821,9 @@ object_t funcall(object_t fun, object_t args)
  * @param param параметры (функция <список аргументов>)
  * @return возвращает результат выполнения функции 
  */ 
-object_t apply(object_t params) 
-{ 
-    if (params == NULLOBJ)
-	error("apply: no arguments"); 
-    object_t func = FIRST(params); 
-    if (func == NULLOBJ || TYPE(func) != FUNCTION)
-	error("apply: invalid func"); 
-    object_t args = SECOND(params);
-    function_t *f = GET_FUNCTION(func);
-    if (f->func != NULL) 
- 	return f->func(args);
-    else 
-	return eval_func(new_pair(NEW_SYMBOL("LAMBDA"), new_pair(f->args, f->body)), args, f->env, f->func_env); 
+object_t apply(object_t fun, object_t args) 
+{
+    return funcall(fun, args);
 } 
 
 /* 
@@ -968,23 +960,37 @@ object_t throw(object_t tag, object_t res)
  * Определяет локальные функции (могут быть рекурсивными) и выполняет формы
  * Список функций - (функция 1 ... функция n)
  * Функция - (имя параметры тело)
- * @param param (<список функций> <форма1> .. <форма n>)
+ * @param forms <список функций>
+ * @param body (<форма1> .. <форма n>)
  *
  * @return значение последней формы
  */
-object_t labels(object_t param, object_t forms) 
-{ 
-    
-    
+object_t labels(object_t forms, object_t body) 
+{
+    int rest;
+    symbol_t *name;
+    object_t first;
+    object_t list;
     object_t oldf = func_env;
     while (forms != NULLOBJ) {
-        object_t first = FIRST(forms);
+        first = FIRST(forms);
         if (TYPE(first) != PAIR || TYPE(SECOND(first)) != PAIR)
             error("labels: invalid function");
         func_env = new_pair(new_pair(FIRST(first), new_pair(NEW_SYMBOL("LAMBDA"), TAIL(first))), func_env);
+	name = GET_SYMBOL(FIRST(first));
+	list = SECOND(first);
+	rest = list_contains(list, rest_sym);
+	if (rest == -1) {
+	    name->nary = 0;
+	    name->count = list_length(list);
+	}
+	else {
+	    name->nary = 1;
+	    name->count = rest;
+	}
 	forms = TAIL(forms);
     }
-    object_t res = progn(TAIL(param));
+    object_t res = progn(body);
     func_env = oldf;
     return res;
 }
