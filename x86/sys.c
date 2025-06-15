@@ -23,11 +23,11 @@
  *
  * @return значение регистра из порта
  */
-object_t INB(object_t args)
+object_t INB(object_t port)
 {
-    if (args == NULLOBJ || TYPE(args) != PAIR)
+    if (TYPE(port) != NUMBER)
 	error("INB: port\n");
-    int val = inb(get_value(FIRST(args)));
+    int val = inb(get_value(port));
     return new_number(val);
 }
 
@@ -38,11 +38,11 @@ object_t INB(object_t args)
  *
  * @return значение регистра из порта
  */
-object_t INW(object_t args)
+object_t INW(object_t port)
 {
-    if (args == NULLOBJ || TYPE(args) != PAIR)
+    if (TYPE(port) != NUMBER)
 	error("INW: port\n");
-    int val = inw(get_value(FIRST(args)));
+    int val = inw(get_value(port));
     return new_number(val);
 }
 
@@ -53,11 +53,11 @@ object_t INW(object_t args)
  *
  * @return nil
  */
-object_t OUTB(object_t args)
+object_t OUTB(object_t port, object_t val)
 {
-    if (args == NULLOBJ || TYPE(args) != PAIR || GET_PAIR(args)->right == NULLOBJ)
+    if (TYPE(port) != NUMBER || TYPE(val) != NUMBER)
 	error("OUTB: port val\n");
-    outb(get_value(FIRST(args)), get_value(SECOND(args)));
+    outb(get_value(port), get_value(val));
     return NULLOBJ;
 }
 
@@ -68,11 +68,11 @@ object_t OUTB(object_t args)
  *
  * @return nil
  */
-object_t OUTW(object_t args)
+object_t OUTW(object_t port, object_t val)
 {
-    if (args == NULLOBJ || TYPE(args) != PAIR || GET_PAIR(args)->right == NULLOBJ)
+    if (TYPE(port) != NUMBER || TYPE(val) != NUMBER)
 	error("OUTW: port val\n");
-    outw(get_value(FIRST(args)), get_value(SECOND(args)));
+    outw(get_value(port), get_value(val));
     return NULLOBJ;
 }
 
@@ -83,11 +83,11 @@ object_t OUTW(object_t args)
  *
  * @return значение регистра из порта
  */
-object_t INDW(object_t args)
+object_t INDW(object_t port)
 {
-    if (args == NULLOBJ || TYPE(args) != PAIR)
+    if (TYPE(port) != NUMBER)
 	error("INDW: port\n");
-    int val = indw(get_value(FIRST(args)));
+    int val = indw(get_value(port));
     return new_number(val);
 }
 
@@ -98,11 +98,11 @@ object_t INDW(object_t args)
  *
  * @return nil
  */
-object_t OUTDW(object_t args)
+object_t OUTDW(object_t port, object_t val)
 {
-    if (args == NULLOBJ || TYPE(args) != PAIR || GET_PAIR(args)->right == NULLOBJ)
+    if (TYPE(port) != NUMBER || TYPE(val) != NUMBER)
 	error("OUTDW: port val\n");
-    outdw(get_value(FIRST(args)), get_value(SECOND(args)));
+    outdw(get_value(port), get_value(val));
     return NULLOBJ;
 }
 
@@ -113,12 +113,12 @@ object_t OUTDW(object_t args)
  *
  * @return объект массив
  */
-object_t INSW(object_t args)
+object_t INSW(object_t p, object_t s)
 {
-    if (args == NULLOBJ || TYPE(args) != PAIR)
-	error("INSW: port\n");
-    int port = get_value(FIRST(args));
-    int size = get_value(SECOND(args));
+    if (TYPE(p) != NUMBER || TYPE(s) != NUMBER)
+	error("INSW: port size\n");
+    int port = get_value(p);
+    int size = get_value(s);
     byte *buf = alloc_region(size * sizeof(short));
     inw_arr(port, size, buf);
     size <<= 1;
@@ -140,12 +140,12 @@ object_t INSW(object_t args)
  *
  * @return nil
  */
-object_t OUTSW(object_t args)
+object_t OUTSW(object_t p, object_t arr)
 {
-    if (args == NULLOBJ || TYPE(args) != PAIR || GET_PAIR(args)->right == NULLOBJ)
+    if (TYPE(p) != NUMBER || TYPE(arr) != NUMBER)
 	error("OUTSW: port val\n");
-    int port = get_value(FIRST(args));
-    array_t *a = GET_ARRAY(SECOND(args));
+    int port = get_value(p);
+    array_t *a = GET_ARRAY(arr);
     byte *buf = alloc_region(a->length);
     byte *dst = buf;
     object_t *src = a->data;
@@ -163,12 +163,8 @@ object_t OUTSW(object_t args)
  *
  * @return nil
  */
-object_t SET_CURSOR(object_t args)
+object_t SET_CURSOR(object_t x, object_t y)
 {
-    if (args == NULLOBJ || TAIL(args) == NULLOBJ || TAIL(TAIL(args)) != NULLOBJ)
-	error("SET-CURSOR: x y\n");
-    object_t x = FIRST(args);
-    object_t y = SECOND(args);
     if (TYPE(x) != NUMBER || TYPE(y) != NUMBER)
 	error("SET-CURSOR: not number\n");
     set_cursor(get_value(x), get_value(y));
@@ -182,11 +178,8 @@ object_t SET_CURSOR(object_t args)
  *
  * @return nil
  */
-object_t SET_COLOR(object_t args)
+object_t SET_COLOR(object_t col)
 {
-    if (args == NULLOBJ || TAIL(args) != NULLOBJ)
-	error("SET-COLOR: char\n");
-    object_t col = FIRST(args);
     if (TYPE(col) != NUMBER)
 	error("SET-COLOR: not number\n");
     int c = get_value(col);
@@ -203,11 +196,8 @@ object_t SET_COLOR(object_t args)
  *
  * @return nil
  */
-object_t SET_BACK_COLOR(object_t args)
+object_t SET_BACK_COLOR(object_t col)
 {
-    if (args == NULLOBJ || TAIL(args) != NULLOBJ)
-	error("SET_BACK_COLOR: char\n");
-    object_t col = FIRST(args);
     if (TYPE(col) != NUMBER)
 	error("SET_BACK_COLOR: not number\n");
     int c = get_value(col);
@@ -224,10 +214,8 @@ object_t SET_BACK_COLOR(object_t args)
  *
  * @return nil 
  */
-object_t HIDE_CURSOR(object_t args)
+object_t HIDE_CURSOR()
 {
-     if (args != NULLOBJ)
-	error("HIDE_CURSOR: invalid params\n");
      disable_cursor();
      return NULLOBJ;
 }
@@ -239,10 +227,8 @@ object_t HIDE_CURSOR(object_t args)
  *
  * @return nil 
  */
-object_t SHOW_CURSOR(object_t args)
+object_t SHOW_CURSOR()
 {
-     if (args != NULLOBJ)
-	error("SHOW_CURSOR: invalid params\n");
      enable_cursor(15, 0xFF);
      return NULLOBJ;
 }
@@ -254,11 +240,11 @@ object_t SHOW_CURSOR(object_t args)
  *
  * @return nil 
  */
-object_t SET_INT_HANDLER(object_t args)
+object_t SET_INT_HANDLER(object_t irq, object_t fun)
 {
-     if (args == NULLOBJ)
+    if (TYPE(irq) != NUMBER || TYPE(fun) != FUNCTION)
 	error("SET-INT-HANDLER: invalid params\n");
-     set_int_handler(get_value(FIRST(args)), SECOND(args));
+     set_int_handler(irq, fun);
      return NULLOBJ;
 }
 
@@ -267,18 +253,18 @@ object_t SET_INT_HANDLER(object_t args)
  */
 void init_sys()
 {
-    register_func("INB", INB);
-    register_func("OUTB", OUTB);
-    register_func("INW", INW);
-    register_func("OUTW", OUTW);
-    register_func("INDW", INDW);
-    register_func("OUTDW", OUTDW);
-    register_func("INSW", INSW);
-    register_func("OUTSW", OUTSW);
-    register_func("SET-CURSOR", SET_CURSOR);
-    register_func("SET-COLOR", SET_COLOR);
-    register_func("SET-BACK-COLOR", SET_BACK_COLOR);
-    register_func("HIDE-CURSOR", HIDE_CURSOR);
-    register_func("SHOW-CURSOR", SHOW_CURSOR);
-    register_func("SET-INT-HANDLER", SET_INT_HANDLER);
+    register_func("INB", INB, 0, 1);
+    register_func("OUTB", OUTB, 0, 2);
+    register_func("INW", INW, 0, 1);
+    register_func("OUTW", OUTW, 0, 2);
+    register_func("INDW", INDW, 0, 1);
+    register_func("OUTDW", OUTDW, 0, 2);
+    register_func("INSW", INSW, 0, 1);
+    register_func("OUTSW", OUTSW, 0, 2);
+    register_func("SET-CURSOR", SET_CURSOR, 0, 2);
+    register_func("SET-COLOR", SET_COLOR, 0, 1);
+    register_func("SET-BACK-COLOR", SET_BACK_COLOR, 0, 1);
+    register_func("HIDE-CURSOR", HIDE_CURSOR, 0, 0);
+    register_func("SHOW-CURSOR", SHOW_CURSOR, 0, 0);
+    register_func("SET-INT-HANDLER", SET_INT_HANDLER, 0, 2);
 }
