@@ -315,7 +315,7 @@ void init_strings()
     register_func("SYMBOL-NAME", symbol_name, 0, 1);
     register_func("SYMBOL-FUNCTION", symbol_function, 0, 1);
     register_func("STRING-SIZE", string_size, 0, 1);
-    register_func("CHAR", str_char, 0, 1);
+    register_func("CHAR", str_char, 0, 2);
     register_func("SUBSEQ", subseq, 0, 3);
     register_func("MAKE-STRING", make_string, 0, 2);
     register_func("SETS", sets, 0, 3);
