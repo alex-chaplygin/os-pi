@@ -581,11 +581,12 @@ void mark_object(object_t obj)
 	return;
     int mask = 1 << 31;
     if (TYPE(obj) == PAIR) {
-	if (GET_MARK(GET_PAIR(obj)->left) == 1)
+	pair_t *p = GET_PAIR(obj);
+	if (GET_MARK(p->left) == 1)
 	    return;
-	SET_MARK(GET_PAIR(obj)->left);
-	mark_object(GET_PAIR(obj)->left);
-	mark_object(GET_PAIR(obj)->right);
+	SET_MARK(p->left);
+	mark_object(p->left);
+	mark_object(p->right);
     } else if (TYPE(obj) == SYMBOL) {
        symbol_t *s = GET_SYMBOL(obj);
        s->hash_index |= mask;
@@ -593,13 +594,15 @@ void mark_object(object_t obj)
        mark_object(s->lambda);
        mark_object(s->macro);
     } else if (TYPE(obj) == BIGNUMBER) {
-	if (((GET_BIGNUMBER(obj)->free) & mask) != 0)
+	bignumber_t *b = GET_BIGNUMBER(obj);
+	if (((b->free) & mask) != 0)
 	    return;
-	GET_BIGNUMBER(obj)->free |= mask;
+	b->free |= mask;
     } else if (TYPE(obj) == FLOAT) {
-	if (((GET_FLOAT(obj)->free) & mask) != 0)
+	float_t *f = GET_FLOAT(obj);
+	if (((f->free) & mask) != 0)
 	    return;
-	GET_FLOAT(obj)->free |= mask;
+	f->free |= mask;
     } else if (TYPE(obj) == FUNCTION) {
 	function_t *f = GET_FUNCTION(obj);
         if ((f->free & mask) != 0)
@@ -612,16 +615,17 @@ void mark_object(object_t obj)
 	}
 	f->free |= mask;
     } else if (TYPE(obj) == STRING) {
-        if (((GET_STRING(obj)->length) & mask) != 0)
+	string_t *s = GET_STRING(obj);
+        if (((s->length) & mask) != 0)
 	    return;
-	GET_STRING(obj)->length |= mask;
+	s->length |= mask;
     } else if (TYPE(obj) == ARRAY) {
 	array_t *a = GET_ARRAY(obj);
         if (((a->length) & mask) != 0)
 	    return;
-	a->length |= mask;
 	for (int i = 0; i < a->length; i++)
 	    mark_object(a->data[i]);
+	a->length |= mask;
     } 
 }
 
@@ -631,44 +635,45 @@ void mark_object(object_t obj)
 void sweep()
 {
     int mask = 1 << 31;
-    for (int i = 0; i < last_bignumber; i++) {
-        bignumber_t *big_num = &bignumbers[i];
+    bignumber_t *big_num = bignumbers;
+    for (int i = 0; i < last_bignumber; i++, big_num++) {
         if ((big_num->free & mask) == 0)
 	    free_bignumber(big_num);
-	else big_num->free &= ~mask;
+	else
+	    big_num->free &= ~mask;
     }
-    for (int i = 0; i < last_float; i++) {
-	float_t *flt = &floats[i];
+    float_t *flt = floats;
+    for (int i = 0; i < last_float; i++, flt++) {
 	if ((flt->free & mask) == 0)
 	    free_float(flt);
 	else flt->free &= ~mask;
     }
-    for (int i = 0; i < last_function; i++) {
-	function_t *func = &functions[i];
+    function_t *func = functions;
+    for (int i = 0; i < last_function; i++, func++) {
 	if ((func->free & mask) == 0)
 	    free_function(func);
 	else func->free &= ~mask;
     }
-    for (int i = 0; i < last_pair; i++) {
-        pair_t *pair = &pairs[i];
+    pair_t *pair = pairs;
+    for (int i = 0; i < last_pair; i++, pair++) {
 	if (GET_MARK(pair->left) != 1)
 	    free_pair(pair);
 	else CLEAR_MARK(pair->left);
     }
-    for (int i = 0; i < last_string; i++) {
-	string_t *str = &strings[i];
+    string_t *str = strings;
+    for (int i = 0; i < last_string; i++, str++) {
 	if ((str->length & mask) == 0)
 	    free_string(str);
 	else str->length &= ~mask;
     }
-    for (int i = 0; i < last_array; i++) {
-	array_t *arr = &arrays[i];
+    array_t *arr = arrays;
+    for (int i = 0; i < last_array; i++, arr++) {
 	if ((arr->length & mask) == 0)
 	    free_array(arr);
 	else arr->length &= ~mask;
     }
-    for (int i = 0; i < last_symbol; i++) {
-       symbol_t *symb = &symbols[i];
+    symbol_t *symb = symbols;
+    for (int i = 0; i < last_symbol; i++, symb++) {
        if ((symb->hash_index & mask) == 0)
            free_symbol(symb);
        else
@@ -709,18 +714,20 @@ object_t dump_mem(object_t args)
     printf("strings: ");
     for (int i = 0; i < last_string; i++) {
     	string_t *str = &strings[i];
-    	printf("%d %d %s,", str->free, str->length, str->data);
+    	printf("%d %d %s\n,", str->free, str->length, str->data);
     }
     printf("\narrays: ");
     for (int i = 0; i < last_array; i++) {
     	array_t *arr = &arrays[i];
+	printf("num: %d\n", i);
     	printf("free: %d\n", arr->free);
     	printf("length: %d\n", arr->length);
     	printf("data: ");
-    	for (int j = 0; j < arr->length; j++) {
-    	    print_obj(arr->data[j]);
-    	    printf(" ");
-    	}
+	if (!arr->free)
+	    for (int j = 0; j < arr->length; j++) {
+		print_obj(arr->data[j]);
+		printf(" ");
+	    }
     	printf("-----------\n");
     }
     printf("symbols: ");
@@ -824,7 +831,7 @@ void print_obj(object_t obj)
     else if (TYPE(obj) == FLOAT)
 	printf("%f", (GET_FLOAT(obj))->value);
     else if (TYPE(obj) == STRING)
- 	printf("\"%s\"", ((string_t *)GET_ADDR(obj))->data);
+ 	printf("\"%s\"", GET_STRING(obj)->data);
     else if (TYPE(obj) == SYMBOL)
  	printf("%s", ((symbol_t *)GET_ADDR(obj))->str);
     else if (TYPE(obj) == CHAR) 
