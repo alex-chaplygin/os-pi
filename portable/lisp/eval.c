@@ -640,7 +640,9 @@ object_t call_form(func0_t f, object_t args, int nary, int args_count, int count
 	case 3:
 	    return ((func3_t)f)(FIRST(args), SECOND(args), THIRD(args));
 	case 4:
-	    return ((func4_t)f)(FIRST(args), SECOND(args), THIRD(args), TAIL(args));
+	    return ((func4_t)f)(FIRST(args), SECOND(args), THIRD(args), THIRD(TAIL(args)));
+	case 5:
+	    return ((func5_t)f)(FIRST(args), SECOND(args), THIRD(args), THIRD(TAIL(args)), THIRD(TAIL(TAIL(args))));
 	default:
 	    error("call form with %d arguments", args_count);	
 	}
