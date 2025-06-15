@@ -259,7 +259,7 @@ void init_sys()
     register_func("OUTW", OUTW, 0, 2);
     register_func("INDW", INDW, 0, 1);
     register_func("OUTDW", OUTDW, 0, 2);
-    register_func("INSW", INSW, 0, 1);
+    register_func("INSW", INSW, 0, 2);
     register_func("OUTSW", OUTSW, 0, 2);
     register_func("SET-CURSOR", SET_CURSOR, 0, 2);
     register_func("SET-COLOR", SET_COLOR, 0, 1);

@@ -35,13 +35,13 @@ object_t graph_send_buffer(object_t params)
  * 
  * @param params - (буфер, координаты x,y копируемой области, ширина и высота копируемой области )
  */
-object_t send_text_buffer(object_t params)
+object_t send_text_buffer(object_t bb, object_t xx, object_t yy, object_t ww, object_t hh)
 {
-    array_t *buf = GET_ARRAY(FIRST(params));
-    int x = get_value(SECOND(params));
-    int y = get_value(THIRD(params));
-    int w = 2 * get_value(FIRST(TAIL(TAIL(TAIL(params)))));
-    int h = get_value(SECOND(TAIL(TAIL(TAIL(params)))));
+    array_t *buf = GET_ARRAY(bb);
+    int x = get_value(xx);
+    int y = get_value(yy);
+    int w = get_value(ww);
+    int h = get_value(hh);
     byte b[TEXT_BUF_WIDTH];
     byte *bp;
 
@@ -63,13 +63,13 @@ object_t send_text_buffer(object_t params)
  * 
  * @param params - (буфер, координаты x,y копируемой области, ширина и высота копируемой области )
  */
-object_t send_graphics_buffer(object_t params)
+object_t send_graphics_buffer(object_t bb, object_t xx, object_t yy, object_t ww, object_t hh)
 {
-    array_t *buf = GET_ARRAY(FIRST(params));
-    int x = get_value(SECOND(params));
-    int y = get_value(THIRD(params));
-    int w = get_value(FIRST(TAIL(TAIL(TAIL(params)))));
-    int h = get_value(SECOND(TAIL(TAIL(TAIL(params)))));
+    array_t *buf = GET_ARRAY(bb);
+    int x = get_value(xx);
+    int y = get_value(yy);
+    int w = get_value(ww);
+    int h = get_value(hh);
     byte b[GRAPHIC_BUF_WIDTH];
     byte *bp;
 
@@ -88,9 +88,9 @@ object_t send_graphics_buffer(object_t params)
 
 void graph_init()
 {
-    register_func("GRAPH-SEND-BUFFER", graph_send_buffer);
-    register_func("SEND-TEXT-BUFFER", send_text_buffer);
-    register_func("SEND-GRAPHICS-BUFFER", send_graphics_buffer);
+    // register_func("GRAPH-SEND-BUFFER", graph_send_buffer);
+    register_func("SEND-TEXT-BUFFER", send_text_buffer, 0, 5);
+    register_func("SEND-GRAPHICS-BUFFER", send_graphics_buffer, 0, 5);
 
 }
 
