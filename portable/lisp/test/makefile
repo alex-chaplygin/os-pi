@@ -1,5 +1,5 @@
 SHELL=bash
-CFLAGS=-DX32 -I. -I../ -I../../../include -O3 -g -Wno-pointer-to-int-cast -Wno-int-to-pointer-cast -Wno-int-conversion
+CFLAGS=-O3 -I. -I../ -I../../../include -g -Wno-pointer-to-int-cast -Wno-int-to-pointer-cast -Wno-int-conversion #--coverage
 LDFLAGS=-lgcov -lm
 TESTS=/tmp/test_lexer /tmp/test_symbols /tmp/test_objects /tmp/test_parser /tmp/test_eval_int /tmp/test_arrays /tmp/test_arith /tmp/test_str_int /tmp/test_pair /tmp/test_mpa
 PROFILE=/tmp/baselisp.lsp
