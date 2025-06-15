@@ -18,7 +18,7 @@
 #define APPLY 37 // номер примитива apply
 #define REG_CALL 12 // операция return
 #define RETURN_OP 13 // операция return
-#define VM_THRESHOLD (1) // порог сборки мусора
+#define VM_THRESHOLD (2 * 1024 * 1024) // порог сборки мусора
 
 //Размер памяти программы
 int program_size;
@@ -432,6 +432,7 @@ void restore_frame_inst()
  */
 void vm_apply(object_t fun, object_t args)
 {
+    extern int total_arrays;
     int calls = 1;
     if (TYPE(fun) != FUNCTION)
 	error("vm_apply: not function\n");
@@ -451,6 +452,8 @@ void vm_apply(object_t fun, object_t args)
     alloc(c);
     call(program_memory + (f->body >> MARK_BIT));
     do {
+	if (total_arrays >= VM_THRESHOLD)
+	    vm_garbage_collect();
 	c = fetch();
 	if (c == REG_CALL)
 	    calls++;
@@ -617,16 +620,12 @@ void vm_garbage_collect()
     //    printf("mark const\n");
 #endif
     mark_object(consts);
-    /* for (i = 0, c = const_memory; i < const_count; i++) */
-    /* 	mark_object(*c++); */
-    //    printf("mark globals\n");
     for (i = 0, c = static_bind; i < last_static; i++)
 	mark_object(*c++);    
     for (i = 0, c = global_var_memory; i < global_var_count; i++)
 	mark_object(*c++);
     //    printf("mark stack\n");
     for (i = stack_top - stack + 1, c = stack_top + 1; i < STACK_SIZE; i++)
-    //    for (c = stack_top; c < stack + STACK_SIZE;)
 	mark_object(*c++);
     //    printf("mark registers\n");
     mark_object(acc_reg);
@@ -654,7 +653,7 @@ void vm_run()
 #endif
 	instructions[fetch()]();
 #ifdef DEBUG    
-	//	vm_dump();
+	vm_dump();
 #endif
     }
 }

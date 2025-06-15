@@ -2,7 +2,7 @@
 #define OBJECTS
 /// Всего пар
 #ifdef VM
-#define MAX_PAIRS (3 * 1024 * 1024)
+#define MAX_PAIRS (4 * 1024 * 1024)
 #else
 #define MAX_PAIRS 800000
 #endif
