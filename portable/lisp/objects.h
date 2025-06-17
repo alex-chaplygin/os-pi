@@ -26,7 +26,7 @@
 #endif
 /// Всего вещественных чисел
 #ifdef VM
-#define MAX_FLOATS 128
+#define MAX_FLOATS 10*1024
 #else
 #define MAX_FLOATS 2000
 #endif
