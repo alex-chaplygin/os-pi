@@ -11,10 +11,10 @@ $(SUBDIRS):
 .PHONY:	/bin/kernel $(SUBDIRS)
 
 run: bin/kernel
-	qemu-system-i386 -hda disk.qcow2 -kernel bin/kernel
+	qemu-system-i386 -m 512M -hda disk.qcow2 -kernel bin/kernel
 
 debug:
-	qemu-system-i386 -hda test.img -kernel bin/kernel -s -S
+	qemu-system-i386 -m 512M -hda test.img -kernel bin/kernel -s -S
 clean:
 	rm bin/kernel portable/*.o portable/lisp/*.o x86/*.o
 tags:
