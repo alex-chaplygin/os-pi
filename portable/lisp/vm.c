@@ -13,6 +13,10 @@
 #include "array.h"
 #include "predicates.h"
 #include "bind.h"
+#include "arith.h"
+#ifdef OS
+#include "../../include/x86/sys.h"
+#endif
 
 #define FUNCALL 8 // номер примитива funcall
 #define APPLY 37 // номер примитива apply
@@ -70,6 +74,25 @@ struct prim {
     intern , 1, symbol_name , 1, symbol_function , 1, string_size , 1, int_to_str , 1, code_char , 1, char_code , 1, PUTCHAR , 1, str_char , 2, subseq , 3,
     make_array , 1, make_string , 2, array_size , 1, aref , 2, seta , 3, sets , 3,
     symbolp , 1, integerp , 1, pairp , 1, functionp , 1, gensym , 0, apply , 2,
+    ROUND, 1,
+#ifdef OS
+    INB, 1,
+    INW, 1,
+    INDW, 1,
+    INSW, 2,
+    OUTB, 2,
+    OUTW, 2,
+    OUTDW, 2,
+    OUTSW, 2,
+    SET_CURSOR, 2,
+    SET_COLOR, 1,
+    SET_BACK_COLOR, 1,
+    HIDE_CURSOR, 0,
+    SHOW_CURSOR, 0,
+    SET_INT_HANDLER, 2,
+    send_text_buffer, 5,
+    send_graphics_buffer, 5,    
+#endif
 };
 
 void (*instructions[])() =
@@ -463,8 +486,8 @@ void vm_apply(object_t fun, object_t args)
 	printf("%d: ", pc_reg - program_memory);
 #endif
 	instructions[c]();
-#ifdef DEBUG    
-	//	vm_dump();
+#ifdef BIGDEBUG    
+	vm_dump();
 #endif
     } while (calls != 0);
     frame_reg = pop();
@@ -476,7 +499,7 @@ void vm_apply(object_t fun, object_t args)
 void prim_inst()
 {
     int n = fetch();
-    object_t arg1, arg2, arg3;
+    object_t arg1, arg2, arg3, arg4, arg5;
 #ifdef DEBUG
     printf("PRIM %d ", n);
 #endif
@@ -502,6 +525,14 @@ void prim_inst()
 	    arg2 = pop();
 	    arg1 = pop();
 	    acc_reg = ((func3_t)pr->func)(arg1, arg2, arg3);
+	    break;
+	case 5:
+	    arg5 = pop();
+	    arg4 = pop();
+	    arg3 = pop();
+	    arg2 = pop();
+	    arg1 = pop();
+	    acc_reg = ((func5_t)pr->func)(arg1, arg2, arg3, arg4, arg5);
 	    break;
 	default:
 	    printf("primitive with %d arguments", pr->args_count);
@@ -652,7 +683,7 @@ void vm_run()
 	printf("%d: ", pc_reg - program_memory);
 #endif
 	instructions[fetch()]();
-#ifdef DEBUG    
+#ifdef BIGDEBUG    
 	vm_dump();
 #endif
     }

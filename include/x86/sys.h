@@ -1,0 +1,16 @@
+object_t INB(object_t port);
+object_t INW(object_t port);
+object_t OUTB(object_t port, object_t val);
+object_t OUTW(object_t port, object_t val);
+object_t INDW(object_t port);
+object_t OUTDW(object_t port, object_t val);
+object_t INSW(object_t p, object_t s);
+object_t OUTSW(object_t p, object_t arr);
+object_t SET_CURSOR(object_t x, object_t y);
+object_t SET_COLOR(object_t col);
+object_t SET_BACK_COLOR(object_t col);
+object_t HIDE_CURSOR();
+object_t SHOW_CURSOR();
+object_t SET_INT_HANDLER(object_t irq, object_t fun);
+object_t send_text_buffer(object_t bb, object_t xx, object_t yy, object_t ww, object_t hh);
+object_t send_graphics_buffer(object_t bb, object_t xx, object_t yy, object_t ww, object_t hh);

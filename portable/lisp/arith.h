@@ -14,4 +14,5 @@ object_t equal(object_t obj1, object_t obj2);
 object_t SIN(object_t obj1);
 object_t COS(object_t obj1);
 object_t SQRT(object_t obj1);
+object_t ROUND(object_t obj1);
 void init_arith();
