@@ -1,5 +1,7 @@
 (defvar *hlist*) ;список горизонталей для теста fill-triangle
 
+(defun add-to-redraw-rect (x1 y1 x2 y2) nil)
+
 (defun test-next-x (x1 y1 x2 y2 res-list)
   "Тестирование поиска пересечения горизонталью ребра"
   (let ((e (make-Edge x1 y1 y2 (- x2 x1) (- y2 y1) 0))

@@ -1,7 +1,5 @@
-(defvar *screen-width*) ; ширина экрана
-(defvar *screen-height*) ; высота экрана
 (defvar +screen-depth+ 8) ; число бит на пиксель
-(defvar *graphics-buffer*) ; внутренний буфер пикселей
+(defvar *draw-bottom-right*) ;Координаты правого нижнего угла перерисовываемой области
 
 (defclass Edge ()
   (cur-x ; текущее пересечение (начало ребра)
@@ -26,7 +24,7 @@
   (let ((size (* *screen-height* *screen-width*)))
     (for i 0 size
 	 (seta *graphics-buffer* i 0)))
-  (graph-send-buffer *graphics-buffer*))
+  (send-graphics-buffer *graphics-buffer* 0 0 *screen-width* *screen-height*))
 
 (defun init-screen (w h)
   "Инициализация экрана с разрешением w на h"
@@ -209,16 +207,16 @@
 	(set-pixel (round (car curve-point)) (round (cdr curve-point)) colour))
       (setq ti (+ ti step)))))
 
-(defun draw-image (image)
-  "Вывод изображения в позиции матрицы трансформации"
-  (let* ((ctm (get-hash *cur-state* 'ctm))
-	 (p (mat-mul-vec ctm '(0 . 0)))
-	 (ofs (+ (* (vec-y p) *screen-width*) (vec-x p) -1))
-	 (width (image-width image))
-	 (height (image-height image)))
-    (for y 0 height
-	 (let ((row (image-row y)))
-	   (for x 0 width
-		(seta *graphics-buffer* ofs (aref row x))
-		(incf ofs))
-	   (setq ofs (+ ofs *screen-width* (- 0 width)))))))
+;; (defun draw-image (image)
+;;   "Вывод изображения в позиции матрицы трансформации"
+;;   (let* ((ctm (get-hash *cur-state* 'ctm))
+;; 	 (p (mat-mul-vec ctm '(0 . 0)))
+;; 	 (ofs (+ (* (vec-y p) *screen-width*) (vec-x p) -1))
+;; 	 (width (image-width image))
+;; 	 (height (image-height image)))
+;;     (for y 0 height
+;; 	 (let ((row (image-row y)))
+;; 	   (for x 0 width
+;; 		(seta *graphics-buffer* ofs (aref row x))
+;; 		(incf ofs))
+;; 	   (setq ofs (+ ofs *screen-width* (- 0 width)))))))

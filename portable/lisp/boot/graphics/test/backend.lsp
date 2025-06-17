@@ -79,18 +79,18 @@
   (draw-hline 50 100 80 3)
   (draw-screen))
 
-(defun test-draw-image ()
-  "Тестирование вывода изображения"
-  (let ((width 10)
-        (height 10)
-        (image (make-image #(#(0 1 1 0)
-			     #(2 2 2 2)
-			     #(2 3 3 2)
-			     #(0 3 3 0)))))
+;; (defun test-draw-image ()
+;;   "Тестирование вывода изображения"
+;;   (let ((width 10)
+;;         (height 10)
+;;         (image (make-image #(#(0 1 1 0)
+;; 			     #(2 2 2 2)
+;; 			     #(2 3 3 2)
+;; 			     #(0 3 3 0)))))
     
-    (clear-screen)
-    (draw-image image)
-    (draw-screen)))
+;;     (clear-screen)
+;;     (draw-image image)
+;;     (draw-screen)))
 
 
 (draw-screen-test)
