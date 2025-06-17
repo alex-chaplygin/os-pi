@@ -20,6 +20,7 @@
 #include <portable/keyboard.h>
 #include <portable/syslib.h>
 #include <bind.h>
+#include <alloc.h>
 #include <vm.h>
 
 /// Адрес начала секции .lisp
@@ -33,6 +34,9 @@ void graph_init();
 
 void init_all();
 
+#ifdef VM
+object_t consts;
+#endif
 /** 
  * Загрузка начального кода lisp
  *
@@ -96,9 +100,9 @@ void kmain(void)
     init_sys();
     graph_init();
     boot_lisp();
+#ifdef REPL	
     if (setjmp(repl_buf) == 0) {
 	while(1) {
-#ifdef REPL	
 	    printf("> ");
 	    object_t o = parse();
 	    if (o == NOVALUE)
@@ -106,9 +110,9 @@ void kmain(void)
 	    //printf("parse: "); PRINT(o);
 	    object_t res = eval(o, NULLOBJ, NULLOBJ);
 	    PRINT(res);
-#endif
 	}
     }
+#endif
     while (1);
 }
 
