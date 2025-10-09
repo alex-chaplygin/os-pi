@@ -10,14 +10,15 @@ subdirs:
 	$(MAKE) -C boot/graphics
 	$(MAKE) -C boot/game
 	$(MAKE) -C boot/fs
+	$(MAKE) -C boot/sys
 
 include $(wildcard *.d) # автоматическая зависимость от заголовочных файлов
 
-lisp: /tmp/graphics.lsp # здесь меняем набор библиотек
+lisp: /tmp/pci.lsp # здесь меняем набор библиотек
 	cp $^ /tmp/lisp.lsp
 
 # компиляция кода в ядро
-vmlisp: /tmp/graphics.lsp
+vmlisp: /tmp/pci.lsp
 	make -C test /tmp/test_comp
 	cat $^ | head -n -1 >/tmp/compile
 	cd boot/compiler; ./compile

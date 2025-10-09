@@ -46,10 +46,3 @@
 (defun pci-config-write8 (bus device func offset data)
   (outdw +pci-config-address+ (pci-config-pack-address bus device func offset))
   (outb +pci-config-data+ data))
-
-(defun test-pci ()
-  (print "PCI read config")
-  (for i 0 8
-       (print "PCI device: " i (pci-config-read32 0 i 0 8))))
-
-(test-pci)

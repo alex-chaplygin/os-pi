@@ -20,7 +20,7 @@
 #define MAX_SYM_STR 32
 /// Всего больших чисел
 #ifdef VM
-#define MAX_NUMBERS 32
+#define MAX_NUMBERS 512
 #else
 #define MAX_NUMBERS 350
 #endif
