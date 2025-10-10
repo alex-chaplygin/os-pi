@@ -38,6 +38,17 @@
 		       (apply-parser (cdr parsers) list (append res parser-res))))))
       (apply-parser parsers list nil))))
 		     
+(defun parse-first (&rest parsers)
+  "Комбинатор, который возвращает результат первого успешного парсера."
+  (unless parsers (error "parse-first: no parsers"))
+  #'(lambda (list)
+      (if (null parsers)
+          nil
+          (let ((res (funcall (car parsers) list)))
+            (if res
+                res
+                (funcall (apply #'parse-first (cdr parsers)) list))))))
+
 (defun parse-app (parser f)
   "Комбинатор применения функции ко всем результатам разбора"
   #'(lambda (list)
@@ -67,7 +78,7 @@
 
 (defun parse-many-sep (parser sep)
   "Комбинатор - 0 или более повторений с разделителем"
-  (parse-or (parse-some-sep parser sep) (parse-suc nil)))
+  (parse-first (parse-some-sep parser sep) (parse-suc nil)))
 
 (defun parse-some-sep (parser sep)
   "Комбинатор - 1 или более повторений с разделителем"
