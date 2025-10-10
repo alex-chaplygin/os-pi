@@ -52,7 +52,7 @@
   (print "parse-many-sep")
   (let ((parser (parse-many-sep (parse-elem 1) (parse-elem 0))))
     (print (assert (funcall parser '(1 0 1 0 1 2)) '(((1 1 1) . (2)))))
-    (print (assert (funcall parser '(2 1 0 1)) nil))
+    (print (assert (funcall parser '(2 1 0 1)) '((() . (2 1 0 1)))))
     (print (assert (funcall parser '()) '((() . ()))))))
 
 (deftest parse-some-sep-test ()

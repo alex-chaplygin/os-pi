@@ -64,6 +64,7 @@
   "Пропуск 0 или более пробелов"
   (parse-many (parse-elem #\ )))
 
+
 (defun parse-many-sep (parser sep)
   "Комбинатор - 0 или более повторений с разделителем"
   (parse-or (parse-some-sep parser sep) (parse-suc nil)))
