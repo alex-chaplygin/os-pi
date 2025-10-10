@@ -55,6 +55,7 @@
     (print (assert (funcall parser '(2 1 0 1)) '((() . (2 1 0 1)))))
     (print (assert (funcall parser '()) '((() . ()))))))
 
+
 (deftest parse-some-sep-test ()
   "Тесты для parse-some-sep"
   (print "parse-some-sep")
