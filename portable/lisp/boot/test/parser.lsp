@@ -47,4 +47,21 @@
   (print (assert (funcall (parse-pred #'is-digit) '(#\1 B C)) '((#\1 . (b c)))))
   (print (assert (funcall (parse-pred #'is-alpha) '(#\a 1 B C)) '((#\a . (1 b c))))))
 
+(deftest parse-many-sep-test ()
+  "Тесты для parse-many-sep"
+  (print "parse-many-sep")
+  (let ((parser (parse-many-sep (parse-elem 1) (parse-elem 0))))
+    (print (assert (funcall parser '(1 0 1 0 1 2)) '(((1 1 1) . (2)))))
+    (print (assert (funcall parser '(2 1 0 1)) nil))
+    (print (assert (funcall parser '()) '((() . ()))))))
+
+(deftest parse-some-sep-test ()
+  "Тесты для parse-some-sep"
+  (print "parse-some-sep")
+  (let ((parser (parse-some-sep (parse-elem 1) (parse-elem 0))))
+    (print (assert (funcall parser '(1 0 1 2)) '(((1 1) . (2)))))
+    (print (assert (funcall parser '(2 1 0 1)) nil))
+    (print (assert (funcall parser '()) nil))
+    (print (assert (funcall parser '(1)) '(((1) . ()))))))
+
 (run-tests)

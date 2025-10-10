@@ -15,7 +15,7 @@
 
 (defun parse-elem (sym)
   "Элементарный парсер, ожидающий заданный элемент в списке"
-  (parse-pred #'(lambda (x) (= x sym))))
+  (parse-pred #'(lambda (x) (eq x sym))))
 
 (defun &&& (&rest parsers)
   "Последовательный комбинатор применяет несколько парсеров подряд к списку, каждый следующий parser применяется к остатку от работы предыдущего parser."
@@ -63,3 +63,12 @@
 (defun skip-spaces ()
   "Пропуск 0 или более пробелов"
   (parse-many (parse-elem #\ )))
+
+(defun parse-many-sep (parser sep)
+  "Комбинатор - 0 или более повторений с разделителем"
+  (parse-or (parse-some-sep parser sep) (parse-suc nil)))
+
+(defun parse-some-sep (parser sep)
+  "Комбинатор - 1 или более повторений с разделителем"
+  (parse-app (&&& parser (parse-many (parse-app (&&& sep parser) #'cadr)))
+	     #'(lambda (x) (cons (car x) (cadr x)))))
