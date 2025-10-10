@@ -28,6 +28,7 @@
                                          (append res (list (caar parser-res)))))))))
 	(apply-parser parsers list nil))))
 
+
 (defun parse-or (&rest parsers)
   "Параллельный комбинатор принимает список парсеров parsers, объединяя результаты разбора всех парсеров."
   (unless parsers (error "parse-or: no parsers"))
