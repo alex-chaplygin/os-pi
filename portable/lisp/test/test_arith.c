@@ -898,46 +898,66 @@ void test_equal_objects_are_float()
 }
 
 /**
- * Тест сравнения неравенства меньше для двух чисел
+ * Тест функции less для целых чисел
  */
-void test_less()
-{
-    printf("test_less: ");
-    int first1 = 1;
-    int second1 = 2;
-    object_t res = less(new_number(first1), new_number(second1));
-    ASSERT(res, t);
+void test_less_int_int(int first, int second, object_t expected_res){
+    printf("test_less_int_int(%d, %d): ", first, second);
+    object_t real_res = less(new_number(first), new_number(second));
+    ASSERT(expected_res, real_res);
 }
 
 /**
- * Тест сравнения неравенства меньше для двух чисел - проверка если первое число будет больше
+ * Тест функции less для чисел с плавающей точкой
  */
-void test_less_great()
-{
-    printf("test_less_great: ");
-    int first1 = 2;
-    int second1 = 1;
-    object_t list = new_pair(new_number(first1),
-			     new_pair(new_number(second1), NULLOBJ));
-    object_t res = less(new_number(first1), new_number(second1));
-    ASSERT(res, NULLOBJ);
+void test_less_float_float(float first, float second, object_t expected_res){
+    printf("test_less_float_float(%f, %f): ", first, second);
+    object_t real_res = less(new_float(first), new_float(second));
+    ASSERT(expected_res, real_res);
 }
 
 /**
- * Тест сравнения неравнества меньше для двух чисел, первое - int, второе - float, проверка если первое число будет больше
+ * Тест функции less для целого и вещественного чисел
  */
-void test_less_float_great()
-{
-    printf("test_less_great: ");
-    float first1 = 2.6f;
-    float second1 = 1.5f;
-    
-    object_t list = new_pair(new_float(first1),
-			     new_pair(new_float(second1), NULLOBJ));
-    object_t res = less(new_float(first1), new_float(second1));
-    ASSERT(res, NULLOBJ);
+void test_less_int_float(int first, float second, object_t expected_res){
+    printf("test_less_int_float(%d, %f): ", first, second);
+    object_t real_res = less(new_number(first), new_float(second));
+    ASSERT(expected_res, real_res);
 }
 
+/**
+ * Тест функции less для вещественного и целого чисел
+ */
+void test_less_float_int(float first, int second, object_t expected_res){
+    printf("test_less_float_int(%f, %d): ", first, second);
+    object_t real_res = less(new_float(first), new_number(second));
+    ASSERT(expected_res, real_res);
+}
+
+/**
+ * Тест функции less, где первый аргумент - не число
+ */
+void test_less_wrong_first(){
+    printf("test_less_wrong_first: ");
+    if (setjmp(jmp_env) == 0){
+        object_t res = less(NULLOBJ, NULLOBJ);
+        FAIL
+    } else {
+        OK
+    }
+}
+
+/**
+ * Тест функции less, где второй аргумент - не число
+ */
+void test_less_wrong_second(){
+    printf("test_less_wrong_second: ");
+    if (setjmp(jmp_env) == 0){
+        object_t res = less(new_float(8.2f), NULLOBJ);
+        FAIL
+    } else {
+        OK
+    }
+}
 
 /*Тест сравнения чисел на больше*/
 void test_gt(int num1, int num2, object_t token) 
@@ -1125,9 +1145,18 @@ int main()
     test_equal_different_types();
     test_equal_objects_are_char();
     test_equal_objects_are_float();
-    test_less();
-    test_less_great();
-    test_less_float_great();
+
+    test_less_int_int(10, 25, t);
+    test_less_int_int(17, 6, nil);
+    test_less_float_float(10.2f, 25.8f, t);
+    test_less_float_float(10.2f, 1.5f, nil);
+    test_less_int_float(6, 7.0f, t);
+    test_less_int_float(8, 3.5f, nil);
+    test_less_float_int(3.1f, 4, t);
+    test_less_float_int(2.2f, 1, nil);
+    test_less_wrong_first();
+    test_less_wrong_second();
+
     test_gt(5, 3, t);
     test_gt(3, 5, NULLOBJ);
     return 0;
