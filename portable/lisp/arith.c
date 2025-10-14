@@ -244,18 +244,26 @@ object_t mod(object_t obj1, object_t obj2)
  * @param obj1 - первое число
  * @param obj2 - второе число
  *
- * @return результат от сравнения
+ * @return результат сравнения (t или nil)
  */
 object_t gt(object_t obj1, object_t obj2)
 {
-    if (obj1 == NULLOBJ || obj2 == NULLOBJ)
-        return t;
-    if (IS_NUMBER(obj1))
-	return (get_value(obj1) >  get_value(obj2)) ? t : NULLOBJ;
-    else if (TYPE(obj1) == FLOAT && TYPE(obj2) == FLOAT)
-	return (GET_FLOAT(obj1)->value > GET_FLOAT(obj2)->value) ? t : NULLOBJ;
-    else
-	return t;
+    float first, second;
+    // Определение значения первого аргумента
+	if (IS_NUMBER(obj1))
+		first = get_value(obj1);
+	else if (TYPE(obj1) == FLOAT)
+		first = GET_FLOAT(obj1)->value;
+	else
+		error("less: obj1 is not a number");
+	// Определение значения второго аргумента
+	if (IS_NUMBER(obj2))
+		second = get_value(obj2);
+	else if (TYPE(obj2) == FLOAT)
+		second = GET_FLOAT(obj2)->value;
+	else
+		error("less: obj2 is not a number");
+	return (first > second) ? t : nil;
 }
 
 /**
@@ -264,19 +272,25 @@ object_t gt(object_t obj1, object_t obj2)
  * @param obj1 - первое число
  * @param obj2 - второе число
  *
- * @return результат от сравнения (t или nil)
+ * @return результат сравнения (t или nil)
  */
 object_t less(object_t obj1, object_t obj2)
 {
 	float first, second;
     // Определение значения первого аргумента
-	if (IS_NUMBER(obj1)) first = get_value(obj1);
-	else if (TYPE(obj1) == FLOAT) first = GET_FLOAT(obj1)->value;
-	else error("less: obj1 is not a number");
+	if (IS_NUMBER(obj1))
+		first = get_value(obj1);
+	else if (TYPE(obj1) == FLOAT) 
+		first = GET_FLOAT(obj1)->value;
+	else
+		error("less: obj1 is not a number");
 	// Определение значения второго аргумента
-	if (IS_NUMBER(obj2)) second = get_value(obj2);
-	else if (TYPE(obj2) == FLOAT) second = GET_FLOAT(obj2)->value;
-	else error("less: obj2 is not a number");
+	if (IS_NUMBER(obj2))
+		second = get_value(obj2);
+	else if (TYPE(obj2) == FLOAT)
+		second = GET_FLOAT(obj2)->value;
+	else
+		error("less: obj2 is not a number");
 	return (first < second) ? t : nil;
 }
 

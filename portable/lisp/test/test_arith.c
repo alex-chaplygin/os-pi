@@ -900,7 +900,8 @@ void test_equal_objects_are_float()
 /**
  * Тест функции less для целых чисел
  */
-void test_less_int_int(int first, int second, object_t expected_res){
+void test_less_int_int(int first, int second, object_t expected_res)
+{
     printf("test_less_int_int(%d, %d): ", first, second);
     object_t real_res = less(new_number(first), new_number(second));
     ASSERT(expected_res, real_res);
@@ -909,7 +910,8 @@ void test_less_int_int(int first, int second, object_t expected_res){
 /**
  * Тест функции less для чисел с плавающей точкой
  */
-void test_less_float_float(float first, float second, object_t expected_res){
+void test_less_float_float(float first, float second, object_t expected_res)
+{
     printf("test_less_float_float(%f, %f): ", first, second);
     object_t real_res = less(new_float(first), new_float(second));
     ASSERT(expected_res, real_res);
@@ -918,7 +920,8 @@ void test_less_float_float(float first, float second, object_t expected_res){
 /**
  * Тест функции less для целого и вещественного чисел
  */
-void test_less_int_float(int first, float second, object_t expected_res){
+void test_less_int_float(int first, float second, object_t expected_res)
+{
     printf("test_less_int_float(%d, %f): ", first, second);
     object_t real_res = less(new_number(first), new_float(second));
     ASSERT(expected_res, real_res);
@@ -927,7 +930,8 @@ void test_less_int_float(int first, float second, object_t expected_res){
 /**
  * Тест функции less для вещественного и целого чисел
  */
-void test_less_float_int(float first, int second, object_t expected_res){
+void test_less_float_int(float first, int second, object_t expected_res)
+{
     printf("test_less_float_int(%f, %d): ", first, second);
     object_t real_res = less(new_float(first), new_number(second));
     ASSERT(expected_res, real_res);
@@ -936,35 +940,93 @@ void test_less_float_int(float first, int second, object_t expected_res){
 /**
  * Тест функции less, где первый аргумент - не число
  */
-void test_less_wrong_first(){
+void test_less_wrong_first()
+{
     printf("test_less_wrong_first: ");
     if (setjmp(jmp_env) == 0){
         object_t res = less(NULLOBJ, NULLOBJ);
         FAIL
-    } else {
+    } else
         OK
-    }
 }
 
 /**
  * Тест функции less, где второй аргумент - не число
  */
-void test_less_wrong_second(){
+void test_less_wrong_second()
+{
     printf("test_less_wrong_second: ");
     if (setjmp(jmp_env) == 0){
         object_t res = less(new_float(8.2f), NULLOBJ);
         FAIL
-    } else {
+    } else
         OK
-    }
 }
 
-/*Тест сравнения чисел на больше*/
-void test_gt(int num1, int num2, object_t token) 
+/**
+ * Тест функции gt для целых чисел
+ */
+void test_gt_int_int(int first, int second, object_t expected_res)
 {
-    printf("test_gt:");
-    object_t res = gt(new_number(num1), new_number(num2));
-    ASSERT(res, token);
+    printf("test_gt_int_int(%d, %d): ", first, second);
+    object_t real_res = gt(new_number(first), new_number(second));
+    ASSERT(expected_res, real_res);
+}
+
+/**
+ * Тест функции gt для чисел с плавающей точкой
+ */
+void test_gt_float_float(float first, float second, object_t expected_res)
+{
+    printf("test_gt_float_float(%f, %f): ", first, second);
+    object_t real_res = gt(new_float(first), new_float(second));
+    ASSERT(expected_res, real_res);
+}
+
+/**
+ * Тест функции gt для целого и вещественного чисел
+ */
+void test_gt_int_float(int first, float second, object_t expected_res)
+{
+    printf("test_gt_int_float(%d, %f): ", first, second);
+    object_t real_res = gt(new_number(first), new_float(second));
+    ASSERT(expected_res, real_res);
+}
+
+/**
+ * Тест функции gt для вещественного и целого чисел
+ */
+void test_gt_float_int(float first, int second, object_t expected_res)
+{
+    printf("test_gt_float_int(%f, %d): ", first, second);
+    object_t real_res = gt(new_float(first), new_number(second));
+    ASSERT(expected_res, real_res);
+}
+
+/**
+ * Тест функции gt, где первый аргумент - не число
+ */
+void test_gt_wrong_first()
+{
+    printf("test_gt_wrong_first: ");
+    if (setjmp(jmp_env) == 0){
+        object_t res = gt(NULLOBJ, NULLOBJ);
+        FAIL
+    } else
+        OK
+}
+
+/**
+ * Тест функции gt, где второй аргумент - не число
+ */
+void test_gt_wrong_second()
+{
+    printf("test_gt_wrong_second: ");
+    if (setjmp(jmp_env) == 0){
+        object_t res = gt(new_float(8.2f), NULLOBJ);
+        FAIL
+    } else
+        OK
 }
 
 /*
@@ -1157,7 +1219,15 @@ int main()
     test_less_wrong_first();
     test_less_wrong_second();
 
-    test_gt(5, 3, t);
-    test_gt(3, 5, NULLOBJ);
+    test_gt_int_int(10, 25, nil);
+    test_gt_int_int(17, 6, t);
+    test_gt_float_float(10.2f, 25.8f, nil);
+    test_gt_float_float(10.2f, 1.5f, t);
+    test_gt_int_float(6, 7.0f, nil);
+    test_gt_int_float(8, 3.5f, t);
+    test_gt_float_int(3.1f, 4, nil);
+    test_gt_float_int(2.2f, 1, t);
+    test_gt_wrong_first();
+    test_gt_wrong_second();
     return 0;
 }
