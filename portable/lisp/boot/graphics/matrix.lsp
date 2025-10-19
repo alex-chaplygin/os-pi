@@ -9,8 +9,14 @@
 ; y' = b*x + d*y + ty
 
 (defun mat-make (a b c d tx ty)
-    "Создание матрицы трансформации"
-    `#(,a ,b ,c ,d ,tx ,ty))
+  "Создание матрицы трансформации"
+  (let ((arr (make-array 6)))
+    (seta arr 0 a)
+    (seta arr 1 b)
+    (seta arr 2 c)
+    (seta arr 3 d)
+    (seta arr 4 tx)
+    (seta arr 5 ty)))
 
 (defun mat-id ()
     "Создание единичной матрицы"
