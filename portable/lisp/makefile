@@ -8,6 +8,7 @@ all: $(SRC) subdirs vmlisp
 subdirs:
 	$(MAKE) -C boot
 	$(MAKE) -C boot/graphics
+	$(MAKE) -C boot/gui
 	$(MAKE) -C boot/game
 	$(MAKE) -C boot/fs
 	$(MAKE) -C boot/sys
@@ -18,11 +19,12 @@ lisp: /tmp/pci.lsp # здесь меняем набор библиотек
 	cp $^ /tmp/lisp.lsp
 
 # компиляция кода в ядро
-vmlisp: /tmp/pci.lsp
+vmlisp: /tmp/gui-ascii.lsp
 	make -C test /tmp/test_comp
 	cat $^ | head -n -1 >/tmp/compile
 	cd boot/compiler; ./compile
 	/tmp/test_comp </tmp/bin | sed -e "s/^(T/#(T/" | tr '\n' ' ' >/tmp/lisp.lsp
+        #cat /tmp/lisp.lsp
 
 # тесты jpeg
 jpeg-test: $(BASELISP) boot/bin-reader.lsp boot/bin-tree.lsp boot/huffman.lsp boot/img/jpeg/data-unit.lsp boot/img/jpeg/main.lsp boot/test/jpeg.lsp
