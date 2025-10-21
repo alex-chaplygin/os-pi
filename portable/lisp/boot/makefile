@@ -18,7 +18,7 @@ queue-test: $(BASELISP) $(TEST) test/queue.lsp
 	cat $^ | /tmp/repl_lisp
 
 # модульные тесты парсера
-parser-test: $(BASELISP) parser.lsp $(TEST) test/parser.lsp
+parser-test: $(BASELISP) stream.lsp parser.lsp $(TEST) test/parser.lsp
 	make -C ../test /tmp/lisp
 	cat $^ | /tmp/lisp
 
