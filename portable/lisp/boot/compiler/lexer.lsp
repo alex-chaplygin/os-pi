@@ -5,18 +5,11 @@
 
 ;; Простые парсеры атомов (не зависят от parse-s / parse-list)
 
-(defun parse-char (char)
-  "Разбор символа char с учетом пробелов"
-  (parse-app
-    (&&& (skip-spaces) (parse-elem char))
-    #'second))
-
 (defun parse-hex ()
   "Разбор шестнадцатеричного числа вида 0xFF"
   (parse-app
-    (&&& (skip-spaces)
-         (parse-char #\0)
-         (parse-char #\x)
+    (&&& (parse-elem #\0)
+         (parse-elem #\x)
          (parse-pred #'is-hex-sym)
          (parse-many (parse-pred #'is-hex-sym)))
     #'(lambda (parts)
@@ -25,8 +18,7 @@
 (defun parse-decimal ()
   "Разбор десятичного числа (поддерживает -123)"
   (parse-app
-    (&&& (skip-spaces)
-         (parse-optional (parse-char #\-))   ; ← необязательный минус
+    (&&& (parse-optional (parse-elem #\-))   ; ← необязательный минус
          (parse-pred #'is-digit)
          (parse-many (parse-pred #'is-digit)))
     #'(lambda (parts)
@@ -57,8 +49,8 @@
   "Разбор символа вида #\\a"
   (parse-app
     (&&& (skip-spaces)
-         (parse-char #\#)
-         (parse-char #\\)
+         (parse-elem #\#)
+         (parse-elem #\\)
          (parse-pred #'(lambda (sym) t)))
     #'fourth))
 
@@ -66,31 +58,31 @@
   "Разбор функции вида #'name"
   (parse-app
     (&&& (skip-spaces)
-         (parse-char #\#)
-         (parse-char #\')
+         (parse-elem #\#)
+         (parse-elem #\')
          (parse-s))  ; ← зависит от parse-s (циклическая зависимость — допустима)
     #'(lambda (parts) (list 'FUNCTION (fourth parts)))))
 
 (defun parse-escape (char value)
   "Разбор экранированной последовательности"
   (parse-app
-    (&&& (parse-char #\\) (parse-char char))
+    (&&& (parse-elem #\\) (parse-elem char))
     #'(lambda (parts) (list value))))
 
 (defun parse-tstring ()
   "Разбор строки в двойных кавычках"
   (parse-app
     (&&& (skip-spaces)
-         (parse-char #\")
+         (parse-elem #\")
          (parse-many (parse-or (parse-escape #\n (code-char 0xa))
                                (parse-pred #'(lambda (sym) (!= sym #\")))))
-         (parse-char #\"))
+         (parse-elem #\"))
     #'(lambda (parts) (implode (third parts)))))
 
 (defun parse-tarray ()
   "Разбор массива #(...)"
   (parse-app
-    (&&& (parse-char #\#) (parse-list))
+    (&&& (parse-elem #\#) (parse-list))
     #'(lambda (parts) (list-to-array (second parts)))))
 
 ;; Составные парсеры (зависят от атомов и друг от друга)
@@ -109,9 +101,9 @@
 (defun parse-list ()
   "Разбор списка: ( ... )"
   (parse-app
-    (&&& (parse-char #\()
+    (&&& (parse-elem #\()
          (parse-many (parse-s))
-         (parse-char #\)))
+         (parse-elem #\)))
     #'second))
 
 (defun parse-s ()
