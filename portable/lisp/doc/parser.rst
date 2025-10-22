@@ -20,6 +20,12 @@
    (funcall (parse-many (parse-elem 4)) (stream-from-list (4 2 3))) ; -> ((4) . <stream (2 3)>)
    (funcall (parse-many (parse-elem 4)) (stream-from-list (4 4 2 4 3))) ; -> ((4 4) . <stream (2 4 3))      
 
+Комбинатор **parse-optional** позволяет разобрать 0 или 1 повторений заданного парсера. Результат разбора - пара, где на первом месте результат парсера или nil.
+::
+
+   (funcall (parse-optional (parse-elem 4)) (stream-from-list (1 2 3))) ; -> (nil . <stream (1 2 3)>)
+   (funcall (parse-optional (parse-elem 4)) (stream-from-list (4 2 3))) ; -> (4 . <stream (2 3)>)
+
 Разбор по предикату **parse-pred**, предикат - функция, которая на вход получает символ, на выходе - nil или t.
 Сама функция парсинга возвращает в результате парсинга в случае успешного разбора сам символ, в случае неудачного - nil.
 ::

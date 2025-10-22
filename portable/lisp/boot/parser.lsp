@@ -16,9 +16,8 @@
 	    (if (funcall pred (car res)) res nil))))))
 
 (defun parse-elem (sym)
-  "Элементарный парсер, ожидающий заданный элемент в списке"
-  (parse-pred #'(lambda (x) (eq x sym))))
-
+  "Элементарный парсер, ожидающий заданный элемент из потока"
+  (parse-pred #'(lambda (x) (= x sym))))
 
 (defun &&& (&rest parsers)
   "Последовательный комбинатор применяет несколько парсеров подряд к потоку, каждый следующий parser применяется к остатку от работы предыдущего parser."
@@ -31,7 +30,6 @@
                                          (append res (list (car parser-res)))))))))
 	(apply-parser parsers stream nil))))
 
-
 (defun parse-or (&rest parsers)
   "Параллельный комбинатор принимает список парсеров parsers и работает до первого успешного разбора"
   (unless parsers (error "parse-or: no parsers"))
@@ -42,17 +40,6 @@
 		     (if (null parser-res) (apply-parser (cdr parsers) stream) parser-res)))))
       (apply-parser parsers stream))))
 		     
-(defun parse-first (&rest parsers)
-  "Комбинатор, который возвращает результат первого успешного парсера."
-  (unless parsers (error "parse-first: no parsers"))
-  #'(lambda (list)
-      (if (null parsers)
-          nil
-          (let ((res (funcall (car parsers) list)))
-            (if res
-                res
-                (funcall (apply #'parse-first (cdr parsers)) list))))))
-
 (defun parse-app (parser f)
   "Комбинатор применения функции к результату разбора"
   #'(lambda (stream)
@@ -69,6 +56,15 @@
 			  (apply (cdr parser-res) (append res (list (car parser-res))))))))
 	      (apply stream nil))))
 
+
+(defun parse-optional (parser)
+  "Комбинатор: 0 или 1 применение парсера.
+   Всегда успешен. Возвращает (значение . поток), где значение = nil, если парсер не сработал."
+  #'(lambda (stream)
+      (let ((res (funcall parser stream)))
+        (if res res
+            (cons nil stream)))))
+            
 (defun parse-some (parser)
   "Комбинатор - 1 или более повторений заданного парсера. Возвращает список результатов"
   (parse-app (&&& parser (parse-many parser))
@@ -77,13 +73,3 @@
 (defun skip-spaces ()
   "Пропуск 0 или более пробелов"
   (parse-many (parse-elem #\ )))
-
-
-(defun parse-many-sep (parser sep)
-  "Комбинатор - 0 или более повторений с разделителем"
-  (parse-first (parse-some-sep parser sep) (parse-suc nil)))
-
-(defun parse-some-sep (parser sep)
-  "Комбинатор - 1 или более повторений с разделителем"
-  (parse-app (&&& parser (parse-many (parse-app (&&& sep parser) #'cadr)))
-	     #'(lambda (x) (cons (car x) (cadr x)))))
