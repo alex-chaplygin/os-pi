@@ -712,6 +712,8 @@ object_t eval(object_t obj, object_t env, object_t func)
 #ifdef DEBUG
     	debug_stack = new_pair(obj, debug_stack);
 #endif
+	if (s->lambda == NULLOBJ && s->func == NULL && s->macro == NULLOBJ && !find_in_env(func, first, &res))
+	    error("Unknown func: %s", s->str);
 	int args_count = list_length(TAIL(obj));
 	if (s->nary == 0) {
 	    if (s->count != args_count)
@@ -734,8 +736,6 @@ object_t eval(object_t obj, object_t env, object_t func)
 	    result = call_form(s->func, args, s->nary, args_count, s->count);
         else if (s->macro != NULLOBJ)
             result = macro_call(s->macro, args, env, func);
-        else
-            error("Unknown func: %s", s->str);
 #ifdef DEBUG
     	debug_stack = TAIL(debug_stack);
 #endif

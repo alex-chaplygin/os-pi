@@ -50,9 +50,9 @@ object_t send_text_buffer(object_t bb, object_t xx, object_t yy, object_t ww, ob
     object_t *src = buf->data + start_offset;
     for (int yi = 0; yi < h; yi++) {
 	bp = b;
-	for (int i = 0; i < w; i++)
+	for (int i = 0; i < (w << 1); i++)
 	    *bp++ = GET_CHAR(src[i]);
-	memcpy(dst, b, w);
+	memcpy(dst, b, w << 1);
 	dst += TEXT_BUF_WIDTH;
 	src += TEXT_BUF_WIDTH;
     }

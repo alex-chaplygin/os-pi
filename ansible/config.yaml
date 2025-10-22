@@ -6,3 +6,17 @@
         src: emacs.conf
         dest: "{{ home_dir }}/.emacs"
         mode: 0644
+    - name: Папка doxymacs
+      file:
+        path: "{{ home_dir }}/doxymacs"
+        state: directory
+    - name: Копирование doxymacs
+      copy:
+        src: doxymacs.el
+        dest: "{{ home_dir }}/doxymacs/"
+        mode: 0644
+    - name: Копирование doxymacs 2
+      copy:
+        src: doxymacs-xml-parse.el
+        dest: "{{ home_dir }}/doxymacs/"
+        mode: 0644

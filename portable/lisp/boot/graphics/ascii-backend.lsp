@@ -42,6 +42,7 @@
          (new-w (- tx2 tx1))
          (new-h (- ty2 ty1))
          (ofs (<< (+ (* ty1 *screen-width*) tx1) 1)))
+    (screen-add-rect (make-vec2 tx1 ty1) (make-vec2 new-w new-h))
     (for i ty1 (+ ty1 new-h)
       (for j tx1 (+ tx1 new-w)
         (seta *text-buffer* ofs (char-code #\ ))

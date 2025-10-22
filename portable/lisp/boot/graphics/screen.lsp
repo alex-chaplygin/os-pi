@@ -2,6 +2,7 @@
 (defvar *screen-width*) ; ширина экрана
 (defvar *screen-height*) ; высота экрана
 (defvar *draw-top-left*) ;Координаты левого верхнего угла перерисовываемой области
+(defvar *draw-bottom-right*) ;Координаты правого нижнего угла перерисовываемой области
 (defvar *graphics-buffer*) ; внутренний буфер пикселей
   
 (defun screen-reset ()

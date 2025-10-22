@@ -18,7 +18,7 @@ queue-test: $(BASELISP) $(TEST) test/queue.lsp
 	cat $^ | /tmp/repl_lisp
 
 # модульные тесты парсера
-parser-test: $(BASELISP) parser.lsp $(TEST) test/parser.lsp
+parser-test: $(BASELISP) stream.lsp parser.lsp $(TEST) test/parser.lsp
 	make -C ../test /tmp/lisp
 	cat $^ | /tmp/lisp
 
@@ -68,6 +68,10 @@ bin-reader: $(BASELISP) bin-reader.lsp $(TEST) test/bin-reader.lsp
 bin-tree-test: $(BASELISP) bin-tree.lsp $(TEST) test/bin-tree.lsp
 	make -C ../test /tmp/repl_lisp
 	cat $^ | /tmp/repl_lisp
+# модульные тесты двоичное дерево
+stream-test: $(BASELISP) stream.lsp
+	make -C ../test /tmp/lisp
+	cat $^ | /tmp/lisp
 # модульные тесты двоичное дерево
 regex-test: $(BASELISP) fa/nfa.lsp regex.lsp $(TEST) test/regex.lsp
 	make -C ../test /tmp/lisp
