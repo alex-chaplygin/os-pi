@@ -248,14 +248,24 @@ object_t mod(object_t obj1, object_t obj2)
  */
 object_t gt(object_t obj1, object_t obj2)
 {
-    if (obj1 == NULLOBJ || obj2 == NULLOBJ)
-        return t;
+    float first, second;
+    if(IS_NUMBER(obj1) && (IS_NUMBER(obj2)))
+	return (get_value(obj1) > get_value(obj2)) ? t : nil;
+    // Определение значения первого аргумента
     if (IS_NUMBER(obj1))
-	return (get_value(obj1) >  get_value(obj2)) ? t : NULLOBJ;
-    else if (TYPE(obj1) == FLOAT && TYPE(obj2) == FLOAT)
-	return (GET_FLOAT(obj1)->value > GET_FLOAT(obj2)->value) ? t : NULLOBJ;
+	first = get_value(obj1);
+    else if (TYPE(obj1) == FLOAT)
+	first = GET_FLOAT(obj1)->value;
     else
-	return t;
+	error("gt: obj1 is not a number");
+    // Определение значения второго аргумента
+    if (IS_NUMBER(obj2))
+	second = get_value(obj2);
+    else if (TYPE(obj2) == FLOAT)
+	second = GET_FLOAT(obj2)->value;
+    else
+	error("gt: obj2 is not a number");
+    return (first > second) ? t : nil;
 }
 
 /**
@@ -269,6 +279,8 @@ object_t gt(object_t obj1, object_t obj2)
 object_t less(object_t obj1, object_t obj2)
 {
     float first, second;
+    if(IS_NUMBER(obj1) && (IS_NUMBER(obj2)))
+	return (get_value(obj1) < get_value(obj2)) ? t : nil;
     // Определение значения первого аргумента
     if (IS_NUMBER(obj1))
 	first = get_value(obj1);
