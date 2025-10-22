@@ -24,22 +24,17 @@
 
 (defun parse-decimal ()
   "Разбор десятичного числа (поддерживает -123)"
-  (parse-or
-    ;; Отрицательное число
-    (parse-app
-      (&&& (skip-spaces)
-           (parse-char #\-)
-           (parse-pred #'is-digit)
-           (parse-many (parse-pred #'is-digit)))
-      #'(lambda (parts)
-          (- (strtoint (implode (cons (third parts) (fourth parts))) 10))))
-    ;; Положительное число
-    (parse-app
-      (&&& (skip-spaces)
-           (parse-pred #'is-digit)
-           (parse-many (parse-pred #'is-digit)))
-      #'(lambda (parts)
-          (strtoint (implode (cons (second parts) (third parts))) 10)))))
+  (parse-app
+    (&&& (skip-spaces)
+         (parse-optional (parse-char #\-))   ; ← необязательный минус
+         (parse-pred #'is-digit)
+         (parse-many (parse-pred #'is-digit)))
+    #'(lambda (parts)
+        (let ((minus (second parts))        ; nil или #\-
+              (first-digit (third parts))
+              (rest-digits (fourth parts)))
+          (let ((num (strtoint (implode (cons first-digit rest-digits)) 10)))
+            (if minus (- num) num))))))
 
 (defun parse-tnumber ()
   "Разбор десятичного (возможно, отрицательного) или шестнадцатеричного числа"
