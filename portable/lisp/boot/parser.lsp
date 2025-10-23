@@ -1,3 +1,4 @@
+
 (defun parse-suc (val)
   "Элементарный парсер - успешный разбор со значением val"
   #'(lambda (stream) (cons val stream)))
@@ -47,6 +48,24 @@
         (if (null r)
             nil
             (cons (funcall f (car r)) (cdr r))))))
+
+(defun parse-atom ()
+  "Парсер атома: число, символ, строка, char, функция"
+  (parse-or (parse-tnumber)
+            (parse-tstring)
+            (parse-tchar)
+            (parse-tfunction)
+            (parse-tsymbol)))
+
+(defun parse-list ()
+  (parse-app
+    (&&& (parse-elem #\()
+         (parse-many (parse-app (&&& (skip-spaces) ((lambda (s) (funcall *parse-top-level* s))))
+                                #'cadr))
+         (skip-spaces)
+         (parse-elem #\)))
+    #'(lambda (parts)
+        (cadr parts)))) ; второй элемент — список
 
 
 (defun parse-many (parser)
@@ -101,3 +120,58 @@
               (rest-digits (caddr parts)))
           (let ((num (strtoint (implode (cons first-digit rest-digits)) 10)))
             (if minus (- num) num))))))
+
+(defun parse-tnumber ()
+  "Парсер числа: поддерживает десятичные (123, -456) и шестнадцатеричные (0xFF) литералы"
+  #'(lambda (stream)
+      (let ((hex-res (funcall (parse-hex) stream)))
+        (if hex-res
+            hex-res
+            (funcall (parse-decimal) stream)))))
+
+
+(defun parse-tsymbol ()
+  (parse-app
+    (&&& (parse-pred #'is-symbol-start)
+         (parse-many (parse-pred #'is-symbol-char)))
+    #'(lambda (parts)
+        (let ((first (car parts))
+              (rest (cadr parts)))
+          (intern (implode (cons first rest)))))))  ; ← без string-downcase
+
+(defun parse-tchar ()
+  (parse-app
+    (&&& (parse-elem #\#)
+         (parse-elem #\\)
+         (parse-pred #'is-not-quote))
+    #'(lambda (parts)
+        (caddr parts))))
+
+(defun parse-tstring ()
+  (parse-app
+    (&&& (parse-elem #\")
+         (parse-many (parse-pred #'is-not-double-quote))
+         (parse-elem #\"))
+    #'(lambda (parts)
+        (implode (cadr parts)))))
+
+(defun parse-tfunction ()
+  "Парсер функции: #'f или #'(lambda ...)"
+  (parse-app
+    (&&& (parse-elem #\#)
+         (parse-elem #\')
+         (parse-or (parse-list) (parse-atom)))
+    #'(lambda (parts)
+        (list 'function (caddr parts)))))
+
+(defun parse-tarray ()
+  "Парсер массива: #(1 2 3)"
+  (parse-app
+    (&&& (parse-elem #\#)
+         (parse-elem #\()
+         (parse-many (parse-app (&&& (skip-spaces) (parse-tnumber))
+                                #'cadr))
+         (skip-spaces)
+         (parse-elem #\)))
+    #'(lambda (parts)
+        (apply vector (caddr parts))))) ; третий элемент — список чисел

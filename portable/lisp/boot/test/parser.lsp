@@ -100,7 +100,7 @@
 
 (deftest parse-tsymbol-test ()
   "Тесты для parse-tsymbol"
-  (print (assertcar (funcall (parse-tsymbol) (stream-from-str "ABCD")) 'abcd))
+  (print (assertcar (funcall (parse-tsymbol) (stream-from-str "ABCD")) 'ABCD))
   (print (assertcar (funcall (parse-tsymbol) (stream-from-str "-A_b+3&%")) '-A_b+3&%))
   (print (assertcar (funcall (parse-tsymbol) (stream-from-str "x123")) 'x123))
   (print (assert (funcall (parse-tsymbol) (stream-from-str "123")) nil)) ; символ не может начинаться с цифры
@@ -110,7 +110,7 @@
   "Тесты для parse-tchar"
   (print (assertcar (funcall (parse-tchar) (stream-from-str "#\\A")) #\A))
   (print (assertcar (funcall (parse-tchar) (stream-from-str "#\\ ")) #\ ))
-  (print (assertcar (funcall (parse-tchar) (stream-from-str "#\\newline")) #\newline))
+  (print (assertcar (funcall (parse-tchar) (stream-from-str "#\\n")) #\n))
   (print (assert (funcall (parse-tchar) (stream-from-str "A")) nil))
   (print (assert (funcall (parse-tchar) (stream-from-str "#\\")) nil)))
 

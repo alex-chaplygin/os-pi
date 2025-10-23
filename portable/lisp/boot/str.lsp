@@ -80,3 +80,62 @@
     (or (is-digit sym)
         (and (>= c (char-code #\a)) (<= c (char-code #\f)))
         (and (>= c (char-code #\A)) (<= c (char-code #\F))))))
+
+;; Предикаты для символов
+(defun is-symbol-start (c)
+  "Символ может начинаться с буквы или '-"
+  (or (is-alpha c) (= c #\-)))
+
+(defun is-symbol-char (c)
+  "Допустимые символы в имени: буквы, цифры, -, _, +, &, %"
+  (or (is-alpha c)
+      (is-digit c)
+      (= c #\-)
+      (= c #\_)
+      (= c #\+)
+      (= c #\&)
+      (= c #\%)))
+      
+(defun char-downcase (c)
+  "Преобразование символа в нижний регистр"
+  (cond
+    ((= c #\A) #\a)
+    ((= c #\B) #\b)
+    ((= c #\C) #\c)
+    ((= c #\D) #\d)
+    ((= c #\E) #\e)
+    ((= c #\F) #\f)
+    ((= c #\G) #\g)
+    ((= c #\H) #\h)
+    ((= c #\I) #\i)
+    ((= c #\J) #\j)
+    ((= c #\K) #\k)
+    ((= c #\L) #\l)
+    ((= c #\M) #\m)
+    ((= c #\N) #\n)
+    ((= c #\O) #\o)
+    ((= c #\P) #\p)
+    ((= c #\Q) #\q)
+    ((= c #\R) #\r)
+    ((= c #\S) #\s)
+    ((= c #\T) #\t)
+    ((= c #\U) #\u)
+    ((= c #\V) #\v)
+    ((= c #\W) #\w)
+    ((= c #\X) #\x)
+    ((= c #\Y) #\y)
+    ((= c #\Z) #\z)
+    (t c)))
+
+(defun is-not-quote (c)
+  (not (or (= c #\") (= c #\'))))
+
+(defun is-not-double-quote (c)
+  (not (= c #\")))
+
+(defun downcase-list (lst)
+  "Преобразует список символов lst в нижний регистр"
+  (if (null lst)
+      nil
+      (cons (char-downcase (car lst)) (downcase-list (cdr lst)))))
+
