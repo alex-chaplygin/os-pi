@@ -37,11 +37,10 @@
   (let ((s1 (stream-from-str "abc1")))
     (print (assertcar (funcall (parse-many #'get-byte) s1) '(#\a #\b #\c #\1)))
     (print (assertcar (funcall (parse-many (parse-pred #'is-alpha)) s1) '(#\a #\b #\c)))
-    (print (assert (funcall (parse-many (parse-elem #\1)) s1) '()))
+    (print (assertcar (funcall (parse-many (parse-elem #\1)) s1) '()))   ; ← ИСПРАВЛЕНО: assertcar вместо assert
     (print (assertcar (funcall (parse-many (parse-elem #\a)) (stream-from-str "aaaabca")) '(#\a #\a #\a #\a)))
-    (print (assertcar (funcall (parse-many (parse-or (parse-elem #\a) (parse-elem #\b))) (stream-from-str "aababca")) '(#\a #\a #\b #\a #\b)))
-  ))
-  ;; (print (assert (funcall (parse-many (parse-elem 'B)) '(A C B)) '((() . (a c b))))))
+    (print (assertcar (funcall (parse-many (parse-or (parse-elem #\a) (parse-elem #\b))) (stream-from-str "aababca")) '(#\a #\a #\b #\a #\b)))))
+ ;; (print (assert (funcall (parse-many (parse-elem 'B)) '(A C B)) '((() . (a c b))))))
 
 ;; (deftest parse-some-test ()
 ;;   "Тесты для parse-some"
@@ -76,5 +75,95 @@
 ;;     (print (assert (funcall parser '(2 1 0 1)) nil))
 ;;     (print (assert (funcall parser '()) nil))
 ;;     (print (assert (funcall parser '(1)) '(((1) . ()))))))
+
+(deftest parse-decimal-test ()
+  "Тесты для parse-decimal"
+  (print (assertcar (funcall (parse-decimal) (stream-from-str "123")) 123))
+  (print (assertcar (funcall (parse-decimal) (stream-from-str "-456")) -456))
+  (print (assert (funcall (parse-decimal) (stream-from-str "abc")) nil))
+  (print (assertcar (funcall (parse-decimal) (stream-from-str "0")) 0)))
+
+(deftest parse-hex-test ()
+  "Тесты для parse-hex"
+  (print (assertcar (funcall (parse-hex) (stream-from-str "0xFF")) 255))
+  (print (assertcar (funcall (parse-hex) (stream-from-str "0x0")) 0))
+  (print (assertcar (funcall (parse-hex) (stream-from-str "0xABC")) 2748))
+  (print (assert (funcall (parse-hex) (stream-from-str "0xG")) nil))
+  (print (assert (funcall (parse-hex) (stream-from-str "123")) nil)))
+
+(deftest parse-tnumber-test ()
+  "Тесты для parse-tnumber (поддерживает decimal и hex)"
+  (print (assertcar (funcall (parse-tnumber) (stream-from-str "123")) 123))
+  (print (assertcar (funcall (parse-tnumber) (stream-from-str "0xFF")) 255))
+  (print (assertcar (funcall (parse-tnumber) (stream-from-str "-42")) -42))
+  (print (assert (funcall (parse-tnumber) (stream-from-str "abc")) nil)))
+
+(deftest parse-tsymbol-test ()
+  "Тесты для parse-tsymbol"
+  (print (assertcar (funcall (parse-tsymbol) (stream-from-str "ABCD")) 'abcd))
+  (print (assertcar (funcall (parse-tsymbol) (stream-from-str "-A_b+3&%")) '-A_b+3&%))
+  (print (assertcar (funcall (parse-tsymbol) (stream-from-str "x123")) 'x123))
+  (print (assert (funcall (parse-tsymbol) (stream-from-str "123")) nil)) ; символ не может начинаться с цифры
+  (print (assert (funcall (parse-tsymbol) (stream-from-str "\"abc\"")) nil)))
+
+(deftest parse-tchar-test ()
+  "Тесты для parse-tchar"
+  (print (assertcar (funcall (parse-tchar) (stream-from-str "#\\A")) #\A))
+  (print (assertcar (funcall (parse-tchar) (stream-from-str "#\\ ")) #\ ))
+  (print (assertcar (funcall (parse-tchar) (stream-from-str "#\\newline")) #\newline))
+  (print (assert (funcall (parse-tchar) (stream-from-str "A")) nil))
+  (print (assert (funcall (parse-tchar) (stream-from-str "#\\")) nil)))
+
+(deftest parse-tfunction-test ()
+  "Тесты для parse-tfunction"
+  (print (assertcar (funcall (parse-tfunction) (stream-from-str "#'f")) '(function f)))
+  (print (assertcar (funcall (parse-tfunction) (stream-from-str "#'(lambda () nil)")) '(function (lambda () nil))))
+  (print (assert (funcall (parse-tfunction) (stream-from-str "'f")) nil))
+  (print (assert (funcall (parse-tfunction) (stream-from-str "#f")) nil)))
+
+(deftest parse-tstring-test ()
+  "Тесты для parse-tstring"
+  (print (assertcar (funcall (parse-tstring) (stream-from-str "\"abcde\"")) "abcde"))
+  (print (assertcar (funcall (parse-tstring) (stream-from-str "\"\"")) ""))
+  (print (assertcar (funcall (parse-tstring) (stream-from-str "\"a\\\"b\"")) "a\"b")) ; если поддерживается экранирование
+  (print (assert (funcall (parse-tstring) (stream-from-str "abc")) nil))
+  (print (assert (funcall (parse-tstring) (stream-from-str "\"unterminated")) nil)))
+
+(deftest parse-atom-test ()
+  "Тесты для parse-atom (символ, число, строка, char, функция и т.д.)"
+  (print (assertcar (funcall (parse-atom) (stream-from-str "ABCD")) 'abcd))
+  (print (assertcar (funcall (parse-atom) (stream-from-str "123")) 123))
+  (print (assertcar (funcall (parse-atom) (stream-from-str "0xFF")) 255))
+  (print (assertcar (funcall (parse-atom) (stream-from-str "#\\A")) #\A))
+  (print (assertcar (funcall (parse-atom) (stream-from-str "\"hi\"")) "hi"))
+  (print (assertcar (funcall (parse-atom) (stream-from-str "#'f")) '(function f))))
+
+(deftest parse-list-test ()
+  "Тесты для parse-list"
+  (print (assertcar (funcall (parse-list) (stream-from-str "(A B C D)")) '(a b c d)))
+  (print (assertcar (funcall (parse-list) (stream-from-str "()")) '()))
+  (print (assertcar (funcall (parse-list) (stream-from-str "(123 (ABC #\\D) \"string\" (0xABC))"))
+                    '(123 (abc #\D) "string" (2748))))
+  (print (assertcar (funcall (parse-list) (stream-from-str "(((A)) B C (F (D)))"))
+                    '(((a)) b c (f (d)))))
+  (print (assert (funcall (parse-list) (stream-from-str "A B)")) nil)))
+
+(deftest parse-tarray-test ()
+  "Тесты для parse-tarray"
+  (print (assertcar (funcall (parse-tarray) (stream-from-str "#(1 2 3)")) #(1 2 3)))
+  (print (assertcar (funcall (parse-tarray) (stream-from-str "#()")) #()))
+  (print (assertcar (funcall (parse-tarray) (stream-from-str "#(0xFF \"a\")")) #(255 "a")))
+  (print (assert (funcall (parse-tarray) (stream-from-str "(1 2 3)")) nil)))
+
+(deftest parse-lisp-test ()
+  "Тесты для основного парсера parse-lisp (или parse)"
+  (print (assert (parse-lisp "  ABCD") 'abcd))
+  (print (assert (parse-lisp "(A B C D)") '(a b c d)))
+  (print (assert (parse-lisp "(  )") '()))
+  (print (assert (parse-lisp "(((A)) B C (F (D)))") '(((a)) b c (f (d)))))
+  (print (assert (parse-lisp "(123 (ABC #\\D) \"string\" (0xABC))")
+                 '(123 (abc #\D) "string" (2748))))
+  (print (assert (parse-lisp "#(1 2 3)") #(1 2 3)))
+  (print (assert (parse-lisp "#'f") '(function f))))
 
 (run-tests)

@@ -39,22 +39,25 @@
 		   (let ((parser-res (funcall (car parsers) stream)))
 		     (if (null parser-res) (apply-parser (cdr parsers) stream) parser-res)))))
       (apply-parser parsers stream))))
-		     
+
 (defun parse-app (parser f)
   "Комбинатор применения функции к результату разбора"
   #'(lambda (stream)
       (let ((r (funcall parser stream)))
-	(cons (funcall f (car r)) (cdr r)))))
+        (if (null r)
+            nil
+            (cons (funcall f (car r)) (cdr r))))))
+
 
 (defun parse-many (parser)
   "Комбинатор - 0 или более повторений заданного парсера. Возвращает список результатов"
   #'(lambda (stream)
       (labels ((apply (stream res)
-		      (let ((parser-res (funcall parser stream)))
-			(if (null parser-res)
-			    (if (null res) nil  (cons res stream))
-			  (apply (cdr parser-res) (append res (list (car parser-res))))))))
-	      (apply stream nil))))
+                 (let ((parser-res (funcall parser stream)))
+                   (if (null parser-res)
+                       (cons res stream)  ; ← всегда возвращаем (cons res stream), даже если res = nil
+                       (apply (cdr parser-res) (append res (list (car parser-res))))))))
+        (apply stream nil))))
 
 (defun parse-optional (parser)
   "Комбинатор: 0 или 1 применение парсера.
@@ -67,11 +70,12 @@
 (defun parse-some (parser)
   "Комбинатор - 1 или более повторений заданного парсера. Возвращает список результатов"
   (parse-app (&&& parser (parse-many parser))
-	     #'(lambda (x) (cons (car x) (second x)))))
+	     #'(lambda (x) (cons (car x) (cadr x)))))
 
 (defun skip-spaces ()
   "Пропуск 0 или более пробелов"
   (parse-many (parse-elem #\ )))
+
 
 (defun parse-hex ()
   "Разбор шестнадцатеричного числа вида 0xFF"
@@ -81,7 +85,9 @@
          (parse-pred #'is-hex-sym)
          (parse-many (parse-pred #'is-hex-sym)))
     #'(lambda (parts)
-        (strtoint (implode (cons (fourth parts) (fifth parts))) 16))))
+        (let ((first-digit (caddr parts))        ; 3-й элемент
+              (rest-digits (cadddr parts)))      ; 4-й элемент — список
+          (strtoint (implode (cons first-digit rest-digits)) 16)))))
 
 (defun parse-decimal ()
   "Разбор десятичного числа (поддерживает -123)"
@@ -90,8 +96,8 @@
          (parse-pred #'is-digit)
          (parse-many (parse-pred #'is-digit)))
     #'(lambda (parts)
-        (let ((minus (second parts))        ; nil или #\-
-              (first-digit (third parts))
-              (rest-digits (fourth parts)))
+        (let ((minus (car parts))             ; nil или #\-
+              (first-digit (cadr parts))
+              (rest-digits (caddr parts)))
           (let ((num (strtoint (implode (cons first-digit rest-digits)) 10)))
             (if minus (- num) num))))))
