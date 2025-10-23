@@ -101,7 +101,7 @@
 (deftest parse-tsymbol-test ()
   "Тесты для parse-tsymbol"
   (print (assertcar (funcall (parse-tsymbol) (stream-from-str "ABCD")) 'ABCD))
-  (print (assertcar (funcall (parse-tsymbol) (stream-from-str "-A_b+3&%")) '-A_b+3&%))
+  (print (assertcar (funcall (parse-tsymbol) (stream-from-str "-A_b+3&%")) '-A_B+3&%))
   (print (assertcar (funcall (parse-tsymbol) (stream-from-str "x123")) 'x123))
   (print (assert (funcall (parse-tsymbol) (stream-from-str "123")) nil)) ; символ не может начинаться с цифры
   (print (assert (funcall (parse-tsymbol) (stream-from-str "\"abc\"")) nil)))
@@ -116,8 +116,8 @@
 
 (deftest parse-tfunction-test ()
   "Тесты для parse-tfunction"
-  (print (assertcar (funcall (parse-tfunction) (stream-from-str "#'f")) '(function f)))
-  (print (assertcar (funcall (parse-tfunction) (stream-from-str "#'(lambda () nil)")) '(function (lambda () nil))))
+  (print (assertcar (funcall (parse-tfunction) (stream-from-str "#'f")) '(function F)))
+  (print (assertcar (funcall (parse-tfunction) (stream-from-str "#'(lambda () nil)")) '(function (LAMBDA NIL NIL))))
   (print (assert (funcall (parse-tfunction) (stream-from-str "'f")) nil))
   (print (assert (funcall (parse-tfunction) (stream-from-str "#f")) nil)))
 

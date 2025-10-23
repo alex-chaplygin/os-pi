@@ -60,7 +60,7 @@
 (defun parse-list ()
   (parse-app
     (&&& (parse-elem #\()
-         (parse-many (parse-app (&&& (skip-spaces) ((lambda (s) (funcall *parse-top-level* s))))
+         (parse-many (parse-app (&&& (skip-spaces) (lambda (s) (funcall *parse-top-level* s)))
                                 #'cadr))
          (skip-spaces)
          (parse-elem #\)))
