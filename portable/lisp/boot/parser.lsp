@@ -56,6 +56,14 @@
 			  (apply (cdr parser-res) (append res (list (car parser-res))))))))
 	      (apply stream nil))))
 
+(defun parse-optional (parser)
+  "Комбинатор: 0 или 1 применение парсера.
+   Всегда успешен. Возвращает (значение . поток), где значение = nil, если парсер не сработал."
+  #'(lambda (stream)
+      (let ((res (funcall parser stream)))
+        (if res res
+            (cons nil stream)))))
+
 (defun parse-some (parser)
   "Комбинатор - 1 или более повторений заданного парсера. Возвращает список результатов"
   (parse-app (&&& parser (parse-many parser))

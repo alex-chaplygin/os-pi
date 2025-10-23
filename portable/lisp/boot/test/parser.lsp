@@ -54,7 +54,12 @@
   (print (assertcar (funcall (parse-pred #'is-digit) (stream-from-str "1aa")) #\1))
   (print (assert (funcall (parse-pred #'is-digit) (stream-from-str "avc")) nil))
   (print (assert (funcall (parse-pred #'is-digit) (stream-from-str "")) nil)))
-  
+
+(deftest parse-optional-test ()
+  "Тесты для комбинатора parse-optional (необязательный парсер)"
+  (print (assertcar (funcall (parse-optional (parse-elem #\4)) (stream-from-str "456")) #\4))
+  (print (assertcar (funcall (parse-optional (parse-elem #\4)) (stream-from-str "123")) nil)))
+
 ;; (deftest parse-many-sep-test ()
 ;;   "Тесты для parse-many-sep"
 ;;   (print "parse-many-sep")
