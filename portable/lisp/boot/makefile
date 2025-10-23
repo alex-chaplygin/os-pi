@@ -69,7 +69,7 @@ bin-tree-test: $(BASELISP) bin-tree.lsp $(TEST) test/bin-tree.lsp
 	make -C ../test /tmp/repl_lisp
 	cat $^ | /tmp/repl_lisp
 # модульные тесты двоичное дерево
-stream-test: $(BASELISP) stream.lsp
+stream-test: $(BASELISP) stream.lsp $(TEST) test/stream.lsp
 	make -C ../test /tmp/lisp
 	cat $^ | /tmp/lisp
 # модульные тесты двоичное дерево
