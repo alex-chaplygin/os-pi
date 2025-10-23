@@ -72,3 +72,26 @@
 (defun skip-spaces ()
   "Пропуск 0 или более пробелов"
   (parse-many (parse-elem #\ )))
+
+(defun parse-hex ()
+  "Разбор шестнадцатеричного числа вида 0xFF"
+  (parse-app
+    (&&& (parse-elem #\0)
+         (parse-elem #\x)
+         (parse-pred #'is-hex-sym)
+         (parse-many (parse-pred #'is-hex-sym)))
+    #'(lambda (parts)
+        (strtoint (implode (cons (fourth parts) (fifth parts))) 16))))
+
+(defun parse-decimal ()
+  "Разбор десятичного числа (поддерживает -123)"
+  (parse-app
+    (&&& (parse-optional (parse-elem #\-))   ; ← необязательный минус
+         (parse-pred #'is-digit)
+         (parse-many (parse-pred #'is-digit)))
+    #'(lambda (parts)
+        (let ((minus (second parts))        ; nil или #\-
+              (first-digit (third parts))
+              (rest-digits (fourth parts)))
+          (let ((num (strtoint (implode (cons first-digit rest-digits)) 10)))
+            (if minus (- num) num))))))
