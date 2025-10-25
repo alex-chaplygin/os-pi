@@ -453,6 +453,20 @@ object_t shift_right(object_t obj1, object_t obj2)
     return new_number(num);
 }
 
+/**
+ * Побитовое не
+ *
+ * @param obj1 - число
+ *
+ * @return результат вычисления
+ */
+object_t bitwise_not(object_t obj)
+{
+    if (!IS_NUMBER(obj))
+	error("bitwise_not: Not number");
+    return new_number(~(get_value(obj)));
+}
+
 float sinf(float v);
 float cosf(float v);
 float roundf(float v);
@@ -551,6 +565,7 @@ void init_arith()
     register_func(">>", shift_right, 0, 2);
     register_func(">", gt, 0, 2);
     register_func("<", less, 0, 2);
+    register_func("~", bitwise_not, 0, 1);
     register_func("SIN", SIN, 0, 1);
     register_func("COS", COS, 0, 1);
     register_func("ROUND", ROUND, 0, 1);

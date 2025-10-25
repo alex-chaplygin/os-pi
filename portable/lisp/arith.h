@@ -8,6 +8,7 @@ object_t bitwise_or(object_t list);
 object_t bitwise_xor(object_t list);
 object_t shift_left(object_t obj1, object_t obj2);
 object_t shift_right(object_t obj1, object_t obj2);
+object_t bitwise_not(object_t list);
 object_t less(object_t obj1, object_t obj2);
 object_t gt(object_t obj1, object_t obj2);
 object_t equal(object_t obj1, object_t obj2);
