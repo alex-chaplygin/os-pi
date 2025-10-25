@@ -37,17 +37,19 @@
   (let ((s1 (stream-from-str "abc1")))
     (print (assertcar (funcall (parse-many #'get-byte) s1) '(#\a #\b #\c #\1)))
     (print (assertcar (funcall (parse-many (parse-pred #'is-alpha)) s1) '(#\a #\b #\c)))
-    (print (assert (funcall (parse-many (parse-elem #\1)) s1) '()))
+    (print (assertcar (funcall (parse-many (parse-elem #\1)) s1) '()))
     (print (assertcar (funcall (parse-many (parse-elem #\a)) (stream-from-str "aaaabca")) '(#\a #\a #\a #\a)))
     (print (assertcar (funcall (parse-many (parse-or (parse-elem #\a) (parse-elem #\b))) (stream-from-str "aababca")) '(#\a #\a #\b #\a #\b)))
   ))
   ;; (print (assert (funcall (parse-many (parse-elem 'B)) '(A C B)) '((() . (a c b))))))
 
-;; (deftest parse-some-test ()
-;;   "Тесты для parse-some"
-;;   (print (assert (funcall (parse-some (parse-elem 'A)) '(A A A A B C A)) '(((a a a a) . (b c a)))))
-;;   (print (assert (funcall (parse-some (parse-or (parse-elem 'A) (parse-elem 'B))) '(A A b A B C A)) '(((a a b a b) . (c a)))))
-;;   (print (assert (funcall (parse-some (parse-elem 'B)) '(A C B)) nil)))
+(deftest parse-some-test ()
+  "Тесты для parse-some"
+  (let ((s1 (stream-from-str "aac1"))
+	(s2 (stream-from-str "baac1")))
+    (print (assertcar (funcall (parse-some (parse-elem #\a)) s1) '(#\a #\a)))
+    (print (assertcar (funcall (parse-some (parse-elem #\b)) s2) '(#\b)))
+    (print (assert (funcall (parse-some (parse-elem #\c)) s2) nil))))
 
 (deftest parse-pred-test ()
   "Тесты для parse-pred"
