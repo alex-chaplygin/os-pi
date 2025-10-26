@@ -185,15 +185,15 @@
 
 
 (defun parse-sym ()
-  (parse-app #'get-byte #'(lambda (x) (list 'sym x))))
+  (parse-app (parse-pred #'is-alpha) #'(lambda (x) (list 'sym x))))
 
 (defun parse-expression () nil)
 
 (defun parse-group ()
-  (parse-app (&&& (parse-elem #\() (parse-element) (parse-elem #\))) #'second))
+  (parse-app (&&& (parse-elem #\() (parse-expression) (parse-elem #\))) #'second))
 
 (defun parse-element ()
-  (parse-app (&&& (parse-or (parse-sym)) (parse-optional (parse-elem #\*)))
+  (parse-app (&&& (parse-or (parse-sym) (parse-rec (parse-group))) (parse-optional (parse-elem #\*)))
 	 #'(lambda (x) (if (second x) (list 'star (car x)) (car x)))))
 
 (defun parse-expression ()

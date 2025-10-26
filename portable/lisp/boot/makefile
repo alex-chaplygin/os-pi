@@ -73,7 +73,7 @@ stream-test: $(BASELISP) stream.lsp $(TEST) test/stream.lsp
 	make -C ../test /tmp/lisp
 	cat $^ | /tmp/lisp
 # модульные тесты двоичное дерево
-regex-test: $(BASELISP) fa/nfa.lsp regex.lsp $(TEST) test/regex.lsp
+regex-test: $(BASELISP) fa/nfa.lsp stream.lsp parser.lsp regex.lsp $(TEST) test/regex.lsp
 	make -C ../test /tmp/lisp
 	cat $^ | /tmp/lisp
 
