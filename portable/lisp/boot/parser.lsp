@@ -68,6 +68,10 @@
   (parse-app (&&& parser (parse-many parser))
 	     #'(lambda (x) (cons (car x) (second x)))))
 
+(defmacro parse-rec (parser)
+  "Комбинатор для рекурсивных парсеров"
+  `#'(lambda (stream) (funcall ,parser stream)))
+
 (defun skip-spaces ()
   "Пропуск 0 или более пробелов"
   (parse-many (parse-elem #\ )))
