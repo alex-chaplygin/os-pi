@@ -349,4 +349,9 @@
   (defvar *test-var4* (+ 10 20))
   (print (assert (= *test-var4* 30) t)))
 
+(deftest swap16-test ()
+  "Тест для проверки swap16"
+  (print (assert (swap16 0xabcd) 0xcdab))
+  (print (assert (swap16 0x1) 0x0100)))
+
 (run-tests)

@@ -203,3 +203,9 @@
   (cond ((null obj) nil)
 	((atom obj) obj)
 	(t (cons (clone (car obj)) (clone (cdr obj))))))
+
+(defun swap16 (num)
+  "Меняет старший и младший байт местами для 16 битного числа"
+  (let ((high-byte (& (>> num 8) 0xff))
+	(low-byte (& num 0xff)))
+    (+ high-byte (<< low-byte 8))))
