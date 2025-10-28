@@ -178,23 +178,34 @@
 ;; 	T
 ;;       NIL)))
 
-
-;; Выражение = Элемент {Элемент}
+;; Выражение = Последовательность { '|' Последовательность }
+;; Последовательность = Элемент {Элемент}
 ;; Элемент = (cимвол | Группа) {'*'}
 ;; Группа = '(' Выражение ')'
 
-
+;; Предикат символа выражения, исключаются спец. сиволы
+(defun regex-sym (x) (not (contains '(#\( #\) #\* #\|) x)))
+;; Разбор символа      
 (defun parse-sym ()
-  (parse-app (parse-pred #'is-alpha) #'(lambda (x) (list 'sym x))))
+  (parse-app (parse-pred #'regex-sym) #'(lambda (x) (list 'sym x))))
 
 (defun parse-expression () nil)
 
+;; Группа = '(' Выражение ')'
 (defun parse-group ()
   (parse-app (&&& (parse-elem #\() (parse-expression) (parse-elem #\))) #'second))
 
+;; Элемент = (cимвол | Группа) {'*'}
 (defun parse-element ()
   (parse-app (&&& (parse-or (parse-sym) (parse-rec (parse-group))) (parse-optional (parse-elem #\*)))
 	 #'(lambda (x) (if (second x) (list 'star (car x)) (car x)))))
 
-(defun parse-expression ()
+;; Последовательность = Элемент {Элемент}
+(defun parse-seq ()
   (parse-app (parse-some (parse-element)) #'(lambda (x) (cons 'seq x))))
+
+;; Выражение = Последовательность { '|' Последовательность }
+(defun parse-expression ()
+  (parse-app (&&& (parse-seq)
+		  (parse-many (parse-app (&&& (parse-elem #\|) (parse-seq)) #'second )))
+	     #'(lambda (x) (if (second x) (list 'or (car x) (second x)) (car x)))))

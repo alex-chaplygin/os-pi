@@ -108,7 +108,8 @@
   (let ((s1 (stream-from-str "a*b*c"))
 	(s2 (stream-from-str "abcd"))
 	(s3 (stream-from-str "a"))
-	(s4 (stream-from-str "a*(bcd)*")))
+	(s4 (stream-from-str "a*(bcd)*"))
+	(s5 (stream-from-str "a|bc(d*|e)")))
     (print (assertcar (funcall (parse-expression) s1) '(SEQ (STAR (SYM #\a))
 							(STAR (SYM #\b))
 							(SYM #\c))))
@@ -118,7 +119,9 @@
 							(SYM #\d))))
     (print (assertcar (funcall (parse-expression) s3) '(SEQ (SYM #\a))))
     (print (assertcar (funcall (parse-expression) s4)
-		      '(SEQ (STAR (SYM #\a)) (STAR (SEQ (SYM #\b) (SYM #\c) (SYM #\d))))))))
+		      '(SEQ (STAR (SYM #\a)) (STAR (SEQ (SYM #\b) (SYM #\c) (SYM #\d))))))
+    (print (assertcar (funcall (parse-expression) s5)
+		      '(OR (SEQ (SYM #\a)) ((SEQ (SYM #\b) (SYM #\c) (OR (SEQ (STAR (SYM #\d))) ((SEQ (SYM #\e)))))))))))
 						
 
 (run-tests)
