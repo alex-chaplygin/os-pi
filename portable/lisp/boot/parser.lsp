@@ -22,13 +22,13 @@
 (defun &&& (&rest parsers)
   "Последовательный комбинатор применяет несколько парсеров подряд к потоку, каждый следующий parser применяется к остатку от работы предыдущего parser."
   #'(lambda (stream)
-      (labels ((apply-parser-and (parsers stream res)
+      (labels ((apply-parser (parsers stream res)
 		 (if (null parsers) (cons res stream)
 		     (let ((parser-res (funcall (car parsers) stream)))
 		       (if (null parser-res) nil
-			   (apply-parser-and (cdr parsers) (cdr parser-res)
+			   (apply-parser (cdr parsers) (cdr parser-res)
                                          (append res (list (car parser-res)))))))))
-	(apply-parser-and parsers stream nil))))
+	(apply-parser parsers stream nil))))
 
 (defun parse-or (&rest parsers)
   "Параллельный комбинатор принимает список парсеров parsers и работает до первого успешного разбора"

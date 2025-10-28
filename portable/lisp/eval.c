@@ -712,9 +712,14 @@ object_t eval(object_t obj, object_t env, object_t func)
 #ifdef DEBUG
     	debug_stack = new_pair(obj, debug_stack);
 #endif
-	if (s->lambda == NULLOBJ && s->func == NULL && s->macro == NULLOBJ && !find_in_env(func, first, &res))
+	int find = find_in_env(func, first, &res);
+	if (s->lambda == NULLOBJ && s->func == NULL && s->macro == NULLOBJ && !find)
 	    error("Unknown func: %s", s->str);
 	int args_count = list_length(TAIL(obj));
+	if (find) {
+	    s->nary = get_value(GET_ARRAY(res)->data[0]);
+	    s->count = get_value(GET_ARRAY(res)->data[1]);
+	}
 	if (s->nary == 0) {
 	    if (s->count != args_count)
 		error("%s: invalid arguments count", s->str);
@@ -728,8 +733,8 @@ object_t eval(object_t obj, object_t env, object_t func)
             args = eval_args(TAIL(obj), env, func);
 
         object_t result;
-        if (find_in_env(func, first, &res))
-            result = eval_func(res, args, env, func);
+        if (find)
+            result = eval_func(GET_ARRAY(res)->data[2], args, env, func);
         else if (s->lambda != NULLOBJ)
             result = eval_func(s->lambda, args, env, func);
         else if (s->func != NULL)
@@ -978,18 +983,20 @@ object_t labels(object_t forms, object_t body)
         first = FIRST(forms);
         if (TYPE(first) != PAIR || TYPE(SECOND(first)) != PAIR)
             error("labels: invalid function");
-        func_env = new_pair(new_pair(FIRST(first), new_pair(NEW_SYMBOL("LAMBDA"), TAIL(first))), func_env);
+	array_t *a = new_empty_array(3);          
 	name = GET_SYMBOL(FIRST(first));
 	list = SECOND(first);
 	rest = list_contains(list, rest_sym);
 	if (rest == -1) {
-	    name->nary = 0;
-	    name->count = list_length(list);
+	    a->data[0] = new_number(0);
+	    a->data[1] = new_number(list_length(list));
 	}
 	else {
-	    name->nary = 1;
-	    name->count = rest;
+	    a->data[0] = new_number(1);
+	    a->data[1] = new_number(rest);
 	}
+	a->data[2] = new_pair(NEW_SYMBOL("LAMBDA"), TAIL(first));
+	func_env = new_pair(new_pair(FIRST(first), NEW_OBJECT(ARRAY, a)), func_env);
 	forms = TAIL(forms);
     }
     object_t res = progn(body);
@@ -1011,7 +1018,7 @@ object_t function(object_t func)
 	symbol_t *s = find_symbol(GET_SYMBOL(func)->str);
 	object_t res;
 	if (find_in_env(func_env, func, &res)) // поиск локальной функции
-	    func = res;
+	    func = GET_ARRAY(res)->data[2];
 	else if (s->lambda != NULLOBJ) // если символ - пользовательская функция
 	    func = s->lambda;
 	else if (s->func != NULL) // если символ - примитив
