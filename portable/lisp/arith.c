@@ -227,15 +227,18 @@ object_t DIV(object_t first, object_t list)
  */
 object_t mod(object_t obj1, object_t obj2)
 {
-    if (obj1 == NULLOBJ || obj2 == NULLOBJ)
-        return 1;
-    if (!IS_NUMBER(obj1) || !IS_NUMBER(obj2))
-	return 1;
-    if (get_value(obj2) != 0) {
-        int num = get_value(obj1) % get_value(obj2);
-        return new_number(num);
-    } else 
-        return 1;
+    if(!IS_NUMBER(obj1))
+	error("mod: obj1 is not a whole number");
+    else if(!IS_NUMBER(obj2))
+	error("mod: obj2 is not a whole number");
+    int first = get_value(obj1);
+    int second = get_value(obj2);
+    if(second == 0)
+	error("mod: division by zero");
+    int result = first % second;
+    if(first * second < 0)
+	result += second;
+    return new_number(result);
 }
 
 /**

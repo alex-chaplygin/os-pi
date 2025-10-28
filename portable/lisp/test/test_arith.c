@@ -960,13 +960,120 @@ void test_less_wrong_second(){
         OK
 }
 
-/*Тест сравнения чисел на больше*/
-void test_gt(int num1, int num2, object_t token) 
+/**
+ * Тест функции gt для целых чисел
+ */
+void test_gt_int_int(int first, int second, object_t expected_res)
 {
-    printf("test_gt:");
-    object_t res = gt(new_number(num1), new_number(num2));
-    ASSERT(res, token);
+    printf("test_gt_int_int(%d, %d): ", first, second);
+    object_t real_res = gt(new_number(first), new_number(second));
+    ASSERT(expected_res, real_res);
 }
+
+/**
+ * Тест функции gt для чисел с плавающей точкой
+ */
+void test_gt_float_float(float first, float second, object_t expected_res)
+{
+    printf("test_gt_float_float(%f, %f): ", first, second);
+    object_t real_res = gt(new_float(first), new_float(second));
+    ASSERT(expected_res, real_res);
+}
+
+/**
+ * Тест функции gt для целого и вещественного чисел
+ */
+void test_gt_int_float(int first, float second, object_t expected_res)
+{
+    printf("test_gt_int_float(%d, %f): ", first, second);
+    object_t real_res = gt(new_number(first), new_float(second));
+    ASSERT(expected_res, real_res);
+}
+
+/**
+ * Тест функции gt для вещественного и целого чисел
+ */
+void test_gt_float_int(float first, int second, object_t expected_res){
+    printf("test_gt_float_int(%f, %d): ", first, second);
+    object_t real_res = gt(new_float(first), new_number(second));
+    ASSERT(expected_res, real_res);
+}
+
+/**
+ * Тест функции gt, где первый аргумент - не число
+ */
+void test_gt_wrong_first(){
+    printf("test_gt_wrong_first: ");
+    if (setjmp(jmp_env) == 0){
+        object_t res = gt(NULLOBJ, NULLOBJ);
+        FAIL
+    } else
+        OK
+}
+
+/**
+ * Тест функции gt, где второй аргумент - не число
+ */
+void test_gt_wrong_second(){
+    printf("test_gt_wrong_second: ");
+    if (setjmp(jmp_env) == 0){
+        object_t res = gt(new_float(8.2f), NULLOBJ);
+        FAIL
+    } else
+        OK
+}
+
+void test_mod_correct(int first, int second, int expected_res){
+    printf("test_mod_correct(%d, %d, %d): ", first, second, expected_res);
+    object_t real_res = get_value(mod(new_number(first), new_number(second)));
+    ASSERT(expected_res, real_res);
+}
+
+void test_mod_wrong_first_float(){
+    printf("test_mod_wrong_first_float: ");
+    if (setjmp(jmp_env) == 0){
+        object_t res = mod(new_float(8.2f), new_number(-7));
+        FAIL
+    } else
+        OK
+}
+
+void test_mod_wrong_first_null(){
+    printf("test_mod_wrong_first_null: ");
+    if (setjmp(jmp_env) == 0){
+        object_t res = mod(NULLOBJ, new_number(-7));
+        FAIL
+    } else
+        OK
+}
+
+void test_mod_wrong_second_float(){
+    printf("test_mod_wrong_second_float: ");
+    if (setjmp(jmp_env) == 0){
+        object_t res = mod(new_number(-7), new_float(8.2f));
+        FAIL
+    } else
+        OK
+}
+
+void test_mod_wrong_second_null(){
+    printf("test_mod_wrong_second_null: ");
+    if (setjmp(jmp_env) == 0){
+        object_t res = mod(new_number(-7), NULLOBJ);
+        FAIL
+    } else
+        OK
+}
+
+void test_mod_by_zero(){
+    printf("test_mod_wrong_second_null: ");
+    if (setjmp(jmp_env) == 0){
+        object_t res = mod(new_number(-7), new_number(0));
+        FAIL
+    } else
+        OK
+}
+    
 
 /*
 arith
@@ -1158,7 +1265,25 @@ int main()
     test_less_wrong_first();
     test_less_wrong_second();
 
-    test_gt(5, 3, t);
-    test_gt(3, 5, NULLOBJ);
+    test_gt_int_int(10, 25, nil);
+    test_gt_int_int(17, 6, t);
+    test_gt_float_float(10.2f, 25.8f, nil);
+    test_gt_float_float(10.2f, 1.5f, t);
+    test_gt_int_float(6, 7.0f, nil);
+    test_gt_int_float(8, 3.5f, t);
+    test_gt_float_int(3.1f, 4, nil);
+    test_gt_float_int(2.2f, 1, t);
+    test_gt_wrong_first();
+    test_gt_wrong_second();
+
+    test_mod_correct(142, 7, 2);
+    test_mod_correct(-142, 7, 5);
+    test_mod_correct(142, -7, -5);
+    test_mod_correct(-142, -7, -2);
+    test_mod_wrong_first_float();
+    test_mod_wrong_first_null();
+    test_mod_wrong_second_float();
+    test_mod_wrong_second_null();
+    test_mod_by_zero();
     return 0;
 }
