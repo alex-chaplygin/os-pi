@@ -27,4 +27,11 @@
     (astream-set-endianness (cdr w) nil) ; little-endian
     (print (assertcar (get-dword (cdr w)) 0xcbccff10))))
 
+(deftest get-4bit-test ()
+  "Тестирование чтения 4 бит"
+  (let* ((s (stream-from-arr #(0x67 0xff) t))
+	 (b (get-4bit s)))
+    (print (assertcar b '(6 . 7)))
+    (print (assertcar (get-4bit (cdr b)) '(15 . 15)))))
+
 (run-tests)

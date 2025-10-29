@@ -56,3 +56,12 @@
     (if (or (null r1) (null r2)) nil
 	(if (astream-endianness self) (cons (+ (<< (car r1) 16) (car r2)) (cdr r2))
 	  (cons (+ (car r1) (<< (car r2) 16)) (cdr r2))))))
+
+(defmethod get-4bit ((self astream))
+  "Чтение пары по 4 бита из потока
+   Возвращает точечную пару (пара по 4 бита . новое состояние потока) или nil если конец потока"
+  (let ((arr (astream-arr self))
+	(index (astream-byte-num self))
+	(r1 (get-byte self)))
+    (if (= r1 nil) nil
+	(cons (cons (>> (car r1) 4) (& (car r1) 0xf)) (cdr r1)))))
