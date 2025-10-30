@@ -34,4 +34,12 @@
     (print (assertcar b '(6 . 7)))
     (print (assertcar (get-4bit (cdr b)) '(15 . 15)))))
 
+(deftest get-array-test ()
+  "Тестирование чтения массива"
+  (let* ((s (stream-from-arr #(0x16 0xff 0xa0) t))
+	 (a1 (get-array s 2))
+	 (a2 (get-array (cdr a1) 1)))
+    (print (assertcar a1 #(22 255)))
+    (print (assertcar a2 #(160)))))
+	 
 (run-tests)

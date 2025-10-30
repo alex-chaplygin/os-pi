@@ -10,7 +10,7 @@
 
 (defmethod get-byte ((self SStream))
   "Чтение очередного символа из потока
-   Возвращает точчную пару (символ . новое состояние потока) или nil если конец потока"
+   Возвращает точечную пару (символ . новое состояние потока) или nil если конец потока"
   (let ((str (SStream-str self))
 	(index (SStream-index self)))
     (if (= index (string-size str)) nil
@@ -65,3 +65,14 @@
 	(r1 (get-byte self)))
     (if (= r1 nil) nil
 	(cons (cons (>> (car r1) 4) (& (car r1) 0xf)) (cdr r1)))))
+
+(defmethod get-array ((self astream) num)
+  "Чтение массива (n-байт) из потока
+   Возвращает точечную пару (массив . новое состояние потока) или nil если конец потока"
+  (let ((res (make-array num)))
+    (for i 0 num
+	 (let ((b (get-byte self)))
+	   (seta res i (car b))
+	   (setq self (cdr b))))
+    (cons res self)))
+	
