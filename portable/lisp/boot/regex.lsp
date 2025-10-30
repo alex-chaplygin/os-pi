@@ -202,10 +202,10 @@
 
 ;; Последовательность = Элемент {Элемент}
 (defun parse-seq ()
-  (parse-app (parse-some (parse-element)) #'(lambda (x) (cons 'seq x))))
+  (parse-app (parse-some (parse-element)) #'(lambda (x) (if (= (list-length x) 1) (car x) (cons 'seq x)))))
 
 ;; Выражение = Последовательность { '|' Последовательность }
 (defun parse-expression ()
   (parse-app (&&& (parse-seq)
 		  (parse-many (parse-app (&&& (parse-elem #\|) (parse-seq)) #'second )))
-	     #'(lambda (x) (if (second x) (list 'or (car x) (second x)) (car x)))))
+	     #'(lambda (x) (if (second x) (cons 'or (cons (car x) (second x))) (car x)))))

@@ -99,9 +99,9 @@
   (let ((s1 (stream-from-str "(a*)"))
 	(s2 (stream-from-str "(b)"))
 	(s3 (stream-from-str "((b))")))
-    (print (assertcar (funcall (parse-group) s1) '(seq (star (sym #\a)))))
-    (print (assertcar (funcall (parse-group) s2) '(seq (sym #\b))))
-    (print (assertcar (funcall (parse-group) s2) '(seq (sym #\b))))))
+    (print (assertcar (funcall (parse-group) s1) '(star (sym #\a))))
+    (print (assertcar (funcall (parse-group) s2) '(sym #\b)))
+    (print (assertcar (funcall (parse-group) s2) '(sym #\b)))))
 
 (deftest parse-expr-test ()
   "Тестирование выражения"
@@ -109,6 +109,7 @@
 	(s2 (stream-from-str "abcd"))
 	(s3 (stream-from-str "a"))
 	(s4 (stream-from-str "a*(bcd)*"))
+	(sor (stream-from-str "a|b|c"))
 	(s5 (stream-from-str "a|bc(d*|e)")))
     (print (assertcar (funcall (parse-expression) s1) '(SEQ (STAR (SYM #\a))
 							(STAR (SYM #\b))
@@ -117,11 +118,12 @@
 							(SYM #\b)
 							(SYM #\c)
 							(SYM #\d))))
-    (print (assertcar (funcall (parse-expression) s3) '(SEQ (SYM #\a))))
+    (print (assertcar (funcall (parse-expression) s3) '(SYM #\a)))
+    (print (assertcar (funcall (parse-expression) sor) '(OR (SYM #\a) (SYM #\b) (SYM #\c))))
     (print (assertcar (funcall (parse-expression) s4)
 		      '(SEQ (STAR (SYM #\a)) (STAR (SEQ (SYM #\b) (SYM #\c) (SYM #\d))))))
     (print (assertcar (funcall (parse-expression) s5)
-		      '(OR (SEQ (SYM #\a)) ((SEQ (SYM #\b) (SYM #\c) (OR (SEQ (STAR (SYM #\d))) ((SEQ (SYM #\e)))))))))))
+		      '(OR (SYM #\a) (SEQ (SYM #\b) (SYM #\c) (OR (STAR (SYM #\d)) (SYM #\e))))))))
 						
 
 (run-tests)
