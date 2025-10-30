@@ -35,7 +35,7 @@
     (if (= index (array-size arr)) nil
 	(cons (aref arr index) (make-astream arr index (astream-bit-num self) (astream-endianness self))))))
 
-(defmethod get-word ((self astream))
+(defun get-word (self)
   "Чтение очередного слова из потока (16 бит)
    Возвращает точечную пару (число . новое состояние потока) или nil если конец потока"
   (let* ((arr (astream-arr self))
@@ -46,7 +46,7 @@
 	(if (astream-endianness self) (cons (+ (<< (car r1) 8) (car r2)) (cdr r2))
 	  (cons (+ (car r1) (<< (car r2) 8)) (cdr r2))))))
 
-(defmethod get-dword ((self astream))
+(defun get-dword (self)
   "Чтение очередного слова из потока (32-бит)
    Возвращает точечную пару (число . новое состояние потока) или nil если конец потока"
   (let* ((arr (astream-arr self))
@@ -57,7 +57,7 @@
 	(if (astream-endianness self) (cons (+ (<< (car r1) 16) (car r2)) (cdr r2))
 	  (cons (+ (car r1) (<< (car r2) 16)) (cdr r2))))))
 
-(defmethod get-4bit ((self astream))
+(defun get-4bit (self)
   "Чтение пары по 4 бита из потока
    Возвращает точечную пару (пара по 4 бита . новое состояние потока) или nil если конец потока"
   (let ((arr (astream-arr self))
@@ -66,7 +66,7 @@
     (if (= r1 nil) nil
 	(cons (cons (>> (car r1) 4) (& (car r1) 0xf)) (cdr r1)))))
 
-(defmethod get-array ((self astream) num)
+(defun get-array (self num)
   "Чтение массива (n-байт) из потока
    Возвращает точечную пару (массив . новое состояние потока) или nil если конец потока"
   (let ((res (make-array num)))
@@ -76,3 +76,15 @@
 	   (setq self (cdr b))))
     (cons res self)))
 	
+(defun get-bit (self)
+  "Читает один бит из потока"
+  (let ((arr (astream-arr self))
+	(bit-num (astream-bit-num self))
+	(end (astream-endianness self))
+        (byte-num (astream-byte-num self)))
+    (when (= bit-num (if end 0 7))
+      (setq byte-num (++ byte-num))
+      (setq bit-num (if end 8 -1)))
+    (let ((new-bit-num (if end (-- bit-num) (++ bit-num))))
+      (cons (& 1 (>> (aref arr byte-num) new-bit-num))
+	    (make-astream arr byte-num new-bit-num end)))))
