@@ -79,7 +79,7 @@
 
 
 (defun parse-decimal (&rest delimiters)
-  "Разбор десятичного числа. Если список разделителей не задан, используются пробел и \\n."
+  "Разбор десятичного числа. Если список разделителей не задан, используются пробел и \n."
   (let ((dels (if (null delimiters)
                   (list #\  (code-char 10)) ; Разделители по умолчанию
                   (car delimiters))))
@@ -103,7 +103,7 @@
                     (throw 'parse-error "parse-decimal: Number not followed by a delimiter or end-of-stream"))))))))
 
 (defun parse-hex (&rest delimiters)
-  "Разбор шестнадцатеричного числа. Если список разделителей не задан, используются пробел и \\n."
+  "Разбор шестнадцатеричного числа. Если список разделителей не задан, используются пробел и \n."
   (let ((dels (if (null delimiters)
                   (list #\  (code-char 10))
                   (car delimiters))))
@@ -123,3 +123,14 @@
                               (throw 'parse-error "parse-hex: Invalid hexadecimal format or overflow")
                               (cons num rest-stream)))))
                     (throw 'parse-error "parse-hex: Number not followed by a delimiter or end-of-stream"))))))))
+
+
+;(defun parse-separated (parser separator-parser)
+; "Парсит одно или более вхождение parser, разделенное separator-parser"
+;  (parse-app (&&& parser (parse-many (&&& separator-parser parser)))
+;	     #'(lambda (x)
+;                 (labels ((map-cadr (lst)
+;                            (if (null lst)
+;                                nil
+;                                (cons (cadr (car lst)) (map-cadr (cdr lst))))))
+;                   (cons (car x) (map-cadr (cadr x)))))))

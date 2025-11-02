@@ -39,7 +39,7 @@
 	(iter (string-size str)))
     (while (> iter 0)
       (setq iter (- iter 1))
-	 (setq out-list (cons (char str iter) out-list)))
+	 	 (setq out-list (cons (char str iter) out-list)))
     out-list))
 
 (defun is-alpha (sym)
@@ -115,6 +115,35 @@
                      (check (cdr lst)))))) ; Рекурсивный шаг
     (check delimiters)))
 
+(defun strtofloat (str)
+  "Преобразует строку в число с плавающей точкой"
+  (let* ((parts (split #\. str))
+         (int-part (strtoint (car parts) 10))
+         (frac-part-str (cadr parts)))
+    (if (null frac-part-str)
+        int-part
+      (let ((frac-part (strtoint frac-part-str 10)))
+        (+ int-part (/ frac-part (expt 10.0 (string-size frac-part-str))))))))
+
+(defun numbertostr (n)
+  "Преобразует число в строку"
+  (if (= n 0) "0"
+    (let ((res nil))
+      (while (> n 0)
+        (setq res (cons (code-char (+ (% n 10) 48)) res))
+        (setq n (/ n 10)))
+      (implode res))))
+
+(defun string-upcase (str)
+  "Преобразует строку в верхний регистр"
+  (let ((new-str (make-string (string-size str) #\ )))
+    (for i 0 (string-size str)
+      (sets new-str i (toupper (char str i))))
+    new-str))
+
 (defun is-default-delimiter-p (c)
   "Проверяет, является ли символ c разделителем по умолчанию (пробел или новая строка)."
   (is-delimiter-p c (list #\  (code-char 10))))
+
+(defun is-whitespace (c)
+  (or (eq c #\ ) (eq c (code-char 10)) (eq c (code-char 9))))
