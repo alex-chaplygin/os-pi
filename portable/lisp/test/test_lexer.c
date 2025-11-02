@@ -18,6 +18,7 @@ extern char cur_symbol;
 
 FILE *oldstdin;
 
+
 jmp_buf jmp_env;
 
 void parser_error(char *str, ...)

@@ -22,13 +22,13 @@
 (defun &&& (&rest parsers)
   "Последовательный комбинатор. Возвращает nil, если любой из парсеров вернул nil."
   #'(lambda (stream)
-      (labels ((apply-parser-and (parsers stream res)
+      (labels ((apply-parser (parsers stream res)
 		 (if (null parsers) (cons res stream)
 		     (let ((parser-res (funcall (car parsers) stream)))
 		       (if (null parser-res) nil
-			   (apply-parser-and (cdr parsers) (cdr parser-res)
+			   (apply-parser (cdr parsers) (cdr parser-res)
                                          (append res (list (car parser-res)))))))))
-	(apply-parser-and parsers stream nil))))
+	(apply-parser parsers stream nil))))
 
 (defun parse-or (&rest parsers)
   "Параллельный комбинатор. Пробует парсеры по очереди. Если ни один не сработал,
