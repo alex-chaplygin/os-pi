@@ -78,3 +78,23 @@
 (defmacro parse-rec (parser)
   "Комбинатор для рекурсивных парсеров"
   `#'(lambda (stream) (funcall ,parser stream)))
+
+(defun parse-hex ()
+  "Разбор шестнадцатеричного числа вида 0xFF"
+  (parse-app
+    (&&& (parse-elem #\0)
+         (parse-elem #\x)
+         (parse-pred #'is-hex-sym)
+         (parse-many (parse-pred #'is-hex-sym)))
+    #'(lambda (parts)
+        (strtoint (implode (cons (third parts) (forth parts))) 16))))
+
+(defun parse-decimal ()
+  "Разбор десятичного числа (поддерживает -123)"
+  (parse-app
+    (&&& (parse-optional (parse-elem #\-))   ; ← необязательный минус
+         (parse-pred #'is-digit)
+         (parse-many (parse-pred #'is-digit)))
+    #'(lambda (parts)
+	(let ((num (strtoint (implode (cons (second parts) (third parts))) 10)))
+            (if (car parts) (- num) num)))))
