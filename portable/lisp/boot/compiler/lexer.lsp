@@ -39,15 +39,6 @@
         (intern (implode (map #'(lambda (char) (toupper char))
                               (cons (car parts) (second parts))))))))
 
-;; (defun parse-tfunction ()
-;;   "Разбор функции вида #'name"
-;;   (parse-app
-;;     (&&& (skip-spaces)
-;;          (parse-elem #\#)
-;;          (parse-elem #\')
-;;          (parse-s))  ; ← зависит от parse-s (циклическая зависимость — допустима)
-;;     #'(lambda (parts) (list 'FUNCTION (fourth parts)))))
-
 (defun parse-escape (char value)
   "Разбор экранированной последовательности"
   (parse-app
@@ -62,12 +53,6 @@
                                (parse-pred #'(lambda (sym) (!= sym #\")))))
          (parse-elem #\"))
     #'(lambda (parts) (implode (second parts)))))
-
-;; (defun parse-tarray ()
-;;   "Разбор массива #(...)"
-;;   (parse-app
-;;     (&&& (parse-elem #\#) (parse-list))
-;;     #'(lambda (parts) (list-to-array (second parts)))))
 
 (defun lisp-token ()
   "Лексема языка Лисп"
