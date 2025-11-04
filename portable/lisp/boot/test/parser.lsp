@@ -62,21 +62,11 @@
   (print (assertcar (funcall (parse-optional (parse-elem #\4)) (stream-from-str "456")) #\4))
   (print (assertcar (funcall (parse-optional (parse-elem #\4)) (stream-from-str "123")) nil)))
 
-;; (deftest parse-many-sep-test ()
-;;   "Тесты для parse-many-sep"
-;;   (print "parse-many-sep")
-;;   (let ((parser (parse-many-sep (parse-elem 1) (parse-elem 0))))
-;;     (print (assert (funcall parser '(1 0 1 0 1 2)) '(((1 1 1) . (2)))))
-;;     (print (assert (funcall parser '(2 1 0 1)) '((() . (2 1 0 1)))))
-;;     (print (assert (funcall parser '()) '((() . ()))))))
-
-;; (deftest parse-some-sep-test ()
-;;   "Тесты для parse-some-sep"
-;;   (print "parse-some-sep")
-;;   (let ((parser (parse-some-sep (parse-elem 1) (parse-elem 0))))
-;;     (print (assert (funcall parser '(1 0 1 2)) '(((1 1) . (2)))))
-;;     (print (assert (funcall parser '(2 1 0 1)) nil))
-;;     (print (assert (funcall parser '()) nil))
-;;     (print (assert (funcall parser '(1)) '(((1) . ()))))))
+(deftest parse-sep-test ()
+  "Тесты для комбинатора с разделителем"
+  (let ((parser (parse-sep (parse-elem 1) (parse-elem 0))))
+    (print (assertcar (funcall parser (stream-from-arr #(1 0 1 0 1 2) t)) '(1 1 1)))
+    (print (assertcar (funcall parser (stream-from-arr #(0 1 0 1 0 1 2) t)) '(1 1 1)))
+    (print (assertcar (funcall parser (stream-from-arr #(2 0 1 0 1 2) t)) nil))))
 
 (run-tests)

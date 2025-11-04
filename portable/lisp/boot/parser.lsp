@@ -46,6 +46,9 @@
       (let ((r (funcall parser stream)))
 	(if (null r) nil (cons (funcall f (car r)) (cdr r))))))
 
+(defun parse-return (res)
+  #'(lambda (x) res))
+
 (defun parse-many (parser)
   "Комбинатор - 0 или более повторений заданного парсера. Возвращает список результатов"
   #'(lambda (stream)
@@ -68,33 +71,10 @@
   (parse-app (&&& parser (parse-many parser))
 	     #'(lambda (x) (cons (car x) (second x)))))
 
+(defun parse-sep (parser sep)
+  "Комбинатор - список парсеров, разделенных парсером sep"
+  (parse-many (parse-app (&&& (parse-optional sep) parser) #'second)))
+
 (defmacro parse-rec (parser)
   "Комбинатор для рекурсивных парсеров"
   `#'(lambda (stream) (funcall ,parser stream)))
-
-(defun skip-spaces ()
-  "Пропуск 0 или более пробелов"
-  (parse-many (parse-elem #\ )))
-
-(defun parse-hex ()
-  "Разбор шестнадцатеричного числа вида 0xFF"
-  (parse-app
-    (&&& (parse-elem #\0)
-         (parse-elem #\x)
-         (parse-pred #'is-hex-sym)
-         (parse-many (parse-pred #'is-hex-sym)))
-    #'(lambda (parts)
-        (strtoint (implode (cons (fourth parts) (fifth parts))) 16))))
-
-(defun parse-decimal ()
-  "Разбор десятичного числа (поддерживает -123)"
-  (parse-app
-    (&&& (parse-optional (parse-elem #\-))   ; ← необязательный минус
-         (parse-pred #'is-digit)
-         (parse-many (parse-pred #'is-digit)))
-    #'(lambda (parts)
-        (let ((minus (second parts))        ; nil или #\-
-              (first-digit (third parts))
-              (rest-digits (fourth parts)))
-          (let ((num (strtoint (implode (cons first-digit rest-digits)) 10)))
-            (if minus (- num) num))))))
