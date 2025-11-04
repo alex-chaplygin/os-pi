@@ -8,6 +8,10 @@ compiler-test: $(COMPILER) ../test.lsp test-compiler.lsp
 	make -C ../../test /tmp/lisp
 	cat $^ | /tmp/lisp
 
+lexer-test: $(BASELISP) ../stream.lsp ../parser.lsp lexer.lsp ../test.lsp test-lexer.lsp
+	make -C ../../test /tmp/lisp
+	cat $^ | /tmp/lisp
+
 test: $(COMPILER) ../test.lsp vm.lsp test.lsp
 	make -C ../../test /tmp/lisp
 	cat $^ | /tmp/lisp
