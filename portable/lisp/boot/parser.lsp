@@ -48,6 +48,9 @@
       (let ((r (funcall parser stream)))
 	(if (null r) nil (cons (funcall f (car r)) (cdr r))))))
 
+(defun parse-return (res)
+  #'(lambda (x) res))
+
 (defun parse-many (parser)
   "Комбинатор - 0 или более повторений. Никогда не возвращает nil."
   #'(lambda (stream)
