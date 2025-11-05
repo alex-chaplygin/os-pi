@@ -61,6 +61,7 @@ void exception_handler(int num)
     panic();
 }
 
+void vm_apply(object_t fun, object_t args);
 /** 
  * Обработчик прерываний
  * 
@@ -71,11 +72,12 @@ void interrupt_handler(int num)
     extern object_t current_env;
     object_t env;
     object_t h = int_handlers[num - IRQ_BASE];
-    if (h) {
-	env = current_env;
-	eval(new_pair(h, NULLOBJ), env, NULLOBJ);
-	current_env = env;
-    }
+    if (h)
+#ifdef VM
+	vm_apply(h, NULLOBJ);
+#else
+        funcall(h, NULLOBJ);
+#endif
 }
 
 /** 
