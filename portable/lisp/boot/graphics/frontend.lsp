@@ -1,6 +1,6 @@
 (defvar *new-path* nil)              ; Список строк
 (defvar *path-begin* (cons 0 0))     ; Последняя точка пути
-(defvar *cur-point* nil)             ; Текущая точка
+(defvar *cur-point* (cons 0 0))             ; Текущая точка
 (defvar *cur-state* (make-hash))     ; Текущее состояние
 (set-hash *cur-state* 'ctm (mat-id)) ; Матрица трансформации
 (set-hash *cur-state* 'color 0)      ; Цвет
