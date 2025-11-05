@@ -22,7 +22,7 @@
 #define APPLY 37 // номер примитива apply
 #define REG_CALL 12 // операция return
 #define RETURN_OP 13 // операция return
-#define VM_THRESHOLD (2 * 1024 * 1024) // порог сборки мусора
+#define VM_THRESHOLD (400 * 1024) // порог сборки мусора
 
 //Размер памяти программы
 int program_size;
