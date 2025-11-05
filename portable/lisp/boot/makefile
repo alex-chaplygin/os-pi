@@ -1,5 +1,5 @@
 include common.mak
-KEYBOARD=$(BASELISP) sys/keyboard.lsp sys/events.lsp
+KEYBOARD=$(BASELISP) sys/keyboard.lsp
 SHELL=bash
 SUBDIRS=graphics
 
@@ -19,11 +19,6 @@ queue-test: $(BASELISP) $(TEST) test/queue.lsp
 
 # модульные тесты парсера
 parser-test: $(BASELISP) stream.lsp parser.lsp $(TEST) test/parser.lsp
-	make -C ../test /tmp/lisp
-	cat $^ | /tmp/lisp
-
-# модульные тесты цикла событий
-key-test: $(BASELISP) sys/keyboard.lsp test/key.lsp sys/events.lsp 
 	make -C ../test /tmp/lisp
 	cat $^ | /tmp/lisp
 
@@ -74,11 +69,6 @@ stream-test: $(BASELISP) stream.lsp $(TEST) test/stream.lsp
 	cat $^ | /tmp/lisp
 # модульные тесты двоичное дерево
 regex-test: $(BASELISP) fa/nfa.lsp stream.lsp parser.lsp regex.lsp $(TEST) test/regex.lsp
-	make -C ../test /tmp/lisp
-	cat $^ | /tmp/lisp
-
-# модульные тесты лексера
-lexer-test: $(BASELISP) math.lsp stream.lsp parser.lsp compiler/lexer.lsp $(TEST) test/lexer.lsp
 	make -C ../test /tmp/lisp
 	cat $^ | /tmp/lisp
 

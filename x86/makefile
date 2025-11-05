@@ -1,5 +1,5 @@
 OBJS=x86.o idt.o isr.o irq.o keyboard.o gdt.o console.o sys.o graphics.o
-CFLAGS=-D X32 -g -m32 -nostdlib -nodefaultlibs -Wno-builtin-declaration-mismatch -I../include -I../portable/lisp -fno-stack-protector -fstack-check=no
+CFLAGS=-D X32 -DVM -g -m32 -nostdlib -nodefaultlibs -Wno-builtin-declaration-mismatch -I../include -I../portable/lisp -fno-stack-protector -fstack-check=no
 
 all: $(OBJS)
 

@@ -27,10 +27,13 @@
 
 (deftest parse-or-test ()
   "Тесты для parse-or"
-  (let ((s1 (stream-from-str "abc")))
+  (let ((s1 (stream-from-str "abc"))
+        (*parse-errors* nil))
     (print (assertcar (funcall (parse-or (parse-elem #\a) (parse-elem #\b)) s1) #\a))
     (print (assertcar (funcall (parse-or (parse-elem #\c) (parse-elem #\b) (parse-elem #\a)) s1) #\a))
-    (print (assert (catch 'parse-error (funcall (parse-or (parse-elem #\d) (parse-elem #\1)) s1)) "parse-or: All alternatives failed"))))
+    (let ((failing-parser (parse-or (parse-elem #\d) (parse-elem #\1))))
+      (print (assert (funcall failing-parser s1) nil))
+      (print (assert (car *parse-errors*) "parse-or: All alternatives failed")))))
 
 (deftest parse-many-test ()
   "Тесты для parse-many"
@@ -45,10 +48,12 @@
 (deftest parse-some-test ()
   "Тесты для parse-some"
   (let ((s1 (stream-from-str "aac1"))
-	(s2 (stream-from-str "baac1")))
+	(s2 (stream-from-str "baac1"))
+        (*parse-errors* nil))
     (print (assertcar (funcall (parse-some (parse-elem #\a)) s1) '(#\a #\a)))
     (print (assertcar (funcall (parse-some (parse-elem #\b)) s2) '(#\b)))
-    (print (assert (funcall (parse-some (parse-elem #\c)) s2) nil))))
+    (print (assert (funcall (parse-some (parse-elem #\c)) s2) nil))
+    (print (assert (car *parse-errors*) "parse-some: Expected at least one occurrence"))))
 
 (deftest parse-pred-test ()
   "Тесты для parse-pred"

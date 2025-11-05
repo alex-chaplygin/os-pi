@@ -245,8 +245,8 @@ object_t SET_INT_HANDLER(object_t irq, object_t fun)
 {
     if (TYPE(irq) != NUMBER || TYPE(fun) != FUNCTION)
 	error("SET-INT-HANDLER: invalid params\n");
-     set_int_handler(irq, fun);
-     return NULLOBJ;
+    set_int_handler(get_value(irq), fun);
+    return NULLOBJ;
 }
 
 /** 

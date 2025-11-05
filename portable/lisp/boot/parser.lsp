@@ -1,10 +1,16 @@
+;; ОБЪЯВЛЕНИЕ ГЛОБАЛЬНОЙ ПЕРЕМЕННОЙ ДЛЯ ОШИБОК ПАРСИНГА
+(defvar *parse-errors* nil)
+
 (defun parse-suc (val)
   "Элементарный парсер - успешный разбор со значением val"
   #'(lambda (stream) (cons val stream)))
 
-(defun parse-fail ()
-  "Элементарный парсер - неудачный разбор. Возвращает nil"
-  #'(lambda (stream) nil))
+(defun parse-fail (&rest message)
+  "Создает парсер, который всегда завершается неудачей, записывая сообщение об ошибке."
+  (let ((msg (if message (car message) "Unknown parse error")))
+    #'(lambda (stream)
+	(setq *parse-errors* (cons msg *parse-errors*))
+	nil)))
 
 (defun parse-pred (pred)
   "Парсер по предикату. Возвращает символ или nil."
@@ -30,14 +36,15 @@
                                          (append res (list (car parser-res)))))))))
 	(apply-parser parsers stream nil))))
 
+
 (defun parse-or (&rest parsers)
   "Параллельный комбинатор. Пробует парсеры по очереди. Если ни один не сработал,
-   выбрасывает фатальную ошибку."
+   сообщает об ошибке."
   (unless parsers (error "parse-or: no parsers"))
   #'(lambda (stream)
       (labels ((apply-parser (parsers stream)
 		 (if (null parsers) 
-		     (throw 'parse-error "parse-or: All alternatives failed")
+		     (funcall (parse-fail "parse-or: All alternatives failed") stream)
 		   (let ((parser-res (funcall (car parsers) stream)))
 		     (if (null parser-res) (apply-parser (cdr parsers) stream) parser-res)))))
       (apply-parser parsers stream))))
@@ -69,8 +76,12 @@
 
 (defun parse-some (parser)
   "Комбинатор - 1 или более повторений. Возвращает nil при неудаче."
-  (parse-app (&&& parser (parse-many parser))
-	     #'(lambda (x) (cons (car x) (nth x 1)))))
+  #'(lambda (stream)
+      (let ((first-res (funcall parser stream)))
+        (if (null first-res)
+            (funcall (parse-fail "parse-some: Expected at least one occurrence") stream)
+            (let* ((many-res (funcall (parse-many parser) (cdr first-res))))
+              (cons (cons (car first-res) (car many-res)) (cdr many-res)))))))
 
 (defmacro parse-rec (parser)
   "Комбинатор для рекурсивных парсеров"
@@ -126,14 +137,3 @@
                               (throw 'parse-error "parse-hex: Invalid hexadecimal format or overflow")
                               (cons num rest-stream)))))
                     (throw 'parse-error "parse-hex: Number not followed by a delimiter or end-of-stream"))))))))
-
-
-;(defun parse-separated (parser separator-parser)
-; "Парсит одно или более вхождение parser, разделенное separator-parser"
-;  (parse-app (&&& parser (parse-many (&&& separator-parser parser)))
-;	     #'(lambda (x)
-;                 (labels ((map-cadr (lst)
-;                            (if (null lst)
-;                                nil
-;                                (cons (cadr (car lst)) (map-cadr (cdr lst))))))
-;                   (cons (car x) (map-cadr (cadr x)))))))
