@@ -43,7 +43,7 @@ extern interrupt_handler
 extern current_proc
 extern keyboard_interrupt	
 
-MEMSIZE equ 128 * 1024 * 1024 	; 128M
+MEMSIZE equ 512 * 1024 * 1024 	; 512M
 stack_end equ MEMSIZE
 stack_begin equ 0xF0000000
 start:
@@ -229,7 +229,7 @@ a_timer:
 
 %macro interrupt 1
         cli			
-	push 1
+	push %1 - 32
 	call end_of_interrupt
         add esp, 4
         push %1
