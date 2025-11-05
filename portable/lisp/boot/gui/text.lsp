@@ -1,59 +1,33 @@
-; текстовый элемент
-(defclass text element ())
 
-(defmethod set-defaults ((self text))
-  (super set-defaults self)
-  (setf (slot self 'color) +black+)
-  (setf (slot self 'back-color) +blue+)
-  (setf (slot self 'height) 1)
-  (setf (slot self 'width) (string-size (slot self 'text)))
-  (set-padding self #(0 0 0 0)))
+; текстовый элемент
+(defclass text element (text colour))
 
 (defmethod draw ((self text))
-  (super draw self)
-  (let ((x (slot self 'x))
-	(y (slot self 'y))
-	(txt (slot self 'text)))
-    (print-text txt x y (slot self 'width))))
-
-(defun find-last-space (text ind)
-  (cond ((equal ind 0) 0)
-	(t (if (equal (char text ind) 32) ind
-	     (find-last-space text (-- ind))))))
-		    
-(defun print-text-beta (text x y w)
-  "ПОКА НЕ РАБОТЕТ ИЩИТЕ БАГИ Переносит текст на новую строку, если он выходит за пределы поля"
-  "text - изначальный текст"
-  "x,y - координаты левого верхнего угла"
-  "w - ширина элемента"
-  (let ((len (string-size text))
-	(str (subseq text 0 w))
-	(sym (char text (+ w 1)))
-	(lasttext))
-    (if (= sym 32)
-	(progn
-	  (set-cursor x y)
-	  (putstring str)
-	  (lasttext (subseq text w len)))
-      (progn
-	(lastind (find-last-space str))
-	(set-cursor x y)
-	(putstring (subseq str 0 lastind))
-	(lasttext  (subseq text lastind len))))
-        
-    (when (> len w)
-	(print-text lasttext x (+ y 1) w))))
-    
-        
- (defun print-text (txt x y w)
-  "text - изначальный текст"
-  "x,y - координаты левого верхнего угла"
-  "w - ширина элемента"
-  (let* ((len (string-size txt))
-	; (sym (char txt (+ w 1)))
-	 (str (subseq txt 0 (if (> w len) len w))))
-	 ;(idx w));(if (equal sym 32) (find-last-space str (- len 1)) w)))
-    (set-cursor x y)
-    (putstring str)
-    (when (> len w)
-      (print-text (subseq txt w len) x (+ y 1) w))))
+  "Рисует текст перенося не поместившуюся чать на следующую строку"
+  (let*  ((bc (text-back-colour self))
+	  (colour (text-colour self))
+	  (text (text-text self))
+	  (x (text-x self))
+	  (y (text-y self))
+	  (width (text-width self))
+	  (height (text-height self))
+	  (len (string-size text))
+	  (rem (% len width))
+	  (count (/ len width)))	 
+    (when (not (null bc))
+  	(set-colour bc)
+  	(fill-rect x y width height))
+    (move-to x y)
+    (set-colour (if bc (+ colour (<< bc 4)) colour))
+    (for i 0 count
+  	 (show-text (subseq text (* i width) (* (+ 1 i) width)))
+  	 (translate (cons 0 1)))
+    (when (> rem 0) (show-text (subseq text (- len rem) len)))))
+      
+;; (defmethod set-defaults ((self text))
+;;   (super set-defaults self)
+;;   (setf (slot self 'color) +black+)
+;;   (setf (slot self 'back-color) +blue+)
+;;   (setf (slot self 'height) 1)
+;;   (setf (slot self 'width) (string-size (slot self 'text)))
+;;   (set-padding self #(0 0 0 0)))
