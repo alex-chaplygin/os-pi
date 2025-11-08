@@ -12,6 +12,10 @@ lexer-test: $(BASELISP) ../math.lsp ../stream.lsp ../parser.lsp lexer.lsp ../tes
 	make -C ../../test /tmp/lisp
 	cat $^ | /tmp/lisp
 
+syntax-analyzer-test: $(BASELISP) ../math.lsp ../stream.lsp ../parser.lsp ../str.lsp lexer.lsp parser.lsp ../test.lsp test-parser.lsp
+	make -C ../../test /tmp/lisp
+	cat $^ | /tmp/lisp
+
 test: $(COMPILER) ../test.lsp vm.lsp test.lsp
 	make -C ../../test /tmp/lisp
 	cat $^ | /tmp/lisp

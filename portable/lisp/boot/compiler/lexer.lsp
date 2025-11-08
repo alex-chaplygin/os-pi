@@ -86,7 +86,7 @@
          (list (strtofloat (if sign (concat "-" float-str) float-str)))))))
 
 (defun parse-sym-tok ()
-  "Парсит идентификатор (symbol)."
+  "Парсит идентификатор"
   (parse-app (parse-some (parse-pred #'(lambda (c) (not (is-delim c)))))
 	     #'(lambda (x) (list (intern (string-upcase (implode x)))))))
 
@@ -113,7 +113,7 @@
 
 (defun parse-comma-tok ()
   "Парсит запятую как токен."
-    (parse-app (&&& (parse-comma) (parse-rec (parse-token)))
+    (parse-app (&&& (parse-comma) (parse-optional (parse-rec (parse-token))))
         #'(lambda (x) (append (car x) (cadr x)))))
 
 (defun parse-char-sharp ()
@@ -123,7 +123,7 @@
 
 (defun parse-func-sharp ()
   "Парсит цитату функции после #'."
-  (parse-app (&&& (parse-elem #\') (parse-rec (parse-token)))
+  (parse-app (&&& (parse-elem #\') (parse-optional (parse-rec (parse-token))))
              #'(lambda (x) (append (list 'FUNCTION) (cadr x)))))
 
 (defun parse-sharp ()
@@ -136,12 +136,12 @@
 
 (defun parse-quote-tok ()
   "Парсит цитату как токен."
-  (parse-app (&&& (parse-elem #\') (parse-rec (parse-token)))
+  (parse-app (&&& (parse-elem #\') (parse-optional (parse-rec (parse-token))))
              #'(lambda (x) (append (list 'QUOTE) (cadr x)))))
 
 (defun parse-backq-tok ()
   "Парсит обратную цитату как токен."
-  (parse-app (&&& (parse-elem #\`) (parse-rec (parse-token)))
+  (parse-app (&&& (parse-elem #\`) (parse-optional (parse-rec (parse-token))))
              #'(lambda (x) (append (list 'BACKQUOTE) (cadr x)))))
 
 (defun parse-token ()
