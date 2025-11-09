@@ -53,7 +53,7 @@
 ;; (print (assert (match "num 5350 test" "[0123456789]+") "5350"))
 ;; (setq time_re "[012345]?[0123456789]:[012345][0123456789]")
 ;; (print (assert (match "time: 27:15" time_re) "27:15"))
-;; (print (assert (match "time: 62:15" time_re) NIL))
+;; (print (assert (match "time: 62:15" time_re) "2:15")
 ;; (print (assert (match "time: 1:27" time_re) "1:27"))
 ;; (print (assert (match "time: 27:1" time_re) NIL))
 ;; (setq url_re "https?://[w%.]*swsu%.ru")
