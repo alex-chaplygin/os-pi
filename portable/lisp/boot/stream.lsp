@@ -16,6 +16,22 @@
     (if (= index (string-size str)) nil
       (cons (char str index) (make-SStream str (++ index))))))
 
+
+;; Поток на основе списка
+(defclass LStream() (list ; список
+		     ))
+
+(defun stream-from-list (list)
+  "Создает поток из списка"
+  (make-lstream list))
+
+(defmethod get-byte ((self lstream))
+  "Чтение очередного элемента списка из потока
+   Возвращает точечную пару (элемент . новое состояние потока) или nil, если конец потока"
+  (let ((list (lstream-list self)))
+    (if (null list) nil
+      (cons (car list) (make-lstream (cdr list))))))
+
 ;; Поток на основе массива
 (defclass AStream () (arr ; массив
 		      byte-num ; номер текущего байта
@@ -63,7 +79,7 @@
   (let ((arr (astream-arr self))
 	(index (astream-byte-num self))
 	(r1 (get-byte self)))
-    (if (= r1 nil) nil
+    (if (null r1) nil
 	(cons (cons (>> (car r1) 4) (& (car r1) 0xf)) (cdr r1)))))
 
 (defun get-array (self num)
