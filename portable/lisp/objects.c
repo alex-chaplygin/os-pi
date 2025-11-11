@@ -95,6 +95,10 @@ extern object_t func_env;
 continuation_t tagbody_buffers[MAX_TAGBODY_SIZE];
 ///текущий индекс-буфер для tagbody
 int tb_index_buf = 0;
+/// точка вычисления меток catch
+catch_t catch_buffers[MAX_CATCH_SIZE];
+///текущий индекс-буфер для catch
+int ct_index_buf;
 
 /**
  * Инициализация объектов
@@ -755,6 +759,11 @@ void garbage_collect()
     for (int i = 0; i < tb_index_buf; i++) {
     	mark_object(tagbody_buffers[i].environment);
     	mark_object(tagbody_buffers[i].func_environment);
+    }
+    for (int i = ct_index_buf; i < MAX_CATCH_SIZE; i++) {
+        mark_object(catch_buffers[i].tag);
+        mark_object(catch_buffers[i].buff.environment);
+        mark_object(catch_buffers[i].buff.func_environment);
     }
     object_t **temp = protected;
     for (int i = 0; i < last_protected; i++, temp++)

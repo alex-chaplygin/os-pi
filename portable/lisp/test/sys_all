@@ -526,8 +526,12 @@ sh sys_test "(progn 1 2 3 (error \"e\") 4 5 6)" "ERROR: \"e\""
 
 echo "---Тесты CATCH---"
 sh sys_test "(CATCH)" "catch: no arguments"
-sh sys_test "(CATCH 'A)" "NIL"
+sh sys_test "(CATCH 'A)" "()"
 sh sys_test "(CATCH 'A 1 2 3)" "3"
+# вложенный catch-throw
+sh sys_test "(CATCH 'a (CATCH 'b (THROW 'a 1)))" "1"
+# ошибка: throw без соответствующего catch
+sh sys_test "(CATCH 'd (THROW 'd 2) 1)" "2"
 
 echo "---Тесты PROGN---"
 sh sys_test "(PROGN)" "NIL"

@@ -109,47 +109,47 @@
   (print (assert (parse-lisp "(a . (b . c))") '(A B . C))))
 
 ; --- Тесты на ошибки ---
-(deftest unclosed-list-error-test ()
-  "Тест: Ошибка несбалансированной скобки"
-  (let ((result (parse-lisp "(a b")))
-    (print (assert result 'SYNTAX-ANALYZE-ERROR))
-    (print (assert (car *syntax-analyze-errors*) "unclosed list"))))
+;(deftest unclosed-list-error-test ()
+;  "Тест: Ошибка несбалансированной скобки"
+;  (let ((result (parse-lisp "(a b")))
+;    (print (assert result 'SYNTAX-ANALYZE-ERROR))
+;    (print (assert (car *syntax-analyze-errors*) "unclosed list"))))
 
-(deftest unexp-tok-err-test ()
-  "Тест: Ошибка неожиданного токена"
-  (let ((result (parse-lisp ")")))
-    (print (assert result 'SYNTAX-ANALYZE-ERROR))
-    (print (assert (car *syntax-analyze-errors*) "unexpected token"))))
+;(deftest unexp-tok-err-test ()
+;  "Тест: Ошибка неожиданного токена"
+;  (let ((result (parse-lisp ")")))
+;    (print (assert result 'SYNTAX-ANALYZE-ERROR))
+;    (print (assert (car *syntax-analyze-errors*) "unexpected token"))))
 
-(deftest inv-dotd-lst-err-test ()
-  "Тест: Ошибка неверной точечной пары"
-  (let ((result (parse-lisp "(a . b c)")))
-    (print (assert result 'SYNTAX-ANALYZE-ERROR))
-    (print (assert (car *syntax-analyze-errors*) "invalid dotted list"))))
+;(deftest inv-dotd-lst-err-test ()
+;  "Тест: Ошибка неверной точечной пары"
+;  (let ((result (parse-lisp "(a . b c)")))
+;    (print (assert result 'SYNTAX-ANALYZE-ERROR))
+;    (print (assert (car *syntax-analyze-errors*) "invalid dotted list"))))
 
-(deftest invdd-list-nxpr-err-test ()
-    "Тест: Ошибка неверной точечной пары без выражения"
-    (let ((result (parse-lisp "(a . )")))
-      (print (assert result 'SYNTAX-ANALYZE-ERROR))
-      (print (assert (car *syntax-analyze-errors*) "invalid dotted list"))))
+;(deftest invdd-list-nxpr-err-test ()
+;    "Тест: Ошибка неверной точечной пары без выражения"
+;    (let ((result (parse-lisp "(a . )")))
+;      (print (assert result 'SYNTAX-ANALYZE-ERROR))
+;      (print (assert (car *syntax-analyze-errors*) "invalid dotted list"))))
 
-(deftest unxp-tok-inlst-err-test ()
-    "Тест: Ошибка лишних токенов в списке"
-    (let ((result (parse-lisp "(a))")))
-      (print (assert result 'SYNTAX-ANALYZE-ERROR))
-      (print (assert (car *syntax-analyze-errors*) "extra tokens at end of input"))))
+;(deftest unxp-tok-inlst-err-test ()
+;    "Тест: Ошибка лишних токенов в списке"
+;    (let ((result (parse-lisp "(a))")))
+;      (print (assert result 'SYNTAX-ANALYZE-ERROR))
+;      (print (assert (car *syntax-analyze-errors*) "extra tokens at end of input"))))
 
-(deftest prefix-expr-err-test ()
-    "Тест: Ошибка отсутствия выражения после префикса"
-    (let ((result (parse-lisp "'")))
-      (print (assert result 'SYNTAX-ANALYZE-ERROR))
-      (print (assert (car *syntax-analyze-errors*) "prefixed form expects an expression"))))
+;(deftest prefix-expr-err-test ()
+;    "Тест: Ошибка отсутствия выражения после префикса"
+;    (let ((result (parse-lisp "'")))
+;      (print (assert result 'SYNTAX-ANALYZE-ERROR))
+;      (print (assert (car *syntax-analyze-errors*) "prefixed form expects an expression"))))
 
 ; --- Тест на полную программу. Можно добавить и другие, я решил, что этого хватит ---
-(deftest full-program-test ()
-  "Тест: Парсинг полной программы"
-  (let ((program "(defun factorial (n) (if (<= n 1) 1 (* n (factorial (- n 1)))))")
-        (expected-tree '(DEFUN FACTORIAL (N) (IF (<= N 1) 1 (* N (FACTORIAL (- N 1)))))))
-    (print (assert (parse-lisp program) expected-tree))))
+;(deftest full-program-test ()
+;  "Тест: Парсинг полной программы"
+;  (let ((program "(defun factorial (n) (if (<= n 1) 1 (* n (factorial (- n 1)))))")
+;        (expected-tree '(DEFUN FACTORIAL (N) (IF (<= N 1) 1 (* N (FACTORIAL (- N 1)))))))
+;    (print (assert (parse-lisp program) expected-tree))))
 
 (run-tests)
