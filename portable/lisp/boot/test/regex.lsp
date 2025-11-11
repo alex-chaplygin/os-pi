@@ -1,4 +1,5 @@
 ;; ; Тесты обработчика регулярных выражений
+(unit-tests 'regex)
 ;; (print "-----Regex handler tests-----")
 
 ;; (defun test-error (regex ref-error)
@@ -53,7 +54,7 @@
 ;; (print (assert (match "num 5350 test" "[0123456789]+") "5350"))
 ;; (setq time_re "[012345]?[0123456789]:[012345][0123456789]")
 ;; (print (assert (match "time: 27:15" time_re) "27:15"))
-;; (print (assert (match "time: 62:15" time_re) "2:15")
+;; (print (assert (match "time: 62:15" time_re) "2:15"))
 ;; (print (assert (match "time: 1:27" time_re) "1:27"))
 ;; (print (assert (match "time: 27:1" time_re) NIL))
 ;; (setq url_re "https?://[w%.]*swsu%.ru")
@@ -125,5 +126,39 @@
     (print (assertcar (funcall (parse-expression) s5)
 		      '(OR (SYM #\a) (SEQ (SYM #\b) (SYM #\c) (OR (STAR (SYM #\d)) (SYM #\e))))))))
 						
+
+;; (defun check(auto tape reference)
+;;   (let ((result (foldl #'nfa-input auto tape)))
+;;     (print (assert (nfa-end result) reference))))
+
+;; (defun debug(auto tape &rest null)
+;;   (print `(test ,auto))
+;;   (print `(result = ,(nfa-end (foldl #'(lambda (a s)
+;; 					 (print `(states ,(nfa-states a) sym ,s))
+;; 					 (nfa-input a s))
+;; 				     auto tape)))))
+
+;; (deftest test-regex ()
+;;   "NFA"
+;;   (let* ((s1 (stream-from-str "a*"))
+;; 	 (regex (car (funcall (parse-expression) s1)))
+;; 	 (nfa (regex-to-nfa regex))
+;; 	(auto (make-nfa `(,(car nfa)) (second nfa) `(,(third nfa)))) )
+;;     (print regex)
+;;     (print nfa)
+;;     (debug auto (explode "aaa") T)
+;;   ))
+(defun test-auto (regex res)
+  "Тест генерации автомата по выражению regex, res - эталонный автомат"
+  (reset-state)
+  (print (assert (regex-to-nfa (car (funcall (parse-expression) (stream-from-str regex)))) res)))
+
+(deftest test-auto-sym ()
+  "Генерация автомата: символ в регулярном выражении"
+  (test-auto "a" '(1 ((1 #\a (2))) 2)))
+
+(deftest test-auto-star ()
+  "Генерация автомата: звезда"
+  (test-auto "b*" '(1 ((3 #\b (4)) (1 E (2)) (1 E (3)) (4 E (2)) (4 E (3))) 2)))
 
 (run-tests)

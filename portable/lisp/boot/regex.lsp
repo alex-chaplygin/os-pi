@@ -209,3 +209,53 @@
   (parse-app (&&& (parse-seq)
 		  (parse-many (parse-app (&&& (parse-elem #\|) (parse-seq)) #'second )))
 	     #'(lambda (x) (if (second x) (cons 'or (cons (car x) (second x))) (car x)))))
+
+;; Получает элементы последовательности. Возвращает (конечные_состояния список_переходов)
+;; (defun get-elements(regex rules-acc states-acc)		    
+;;   (let* ((cur-nfa (regex-to-nfa (car regex)))
+;; 	 (new-rules-acc (append rules-acc (second cur-nfa)))
+;; 	 (new-states-acc (append states-acc `((,(car cur-nfa) ,(third cur-nfa))))))		
+;;    (if (cdr regex)
+;;        (get-elements (cdr regex) new-rules-acc new-states-acc)
+;;        (list new-states-acc new-rules-acc))))
+
+;; Объединяет переходы между отдельными элементами. Возвращает только те переходы, которые соединяют элементы
+;; (defun seq-regex (states rules)
+;;     (if (cdr states)
+;; 	(seq-regex (cdr states) (append rules `((,@(cdar states) E (,(car (second states)))))))
+;; 	rules))
+
+;; Текущий счетчик состояния
+(defvar *state* 0)
+
+(defun reset-state()
+  "Возврат в начальное состояние"
+  (setq *state* 0))
+
+(defun new-state()
+  "Возвращает очередное состояние"
+  (setq *state* (++ *state*)))
+
+;; Преобразует регулярное выражение в НКА 
+(defun regex-to-nfa (regex)
+  (let ((start (new-state))
+	(end (new-state)))
+    (case (car regex)
+	  ('sym `(,start ((,start ,(second regex) (,end))) ,end))
+	  ('star (let* ((r (regex-to-nfa (second regex))))
+		   `(,start  ,(append (second r)
+				 `((,start E (,end))
+				  (,start E (,(car r)))
+				  (,(third r) E (,end))
+				  (,(third r) E (,(car r)))))
+			 ,end)))
+	 ;; ('seq (let* ((elements (get-elements (cdr regex) () ()))
+	 ;; 	      (rules (seq-regex (car elements) ())))
+	 ;; 	 `(,start
+	 ;; 	      (,@(cadr elements)
+	 ;; 	      ,@rules
+	 ;; 	      (,start E (,(caar (car elements))))
+	 ;; 	      (,(second (second (car elements))) E (,end)))
+	 ;; 	  ,end)))
+	  
+	 )))
