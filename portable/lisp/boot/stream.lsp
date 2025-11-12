@@ -104,3 +104,19 @@
     (let ((new-bit-num (if end (-- bit-num) (++ bit-num))))
       (cons (& 1 (>> (aref arr byte-num) new-bit-num))
 	    (make-astream arr byte-num new-bit-num end)))))
+
+(defun get-struct (stream struct)
+  "Читает из потока структуру по шаблону"
+  "Шаблон: ((accuracy . byte) (height . word) (width . word) (other . bits4) (array . 16))"
+  "Возвращает хэш-таблицу"
+  (labels ((read (st type)
+		 (case type
+		       ('byte (get-byte st))
+		       ('word (get-word st))
+		       ('bits4 (get-4bit st))
+		       (otherwise (get-array st type)))))
+	  (let ((table (make-hash)))
+	    (cons table (foldl #'(lambda (st x)
+				   (let ((res (read st (cdr x))))
+				     (set-hash table (car x) (car res))
+				     (cdr res))) stream struct)))))

@@ -42,6 +42,17 @@
     (print (assertcar a1 #(22 255)))
     (print (assertcar a2 #(160)))))
 
+(deftest get-struct-test ()
+  "Тестирование чтения структуры"
+  (let* ((s (stream-from-arr #(10 1 0 2 0 0x23 1 2 3) t))
+	 (temp (car (get-struct s
+				'((accuracy . byte) (height . word) (width . word) (other . bits4) (array . 3))))))
+    (print (assert (get-hash temp 'accuracy) 10))
+    (print (assert (get-hash temp 'height) 256))
+    (print (assert (get-hash temp 'width) 512))
+    (print (assert (get-hash temp 'other) '(2 . 3)))
+    (print (assert (get-hash temp 'array) #(1 2 3)))))
+
 (deftest get-bit-test ()
   "Тестирование чтения бит (big endian)"
   (let* ((s (stream-from-arr #(5 0xB1) t))
