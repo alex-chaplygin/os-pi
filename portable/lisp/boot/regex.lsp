@@ -178,6 +178,7 @@
 ;; 	T
 ;;       NIL)))
 
+;; Грамматики регулярных выражений
 ;; Выражение = Последовательность { '|' Последовательность }
 ;; Последовательность = Элемент {Элемент}
 ;; Элемент = (cимвол | Группа) {'*'}
@@ -210,21 +211,7 @@
 		  (parse-many (parse-app (&&& (parse-elem #\|) (parse-seq)) #'second )))
 	     #'(lambda (x) (if (second x) (cons 'or (cons (car x) (second x))) (car x)))))
 
-;; Получает элементы последовательности. Возвращает (конечные_состояния список_переходов)
-;; (defun get-elements(regex rules-acc states-acc)		    
-;;   (let* ((cur-nfa (regex-to-nfa (car regex)))
-;; 	 (new-rules-acc (append rules-acc (second cur-nfa)))
-;; 	 (new-states-acc (append states-acc `((,(car cur-nfa) ,(third cur-nfa))))))		
-;;    (if (cdr regex)
-;;        (get-elements (cdr regex) new-rules-acc new-states-acc)
-;;        (list new-states-acc new-rules-acc))))
-
-;; Объединяет переходы между отдельными элементами. Возвращает только те переходы, которые соединяют элементы
-;; (defun seq-regex (states rules)
-;;     (if (cdr states)
-;; 	(seq-regex (cdr states) (append rules `((,@(cdar states) E (,(car (second states)))))))
-;; 	rules))
-
+;; Преобразование результата разбора в автомат
 ;; Текущий счетчик состояния
 (defvar *state* 0)
 
@@ -236,8 +223,35 @@
   "Возвращает очередное состояние"
   (setq *state* (++ *state*)))
 
-;; Преобразует регулярное выражение в НКА 
+(defun seq-nfa(a1 a2)
+"Создает новый автомат из двух существующих последовательных автоматов a1 и a2"
+  `(,(car a1)
+    (,@(second a1)
+     (,(third a1) E (,(car a2)))
+     ,@(second a2))
+    ,(third a2)))
+
+(defun or-nfa(a1 a2)
+"Добавляет к автомату a1 новую альтернативу a2"
+  `(,(car a1)
+    (,@(second a1)
+     (,(car a1) E (,(car a2)))
+     ,@(second a2)
+     (,(third a2) E (,(third a1))))
+    ,(third a1)))
+
+(defun regex-to-nfa (regex) nil)
+
+(defun list-nfa(regex nfa f)
+"Рекурсивно создает автомат из последовательности, комбинируя функцией f"
+  (let* ((a (regex-to-nfa (car regex)))
+	 (new-nfa (funcall f nfa a)))
+    (if (cdr regex)
+	(list-nfa (cdr regex) new-nfa f)
+	new-nfa)))
+
 (defun regex-to-nfa (regex)
+"Преобразует разобранное регулярное выражение в НКА"
   (let ((start (new-state))
 	(end (new-state)))
     (case (car regex)
@@ -249,13 +263,6 @@
 				  (,(third r) E (,end))
 				  (,(third r) E (,(car r)))))
 			 ,end)))
-	 ;; ('seq (let* ((elements (get-elements (cdr regex) () ()))
-	 ;; 	      (rules (seq-regex (car elements) ())))
-	 ;; 	 `(,start
-	 ;; 	      (,@(cadr elements)
-	 ;; 	      ,@rules
-	 ;; 	      (,start E (,(caar (car elements))))
-	 ;; 	      (,(second (second (car elements))) E (,end)))
-	 ;; 	  ,end)))
-	  
+	 ('seq (list-nfa (cddr regex) (regex-to-nfa (second regex)) #'seq-nfa))
+	 ('or (list-nfa (cdr regex) `(,start () ,end) #'or-nfa))
 	 )))
