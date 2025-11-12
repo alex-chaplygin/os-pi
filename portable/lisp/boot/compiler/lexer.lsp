@@ -68,18 +68,14 @@
   "Парсит числовой токен с плавающей точкой."
   (parse-app
    (&&& (parse-optional (parse-elem #\-))
-        (parse-or
-         (&&& (parse-some (parse-pred #'is-digit))
-              (parse-elem #\.)
-              (parse-some (parse-pred #'is-digit)))
-         (&&& (parse-elem #\.)
-              (parse-some (parse-pred #'is-digit)))))
+        (&&& (parse-optional (parse-some (parse-pred #'is-digit)))
+             (parse-elem #\.)
+             (parse-some (parse-pred #'is-digit))))
    #'(lambda (x)
        (let* ((sign (car x))
               (parts (cadr x))
-              (is-dot-first (eq (car parts) #\.))
-              (int-part (if is-dot-first nil (car parts)))
-              (frac-part (if is-dot-first (cadr parts) (caddr parts)))
+              (int-part (car parts))
+              (frac-part (caddr parts))
               (int-str (if int-part (implode int-part) "0"))
               (frac-str (implode frac-part))
               (float-str (concat int-str "." frac-str)))

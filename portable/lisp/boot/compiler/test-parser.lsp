@@ -146,10 +146,10 @@
 ;      (print (assert (car *syntax-analyze-errors*) "prefixed form expects an expression"))))
 
 ; --- Тест на полную программу. Можно добавить и другие, я решил, что этого хватит ---
-;(deftest full-program-test ()
-;  "Тест: Парсинг полной программы"
-;  (let ((program "(defun factorial (n) (if (<= n 1) 1 (* n (factorial (- n 1)))))")
-;        (expected-tree '(DEFUN FACTORIAL (N) (IF (<= N 1) 1 (* N (FACTORIAL (- N 1)))))))
-;    (print (assert (parse-lisp program) expected-tree))))
+(deftest full-program-test ()
+  "Тест: Парсинг полной программы"
+  (let ((program "(defun factorial (n) (if (<= n 1) 1 (* n (factorial (- n 1)))))")
+        (expected-tree '(DEFUN FACTORIAL (N) (IF (<= N 1) 1 (* N (FACTORIAL (- N 1)))))))
+    (print (assert (parse-lisp program) expected-tree))))
 
 (run-tests)
