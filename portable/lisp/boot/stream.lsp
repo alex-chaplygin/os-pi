@@ -113,6 +113,7 @@
 		 (case type
 		       ('byte (get-byte st))
 		       ('word (get-word st))
+		       ('dword (get-dword st))
 		       ('bits4 (get-4bit st))
 		       (otherwise (get-array st type)))))
 	  (let ((table (make-hash)))
