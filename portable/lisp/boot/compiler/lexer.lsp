@@ -2,6 +2,31 @@
 (defun is-eoi (stream)
   (null stream))
 
+(defun parse-float-tok()
+  "Парсит числовой токен с плавающей точкой или точку."
+  (parse-app
+   (&&& (parse-optional (parse-elem #\-))
+        (parse-many (parse-pred #'is-digit))
+	(parse-elem #\.)
+	(parse-many (parse-pred #'is-digit)))
+   #'(lambda (x)
+       (let* ((sign (car x))
+              (int-part (second x))
+              (frac-part (forth x)))
+         (if (not (null frac-part))
+             ;; Есть дробная часть то парсится как float
+             (let ((float-str (concat (implode int-part) "." (implode frac-part))))
+               (list (strtofloat (if sign (concat "-" float-str) float-str))))
+             ;; Иначе
+             (if (not (null int-part))
+                 ;; Есть целая часть - ошибка
+                 nil
+                 ;; Нет целой части значит это точка
+                 (if sign
+                     nil ;; "-." это не валидный токен, для таких случаев возвращается nil
+                     (list 'DOT))))))))
+
+
 (defun is-eoi-str (stream)
   (>= (SStream-index stream) (string-size (SStream-str stream))))
 
@@ -43,10 +68,6 @@
   "Парсит закрывающую скобку."
   (parse-app (parse-elem #\)) #'(lambda (x) (list (code-char 41)))))
 
-(defun parse-dot ()
-  "Парсит точку."
-  (parse-app (check-delim (parse-elem #\.)) #'(lambda (x) (list 'DOT))))
-
 (defun make-num (sign digits)
   "Создает число из знака и списка цифр."
   (let ((num (safe-strtoint (implode digits) 10)))
@@ -63,23 +84,6 @@
   (parse-app (&&& (parse-elem #\0) (parse-elem #\x)
 		  (parse-some (parse-pred #'is-hex-sym)))
 	     #'(lambda (x) (list (safe-strtoint (implode (caddr x)) 16)))))
-
-(defun parse-float-tok ()
-  "Парсит числовой токен с плавающей точкой."
-  (parse-app
-   (&&& (parse-optional (parse-elem #\-))
-        (&&& (parse-optional (parse-some (parse-pred #'is-digit)))
-             (parse-elem #\.)
-             (parse-some (parse-pred #'is-digit))))
-   #'(lambda (x)
-       (let* ((sign (car x))
-              (parts (cadr x))
-              (int-part (car parts))
-              (frac-part (caddr parts))
-              (int-str (if int-part (implode int-part) "0"))
-              (frac-str (implode frac-part))
-              (float-str (concat int-str "." frac-str)))
-         (list (strtofloat (if sign (concat "-" float-str) float-str)))))))
 
 (defun parse-sym-tok ()
   "Парсит идентификатор"
@@ -152,7 +156,6 @@
             (parse-quote-tok)
             (parse-backq-tok)
             (parse-comma-tok)
-            (parse-dot)
             (parse-sym-tok)
             (parse-fail "Unknown token")))
 

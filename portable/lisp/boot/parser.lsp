@@ -137,3 +137,21 @@
                               (throw 'parse-error "parse-hex: Invalid hexadecimal format or overflow")
                               (cons num rest-stream)))))
                     (throw 'parse-error "parse-hex: Number not followed by a delimiter or end-of-stream"))))))))
+
+
+(defun parse-array (arr)
+  "Ожидание в потоке заданного массива"
+  #'(lambda (stream)
+      (let ((res (get-array stream (array-size arr))))
+	(if (null res) nil
+	  (if (= arr (car res)) res nil)))))
+
+(defmacro mk/parse1 (name func)
+  "Создать функцию разбора на основе функции которая имеет один параметр, кроме потока"
+  `(defun ,name (p)
+     #'(lambda (stream)
+	 (,func stream p))))
+
+(mk/parse1 parse-struct get-struct)
+(mk/parse1 parse-bits get-bits)
+

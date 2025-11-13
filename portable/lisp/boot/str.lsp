@@ -97,6 +97,16 @@
             (setq i (+ i 1)))
           (if (= i len) res nil))))))
 
+(defun strtofloat (str)
+  "Преобразует строку в число с плавающей точкой"
+  (let* ((parts (split #\. str))
+         (int-part (strtoint (car parts) 10))
+         (frac-part-str (second parts)))
+    (if (= frac-part-str "")
+        (* 1.0 int-part)
+	(let ((frac-part (strtoint frac-part-str 10)))
+	  (+ int-part (/ frac-part (expt 10.0 (string-size frac-part-str))))))))
+
 (defun is-hex-sym (sym)
   "Предикат проверки на символ шестнадцатеричного числа"
   (let ((c (char-code sym)))
@@ -114,16 +124,6 @@
                      T ; Базовый случай: нашелся элемент
                      (check (cdr lst)))))) ; Рекурсивный шаг
     (check delimiters)))
-
-(defun strtofloat (str)
-  "Преобразует строку в число с плавающей точкой"
-  (let* ((parts (split #\. str))
-         (int-part (strtoint (car parts) 10))
-         (frac-part-str (cadr parts)))
-    (if (null frac-part-str)
-        int-part
-      (let ((frac-part (strtoint frac-part-str 10)))
-        (+ int-part (/ frac-part (expt 10.0 (string-size frac-part-str))))))))
 
 (defun numbertostr (n)
   "Преобразует число в строку"

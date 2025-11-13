@@ -32,7 +32,7 @@
                   (parse-many (parse-rec (parse-s-expression)))
                   (parse-elem (code-char 41)))
              #'(lambda (res)
-                 (cons 'MAKE-ARRAY (third res)))))
+                 (list-to-array (third res)))))
 
 (defun parse-s-expression ()
   "Разбор S-выражения, включая опциональные префиксы."

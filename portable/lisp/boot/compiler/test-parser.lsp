@@ -89,13 +89,13 @@
 ; --- Тесты на векторы ---
 (deftest empty-vector-test ()
   "Тест: Пустой вектор"
-  (print (assert (parse-lisp "#()") '(MAKE-ARRAY))))
+  (print (assert (parse-lisp "#()") (list-to-array '()))))
 (deftest simple-vector-test ()
   "Тест: Простой вектор"
-  (print (assert (parse-lisp "#(1 2 3)") '(MAKE-ARRAY 1 2 3))))
+  (print (assert (parse-lisp "#(1 2 3)") (list-to-array '(1 2 3)))))
 (deftest mixed-vector-test ()
   "Тест: Вектор с разными типами"
-  (print (assert (parse-lisp "#(a \"b\" #(c))") '(MAKE-ARRAY A "b" (MAKE-ARRAY C)))))
+  (print (assert (parse-lisp "#(a \"b\" #(c))") (list-to-array `(a "b" ,(list-to-array '(c)))))))
 
 ; --- Тесты на точечные пары ---
 (deftest simple-dotted-pair-test ()

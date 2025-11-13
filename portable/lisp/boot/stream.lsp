@@ -129,6 +129,7 @@
 		 (case type
 		       ('byte (get-byte st))
 		       ('word (get-word st))
+		       ('dword (get-dword st))
 		       ('bits4 (get-4bit st))
 		       (otherwise (get-array st type)))))
 	  (let ((table (make-hash)))
@@ -136,3 +137,15 @@
 				   (let ((res (read st (cdr x))))
 				     (set-hash table (car x) (car res))
 				     (cdr res))) stream struct)))))
+
+(defun get-bits (self n)
+  "Чтение n бит из потока"
+  (let ((res 0)
+	(current-stream self))
+    (for i 0 n
+	 (let ((b (get-bit current-stream)))
+	   (setq res (<< res 1))
+	   (setq res (+ res (car b)))
+	   (setq current-stream (cdr b))))
+    (cons res current-stream)))
+	   

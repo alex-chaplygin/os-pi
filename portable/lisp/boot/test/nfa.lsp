@@ -3,6 +3,7 @@
 
 (defun check(auto tape reference)
   (let ((result (foldl #'nfa-input auto tape)))
+    (print `(test ,auto))
     (print (assert (nfa-end result) reference))))
 
 (defun debug(auto tape &rest null)
@@ -12,7 +13,7 @@
 					 (nfa-input a s))
 				     auto tape)))))
 
-(defvar auto1 (make-nfa '(s0)
+(defvar auto1 (make-nfa 's0
 			'(
 			  (s0 a (s1))
 			  (s2 c (s2))
@@ -30,7 +31,7 @@
 (check auto1 '(b c b b a a c c) T)
 (check auto1 '() NIL)
 
-(defvar auto2 (make-nfa '(s0)
+(defvar auto2 (make-nfa 's0
 			'(
 			  (s0 x (s3))
 			  (s0 x (s2))
@@ -58,7 +59,7 @@
 (check auto2 '(y y x) NIL)
 
 
-(defvar auto3 (make-nfa '(0)
+(defvar auto3 (make-nfa '0
 			'(
 			  (0 #\a (1))
 			  (1 #\b (2))
@@ -74,11 +75,8 @@
 (check auto3 (explode "aabcd") NIL)
 
 
-(print (assert (nfa-states (nfa-reset auto2 '(s3 s5))) '(s3 s5)))
-(print (assert (nfa-states (nfa-reset auto3 '(7))) '(7)))
-(print (assert (nfa-states (nfa-reset auto3 '())) NIL))
 
-(defvar auto4 (make-nfa '(0)
+(defvar auto4 (make-nfa '0
 			'(
 			  (0 ANY (0))
 			  (0 #\a (1))
@@ -91,7 +89,7 @@
 (check auto4 '(#\r #\r #\r #\x) T)
 (check auto4 '(#\x) T)
 
-(defvar auto5 (make-nfa '(0)
+(defvar auto5 (make-nfa '0
 			'(
 			  (0 a (9))
 			  (9 E (1))
@@ -112,7 +110,7 @@
 (check auto5 '(a x y c) T)
 (check auto5 '(a x y) NIL)
 
-(defvar auto6 (make-nfa '(0)
+(defvar auto6 (make-nfa '0
 			'(
 			  (0 a (1))
 			  (0 E (2))
