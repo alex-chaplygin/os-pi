@@ -89,4 +89,14 @@
     (print (assertcar b15 0))
     (print (assertcar b16 1))))
 
+(deftest get-bits-test ()
+  "Тестирование чтения n бит 10110100"
+  (print "get-bits-test")
+  (let* (( s (stream-from-arr #(180) t))
+	 (first-result (get-bits s 5))
+	 (second-result (get-bits (cdr first-result) 3 )))
+    (print (assert (car first-result) 22))
+    (print (assert (car second-result) 4))))
+
 (run-tests)
+

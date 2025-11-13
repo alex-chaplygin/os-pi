@@ -121,3 +121,15 @@
 				   (let ((res (read st (cdr x))))
 				     (set-hash table (car x) (car res))
 				     (cdr res))) stream struct)))))
+
+(defun get-bits (self n)
+  "Чтение n бит из потока"
+  (let ((res 0)
+	(current-stream self))
+    (for i 0 n
+	 (let ((b (get-bit current-stream)))
+	   (setq res (<< res 1))
+	   (setq res (+ res (car b)))
+	   (setq current-stream (cdr b))))
+    (cons res current-stream)))
+	   
