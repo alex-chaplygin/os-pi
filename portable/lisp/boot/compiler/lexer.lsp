@@ -1,3 +1,18 @@
+(defun parse-float()
+  "Парсит числовой токен с плавающей точкой."
+  (parse-app
+   (&&& (parse-optional (parse-elem #\-))
+        (parse-many (parse-pred #'is-digit))
+	(parse-elem #\.)
+	(parse-many (parse-pred #'is-digit)))
+   #'(lambda (x)
+       (let* ((sign (car x))
+              (int-part (second x))
+              (frac-part (forth x))
+              (float-str (concat (implode int-part) "." (implode frac-part))))
+	 (if (and (null int-part) (null frac-part)) #\.
+	     (strtofloat (if sign (concat "-" float-str) float-str)))))))
+
 ;; Вспомогательный предикат
 (defun is-lisp-symbol (sym)
   "Предикат проверки на особый символ"
@@ -38,9 +53,9 @@
   "Лексема языка Лисп"
   (parse-or (parse-elem #\()
             (parse-elem #\))
+            (parse-float)
             (parse-hex)
             (parse-decimal)
-;;            (parse-float)
             (parse-string)
 	    (parse-app (&&& (parse-elem #\#) (parse-elem #\\) #'get-byte) #'third) ;; одиночный символ
             (parse-app (&&& (parse-elem #\#) (parse-elem #\')) (parse-return 'FUNCTION))
@@ -49,7 +64,6 @@
             (parse-app (parse-elem #\`) (parse-return 'BACKQUOTE))
             (parse-app (&&& (parse-elem #\,) (parse-elem #\@)) (parse-return 'COMMA-AT))
             (parse-app (parse-elem #\,) (parse-return 'COMMA))
-            (parse-elem #\.)
             (lisp-symbol)
 	    ;;            #'(lambda (stream) (throw 'parse-error "Unknown token"))))
 	    ))
