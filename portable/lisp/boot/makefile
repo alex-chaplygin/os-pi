@@ -71,6 +71,10 @@ stream-test: $(BASELISP) stream.lsp $(TEST) test/stream.lsp
 nfa-test: $(BASELISP) fa/nfa.lsp $(TEST) test/nfa.lsp
 	make -C ../test /tmp/lisp
 	cat $^ | /tmp/lisp
+# модульные тесты Deflate
+deflate-test: $(BASELISP) $(PARSER) deflate.lsp $(TEST) test/deflate.lsp
+	make -C ../test /tmp/lisp
+	cat $^ | /tmp/lisp
 # модульные тесты двоичное дерево
 regex-test: $(BASELISP) fa/nfa.lsp stream.lsp parser.lsp regex.lsp $(TEST) test/regex.lsp
 	make -C ../test /tmp/lisp
