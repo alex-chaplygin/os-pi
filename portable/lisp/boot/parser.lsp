@@ -98,3 +98,15 @@
     #'(lambda (parts)
 	(let ((num (strtoint (implode (cons (second parts) (third parts))) 10)))
             (if (car parts) (- num) num)))))
+
+(defun parse-array (arr)
+  "Ожидание в потоке заданного массива"
+  #'(lambda (stream)
+      (let ((res (get-array stream (array-size arr))))
+	(if (null res) nil
+	  (if (= arr (car res)) res nil)))))
+
+(defun parse-struct (struct)
+  "Читаем структуру из потока"
+  #'(lambda (stream)
+      (get-struct stream struct)))
