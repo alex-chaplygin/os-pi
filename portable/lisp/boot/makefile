@@ -45,8 +45,8 @@ oop-test: $(BASELISP) $(TEST) test/oop.lsp
 	cat $^ | /tmp/repl_lisp
 # модульные тесты строк
 str-test: $(BASELISP) $(TEST) test/str.lsp
-	make -C ../test /tmp/lisp
-	cat $^ | /tmp/lisp
+	make -C ../test /tmp/repl_lisp
+	cat $^ | /tmp/repl_lisp
 # модульные тесты массивов
 array-test: $(BASELISP) $(TEST) test/array.lsp
 	make -C ../test /tmp/repl_lisp
@@ -65,6 +65,10 @@ bin-tree-test: $(BASELISP) bin-tree.lsp $(TEST) test/bin-tree.lsp
 	cat $^ | /tmp/repl_lisp
 # модульные тесты двоичное дерево
 stream-test: $(BASELISP) stream.lsp $(TEST) test/stream.lsp
+	make -C ../test /tmp/lisp
+	cat $^ | /tmp/lisp
+# модульные тесты НКА
+nfa-test: $(BASELISP) fa/nfa.lsp $(TEST) test/nfa.lsp
 	make -C ../test /tmp/lisp
 	cat $^ | /tmp/lisp
 # модульные тесты двоичное дерево
