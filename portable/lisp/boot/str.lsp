@@ -79,8 +79,8 @@
   (let* ((parts (split #\. str))
          (int-part (strtoint (car parts) 10))
          (frac-part-str (second parts)))
-    (if (null frac-part-str)
-        (/ int-part 1.0)
+    (if (= frac-part-str "")
+        (* 1.0 int-part)
 	(let ((frac-part (strtoint frac-part-str 10)))
 	  (+ int-part (/ frac-part (expt 10.0 (string-size frac-part-str))))))))
 

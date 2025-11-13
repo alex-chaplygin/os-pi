@@ -80,6 +80,7 @@
   "Строка в целое число с плавающей точкой"
   (print (assert-float (strtofloat "123.0") 123.0))
   (print (assert-float (strtofloat "123.") 123.0))
+  (print (assert-float (strtofloat "13.") 13.0))
   (print (assert-float (strtofloat "123.5") 123.5))
   (print (assert-float (strtofloat "0.625") 0.625))
   (print (assert-float (strtofloat ".125") 0.125)))
