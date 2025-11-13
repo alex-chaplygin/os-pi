@@ -106,7 +106,11 @@
 	(if (null res) nil
 	  (if (= arr (car res)) res nil)))))
 
-(defun parse-struct (struct)
-  "Читаем структуру из потока"
-  #'(lambda (stream)
-      (get-struct stream struct)))
+(defmacro mk/parse1 (name func)
+  "Создать функцию разбора на основе функции которая имеет один параметр, кроме потока"
+  `(defun ,name (p)
+     #'(lambda (stream)
+	 (,func stream p))))
+
+(mk/parse1 parse-struct get-struct)
+(mk/parse1 parse-bits get-bits)
