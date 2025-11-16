@@ -70,7 +70,6 @@
 
 (defun lisp-lexer (str)
   "Лексический анализатор Common Lisp. Строка преобразуется в список лексем"
-  (let ((r (catch 'parse-error
-	     (funcall (parse-sep (lisp-token) (parse-many (parse-pred #'lisp-separator)))
-		      (stream-from-str str)))))
+  (let ((r (funcall (parse-sep (lisp-token) (parse-many (parse-pred #'lisp-separator)))
+		      (stream-from-str str))))
     (if r (car r) nil)))
