@@ -27,13 +27,10 @@
 
 (deftest parse-or-test ()
   "Тесты для parse-or"
-  (let ((s1 (stream-from-str "abc"))
-        (*parse-errors* nil))
-    (print (assertcar (funcall (parse-or (parse-elem #\a) (parse-elem #\b)) s1) #\a))
+  (let ((s1 (stream-from-str "abc")))
+    (print (assertcar (funcall (parse-or (parse-elem #\a) (parse-elem #\b) (parse-elem #\c)) s1) #\a))
     (print (assertcar (funcall (parse-or (parse-elem #\c) (parse-elem #\b) (parse-elem #\a)) s1) #\a))
-    (let ((failing-parser (parse-or (parse-elem #\d) (parse-elem #\1))))
-      (print (assert (funcall failing-parser s1) nil))
-      (print (assert (car *parse-errors*) "parse-or: All alternatives failed")))))
+    (print (assert (funcall (parse-or (parse-elem #\d) (parse-elem #\1)) s1) nil))))
 
 (deftest parse-many-test ()
   "Тесты для parse-many"
@@ -44,16 +41,15 @@
     (print (assertcar (funcall (parse-many (parse-elem #\a)) (stream-from-str "aaaabca")) '(#\a #\a #\a #\a)))
     (print (assertcar (funcall (parse-many (parse-or (parse-elem #\a) (parse-elem #\b))) (stream-from-str "aababca")) '(#\a #\a #\b #\a #\b)))
   ))
+  ;; (print (assert (funcall (parse-many (parse-elem 'B)) '(A C B)) '((() . (a c b))))))
 
 (deftest parse-some-test ()
   "Тесты для parse-some"
   (let ((s1 (stream-from-str "aac1"))
-	(s2 (stream-from-str "baac1"))
-        (*parse-errors* nil))
+	(s2 (stream-from-str "baac1")))
     (print (assertcar (funcall (parse-some (parse-elem #\a)) s1) '(#\a #\a)))
     (print (assertcar (funcall (parse-some (parse-elem #\b)) s2) '(#\b)))
-    (print (assert (funcall (parse-some (parse-elem #\c)) s2) nil))
-    (print (assert (car *parse-errors*) "parse-some: Expected at least one occurrence"))))
+    (print (assert (funcall (parse-some (parse-elem #\c)) s2) nil))))
 
 (deftest parse-pred-test ()
   "Тесты для parse-pred"
@@ -66,47 +62,11 @@
   (print (assertcar (funcall (parse-optional (parse-elem #\4)) (stream-from-str "456")) #\4))
   (print (assertcar (funcall (parse-optional (parse-elem #\4)) (stream-from-str "123")) nil)))
 
-(deftest parse-decimal-test ()
-  "Тесты для parse-decimal"
-  (print "Тестирование parse-decimal со стандартными разделителями (без аргументов)...")
-  (print (assertcar (funcall (parse-decimal) (stream-from-str "123")) 123))
-  (print (assertcar (funcall (parse-decimal) (stream-from-str "45 ")) 45))
-  (print (assertcar (funcall (parse-decimal) (stream-from-str (concat "67" (implode (list (code-char 10)))))) 67))
-  (print (assertcar (funcall (parse-decimal) (stream-from-str "-100")) -100))
-  
-  ;; --- Тесты на границы ---
-  (print (assertcar (funcall (parse-decimal) (stream-from-str "2147483647")) 2147483647)) ; Максимальное значение
-  (print (assertcar (funcall (parse-decimal) (stream-from-str "-2147483648")) -2147483648)) ; Минимальное значение
-  (print (assert (catch 'parse-error (funcall (parse-decimal) (stream-from-str "123a"))) "parse-decimal: Number not followed by a delimiter or end-of-stream"))
-  (print (assert (catch 'parse-error (funcall (parse-decimal) (stream-from-str "2147483648"))) "parse-decimal: Invalid integer format or overflow")) ; Положительное переполнение
-  (print (assert (catch 'parse-error (funcall (parse-decimal) (stream-from-str "-2147483649"))) "parse-decimal: Invalid integer format or overflow")) ; Отрицательное переполнение
-
-  (print "Тестирование parse-decimal с кастомными разделителями (с аргументами)...")
-  (let ((custom-delims (list #\; #\,)))
-    (let ((parser (parse-decimal custom-delims)))
-      (print (assertcar (funcall parser (stream-from-str "987;")) 987))
-      (print (assertcar (funcall parser (stream-from-str "-10,")) -10))
-      (print (assert (catch 'parse-error (funcall parser (stream-from-str "55 "))) "parse-decimal: Number not followed by a delimiter or end-of-stream")))))
-
-(deftest parse-hex-test ()
-  "Тесты для parse-hex"
-  (print "Тестирование hex parser со стандартными разделителями (без аргументов)...")
-  (print (assertcar (funcall (parse-hex) (stream-from-str "0xF")) 15))
-  (print (assertcar (funcall (parse-hex) (stream-from-str "0xAB ")) 171))
-  
-  ;; --- Тесты на границы ---
-  (print (assertcar (funcall (parse-hex) (stream-from-str "0x7FFFFFFF")) 2147483647)) ; Максимальное значение
-  (print (assert (catch 'parse-error (funcall (parse-hex) (stream-from-str "0xFg"))) "parse-hex: Number not followed by a delimiter or end-of-stream"))
-  (print (assert (catch 'parse-error (funcall (parse-hex) (stream-from-str "0xFFFFFFFF"))) "parse-hex: Invalid hexadecimal format or overflow")) ; Положительное переполнение
-  (print (assert (catch 'parse-error (funcall (parse-hex) (stream-from-str "0x100000000"))) "parse-hex: Invalid hexadecimal format or overflow")) ; Переполнение по длине строки
-  
-  (print "Тестирование hex parser с кастомными разделителями (с аргументами)...")
-  (let ((custom-delims (list #\g #\G)))
-    (let ((parser (parse-hex custom-delims)))
-      (print (assertcar (funcall parser (stream-from-str "0xFFg")) 255))
-      (print (assertcar (funcall parser (stream-from-str "0x10G")) 16))
-      (print (assertcar (funcall parser (stream-from-str "0xABC")) 2748))
-      (print (assert (catch 'parse-error (funcall parser (stream-from-str "0x123 "))) "parse-hex: Number not followed by a delimiter or end-of-stream")))))
-
+(deftest parse-sep-test ()
+  "Тесты для комбинатора с разделителем"
+  (let ((parser (parse-sep (parse-elem 1) (parse-elem 0))))
+    (print (assertcar (funcall parser (stream-from-arr #(1 0 1 0 1 2) t)) '(1 1 1)))
+    (print (assertcar (funcall parser (stream-from-arr #(0 1 0 1 0 1 2) t)) '(1 1 1)))
+    (print (assertcar (funcall parser (stream-from-arr #(2 0 1 0 1 2) t)) nil))))
 
 (run-tests)

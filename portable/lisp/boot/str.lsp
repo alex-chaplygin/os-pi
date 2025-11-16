@@ -39,7 +39,7 @@
 	(iter (string-size str)))
     (while (> iter 0)
       (setq iter (- iter 1))
-	 	 (setq out-list (cons (char str iter) out-list)))
+	 (setq out-list (cons (char str iter) out-list)))
     out-list))
 
 (defun is-alpha (sym)
@@ -74,29 +74,6 @@
            (setq res (+ (* res base) c-num))))
     res))
 
-(defun safe-strtoint (str base)
-  "Безопасное преобразование строки в 32-битное знаковое целое.
-   Возвращает число или nil, если переполнение или недопустимая цифра."
-  (let ((res 0))
-    (let ((i 0))
-      (let ((len (string-size str)))
-        (let ((max-val 2147483647))
-          (while (< i len)
-            (let ((char (toupper (char str i))))
-              (let ((c (char-code char)))
-                (let ((digit (if (>= c (char-code #\A))
-                                 (+ (- c (char-code #\A)) 10)
-                                 (- c (char-code #\0)))))
-                  (if (or (< digit 0) (>= digit base))
-                      (setq i len) ; break
-                      (progn
-                        ; Проверка: res > (max_val - digit) / base  → переполнение
-                        (if (> res (/ (- max-val digit) base))
-                            (setq i len) ; break — переполнение
-                            (setq res (+ (* res base) digit))))))))
-            (setq i (+ i 1)))
-          (if (= i len) res nil))))))
-
 (defun strtofloat (str)
   "Преобразует строку в число с плавающей точкой"
   (let* ((parts (split #\. str))
@@ -113,37 +90,3 @@
     (or (is-digit sym)
         (and (>= c (char-code #\a)) (<= c (char-code #\f)))
         (and (>= c (char-code #\A)) (<= c (char-code #\F))))))
-
-
-(defun is-delimiter-p (c delimiters)
-  "Проверяет, является ли символ c разделителем из списка delimiters."
-  (labels ((check (lst)
-             (if (null lst)
-                 nil ; Базовый случай: дошли до конца списка, элемента нет
-                 (if (= c (car lst))
-                     T ; Базовый случай: нашелся элемент
-                     (check (cdr lst)))))) ; Рекурсивный шаг
-    (check delimiters)))
-
-(defun numbertostr (n)
-  "Преобразует число в строку"
-  (if (= n 0) "0"
-    (let ((res nil))
-      (while (> n 0)
-        (setq res (cons (code-char (+ (% n 10) 48)) res))
-        (setq n (/ n 10)))
-      (implode res))))
-
-(defun string-upcase (str)
-  "Преобразует строку в верхний регистр"
-  (let ((new-str (make-string (string-size str) #\ )))
-    (for i 0 (string-size str)
-      (sets new-str i (toupper (char str i))))
-    new-str))
-
-(defun is-default-delimiter-p (c)
-  "Проверяет, является ли символ c разделителем по умолчанию (пробел или новая строка)."
-  (is-delimiter-p c (list #\  (code-char 10))))
-
-(defun is-whitespace (c)
-  (or (eq c #\ ) (eq c (code-char 10)) (eq c (code-char 9))))

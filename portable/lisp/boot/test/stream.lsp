@@ -1,23 +1,6 @@
 ;; Модульные тесты потоков
 (unit-tests 'stream)
 
-(deftest LStream-test ()
-  "Тестирование чтения байт из списка LStream, в том числе до конца потока"
-  (let* ((s (stream-from-list '(10 20 30)))
-         (s2 (stream-from-list '(42)))
-         (b1 (get-byte s))
-         (b2 (get-byte (cdr b1)))
-         (b3 (get-byte (cdr b2)))
-         (b4 (get-byte s2))
-         (b5 (get-byte (cdr b4))))
-    (print (assertcar b1 10))
-    (print (assertcar b2 20))
-    (print (assertcar b3 30))
-    (print (assertcar b4 42))
-    (print (assert b5 nil))))
-
-
-
 (deftest get-byte-test ()
   "Тестирование чтения байт"
   (let* ((s (stream-from-arr #(255 132 122) nil))
@@ -39,7 +22,7 @@
 (deftest get-dword-test ()
   "Тестирование чтения слова 32-бит"
   (let* ((s (stream-from-arr #(0x10 0xff 0xcc 0xcb 0x10 0xff 0xcc 0xcb) t))
-	      (w (get-dword s)))
+	 (w (get-dword s)))
     (print (assertcar w 0x10ffcccb))
     (astream-set-endianness (cdr w) nil) ; little-endian
     (print (assertcar (get-dword (cdr w)) 0xcbccff10))))

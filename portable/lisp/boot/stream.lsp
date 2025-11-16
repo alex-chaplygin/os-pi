@@ -51,22 +51,6 @@
     (if (= index (array-size arr)) nil
 	(cons (aref arr index) (make-astream arr index (astream-bit-num self) (astream-endianness self))))))
 
-;; Поток на основе списка
-(defclass LStream ()
-  (list ; список
-   ))
-
-(defun stream-from-list (list)
-  "Создает поток из списка list"
-  (make-LStream list))
-
-(defmethod get-byte ((self LStream))
-  "Чтение очередного байта из потока
-   Возвращает точечную пару (элемент. новое состояние потока) или nil если конец потока"
-  (let ((list (LStream-list self)))
-    (if (null list) nil
-      (cons (car list) (make-LStream (cdr list))))))
-
 (defun get-word (self)
   "Чтение очередного слова из потока (16 бит)
    Возвращает точечную пару (число . новое состояние потока) или nil если конец потока"

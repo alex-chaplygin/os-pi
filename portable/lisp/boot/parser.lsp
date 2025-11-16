@@ -1,32 +1,26 @@
-;; ОБЪЯВЛЕНИЕ ГЛОБАЛЬНОЙ ПЕРЕМЕННОЙ ДЛЯ ОШИБОК ПАРСИНГА
-(defvar *parse-errors* nil)
-
 (defun parse-suc (val)
   "Элементарный парсер - успешный разбор со значением val"
   #'(lambda (stream) (cons val stream)))
 
-(defun parse-fail (&rest message)
-  "Создает парсер, который всегда завершается неудачей, записывая сообщение об ошибке."
-  (let ((msg (if message (car message) "Unknown parse error")))
-    #'(lambda (stream)
-	(setq *parse-errors* (cons msg *parse-errors*))
-	nil)))
+(defun parse-fail ()
+  "Элементарный парсер - неудачный разбор"
+  #'(lambda (stream) nil))
 
 (defun parse-pred (pred)
-  "Парсер по предикату. Возвращает символ или nil."
+  "Парсер по предикату, предикат - функция, которая на вход получает символ, на выходе - nil или t.
+   Сама функция парсинга возвращает в результате парсинга в случае успешного разбора сам символ, в случае неудачного - nil."
   #'(lambda (stream)
       (if (null stream) nil
 	(let ((res (get-byte stream)))
 	  (if (null res) nil
 	    (if (funcall pred (car res)) res nil))))))
 
-
 (defun parse-elem (sym)
   "Элементарный парсер, ожидающий заданный элемент из потока"
   (parse-pred #'(lambda (x) (= x sym))))
 
 (defun &&& (&rest parsers)
-  "Последовательный комбинатор. Возвращает nil, если любой из парсеров вернул nil."
+  "Последовательный комбинатор применяет несколько парсеров подряд к потоку, каждый следующий parser применяется к остатку от работы предыдущего parser."
   #'(lambda (stream)
       (labels ((apply-parser (parsers stream res)
 		 (if (null parsers) (cons res stream)
@@ -36,21 +30,18 @@
                                          (append res (list (car parser-res)))))))))
 	(apply-parser parsers stream nil))))
 
-
 (defun parse-or (&rest parsers)
-  "Параллельный комбинатор. Пробует парсеры по очереди. Если ни один не сработал,
-   сообщает об ошибке."
+  "Параллельный комбинатор принимает список парсеров parsers и работает до первого успешного разбора"
   (unless parsers (error "parse-or: no parsers"))
   #'(lambda (stream)
       (labels ((apply-parser (parsers stream)
-		 (if (null parsers) 
-		     (funcall (parse-fail "parse-or: All alternatives failed") stream)
+		 (if (null parsers) nil
 		   (let ((parser-res (funcall (car parsers) stream)))
 		     (if (null parser-res) (apply-parser (cdr parsers) stream) parser-res)))))
       (apply-parser parsers stream))))
 		     
 (defun parse-app (parser f)
-  "Комбинатор применения функции к результату разбора. Возвращает nil при неудаче."
+  "Комбинатор применения функции к результату разбора"
   #'(lambda (stream)
       (let ((r (funcall parser stream)))
 	(if (null r) nil (cons (funcall f (car r)) (cdr r))))))
@@ -59,7 +50,7 @@
   #'(lambda (x) res))
 
 (defun parse-many (parser)
-  "Комбинатор - 0 или более повторений. Никогда не возвращает nil."
+  "Комбинатор - 0 или более повторений заданного парсера. Возвращает список результатов"
   #'(lambda (stream)
       (labels ((apply (stream res)
 		      (let ((parser-res (funcall parser stream)))
@@ -68,76 +59,45 @@
 	      (apply stream nil))))
 
 (defun parse-optional (parser)
-  "Комбинатор: 0 или 1 применение парсера. Всегда успешен."
+  "Комбинатор: 0 или 1 применение парсера.
+   Всегда успешен. Возвращает (значение . поток), где значение = nil, если парсер не сработал."
   #'(lambda (stream)
       (let ((res (funcall parser stream)))
         (if res res
             (cons nil stream)))))
 
 (defun parse-some (parser)
-  "Комбинатор - 1 или более повторений. Возвращает nil при неудаче."
-  #'(lambda (stream)
-      (let ((first-res (funcall parser stream)))
-        (if (null first-res)
-            (funcall (parse-fail "parse-some: Expected at least one occurrence") stream)
-            (let* ((many-res (funcall (parse-many parser) (cdr first-res))))
-              (cons (cons (car first-res) (car many-res)) (cdr many-res)))))))
+  "Комбинатор - 1 или более повторений заданного парсера. Возвращает список результатов"
+  (parse-app (&&& parser (parse-many parser))
+	     #'(lambda (x) (cons (car x) (second x)))))
+
+(defun parse-sep (parser sep)
+  "Комбинатор - список парсеров, разделенных парсером sep"
+  (parse-many (parse-app (&&& (parse-optional sep) parser) #'second)))
 
 (defmacro parse-rec (parser)
   "Комбинатор для рекурсивных парсеров"
   `#'(lambda (stream) (funcall ,parser stream)))
 
-(defun skip-spaces ()
-  "Пропуск 0 или более пробелов"
-  (parse-many (parse-elem #\ )))
+(defun parse-hex ()
+  "Разбор шестнадцатеричного числа вида 0xFF"
+  (parse-app
+    (&&& (parse-elem #\0)
+         (parse-elem #\x)
+         (parse-pred #'is-hex-sym)
+         (parse-many (parse-pred #'is-hex-sym)))
+    #'(lambda (parts)
+        (strtoint (implode (cons (third parts) (forth parts))) 16))))
 
-
-(defun parse-decimal (&rest delimiters)
-  "Разбор десятичного числа. Если список разделителей не задан, используются пробел и \n."
-  (let ((dels (if (null delimiters)
-                  (list #\  (code-char 10)) ; Разделители по умолчанию
-                  (car delimiters))))
-    #'(lambda (stream)
-        (let ((r (funcall
-                   (&&& (parse-optional (parse-elem #\-))
-                        (parse-some (parse-pred #'is-digit)))
-                   stream)))
-          (if (null r)
-              (throw 'parse-error "parse-decimal: Not a valid number structure")
-              (let* ((parts (car r)) (rest-stream (cdr r)) (peek (get-byte rest-stream)))
-                (if (or (null peek) (is-delimiter-p (car peek) dels))
-                    (let ((minus (car parts)) (digits (nth parts 1)))
-                      (let ((num-str (implode digits)))
-                        (cond
-                          ((and minus (= num-str "2147483648")) (cons -2147483648 rest-stream))
-                          (t (let ((num (safe-strtoint num-str 10)))
-                               (if (null num)
-                                   (throw 'parse-error "parse-decimal: Invalid integer format or overflow")
-                                   (cons (if minus (- num) num) rest-stream)))))))
-                    (throw 'parse-error "parse-decimal: Number not followed by a delimiter or end-of-stream"))))))))
-
-(defun parse-hex (&rest delimiters)
-  "Разбор шестнадцатеричного числа. Если список разделителей не задан, используются пробел и \n."
-  (let ((dels (if (null delimiters)
-                  (list #\  (code-char 10))
-                  (car delimiters))))
-    #'(lambda (stream)
-        (let ((r (funcall
-                   (&&& (parse-elem #\0) (parse-elem #\x)
-                        (parse-some (parse-pred #'is-hex-sym)))
-                   stream)))
-          (if (null r)
-              (throw 'parse-error "parse-hex: Not a valid hex structure (missing '0x' or digits)")
-              (let* ((parts (car r)) (rest-stream (cdr r)) (peek (get-byte rest-stream)))
-                (if (or (null peek) (is-delimiter-p (car peek) dels))
-                    (let ((digits (nth parts 2)))
-                      (let ((num-str (implode digits)))
-                        (let ((num (safe-strtoint num-str 16)))
-                          (if (null num)
-                              (throw 'parse-error "parse-hex: Invalid hexadecimal format or overflow")
-                              (cons num rest-stream)))))
-                    (throw 'parse-error "parse-hex: Number not followed by a delimiter or end-of-stream"))))))))
-
+(defun parse-decimal ()
+  "Разбор десятичного числа (поддерживает -123)"
+  (parse-app
+    (&&& (parse-optional (parse-elem #\-))   ; ← необязательный минус
+         (parse-pred #'is-digit)
+         (parse-many (parse-pred #'is-digit)))
+    #'(lambda (parts)
+	(let ((num (strtoint (implode (cons (second parts) (third parts))) 10)))
+            (if (car parts) (- num) num)))))
 
 (defun parse-array (arr)
   "Ожидание в потоке заданного массива"
@@ -154,4 +114,3 @@
 
 (mk/parse1 parse-struct get-struct)
 (mk/parse1 parse-bits get-bits)
-

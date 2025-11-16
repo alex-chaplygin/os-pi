@@ -1,9 +1,5 @@
-; названия сократил, так как в проекте макс длина символа маленькая 
-(defun is-eoi (stream)
-  (null stream))
-
-(defun parse-float-tok()
-  "Парсит числовой токен с плавающей точкой или точку."
+(defun parse-float()
+  "Парсит числовой токен с плавающей точкой."
   (parse-app
    (&&& (parse-optional (parse-elem #\-))
         (parse-many (parse-pred #'is-digit))
@@ -12,160 +8,68 @@
    #'(lambda (x)
        (let* ((sign (car x))
               (int-part (second x))
-              (frac-part (forth x)))
-         (if (not (null frac-part))
-             ;; Есть дробная часть то парсится как float
-             (let ((float-str (concat (implode int-part) "." (implode frac-part))))
-               (list (strtofloat (if sign (concat "-" float-str) float-str))))
-             ;; Иначе
-             (if (not (null int-part))
-                 ;; Есть целая часть - ошибка
-                 nil
-                 ;; Нет целой части значит это точка
-                 (if sign
-                     nil ;; "-." это не валидный токен, для таких случаев возвращается nil
-                     (list 'DOT))))))))
+              (frac-part (forth x))
+              (float-str (concat (implode int-part) "." (implode frac-part))))
+	 (if (and (null int-part) (null frac-part)) #\.
+	     (strtofloat (if sign (concat "-" float-str) float-str)))))))
 
+;; Вспомогательный предикат
+(defun is-lisp-symbol (sym)
+  "Предикат проверки на особый символ"
+  (contains '(#\+ #\- #\* #\/ #\= #\_ #\& #\| #\< #\> #\% #\! #\^ #\~) sym))
 
-(defun is-eoi-str (stream)
-  (>= (SStream-index stream) (string-size (SStream-str stream))))
+(defun lisp-separator (sym)
+  "Разделители в Лиспе"
+  (contains (list (code-char 9) (code-char 10) #\  (code-char 0xa)) sym))
 
-(defun is-ws (c)
-  "Проверяет, является ли символ пробелом."
-  (or (eq c #\ ) (eq c (code-char 10)) (eq c (code-char 9)) (eq c (code-char 13))))
+(defun lisp-symbol ()
+  "Разбор символа (идентификатора)"
+  (parse-app
+    (&&& (parse-or (parse-pred #'is-alpha)
+                   (parse-pred #'is-lisp-symbol))
+         (parse-many (parse-or (parse-pred #'is-alpha)
+                               (parse-pred #'is-digit)
+                               (parse-pred #'is-lisp-symbol))))
+    #'(lambda (parts)
+        (intern (implode (map #'(lambda (char) (toupper char))
+                              (cons (car parts) (second parts))))))))
 
-(defun is-delim (c)
-  "Проверяет, является ли символ разделителем."
-  (or (null c) (eq c #\)) (eq c #\() (is-ws c) (eq c #\")))
+(defun parse-escape (char value)
+  "Разбор экранированной последовательности"
+  (parse-app
+    (&&& (parse-elem #\\) (parse-elem char))
+    #'(lambda (parts) (list value))))
 
-(defun parse-comment ()
-  "Парсит комментарий от ';' до конца строки."
-  (parse-app (&&& (parse-elem #\;)
-                  (parse-many (parse-pred #'(lambda (c) (not (eq c (code-char 10)))))))
-             #'(lambda (x) 'COMMENT)))
+(defun parse-string ()
+  "Разбор строки в двойных кавычках"
+  (parse-app
+    (&&& (parse-elem #\")
+         (parse-many (parse-or (parse-escape #\n (code-char 0xa))
+                               (parse-pred #'(lambda (sym) (!= sym #\")))))
+         (parse-elem #\"))
+    #'(lambda (parts) (implode (second parts)))))
 
-(defun skip-ws-comments ()
-  "Пропускает пробелы и комментарии."
-  (parse-many (parse-or (parse-pred #'is-ws)
-                        (parse-comment))))
+(defun lisp-token ()
+  "Лексема языка Лисп"
+  (parse-or (parse-elem #\()
+            (parse-elem #\))
+            (parse-float)
+            (parse-hex)
+            (parse-decimal)
+            (parse-string)
+	    (parse-app (&&& (parse-elem #\#) (parse-elem #\\) #'get-byte) #'third) ;; одиночный символ
+            (parse-app (&&& (parse-elem #\#) (parse-elem #\')) (parse-return 'FUNCTION))
+            (parse-app (parse-elem #\#) (parse-return 'SHARP))
+            (parse-app (parse-elem #\') (parse-return 'QUOTE))
+            (parse-app (parse-elem #\`) (parse-return 'BACKQUOTE))
+            (parse-app (&&& (parse-elem #\,) (parse-elem #\@)) (parse-return 'COMMA-AT))
+            (parse-app (parse-elem #\,) (parse-return 'COMMA))
+            (lisp-symbol)
+	    ;;            #'(lambda (stream) (throw 'parse-error "Unknown token"))))
+	    ))
 
-(defun check-delim (parser)
-  "Проверяет разделитель после парсера."
-  #'(lambda (stream)
-      (let ((res (funcall parser stream)))
-        (if res
-            (let ((next-char (get-byte (cdr res))))
-              (if (or (null next-char) (is-delim (car next-char)))
-                  res
-                  nil))
-            nil))))
-
-(defun parse-lparen ()
-  "Парсит открывающую скобку."
-  (parse-app (parse-elem #\() #'(lambda (x) (list (code-char 40)))))
-
-(defun parse-rparen ()
-  "Парсит закрывающую скобку."
-  (parse-app (parse-elem #\)) #'(lambda (x) (list (code-char 41)))))
-
-(defun make-num (sign digits)
-  "Создает число из знака и списка цифр."
-  (let ((num (safe-strtoint (implode digits) 10)))
-    (if (eq sign #\-) (- num) num)))
-
-(defun parse-num-tok ()
-  "Парсит десятичный числовой токен."
-  (parse-app (&&& (parse-optional (parse-elem #\-))
-		  (parse-some (parse-pred #'is-digit)))
-	     #'(lambda (x) (list (make-num (car x) (cadr x))))))
-
-(defun parse-hex-num ()
-  "Парсит числовой токен в 16-ричной системе счисления."
-  (parse-app (&&& (parse-elem #\0) (parse-elem #\x)
-		  (parse-some (parse-pred #'is-hex-sym)))
-	     #'(lambda (x) (list (safe-strtoint (implode (caddr x)) 16)))))
-
-(defun parse-sym-tok ()
-  "Парсит идентификатор"
-  (parse-app (parse-some (parse-pred #'(lambda (c) (not (is-delim c)))))
-	     #'(lambda (x) (list (intern (string-upcase (implode x)))))))
-
-(defun parse-str-char ()
-  "Парсит символ строки."
-  #'(lambda (stream)
-      (let ((res (get-byte stream)))
-        (if (null res) nil
-            (let ((char (car res)) (next-stream (cdr res)))
-              (if (eq char #\\) (get-byte next-stream)
-                  (if (eq char #\") nil res)))))))
-
-(defun parse-str-tok ()
-  "Парсит строковый токен."
-  (parse-app (&&& (parse-elem #\")
-                  (parse-many (parse-str-char))
-                  (parse-elem #\"))
-             #'(lambda (x) (list (implode (cadr x))))))
-
-(defun parse-comma ()
-  "Парсит запятую."
-  (parse-app (&&& (parse-elem #\,) (parse-optional (parse-elem #\@)))
-             #'(lambda (x) (if (cadr x) (list 'COMMA-AT) (list 'COMMA)))))
-
-(defun parse-comma-tok ()
-  "Парсит запятую как токен."
-    (parse-app (&&& (parse-comma) (parse-optional (parse-rec (parse-token))))
-        #'(lambda (x) (append (car x) (cadr x)))))
-
-(defun parse-char-sharp ()
-  "Парсит символ после # и обратного слеша."
-  (parse-app (&&& (parse-elem #\\) (parse-pred #'(lambda (x) t)))
-             #'(lambda (x) (list 'T-CHAR (cadr x)))))
-
-(defun parse-func-sharp ()
-  "Парсит цитату функции после #'."
-  (parse-app (&&& (parse-elem #\') (parse-optional (parse-rec (parse-token))))
-             #'(lambda (x) (append (list 'FUNCTION) (cadr x)))))
-
-(defun parse-sharp ()
-  "Парсит токен, начинающийся с #."
-  (parse-app (&&& (parse-elem #\#)
-                  (parse-or (parse-char-sharp)
-                            (parse-func-sharp)
-                            (parse-app (parse-rec (parse-token)) #'(lambda (x) (append (list 'SHARP) x)))))
-             #'cadr))
-
-(defun parse-quote-tok ()
-  "Парсит цитату как токен."
-  (parse-app (&&& (parse-elem #\') (parse-optional (parse-rec (parse-token))))
-             #'(lambda (x) (append (list 'QUOTE) (cadr x)))))
-
-(defun parse-backq-tok ()
-  "Парсит обратную цитату как токен."
-  (parse-app (&&& (parse-elem #\`) (parse-optional (parse-rec (parse-token))))
-             #'(lambda (x) (append (list 'BACKQUOTE) (cadr x)))))
-
-(defun parse-token ()
-  "Парсит токен."
-  (parse-or (parse-lparen)
-            (parse-rparen)
-            (check-delim (parse-hex-num))
-            (check-delim (parse-float-tok))
-            (check-delim (parse-num-tok))
-            (parse-str-tok)
-            (parse-sharp)
-            (parse-quote-tok)
-            (parse-backq-tok)
-            (parse-comma-tok)
-            (parse-sym-tok)
-            (parse-fail "Unknown token")))
-
-(defun lexer (str)
-  "Лексер: преобразует строку в список токенов."
-  (labels ((lex-loop (s acc)
-             (let ((s-ws (cdr (funcall (skip-ws-comments) s))))
-               (if (is-eoi-str s-ws) acc
-                   (let ((res (funcall (parse-token) s-ws)))
-                     (if res
-                         (lex-loop (cdr res) (append acc (car res)))
-                         nil))))))
-    (lex-loop (stream-from-str str) nil)))
+(defun lisp-lexer (str)
+  "Лексический анализатор Common Lisp. Строка преобразуется в список лексем"
+  (let ((r (funcall (parse-sep (lisp-token) (parse-many (parse-pred #'lisp-separator)))
+		      (stream-from-str str))))
+    (if r (car r) nil)))

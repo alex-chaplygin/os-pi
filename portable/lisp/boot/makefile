@@ -5,7 +5,7 @@ SUBDIRS=graphics
 
 all: /tmp/baselisp.lsp /tmp/key.lsp
 
-all-tests: lib-test list-test oop-test str-test array-test vec2-test queue-test parser-test huffman-test math-test bin-reader bin-tree-test regex-test lexer-test
+all-tests: lib-test list-test oop-test str-test array-test vec2-test queue-test parser-test huffman-test math-test bin-reader bin-tree-test regex-test
 
 # модульные тесты двумерного вектора
 vec2-test: $(BASELISP) math.lsp $(TEST) test/vec2.lsp

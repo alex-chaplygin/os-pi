@@ -1,4 +1,5 @@
 include ../common.mak
+SHELL = bash
 VPATH := ..
 COMPILER = $(BASELISP) common.lsp macro.lsp compiler.lsp generator.lsp assembler.lsp
 SOURCE = ../lib.lsp ../list.lsp ../hash.lsp ../test.lsp ../compiler/common.lsp ../compiler/macro.lsp ../compiler/compiler.lsp ../compiler/generator.lsp ../compiler/assembler.lsp
@@ -8,11 +9,11 @@ compiler-test: $(COMPILER) ../test.lsp test-compiler.lsp
 	make -C ../../test /tmp/lisp
 	cat $^ | /tmp/lisp
 
-lexer-test: $(BASELISP) ../math.lsp ../stream.lsp ../parser.lsp lexer.lsp ../test.lsp test-lexer.lsp
+lexer-test: $(BASELISP) ../stream.lsp ../parser.lsp lexer.lsp ../test.lsp test-lexer.lsp
 	make -C ../../test /tmp/lisp
 	cat $^ | /tmp/lisp
 
-syntax-analyzer-test: $(BASELISP) ../math.lsp ../stream.lsp ../parser.lsp ../str.lsp lexer.lsp parser.lsp ../test.lsp test-parser.lsp
+parser-test: $(BASELISP) ../stream.lsp ../parser.lsp lexer.lsp parser.lsp ../test.lsp test-parser.lsp
 	make -C ../../test /tmp/lisp
 	cat $^ | /tmp/lisp
 
