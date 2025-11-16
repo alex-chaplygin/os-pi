@@ -34,6 +34,8 @@ MAKE_PREDICATE(stringp, TYPE(el) == STRING)
 MAKE_PREDICATE(arrayp, TYPE(el) == ARRAY)
 // Число с плавающей точкой 
 MAKE_PREDICATE(floatp, TYPE(el) == FLOAT)
+// Одиночный символ
+MAKE_PREDICATE(charp, TYPE(el) == CHAR)
 
 void init_predicates()
 {
@@ -44,4 +46,5 @@ void init_predicates()
     register_func("ARRAYP", arrayp, 0, 1);
     register_func("FLOATP", floatp, 0, 1);
     register_func("FUNCTIONP", functionp, 0, 1);
+    register_func("CHARP", charp, 0, 1);
 }
