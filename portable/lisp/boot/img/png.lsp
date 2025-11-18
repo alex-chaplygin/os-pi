@@ -13,12 +13,12 @@
 
 (defun png-signature ()
   "Ожидание сигнатуры PNG"
-  (parse-array +PNG-SIGNATURE+))
+  (parse-elem-array +PNG-SIGNATURE+))
 
 (defun parse-ihdr ()
   "Читаем IHDR блок изображения PNG"
   (parse-app (&&& #'get-dword
-	      (parse-array +IHDR+)
+	      (parse-elem-array +IHDR+)
 	      (parse-struct '((width . dword) (height . dword)
 			      (bit-depth . byte) (color-type . byte)
 			      (compression . byte) (filter . byte) (interlace . byte))))
