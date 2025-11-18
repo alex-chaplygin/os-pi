@@ -17,12 +17,14 @@
     (when (not (null bc))
   	(set-colour bc)
   	(fill-rect x y width height))
+    (gsave)
     (move-to x y)
     (set-colour (if bc (+ colour (<< bc 4)) colour))
     (for i 0 count
   	 (show-text (subseq text (* i width) (* (+ 1 i) width)))
   	 (translate (cons 0 1)))
-    (when (> rem 0) (show-text (subseq text (- len rem) len)))))
+    (when (> rem 0) (show-text (subseq text (- len rem) len)))
+    (grestore)))
       
 ;; (defmethod set-defaults ((self text))
 ;;   (super set-defaults self)
