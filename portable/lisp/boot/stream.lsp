@@ -43,6 +43,10 @@
   "Создает поток из массива arr с порядком байт end"
   (make-astream arr -1 (if end 0 7) end))
 
+(defun stream-seek (st ofs)
+  "Установить указатель потока из массива st на смещение ofs относительно начала"
+  (make-astream (astream-arr st) (-- ofs) (astream-bit-num st) (astream-endianness st)))
+
 (defmethod get-byte ((self astream))
   "Чтение очередного байта из потока
    Возвращает точечную пару (число . новое состояние потока) или nil если конец потока"
