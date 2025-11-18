@@ -23,7 +23,11 @@ vmlisp: /tmp/gui-ascii.lsp
 	make -C test /tmp/test_comp
 	cat $^ | head -n -1 >/tmp/compile
 	cd boot/compiler; ./compile
-	/tmp/test_comp </tmp/bin | sed -e "s/^(T/#(T/" | tr '\n' ' ' >/tmp/lisp.lsp
+	@/tmp/test_comp </tmp/bin >/tmp/1 || {\
+             cat /tmp/1;\
+             exit 1;\
+	}
+	cat /tmp/1 | sed -e "s/^(T/#(T/" | tr '\n' ' ' >/tmp/lisp.lsp
         #cat /tmp/lisp.lsp
 
 # тесты jpeg
