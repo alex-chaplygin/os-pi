@@ -76,6 +76,11 @@
     (for i 0 size (seta a i (aref ar (+ i i1))))
     a))
 
+(defun copy-array (from to)
+  "Копирует все элементы из начального(from) массива в конечный(to) массив"
+  (for i 0 (array-size from)
+       (seta to i (aref from i))))
+
 ; тесты
 ;; (defun with-struct-test ()
 ;;   (let ((s '((str name . 10) ; строковое поле из 10 байт
