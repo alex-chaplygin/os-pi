@@ -99,12 +99,18 @@
 	(let ((num (strtoint (implode (cons (second parts) (third parts))) 10)))
             (if (car parts) (- num) num)))))
 
-(defun parse-array (arr)
-  "Ожидание в потоке заданного массива"
-  #'(lambda (stream)
-      (let ((res (get-array stream (array-size arr))))
-	(if (null res) nil
-	  (if (= arr (car res)) res nil)))))
+(defmacro mk/elem-parse(name func &rest param)
+  "Создать функцию-парсер ожидающую значение"
+  `(defun ,name (p)
+    #'(lambda (stream)
+	(let ((res (,func stream ,@param)))
+	  (if (null res) nil
+	      (if (= p (car res)) res nil))))))
+
+;; Ожидание в потоке заданного массива
+(mk/elem-parse parse-elem-array get-array (array-size p))
+;; Ожидание в потоке заданного слова
+(mk/elem-parse parse-elem-word get-word)
 
 (defmacro mk/parse1 (name func)
   "Создать функцию разбора на основе функции которая имеет один параметр, кроме потока"
