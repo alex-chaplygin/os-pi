@@ -22,7 +22,7 @@
 #ifdef VM
 #define MAX_NUMBERS 512
 #else
-#define MAX_NUMBERS 350
+#define MAX_NUMBERS 1024
 #endif
 /// Всего вещественных чисел
 #ifdef VM
