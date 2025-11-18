@@ -43,9 +43,14 @@
   "Создает поток из массива arr с порядком байт end"
   (make-astream arr -1 (if end 0 7) end))
 
-(defun stream-seek (st ofs)
+(defun stream-seek (st ofs from)
   "Установить указатель потока из массива st на смещение ofs относительно начала"
-  (make-astream (astream-arr st) (-- ofs) (astream-bit-num st) (astream-endianness st)))
+  "from принимает значения seek-set - от начала потока, seek-cur - относительно текущей позиции"
+  (make-astream (astream-arr st) (case from
+				   ('seek-set (-- ofs))
+				   ('seek-cur (+ ofs (astream-byte-num st)))
+				   (otherwise (error "stream-seek: invalid from")))
+		(astream-bit-num st) (astream-endianness st)))
 
 (defmethod get-byte ((self astream))
   "Чтение очередного байта из потока
