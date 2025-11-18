@@ -9,7 +9,7 @@
    #'(lambda (stream)
        (let* ((res (get-dword stream))
 	      (st (cdr res)))
-	 (cons (car res) (stream-seek st (car res)))))))
+	 (cons (car res) (stream-seek st (car res) 'seek-set))))))
 
 (defun tiff-directory ()
   (&&&
