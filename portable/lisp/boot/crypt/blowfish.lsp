@@ -1,3 +1,4 @@
+;; Массив 256 32-битных констант для S-бокса sbox0 (статический)
 (defvar +blowfish-init-sbox0+ #(
 0xd1310ba6 0x98dfb5ac 0x2ffd72db 0xd01adfb7 0xb8e1afed 0x6a267e96
 0xba7c9045 0xf12c7f99 0x24a19947 0xb3916cf7 0x0801f2e2 0x858efc16
@@ -41,8 +42,9 @@
 0x11c81968 0x4e734a41 0xb3472dca 0x7b14a94a 0x1b510052 0x9a532915
 0xd60f573f 0xbc9bc6e4 0x2b60a476 0x81e67400 0x08ba6fb5 0x571be91f
 0xf296ec6b 0x2a0dd915 0xb6636521 0xe7b9f9b6 0xff34052e 0xc5855664
-0x53b02d5d 0xa99f8fa1 0x08ba4799 0x6e85076a))
+				0x53b02d5d 0xa99f8fa1 0x08ba4799 0x6e85076a))
 
+;; Массив 256 32-битных констант для S-бокса sbox1 (статический)
 (defvar +blowfish-init-sbox1+ #(
 0x4b7a70e9 0xb5b32944 0xdb75092e 0xc4192623 0xad6ea6b0 0x49a7df7d
 0x9cee60b8 0x8fedb266 0xecaa8c71 0x699a17ff 0x5664526c 0xc2b19ee1
@@ -88,6 +90,7 @@
 0x675fda79 0xe3674340 0xc5c43465 0x713e38d8 0x3d28f89e 0xf16dff20
 0x153e21e7 0x8fb03d4a 0xe6e39f2b 0xdb83adf7))
 
+;; Массив 256 32-битных констант для S-бокса sbox2 (статический)
 (defvar +blowfish-init-sbox2+ #(
 0xe93d5a68 0x948140f7 0xf64c261c 0x94692934 0x411520f7 0x7602d4f7
 0xbcf46b2e 0xd4a20068 0xd4082471 0x3320f46a 0x43b7d4b7 0x500061af
@@ -133,6 +136,7 @@
 0xa28514d9 0x6c51133c 0x6fd5c7e7 0x56e14ec4 0x362abfce 0xddc6c837
 0xd79a3234 0x92638212 0x670efa8e 0x406000e0))
 
+;; Массив 256 32-битных констант для S-бокса sbox3 (статический)
 (defvar +blowfish-init-sbox3+ #(
 0x3a39ce37 0xd3faf5cf 0xabc27737 0x5ac52d1b 0x5cb0679e 0x4fa33742
 0xd3822740 0x99bc9bbe 0xd5118e9d 0xbf0f7315 0xd62d1c7e 0xc700c47b
@@ -178,18 +182,26 @@
 0x01c36ae4 0xd6ebe1f9 0x90d4f869 0xa65cdea0 0x3f09252d 0xc208e69f
 0xb74e6132 0xce77e25b 0x578fdfe3 0x3ac372e6))
 
+;; Массив 18 32-битных констант P-массива (статический)
 (defvar +blowfish-init-P+ #(
-#x243f6a88 #x85a308d3 #x13198a2e #x03707344 #xa4093822 #x299f31d0
-#x082efa98 #xec4e6c89 #x452821e6 #x38d01377 #xbe5466cf #x34e90c6c
-#xc0ac29b7 #xc97c50dd #x3f84d5b5 #xb5470917 #x9216d5d9 #x8979fb1b))
+0x243f6a88 0x85a308d3 0x13198a2e 0x03707344 0xa4093822 0x299f31d0
+0x082efa98 0xec4e6c89 0x452821e6 0x38d01377 0xbe5466cf 0x34e90c6c
+0xc0ac29b7 0xc97c50dd 0x3f84d5b5 0xb5470917 0x9216d5d9 0x8979fb1b))
 
+;; Рабочие массивы Blowfish
 (defvar *blow-p* (make-array 18))
-
 (defvar *blow-s0* (make-array 256))
-
 (defvar *blow-s1* (make-array 256))
-
 (defvar *blow-s2* (make-array 256))
-
 (defvar *blow-s3* (make-array 256))
 
+(defun init-blowfish-tables ()
+  "Инициализирует рабочие массивы" 
+  (copy-array +blowfish-init-P+ *blow-p*)
+  (copy-array +blowfish-init-sbox0+ *blow-s0*)
+  (copy-array +blowfish-init-sbox1+ *blow-s1*)
+  (copy-array +blowfish-init-sbox2+ *blow-s2*)
+  (copy-array +blowfish-init-sbox3+ *blow-s3*))
+
+(init-blowfish-tables)
+(print *blow-p*)

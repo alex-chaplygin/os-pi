@@ -58,6 +58,16 @@
 			  (apply (cdr parser-res) (append res (list (car parser-res))))))))
 	      (apply stream nil))))
 
+(defun parse-many-n (n parser)
+  "Комбинатор - n повторений заданного парсера. Возвращает список результатов"
+  #'(lambda (stream)
+      (labels ((apply (stream n res)
+		 (if (= n 0) (cons res stream)
+		     (let ((parser-res (funcall parser stream)))
+		       (if (null parser-res) nil
+			   (apply (cdr parser-res) (-- n) (append res (list (car parser-res)))))))))
+	      (apply stream n nil))))
+
 (defun parse-optional (parser)
   "Комбинатор: 0 или 1 применение парсера.
    Всегда успешен. Возвращает (значение . поток), где значение = nil, если парсер не сработал."
@@ -99,12 +109,18 @@
 	(let ((num (strtoint (implode (cons (second parts) (third parts))) 10)))
             (if (car parts) (- num) num)))))
 
-(defun parse-array (arr)
-  "Ожидание в потоке заданного массива"
-  #'(lambda (stream)
-      (let ((res (get-array stream (array-size arr))))
-	(if (null res) nil
-	  (if (= arr (car res)) res nil)))))
+(defmacro mk/elem-parse(name func &rest param)
+  "Создать функцию-парсер ожидающую значение"
+  `(defun ,name (p)
+    #'(lambda (stream)
+	(let ((res (,func stream ,@param)))
+	  (if (null res) nil
+	      (if (= p (car res)) res nil))))))
+
+;; Ожидание в потоке заданного массива
+(mk/elem-parse parse-elem-array get-array (array-size p))
+;; Ожидание в потоке заданного слова
+(mk/elem-parse parse-elem-word get-word)
 
 (defmacro mk/parse1 (name func)
   "Создать функцию разбора на основе функции которая имеет один параметр, кроме потока"
@@ -114,3 +130,4 @@
 
 (mk/parse1 parse-struct get-struct)
 (mk/parse1 parse-bits get-bits)
+(mk/parse1 parse-array get-array)

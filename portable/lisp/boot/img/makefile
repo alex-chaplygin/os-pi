@@ -13,3 +13,8 @@ test-jpeg: $(BASELISP) $(PARSER) jpeg/jpeg.lsp jpeg/jpeg-test.lsp
 test-png: $(BASELISP) $(PARSER) png.lsp png-test.lsp
 	make -C ../../test /tmp/lisp
 	cat $^ | /tmp/lisp
+
+# тест TIFF
+test-tiff: $(BASELISP) $(PARSER) tiff.lsp tiff-test.lsp
+	make -C ../../test /tmp/lisp
+	cat $^ | /tmp/lisp

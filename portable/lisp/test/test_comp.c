@@ -42,6 +42,7 @@ char *itoa(int num, char *str, int rad)
 int main()
 {
     init_all();
+    if (setjmp(repl_buf) == 0) {
     int prog_size = get_value(parse());
     int *prog = alloc_region(prog_size * sizeof(int));
     int *p = prog;
@@ -51,13 +52,14 @@ int main()
     array_t *const_a = GET_ARRAY(consts);
     int num_vars = get_value(parse());
     vm_init(prog, prog_size, const_a->data, const_a->length, num_vars);
-    if (setjmp(repl_buf) == 0)
 	vm_run();
-    else
+	return 0;
+    } else {
 #ifndef VM	    
 	    vm_dump();
 #else
     ;
 #endif    
-    return 0;
+    return 1;
+    }
 }

@@ -43,6 +43,16 @@
   ))
   ;; (print (assert (funcall (parse-many (parse-elem 'B)) '(A C B)) '((() . (a c b))))))
 
+(deftest parse-many-n-test ()
+  "Тесты для parse-many-n"
+  (let ((s1 (stream-from-str "aaab"))
+	(s2 (stream-from-str "bba")))
+    (print (assertcar (funcall (parse-many-n 3 (parse-elem #\a)) s1) '(#\a #\a #\a)))
+    (print (assert (funcall (parse-many-n 4 (parse-elem #\a)) s1) '()))
+    (print (assertcar (funcall (parse-many-n 2 (parse-elem #\a)) s1) '(#\a #\a)))
+    (print (assert (funcall (parse-many-n 2 (parse-elem #\a)) s2) '()))
+  ))
+
 (deftest parse-some-test ()
   "Тесты для parse-some"
   (let ((s1 (stream-from-str "aac1"))

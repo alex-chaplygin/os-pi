@@ -1,5 +1,5 @@
 include ../common.mak ../graphics/common.mak
-GUI = element.lsp text.lsp events.lsp
+GUI = element.lsp text.lsp block.lsp events.lsp
 SHELL = bash
 VPATH := .. ../graphics/ ../sys/
 

@@ -55,6 +55,7 @@ void *alloc_region(int size)
             free_reg->free = 1;
             free_reg->next = r->next;
             free_reg->prev = r;
+            free_reg->next->prev = free_reg;
             free_reg->size = r->size - size2;
             r->next = free_reg;
             r->size = size;

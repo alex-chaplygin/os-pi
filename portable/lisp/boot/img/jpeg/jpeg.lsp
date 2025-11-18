@@ -18,9 +18,22 @@
       (let ((word (get-word stream)))
 	(if (= (car word) marker) word nil))))
 
+(defun read-length ()
+  #'(lambda (stream)
+      (let* ((word (get-word stream))
+	     (array (get-array (cdr word) (- (car word) 2))))
+	array)))
+
 ;;    Quantization ::= DQT Lq PTq Q[64] ; таблица квантования
 (defun quantization ()
-  (parse-app (marker DQT) #'(lambda (x) 'quantization)))
+  (parse-app (&&& (marker DQT)
+		  #'(lambda (stream)
+		      (let* ((lq (get-word stream))
+			     (PTq (get-4bit (cdr lq)))
+			     (Q (get-array (cdr PTq) 64))
+			     (st (cdr q)))
+			(cons (list 'quantization (cdr (car PTq)) (car Q))
+			      (stream-seek stream (car lq) 'seek-cur))))) #'second))
 
 ;;    Huffman ::= DHT Lh Tch L[16] V[sum[L]] ; таблица Хаффмана
 (defun huffman ()
@@ -28,7 +41,7 @@
 
 ;;    App ::= APP Lp A[Lp] ; данные приложения
 (defun application ()
-  (parse-app (marker APP)  #'(lambda (x) 'app)))
+  (parse-app (&&& (marker APP) (read-length)) #'(lambda (x) (list 'app (second x)))))
 
 ;;    Restart ::= DRI Lr Ri ; интервал перезапуска
 (defun restart ()
@@ -42,6 +55,18 @@
 (defun table ()
   (parse-or (quantization) (huffman) (application) (restart) (comment)))
 
-;;    JPEG ::= SOI Frame EOI
+;;FrameHeader ::= SOF Lf P Y X Nf FComp[Nf] ; заголовок кадра
+;;FComp ::= Cf HV Tq ; компонент кадра
+(defun frame-header ()
+  (parse-app (&&& (marker SOF)
+		  (parse-struct '((lf . word) (p . byte) (y . word) (x . word) (nf . byte)))
+		  (parse-many-n 3 (parse-struct '((c . byte) (hv . bits4) (tq . byte)))))
+	     #'(lambda (x) (list 'frame (cdr x)))))
+
+;; JPEG ::= SOI Frame EOI
+;; Frame ::= Table* FrameHeader Scan[Nf???]; кадр
+;; Scan ::= Dnl? Table* ScanHeader ESC* ; скан с раделителем Dnl
+;; ScanHeader ::= SOS Ls Ns SComp[Ns] Ss Se Ahl ; заголовок скана
+;; Scomp ::= Cs Tda ; компонент скана
 (defun jpeg ()
-  (&&& (marker SOI) (table)))
+  (&&& (marker SOI) (parse-many (table)) (frame-header) (parse-many (table))))
