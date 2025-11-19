@@ -527,14 +527,25 @@ sh sys_test "(progn 1 2 3 (error \"e\") 4 5 6)" "ERROR: \"e\""
 echo "---Тесты CATCH---"
 sh sys_test "(CATCH)" "catch: no arguments"
 sh sys_test "(CATCH 'A)" "()"
+# при MAX_CATCH_SIZE <4
+sh sys_test "(CATCH 'A) (CATCH 'A) (CATCH 'A) (CATCH 'A) " "()
+()
+()
+()"
 sh sys_test "(CATCH 'A 1 2 3)" "3"
 # вложенный catch-throw
 sh sys_test "(CATCH 'a (CATCH 'b (THROW 'a 1)))" "1"
+sh sys_test "(CATCH 'a (CATCH 'b (CATCH 'c (THROW 'a 1)))) (CATCH 'a)" "1
+()"
+sh sys_test "(CATCH 'a (CATCH 'b (CATCH 'c (THROW 'c 10)))) (CATCH 'a)" "10
+()"
 # ошибка: throw без соответствующего catch
 sh sys_test "(CATCH 'd (THROW 'd 2) 1)" "2"
+sh sys_test "(CATCH 'g (THROW 'd 2) 1) (CATCH 'a)" "throw: no catch with tag
+()"
 
 echo "---Тесты PROGN---"
-sh sys_test "(PROGN)" "NIL"
+sh sys_test "(PROGN)" "()"
 sh sys_test "(a . 1)" "arguments are not list"
 
 echo "---Тесты TAGBODY---"

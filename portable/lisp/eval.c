@@ -956,8 +956,10 @@ object_t catch(object_t list)
     if (ct_index_buf < 0)
         error("catch: buffer haven't true length");
 
-    if (setjmp(catch_buffers[ct_index_buf].buff.buffer) == 0)
+    if (setjmp(catch_buffers[ct_index_buf].buff.buffer) == 0) {
         res = progn(rest_params);
+        ct_index_buf++;
+    } 
     else 
         res = cur_label;
     UNPROTECT;
@@ -970,12 +972,13 @@ object_t catch(object_t list)
  */ 
 object_t throw(object_t tag, object_t res)
 {
-    for (int i = ct_index_buf; i < MAX_CATCH_SIZE; i++)
-        if (catch_buffers[i].tag == tag) {
+    while (ct_index_buf != MAX_CATCH_SIZE) {
+        if (catch_buffers[ct_index_buf].tag == tag) {
             cur_label = res;
-            ct_index_buf++;
-            longjmp(catch_buffers[i].buff.buffer, 1);
+            longjmp(catch_buffers[ct_index_buf].buff.buffer, 1);
         }
+        ct_index_buf++;
+    }
     error("throw: no catch with tag");
 }
 
