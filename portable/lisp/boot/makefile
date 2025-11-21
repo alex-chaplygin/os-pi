@@ -63,8 +63,12 @@ bin-reader: $(BASELISP) bin-reader.lsp $(TEST) test/bin-reader.lsp
 bin-tree-test: $(BASELISP) bin-tree.lsp $(TEST) test/bin-tree.lsp
 	make -C ../test /tmp/repl_lisp
 	cat $^ | /tmp/repl_lisp
-# модульные тесты двоичное дерево
+# модульные тесты потока
 stream-test: $(BASELISP) stream.lsp $(TEST) test/stream.lsp
+	make -C ../test /tmp/lisp
+	cat $^ | /tmp/lisp
+# модульные тесты потока с позицией
+posstream-test: $(BASELISP) stream.lsp posstream.lsp $(TEST) test/posstream.lsp
 	make -C ../test /tmp/lisp
 	cat $^ | /tmp/lisp
 # модульные тесты НКА
