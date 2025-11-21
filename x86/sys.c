@@ -85,7 +85,7 @@ object_t OUTW(object_t port, object_t val)
  */
 object_t INDW(object_t port)
 {
-    if (TYPE(port) != NUMBER)
+    if (!IS_NUMBER(TYPE(port)))
 	error("INDW: port\n");
     int val = indw(get_value(port));
     return new_number(val);
@@ -100,8 +100,7 @@ object_t INDW(object_t port)
  */
 object_t OUTDW(object_t port, object_t val)
 {
-    if (TYPE(port) != NUMBER && TYPE(port) != BIGNUMBER
-	|| TYPE(val) != NUMBER && TYPE(val) != BIGNUMBER)
+    if (!IS_NUMBER(TYPE(port)) || !IS_NUMBER(TYPE(val)))
 	error("OUTDW: port val\n");
     outdw(get_value(port), get_value(val));
     return NULLOBJ;
