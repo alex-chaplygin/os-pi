@@ -19,7 +19,7 @@
 
 (defun get-hash* (hash key)
   "Возвращает значение по ключу key из таблицы hash"
-  (when (null hash) (error (concat "get-hash: no key " (symbol-name key))))
+  (when (null hash) (error "get-hash: no key " key))
   (if (equal key (caar hash)) (cdar hash)
       (get-hash* (cdr hash) key)))
 (defun get-hash (hash key)

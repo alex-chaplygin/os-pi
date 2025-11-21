@@ -1069,7 +1069,7 @@ void init_eval()
     register_func("EVAL", lisp_eval, 0, 1);
     register_func("GC", print_gc_stat, 0, 0);
     register_func("DUMP-MEM", dump_mem, 0, 0);
-    register_func("ERROR", error_func, 0, 1);
+    register_func("ERROR", error_func, 1, 0);
     register_func("TAGBODY", tagbody, 1, 0);
     register_func("GO", go, 0, 1);
     register_func("CATCH", catch, 1, 0); 
