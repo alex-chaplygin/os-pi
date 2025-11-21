@@ -69,13 +69,13 @@
   (catch 'parse-error
     (let* ((tokens (lisp-lexer str)))
       (if (not (or (null tokens) (pairp tokens)))
-          (throw-error 'parse-error "lisp-parser: Unexpected lexer result")
+          (throw-error 'parse-error "lisp: Unexpected lexer result")
         (let* ((stream (stream-from-list tokens))
                (res (funcall (lisp-s-expr) stream)))
           (if (not res)
-              (throw-error 'parse-error "lisp-parser: Syntax error")
+              (throw-error 'parse-error "lisp: Syntax error")
             (let ((rest-stream (cdr res)))
               (if (not (stream-empty-p rest-stream))
-                  (throw-error 'parse-error "lisp-parser: Unexpected tokens after expression")
+                  (throw-error 'parse-error "lisp: Unexpected tokens after expression")
                 (car res)))))))))
 

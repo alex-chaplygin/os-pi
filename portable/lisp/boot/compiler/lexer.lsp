@@ -1,28 +1,32 @@
-(defvar *current-parse-string* nil
-  "Текущая строка, переданная на разбор лексеру или парсеру.")
+;; глобальные переменные для хранения состояния (через defvar не работает в такой области видимости)
+(intern "*STREAM*")
+(intern "*LAST-GOOD-RESULT*")
+(intern "*LAST-THROW-POS*")
+
+(setf *STREAM* nil)
+(setf *LAST-GOOD-RESULT* nil)
+(setf *LAST-THROW-POS* nil)
+
+(defun same-pos-p (pos1 pos2)
+  "Сравнивает две позиции (списки из двух чисел)."
+  (and pos1 pos2
+       (= (car pos1) (car pos2))
+       (= (second pos1) (second pos2))))
 
 (defun throw-error (type message)
-  (if *current-char*
-      ; Есть текущий символ — ошибка НА нём
-      (print (concat "Error at (" 
-                     "#\\" (implode (list *current-char*)) 
-                     " . (" 
-                     (inttostr *current-line*) " . " 
-                     (inttostr *current-column*) "))"))
-    ; Нет текущего символа — ошибка ИЗ-ЗА отсутствия
-    (if *previous-char*
-        ; Был предыдущий символ → "Error after #\X at (Undetermined token . (line . col))"
-        (print (concat "Error after #\\" 
-                       (implode (list *previous-char*)) 
-                       " at (\"Undetermined token\" . (" 
-                       (inttostr *current-line*) " . " 
-                       (inttostr *current-column*) "))"))
-      ; Нет даже предыдущего → ошибка в начале
-      (print (concat "Error at (\"Undetermined token\" . (" 
-                     (inttostr *current-line*) " . " 
-                     (inttostr *current-column*) "))"))))
-  (print "")
-  (throw type message))
+  "Бросает ошибку только если позиция отличается от предыдущей."
+  (let* ((pos (PosStream-pos *STREAM*))
+         (should-throw (not (same-pos-p pos *LAST-THROW-POS*))))
+    (if should-throw
+        (progn
+          (setf *LAST-THROW-POS* pos)
+          (print (concat "Error at ("
+                         (concat (inttostr (car pos)) " . " (inttostr (second pos)))
+                         "); Last succesfuly parsed symbol: ")
+                 *LAST-GOOD-RESULT*)
+          (throw type message))
+      nil)))
+
 
 (defun parse-float()
   "Парсит числовой токен с плавающей точкой."
@@ -37,12 +41,12 @@
               (frac-part (forth x)))
 	 (if (and (null int-part) (null frac-part))
 	     (if sign
-		 (throw-error 'parse-error "lisp-lexer: WARNING: got dot with sign")
+		 (throw-error 'parse-error "lisp: WARNING: got dot with sign")
 	       #\.)
 	   (let* ((float-str (concat (implode int-part) "." (implode frac-part)))
 		  (num (strtofloat (if sign (concat "-" float-str) float-str))))
 	     (if num num
-		 (throw-error 'parse-error "lisp-lexer: invalid float number"))))))))
+		 (throw-error 'parse-error "lisp: invalid float number"))))))))
 
 ;; Вспомогательный предикат
 (defun is-lisp-symbol (sym)
@@ -69,7 +73,7 @@
 	(let ((res (intern (implode (map #'(lambda (char) (toupper char))
 					 (cons (car parts) (second parts)))))))
 	  (if res res
-	      (throw-error 'parse-error "lisp-lexer: invalid symbol"))))))
+	      (throw-error 'parse-error "lisp: invalid symbol"))))))
 
 (defun parse-escape (char value)
   "Разбор экранированной последовательности"
@@ -77,7 +81,7 @@
     (&&& (parse-elem #\\)
          (parse-or (parse-elem char)
 		   (parse-app (parse-return nil)
-			      #'(lambda (x) (throw-error 'parse-error "lisp-lexer: unexpected end of escape sequence")))))
+			      #'(lambda (x) (throw-error 'parse-error "lisp: unexpected end of escape sequence")))))
     #'(lambda (parts) (list value))))
 
 (defun parse-string ()
@@ -88,7 +92,7 @@
                                (parse-pred #'(lambda (sym) (!= sym #\")))))
 	 (parse-or (parse-elem #\")
 		   (parse-app (parse-optional (parse-elem (code-char 0)))
-			      #'(lambda (x) (throw-error 'parse-error "lisp-lexer: unterminated string")))))
+			      #'(lambda (x) (throw-error 'parse-error "lisp: unterminated string")))))
     #'(lambda (parts) (implode (second parts)))))
 
 (defun parse-comment-separator ()
@@ -106,40 +110,39 @@
   (parse-app
     (parse-pred #'(lambda (x) t))
     #'(lambda (x)
-        (throw-error 'parse-error "lisp-lexer: Unknown token"))))
+        (throw-error 'parse-error "lisp: Unknown token"))))
 
 (defun lisp-token ()
   "Лексема языка Лисп"
-  (parse-or (parse-elem #\()
-            (parse-elem #\))
-            (parse-float)
-            (parse-hex)
-            (parse-decimal)
-            (parse-string)
-	          (parse-app (&&& (parse-elem #\#) (parse-elem #\\) #'get-byte) #'third) ;; одиночный символ
-            (parse-app (&&& (parse-elem #\#) (parse-elem #\')) (parse-return 'FUNCTION))
-            (parse-app (parse-elem #\#) (parse-return 'SHARP))
-            (parse-app (parse-elem #\') (parse-return 'QUOTE))
-            (parse-app (parse-elem #\`) (parse-return 'BACKQUOTE))
-            (parse-app (&&& (parse-elem #\,) (parse-elem #\@)) (parse-return 'COMMA-AT))
-            (parse-app (parse-elem #\,) (parse-return 'COMMA))
-            (lisp-symbol)
-	          (make-tok-err)
-            ))
-     
-	    
+  (parse-app (parse-or (parse-elem #\()
+                      (parse-elem #\))
+                      (parse-float)
+                      (parse-hex)
+                      (parse-decimal)
+                      (parse-string)
+                      (parse-app (&&& (parse-elem #\#) (parse-elem #\\) #'get-byte) #'third) ;; одиночный символ
+                      (parse-app (&&& (parse-elem #\#) (parse-elem #\')) (parse-return 'FUNCTION))
+                      (parse-app (parse-elem #\#) (parse-return 'SHARP))
+                      (parse-app (parse-elem #\') (parse-return 'QUOTE))
+                      (parse-app (parse-elem #\`) (parse-return 'BACKQUOTE))
+                      (parse-app (&&& (parse-elem #\,) (parse-elem #\@)) (parse-return 'COMMA-AT))
+                      (parse-app (parse-elem #\,) (parse-return 'COMMA))
+                      (lisp-symbol)
+                      (make-tok-err)
+                      )
+     #'(lambda (tok)
+        (setf *LAST-GOOD-RESULT* tok)
+        (setf *LAST-THROW-POS* nil)
+        tok)))
+
 
 (defun lisp-lexer (str)
   "Лексический анализатор Common Lisp. Строка преобразуется в список лексем"
-  (let ((res (catch 'parse-error
-               (let* ((raw-stream (stream-from-str str))
-                      (pos-stream (make-pos-stream raw-stream))
-                      (r (funcall (parse-sep (lisp-token) (lisp-ws-or-comment))
-                                  pos-stream)))
-                 (if (not r)
-                     (throw-error 'parse-error "lisp-lexer: unknown lexer error")
-                   (car r))))))
-    (if (not (list res))
-        (progn (print res)
-               nil)
-      res)))
+  (setf *STREAM* (stream-from-str str))
+  (setf *LAST-GOOD-RESULT* nil)
+  (setf *LAST-THROW-POS* nil)
+  (let ((r (funcall (parse-sep (lisp-token) (lisp-ws-or-comment))
+                    *STREAM*)))
+    (if (not r)
+        (throw-error 'parse-error "lisp: unknown lexer error")
+      (car r))))

@@ -58,13 +58,13 @@
 ;; --- Тесты на ошибки ---
 (deftest lex-test-badstr ()
   "Тест: Незакрытая строка"
-  (print (assert (parse-lisp "\"string") "lisp-parser: Unexpected lexer result"))
-  (print (assert (parse-lisp "\"") "lisp-parser: Unexpected lexer result"))
-  (print (assert (parse-lisp "(1 2 \"hello") "lisp-parser: Unexpected lexer result")))
+  (print (assert (parse-lisp "\"string") "lisp: unterminated string"))
+  (print (assert (parse-lisp "\"") "lisp: unterminated string"))
+  (print (assert (parse-lisp "(1 2 \"hello") "lisp: unterminated string")))
 
 (deftest lex-test-unknown-token ()
   "Тест: Неизвестная лексема"
-  (print (assert (parse-lisp "@") "lisp-parser: Unexpected lexer result")))
+  (print (assert (parse-lisp "@") "lisp: Unknown token")))
 
 ; --- Тесты на полную программу. ---
 (deftest full-program-test ()
@@ -75,6 +75,6 @@
 
 (deftest err-program-test ()
   "Тест: Парсинг полной программы с ошибкой (незакрытое описание функции)"
-  (print (assert (parse-lisp "(defun factorial (n) \"Вычисляет факториал (if (<= n 1) 1 (* n (factorial (- n 1)))))") "lisp-parser: Unexpected lexer result")))
+  (print (assert (parse-lisp "(defun factorial (n) \"Вычисляет факториал (if (<= n 1) 1 (* n (factorial (- n 1)))))") "lisp: unterminated string")))
 
 (run-tests)

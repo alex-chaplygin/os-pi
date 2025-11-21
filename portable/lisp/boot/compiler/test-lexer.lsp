@@ -57,13 +57,13 @@
 
 (deftest lex-test-badstr ()
   "Тест: Незакрытая строка"
-  (print (assert (lisp-lexer "\"string") "lisp-lexer: unterminated string"))
-  (print (assert (lisp-lexer "\"") "lisp-lexer: unterminated string"))
-  (print (assert (lisp-lexer "(1 2 \"hello") "lisp-lexer: unterminated string")))
+  (print (assert (catch 'parse-error (lisp-lexer "\"string")) "lisp: unterminated string"))
+  (print (assert (catch 'parse-error (lisp-lexer "\"")) "lisp: unterminated string"))
+  (print (assert (catch 'parse-error (lisp-lexer "(1 2 \"hello")) "lisp: unterminated string")))
 
 (deftest lex-test-unknown-token ()
   "Тест: Неизвестная лексема"
-  (print (assert (lisp-lexer "@") "lisp-lexer: Unknown token")))
+  (print (assert (catch 'parse-error (lisp-lexer "@")) "lisp: Unknown token")))
 
 (deftest full-lexer-test ()
   "Полный тест лексера"

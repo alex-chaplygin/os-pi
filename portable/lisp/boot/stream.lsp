@@ -16,59 +16,10 @@
     (if (= index (string-size str)) nil
       (cons (char str index) (make-SStream str (++ index))))))
 
-;; Поток на основе потока и позиции (строка, колонка)
-(defclass PosStream ()
-  (inner-stream   ; оригинальный поток (SStream, LStream, ...)
-   line           ; текущая строка (начинается с 1)
-   column))       ; текущая колонка (начинается с 1)
-
-(defun make-pos-stream (inner-stream)
-  "Создаёт поток с позицией из любого потока"
-  (make-PosStream inner-stream 1 1))
-
-;; Глобальные переменные для текущей позиции
-(defvar *current-line* 1)
-(defvar *current-column* 1)
-(defvar *current-char* nil)
-(defvar *previous-char* nil)
-
-(defmethod get-byte ((self PosStream))
-  (let ((res (get-byte (PosStream-inner-stream self))))
-    (if (null res)
-        (progn
-          (setq *current-char* nil)
-          (setq *current-line* (PosStream-line self))
-          (setq *current-column* (PosStream-column self))
-          nil)
-      (let ((ch (car res))
-            (new-inner (cdr res))
-            (cur-line (PosStream-line self))
-            (cur-col (PosStream-column self)))
-        (setq *previous-char* *current-char*)
-        (setq *current-char* ch)
-        (setq *current-line* cur-line)
-        (setq *current-column* cur-col)
-
-        (let ((next-line cur-line)
-              (next-col (+ cur-col 1)))
-          (when (or (= ch (code-char 10)) (= ch (code-char 13)))
-            (setq next-line (+ cur-line 1))
-            (setq next-col 1))
-          (cons ch (make-PosStream new-inner next-line next-col)))))))
-
-(defun PosStream-p (obj)
-  "Проверяет, является ли объект PosStream"
-  (and (objectp obj) 
-       (= (type-of obj) 'PosStream)))
 
 ;; Поток на основе списка
 (defclass LStream() (list ; список
 		     ))
-
-(defun stream-empty-p (stream)
-  "Проверяет, пуст ли LStream"
-  (null (lstream-list stream)))
-
 
 (defun stream-from-list (list)
   "Создает поток из списка"
@@ -80,6 +31,10 @@
   (let ((list (lstream-list self)))
     (if (null list) nil
       (cons (car list) (make-lstream (cdr list))))))
+
+(defun stream-empty-p (stream)
+  "Проверяет, пуст ли LStream"
+  (null (lstream-list stream)))
 
 ;; Поток на основе массива
 (defclass AStream () (arr ; массив

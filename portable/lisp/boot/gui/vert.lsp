@@ -3,7 +3,7 @@
 (defmethod add-child ((self vert) ch)
   (line-set-x ch 0)
   (line-set-y ch curpos)
-  (let ((y (+ curpos padding (element-height ch)))
+  (let ((y (+ (line-curpos self) padding (element-height ch)))
 	(x (element-width ch)))
     (when sizeable
       (when (> y (vert-height self))
