@@ -17,6 +17,7 @@
 (defconst +svga-reg-vram-size+ 15) ; Размер VRAM
 (defconst +svga-reg-fb-size+ 16) ; Размер Framebuffer
 (defconst +svga-reg-mem-size+ 19) ; Размер FIFO (MEM-SIZE)
+(defconst +svga-reg-config-done+ 20) ; Размер FIFO (MEM-SIZE)
 ;; Глобальные переменные SVGA
 (defvar *svga-io-base*) ;; Базовый адрес портов памяти регистров
 (defvar *svga-fb-base*) ;; Адрес ОЗУ буфера кадра
@@ -52,4 +53,5 @@
   (setq *svga-fifo-base* (get-pci-bar *svga-pci* 2))
   (setq *svga-vram-size* (svga-read-reg +svga-reg-vram-size+))
   (setq *svga-fb-size* (svga-read-reg +svga-reg-fb-size+))
-  (setq *svga-fifo-size* (svga-read-reg +svga-reg-mem-size+)))
+  (setq *svga-fifo-size* (svga-read-reg +svga-reg-mem-size+))
+  (svga-write-reg +svga-reg-config-done+ 1))
