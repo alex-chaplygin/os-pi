@@ -10,7 +10,7 @@
 (defconst +pci-device+ 11); сдвиг для поля device
 (defconst +pci-function+ 8); сдвиг для поля function
 (defconst +pci-config-class+ 8); смещение регистра с Class/Subclass
-(defconst +pci-config-bar0+ 10); смещение регистра BAR 0
+(defconst +pci-config-bar0+ 0x10); смещение регистра BAR 0
 (defconst +pci-config-vendor+ 0); смещение для Vendor ID
 (defconst +pci-config-command+ 4) ; смещение регистра command
 ;; Флаги регистра команд PCI

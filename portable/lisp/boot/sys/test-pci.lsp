@@ -5,6 +5,7 @@
 	(print "PCI device: " i
 	       (pci-config-read32 pci 0)
 	       (get-pci-class pci)
+	       (get-pci-vendor-device pci)
 	       (get-pci-bar pci 0)
 	       (pci-set-mem-enable pci t)))))
 
