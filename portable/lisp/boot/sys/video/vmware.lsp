@@ -2,6 +2,9 @@
 (defconst +svga-id-0+ 0)
 (defconst +svga-id-1+ 1)
 (defconst +svga-id-2+ 2)
+;; Смещения относительно BAR0
+(defconst +svga-index-port+ 0)
+(defconst +svga-value-port+ 1)
 ;; Регистры VMWARE
 (defconst +svga-reg-id+  0)
 (defconst +svga-reg-enable+  1)
@@ -28,11 +31,13 @@
 ;; Чтение/запись регистров
 (defun svga-write-reg (reg value)
   "Записать значение в регистр SVGA"
-  (outdw (+ *svga-io-base* (<< reg 2)) value))
+  (outdw (+ *svga-io-base* +svga-index-port+) reg)
+  (outdw (+ *svga-io-base* +svga-value-port+) value))
 
 (defun svga-read-reg (reg)
   "Прочитать значение из регистра SVGA"
-  (indw (+ *svga-io-base* (<< reg 2))))
+  (outdw (+ *svga-io-base* +svga-index-port+) reg)
+  (indw (+ *svga-io-base* +svga-value-port+)))
 
 ;; Инициализация SVGA 
 (defun svga-init (bus device)
@@ -45,8 +50,6 @@
   (setq *svga-io-base* (get-pci-bar *svga-pci* 0))
   (setq *svga-fb-base* (get-pci-bar *svga-pci* 1)) 
   (setq *svga-fifo-base* (get-pci-bar *svga-pci* 2))
-;;  (svga-write-reg +svga-reg-enable+ 1)
-  (svga-write-reg +svga-reg-id+ (+ (<< 0x900000 8) +svga-id-2+))
   (setq *svga-vram-size* (svga-read-reg +svga-reg-vram-size+))
   (setq *svga-fb-size* (svga-read-reg +svga-reg-fb-size+))
   (setq *svga-fifo-size* (svga-read-reg +svga-reg-mem-size+)))

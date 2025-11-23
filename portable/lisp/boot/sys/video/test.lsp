@@ -1,6 +1,6 @@
 (svga-init 0 2)
 (print "SVGA bases:")
-(print *svga-io-base* 0x4560)
+(print *svga-io-base*)
 (print *svga-fb-base*)
 (print *svga-fifo-base*)
 (print "Id: " (svga-read-reg 0))
