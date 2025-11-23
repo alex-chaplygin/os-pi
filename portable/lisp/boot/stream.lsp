@@ -31,6 +31,10 @@
   (let ((list (lstream-list self)))
     (if (null list) nil
       (cons (car list) (make-lstream (cdr list))))))
+      
+(defun stream-peek (stream)
+  "Возвращает первый элемент из потока lstream, не извлекая его"
+  (car (lstream-list stream)))
 
 (defun stream-empty-p (stream)
   "Проверяет, пуст ли LStream"

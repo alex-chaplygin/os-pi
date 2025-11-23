@@ -196,3 +196,9 @@
 	     (if (null l1) nil
 		 (cons (funcall f (car l1) (car l2)) (z (cdr l1) (cdr l2))))))
     (z list1 list2)))
+
+(defun proper-list-p (list)
+  "Проверяет, является ли список правильным (заканчивается на nil)"
+  (if (null list) t
+      (if (not (pairp list)) nil
+	  (proper-list-p (cdr list)))))

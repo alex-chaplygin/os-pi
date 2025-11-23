@@ -58,13 +58,13 @@
 ;; --- Тесты на ошибки ---
 (deftest lex-test-badstr ()
   "Тест: Незакрытая строка"
-  (print (assert (parse-lisp "\"string") "lisp: unterminated string"))
-  (print (assert (parse-lisp "\"") "lisp: unterminated string"))
-  (print (assert (parse-lisp "(1 2 \"hello") "lisp: unterminated string")))
+  (print (assert (parse-lisp "\"string") "lisp-lexer: unterminated string or unexpected end of escape sequence"))
+  (print (assert (parse-lisp "\"") "lisp-lexer: unterminated string or unexpected end of escape sequence"))
+  (print (assert (parse-lisp "(1 2 \"hello") "lisp-lexer: unterminated string or unexpected end of escape sequence")))
 
 (deftest lex-test-unknown-token ()
   "Тест: Неизвестная лексема"
-  (print (assert (parse-lisp "@") "lisp: Unknown token")))
+  (print (assert (parse-lisp "@") "lisp-lexer: Unknown token")))
 
 ; --- Тесты на полную программу. ---
 (deftest full-program-test ()
@@ -75,6 +75,20 @@
 
 (deftest err-program-test ()
   "Тест: Парсинг полной программы с ошибкой (незакрытое описание функции)"
-  (print (assert (parse-lisp "(defun factorial (n) \"Вычисляет факториал (if (<= n 1) 1 (* n (factorial (- n 1)))))") "lisp: unterminated string")))
+  (print (assert (parse-lisp "(defun factorial (n) \"Вычисляет факториал (if (<= n 1) 1 (* n (factorial (- n 1)))))") "lisp-lexer: unterminated string or unexpected end of escape sequence")))
+
+(deftest parser-errors-test ()
+  "Тест: Ошибки парсера - баланс скобок и лишние токены"
+  (print (assert (parse-lisp "(a (b c)") "lisp-parser: Unbalanced parentheses. Expected a closing parenthesis, last position: (1 . 8)"))
+  (print (assert (parse-lisp "(a b))") "lisp-parser: Found an extra closing parenthesis at (1 . 6)"))
+  (print (assert (parse-lisp "(a) b") "lisp-parser: Unexpected tokens after expression, starting from (1 . 5)")))
+
+(deftest dotted-list-error-test ()
+  "Тест: Ошибки в точечных списках"
+  (print (assert (parse-lisp "(. a)") "lisp-parser: Invalid dotted list: starts with a dot")))
+
+(deftest array-error-test ()
+  "Тест: Ошибки в массивах"
+  (print (assert (parse-lisp "#(a . b)") "lisp-parser: Invalid array: dotted list is not allowed")))
 
 (run-tests)

@@ -41,12 +41,12 @@
               (frac-part (forth x)))
 	 (if (and (null int-part) (null frac-part))
 	     (if sign
-		 (throw-error 'parse-error "lisp: WARNING: got dot with sign")
+		 (throw-error 'parse-error "lisp-lexer: WARNING: got dot with sign")
 	       #\.)
 	   (let* ((float-str (concat (implode int-part) "." (implode frac-part)))
 		  (num (strtofloat (if sign (concat "-" float-str) float-str))))
 	     (if num num
-		 (throw-error 'parse-error "lisp: invalid float number"))))))))
+		 (throw-error 'parse-error "lisp-lexer: invalid float number"))))))))
 
 ;; Вспомогательный предикат
 (defun is-lisp-symbol (sym)
@@ -61,6 +61,7 @@
   "Проверяет, является ли символ разделителем (пробел, новая строка, скобка и т.д.)"
   (or (lisp-separator sym) (= sym #\() (= sym #\)) ))
 
+
 (defun lisp-symbol ()
   "Разбор символа (идентификатора)"
   (parse-app
@@ -73,7 +74,7 @@
 	(let ((res (intern (implode (map #'(lambda (char) (toupper char))
 					 (cons (car parts) (second parts)))))))
 	  (if res res
-	      (throw-error 'parse-error "lisp: invalid symbol"))))))
+	      (throw-error 'parse-error "lisp-lexer: invalid symbol"))))))
 
 (defun parse-escape (char value)
   "Разбор экранированной последовательности"
@@ -81,18 +82,20 @@
     (&&& (parse-elem #\\)
          (parse-or (parse-elem char)
 		   (parse-app (parse-return nil)
-			      #'(lambda (x) (throw-error 'parse-error "lisp: unexpected end of escape sequence")))))
+			      #'(lambda (x) (throw-error 'parse-error "lisp-lexer: unexpected end of escape sequence")))))
     #'(lambda (parts) (list value))))
 
 (defun parse-string ()
   "Разбор строки в двойных кавычках"
   (parse-app
     (&&& (parse-elem #\")
-         (parse-many (parse-or (parse-escape #\n (code-char 0xa))
-                               (parse-pred #'(lambda (sym) (!= sym #\")))))
+         (parse-many (parse-or (parse-escape #\n (code-char 0xa)) ; \n
+			       (parse-escape #\\ #\\)
+			       (parse-escape #\" #\")
+                               (parse-pred #'(lambda (sym) (and (!= sym #\") (!= sym #\\))))))
 	 (parse-or (parse-elem #\")
 		   (parse-app (parse-optional (parse-elem (code-char 0)))
-			      #'(lambda (x) (throw-error 'parse-error "lisp: unterminated string")))))
+			      #'(lambda (x) (throw-error 'parse-error "lisp-lexer: unterminated string or unexpected end of escape sequence")))))
     #'(lambda (parts) (implode (second parts)))))
 
 (defun parse-comment-separator ()
@@ -105,16 +108,26 @@
   (parse-many (parse-or (parse-pred #'lisp-separator)
                         (parse-comment-separator))))
 
+(defun parse-with-pos (parser)
+  "Парсер-комбинатор, который добавляет начальную позицию к результату."
+  #'(lambda (stream)
+      (let ((pos (PosStream-pos stream))
+            (res (funcall parser stream)))
+        (if res
+            (cons (cons (car res) pos) (cdr res))
+          nil))))
+
 (defun make-tok-err ()
   "Создает ошибку разбора (через лямбду объединить с lisp-token не получается)"
   (parse-app
     (parse-pred #'(lambda (x) t))
     #'(lambda (x)
-        (throw-error 'parse-error "lisp: Unknown token"))))
+        (throw-error 'parse-error "lisp-lexer: Unknown token"))))
 
 (defun lisp-token ()
   "Лексема языка Лисп"
-  (parse-app (parse-or (parse-elem #\()
+  (parse-app (parse-with-pos
+	      (parse-or (parse-elem #\()
                       (parse-elem #\))
                       (parse-float)
                       (parse-hex)
@@ -129,11 +142,11 @@
                       (parse-app (parse-elem #\,) (parse-return 'COMMA))
                       (lisp-symbol)
                       (make-tok-err)
-                      )
-     #'(lambda (tok)
-        (setf *LAST-GOOD-RESULT* tok)
+                      ))
+     #'(lambda (tok-with-pos)
+        (setf *LAST-GOOD-RESULT* (car tok-with-pos))
         (setf *LAST-THROW-POS* nil)
-        tok)))
+        tok-with-pos)))
 
 
 (defun lisp-lexer (str)
@@ -144,5 +157,5 @@
   (let ((r (funcall (parse-sep (lisp-token) (lisp-ws-or-comment))
                     *STREAM*)))
     (if (not r)
-        (throw-error 'parse-error "lisp: unknown lexer error")
+        (throw-error 'parse-error "lisp-lexer: unknown lexer error")
       (car r))))
