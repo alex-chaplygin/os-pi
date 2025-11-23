@@ -8,7 +8,6 @@ test-jpeg: $(BASELISP) $(PARSER) jpeg/jpeg.lsp jpeg/jpeg-test.lsp
 	make -C ../../test /tmp/lisp
 	cat $^ | /tmp/lisp
 
-
 # тест PNG
 test-png: $(BASELISP) $(PARSER) png.lsp png-test.lsp
 	make -C ../../test /tmp/lisp
@@ -16,5 +15,10 @@ test-png: $(BASELISP) $(PARSER) png.lsp png-test.lsp
 
 # тест TIFF
 test-tiff: $(BASELISP) $(PARSER) tiff.lsp tiff-test.lsp
+	make -C ../../test /tmp/lisp
+	cat $^ | /tmp/lisp
+
+# тест BMP
+test-bmp: $(BASELISP) $(PARSER) bmp.lsp bmp-test.lsp
 	make -C ../../test /tmp/lisp
 	cat $^ | /tmp/lisp
