@@ -190,7 +190,7 @@ void vprintf(char *format, va_list args)
             print_num(va_arg(args, int));
             i++;
         } else if (symbol == '%' && next_symbol == 'f') {
-            print_float_num(va_arg(args, float));
+            print_double_num(va_arg(args, double));
             i++;
         } else if (symbol == '%' && next_symbol == 'x') {
             print_hex_num(va_arg(args, unsigned int));
