@@ -16,4 +16,5 @@
 (print "FIFO size: " *svga-fifo-size*)
 (print "Caps: " (svga-read-reg 17))
 (print "Config done: " (svga-read-reg +svga-reg-config-done+))
+(svga-set-mode 640 480 32)
 ;;(svga-write-reg +svga-reg-enable+ 1)
