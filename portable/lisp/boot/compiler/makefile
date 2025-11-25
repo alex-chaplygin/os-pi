@@ -9,7 +9,7 @@ compiler-test: $(COMPILER) ../test.lsp test-compiler.lsp
 	make -C ../../test /tmp/lisp
 	cat $^ | /tmp/lisp
 
-lexer-test: $(BASELISP) ../stream.lsp ../parser.lsp lexer.lsp ../test.lsp test-lexer.lsp
+lexer-test: $(BASELISP) ../stream.lsp ../posstream.lsp ../parser.lsp lexer.lsp ../test.lsp test-lexer.lsp
 	make -C ../../test /tmp/lisp
 	cat $^ | /tmp/lisp
 

@@ -2,7 +2,7 @@
 
 (deftest full-lexer-test ()
   "Полный тест лексера"
-  (print (assert (lisp-lexer 
+  (print (assert (map #'car (lisp-lexer 
 		  (concat "(123 0xFF "
 			  "#\\q"
 			  " 12.0625 .125 13. "
@@ -12,7 +12,7 @@
 			  "\"string\"       "
 			  " #(1) (1 . 2) "
 			  " #'F)"
-			  ))
+			  )))
 		 '(#\( 123 255
 		   #\q
 		   12.0625 0.125 13.0

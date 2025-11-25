@@ -68,8 +68,15 @@
 	    ;;            #'(lambda (stream) (throw 'parse-error "Unknown token"))))
 	    ))
 
+(defun parse-with-pos (parser)
+  "Парсер-комбинатор, который добавляет начальную позицию к результату."
+  #'(lambda (stream)
+      (let ((res (funcall parser stream)))
+        (if res (cons (cons (car res) (PosStream-pos stream)) (cdr res))
+	    nil))))
+
 (defun lisp-lexer (str)
   "Лексический анализатор Common Lisp. Строка преобразуется в список лексем"
-  (let ((r (funcall (parse-sep (lisp-token) (parse-many (parse-pred #'lisp-separator)))
+  (let ((r (funcall (parse-sep (parse-with-pos (lisp-token)) (parse-many (parse-pred #'lisp-separator)))
 		      (stream-from-str str))))
     (if r (car r) nil)))
