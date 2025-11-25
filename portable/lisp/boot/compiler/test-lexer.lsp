@@ -57,6 +57,32 @@
   "Тест: Комментарии"
   (print (assert (lisp-lexer "; comment") '())))
 
+(deftest lex-pos-simple ()
+  "Тест: Позиции простых токенов"
+  (let ((tokens (lisp-lexer "( a )")))
+    (print (assert (car tokens) '(#\( 1 1)))
+    (print (assert (second tokens) '(A 1 3)))
+    (print (assert (third tokens) '(#\) 1 5)))))
+
+(deftest lex-pos-spaces ()
+  "Тест: Позиции с начальными пробелами"
+  (let ((tokens (lisp-lexer "  123 abc")))
+    (print (assert (car tokens) '(123 1 3)))
+    (print (assert (second tokens) '(ABC 1 7)))))
+
+(deftest lex-pos-multiline ()
+  "Тест: Многострочные позиции"
+  (let ((tokens (lisp-lexer "(a\nb)")))
+    (print (assert (car tokens) '(#\( 1 1)))
+    (print (assert (second tokens) '(A 1 2)))
+    (print (assert (third tokens) '(B 2 1)))
+    (print (assert (forth tokens) '(#\) 2 2)))))
+
+(deftest lex-pos-emplines ()
+  "Тест: Позиции после пустых строк"
+  (let ((tokens (lisp-lexer "\n\nabc")))
+    (print (assert (car tokens) '(ABC 3 1)))))
+
 ;; Тесты на обработку ошибок
 
 (deftest lex-test-badstr ()
@@ -77,7 +103,7 @@
 
 (deftest full-lexer-test ()
   "Полный тест лексера"
-  (print (assert (strip-token-positions (lisp-lexer 
+  (print (assert (map #'car (lisp-lexer 
 		  (concat "(123 0xFF "
 			  "#\\q"
 			  " 12.0625 .125 13. "

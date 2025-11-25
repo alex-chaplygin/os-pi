@@ -17,7 +17,7 @@
 
 (defun next-line (pos)
   "Возвращает новую позицию после перевода строки"
-  (list (++ (pos-line pos)) (pos-char pos)))
+  (list (++ (pos-line pos)) 1))
 
 ;; Поток на основе строки с позицией
 (defclass PosStream SStream (pos))

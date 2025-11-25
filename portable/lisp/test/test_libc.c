@@ -9,26 +9,26 @@
  *
  * @param num - число с плавающей точкой для печати
 */
-void test_print_float(float number)
-{
-    printf("test_print_float: %f ", number);
-    print_float_num(number);
+void test_print_double(double number) {
+    printf("test_print_double: %f ", number);
+    print_double_num(number);
     printf("\n");
 }
 
 int main()
 {
     int n;
-    test_print_float(0.5f);
-    test_print_float(16.0f);    
-    test_print_float(0.0f);
-    test_print_float(-0.0f);
-    test_print_float(-16.123456f);
-    n = 0x7f800000;
-    test_print_float(*(float *)&n);
-    n = 0xff800000;
-    test_print_float(*(float *)&n);
-    n = 0x7fc00000;
-    test_print_float(*(float *)&n);
+    long long l;
+    test_print_double(0.5);
+    test_print_double(16.0);
+    test_print_double(12.97);
+    test_print_double(-0.0);
+    test_print_double(-16.123456);
+    l = 0x7ff0000000000000;
+    test_print_double(*(double *) &l);
+    l = 0xfff0000000000000;
+    test_print_double(*(double *) &l);
+    l = 0x7ff8000000000000;
+    test_print_double(*(double *) &l);
     return 0;
 }

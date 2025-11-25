@@ -1,3 +1,3 @@
-#define MANTISSA_BITS 23	/**< Число бит в мантиссе float */
-
-void print_float_num(float num);
+#define MANTISSA_BITS 52	/**< Число бит в мантиссе double */
+#define DOUBLE_EXP_BIAS 1023
+void print_double_num(double num);
