@@ -118,5 +118,13 @@
     (print (assert (car first-result) 22))
     (print (assert (car second-result) 4))))
 
+(deftest get-little-bits-test ()
+  "Тестирование чтения бит (little endian)"
+  (let* ((s (stream-from-arr #(0x24) nil))
+	 (s2 (get-bit s))
+	 (s3 (get-bits (cdr s2) 2)))
+    (print (assertcar s2 0))
+    (print (assertcar s3 1))))
+
 (run-tests)
 
