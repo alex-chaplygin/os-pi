@@ -89,6 +89,26 @@
     (print (assertcar b15 0))
     (print (assertcar b16 1))))
 
+(deftest get-little-bit-test ()
+  "Тестирование чтения бит (little endian)"
+  (let* ((s (stream-from-arr #(0x6f) nil))
+	 (b1 (get-bit s))
+	 (b2 (get-bit (cdr b1)))
+	 (b3 (get-bit (cdr b2)))
+	 (b4 (get-bit (cdr b3)))
+	 (b5 (get-bit (cdr b4)))
+	 (b6 (get-bit (cdr b5)))
+	 (b7 (get-bit (cdr b6)))
+	 (b8 (get-bit (cdr b7))))
+    (print (assertcar b1 1))
+    (print (assertcar b2 1))
+    (print (assertcar b3 1))
+    (print (assertcar b4 1))
+    (print (assertcar b5 0))
+    (print (assertcar b6 1))
+    (print (assertcar b7 1))
+    (print (assertcar b8 0))))
+      
 (deftest get-bits-test ()
   "Тестирование чтения n бит 10110100"
   (print "get-bits-test")
