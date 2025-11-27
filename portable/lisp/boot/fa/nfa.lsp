@@ -1,5 +1,14 @@
 ; Библиотека функций недетерминированного конечного автомата (НКА)
 
+(defclass Nfa ()
+  "Класс недетерминированного конечного автомата"
+  (cur-state ; текущее состояние
+   rules ; правила
+   final-states ; конечные состояния
+   ))
+
+
+
 (defconst *any-char* 'ANY) ; метасимвол, обозначающий любой печатный символ
 (defconst *epsilon* 'E) ; метасимвол, обозначающий безусловный (эпсилон) переход
 
@@ -31,29 +40,31 @@
 	(if (check-key nfa pair) ; если ключ уже есть в списке - объединяем состояния
 	    (set-hash nfa pair (append (get-hash nfa pair) next-states))
 	    (set-hash nfa pair next-states))))
-    (setq start-states (append start-states (process-epsilon start-states nfa)))
-    (list start-states nfa final-states)))
+    (list (append start-states (process-epsilon start-states nfa)) nfa final-states)))
 
 
 (defun nfa-input(auto input)
   "Добавляет символ на ленту автомата"
   "Ввод: объект НКА, символ"
   "Вывод: объект НКА"
-  (let* ((start-states (car auto))    ; список начальных состояний
-         (rules (cadr auto))          ; хэш-таблица правил
-         (final-states (caddr auto))  ; список конечных состояний
-         (curr-states (append start-states (process-epsilon start-states rules)))
-         ;; Собираем все следующие состояния с помощью foldl
-         (new-states (foldl #'(lambda (acc state)
-				(let* ((key (cons state input))
-				       (anychar-key (cons state *any-char*))
-				       (transitions-by-input (if (check-key rules key) (get-hash rules key) nil))
-				       (transitions-by-anychar (if (check-key rules anychar-key) (get-hash rules anychar-key) nil))
-				       (all-transitions (append transitions-by-input transitions-by-anychar)))
-				  (append acc all-transitions)))
-			    nil  
-			    curr-states)))
-    (list (remove-dupl new-states) rules final-states)))
+
+  "Если автомат уже находится в конечном состоянии, возвращаем автомат без изменений"
+  (if (nfa-end auto) auto
+    (let* ((start-states (car auto))    ; список начальных состояний
+	   (rules (cadr auto))          ; хэш-таблица правил
+	   (final-states (caddr auto))  ; список конечных состояний
+	   (curr-states (append start-states (process-epsilon start-states rules)))
+	   ;; Собираем все следующие состояния с помощью foldl
+	   (new-states (foldl #'(lambda (acc state)
+				  (let* ((key (cons state input))
+					 (anychar-key (cons state *any-char*))
+					 (transitions-by-input (if (check-key rules key) (get-hash rules key) nil))
+					 (transitions-by-anychar (if (check-key rules anychar-key) (get-hash rules anychar-key) nil))
+					 (all-transitions (append transitions-by-input transitions-by-anychar)))
+				    (append acc all-transitions)))
+			      nil  
+			      curr-states)))
+      (list (remove-dupl new-states) rules final-states))))
 
 (defun nfa-end(auto)
   "Возвращает вердикт, соответствует ли строка автомату"
