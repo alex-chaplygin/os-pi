@@ -110,10 +110,18 @@
             (if (car parts) (- num) num)))))
 
 (defmacro mk/elem-parse(name func &rest param)
-  "Создать функцию-парсер ожидающую значение"
+  "Создать функцию-парсер ожидающую значение p"
   `(defun ,name (p)
     #'(lambda (stream)
 	(let ((res (,func stream ,@param)))
+	  (if (null res) nil
+	      (if (= p (car res)) res nil))))))
+
+(defmacro mk/elem-parse1(name func)
+  "Создать функцию-парсер с параметром n ожидающую значение p"
+  `(defun ,name (n p)
+    #'(lambda (stream)
+	(let ((res (,func stream n)))
 	  (if (null res) nil
 	      (if (= p (car res)) res nil))))))
 
@@ -121,6 +129,8 @@
 (mk/elem-parse parse-elem-array get-array (array-size p))
 ;; Ожидание в потоке заданного слова
 (mk/elem-parse parse-elem-word get-word)
+;; Ожидание в потоке заданных бит
+(mk/elem-parse1 parse-elem-bits get-bits)
 
 (defmacro mk/parse1 (name func)
   "Создать функцию разбора на основе функции которая имеет один параметр, кроме потока"
