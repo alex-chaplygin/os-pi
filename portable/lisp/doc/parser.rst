@@ -6,21 +6,19 @@
 
    parser :: lambda (stream) -> (res . stream1)
 
-Элементарный парсер **parse-elem** ожидает в списке заданный элемент.
+Элементарный парсер **parse-suc val** возвращает постоянный результат разбора val.
+::
+
+   (funcall (parse-suc 0) (stream-from-list (4 5 6))) ; возвращает (0 . <stream1 (5 6)>)
+   
+Элементарный парсер **parse-elem elem** ожидает в списке заданный элемент elem.
 ::
 
    (defun parse-4-digit () (parse-elem 4)) ; ожидает 4
    (funcall parse-4-digit (stream-from-list (4 5 6))) ; возвращает (4 . <stream1 (5 6)>)
    (funcall parse-4-digit (stream-from-list (3 5 6))) ; возвращает nil
 
-Комбинатор **parse-many** позволяет разобрать 0 или более повторений заданного парсера. Результат разбора - список собранных значений (пустой, если парсер не сработал).
-::
-
-   (funcall (parse-many (parse-elem 4)) (stream-from-list (1 2 3))) ; -> nil
-   (funcall (parse-many (parse-elem 4)) (stream-from-list (4 2 3))) ; -> ((4) . <stream (2 3)>)
-   (funcall (parse-many (parse-elem 4)) (stream-from-list (4 4 2 4 3))) ; -> ((4 4) . <stream (2 4 3))      
-
-Разбор по предикату **parse-pred**, предикат - функция, которая на вход получает символ, на выходе - nil или t.
+Разбор по предикату **parse-pred f**, предикат - функция, которая на вход получает символ, на выходе - nil или t.
 Сама функция парсинга возвращает в результате парсинга в случае успешного разбора сам символ, в случае неудачного - nil.
 ::
 
@@ -33,6 +31,13 @@
    (funcall (&&& (parse-elem #\() (parse-pred #'is-alpha) (parse-elem #\)))
       (stream-from-str "(a)")) ; -> ((#\( #\a #\)) . <stream>)
 
+Возможно связывание промежуточный результатов разбора с переменными и возврат указанного результата вместо списка по умолчанию:
+::
+
+   (funcall (&&& a->(parse-elem 1)
+                 b->(parse-elem 2)
+		 return (+ 1 2)) (stream-from-list '(1 2 3))) ; вернет (3 . <поток (3)>)
+      
 Параллельный разбор двух и более парсеров **parse-or**. Результат будет у первого успешного разбора или nil если все альтернативы неуспешны.
 ::
 
@@ -50,3 +55,16 @@
 
    (parse-rec (parser)) ; преобразуется в
    #'(lambda (stream) (funcall (parser) stream))
+
+Комбинатор **parse-many parser** позволяет разобрать 0 или более повторений заданного парсера. Результат разбора - список собранных значений (пустой, если парсер не сработал).
+::
+
+   (funcall (parse-many (parse-elem 4)) (stream-from-list (1 2 3))) ; -> nil
+   (funcall (parse-many (parse-elem 4)) (stream-from-list (4 2 3))) ; -> ((4) . <stream (2 3)>)
+   (funcall (parse-many (parse-elem 4)) (stream-from-list (4 4 2 4 3))) ; -> ((4 4) . <stream (2 4 3))
+
+Комбинатор **parse-many-n n parser** разбирает n повторений заданного парсера.
+
+Комбинатор **parse-optional parser** разбирает 0 или 1 повторение заднного парсера.
+
+Комбинатор **parse-sep parser sep** разбирает 0 или много повторений заднного парсера parser с разделителями по парсеру sep.
