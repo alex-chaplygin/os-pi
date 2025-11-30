@@ -8,5 +8,5 @@
   ;;  	     (print *e*))))
     ))
 
-(setq *key-down-handler* #'(lambda (key) (print `(keydown ,key))))
-(setq *key-up-handler* #'(lambda (key) (print `(keyup ,key))))
+;;(setq *key-down-handler* #'(lambda (key) (print `(keydown ,key))))
+;;(setq *key-up-handler* #'(lambda (key) (print `(keyup ,key))))
