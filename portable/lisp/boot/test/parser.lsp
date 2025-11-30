@@ -21,6 +21,15 @@
     (print (assertcar (funcall (&&& (parse-elem #\a) (parse-elem #\b) (parse-elem #\c) (parse-elem #\d)) s1)
 		   '(#\a #\b #\c #\d)))))
 
+(deftest parse-and-macro-test ()
+  "Тесты макроса parse-and"
+  (let ((s1 (stream-from-str "abcd")))
+    (print (assertcar (funcall (&&& (parse-elem #\a)  (parse-elem #\b)) s1) '(#\a #\b)))
+    (print (assertcar (funcall (&&& a->(parse-elem #\a)
+				    b->(parse-elem #\b)
+				    return (cons a b)) s1) '(#\a . #\b)))
+    ))
+
 (deftest parse-app-test ()
   "Тесты для parse-app"
   (print (assertcar (funcall (parse-app (&&& (parse-elem #\a) (parse-elem #\b)) #'car) (stream-from-str "abcd")) #\a)))
