@@ -15,3 +15,13 @@
   "Отрисовка элемента"
   (set-colour (element-back-colour self))
   (fill-rect (slot self 'x) (slot self 'y) (slot self 'width) (slot self 'height)))
+
+(defmethod set-defaults ((self element))
+  "установка значений по умолчанию"
+  (element-set-back-colour self +yellow+)
+  (element-set-active-colour self +red+)
+  (element-set-x self 0)
+  (element-set-y self 0)
+  (element-set-width self 1)
+  (element-set-height self 1))
+  

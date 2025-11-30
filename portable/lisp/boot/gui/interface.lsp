@@ -52,7 +52,7 @@
        `(let ((new-elem (make-instance ,n)))
 	  (setf (slot new-elem 'text) ,text)
 	  (set-defaults new-elem)
-	  ,@(map #'(lambda (elem) `(setf (slot new-elem ',(car elem)) ,(cadr elem))) params)
+	  ,@(map #'(lambda (elem) `((,intern (concat (symbol-name n) "-set-" (symbol-name (car elem)))) ,(second elem))) params)
 	  new-elem))))
 
 (gen/elem text)
