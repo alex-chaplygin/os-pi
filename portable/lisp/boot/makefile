@@ -23,7 +23,7 @@ parser-test: $(BASELISP) stream.lsp parser.lsp $(TEST) test/parser.lsp
 	cat $^ | /tmp/lisp
 
 # модульные тесты коды Хаффмана
-huffman-test: $(BASELISP) bin-reader.lsp bin-tree.lsp huffman.lsp $(TEST) test/huffman.lsp
+huffman-test: $(BASELISP) bin-reader.lsp bin-tree.lsp stream.lsp huffman.lsp $(TEST) test/huffman.lsp
 	make -C ../test /tmp/repl_lisp
 	cat $^ | /tmp/repl_lisp
 
