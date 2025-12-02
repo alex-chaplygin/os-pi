@@ -5,7 +5,9 @@
 
 (defun assert (res res2)
   "Проверка на равенство результата res и эталона res2"
-  (if (equal res res2) `(OK ,res ,res2) `(FAIL ,res ,res2)))
+  (incf *test-started-count*)
+;;  (print "Тест №" *test-started-count*)
+  (if (equal res res2) (progn (incf *test-ok-count*) `(OK ,res ,res2)) `(FAIL ,res ,res2)))
 
 (defun assertcar (res res2)
   "Проверка на равенство car результата res и эталона res2"
@@ -13,7 +15,9 @@
 
 (defun assert-float (res res2)
   "Проверка на равенство вещественных значений res и эталона res2"
-  (if (< (abs (- res res2)) +epsilon+) `(OK ,res ,res2) `(FAIL ,res ,res2)))
+  (incf *test-started-count*)
+;;  (print "Тест №" *test-started-count*)
+  (if (< (abs (- res res2)) +epsilon+) (progn (incf *test-ok-count*) `(OK ,res ,res2)) `(FAIL ,res ,res2)))
 
 (defun unit-tests (name)
   "Новый драйвер тестов с именем name"
@@ -32,17 +36,12 @@
   "Запуск всех тестов в данном модуле"
   (print)
   (let ((stop-on-fail (contains options 'stop-on-fail)))
-    (app #'(lambda (n)
+    (app #'(lambda (test)
              (when (or (not stop-on-fail)
                        (= *test-started-count* *test-ok-count*))
-                   (incf *test-started-count*)
-                   (print "Тест №" *test-started-count*)
-                   (let ((res (funcall n)))
-                     (when (or (null res)
-                               (and (pairp res) (eq (car res) 'OK)))
-                           (incf *test-ok-count*)))))
+               (funcall test)))
          *test-list*))
   (when (> *test-started-count* 0)
-        (print "Успешно завершено тестов: " *test-ok-count* "/" *test-started-count*)
-        (when (= *test-started-count* *test-ok-count*)
-              (print "Все тесты завершены успешно"))))
+    (print "Успешно завершено тестов: " *test-ok-count* '/ *test-started-count*)
+    (when (= *test-started-count* *test-ok-count*)
+      (print "Все тесты завершены успешно"))))
