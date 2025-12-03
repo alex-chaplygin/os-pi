@@ -1,40 +1,56 @@
-(defconst +BMP-SIGNATURE+ #(0x42 0x4D)) ; "BM"
+(defconst +BMP-SIGNATURE+ #(0x42 0x4D))
+
+(defun get-val (alist key);достать значение из списка по ключу
+  (cdr (assoc key alist)))
+
+(defun parse-save (parser var-symbol);выполняет парсер и сохраняет результат в глобальную переменную"
+  (lambda (stream)
+    (let ((result (funcall parser stream)))
+      (set var-symbol result)
+      result)))
 
 (defun bmp-signature ()
-  "Ожидание сигнатуры BMP"
   (parse-elem-array +BMP-SIGNATURE+))
 
 (defun parse-bmp-file-header ()
-  "Читаем остальную часть заголовка файла 12 байт после сигнатуры"
   (parse-struct '((file-size . dword)
-                  (reserved1 . word)  ; Зарезервировано 0
-                  (reserved2 . word)  ; Зарезервировано 0
-                  (offset-data . dword)))) ; Смещение до начала данных изображения
+		  (reserved1 . word)
+		  (reserved2 . word)
+		  (offset-data . dword))))
 
 (defun parse-bmp-info-header ()
-  "Читаем BITMAPINFOHEADER 40 байт"
-
-  (parse-struct '((header-size . dword) ; Размер этого заголовка 40
-                  (width . dword)
-                  (height . dword)
-                  (planes . word)  ; Число плоскостей всегда 1
-                  (bit-count . word)  ; Бит на пиксель 1, 4, 8, 16, 24, 32
-                  (compression . dword) ; Тип сжатия 0 = без сжатия
-                  (size-image . dword) 
-                  (x-pels-per-meter . dword) ; Горизонтальное разрешение
-                  (y-pels-per-meter . dword) ; Вертикальное разрешение
-                  (colors-used . dword)
-                  (colors-important . dword))))
+  (parse-struct '((header-size . dword)
+		  (width . dword)
+		  (height . dword)
+		  (planes . word)
+		  (bit-count . word)
+		  (compression . dword)
+		  (size-image . dword)
+		  (x-pels . dword)
+		  (y-pels . dword)
+		  (colors-used . dword)
+		  (colors-imp . dword))))
 
 (defun parse-rgb-quad ()
   (parse-struct '((blue . byte)
-		  (green . byte)
-		  (red . byte)
-		  (reserved . byte))))
+                  (green . byte)
+                  (red . byte)
+                  (reserved . byte))))
+
+(defun parse-color-table (info);таблица цветов
+  (parse-many-n (let ((bits (get-hash info 'bit-count))
+		      (used (get-hash info 'colors-used)))
+		  (cond ((<= bits 8) 0)
+			((= used 0) (<< 1 bits))
+			(t used))) (parse-rgb-quad)))
+
+(defun parse-pixel-data (header);перемотка на offset-data и чтение массив size-image"
+  #'(lambda (stream)
+      (cons nil stream)))
 
 (defun bmp ()
-  "Парсинг всего BMP файла: Сигнатура > Заголовок файла > Инфо-заголовок"
   (&&& (bmp-signature)           
-       (parse-bmp-file-header)   
-       (parse-bmp-info-header)
-       (parse-rgb-quad))) 
+       header->(parse-bmp-file-header)    
+       info->(parse-bmp-info-header)   
+       (parse-color-table info) 
+       (parse-pixel-data header)))
