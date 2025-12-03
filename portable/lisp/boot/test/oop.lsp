@@ -24,6 +24,8 @@
   (print (assert (slot l1 'x2) 23))
   (print (assert (slot l1 'y2) 23))
   (point-set-x p2 10)
-  (print (point-x p2)))
+  (print (point-x p2))
+  (with-slots line (x2 y2) l1 (print x2 y2))
+  )
 
 (oop-test)
