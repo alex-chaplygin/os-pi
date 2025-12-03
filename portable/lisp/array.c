@@ -52,7 +52,7 @@ object_t aref(object_t  arr_o, object_t index_obj)
     if (TYPE(arr_o) != ARRAY)
 	error("aref: not an array");
      if (TYPE(index_obj) != NUMBER && TYPE(index_obj) != BIGNUMBER)
-	error("seta: index not numder");
+	error("aref: index not numder");
     int index = get_value(index_obj);
     if (index >= GET_ARRAY(arr_o)->length || index < 0)
 	error("aref: index out of range");
