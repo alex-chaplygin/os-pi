@@ -354,4 +354,14 @@
   (print (assert (swap16 0xabcd) 0xcdab))
   (print (assert (swap16 0x1) 0x0100)))
 
+(deftest handle-test ()
+  "Тест для проверки handle"
+  (print (assert (handle 1
+			 (a (k) k)) 1))
+  (print (assert (handle (progn (raise 'a 2) 3)
+			 (a (k) k)) 2))
+  (print (assert (handle (progn (raise 'b 2) 5)
+  			 (a (k) (+ k 1))
+  			 (b (k) (- k 2))) 0)))
+
 (run-tests)

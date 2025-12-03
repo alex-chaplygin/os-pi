@@ -45,35 +45,32 @@
   (get-hash *tag* tag-number))
 
 (defun tiff-header ()
-  (&&& 
-   #'(lambda (stream)
-       (let* ((res (get-word stream))
-	      (st (cdr res)))
-	 (cons (car res) (make-astream (astream-arr st) (astream-byte-num st) (astream-bit-num st)
-				       (if (= 0x4949 (car res)) nil t)))))
+  "Заголовок TIFF"
+  (&&& end-> #'get-word
+   #'(lambda (st)
+   	 (cons end (make-astream (astream-arr st) (astream-byte-num st) (astream-bit-num st)
+   				       (if (= 0x4949 end) nil t))))
    (parse-elem-word 42)
-   #'(lambda (stream)
-       (let* ((res (get-dword stream))
-	      (st (cdr res)))
-	 (cons (car res) (stream-seek st (car res) 'seek-set))))))
+   ofs-> #'get-dword
+   #'(lambda (st) (cons ofs (stream-seek st ofs 'seek-set)))))
 
 (defun tiff-directory ()
-  (&&&
-   #'(lambda (stream)
-       (let* ((st (get-word stream))
-	      (num (car st))
-	      (res (make-array num)))
-	 (setq st (cdr st))
-	 (for i 0 num
-	      (let ((b (get-struct st '((tag . word) (type . word) (count . dword) (offset . dword)))))
-		(let ((c (car b)))
-		  (set-hash c 'tag (get-tag (get-hash c 'tag)))
-		  (set-hash c 'type (get-type (get-hash c 'type)))
-		  (seta res i c)
-		  (setq st (cdr b)))))
-	 (cons res stream)))))
+  "Каталог полей TIFF"
+  (&&& num-> #'get-word
+       hash->(parse-many-n num (parse-struct '((tag . word) (type . word) (count . dword) (offset . dword))))
+       return (map #'(lambda (v) (cons (get-tag (get-hash v 'tag)) (get-hash v 'offset))) hash)))
 
 (defun tiff ()
-  (&&&
-   (tiff-header)
-   (tiff-directory)))
+  (parse-app
+   (&&&
+    (tiff-header)
+    (tiff-directory))
+     #'second))
+
+(defun decode-tiff (arr)
+  (let* ((stream (stream-from-arr arr t))
+	 (tiff-hash (car (funcall (tiff) stream)))
+	 (a (print `(tiff ,tiff-hash)))
+	 (ofs (get-hash tiff-hash 'stripoffsets))
+	 (count (get-hash tiff-hash 'stripbytecounts)))
+    (stream-seek stream ofs 'seek-set)))

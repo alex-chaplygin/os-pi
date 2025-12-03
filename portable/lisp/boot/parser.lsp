@@ -19,7 +19,37 @@
   "Элементарный парсер, ожидающий заданный элемент из потока"
   (parse-pred #'(lambda (x) (= x sym))))
 
-(defun &&& (&rest parsers)
+(defmacro parse-and-internal (streams parsers)
+  "Накапливает список символов потоков в streams, последовательно раскрывает парсеры"
+  (cond ((null parsers)
+	 `(cons (list ,@(map #'(lambda (x) `(car ,x)) (cdr streams)))
+		(cdr ,(last streams))))
+	((eq (car parsers) 'return)
+	 `(cons ,(second parsers) (cdr ,(last streams))))
+	(t
+  (let ((cur (last streams))
+	(next (gensym))
+	(p (car parsers)))
+    (if (and (symbolp p) (let* ((str (symbol-name p))
+				(size (string-size str))
+				(arrow (subseq str (- size 2) size)))
+			   (= arrow "->")))
+    `(let ((,next (funcall ,(second parsers) ,(if (eq cur 'stream) 'stream `(cdr ,cur)))))
+       (if (null ,next) nil
+	   (let ((,(let ((s (symbol-name p)))
+		     (intern (subseq s 0 (- (string-size s) 2))))
+		   (car ,next)))
+	    (parse-and-internal ,(append streams (list next)) ,(cddr parsers)))))
+    `(let ((,next (funcall ,p ,(if (eq cur 'stream) 'stream `(cdr ,cur)))))
+       (if (null ,next) nil
+	 (parse-and-internal ,(append streams (list next)) ,(cdr parsers)))))))))
+
+(defmacro &&& (&rest parsers)
+  "Последовательный комбинатор применяет несколько парсеров подряд к потоку, каждый следующий parser применяется к остатку от работы предыдущего parser."
+  `#'(lambda (stream)
+       (parse-and-internal (stream) ,parsers)))
+
+(defun parse_and (&rest parsers)
   "Последовательный комбинатор применяет несколько парсеров подряд к потоку, каждый следующий parser применяется к остатку от работы предыдущего parser."
   #'(lambda (stream)
       (labels ((apply-parser (parsers stream res)
@@ -110,10 +140,18 @@
             (if (car parts) (- num) num)))))
 
 (defmacro mk/elem-parse(name func &rest param)
-  "Создать функцию-парсер ожидающую значение"
+  "Создать функцию-парсер ожидающую значение p"
   `(defun ,name (p)
     #'(lambda (stream)
 	(let ((res (,func stream ,@param)))
+	  (if (null res) nil
+	      (if (= p (car res)) res nil))))))
+
+(defmacro mk/elem-parse1(name func)
+  "Создать функцию-парсер с параметром n ожидающую значение p"
+  `(defun ,name (n p)
+    #'(lambda (stream)
+	(let ((res (,func stream n)))
 	  (if (null res) nil
 	      (if (= p (car res)) res nil))))))
 
@@ -121,6 +159,8 @@
 (mk/elem-parse parse-elem-array get-array (array-size p))
 ;; Ожидание в потоке заданного слова
 (mk/elem-parse parse-elem-word get-word)
+;; Ожидание в потоке заданных бит
+(mk/elem-parse1 parse-elem-bits get-bits)
 
 (defmacro mk/parse1 (name func)
   "Создать функцию разбора на основе функции которая имеет один параметр, кроме потока"

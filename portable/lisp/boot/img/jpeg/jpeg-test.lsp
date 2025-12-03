@@ -2,3 +2,5 @@
 
 (let ((j (funcall (jpeg) (stream-from-arr *jpeg* t))))
   (print (if j (car j) j)))
+(print `(quantization-tables ,*quantization-tables*))
+(print `(huffman-tables ,*huffman-tables*))

@@ -87,20 +87,20 @@
 
 (deftest lex-test-badstr ()
   "Тест: Незакрытая строка"
-  (print (assert (catch 'parse-error (lisp-lexer "\"string")) "lisp-lexer: unterminated string or unexpected end of escape sequence"))
-  (print (assert (catch 'parse-error (lisp-lexer "\"")) "lisp-lexer: unterminated string or unexpected end of escape sequence"))
-  (print (assert (catch 'parse-error (lisp-lexer "(1 2 \"hello")) "lisp-lexer: unterminated string or unexpected end of escape sequence")))
+  (print (assert (handle (lisp-lexer "\"string") (parse-error (x) x)) '((1 8) "lisp-lexer: unterminated string or unexpected end of escape sequence")))
+  (print (assert (handle (lisp-lexer "\"") (parse-error (x) x)) '((1 2)"lisp-lexer: unterminated string or unexpected end of escape sequence")))
+  (print (assert (handle (lisp-lexer "(1 2 \"hello") (parse-error (x) x)) '((1 12)"lisp-lexer: unterminated string or unexpected end of escape sequence"))))
 
 (deftest lex-test-unknown-token ()
   "Тест: Неизвестная лексема"
-  (print (assert (catch 'parse-error (lisp-lexer "@")) "lisp-lexer: Unknown token")))
+  (print (assert (handle (lisp-lexer "@") (parse-error (x) x)) '((1 1)"lisp-lexer: Unknown token"))))
 
 (deftest lex-test-more-errors ()
   "Тест: Дополнительные ошибки лексера"
-  (print (assert (catch 'parse-error (lisp-lexer "-.")) "lisp-lexer: WARNING: got dot with sign"))
-  (print (assert (catch 'parse-error (lisp-lexer "\"\\")) "lisp-lexer: unterminated string or unexpected end of escape sequence"))
-  (print (assert (catch 'parse-error (lisp-lexer "\"\\a\"")) "lisp-lexer: unterminated string or unexpected end of escape sequence")))
-
+  (print (assert (handle (lisp-lexer "-.") (parse-error (x) x)) '((1 1)"lisp-lexer: WARNING: got dot with sign")))
+  (print (assert (handle (lisp-lexer "\"\\") (parse-error (x) x)) '((1 2)"lisp-lexer: unterminated string or unexpected end of escape sequence")))
+  (print (assert (handle (lisp-lexer "\"\\a\"") (parse-error (x) x)) '((1 2)"lisp-lexer: unterminated string or unexpected end of escape sequence"))))
+  
 (deftest full-lexer-test ()
   "Полный тест лексера"
   (print (assert (map #'car (lisp-lexer 

@@ -2,6 +2,7 @@
 
 (defmethod add-child ((self block) ch)
   "Добавляет элемент ch в список children обьекта block"
+  (element-set-parent ch self)
   (block-set-children self (append (block-children self) (list ch))))
 
 (defmethod draw ((self block))

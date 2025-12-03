@@ -1,3 +1,4 @@
+
 (defun token-value (tok)
   "Возвращает значение токена из пары (значение . позиция)"
   (car tok))
@@ -7,7 +8,7 @@
   (cdr tok))
 
 (defun token-elem-p (val)
-  "Предикат, проверяющий, что значение токена равно val."
+  "Проверяет, что значение токена равно val."
   #'(lambda (tok)
       (eq (token-value tok) val)))
 
@@ -17,31 +18,27 @@
       dotted-part
       (cons (car list-part) (append-dotted (cdr list-part) dotted-part))))
 
+
 (defun lisp-list ()
-  "Разбор списка ( ... ) и точечного списка ( ... . ... )"
-  (parse-app
-      (&&& (parse-pred (token-elem-p #\())
-           (parse-many (parse-rec (lisp-s-expr)))
-           (parse-optional (&&& (parse-pred (token-elem-p #\.))
-                                (parse-rec (lisp-s-expr))))
-           (parse-pred (token-elem-p #\))))
-      #'(lambda (res)
-          (let ((items (second res))
-                (dot-value (third res)))
-            (if dot-value
-		(if (null items)
-		    (throw 'parse-error "lisp-parser: Invalid dotted list: starts with a dot")
-		  (append-dotted items (second dot-value)))
-              items)))))
+  (&&& open->(parse-pred (token-elem-p #\())
+       items->(parse-many (parse-rec (lisp-s-expr)))
+       dot-part->(parse-optional (&&& (parse-pred (token-elem-p #\.))
+                                      (parse-rec (lisp-s-expr))))
+       close->(parse-pred (token-elem-p #\)))
+       return (if dot-part
+                  (if (null items)
+                      (throw-error "lisp-parser: Invalid dotted list: starts with a dot."
+                                         (token-pos open))
+                    (append-dotted items (second dot-part)))
+                items)))
 
 (defun lisp-array ()
-  "Разбор массива #(...)"
-  (parse-app (&&& (parse-pred (token-elem-p 'SHARP)) (lisp-list))
-	     #'(lambda (res)
-                 (let ((lst (second res)))
-                   (if (not (proper-list-p lst))
-                       (throw 'parse-error "lisp-parser: Invalid array: dotted list is not allowed")
-                     (list-to-array lst))))))
+  (&&& sharp->(parse-pred (token-elem-p 'SHARP))
+       lst->(lisp-list)
+       return (if (not (proper-list-p lst))
+                  (throw-error "lisp-parser: Invalid array: dotted list is not allowed."
+                                     (token-pos sharp))
+                (list-to-array lst))))
 
 (defun is-atom-p (tok)
   "Проверить, что это атом"
@@ -52,17 +49,16 @@
 (defun lisp-s-expr ()
   "Разбор s-выражения"
   (parse-or
-   (parse-app
-    (&&& (parse-or (parse-pred (token-elem-p 'QUOTE))
-                   (parse-pred (token-elem-p 'BACKQUOTE))
-                   (parse-pred (token-elem-p 'COMMA))
-                   (parse-pred (token-elem-p 'COMMA-AT))
-                   (parse-pred (token-elem-p 'FUNCTION)))
-         (parse-rec (lisp-s-expr)))
-    #'(lambda (res) (list (token-value (car res)) (cadr res))))
-   (lisp-array)
-   (parse-app (parse-pred #'is-atom-p) #'token-value)
-   (lisp-list)))
+    (&&& op->(parse-or (parse-pred (token-elem-p 'QUOTE))
+                       (parse-pred (token-elem-p 'BACKQUOTE))
+                       (parse-pred (token-elem-p 'COMMA))
+                       (parse-pred (token-elem-p 'COMMA-AT))
+                       (parse-pred (token-elem-p 'FUNCTION)))
+         expr->(parse-rec (lisp-s-expr))
+         return (list (token-value op) expr))
+    (lisp-array)
+    (parse-app (parse-pred #'is-atom-p) #'token-value)
+    (lisp-list)))
 
 (defun check-parens (tokens)
   "Проверяет баланс скобок в списке токенов."
@@ -75,31 +71,26 @@
 	  ((eq val #\() (setf balance (++ balance)))
 	  ((eq val #\)) (setf balance (-- balance))))
 	(if (< balance 0)
-	    (throw 'parse-error (concat "lisp-parser: Found an extra closing parenthesis at " (pos-to-str last-pos)))
+	    (throw-error "lisp-parser: Found an extra closing parenthesis." last-pos)
 	  nil)))
     (if (!= balance 0)
-	(throw 'parse-error (concat "lisp-parser: Unbalanced parentheses. Expected a closing parenthesis, last position: "
-				   (pos-to-str last-pos)))
+	      (throw-error "lisp-parser: Unbalanced parentheses. Expected a closing parenthesis." last-pos)
       nil)))
 
-(defun pos-to-str (pos)
-  (concat "(" (inttostr (pos-line pos)) " . " (inttostr (pos-char pos)) ")"))
 
 (defun parse-lisp (str)
-  "Распознать строку с программой Лисп. Возвращает дерево разбора или выбрасывает ошибку."
   (catch 'parse-error
     (let* ((tokens (lisp-lexer str)))
-      (if (not (or (null tokens) (pairp tokens)))
-          "lisp-parser-from-lexer: unexpected result"
-        (progn
-	  (check-parens tokens)
-	  (let* ((stream (stream-from-list tokens))
-		 (res (funcall (lisp-s-expr) stream)))
-	    (if (not res)
-		"lisp-parser: Syntax error"
-	      (let ((rest-stream (cdr res)))
-		(if (not (stream-empty-p rest-stream))
-		    (concat "lisp-parser: Unexpected tokens after expression, starting from "
-			    (pos-to-str (token-pos (stream-peek rest-stream))))
-		  (car res))))))))))
-
+      (unless (pairp tokens)
+        ;; Лексер сломался — используем (1 1) как fallback. Но вообще ошибка вряд ли возможна.
+        (throw-error "lisp-parser: unexpected result of lexer. Stream may be damaged." (list 1 1)))
+      (check-parens tokens)
+      (let* ((stream (stream-from-list tokens))
+             (res (funcall (lisp-s-expr) stream)))
+        (if (null res)
+            (throw-error "lisp-parser: Syntax error" (token-pos (car tokens)))
+          (let ((rest-stream (cdr res)))
+            (if (stream-empty-p rest-stream)
+                (car res)
+              (throw-error "lisp-parser: Unexpected tokens after expression."
+                           (token-pos (stream-peek rest-stream))))))))))                                 

@@ -25,6 +25,13 @@
   	 (translate (cons 0 1)))
     (when (> rem 0) (show-text (subseq text (- len rem) len)))
     (grestore)))
+
+(defmethod set-defaults ((self text))
+  "установка значений по умолчанию"
+  (super set-defaults self)
+  (text-set-width self 4)
+  (text-set-colour self +dark-gray+)
+  (text-set-text self "text"))
       
 ;; (defmethod set-defaults ((self text))
 ;;   (super set-defaults self)

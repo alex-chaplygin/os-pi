@@ -209,3 +209,19 @@
   (let ((high-byte (& (>> num 8) 0xff))
 	(low-byte (& num 0xff)))
     (+ high-byte (<< low-byte 8))))
+
+(defmacro raise (name args)
+  "Вызов исключения с именем name и параметрами args"
+  `(throw ,name ,args))
+
+(defmacro *handle-r* (exit expr handlers)
+  "Рекурсивный макрос для handle"
+  (if (null handlers) expr
+    (let ((handler (car handlers)))
+      `((lambda ,(second handler) ,@(cddr handler))
+	(catch ',(car handler) (throw ',exit (*handle-r* ,exit ,expr ,(cdr handlers))))))))
+
+(defmacro handle (expr &rest handlers)
+  "Обработка исключения для выражения"
+  (let ((exit (gensym)))
+    `(catch ',exit (*handle-r* ,exit ,expr ,handlers))))

@@ -10,19 +10,18 @@
 (defconst +IEND+ (make-png-sig "IEND")) ;Завершающий чанк
 (defconst +sRGB+ (make-png-sig "sRGB")) ;Пространство цветов RGB
 
-(print +IHDR+)
-
 (defun png-signature ()
   "Ожидание сигнатуры PNG"
   (parse-elem-array +PNG-SIGNATURE+))
 
 (defun parse-chunk (type data-parser)
   "Разбор блоков PNG"
-  (parse-app (&&& #'get-dword ;Длина
-                  (parse-elem-array type) ;Тип
-                  data-parser ;Данные
-                  #'get-dword) ;CRC
-             #'third))
+  (parse-app
+   (&&& #'get-dword ;Длина
+	(parse-elem-array type) ;Тип
+	data-parser ;Данные
+	#'get-dword) ;CRC
+   #'third))
 
 (defun parse-ihdr ()
   "Заголовок изображения PNG"
@@ -31,12 +30,28 @@
 		  (compression . byte) (filter . byte) (interlace . byte))))
 
 (defun parse-plte ()
-  "Палитра (RGB)"
+  "Читаем палитру (RGB)"
   (parse-suc 'PLTE))
+
+(defun zlib-decode (arr)
+  "Распаковать массив zlib"
+  (let ((a (array-seq arr 2 (array-size arr))))
+    (car (funcall (deflate-block-header) (stream-from-arr a nil)))))
 
 (defun parse-idat ()
   "Данные изображения"
-  (parse-suc 'IDAT))
+  #'(lambda (stream)
+      (let* ((len (get-dword stream))
+	     (length (car len))
+	     (stream2 (funcall (parse-elem-array +IDAT+) (cdr len))))
+	(if (null stream2) nil
+	    (let*
+	     ((stream3 (get-array (cdr stream2) length))
+	     (CRC (get-dword (cdr stream3))))
+	     (print 'deflate (zlib-decode (car stream3)))
+	     (cons (car stream3) (cdr CRC)))))))
+
+  ;(parse-suc 'IDAT))
 
 (defun png ()
   "Разбор PNG"
@@ -44,9 +59,5 @@
        (parse-many (parse-or (parse-chunk +IHDR+ (parse-ihdr))
 			     (parse-chunk +PLTE+ (parse-plte))
 			     (parse-chunk +sRGB+ #'get-byte)
-			     (parse-chunk +IDAT+ (parse-plte)))))
-       ;;(parse-chunk +IEND+ (parse-suc nil)))
-)
-(print `(ihdr ,+IHDR+))
-(print `(plte ,+PLTE+))
-(print `(idat ,+IDAT+))
+			     (parse-idat)))
+       (parse-chunk +IEND+ (parse-suc nil))))

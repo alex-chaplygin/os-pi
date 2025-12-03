@@ -23,7 +23,7 @@ parser-test: $(BASELISP) stream.lsp parser.lsp $(TEST) test/parser.lsp
 	cat $^ | /tmp/lisp
 
 # модульные тесты коды Хаффмана
-huffman-test: $(BASELISP) bin-reader.lsp bin-tree.lsp huffman.lsp $(TEST) test/huffman.lsp
+huffman-test: $(BASELISP) bin-reader.lsp bin-tree.lsp stream.lsp huffman.lsp $(TEST) test/huffman.lsp
 	make -C ../test /tmp/repl_lisp
 	cat $^ | /tmp/repl_lisp
 
@@ -65,6 +65,10 @@ bin-tree-test: $(BASELISP) bin-tree.lsp $(TEST) test/bin-tree.lsp
 	cat $^ | /tmp/repl_lisp
 # модульные тесты потока
 stream-test: $(BASELISP) stream.lsp $(TEST) test/stream.lsp
+	make -C ../test /tmp/lisp
+	cat $^ | /tmp/lisp
+# модульные тесты множества
+set-test: $(BASELISP) set.lsp $(TEST) test/set.lsp
 	make -C ../test /tmp/lisp
 	cat $^ | /tmp/lisp
 # модульные тесты потока с позицией

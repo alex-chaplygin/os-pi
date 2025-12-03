@@ -104,3 +104,10 @@
     (for i 0 s
 	 (setq l (cons (aref a (- s i 1)) l)))
       l))
+
+(defun array-sum (a)
+  "Сумма всех элементов массива"
+  (let ((s 0))
+    (for i 0 (array-size a)
+	 (setq s (+ s (aref a i))))
+    s))

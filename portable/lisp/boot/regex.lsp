@@ -185,10 +185,12 @@
 ;; Группа = '(' Выражение ')'
 
 ;; Предикат символа выражения, исключаются спец. сиволы
-(defun regex-sym (x) (not (contains '(#\( #\) #\* #\|) x)))
+(defun regex-sym (x) (not (contains '(#\( #\) #\* #\| #\.) x)))
 ;; Разбор символа      
 (defun parse-sym ()
-  (parse-app (parse-pred #'regex-sym) #'(lambda (x) (list 'sym x))))
+  (parse-or
+   (parse-app (parse-pred #'regex-sym) #'(lambda (x) (list 'sym x)))
+   (parse-app (parse-elem #\.) (parse-return '(any)))))
 
 (defun parse-expression () nil)
 
@@ -255,6 +257,7 @@
   (let ((start (new-state))
 	(end (new-state)))
     (case (car regex)
+	  ('any `(,start ((,start any (,end))) ,end))
 	  ('sym `(,start ((,start ,(second regex) (,end))) ,end))
 	  ('star (let* ((r (regex-to-nfa (second regex))))
 		   `(,start  ,(append (second r)
@@ -266,3 +269,20 @@
 	 ('seq (list-nfa (cddr regex) (regex-to-nfa (second regex)) #'seq-nfa))
 	 ('or (list-nfa (cdr regex) `(,start () ,end) #'or-nfa))
 	 )))
+
+(defun compile-regex (str)
+  "Компилирует регулярное выражение в недетерминированный автомат"
+  (regex-to-nfa (car (funcall (parse-expression) (stream-from-str str)))))
+
+(defun regex-match (regex str)
+  "Сопоставление скомпилированного регулярного выражения regex и строки str"
+  (let* ((nfa (make-nfa (car regex) (second regex) (list (third regex)))))
+    (labels ((s1 (tape)
+	       (cond ((null tape) nil)
+		     ((nfa-end (foldl #'nfa-input nfa tape)) t)
+		     (t (s1 (cdr tape))))))
+      (s1 (explode str)))))
+
+(defun match (str regex)
+  "Сопоставление строки str и строки регулярного выражения regex"
+  (regex-match (compile-regex regex) str))

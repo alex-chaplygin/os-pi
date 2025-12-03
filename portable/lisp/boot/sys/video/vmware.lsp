@@ -13,7 +13,8 @@
 (defconst +svga-reg-max-width+  4)
 (defconst +svga-reg-max-height+  5)
 (defconst +svga-reg-depth+  6)
-(defconst +svga-reg-id+ 15) ; Размер VRAM
+(defconst +svga-reg-bits-per-pixel+ 7); отвечает за глубину цвета (BPP)
+(defconst +svga-reg-bytes-per-line+ 12); хранит Pitch (шаг строки)(defconst +svga-reg-id+ 15) ; Размер VRAM
 (defconst +svga-reg-vram-size+ 15) ; Размер VRAM
 (defconst +svga-reg-fb-size+ 16) ; Размер Framebuffer
 (defconst +svga-reg-mem-size+ 19) ; Размер FIFO (MEM-SIZE)
@@ -25,7 +26,7 @@
 (defvar *svga-vram-size*) ;; Размер видеопамяти
 (defvar *svga-fb-size*) ;; Размер буфера кадра
 (defvar *svga-fifo-size*) ;; Размер очереди команд
-
+(defvar *svga-pitch*) ;; длина строки экрана в байтах
 (defvar *svga-pci*) ;; PCI устройство
 
 
@@ -55,3 +56,13 @@
   (setq *svga-fb-size* (svga-read-reg +svga-reg-fb-size+))
   (setq *svga-fifo-size* (svga-read-reg +svga-reg-mem-size+))
   (svga-write-reg +svga-reg-config-done+ 1))
+
+(defun svga-set-mode (width height bpp)
+  "Устанавливает разрешение и глубину цвета"
+  (svga-write-reg +svga-reg-width+ width)
+  (svga-write-reg +svga-reg-height+ height)
+  (svga-write-reg +svga-reg-bits-per-pixel+ bpp)
+  ;; Включаем SVGA режим (1 = TRUE)
+  (svga-write-reg +svga-reg-enable+ 1)
+  ;; Считываем реальную длину строки в байтах. 
+  (setq *svga-pitch* (svga-read-reg +svga-reg-bytes-per-line+)))

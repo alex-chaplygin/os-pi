@@ -98,3 +98,12 @@
      (setq res (funcall (get-method (slot ,obj 'class) ',method-name) ,obj ,@args))
      (setf (slot ,obj 'class) origclass)
      res))
+
+(defun get-class (obj)
+  "Получить символ класса из объекта"
+  (get-hash obj 'class))
+
+(defmacro with-slots (class vars obj &rest body)
+  "Макрос для связывания полей vars объекта obj с переменными и выполнение действий"
+  `(let ,(map #'(lambda(x) `(,x (,(intern (concat (symbol-name class) "-" (symbol-name x))) ,obj))) vars)
+     ,@body))

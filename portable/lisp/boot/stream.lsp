@@ -8,6 +8,11 @@
   "Создает поток из строки str"
   (make-SStream str 0))
 
+(defmethod end-of-stream ((self SStream))
+  (let ((str (SStream-str self))
+	      (index (SStream-index self)))
+    (= index (string-size str))))
+
 (defmethod get-byte ((self SStream))
   "Чтение очередного символа из потока
    Возвращает точечную пару (символ . новое состояние потока) или nil если конец потока"
