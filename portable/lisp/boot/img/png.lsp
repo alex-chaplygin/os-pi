@@ -16,12 +16,11 @@
 
 (defun parse-chunk (type data-parser)
   "Разбор блоков PNG"
-  (parse-app
-   (&&& #'get-dword ;Длина
-	(parse-elem-array type) ;Тип
-	data-parser ;Данные
-	#'get-dword) ;CRC
-   #'third))
+  (&&& #'get-dword ;Длина
+       (parse-elem-array type) ;Тип
+       data-> data-parser ;Данные
+       #'get-dword ;CRC
+       return data))
 
 (defun parse-ihdr ()
   "Заголовок изображения PNG"
@@ -36,22 +35,15 @@
 (defun zlib-decode (arr)
   "Распаковать массив zlib"
   (let ((a (array-seq arr 2 (array-size arr))))
-    (car (funcall (deflate-block-header) (stream-from-arr a nil)))))
+    (car (funcall (deflate-block) (stream-from-arr a nil)))))
 
 (defun parse-idat ()
   "Данные изображения"
-  #'(lambda (stream)
-      (let* ((len (get-dword stream))
-	     (length (car len))
-	     (stream2 (funcall (parse-elem-array +IDAT+) (cdr len))))
-	(if (null stream2) nil
-	    (let*
-	     ((stream3 (get-array (cdr stream2) length))
-	     (CRC (get-dword (cdr stream3))))
-	     (print 'deflate (zlib-decode (car stream3)))
-	     (cons (car stream3) (cdr CRC)))))))
-
-  ;(parse-suc 'IDAT))
+  (&&& len-> #'get-dword
+       (parse-elem-array +IDAT+)
+       data-> (parse-array len)
+       #'get-dword
+       return (zlib-decode data)))
 
 (defun png ()
   "Разбор PNG"
