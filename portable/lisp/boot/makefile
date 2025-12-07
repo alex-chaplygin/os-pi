@@ -67,6 +67,10 @@ bin-tree-test: $(BASELISP) bin-tree.lsp $(TEST) test/bin-tree.lsp
 stream-test: $(BASELISP) stream.lsp $(TEST) test/stream.lsp
 	make -C ../test /tmp/lisp
 	cat $^ | /tmp/lisp
+# модульные тесты потока вывода
+ostream-test: $(BASELISP) ostream.lsp $(TEST) test/ostream.lsp
+	make -C ../test /tmp/lisp
+	cat $^ | /tmp/lisp
 # модульные тесты множества
 set-test: $(BASELISP) set.lsp $(TEST) test/set.lsp
 	make -C ../test /tmp/lisp
