@@ -14,3 +14,4 @@ object_t SHOW_CURSOR();
 object_t SET_INT_HANDLER(object_t irq, object_t fun);
 object_t send_text_buffer(object_t bb, object_t xx, object_t yy, object_t ww, object_t hh);
 object_t send_graphics_buffer(object_t bb, object_t xx, object_t yy, object_t ww, object_t hh);
+object_t MEMCPY(object_t dst, object_t src);

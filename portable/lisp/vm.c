@@ -91,7 +91,8 @@ struct prim {
     SHOW_CURSOR, 0,
     SET_INT_HANDLER, 2,
     send_text_buffer, 5,
-    send_graphics_buffer, 5,    
+    send_graphics_buffer, 5,
+    MEMCPY, 2
 #endif
 };
 
