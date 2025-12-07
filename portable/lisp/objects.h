@@ -31,7 +31,7 @@
 #define MAX_FLOATS 2000
 #endif
 /// Всего продолжений
-#define MAX_CONTINUATIONS 1
+#define MAX_CONTINUATIONS 16
 /// Всего функций 
 #ifdef VM
 #define MAX_FUNCTIONS (16*1024)
@@ -98,7 +98,7 @@
 //Создание строки
 #define NEW_STRING(s) (NEW_OBJECT(STRING, new_string(s)))
 //Создание одиночного символа
-#define NEW_CHAR(s) (NEW_OBJECT(CHAR, ((s) << TYPE_BITS + 1)))
+#define NEW_CHAR(s) (NEW_OBJECT(CHAR, ((s) << (TYPE_BITS + 1))))
 // Первый элемент списка
 #define FIRST(o) (GET_PAIR(o)->left)
 // Второй элемент списка
@@ -120,7 +120,7 @@ typedef enum {
     ARRAY, ///массив
     CHAR, ///одиночный символ
     FUNCTION, /// lambda функция
-    CONTITUATION, ///продолжение
+    CONTINUATION, ///продолжение
 } type_t;
 /// Тип для объекта
 #ifndef X32

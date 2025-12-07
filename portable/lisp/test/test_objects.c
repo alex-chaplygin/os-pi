@@ -4,6 +4,7 @@
 #include <setjmp.h>
 #include "test.h"
 #include "objects.h"
+#include "cont.h"
 #include "parser.h"
 #include "alloc.h"
 #include "bind.h"
@@ -23,14 +24,17 @@ extern pair_t *free_pairs;
 extern char *region_data;
 extern string_t *free_strings;
 extern array_t *free_arrays;
+extern continuation_t *free_continuations;
 extern symbol_t *free_symbols;
 extern struct region *regions;
 extern int last_string;
 extern int last_array;
 extern int last_function;
+extern int last_continuation;
 extern function_t *functions;
 extern function_t *free_functions;
-
+extern continuation_t *continuations;
+extern continuation_t *free_continuations;
 void mark_object(object_t obj);
 void sweep();
 void garbage_collect();
@@ -48,6 +52,30 @@ void error(char *str, ...)
     printf("%s\n", str);
     longjmp(jmp_env, 1);
 }
+
+
+/**
+ * Сброс памяти в начальное состояние
+ *
+ */
+void reset_mem()
+{
+    last_symbol = 0;
+    last_bignumber = 0;
+    last_pair = 0;
+    last_string = 0;
+    last_array = 0;
+    last_function = 0;
+    last_continuation = 0;
+    free_continuations = NULL;
+    free_pairs = NULL;
+    free_strings = NULL;
+    free_bignumbers = NULL;
+    free_arrays = NULL;
+    free_functions = NULL;
+    free_symbols = NULL;
+}
+
 
 symbol_t *find_symbol(char *str)
 {
@@ -98,6 +126,26 @@ void test_new_function()
     object_t nf = new_function(args, body, NULLOBJ, NULLOBJ);
     ASSERT(TYPE(nf), FUNCTION);
     PRINT(nf);
+}
+
+void test_new_continuation()
+ {
+    printf("test_new_continuation: ");
+    reset_mem();
+
+    jmp_buf buf;
+    if (setjmp(buf) == 0) {
+        object_t cont = new_continuation(buf);
+        ASSERT(TYPE(cont), CONTINUATION);
+        continuation_t *c = (continuation_t *)GET_ADDR(cont);
+        ASSERT(memcmp(c->buffer, buf, sizeof(jmp_buf)), 0);
+        ASSERT(last_continuation, 1);
+        free_continuation(c);
+        if (free_continuations == c)
+            printf("Free OK\n");
+        else
+            printf("Free Fail\n");
+    }
 }
 
 /**
@@ -165,26 +213,6 @@ void test_print_obj(object_t obj, const char *expected_output)
     fclose(output_file);
 
     ASSERT(strcmp(output_buffer, expected_output), 0);
-}
-
-/**
- * Сброс памяти в начальное состояние
- *
- */
-void reset_mem()
-{
-    last_symbol = 0;
-    last_bignumber = 0;
-    last_pair = 0;
-    last_string = 0;
-    last_array = 0;
-    last_function = 0;
-    free_pairs = NULL;
-    free_strings = NULL;
-    free_bignumbers = NULL;
-    free_arrays = NULL;
-    free_functions = NULL;
-    free_symbols = NULL;
 }
 
 /** 
@@ -334,7 +362,7 @@ void test_mark()
     printf("test_mark :");
     reset_mem();
     int mask = 1 << 31;
-    object_t n = new_bignumber(2147483658);
+    object_t n = new_bignumber(214748365);
     object_t s = NEW_STRING("abc");
     object_t l = make_list(3);
     printf("make_list:");
@@ -1048,6 +1076,7 @@ void main()
 
     // Тесты для функций
     test_new_function();
+    test_new_continuation();
     test_free_function();
     reset_mem();
 
