@@ -17,4 +17,8 @@
 (print "Caps: " (svga-read-reg 17))
 (print "Config done: " (svga-read-reg +svga-reg-config-done+))
 (svga-set-mode 640 480 32)
-;;(svga-write-reg +svga-reg-enable+ 1)
+(let ((a (make-array (* 320 200 4))))
+  (for i 0 1024
+       (seta a i 0xff))
+  (memcpy *svga-fb-base* a)
+  )
