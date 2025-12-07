@@ -73,4 +73,4 @@
 	 (a (print `(tiff ,tiff-hash)))
 	 (ofs (get-hash tiff-hash 'stripoffsets))
 	 (count (get-hash tiff-hash 'stripbytecounts)))
-    (stream-seek stream ofs 'seek-set)))
+    (print (car (get-array (stream-seek stream ofs 'seek-set) count)))))
