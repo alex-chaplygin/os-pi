@@ -8,6 +8,7 @@
 #include "alloc.h"
 #include "cont.h"
 #include "bind.h"
+#include "eval.h"
 
 /// Индекс последнего большого числа
 int last_bignumber = 0;
