@@ -56,8 +56,7 @@
     (write-dword s min-offset) ;; NEXT: писать сюда (в начало)
     (write-dword s min-offset) ;; STOP: читать до сюда (в начало)
     (print *svga-fifo-base* (ostream-data s))
-    ;(memcpy *svga-fifo-base* (ostream-data s)))
-    )
+    (memcpy *svga-fifo-base* (ostream-data s))))
 
 ;; Инициализация SVGA 
 (defun svga-init (bus device)

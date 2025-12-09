@@ -20,5 +20,4 @@
 (let ((a (make-array (* 320 200 4))))
   (for i 0 1024
        (seta a i 0xff))
-  (memcpy *svga-fb-base* a)
-  )
+  (memcpy *svga-fb-base* a))
