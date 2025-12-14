@@ -88,8 +88,8 @@
   "body - тело метода"
   `(let ((class (slot *class-table* ',(cadar args))))
      (set-hash class ',name #'(lambda ,(cons (caar args) (cdr args)) ,@body)))
-  `(defun ,name ,(cons (caar args) (cdr args))
-     (funcall (get-method (slot ,(caar args) 'class) ',name) ,(caar args) ,@(cdr args))))
+  `(defun ,name (,(caar args) &rest args)
+     (apply (get-method (slot ,(caar args) 'class) ',name) (cons ,(caar args) args))))
 
 (defmacro super (method-name obj &rest args)
   "Вызов метода method-name родителя экземпляра класса obj с аргументами args"
