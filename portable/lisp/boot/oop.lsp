@@ -1,19 +1,3 @@
-					; Таблица классов хранит имя класса и список свойств
-					; {
-					;    point: {
-					;      parent: nil,
-					;      slots: (x y),
-					;      move: (lambda (self dx dy) (setf (slot self x) (+ (slot self x) dx)
-					;    },
-					;    line: {
-					;      parent: point,
-					;      slots: (x2 y2)
-					;    }
-					; экземпляр класса point
-					; ((class . point)(x.10)(y.20))
-					;экземпляр класса line
-					;((class . line)(x . 10)(y . 20)(x2 . 5)(y2 . 10))
-
 ;; Максимальное количество классов
 (defconst +max-class-count+ 100)
 
@@ -28,6 +12,8 @@
 (defconst +slots-count-id+ 2)
 ;; Поле номера класса в объекте
 (defconst +class-id+ 0)
+;; Индекс первого поля класса в объекте
+(defconst +slot-id+ 1)
  
 ;; Массив классов
 ;; Класс - это массив массивов, len = 4
@@ -40,16 +26,10 @@
 ;;Массив имен классов (имена хранятся в форме символов)
 (defvar *class-names* (make-array +max-class-count+))
 
-(defmacro gen-class-functions (class slots)
-  "Генерация функций селекторов - <class>-<slot>"
-  "мутаторов - <class>-set-<slot>"
-  (if (null slots) nil
-  `(progn
-     (defun ,(intern (concat (symbol-name class) "-" (symbol-name (car slots)))) (obj)
-       (slot obj ',(car slots)))
-     (defun ,(intern (concat (symbol-name class) "-SET-" (symbol-name (car slots)))) (obj val)
-       (setf (slot obj ',(car slots)) val))
-     (gen-class-functions ,class ,(cdr slots)))))
+(defun make-indexing-list (list start)
+  "Преобразует список в список точечных пар (индекс . значение)"
+  (if (null list) nil
+      (append (list (cons start (car list))) (make-indexing-list (cdr list) (++ start)))))
 
 (defun get-class-id (class-name)
   "Получение id класса"
@@ -60,42 +40,45 @@
 		   (search (++ index))))))
 	    (search 0))))
 
+(defmacro gen-class-functions (class indexed-slots)
+  "Генерация функций селекторов - <class>-<slot>"
+  "мутаторов - <class>-set-<slot>"
+  `(progn
+     ,@(map #'(lambda (s) `(progn
+             (defun ,(intern (concat (symbol-name class) "-" (symbol-name (cdr s)))) (obj)
+                 (aref obj ,(car s)))
+             (defun ,(intern (concat (symbol-name class) "-SET-" (symbol-name (cdr s)))) (obj val)
+                 (seta obj ,(car s) val))))
+            ',indexed-slots)))
 
 (defun get-slots-count(class-id)
   "Получение количества полей класса"
   (if (null class-id) 0
     (let ((class (aref *class-table* class-id)))
-	(+ (list-length (aref class +slots-id+)) (get-slots-count (aref class +parent-id+))
-	   ))))
+	(+ (list-length (aref class +slots-id+)) (get-slots-count (aref class +parent-id+))))))
 
 (defun get-slots (class-id)
   "Получение списка свойств класса class"
   (if (null class-id) nil
     (let ((class (aref *class-table* class-id)))
       (if (null class) nil
-	(append (get-slots (aref class +parent-id+)) (aref class +slots-id+))))
-      ))
+	(append (get-slots (aref class +parent-id+)) (aref class +slots-id+))))))
 
 (defun make-instance (class-name)
   "Создать экземпляр объекта класса class"
   "(make-instance 'point) -> ((X.nil)(Y.nil))"
-  ;; (let ((o (gensym)))
-  ;;   `(if (not (check-key *class-table* ',class))
-  ;; 	 (error (concat "no class " (symbol-name ',class)))
-  ;; 	 (let ((,o (make-hash)))
-  ;; 	   (set-hash ,o 'class ',class)
-  ;; 	   (app #'(lambda (x) (set-hash ,o x nil)) ',(get-slots class))
-  ;; 	   ,o))))
   (let* ((index (get-class-id class-name))
 	 (class (aref *class-table* index))
 	 (obj (make-array (++ (aref class +slots-count-id+))))
 	 )
     (seta obj +class-id+ index)
-    obj
-    ))
+    obj))
 
 (defmacro defclass (name parent slots)
   "Создание нового класса
+  ;; make-point (x y)
+  ;; (seta obj 1 x)
+  ;; (seta obj 2 y)
   name - имя, parent - родительский класс,
   slots - список полей"
   "(defclass point (x y) ())"
@@ -107,17 +90,13 @@
      (seta *class-table* *last-class* class)
      (seta *class-names* *last-class* ',name))
   `(defun ,(intern (concat "MAKE-" (symbol-name name))) ,(get-slots *last-class*)
-     ;; (let ((obj (make-instance ',name)))
-     ;;   ,@(map #'(lambda(s) `(seta (slot obj ',s) ,s)) (get-slots *last-class*))
-     ;;   obj)
-     )
-  ;; `(gen-class-functions ,name ,(get-slots *last-class*))
+     (let ((obj (make-instance ',name)))
+       ,@(map #'(lambda(s) `(seta obj ,(car s) ,(cdr s)))
+	      (make-indexing-list (get-slots *last-class*) +slot-id+))
+        obj))
+  `(gen-class-functions ,name ,(make-indexing-list (get-slots *last-class*) +slot-id+))
   `(incf *last-class*)
   `',name)
-
-;; (defmacro slot (obj key)
-;;   "Возвращает значение свойства key у объекта obj"
-;;   `(get-hash ,obj ,key))
 
 ;; (defun get-method (class-name method-name)
 ;;   "Рекурсивно возвращает тело метода method-name из класса class-name"
