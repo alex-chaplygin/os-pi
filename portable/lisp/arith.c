@@ -31,6 +31,26 @@ object_t add_float(object_t list, float sum)
     return new_float(sum);
 }
 
+ /** 
+ * Сложение двух чисел (+ 1 2)
+ *
+ * @param first_num - первое число
+ * @param second_num - второе число
+ *
+ * @return результат сложения 
+ */
+ object_t add2(object_t first_num, object_t second_num)
+ {
+    if (IS_NUMBER(first_num) && IS_NUMBER(second_num))
+        return new_number(get_value(first_num) + get_value(second_num));
+    else if (TYPE(first_num) == FLOAT && TYPE(second_num) == FLOAT) 
+	return new_float(GET_FLOAT(first_num)->value + GET_FLOAT(second_num)->value);
+    else if (TYPE(first_num) == FLOAT)
+	return new_float(GET_FLOAT(first_num)->value + (float)get_value(second_num));
+    else if (TYPE(second_num) == FLOAT)
+        return new_float((float)get_value(first_num) + GET_FLOAT(second_num)->value);
+ }
+
 /** 
  * Сложение аргументов (+ 1 2 3)
  *
@@ -40,20 +60,18 @@ object_t add_float(object_t list, float sum)
  */
 object_t add(object_t list)
 {
-    int num = 0;
+    object_t res = new_number(0);
     while (list != NULLOBJ) {
 	object_t first = FIRST(list);
-	if (IS_NUMBER(first)) {  
-	    num += get_value(first);
-	    list = TAIL(list);
-	}
-	else if(TYPE(first) == FLOAT)
-	    return add_float(list, num);
-	else
-	    error("add: Not number");
+        if (!IS_NUMBER(first) && TYPE(first) != FLOAT)
+            error("add: Not number");
+        res = add2(res, first);
+        list = TAIL(list);
     }
-    return new_number(num);
+    return res;
 }
+
+
 
 /** 
  * Вычитание чисел с плавающей точкой
@@ -78,38 +96,53 @@ object_t sub_float(object_t list, float sub)
     return new_float(sub);
 }
 
+ /** 
+ * Вычитание двух чисел (- 1 2)
+ *
+ * @param first_num - первое число
+ * @param second_num - второе число
+ *
+ * @return результат вычитания 
+ */
+ object_t sub2(object_t first_num, object_t second_num)
+ {
+    if (IS_NUMBER(first_num) && IS_NUMBER(second_num))
+        return new_number(get_value(first_num) - get_value(second_num));
+    else if (TYPE(first_num) == FLOAT && TYPE(second_num) == FLOAT) 
+	return new_float(GET_FLOAT(first_num)->value - GET_FLOAT(second_num)->value);
+    else if (TYPE(first_num) == FLOAT)
+	return new_float(GET_FLOAT(first_num)->value - (float)get_value(second_num));
+    else if (TYPE(second_num) == FLOAT)
+        return new_float((float)get_value(first_num) - GET_FLOAT(second_num)->value);
+ }
+
 /**
  * Вычитание аргументов (- 1 2 3)
  * 
- * @param list - список чисел (1 2 3)
+ * @param first - первое число (1)
+ * @param list - список чисел (2 3)
  * 
  * @return разность
  */
 object_t sub(object_t first, object_t list)
-{ 
-    int num;
+{
+    object_t res;
     if (list == NULLOBJ && TYPE(first) == FLOAT)
 	return new_float(-GET_FLOAT(first)->value);
-    if (TYPE(first) == FLOAT) 
-	return sub_float(list, GET_FLOAT(first)->value);
-    else if (IS_NUMBER(first))
-	num = get_value(first);
-    else
+    else if (list == NULLOBJ && IS_NUMBER(first))
+	return new_number(-get_value(first));
+    else if (!IS_NUMBER(first) && TYPE(first) != FLOAT)
 	error("sub: Not number");
-    if (list == NULLOBJ)
-	num = -num;
+    else
+	res = first;
     while (list != NULLOBJ) {
 	first = FIRST(list);
-	if (IS_NUMBER(first)) {  
-	    num -= get_value(first);
-	    list = TAIL(list);
-	}
-	else if(TYPE(first) == FLOAT)
-	    return sub_float(list, num);
-	else
+	if (!IS_NUMBER(first) && TYPE(first) != FLOAT)
 	    error("sub: Not number");
+	res = sub2(res, first);
+        list = TAIL(list);
     }
-    return new_number(num);
+    return res;
 }
 
 /**
