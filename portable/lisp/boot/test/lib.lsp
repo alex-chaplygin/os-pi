@@ -364,4 +364,19 @@
   			 (a (k) (+ k 1))
   			 (b (k) (- k 2))) 0)))
 
+(deftest while-break-test ()
+  "Тестирование break в цикле while"
+  (let ((count 0))
+    (while (< count 10)
+	   (when (= count 5) (break))
+	   (incf count))
+    (print (assert count 5))))
+
+(deftest until-test ()
+  "Тестирование цикла until"
+  (let ((count 0))
+    (until (= count 10)
+	   (incf count))
+    (print (assert count 10))))
+
 (run-tests)
