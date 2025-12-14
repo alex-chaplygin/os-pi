@@ -4,8 +4,17 @@
   (print (make-instance 'line))
   (print (get-slots 1))
   (setq p2 (make-point 10 20)) ; x = 10 y = 20
-  (print (assert (get-slots-count 0) 2))
-  (print (assert (get-slots-count 1) 4))
+  (print p2)
+  (point-set-x p2 20)
+  (print (point-x p2) (point-y p2))
+  (setq l1 (make-line 10 20 20 30))
+  (print l1)
+  (line-set-x l1 5)
+  (line-set-y2 l1 45)
+  (print (line-x l1) (line-y2 l1))
+  ;(print (assert (get-slots-count 0) 2))
+  ;(print (assert (get-slots-count 1) 4))
+  ;(print (make-indexing-list '(x y z) 1))
   ;; (point-set-x p2 50) ; x = 50 y = 20
   ;; (setq l1 (make-line 1 1 3 3))
 
