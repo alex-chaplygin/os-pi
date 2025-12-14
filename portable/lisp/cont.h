@@ -7,6 +7,11 @@ typedef struct continuation_s {
     int last_protected;		/**< Сохраненное число временных объектов */
     struct continuation_s *next;
     int free; // Если 1 - продолжение свободно
+#ifdef X32
+    int pad[3]; 
+#else
+    int pad[4]; 
+#endif
 } continuation_t;
 
 /// Объект - точка возврата с меткой
