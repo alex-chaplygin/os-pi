@@ -47,10 +47,13 @@ void error(char *str, ...)
  */
 void parser_error(char *str, ...)
 {
+    extern int current_line;
+    extern int current_column;
     va_list(vals);
     va_start(vals, str);
     print_debug_lines();
     if (str[0] != '\0') {
+    printf("%d:%d: ", current_line, current_column - 1);
 	vprintf(str, vals);
 	va_end(vals);
 	putchar('\n');

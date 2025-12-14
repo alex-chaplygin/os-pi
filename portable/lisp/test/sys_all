@@ -1,21 +1,21 @@
 echo "------------SYSTEM TEST-------------------"
 sh sys_test "\"\xFFF\"" "\"\xFFF\"
-invalid symbol in string
+1:6: invalid symbol in string
 \"\xFFF\"
 
-expected \" at string end"
+2:1: expected \" at string end"
 #Проверка точечной пары
 sh sys_test "'(1 . 1)" "(1 . 1)"
 #Тест для самого большого числа int
 sh sys_test "2147483647" "2147483647"
 ##Тест для самого большого числа int+1
 sh sys_test "2147483648" "2147483648
-number overflow"
+1:10: number overflow"
 #самого маленького int
 sh sys_test "-2147483648" "-2147483648"
 #самого маленького int-1
 sh sys_test "-2147483649" "-2147483649
-number overflow"
+1:11: number overflow"
 #функция
 sh sys_test "#'(lambda (x) (+ x 1))" "(LAMBDA (X) ((+ X 1)))"
 # вместо функции число
@@ -30,16 +30,16 @@ invalid symbol"
 #PARSER 6 список без закрывающей скобки
 sh sys_test "(a b c" "(a b c
 
-expected )"
+2:1: expected )"
 #PARSER 8 пустой список без открывающей скобки
 sh sys_test ")" ")
-invalid expression"
+1:1: invalid expression"
 sh sys_test "((a b (1 2) e f)" "((a b (1 2) e f)
 
-expected )" #10
+2:1: expected )" #10
 sh sys_test "((a b #(1 #(2 (3 4) 5)) c d )" "((a b #(1 #(2 (3 4) 5)) c d )
 
-expected )" #11
+2:1: expected )" #11
 sh sys_test "#(1 #(2 3) 4)" "#(1 #(2 3) 4)" # 20
 sh sys_test "#\\1" "#\\1"
 sh sys_test "1.25" "1.250000"
