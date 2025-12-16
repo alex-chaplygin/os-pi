@@ -1,12 +1,12 @@
-(defun test-array-cat (x y)
-    (print (assert (array-cat x y) #(1 2 3 4 5 6))))
+(unit-tests 'array)
 
-(test-array-cat #(1 2 3) #(4 5 6))
+(deftest test-array-cat ()
+  "Конкатенация массивов"
+  (print (assert (array-cat #(1 2 3) #(4 5 6)) #(1 2 3 4 5 6))))
 
-(defun test-array-seq (x y arr res)
-    (print (assert (array-seq arr x y) res)))
-
-(test-array-seq 2 6 #(0 1 2 3 4 5 6 7 8 9) #(2 3 4 5))
+(deftest test-array-seq (x y arr res)
+  "Срез массива"
+  (print (assert (array-seq #(0 1 2 3 4 5 6 7 8 9) 2 6) #(2 3 4 5))))
 
 (defun test-arr-set-str (arr ofs str size)
     (arr-set-str arr ofs str size)
@@ -33,6 +33,21 @@
   (print (assert (array-to-list arr) list)))
 
 (test-arr-get-num #(0 0 0x30 0x31 0x32 0x33) 2 2)
-(test-array-to-list #() ())
-(test-array-to-list #(1) '(1))
-(test-array-to-list #(1 2 3 4 5) '(1 2 3 4 5))
+
+(deftest ar-to-list ()
+  "Массив в список"
+  (test-array-to-list #() ())
+  (test-array-to-list #(1) '(1))
+  (test-array-to-list #(1 2 3 4 5) '(1 2 3 4 5)))
+
+(deftest ar-sum ()
+  "Сумма элементов массива"
+  (print (assert (array-sum #(1 2 3)) 6))
+  (print (assert (array-sum #()) 0)))
+
+(deftest ar-max ()
+  "Максимальный элемент массива"
+  (print (assert (array-max #(1 2 3)) 3))
+  (print (assert (array-max #(4 2 1 0 -5)) 4)))
+
+(run-tests)

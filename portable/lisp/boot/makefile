@@ -49,8 +49,8 @@ str-test: $(BASELISP) $(TEST) test/str.lsp
 	cat $^ | /tmp/repl_lisp
 # модульные тесты массивов
 array-test: $(BASELISP) $(TEST) test/array.lsp
-	make -C ../test /tmp/repl_lisp
-	cat $^ | /tmp/repl_lisp
+	make -C ../test /tmp/lisp
+	cat $^ | /tmp/lisp
 # модульные тесты математики
 math-test: $(BASELISP) math.lsp $(TEST) test/math.lsp
 	make -C ../test /tmp/repl_lisp
