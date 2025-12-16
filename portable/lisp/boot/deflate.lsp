@@ -13,13 +13,13 @@
 (defun deflate-make-lens (len-ar)
   "Подсчёт массива lens по списку длин кодов"
   (let* ((max-bits (array-max len-ar))
-	 (lens (make-array (+ max-bits 1))))      
-      (for i 0 (+ max-bits 1)
+	 (lens (make-array max-bits)))
+      (for i 0 max-bits
            (seta lens i 0))
       (for i 0 (array-size len-ar)
            (let ((len (aref len-ar i)))
              (when (> len 0)
-               (seta lens len (++ (aref lens len))))))
+               (seta lens (-- len) (++ (aref lens (-- len)))))))
     lens))
 
 (defun deflate-make-code-huff (list v)
@@ -31,11 +31,16 @@
 			   (let ((i (list-search vals a))
 				 (j (list-search vals b)))
 			     (< (nth list i) (nth list j)))) vals)))
+    (print `(list ,list s-len ,s-len s-vals ,s-vals ,(deflate-make-lens s-len)))
     (huff-make-code-lens (deflate-make-lens s-len) (list-to-array s-vals))))
 
 (defun deflate-mk-ccode-huff (list)
   "Построить дерево Хаффмана для декодирования динамических кодов"
   (deflate-make-code-huff list #(16 17 18 0 8 7 9 6 10 5 11 4 12 3 13 2 14 1 15)))
+
+(defun deflate-decode-lens (huff size)
+  "Декодировать длины кодов числом size, используя дерево huff"
+  (parse-many-n size (huff-decode huff)))
 
 (defun deflate-read-huff ()
   "Чтение представления динамических кодов Хаффмана, построение дерева"
@@ -43,7 +48,8 @@
        hdist->(parse-bits 5) ; длина последовательности для кодов расстояний
        hclen->(parse-bits 4) ; число кодов для алфавита кодирования
        ; дерево Хаффмана для декодирования кодов
-       huff->(parse-app (parse-many-n (+ hclen 4) (parse-bits 3)) #'deflate-mk-ccode-huff))
+       huff->(parse-app (parse-many-n (+ hclen 4) (parse-bits 3)) #'deflate-mk-ccode-huff)
+       (deflate-decode-lens huff 1));;(+ 257 hlit)))
   )
 
 (defun deflate-dynamic-huff ()
