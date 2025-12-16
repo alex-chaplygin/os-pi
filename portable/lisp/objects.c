@@ -763,8 +763,9 @@ object_t dump_mem(object_t args)
     return NULLOBJ;
 }
 
+#ifndef VM
 /**
- * Сборка мусора
+ * Сборка мусора для интерпретатора
  */
 void garbage_collect()
 {
@@ -792,6 +793,7 @@ void garbage_collect()
     sweep();
     allocated_pairs = 0;
 }
+#endif    
 
 int print_counter = 0;
 

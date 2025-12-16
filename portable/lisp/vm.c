@@ -22,7 +22,6 @@
 #define APPLY 37 // номер примитива apply
 #define REG_CALL 12 // операция return
 #define RETURN_OP 13 // операция return
-#define VM_THRESHOLD (400 * 1024) // порог сборки мусора
 
 //Размер памяти программы
 int program_size;
@@ -476,8 +475,6 @@ void vm_apply(object_t fun, object_t args)
     alloc(c);
     call(program_memory + (f->body >> MARK_BIT));
     do {
-	if (total_arrays >= VM_THRESHOLD)
-	    vm_garbage_collect();
 	c = fetch();
 	if (c == REG_CALL)
 	    calls++;
@@ -637,10 +634,11 @@ void vm_dump()
     printf("-------------------------\n");
 }
 
+#ifdef VM
 /** 
  * Сборка мусора при работе виртуальной машины
  */
-void vm_garbage_collect()
+void garbage_collect()
 {
     int i;
     object_t *c;
@@ -669,6 +667,7 @@ void vm_garbage_collect()
 #endif
     total_arrays = 0;
 }
+#endif
 
 /**
  * @brief Запускает виртуальную машину
@@ -678,8 +677,6 @@ void vm_run()
     extern int total_arrays;
     while (working == 1)
     {
-	if (total_arrays >= VM_THRESHOLD)
-	    vm_garbage_collect();
 #ifdef DEBUG    
 	printf("%d: ", pc_reg - program_memory);
 #endif
