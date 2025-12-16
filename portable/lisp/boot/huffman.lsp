@@ -22,7 +22,8 @@
 (defun huff-decode (huff)
   "Декодирование данных из двоичного потока, используя заданную таблицу Хаффмана"
   #'(lambda (stream)
-      (if (is-leaf huff)
+      (handle
+       (if (is-leaf huff)
 	  (cons (tree-get-val huff) stream)
 	  (let ((bit-result (get-bit stream)))
 	    (if (null bit-result)
@@ -31,4 +32,6 @@
 		      (new-stream (cdr bit-result)))
 		  (if (= 1 bit)
 		      (funcall (huff-decode (right-tree huff)) new-stream)
-		      (funcall (huff-decode (left-tree huff)) new-stream))))))))
+		    (funcall (huff-decode (left-tree huff)) new-stream))))))
+       (invalid-tree (x) nil))
+  ))
