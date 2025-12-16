@@ -1,10 +1,11 @@
 include ../common.mak
-
+JPEG=../bin-tree.lsp ../huffman.lsp jpeg/huffman.lsp jpeg/data-unit.lsp jpeg/dct.lsp jpeg/jpeg.lsp
+TIFF=../bin-tree.lsp ../huffman.lsp t4.lsp tiff.lsp
 SHELL = bash
 VPATH := ..
 
 # тест JPEG
-test-jpeg: $(BASELISP) $(PARSER) ../bin-tree.lsp ../huffman.lsp jpeg/huffman.lsp jpeg/data-unit.lsp jpeg/dct.lsp jpeg/jpeg.lsp jpeg/jpeg-test.lsp
+test-jpeg: $(BASELISP) $(PARSER) $(JPEG) jpeg/jpeg-test.lsp
 	make -C ../../test /tmp/lisp
 	cat $^ | /tmp/lisp
 
@@ -14,7 +15,7 @@ test-png: $(BASELISP) $(PARSER) ../deflate.lsp png.lsp png-test.lsp
 	cat $^ | /tmp/lisp
 
 # тест TIFF
-test-tiff: $(BASELISP) $(PARSER) tiff.lsp tiff-test.lsp
+test-tiff: $(BASELISP) $(PARSER) $(TIFF) tiff-test.lsp
 	make -C ../../test /tmp/lisp
 	cat $^ | /tmp/lisp
 
