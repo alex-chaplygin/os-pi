@@ -47,7 +47,7 @@
 /// Размер стека для tagbody
 #define MAX_TAGBODY_SIZE 100
 /// Размер стека для catch
-#define MAX_CATCH_SIZE 16
+#define MAX_CATCH_SIZE 128
 
 /// Печать объекта с переводом строки и учетом рекурсии
 #define PRINT(o) print_counter++; print_obj(o); printf("\n");
