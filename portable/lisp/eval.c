@@ -688,8 +688,8 @@ object_t eval(object_t obj, object_t env, object_t func)
     object_t res;
     /* printf("eval: "); PRINT(obj); */
     /* printf("env: "); PRINT(env); */
-    if (need_grabage_collect())
-	garbage_collect();
+    /* if (need_grabage_collect()) */
+    /* 	garbage_collect(); */
     if (obj == NULLOBJ)
         return NULLOBJ;
     if (obj == t)

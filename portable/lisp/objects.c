@@ -124,6 +124,7 @@ void init_objects()
 object_t new_bignumber(int num)
 {
     bignumber_t *number;
+    GARBAGE_COLLECT(total_bignumbers, MAX_NUMBERS)
     if (last_bignumber == MAX_NUMBERS)
     {
 	if (free_bignumbers == NULL)
@@ -162,24 +163,26 @@ void free_bignumber(bignumber_t *o)
  * @param buf буфер jmp_buf
  *
  * @return указатель на объект продолжения
-/*  */
-object_t new_continuation(jmp_buf buf) {
-	continuation_t *continuation;
-	if (last_continuation == MAX_CONTINUATIONS) {
-		if (free_continuations == NULL)
-			error("Error: out of memory: continuations");
-		continuation = free_continuations;
-		free_continuations = free_continuations->next;
-	} else
-		continuation = &continuations[last_continuation++];
-	// jmp_buf buf2;
-	memcpy(continuation->buffer, buf, sizeof(jmp_buf));
-	// continuation->buffer = buf2;
-	continuation->environment = current_env;
-	continuation->func_environment = func_env;
-	continuation->last_protected = last_protected;
-	total_continuations++;
-	return NEW_OBJECT(CONTINUATION, continuation);
+ /*  */
+object_t new_continuation(jmp_buf buf)
+{
+    continuation_t *continuation;
+    GARBAGE_COLLECT(total_continuations, MAX_CONTINUATIONS)
+    if (last_continuation == MAX_CONTINUATIONS) {
+	if (free_continuations == NULL)
+	    error("Error: out of memory: continuations");
+	continuation = free_continuations;
+	free_continuations = free_continuations->next;
+    } else
+	continuation = &continuations[last_continuation++];
+    // jmp_buf buf2;
+    memcpy(continuation->buffer, buf, sizeof(jmp_buf));
+    // continuation->buffer = buf2;
+    continuation->environment = current_env;
+    continuation->func_environment = func_env;
+    continuation->last_protected = last_protected;
+    total_continuations++;
+    return NEW_OBJECT(CONTINUATION, continuation);
 }
 
 /**
@@ -195,6 +198,7 @@ object_t new_continuation(jmp_buf buf) {
 object_t new_function(object_t args, object_t body, object_t env, object_t func_env)
 {
     function_t *func;
+    GARBAGE_COLLECT(total_functions, MAX_FUNCTIONS)    
     if (last_function == MAX_FUNCTIONS)
     {
 	if (free_functions == NULL)
@@ -223,6 +227,7 @@ object_t new_function(object_t args, object_t body, object_t env, object_t func_
 object_t new_prim_function(func0_t f, int nary, int count)
 {
     function_t *func;
+    GARBAGE_COLLECT(total_functions, MAX_FUNCTIONS)
     if (last_function == MAX_FUNCTIONS)
     {
 	if (free_functions == NULL)
@@ -279,6 +284,7 @@ void free_continuation(continuation_t *c) {
 object_t new_float(float num)
 {
     float_t *number;
+    GARBAGE_COLLECT(total_floats, MAX_FLOATS)
     if (last_float == MAX_FLOATS)
     {
 	if (free_floats == NULL)
@@ -362,6 +368,7 @@ int get_value(object_t obj)
 object_t new_pair(object_t left, object_t right)
 {
     pair_t *pair;
+    GARBAGE_COLLECT(total_pairs, MAX_PAIRS)
     if (last_pair == MAX_PAIRS) {
  	if (free_pairs == NULL)
  	    error("Error: out of memory: pairs");
@@ -408,6 +415,7 @@ symbol_t *new_symbol(char *str)
     symbol_t *symbol;
     if (*str == 0)
 	return NULL;
+    GARBAGE_COLLECT(total_symbols, MAX_SYMBOLS)
     if (last_symbol == MAX_SYMBOLS) {
 	if (free_symbols == NULL)
 	    error("Error: out of memory: symbols");
@@ -422,6 +430,7 @@ symbol_t *new_symbol(char *str)
     symbol->free = 0;
     symbol->lambda = NULLOBJ;
     symbol->macro = NULLOBJ;
+    total_symbols++;
     return symbol;
 }
 
@@ -453,6 +462,7 @@ void free_symbol(symbol_t *s)
 string_t *new_string(char *str)
 {
     string_t *string;
+    GARBAGE_COLLECT(total_strings, MAX_STRINGS)
     if (last_string == MAX_STRINGS) {
 	if (free_strings == NULL)
 	    error("Error: out of memory: strings");
@@ -500,6 +510,7 @@ array_t *new_array(object_t list)
 {
     pair_t *pairs;
     array_t *array;
+    GARBAGE_COLLECT(total_arrays, MAX_ARRAYS)
     if (last_array == MAX_ARRAYS) {
 	if (free_arrays == NULL)
 	    error("Error: out of memory: arrays");
@@ -538,6 +549,7 @@ array_t *new_empty_array(int length)
     array_t *array;
     if (length < 0)
 	error("make-array: negative length");
+    GARBAGE_COLLECT(total_arrays, MAX_ARRAYS)
     if (last_array == MAX_ARRAYS) {
 	if (free_arrays == NULL)
 	    error("Error: out of memory: arrays");
@@ -880,14 +892,4 @@ object_t print_gc_stat(object_t o)
     printf("functions: %d(%d) of %d\n", last_function, total_functions, MAX_FUNCTIONS);
     printf("used mem: %d of %d\n", regions_mem(), MAX_REGION_SIZE);
     return NULLOBJ;
-}
-
-/*
- * Проверка на необходимость в сборке мусора
- *
- * @return 1 - сборка мусора требуется, 0 - нет
- */
-int need_grabage_collect()
-{
-    return allocated_pairs > GC_THRESHOLD;
 }

@@ -38,8 +38,12 @@
 #else
 #define MAX_FUNCTIONS 10000
 #endif
-/// Число созданных пар, после которого вызвается сборка мусора
-#define GC_THRESHOLD 400000
+/// Макросы сборки мусора
+#define GC_THRESHOLD(max) (max * 9 / 10)
+#define GARBAGE_COLLECT(total, max) \
+    if (total >= GC_THRESHOLD(max)) \
+	garbage_collect();
+
 /// Размер стека для tagbody
 #define MAX_TAGBODY_SIZE 100
 /// Размер стека для catch
