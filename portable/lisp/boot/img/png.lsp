@@ -45,6 +45,40 @@
        #'get-dword
        return (zlib-decode data)))
 
+(defun decompressed (arr width height comp)
+  "Преобразовать распакованный массив в матрицу пикселей"
+  (let ((matrix (make-array height)))
+    (for y 0 height
+	 (let ((row (make-array width)))
+	   (for x 0 width
+		(let ((pixel (make-array comp))
+		      (idx (* (+ (* y width) x) comp)))
+		  (for i 0 comp
+		       (seta pixel i (aref arr (+ idx i))))
+		  (seta row x pixel)))
+	   (seta matrix y row)))
+    matrix))
+
+(defun filter-sub (arr width height comp)
+  "Фильтр Sub"
+  (let ((matrix (make-array height)))
+    (for y 0 height
+	 (let ((row (make-array width))
+	       (prev-pixel (make-array comp)))
+	   (for x 0 width
+		(let ((pixel (make-array comp))
+		      (idx (* (+ (* y width) x) comp)))
+		  (for i 0 comp
+		       (let ((filtered (aref arr (+ idx i)))
+			     (left (if (> x 0)
+				       (aref prev-pixel i)
+				     0)))
+			 (seta pixel i (% (+ filtered left) 256))
+			 (seta prev-pixel i (aref pixel i))))
+		  (seta row x pixel)))
+	   (seta matrix y row)))
+    matrix))
+  
 (defun png ()
   "Разбор PNG"
   (&&& (png-signature)
