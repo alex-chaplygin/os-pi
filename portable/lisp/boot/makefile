@@ -23,7 +23,7 @@ parser-test: $(BASELISP) stream.lsp parser.lsp $(TEST) test/parser.lsp
 	cat $^ | /tmp/lisp
 
 # модульные тесты коды Хаффмана
-huffman-test: $(BASELISP) bin-reader.lsp bin-tree.lsp stream.lsp huffman.lsp $(TEST) test/huffman.lsp
+huffman-test: $(BASELISP) stream.lsp $(HUFFMAN) $(TEST) test/huffman.lsp
 	make -C ../test /tmp/repl_lisp
 	cat $^ | /tmp/repl_lisp
 
@@ -84,7 +84,7 @@ nfa-test: $(BASELISP) fa/nfa.lsp $(TEST) test/nfa.lsp
 	make -C ../test /tmp/lisp
 	cat $^ | /tmp/lisp
 # модульные тесты Deflate
-deflate-test: $(BASELISP) $(PARSER) deflate.lsp $(TEST) test/deflate.lsp
+deflate-test: $(BASELISP) $(PARSER) $(HUFFMAN) deflate.lsp $(TEST) test/deflate.lsp
 	make -C ../test /tmp/lisp
 	cat $^ | /tmp/lisp
 # модульные тесты двоичное дерево
