@@ -39,7 +39,7 @@
        Tch-> #'get-4bit
        L->(parse-array 16)
        V->(parse-array (array-sum L))
-       return (set-hash *huffman-tables* Tch (get-huff-table (make-len-arr L) V))))
+       return (set-hash *huffman-tables* Tch (huff-make-code-lens L V))))
 
 ;;    App ::= APP Lp A[Lp] ; данные приложения
 (defun application ()

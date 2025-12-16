@@ -1,5 +1,5 @@
 include ../common.mak
-JPEG=../bin-tree.lsp ../huffman.lsp jpeg/huffman.lsp jpeg/data-unit.lsp jpeg/dct.lsp jpeg/jpeg.lsp
+JPEG=../bin-tree.lsp ../huffman.lsp jpeg/data-unit.lsp jpeg/dct.lsp jpeg/jpeg.lsp
 TIFF=../bin-tree.lsp ../huffman.lsp t4.lsp tiff.lsp
 SHELL = bash
 VPATH := ..
