@@ -78,7 +78,8 @@
 ;; Scan ::= Dnl? Table* ScanHeader ESC* ; скан с раделителем Dnl
 ;; Scomp ::= Cs Tda ; компонент скана
 (defun jpeg ()
-  (&&& (marker SOI) (parse-many (table)) (frame-header) (parse-many (table)) (scan-header)))
+  (&&& (marker SOI) (parse-many (table)) (frame-header) (parse-many (table)) (scan-header)
+       (decode-dc (get-hash *huffman-tables* '(0 . 0)) 1)))
 
 (defun jpeg-init ()
   "Инициализация структур данных"
