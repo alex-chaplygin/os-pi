@@ -21,3 +21,4 @@
   (for i 0 1024
        (seta a i 0xff))
   (memcpy *svga-fb-base* a))
+(svga-update 0 0 320 200)
