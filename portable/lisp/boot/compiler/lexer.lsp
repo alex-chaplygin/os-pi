@@ -4,16 +4,15 @@
        (= (car pos1) (car pos2))
        (= (second pos1) (second pos2))))
 
-
-(defun throw-error (message &rest pos)
+(defun lisp-error (message &rest end)
   "Бросает ошибку с позицией"
-  (if pos
-      (raise 'parse-error (list (car pos) message))
   #'(lambda (stream)
-        (let ((pos (PosStream-pos stream)))
-          (raise 'parse-error (list pos message))))))
+      (let ((pos (PosStream-pos stream))
+	    (con (if end (end-of-stream stream) nil)))
+	(unless con
+	  (raise 'parse-error (list pos message))))))
 
-(defun parse-float ()
+(defun parse-float()
   "Парсит числовой токен с плавающей точкой."
   #'(lambda (stream)
     (let ((res (funcall
@@ -24,21 +23,26 @@
                  stream)))
       (if (null res)
           nil
-          (let ((sign (car (car res)))          ; результат sign->...
-                (int-part (second (car res)))   ; результат int-part->...
-                (frac-part (forth (car res)))   ; результат frac-part->... ( напрямую не вышло, область видимости не совпала)
+          (let ((sign (car (car res)))
+                (int-part (second (car res)))
+                (frac-part (forth (car res)))
                 (rest-stream (cdr res)))
             (if (and (null int-part) (null frac-part))
                 (if sign
-                    (funcall (throw-error "lisp-lexer: WARNING: got dot with sign") stream)
-                    (cons #\. rest-stream))     ; ← возвращаем точку как символ для точечных пар
+                    (funcall (lisp-error "lisp-lexer: got dot with sign") stream)
+                    (cons #\. rest-stream))
                 (let* ((float-str (concat (implode int-part) "." (implode frac-part)))
                        (num (strtofloat (if sign (concat "-" float-str) float-str))))
                   (if num
-                      (cons num rest-stream)
-                      (funcall (throw-error "lisp-lexer: invalid float number") stream)))))))))
+                      ;Если дробная часть пустая (случай "13." или "-2."), то будет проверка на мусорный ввод
+                      (if (and (null frac-part)
+                               (funcall (parse-pred #'is-alpha) rest-stream))
+                          (funcall (lisp-error "lisp-lexer: invalid float number") stream)
+                          ;Иначе всё ок (например, там пробел, скобка или конец строки)
+                          (cons num rest-stream))
+                      (funcall (lisp-error "lisp-lexer: invalid float number") stream)))))))))
 
-;; Вспомогательный предикат
+;Вспомогательный предикат
 (defun is-lisp-symbol (sym)
   "Предикат проверки на особый символ"
   (contains '(#\+ #\- #\* #\/ #\= #\_ #\& #\| #\< #\> #\% #\! #\^ #\~) sym))
@@ -62,24 +66,27 @@
           return (intern (implode (map #'(lambda (char) (toupper char)) (cons s1 s))))))
 
 (defun parse-escape (char value)
-  "Разбор экранированной последовательности"
-    (&&& s1->(parse-elem #\\)
-         s-> (parse-or (parse-elem char)
-                        (parse-app (parse-return nil)
-                              #'(lambda (x) (throw-error "lisp-lexer: unexpected end of escape sequence"))))
-    return (lambda (parts) (list value))))
+  "Разбор валидной экранированной последовательности (без обработки ошибок)"
+  (&&& (parse-elem #\\)
+       (parse-elem char)
+       return value))
 
 (defun parse-string ()
   "Разбор строки в двойных кавычках"
-  (parse-app ; оставил parse-app так как с &&& функция будет в 5 раз длиннее, ну либо опять ошибка области видимости
-    (&&& (parse-elem #\")
-         (parse-many (parse-or (parse-escape #\n (code-char 0xa)) ; \n
-			       (parse-escape #\\ #\\)
-			       (parse-escape #\" #\")
-              (parse-pred #'(lambda (sym) (and (!= sym #\") (!= sym #\\))))))
-	        (parse-or (parse-elem #\")
-		          (throw-error "lisp-lexer: unterminated string or unexpected end of escape sequence")))
-    #'(lambda (parts) (implode (second parts)))))
+  (&&& (parse-elem #\")  ; пропуск открывающей кавычки
+       chars->(parse-many 
+                (parse-or 
+                  (parse-escape #\n (code-char 0xa))
+                  (parse-escape #\\ #\\)
+                  (parse-escape #\" #\")
+                  (&&& (parse-elem #\\)
+                       (lisp-error "lisp-lexer: unexpected end of escape sequence"))
+                  (parse-pred #'(lambda (sym) (and (!= sym #\") (!= sym #\\))))))
+       
+       ;пропуск закрывающей кавычки, если ее нету - строка не закрыта
+       (parse-or (parse-elem #\")
+                 (lisp-error "lisp-lexer: unterminated string"))
+       return (implode chars)))
 
 (defun parse-comment-separator ()
   "Парсит комментарий, который начинается с ; и до конца строки"
@@ -116,7 +123,8 @@
                 (&&& (parse-elem #\,) (parse-elem #\@) return 'COMMA-AT)
                 (&&& (parse-elem #\,) return 'COMMA)
                 (lisp-symbol)
-                #'(lambda (stream) (unless (end-of-stream stream) (funcall (throw-error "lisp-lexer: Unknown token") stream)))
+                (lisp-error "lisp-lexer: Unknown token" t)
+                ;#'(lambda (stream) (unless (end-of-stream stream) (funcall (lisp-error "lisp-lexer: Unknown token") stream)))
           ))
 
 
@@ -126,6 +134,6 @@
   (let ((r (funcall (parse-sep (parse-with-pos (lisp-token)) (lisp-ws-or-comment))
 		      (stream-from-str str))))
     (if (not r)
-        (throw-error "lisp-lexer: unknown lexer error")
+        (lisp-error "lisp-lexer: unknown lexer error")
       (car r))))
 

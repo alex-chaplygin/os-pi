@@ -103,11 +103,25 @@
 	(l nil))
     (for i 0 s
 	 (setq l (cons (aref a (- s i 1)) l)))
-      l))
+    l))
+
+(defun array-fold (a f acum)
+  "Свертка массива a функцией f (acum elem) и начальным аккумулятором acum"
+  (let ((i 0))
+    (while (< i (array-size a))
+	   (setq acum (funcall f acum (aref a i)))
+	   (incf i)))
+  acum)
+
+(defun array-to-list (a)
+  "Пеобразовать массив a в список"
+  (array-fold a #'(lambda (a e) (append a (list e))) nil))
 
 (defun array-sum (a)
   "Сумма всех элементов массива"
-  (let ((s 0))
-    (for i 0 (array-size a)
-	 (setq s (+ s (aref a i))))
-    s))
+  (array-fold a #'+ 0))
+
+(defun array-max (a)
+  "Максимальный элемент в массиве"
+  (array-fold a #'(lambda (a e) (if (> e a) e a)) (aref a 0)))
+  

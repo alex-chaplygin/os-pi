@@ -142,7 +142,7 @@ object_t INSW(object_t p, object_t s)
  */
 object_t OUTSW(object_t p, object_t arr)
 {
-    if (TYPE(p) != NUMBER || TYPE(arr) != NUMBER)
+    if (TYPE(p) != NUMBER || TYPE(arr) != ARRAY)
 	error("OUTSW: port val\n");
     int port = get_value(p);
     array_t *a = GET_ARRAY(arr);

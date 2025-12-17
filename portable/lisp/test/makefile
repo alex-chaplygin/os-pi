@@ -29,7 +29,7 @@ all: $(TESTS)
 /tmp/test_comp_d: test_comp.c ../eval.c ../objects.c ../parser.c ../lexer.c ../arith.c ../str.c ../array.c ../pair.c ../predicates.c ../alloc.c ../error.c ../vm.c ../bind.c ../predicates.c ../symbols.c
 	gcc $^ $(CFLAGS) -D REPL -D DEBUG -D VM $(LDFLAGS) -o $@
 /tmp/test_comp: test_comp.c ../eval.c ../objects.c ../parser.c ../lexer.c ../arith.c ../str.c ../array.c ../pair.c ../predicates.c ../alloc.c ../error.c ../vm.c ../bind.c ../predicates.c ../symbols.c
-	gcc $^ $(CFLAGS) -D REPL -D VM $(LDFLAGS) -o $@
+	gcc $^ $(CFLAGS) -O3 -D REPL -D VM $(LDFLAGS) -o $@
 /tmp/lisp: test_sys.c ../eval.c ../symbols.c ../objects.c ../parser.c ../lexer.c ../arith.c ../str.c ../array.c ../pair.c ../predicates.c ../alloc.c ../error.c ../bind.c
 	gcc $^ $(CFLAGS) -DDEBUG $(LDFLAGS) -o $@
 /tmp/repl_lisp: test_sys.c ../eval.c ../symbols.c ../objects.c ../parser.c ../lexer.c ../arith.c ../str.c ../array.c ../pair.c ../predicates.c ../alloc.c ../error.c ../bind.c

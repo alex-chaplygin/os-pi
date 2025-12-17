@@ -2,5 +2,7 @@
 
 (let ((j (funcall (jpeg) (stream-from-arr *jpeg* t))))
   (print (if j (car j) j)))
+(defvar *coefs* #(211 34 40 188 174 76 52 124 15 173 250 153 126 86 130 114 25 178 16 81 141 221 11 165 149 159 53 68 65 177 100 201 195 144 253 103 70 247 32 110 116 116 225 198 203 139 47 243 55 109 43 92 222 115 147 5 142 37 72 188 89 239 46 72))
 (print `(quantization-tables ,*quantization-tables*))
 (print `(huffman-tables ,*huffman-tables*))
+(print (level-shift (idct (unzip (dequant *coefs* (get-hash *quantization-tables* 0))))))

@@ -31,19 +31,23 @@
 #define MAX_FLOATS 2000
 #endif
 /// Всего продолжений
-#define MAX_CONTINUATIONS 1
+#define MAX_CONTINUATIONS 16
 /// Всего функций 
 #ifdef VM
 #define MAX_FUNCTIONS (16*1024)
 #else
 #define MAX_FUNCTIONS 10000
 #endif
-/// Число созданных пар, после которого вызвается сборка мусора
-#define GC_THRESHOLD 400000
+/// Макросы сборки мусора
+#define GC_THRESHOLD(max) (max * 9 / 10)
+#define GARBAGE_COLLECT(total, max) \
+    if (total >= GC_THRESHOLD(max)) \
+	garbage_collect();
+
 /// Размер стека для tagbody
 #define MAX_TAGBODY_SIZE 100
 /// Размер стека для catch
-#define MAX_CATCH_SIZE 16
+#define MAX_CATCH_SIZE 128
 
 /// Печать объекта с переводом строки и учетом рекурсии
 #define PRINT(o) print_counter++; print_obj(o); printf("\n");
@@ -98,7 +102,7 @@
 //Создание строки
 #define NEW_STRING(s) (NEW_OBJECT(STRING, new_string(s)))
 //Создание одиночного символа
-#define NEW_CHAR(s) (NEW_OBJECT(CHAR, ((s) << TYPE_BITS + 1)))
+#define NEW_CHAR(s) (NEW_OBJECT(CHAR, ((s) << (TYPE_BITS + 1))))
 // Первый элемент списка
 #define FIRST(o) (GET_PAIR(o)->left)
 // Второй элемент списка
@@ -120,7 +124,7 @@ typedef enum {
     ARRAY, ///массив
     CHAR, ///одиночный символ
     FUNCTION, /// lambda функция
-    CONTITUATION, ///продолжение
+    CONTINUATION, ///продолжение
 } type_t;
 /// Тип для объекта
 #ifndef X32

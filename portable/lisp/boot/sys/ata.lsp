@@ -34,7 +34,7 @@
 (defun ata-set-lba (sec num)
   "Установить номер сектора в режиме LBA"
   (outb +ata-n-sectors+ num) ;число секторов
-  (outb +ata-lba1+ sec 0xff)
+  (outb +ata-lba1+ (& sec 0xff))
   (outb +ata-lba2+ (& (>> sec 8) 0xff))
   (outb +ata-lba3+ (& (>> sec 16) 0xff)))
 

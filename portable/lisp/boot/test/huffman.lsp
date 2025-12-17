@@ -43,4 +43,20 @@
       (print (assertcar r4 'g))
       (print (assertcar r5 20)))))
 
+(deftest test-huff-make-code-lens ()
+  "Тестирование построения дерева Хаффмана по списку длин кодов"
+  
+  (let ((huff (huff-make-code-lens #(0 1 5 2) #(f a b c d e g h))))
+    (let* ((stream (stream-from-arr #(0x13 0x98) t)) ;; 0001 0011 1001 1000
+	   (r1 (funcall (huff-decode huff) stream))
+           (r2 (funcall (huff-decode huff) (cdr r1)))
+           (r3 (funcall (huff-decode huff) (cdr r2)))
+           (r4 (funcall (huff-decode huff) (cdr r3)))
+           (r5 (funcall (huff-decode huff) (cdr r4))))
+      (print (assertcar r1 'f))
+      (print (assertcar r2 'a))
+      (print (assertcar r3 'b))
+      (print (assertcar r4 'c))
+      (print (assertcar r5 'e)))))
+
 (run-tests)

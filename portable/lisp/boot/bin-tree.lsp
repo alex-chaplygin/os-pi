@@ -22,7 +22,8 @@
 
 (defun is-leaf (t1)
   "Является ли t1 листом"
-  (and (correct-tree t1) (eq (car t1) 'leaf)))
+  (if t1 (and (correct-tree t1) (eq (car t1) 'leaf))
+    (raise 'invalid-tree 0)))
 
 (defun left-tree (t1)
   "Получение левого поддерева узла t1"

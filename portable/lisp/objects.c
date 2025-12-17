@@ -3,13 +3,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <setjmp.h>
-#include "objects.h" 
-#include "parser.h"
+#include "objects.h"
 #include "symbols.h"
-#include "eval.h"
 #include "alloc.h"
 #include "cont.h"
 #include "bind.h"
+#include "eval.h"
 
 /// Индекс последнего большого числа
 int last_bignumber = 0;
@@ -119,12 +118,13 @@ void init_objects()
  * Создание нового объекта большого целого числа
  *
  * @param num целое число
- * 
+ *
  * @return указатель на объект числа
 /*  */
 object_t new_bignumber(int num)
 {
     bignumber_t *number;
+    GARBAGE_COLLECT(total_bignumbers, MAX_NUMBERS)
     if (last_bignumber == MAX_NUMBERS)
     {
 	if (free_bignumbers == NULL)
@@ -161,27 +161,29 @@ void free_bignumber(bignumber_t *o)
  * Создание нового объекта продолжения
  *
  * @param buf буфер jmp_buf
- * 
+ *
  * @return указатель на объект продолжения
-/*  */
-/* object_t new_continuation(jmp_buf buf) */
-/* { */
-/*     continuation_t *continuation; */
-/*     if (last_continuation == MAX_CONTINUATIONS) */
-/*     { */
-/* 	if (free_continuations == NULL) */
-/* 	    error("Error: out of memory: continuations"); */
-/* 	continuation = free_continuations; */
-/* 	free_continuations = free_continuations -> next; */
-/*     } else */
-/* 	continuation = &continuations[last_continuation++]; */
-/*     jmp_buf buf2; */
-/*     memcpy(buf2,buf,sizeof(jmp_buf)); */
-/*     continuation->buffer = buf2; */
-/*     //continuation->enviroment = env; */
-/*     total_continuations++; */
-/*     return NEW_OBJECT(CONTINUATION, continuation); */
-/* } */
+ /*  */
+object_t new_continuation(jmp_buf buf)
+{
+    continuation_t *continuation;
+    GARBAGE_COLLECT(total_continuations, MAX_CONTINUATIONS)
+    if (last_continuation == MAX_CONTINUATIONS) {
+	if (free_continuations == NULL)
+	    error("Error: out of memory: continuations");
+	continuation = free_continuations;
+	free_continuations = free_continuations->next;
+    } else
+	continuation = &continuations[last_continuation++];
+    // jmp_buf buf2;
+    memcpy(continuation->buffer, buf, sizeof(jmp_buf));
+    // continuation->buffer = buf2;
+    continuation->environment = current_env;
+    continuation->func_environment = func_env;
+    continuation->last_protected = last_protected;
+    total_continuations++;
+    return NEW_OBJECT(CONTINUATION, continuation);
+}
 
 /**
  * Создание нового объекта функции
@@ -190,12 +192,13 @@ void free_bignumber(bignumber_t *o)
  * @param body тело функции
  * @param env окружение для переменных
  * @param func_env окружение для функций
- * 
+ *
  * @return указатель на объект функции
 /*  */
 object_t new_function(object_t args, object_t body, object_t env, object_t func_env)
 {
     function_t *func;
+    GARBAGE_COLLECT(total_functions, MAX_FUNCTIONS)    
     if (last_function == MAX_FUNCTIONS)
     {
 	if (free_functions == NULL)
@@ -224,6 +227,7 @@ object_t new_function(object_t args, object_t body, object_t env, object_t func_
 object_t new_prim_function(func0_t f, int nary, int count)
 {
     function_t *func;
+    GARBAGE_COLLECT(total_functions, MAX_FUNCTIONS)
     if (last_function == MAX_FUNCTIONS)
     {
 	if (free_functions == NULL)
@@ -251,7 +255,7 @@ object_t new_prim_function(func0_t f, int nary, int count)
 void free_function(function_t *f)
 {
     if (f == NULL)
-    	error("free_function: null pointer: obj");        
+    	error("free_function: null pointer: obj");
     if (f->free)
 	return;
     f->next = free_functions;
@@ -260,16 +264,27 @@ void free_function(function_t *f)
     total_functions--;
 }
 
+void free_continuation(continuation_t *c) {
+	if (c == NULL)
+		error("free_continuation: null pointer: obj");
+	if (c->free) return;
+	c->next = free_continuations;
+	free_continuations = c;
+	c->free = 1;
+	total_continuations--;
+}
+
 /**
  * Создание нового объекта вещественного числа
  *
  * @param  num вещественное число
- * 
+ *
  * @return указатель на объект числа
 /*  */
 object_t new_float(float num)
 {
     float_t *number;
+    GARBAGE_COLLECT(total_floats, MAX_FLOATS)
     if (last_float == MAX_FLOATS)
     {
 	if (free_floats == NULL)
@@ -288,12 +303,12 @@ object_t new_float(float num)
 /**
  * Освобождение памяти для вещественного числа
  *
- * @param obj объект 
+ * @param obj объект
  */
 void free_float(float_t *f)
 {
     if (f == NULL)
-    	error("free_float: null pointer: obj");    
+    	error("free_float: null pointer: obj");
     if (f->free)
 	return;
     f->next = free_floats;
@@ -310,7 +325,7 @@ void free_float(float_t *f)
  * GET_ADDR -> 0000100000000000...
  *
  * @param num целое число
- * 
+ *
  * @return указатель на объект числа
  */
 object_t new_number(int num)
@@ -328,7 +343,7 @@ object_t new_number(int num)
 /**
  * Возвращает значение маленького числа из объекта
  * @param obj объект
- * 
+ *
  * @return число
  */
 int get_value(object_t obj)
@@ -348,26 +363,27 @@ int get_value(object_t obj)
  * @param left левый объект
  * @param right правый объект
  *
- * @return указатель на объект пары 
+ * @return указатель на объект пары
 /*  */
-object_t new_pair(object_t left, object_t right) 
-{ 
-    pair_t *pair; 
-    if (last_pair == MAX_PAIRS) { 
+object_t new_pair(object_t left, object_t right)
+{
+    pair_t *pair;
+    GARBAGE_COLLECT(total_pairs, MAX_PAIRS)
+    if (last_pair == MAX_PAIRS) {
  	if (free_pairs == NULL)
- 	    error("Error: out of memory: pairs"); 
- 	pair = free_pairs; 
- 	free_pairs = free_pairs->next; 
-    } else 
+ 	    error("Error: out of memory: pairs");
+ 	pair = free_pairs;
+ 	free_pairs = free_pairs->next;
+    } else
  	pair = &pairs[last_pair++];
-    pair->next = NULL; 
-    pair->free = 0; 
-    pair->left = left; 
+    pair->next = NULL;
+    pair->free = 0;
+    pair->left = left;
     pair->right = right;
     total_pairs++;
     allocated_pairs++;
-    return NEW_OBJECT(PAIR, pair); 
-} 
+    return NEW_OBJECT(PAIR, pair);
+}
 
 /**
  * Освобождение памяти для пары
@@ -399,6 +415,7 @@ symbol_t *new_symbol(char *str)
     symbol_t *symbol;
     if (*str == 0)
 	return NULL;
+    GARBAGE_COLLECT(total_symbols, MAX_SYMBOLS)
     if (last_symbol == MAX_SYMBOLS) {
 	if (free_symbols == NULL)
 	    error("Error: out of memory: symbols");
@@ -413,6 +430,7 @@ symbol_t *new_symbol(char *str)
     symbol->free = 0;
     symbol->lambda = NULLOBJ;
     symbol->macro = NULLOBJ;
+    total_symbols++;
     return symbol;
 }
 
@@ -444,6 +462,7 @@ void free_symbol(symbol_t *s)
 string_t *new_string(char *str)
 {
     string_t *string;
+    GARBAGE_COLLECT(total_strings, MAX_STRINGS)
     if (last_string == MAX_STRINGS) {
 	if (free_strings == NULL)
 	    error("Error: out of memory: strings");
@@ -482,15 +501,16 @@ void free_string(string_t *s)
 
 /** Создание нового объекта массива
  *
- * @param list - список 
+ * @param list - список
  *
  * @return указатель на объект
 
- */  
-array_t *new_array(object_t list) 
+ */
+array_t *new_array(object_t list)
 {
     pair_t *pairs;
-    array_t *array; 
+    array_t *array;
+    GARBAGE_COLLECT(total_arrays, MAX_ARRAYS)
     if (last_array == MAX_ARRAYS) {
 	if (free_arrays == NULL)
 	    error("Error: out of memory: arrays");
@@ -529,6 +549,7 @@ array_t *new_empty_array(int length)
     array_t *array;
     if (length < 0)
 	error("make-array: negative length");
+    GARBAGE_COLLECT(total_arrays, MAX_ARRAYS)
     if (last_array == MAX_ARRAYS) {
 	if (free_arrays == NULL)
 	    error("Error: out of memory: arrays");
@@ -568,16 +589,16 @@ void free_array(array_t *a)
     //    printf("free array %d free = %x\n", a - arrays, free_arrays);
 }
 /**
- * Пометить объект как используемый 
- * Для маленьких чисел - не хранится 
- * Для больших чисел - старший бит в free 
+ * Пометить объект как используемый
+ * Для маленьких чисел - не хранится
+ * Для больших чисел - старший бит в free
  * Для чисел с плавающей точкой - старший бит в free
  * Для функций - старший бит в free
  * Для символов - старший бит в hash_index
- * Для пар - markbit в left 
- * Для строк - старший бит в length 
- * Для массивов - старший бит в length 
- * @param obj - помечаемый объект 
+ * Для пар - markbit в left
+ * Для строк - старший бит в length
+ * Для массивов - старший бит в length
+ * @param obj - помечаемый объект
  */
 void mark_object(object_t obj)
 {
@@ -630,7 +651,7 @@ void mark_object(object_t obj)
 	for (int i = 0; i < a->length; i++)
 	    mark_object(a->data[i]);
 	a->length |= mask;
-    } 
+    }
 }
 
 /**
@@ -742,8 +763,9 @@ object_t dump_mem(object_t args)
     return NULLOBJ;
 }
 
+#ifndef VM
 /**
- * Сборка мусора
+ * Сборка мусора для интерпретатора
  */
 void garbage_collect()
 {
@@ -770,7 +792,8 @@ void garbage_collect()
 	mark_object(**temp);
     sweep();
     allocated_pairs = 0;
-} 
+}
+#endif    
 
 int print_counter = 0;
 
@@ -813,7 +836,7 @@ void print_array(object_t obj)
     	    printf(" ");
     }
 }
-    
+
 /**
  * Печать объекта
  */
@@ -833,7 +856,7 @@ void print_obj(object_t obj)
 	    printf(" ");
 	    print_obj(f->body);
 	    printf(" ");
-	} else 
+	} else
 	    printf("primitive %d %d", f->nary, f->count);
 	printf(")");
     }
@@ -843,13 +866,13 @@ void print_obj(object_t obj)
  	printf("\"%s\"", GET_STRING(obj)->data);
     else if (TYPE(obj) == SYMBOL)
  	printf("%s", ((symbol_t *)GET_ADDR(obj))->str);
-    else if (TYPE(obj) == CHAR) 
+    else if (TYPE(obj) == CHAR)
         printf("#\\%c", (int)GET_CHAR(obj));
     else if (TYPE(obj) == PAIR) {
  	    printf("(");
  	    print_list(obj);
  	    printf(")");
-    } 
+    }
     else if (TYPE(obj) == ARRAY) {
  	    printf("#(");
  	    print_array(obj);
@@ -857,7 +880,7 @@ void print_obj(object_t obj)
     }
 }
 
-/** 
+/**
  * Печать статистики сборки мусора и памяти
  */
 object_t print_gc_stat(object_t o)
@@ -871,14 +894,4 @@ object_t print_gc_stat(object_t o)
     printf("functions: %d(%d) of %d\n", last_function, total_functions, MAX_FUNCTIONS);
     printf("used mem: %d of %d\n", regions_mem(), MAX_REGION_SIZE);
     return NULLOBJ;
-}
-
-/*  
- * Проверка на необходимость в сборке мусора 
- * 
- * @return 1 - сборка мусора требуется, 0 - нет 
- */ 
-int need_grabage_collect()
-{
-    return allocated_pairs > GC_THRESHOLD;
 }

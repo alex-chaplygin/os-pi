@@ -39,7 +39,7 @@
        Tch-> #'get-4bit
        L->(parse-array 16)
        V->(parse-array (array-sum L))
-       return (set-hash *huffman-tables* Tch (get-huff-table (make-len-arr L) V))))
+       return (set-hash *huffman-tables* Tch (huff-make-code-lens L V))))
 
 ;;    App ::= APP Lp A[Lp] ; данные приложения
 (defun application ()
@@ -78,7 +78,8 @@
 ;; Scan ::= Dnl? Table* ScanHeader ESC* ; скан с раделителем Dnl
 ;; Scomp ::= Cs Tda ; компонент скана
 (defun jpeg ()
-  (&&& (marker SOI) (parse-many (table)) (frame-header) (parse-many (table)) (scan-header)))
+  (&&& (marker SOI) (parse-many (table)) (frame-header) (parse-many (table)) (scan-header)
+       (decode-dc (get-hash *huffman-tables* '(0 . 0)) 1)))
 
 (defun jpeg-init ()
   "Инициализация структур данных"

@@ -110,10 +110,11 @@
   "Цикл for, переменная var от start до end - 1"
   "body - тело цикла"
   "(for i 0 10 (seta arr i i))"
-;`(inner-for ,(intern (concat "for-" (symbol-name var))) ,var ,start ,end ,@body))
- `(let ((,var ,start))
-     (while (< ,var ,end)
-	    ,@body (setq ,var (+ ,var 1)))))
+  `(let ((,var ,start))
+     (tagbody
+	(while (< ,var ,end)
+	       ,@body (setq ,var (+ ,var 1)))
+	break)))
 
 (defmacro while (test &rest bod)
   "Цикл while"
@@ -124,7 +125,23 @@
 	,loops
 	,@bod
 	,tests
-	(if ,test (go ,loops) nil))))
+	(when ,test (go ,loops))
+      break)))
+
+(defmacro until (test &rest bod)
+  "Цикл until"
+  (let ((loops (gensym))
+	(tests (gensym)))
+    `(tagbody
+	,loops
+	,@bod
+	,tests
+	(unless ,test (go ,loops))
+	break)))
+
+(defmacro break ()
+  "Прерывание текущего цикла while, for, until"
+  '(go break))
 
 (defmacro let (vars &rest body)
   "Блок локальных переменных"

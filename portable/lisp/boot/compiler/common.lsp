@@ -4,7 +4,7 @@
     (% . 2) (<< . 2) (>> . 2) (eq . 2) (equal . 2) (> . 2) (< . 2) (sin . 1) (cos . 1) (sqrt . 1) 
     (intern . 1) (symbol-name . 1) (symbol-function . 1) (string-size . 1) (inttostr . 1) (code-char . 1) (char-code . 1) (putchar . 1) (char . 2) (subseq . 3)
     (make-array . 1) (make-string . 2) (array-size . 1) (aref . 2) (seta . 3) (sets . 3)
-    (symbolp . 1) (integerp . 1) (pairp . 1) (functionp . 1) (gensym . 0) (apply . 2) (round . 1) (inb . 1) (inw . 1) (indw . 1) (insw . 2) (outb . 2) (outw . 2) (outdw . 2) (outsw . 2) (set-cursor . 2) (set-color . 1) (set-back-color . 1) (hide-cursor . 0) (show-cursor . 0) (set-int-handler . 2) (send-text-buffer . 5) (send-graphics-buffer . 5)))
+    (symbolp . 1) (integerp . 1) (pairp . 1) (functionp . 1) (gensym . 0) (apply . 2) (round . 1) (inb . 1) (inw . 1) (indw . 1) (insw . 2) (outb . 2) (outw . 2) (outdw . 2) (outsw . 2) (set-cursor . 2) (set-color . 1) (set-back-color . 1) (hide-cursor . 0) (show-cursor . 0) (set-int-handler . 2) (send-text-buffer . 5) (send-graphics-buffer . 5) (memcpy . 2)))
 ;; список примитивов с переменным количеством аргументов
 (defvar *nary-primitives*
   '((+ . 0) (- . 1) (* . 0) (/ . 1) (& . 0) (bitor . 0) (^ . 0) (concat . 0) (funcall . 1) (print . 0) (error . 0)))

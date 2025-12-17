@@ -46,11 +46,44 @@
 
 (defun parse-pixel-data (header);перемотка на offset-data и чтение массив size-image"
   #'(lambda (stream)
-      (cons nil stream)))
+      (let* ((offset (get-hash header 'offset-data))
+	     (size (get-hash info 'size-image))
+	     (pixel-array (get-array (stream-seek stream offset 'seek-set) size)))
+      pixel-array)))
+
+;матрица
+(defun parse-matrix-array (info pixel-array)
+  (let* ((width (get-hash info 'width))
+         (height (get-hash info 'height))
+         (bytes-per-pixel 4)
+         (row-data-len (* width bytes-per-pixel))
+         (stride (* (+ row-data-len 3) 4))
+         (matrix '())) 
+
+    ;цикл строк
+    (for i 0 height
+      (let* ((offset (* i stride)) ;смещение
+             (row '()))            
+        
+        (for p 0 width
+          (let* ((k (* p bytes-per-pixel));смещение
+                 (blue (aref pixel-array (+ offset k)))
+                 (green (aref pixel-array (+ offset k 1)))
+                 (red (aref pixel-array (+ offset k 2)))
+                 (alpha (aref pixel-array (+ offset k 3)))
+                 
+                 (pixel (list blue green red alpha)))
+            
+            (setq row (cons pixel row))))
+
+        (setq matrix (cons (reverse row) matrix))))
+    
+    matrix))
 
 (defun bmp ()
   (&&& (bmp-signature)           
        header->(parse-bmp-file-header)    
        info->(parse-bmp-info-header)   
        (parse-color-table info) 
-       (parse-pixel-data header)))
+       pixels->(parse-pixel-data header)
+       return (parse-matrix-array info pixels)))

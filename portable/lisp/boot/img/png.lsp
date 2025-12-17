@@ -16,12 +16,11 @@
 
 (defun parse-chunk (type data-parser)
   "Разбор блоков PNG"
-  (parse-app
-   (&&& #'get-dword ;Длина
-	(parse-elem-array type) ;Тип
-	data-parser ;Данные
-	#'get-dword) ;CRC
-   #'third))
+  (&&& #'get-dword ;Длина
+       (parse-elem-array type) ;Тип
+       data-> data-parser ;Данные
+       #'get-dword ;CRC
+       return data))
 
 (defun parse-ihdr ()
   "Заголовок изображения PNG"
@@ -36,23 +35,50 @@
 (defun zlib-decode (arr)
   "Распаковать массив zlib"
   (let ((a (array-seq arr 2 (array-size arr))))
-    (car (funcall (deflate-block-header) (stream-from-arr a nil)))))
+    (car (funcall (deflate-block) (stream-from-arr a nil)))))
 
 (defun parse-idat ()
   "Данные изображения"
-  #'(lambda (stream)
-      (let* ((len (get-dword stream))
-	     (length (car len))
-	     (stream2 (funcall (parse-elem-array +IDAT+) (cdr len))))
-	(if (null stream2) nil
-	    (let*
-	     ((stream3 (get-array (cdr stream2) length))
-	     (CRC (get-dword (cdr stream3))))
-	     (print 'deflate (zlib-decode (car stream3)))
-	     (cons (car stream3) (cdr CRC)))))))
+  (&&& len-> #'get-dword
+       (parse-elem-array +IDAT+)
+       data-> (parse-array len)
+       #'get-dword
+       return (zlib-decode data)))
 
-  ;(parse-suc 'IDAT))
+(defun decompressed (arr width height comp)
+  "Преобразовать распакованный массив в матрицу пикселей"
+  (let ((matrix (make-array height)))
+    (for y 0 height
+	 (let ((row (make-array width)))
+	   (for x 0 width
+		(let ((pixel (make-array comp))
+		      (idx (* (+ (* y width) x) comp)))
+		  (for i 0 comp
+		       (seta pixel i (aref arr (+ idx i))))
+		  (seta row x pixel)))
+	   (seta matrix y row)))
+    matrix))
 
+(defun filter-sub (arr width height comp)
+  "Фильтр Sub"
+  (let ((matrix (make-array height)))
+    (for y 0 height
+	 (let ((row (make-array width))
+	       (prev-pixel (make-array comp)))
+	   (for x 0 width
+		(let ((pixel (make-array comp))
+		      (idx (* (+ (* y width) x) comp)))
+		  (for i 0 comp
+		       (let ((filtered (aref arr (+ idx i)))
+			     (left (if (> x 0)
+				       (aref prev-pixel i)
+				     0)))
+			 (seta pixel i (% (+ filtered left) 256))
+			 (seta prev-pixel i (aref pixel i))))
+		  (seta row x pixel)))
+	   (seta matrix y row)))
+    matrix))
+  
 (defun png ()
   "Разбор PNG"
   (&&& (png-signature)

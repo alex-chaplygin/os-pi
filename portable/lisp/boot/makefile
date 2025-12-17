@@ -23,7 +23,7 @@ parser-test: $(BASELISP) stream.lsp parser.lsp $(TEST) test/parser.lsp
 	cat $^ | /tmp/lisp
 
 # модульные тесты коды Хаффмана
-huffman-test: $(BASELISP) bin-reader.lsp bin-tree.lsp stream.lsp huffman.lsp $(TEST) test/huffman.lsp
+huffman-test: $(BASELISP) stream.lsp $(HUFFMAN) $(TEST) test/huffman.lsp
 	make -C ../test /tmp/repl_lisp
 	cat $^ | /tmp/repl_lisp
 
@@ -49,8 +49,8 @@ str-test: $(BASELISP) $(TEST) test/str.lsp
 	cat $^ | /tmp/repl_lisp
 # модульные тесты массивов
 array-test: $(BASELISP) $(TEST) test/array.lsp
-	make -C ../test /tmp/repl_lisp
-	cat $^ | /tmp/repl_lisp
+	make -C ../test /tmp/lisp
+	cat $^ | /tmp/lisp
 # модульные тесты математики
 math-test: $(BASELISP) math.lsp $(TEST) test/math.lsp
 	make -C ../test /tmp/repl_lisp
@@ -67,6 +67,10 @@ bin-tree-test: $(BASELISP) bin-tree.lsp $(TEST) test/bin-tree.lsp
 stream-test: $(BASELISP) stream.lsp $(TEST) test/stream.lsp
 	make -C ../test /tmp/lisp
 	cat $^ | /tmp/lisp
+# модульные тесты потока вывода
+ostream-test: $(BASELISP) ostream.lsp $(TEST) test/ostream.lsp
+	make -C ../test /tmp/lisp
+	cat $^ | /tmp/lisp
 # модульные тесты множества
 set-test: $(BASELISP) set.lsp $(TEST) test/set.lsp
 	make -C ../test /tmp/lisp
@@ -80,7 +84,7 @@ nfa-test: $(BASELISP) fa/nfa.lsp $(TEST) test/nfa.lsp
 	make -C ../test /tmp/lisp
 	cat $^ | /tmp/lisp
 # модульные тесты Deflate
-deflate-test: $(BASELISP) $(PARSER) deflate.lsp $(TEST) test/deflate.lsp
+deflate-test: $(BASELISP) $(PARSER) $(HUFFMAN) deflate.lsp $(TEST) test/deflate.lsp
 	make -C ../test /tmp/lisp
 	cat $^ | /tmp/lisp
 # модульные тесты двоичное дерево
