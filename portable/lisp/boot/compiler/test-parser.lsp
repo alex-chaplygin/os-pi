@@ -79,8 +79,6 @@
 
 (deftest parser-errors-test ()
   "Тест: Ошибки парсера - лишние токены"
-  ;(print (assert (parse-lisp "(a (b c)") '((1 8)"lisp-parser: Unbalanced parentheses. Expected a closing parenthesis.")))
-  ;(print (assert (parse-lisp "(a b))") '((1 6)"lisp-parser: Found an extra closing parenthesis.")))
   (print (assert (parse-lisp "(a) b") '((1 5)"lisp-parser: Unexpected tokens after expression."))))
 
 (deftest dotted-list-error-test ()

@@ -63,31 +63,12 @@
     (parse-app (parse-pred #'is-atom-p) #'token-value)
     (lisp-list)))
 
-;(defun check-parens (tokens)
-;  "Проверяет баланс скобок в списке токенов."
-;  (let ((balance 0)
-;	(last-pos nil))
-;    (dolist (tok tokens)
-;      (setf last-pos (token-pos tok))
-;      (let ((val (token-value tok)))
-;	(cond
-;	  ((eq val #\() (setf balance (++ balance)))
-;	  ((eq val #\)) (setf balance (-- balance))))
-;	(if (< balance 0)
-;	    (parser-error "lisp-parser: Found an extra closing parenthesis." last-pos)
-;	  nil)))
-;    (if (!= balance 0)
-;	      (parser-error "lisp-parser: Unbalanced parentheses. Expected a closing parenthesis." last-pos)
-;      nil)))
-
-
 (defun parse-lisp (str)
   (catch 'parse-error
     (let* ((tokens (lisp-lexer str)))
       (unless (pairp tokens)
         ;; Лексер сломался — используем (1 1) как fallback. Но вообще ошибка вряд ли возможна.
         (parser-error "lisp-parser: unexpected result of lexer. Stream may be damaged." (list 1 1)))
-      ;(check-parens tokens)
       (let* ((stream (stream-from-list tokens))
              (res (funcall (lisp-s-expr) stream)))
         (if (null res)

@@ -1,9 +1,3 @@
-(defun same-pos-p (pos1 pos2)
-  "Сравнивает две позиции (списки из двух чисел)."
-  (and pos1 pos2
-       (= (car pos1) (car pos2))
-       (= (second pos1) (second pos2))))
-
 (defun lisp-error (message &rest end)
   "Бросает ошибку с позицией"
   #'(lambda (stream)
@@ -124,7 +118,6 @@
                 (&&& (parse-elem #\,) return 'COMMA)
                 (lisp-symbol)
                 (lisp-error "lisp-lexer: Unknown token" t)
-                ;#'(lambda (stream) (unless (end-of-stream stream) (funcall (lisp-error "lisp-lexer: Unknown token") stream)))
           ))
 
 
