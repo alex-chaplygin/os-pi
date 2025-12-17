@@ -58,7 +58,7 @@
   "Каталог полей TIFF"
   (&&& num-> #'get-word
        hash->(parse-many-n num (parse-struct '((tag . word) (type . word) (count . dword) (offset . dword))))
-       return (map #'(lambda (v) (cons (get-tag (get-hash v 'tag)) (get-hash v 'offset))) hash)))
+       return (map #'(lambda (v) (cons (get-tag (get-hash v 'tag)) (get-hash v 'offset))) hash)))	      
 
 (defun tiff ()
   (parse-app
@@ -72,5 +72,6 @@
 	 (tiff-hash (car (funcall (tiff) stream)))
 	 (a (print `(tiff ,tiff-hash)))
 	 (ofs (get-hash tiff-hash 'stripoffsets))
-	 (count (get-hash tiff-hash 'stripbytecounts)))
-    (print (car (get-array (stream-seek stream ofs 'seek-set) count)))))
+	 (count (get-hash tiff-hash 'stripbytecounts))
+	 (s2 (stream-seek stream ofs 'seek-set)))
+    (print 'eol (car (funcall (parse-t4) (stream-seek stream ofs 'seek-set))))))
