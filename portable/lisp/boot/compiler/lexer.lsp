@@ -1,3 +1,11 @@
+(defun lisp-error (message &rest end)
+  "Бросает ошибку с позицией"
+  #'(lambda (stream)
+      (let ((pos (PosStream-pos stream))
+	    (con (if end (end-of-stream stream) nil)))
+	(unless con
+	  (raise 'parse-error (list pos message))))))
+
 (defun parse-float()
   "Парсит числовой токен с плавающей точкой."
   (parse-app
@@ -46,7 +54,7 @@
     (&&& (parse-elem #\")
          (parse-many (parse-or (parse-escape #\n (code-char 0xa))
                                (parse-pred #'(lambda (sym) (!= sym #\")))))
-         (parse-elem #\"))
+         (parse-or (parse-elem #\") (lisp-error "lisp-lexer: unterminated string")))
     #'(lambda (parts) (implode (second parts)))))
 
 (defun lisp-token ()
@@ -65,8 +73,7 @@
             (parse-app (&&& (parse-elem #\,) (parse-elem #\@)) (parse-return 'COMMA-AT))
             (parse-app (parse-elem #\,) (parse-return 'COMMA))
             (lisp-symbol)
-	    ;;            #'(lambda (stream) (throw 'parse-error "Unknown token"))))
-	    ))
+	    (lisp-error "lisp-lexer: Unknown token" t)))
 
 (defun parse-with-pos (parser)
   "Парсер-комбинатор, который добавляет начальную позицию к результату."
