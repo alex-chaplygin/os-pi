@@ -16,6 +16,10 @@
     (if (= index (string-size str)) nil
       (cons (char str index) (make-SStream str (++ index))))))
 
+(defmethod end-of-stream ((self SStream))
+  (let ((str (SStream-str self))
+	      (index (SStream-index self)))
+    (= index (string-size str))))
 
 ;; Поток на основе списка
 (defclass LStream() (list ; список
