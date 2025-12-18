@@ -20,6 +20,8 @@
 (defconst +svga-reg-fb-size+ 16) ; Размер Framebuffer
 (defconst +svga-reg-mem-size+ 19) ; Размер FIFO (MEM-SIZE)
 (defconst +svga-reg-config-done+ 20) ; Размер FIFO (MEM-SIZE)
+(defconst +svga-reg-sync+ 21) ;; Регистр для синхронизации
+(defconst +svga-reg-busy+ 22)
 (defconst +svga-fifo-num-regs+ 291) ; Количество регистров в заголовке FIFO
 ;; Коды команд FIFO
 (defconst +svga-cmd-update+ 1)
@@ -37,6 +39,8 @@
 (defvar *svga-pci*) ;; PCI устройство
 ;; Переменная для хранения текущей позиции записи в FIFO
 (defvar *svga-fifo-cursor*)
+;; Переменная для хранения начала FIFO
+(defvar *svga-fifo-start*)
 
 ;; Чтение/запись регистров
 (defun svga-write-reg (reg value)
@@ -49,6 +53,14 @@
   (outdw (+ *svga-io-base* +svga-index-port+) reg)
   (indw (+ *svga-io-base* +svga-value-port+)))
 
+(defun svga-sync ()
+  "Ждет завершения всех операций видеокарты"
+  ;; 1. Пишем 1 в SYNC (начать синхронизацию)
+  (svga-write-reg +svga-reg-sync+ 1)
+  ;; 2. Ждем пока BUSY не станет 0
+  (while (!= (svga-read-reg +svga-reg-busy+) 0)
+  	 nil))
+
 ;; Инициализация FIFO
 (defun svga-init-fifo ()
   "Инициализация очереди команд (FIFO) через OStream"
@@ -56,13 +68,13 @@
         ;; Отступ в байтах: 291 * 4 = 1164 байта
         (min-offset (<< +svga-fifo-num-regs+ 2)))
     ;;Запоминаем, что писать начнем с min-offset
-    (setq *svga-fifo-cursor* min-offset) 
+    (setq *svga-fifo-cursor* min-offset *svga-fifo-start* min-offset) 
     ; Записываем 4 значения заголовка
     (write-dword s min-offset);; MIN
     (write-dword s *svga-fifo-size*) ;; MAX: размер памяти FIFO
     (write-dword s min-offset) ;; NEXT: писать сюда (в начало)
     (write-dword s min-offset) ;; STOP: читать до сюда (в начало)
-    
+    (print `(fifo ,min-offset ,(ostream-data s)))
     (memcpy *svga-fifo-base* (ostream-data s))))
 
 ;; Инициализация SVGA 
@@ -94,30 +106,20 @@
   ;; Считываем реальную длину строки в байтах. 
   (setq *svga-pitch* (svga-read-reg +svga-reg-bytes-per-line+)))
 
+(defun svga-command (c)
+  "Послать команду в очередь"
+  (memcpy (+ *svga-fifo-base* *svga-fifo-cursor*) c)
+  (setq *svga-fifo-cursor* (+ *svga-fifo-cursor* (array-size c)))
+  (when (>= *svga-fifo-cursor* *svga-fifo-size*)
+    (setq *svga-fifo-cursor* *svga-fifo-start*))
+  (let ((next (new-stream)))
+    (write-dword next *svga-fifo-cursor*)
+    (memcpy (+ *svga-fifo-base* 8) (ostream-data next)))
+  (svga-sync))
+
 (defun svga-update (x y width height)
-  "Отправляет команду на перерисовку прямоугольника"
-  ;; 1. Подготовка пакета данных (20 байт)
-  (let ((cmd (new-stream)))
-    (write-dword cmd +svga-cmd-update+); Command ID = 1
-    (write-dword cmd x)    
-    (write-dword cmd y)    
-    (write-dword cmd width)             
-    (write-dword cmd height)            
-
-    ;; 2. Запись пакета в память FIFO по текущему курсору
-    ;; Складываем базовый адрес FIFO и отступ
-    (memcpy (+ *svga-fifo-base* *svga-fifo-cursor*) (ostream-data cmd))
-
-    ;; 3. Сдвигаем программный курсор на 20 байт (5 слов * 4 байта)
-    (setq *svga-fifo-cursor* (+ *svga-fifo-cursor* 20))
-
-    ;; Проверка выхода за границы буфера
-    (if (>= *svga-fifo-cursor* *svga-fifo-size*)
-        (setq *svga-fifo-cursor* (<< +svga-fifo-num-regs+ 2))
-	nil)
-
-    ;; 4. Сообщаем видеокарте, что появились новые данные
-    ;; Для этого обновляем регистр NEXT (смещение 8 байт от начала FIFO)
-    (let ((next-reg (new-stream)))
-      (write-dword next-reg *svga-fifo-cursor*)
-      (memcpy (+ *svga-fifo-base* 8) (ostream-data next-reg)))))
+  "Обновление области экрана из фреймбуфера"
+  (let ((s (new-stream)))
+    (dolist (val (list +svga-cmd-update+ x y width height))
+      (write-dword s val))
+    (svga-command (ostream-data s))))
