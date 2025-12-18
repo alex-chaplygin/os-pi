@@ -105,7 +105,7 @@ object_t MEMCPY(object_t dst, object_t src)
     byte *buf = alloc_region(a->length);
     byte *b = buf;
     object_t *s = a->data;
-    for (int i = 0; i < a->length; a++)
+    for (int i = 0; i < a->length; i++)
 	*b++ = get_value(*s++);
     memcpy((unsigned int *)get_value(dst), buf, a->length);
     free_region(buf);
