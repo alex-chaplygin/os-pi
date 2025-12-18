@@ -12,7 +12,7 @@
 #define MAX_STRINGS 20000
 /// Всего массивов
 #ifdef VM
-#define MAX_ARRAYS 3 * 1024 * 1024
+#define MAX_ARRAYS 2 * 1024 * 1024
 #else
 #define MAX_ARRAYS 400
 #endif
