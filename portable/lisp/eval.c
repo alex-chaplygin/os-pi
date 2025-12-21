@@ -1098,9 +1098,7 @@ object_t callcc(object_t fun)
 	symbol_t *s = GET_SYMBOL(FIRST(f->args));
 	s->nary = 0;
 	s->count = 1;
-	return eval_func(new_pair(NEW_SYMBOL("LAMBDA"), new_pair(f->args, f->body)),
-			 new_pair(cont, NULLOBJ), f->env,
-			 new_pair(new_pair(FIRST(f->args), cont), func_env));
+	return eval(new_pair(NEW_SYMBOL("PROGN"), f->body), f->env, new_pair(new_pair(FIRST(f->args), cont), f->func_env));
     }
     return return_obj;
 }
