@@ -194,3 +194,20 @@
 	     (if (null l1) nil
 		 (cons (funcall f (car l1) (car l2)) (z (cdr l1) (cdr l2))))))
     (z list1 list2)))
+
+(defun make-list (n &rest val)
+  "Создать список длинной n со значением val"
+  (when val (setq val (car val)))
+  (if (= n 0) nil (cons val (make-list (-- n) val))))
+
+(defun flatten (list)
+  "Преобразовать многоуровневый список в одноуровневый"
+  (cond
+    ((null list) nil)
+    ((atom (car list))
+     (cons (car list) (flatten (cdr list))))
+    (t
+     (append2 (flatten (car list))
+              (flatten (cdr list))))))
+   
+    
