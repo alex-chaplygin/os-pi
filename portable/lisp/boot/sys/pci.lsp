@@ -57,7 +57,7 @@
 (defun get-pci-bar (pci index)
   "Функция читает BAR по индексу и возвращает его адрес"
   (let ((bar (pci-config-read32 pci (+ +pci-config-bar0+ (<< index 2)))))
-   (& bar (- 0xffffffff (if (& bar 1) 0x3 0xF)))))
+    (& bar (~ (if (& bar 1) 0xF 0xF)))))
 
 (defun get-pci-vendor-device (pci)
   "Функция читает Vendor ID b Device ID, возвращает пару (vendor . device)"
