@@ -59,26 +59,29 @@
 	   (seta matrix y row)))
     matrix))
 
-(defun filter-sub (arr width height comp)
+(defun filter-sub (matrix width height comp)
   "Фильтр Sub"
-  (let ((matrix (make-array height)))
-    (for y 0 height
-	 (let ((row (make-array width))
-	       (prev-pixel (make-array comp)))
-	   (for x 0 width
-		(let ((pixel (make-array comp))
-		      (idx (* (+ (* y width) x) comp)))
-		  (for i 0 comp
-		       (let ((filtered (aref arr (+ idx i)))
-			     (left (if (> x 0)
-				       (aref prev-pixel i)
-				     0)))
-			 (seta pixel i (% (+ filtered left) 256))
-			 (seta prev-pixel i (aref pixel i))))
-		  (seta row x pixel)))
-	   (seta matrix y row)))
-    matrix))
-  
+  (let* ((rows (array-size matrix))
+	 (result (make-array rows)))
+    (for y 0 rows
+         (let* ((input-row (aref matrix y))
+                (pixels (array-size input-row))
+                (output-row (make-array pixels))
+                (prev (make-array (array-size (aref input-row 0)))))
+           (for i 0 (array-size prev)
+                (seta prev i 0))
+           (for x 0 pixels
+                (let* ((filtered (aref input-row x))
+                       (comp-count (array-size filtered))
+                       (original (make-array comp-count)))
+                  (for i 0 comp-count
+                       (let ((val (+ (aref filtered i) (aref prev i))))
+                         (seta original i (% val 256))
+                         (seta prev i (aref original i))))
+                  (seta output-row x original)))
+           (seta result y output-row)))
+    result))
+
 (defun png ()
   "Разбор PNG"
   (&&& (png-signature)
