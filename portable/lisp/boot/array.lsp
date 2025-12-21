@@ -107,10 +107,8 @@
 
 (defun array-fold (a f acum)
   "Свертка массива a функцией f (acum elem) и начальным аккумулятором acum"
-  (let ((i 0))
-    (while (< i (array-size a))
-	   (setq acum (funcall f acum (aref a i)))
-	   (incf i)))
+  (for i 0 (array-size a)
+       (setq acum (funcall f acum (aref a i))))
   acum)
 
 (defun array-to-list (a)

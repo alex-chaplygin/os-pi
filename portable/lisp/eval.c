@@ -688,6 +688,7 @@ object_t eval(object_t obj, object_t env, object_t func)
     object_t res;
     /* printf("eval: "); PRINT(obj); */
     /* printf("env: "); PRINT(env); */
+    /* printf("cur_env: "); PRINT(current_env); */
     /* if (need_grabage_collect()) */
     /* 	garbage_collect(); */
     if (obj == NULLOBJ)
@@ -739,9 +740,10 @@ object_t eval(object_t obj, object_t env, object_t func)
             result = eval_func(GET_ARRAY(res)->data[2], args, env, func);
         else if (s->lambda != NULLOBJ)
             result = eval_func(s->lambda, args, env, func);
-        else if (s->func != NULL)
+        else if (s->func != NULL) {
+	    current_env = env;
 	    result = call_form(s->func, args, s->nary, args_count, s->count);
-        else if (s->macro != NULLOBJ)
+        } else if (s->macro != NULLOBJ)
             result = macro_call(s->macro, args, env, func);
 #ifdef DEBUG
     	debug_stack = TAIL(debug_stack);
