@@ -744,7 +744,7 @@ object_t eval(object_t obj, object_t env, object_t func)
             result = eval_func(s->lambda, args, env, func);
         else if (s->func != NULL) {
 	    current_env = env;
-	    func_env = func;
+	    //	    func_env = func;
 	    result = call_form(s->func, args, s->nary, args_count, s->count);
         } else if (s->macro != NULLOBJ)
             result = macro_call(s->macro, args, env, func);
