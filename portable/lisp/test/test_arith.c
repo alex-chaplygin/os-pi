@@ -105,10 +105,8 @@ void test_add_float_no_number()
     printf("test_add_float_no_number: ");
     float num = 2.0f;
     if (setjmp(jmp_env) == 0) {
-        float sum = 0.0f;
-        object_t list = new_pair(new_float(num),
-                            new_pair(new_pair(NULL, NULL), NULL));
-        object_t res = add_float(list, sum);
+        object_t list = new_pair(new_float(num), new_pair(NULLOBJ, NULLOBJ));
+        object_t res = add(list);
         FAIL;
     } else
         OK;

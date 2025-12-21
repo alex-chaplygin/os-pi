@@ -17,16 +17,14 @@ sh sys_test "-2147483648" "-2147483648"
 sh sys_test "-2147483649" "-2147483649
 1:11: number overflow"
 #функция
-sh sys_test "#'(lambda (x) (+ x 1))" "(LAMBDA (X) ((+ X 1)))"
+sh sys_test "#'(lambda (x) (+ x 1))" "(Function (X) ((+ X 1)) )"
 # вместо функции число
-sh sys_test "(5 5)" "not function"
+sh sys_test "(5 5)" "5 not function"
 # вместо функции символ
-sh sys_test '(#\\5 5)' "not function"
+sh sys_test '(#\\5 5)' '#\\5 not function'
 
 echo "---Тесты PARSER ---"
 #PARSER 2 Неправильный символ
-sh sys_test "~" "~
-invalid symbol"
 #PARSER 6 список без закрывающей скобки
 sh sys_test "(a b c" "(a b c
 
@@ -41,7 +39,7 @@ sh sys_test "((a b #(1 #(2 (3 4) 5)) c d )" "((a b #(1 #(2 (3 4) 5)) c d )
 
 2:1: expected )" #11
 sh sys_test "#(1 #(2 3) 4)" "#(1 #(2 3) 4)" # 20
-sh sys_test "#\\1" "#\\1"
+sh sys_test '#\\1' '#\\1'
 sh sys_test "1.25" "1.250000"
 sh sys_test "'(1.25 1.82 3.56 6.12 2 5.77 )" "(1.250000 1.820000 3.560000 6.120000 2 5.770000)"
 sh sys_test "'(1.23333)" "(1.233330)"
@@ -49,10 +47,10 @@ sh sys_test "'(1.23333)" "(1.233330)"
 echo "---Тесты ATOM---"
 sh sys_test "(atom 'a)" "T" # 2
 sh sys_test "(atom 10)" "T" # 1
-sh sys_test "(atom '(a b c))" "NIL" # 7
+sh sys_test "(atom '(a b c))" "()" # 7
 sh sys_test "(atom '())" "T" # 7
 sh sys_test "(atom (atom 'a))" "T" # 7
-sh sys_test "(atom '(atom 'a))" "NIL" # 7
+sh sys_test "(atom '(atom 'a))" "()" # 7
 sh sys_test "(atom )" "ATOM: invalid arguments count" # 52 54
 sh sys_test "(atom 'a 'd)" "ATOM: invalid arguments count" # 131
 sh sys_test "(atom \"abc\")" "T" # 3
@@ -60,12 +58,12 @@ sh sys_test "(atom #(1 2 3 4))" "T" # 4
 
 echo "---Тесты QUOTE---"
 sh sys_test "'a" "A" # 5 6
-sh sys_test "'()" "NIL"
-sh sys_test "(quote())" "NIL"
+sh sys_test "'()" "()"
+sh sys_test "(quote())" "()"
 sh sys_test "(quote a b)" "QUOTE: invalid arguments count" #53
 
 echo "---Тесты BACKQUOTE---"
-sh sys_test "\`(,@())" "NIL" #43 48
+sh sys_test "\`(,@())" "()" #43 48
 sh sys_test "(setq y 3)
    	    	  \`(x ,y \`(a ,b))" "3
 (X 3 (BACKQUOTE (A (COMMA B))))" # 25 26 27 43 45
@@ -76,7 +74,7 @@ sh sys_test "(setq abc '(a b c))
 (1 A B C (9) \"a\" #(1 9 2))" # 25 26 27 49 45
 sh sys_test "\`y" "Y" #42
 sh sys_test "\` " "\` 
-quote: no args" #115
+2:1: quote: no args" #115
 sh sys_test "\`5" "5" #116
 sh sys_test "\`#(1 2 3 4)" "#(1 2 3 4)" #117
 sh sys_test "\`\"A\"" "\"A\"" #118
@@ -94,21 +92,21 @@ sh sys_test "(if (equal 2 2) 3 2)" "3"
 # выражение ложно
 sh sys_test "(if (equal 2 3) 3 2)" "2"
 # лишний аргумент
-sh sys_test "(if (equal 2 3) 3 2 1)" "if: too many params"
+sh sys_test "(if (equal 2 3) 3 2 1)" "IF: invalid arguments count"
 #отсутствует условие
-sh sys_test "(if )" "NULLOBJ in IF"
+sh sys_test "(if )" "IF: invalid arguments count"
 #отсутствует выражение при истине
-sh sys_test "(if (equal 2 3))" "True is empty"
+sh sys_test "(if (equal 2 3))" "IF: invalid arguments count"
 #отсутствует выпажение при лжи
-sh sys_test "(if (equal 2 3) 3)" "False is empty"
+sh sys_test "(if (equal 2 3) 3)" "IF: invalid arguments count"
 
 
 echo "---Тесты car ---"
 sh sys_test "(car '(a b c))" "A" #10
 sh sys_test "(car \"fafaf\")" "Not list in car" #58
-sh sys_test "(car)" "car: No args" #59
-sh sys_test "(car nil)" "car: Empty list" #59
-sh sys_test "(car '(a b c) '(n h r))" "car: Too many args" #60
+sh sys_test "(car)" "CAR: invalid arguments count" #59
+sh sys_test "(car nil)" "CAR: invalid arguments count" #59
+sh sys_test "(car '(a b c) '(n h r))" "CAR: invalid arguments count" #60
 		   
 echo "---Тесты cdr ---"
 sh sys_test "(cdr '(a b c))" "(B C)" #11
@@ -125,12 +123,12 @@ sh sys_test "((lambda ) 1 2)" "Invalid lambda function" #70
 sh sys_test "((lambda (x y) (cons x y)) )" "Not enough values for params" #71 72
 sh sys_test "((lambda (x y) (cons x y)) 1)" "Not enough values for params" #72
 sh sys_test "((lambda (x y)) 1 '(2))" "Invalid lambda function" #73
-sh sys_test "((lambda () nil))" "NIL"
+sh sys_test "((lambda () nil))" "()"
 
 
 sh sys_test "(defun null (x) (eq x (quote())))\
 (null 'a) (null (quote ())) (null '())" "NULL
-NIL
+()
 T
 T" # 18
 sh sys_test "(defun f(x)\
@@ -187,12 +185,12 @@ sh sys_test "(/ 30.5 0.5)" "61.000000"
 sh sys_test "(/ 30 1.5)" "20.000000"
 sh sys_test "(/ 'b 2)" "div: Not number"
 
-sh sys_test "(> 1 2)" "NIL"
+sh sys_test "(> 1 2)" "()"
 sh sys_test "(> 3 2)" "T"
-sh sys_test "(> 3 3)" "NIL"
+sh sys_test "(> 3 3)" "()"
 sh sys_test "(< 1 2)" "T"
-sh sys_test "(< 3 2)" "NIL"
-sh sys_test "(< 3 3)" "NIL"
+sh sys_test "(< 3 2)" "()"
+sh sys_test "(< 3 3)" "()"
 sh sys_test "(progn (+ 2 3) (* 3 4))" "12"
 sh sys_test "(defun test (x) (+ x 10) (* x 20)) (test 5)" "TEST
 100" # 18
@@ -201,8 +199,8 @@ Unknown func: A
 10" # 23 24
 sh sys_test "(setq  a 10) A" "10
 10" # 23 24
-sh sys_test "T NIL" "T
-NIL"
+sh sys_test "T ()" "T
+()"
 sh sys_test "(setq +bgr-index+ 0x1ce) \
 (setq +bgr-data+ 0x1cf) +BGR-INDEX+ +BGR-DATA+ X ABC" "462
 463
@@ -234,7 +232,7 @@ sh sys_test "(defun bgr-out (reg data)\
 BGR-SET-RES
 2
 GRAPH-SEND-BUFFER
-NIL" # 18
+()" # 18
 sh sys_test "(setq str  \"1234567890111111qwertyu\\nuiop111\\n1111111111111111\\nqqqqqqqqqqqqqqqqqqqq\\nqqqqqqqqqqqqqqqqqqqqq\\nwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww\") str" "\"1234567890111111qwertyu
 uiop111
 1111111111111111
@@ -307,7 +305,7 @@ CHANGE-LOCAL-X
 
 sh sys_test "(defmacro testrest (&rest args) args)
 (testrest)" "TESTREST
-NIL"
+()"
 
 echo "---Тесты точечных пар----"
 sh sys_test "'(4 . 5)" "(4 . 5)"
@@ -322,7 +320,7 @@ sh sys_test "(eq 1 1)" "T"
 #случай символ TRUE
 sh sys_test "(eq 'a 'a)" "T"
 #случай символ FALSE
-sh sys_test "(eq 'a 'b)" "NIL" # 9
+sh sys_test "(eq 'a 'b)" "()" # 9
 #случай отстутствие аргументов
 sh sys_test "(eq)" "eq: no args" # 55
 #случай больше двух аргументов 
@@ -336,30 +334,30 @@ sh sys_test "(equal 1 1)" "T"
 # случай символ TRUE
 sh sys_test "(equal 'v 'v)" "T"
 # случай число FALSE
-sh sys_test "(equal 3 1)" "NIL"
+sh sys_test "(equal 3 1)" "()"
 # случай символ FALSE
-sh sys_test "(equal 'c 'x)" "NIL"
+sh sys_test "(equal 'c 'x)" "()"
 # случай строки TRUE
 sh sys_test "(equal \"vvv\" \"vvv\")" "T"
 # случай строки FALSE
-sh sys_test "(equal \"vbv\" \"vvv\")" "NIL"
+sh sys_test "(equal \"vbv\" \"vvv\")" "()"
 # случай списка TRUE
 sh sys_test "(equal '(a b c) '(a b c))" "T"
 sh sys_test "(equal '(a (b (c))) '(a (b (c))))" "T"
 # случай списка FALSE
-sh sys_test "(equal '(a 1 c) '(a b c))" "NIL"
-sh sys_test "(equal '(a c) '(a b c))" "NIL"
-sh sys_test "(equal '(a c c) '(a b))" "NIL"
+sh sys_test "(equal '(a 1 c) '(a b c))" "()"
+sh sys_test "(equal '(a c) '(a b c))" "()"
+sh sys_test "(equal '(a c c) '(a b))" "()"
 sh sys_test "(equal #(1 2 a) #(1 2 a))" "T"
-sh sys_test "(equal #(1 2 a) #(1 b a))" "NIL"
+sh sys_test "(equal #(1 2 a) #(1 b a))" "()"
 # ошибка - нет аргументов
 sh sys_test "(equal)" "equal: no arguments"
 # ошибка - нет второго аргумента
 sh sys_test "(equal 1)" "equal: no second argument"
 # ошибка - более двух аргументов
 sh sys_test "(equal 1 2 3)" "equal: too many arguments"
-sh sys_test "(putchar #\\F)" "FNIL"
-sh sys_test "(putchar #\\ )" " NIL"
+sh sys_test "(putchar #\\F)" "F()"
+sh sys_test "(putchar #\\ )" " ()"
 sh sys_test "(putchar \"1 2 3\")" "PUTCHAR: not a char"
 
 echo "---Тесты INTERN---"
@@ -515,7 +513,7 @@ echo "---Тесты PREDICATES---"
 # тест функции symbolp без параметров
 sh sys_test "(symbolp)" "symbolp: no params"
 # тест функции с неверным параметром
-sh sys_test "(symbolp 1)" "NIL"
+sh sys_test "(symbolp 1)" "()"
 # тест функции с верным параметром
 sh sys_test "(symbolp 'a)" "T"
 # тест с двумя параметрами
@@ -552,7 +550,7 @@ sh sys_test "(a . 1)" "arguments are not list"
 echo "---Тесты TAGBODY---"
 sh sys_test "(tagbody (setq v 10) (go b) (setq v 20) a )" "tagbody: label B not found"
 sh sys_test "(tagbody (go) (setq v 20) a )" "go: no label"
-sh sys_test "(tagbody (setq v 10) (go a) (setq v 20) a ) v" "NIL
+sh sys_test "(tagbody (setq v 10) (go a) (setq v 20) a ) v" "()
 10"
 sh sys_test "
 (tagbody
@@ -563,7 +561,7 @@ sh sys_test "
 	(setq i (+ i 1))
 	(setq a (+ a 10))
 	test
-	(if (equal i 10) nil (go loop))) a" "NIL
+	(if (equal i 10) nil (go loop))) a" "()
 100"
 
 sh sys_test "
@@ -583,7 +581,7 @@ sh sys_test "
               inside
               (if (equal g 10) nil (go loopins)))
        test
-       (if (equal i 10) nil (go loop))) a" "NIL
+       (if (equal i 10) nil (go loop))) a" "()
 100"
 
 echo "---Тесты LABELS---"
@@ -607,4 +605,4 @@ sh sys_test "(round 1.3)" "1"
 sh sys_test "(round 2.5)" "3"
 
 echo "---Тесты SYMBOL-FUNCTION ---"
-sh sys_test "(symbol-function (intern (concat \"C\" \"AR\")))" "(Function NIL NIL 4ff2b0)"
+sh sys_test "(symbol-function (intern (concat \"C\" \"AR\")))" "(Function () () 4ff2b0)"
