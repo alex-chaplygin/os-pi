@@ -707,8 +707,8 @@ object_t eval(object_t obj, object_t env, object_t func)
 	    else
 		return eval_func(first, eval_args(TAIL(obj), env, func), env, func);
         } else if (TYPE(first) != SYMBOL) {
-	    PRINT(first);    
-	    error("not function");
+	    print_obj(first);    
+	    error(" not function");
 	}
 	
         symbol_t *s = find_symbol(GET_SYMBOL(first)->str);
