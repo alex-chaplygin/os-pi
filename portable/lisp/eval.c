@@ -61,10 +61,12 @@ extern int tb_index_buf;
 jmp_buf repl_buf;
 /// точка вычисления меток catch
 extern catch_t catch_buffers[MAX_CATCH_SIZE];
-///текущий индекс-буфер для catch
+/// текущий индекс-буфер для catch
 extern int ct_index_buf;
-///текущая метка перехода go
+/// метка для поиска в tagbody
 object_t cur_label = NULLOBJ;
+/// объект, который возвращается при переходах управления
+object_t return_obj = NULLOBJ;
 #ifdef DEBUG
 /// Стек
 object_t debug_stack = NULLOBJ;
@@ -495,7 +497,7 @@ void append_env(object_t l1, object_t l2)
  * @return вычисленное значение функции 
  */ 
 object_t eval_func(object_t lambda, object_t args, object_t env, object_t func) 
-{ 
+{
     object_t new_env = make_env(SECOND(lambda), args);    
     object_t body; 
     if (GET_PAIR(TAIL(TAIL(lambda)))->right == NULLOBJ) 
@@ -665,6 +667,24 @@ object_t call_form(func0_t f, object_t args, int nary, int args_count, int count
 	} 
 }
 
+/** 
+ * Возврат в сохраненное продолжение
+ *
+ * @param cont продолжение
+ * @param value возвращаемое значение
+ */
+void call_continuation(object_t cont, object_t value)
+{
+    continuation_t *c = GET_CONTINUATION(cont);
+    // Сохраняем возвращаемое значение в глобальную переменную
+    return_obj = value;
+    // Восстанавливаем состояние интерпретатора
+    current_env = c->environment;
+    func_env = c->func_environment;
+    last_protected = c->last_protected;
+    longjmp(c->buffer, 1);
+}
+
 /**
  * Вычисление выражения
  * Если выражение число или строка, массив, одиночный символ, возвращаем его же
@@ -716,6 +736,8 @@ object_t eval(object_t obj, object_t env, object_t func)
     	debug_stack = new_pair(obj, debug_stack);
 #endif
 	int find = find_in_env(func, first, &res);
+	/* printf("func env: "); */
+	/* PRINT(func); */
 	if (s->lambda == NULLOBJ && s->func == NULL && s->macro == NULLOBJ && !find)
 	    error("Unknown func: %s", s->str);
 	int args_count = list_length(TAIL(obj));
@@ -736,12 +758,15 @@ object_t eval(object_t obj, object_t env, object_t func)
             args = eval_args(TAIL(obj), env, func);
 
         object_t result;
-        if (find)
+        if (find && TYPE(res) == CONTINUATION)
+	    call_continuation(res, FIRST(args));
+        else if (find)
             result = eval_func(GET_ARRAY(res)->data[2], args, env, func);
         else if (s->lambda != NULLOBJ)
             result = eval_func(s->lambda, args, env, func);
         else if (s->func != NULL) {
 	    current_env = env;
+	    func_env = func;
 	    result = call_form(s->func, args, s->nary, args_count, s->count);
         } else if (s->macro != NULLOBJ)
             result = macro_call(s->macro, args, env, func);
@@ -925,8 +950,7 @@ object_t tagbody(object_t params)
  * @param args метка перехода
  */ 
 object_t go(object_t args)
-{
-    
+{    
     cur_label = args;
     current_env = tagbody_buffers[tb_index_buf - 1].environment;
     func_env = tagbody_buffers[tb_index_buf - 1].func_environment;
@@ -963,7 +987,7 @@ object_t catch(object_t list)
         ct_index_buf++;
     } 
     else 
-        res = cur_label;
+        res = return_obj;
     UNPROTECT;
     return res;
 }
@@ -976,7 +1000,7 @@ object_t throw(object_t tag, object_t res)
 {
     while (ct_index_buf != MAX_CATCH_SIZE) {
         if (catch_buffers[ct_index_buf].tag == tag) {
-            cur_label = res;
+            return_obj = res;
             longjmp(catch_buffers[ct_index_buf].buff.buffer, 1);
         }
         ct_index_buf++;
@@ -1052,6 +1076,35 @@ object_t function(object_t func)
     return new_function(pair_right->left, pair_right->right, current_env, func_env);   
 }
 
+/** 
+ * Вызов функции с текущим продолжением
+ * (call/cc #'(lambda (k) 1 2 4) -> 4
+ * (call/cc #'(lambda (k) 1 2 (k 3) 4) -> 3
+ *
+ * @param fun функция с одним аргументом, куда передается текущее продолжение
+ *
+ * @return значение функции или аргумент при возврате (продолжение вызывается как функция)
+ */
+object_t callcc(object_t fun)
+{
+    if (TYPE(fun) != FUNCTION)
+	error("callcc: not function");
+    function_t *f = GET_FUNCTION(fun);
+    if (list_length(f->args) != 1)
+	error("callcc: function must be one arg: %d", f->count);
+    jmp_buf buf;
+    if (setjmp(buf) == 0) {
+	object_t cont = new_continuation(buf);
+	symbol_t *s = GET_SYMBOL(FIRST(f->args));
+	s->nary = 0;
+	s->count = 1;
+	return eval_func(new_pair(NEW_SYMBOL("LAMBDA"), new_pair(f->args, f->body)),
+			 new_pair(cont, NULLOBJ), f->env,
+			 new_pair(new_pair(FIRST(f->args), cont), func_env));
+    }
+    return return_obj;
+}
+
 /*  
  * инициализация примитивов  
  */
@@ -1078,6 +1131,7 @@ void init_eval()
     register_func("THROW", throw, 0, 2);
     register_func("LABELS", labels, 1, 1);
     register_func("FUNCTION", function, 0, 1);
+    register_func("CALL/CC", callcc, 0, 1);
     t = NEW_SYMBOL("T"); 
     nil = NULLOBJ;
     bind_static(t);

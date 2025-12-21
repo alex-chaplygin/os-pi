@@ -175,9 +175,7 @@ object_t new_continuation(jmp_buf buf)
 	free_continuations = free_continuations->next;
     } else
 	continuation = &continuations[last_continuation++];
-    // jmp_buf buf2;
     memcpy(continuation->buffer, buf, sizeof(jmp_buf));
-    // continuation->buffer = buf2;
     continuation->environment = current_env;
     continuation->func_environment = func_env;
     continuation->last_protected = last_protected;
@@ -264,14 +262,15 @@ void free_function(function_t *f)
     total_functions--;
 }
 
-void free_continuation(continuation_t *c) {
-	if (c == NULL)
-		error("free_continuation: null pointer: obj");
-	if (c->free) return;
-	c->next = free_continuations;
-	free_continuations = c;
-	c->free = 1;
-	total_continuations--;
+void free_continuation(continuation_t *c)
+{
+    if (c == NULL)
+	error("free_continuation: null pointer: obj");
+    if (c->free) return;
+    c->next = free_continuations;
+    free_continuations = c;
+    c->free = 1;
+    total_continuations--;
 }
 
 /**
@@ -878,6 +877,10 @@ void print_obj(object_t obj)
  	    print_array(obj);
  	    printf(")");
     }
+    else if (TYPE(obj) == CONTINUATION)
+	printf("CONTINUATION");
+    else
+	printf("UNKNOWN");
 }
 
 /**

@@ -606,3 +606,7 @@ sh sys_test "(round 2.5)" "3"
 
 echo "---Тесты SYMBOL-FUNCTION ---"
 sh sys_test "(symbol-function (intern (concat \"C\" \"AR\")))" "(Function () () 4ff2b0)"
+
+echo "--- Тест CALL/CC ---"
+sh sys_test "(call/cc #'(lambda (k) 1 2 (k 5) 3))" "5"
+sh sys_test "(call/cc #'(lambda (k) 1 2 3))" "3"
