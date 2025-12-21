@@ -667,24 +667,6 @@ object_t call_form(func0_t f, object_t args, int nary, int args_count, int count
 	} 
 }
 
-/** 
- * Возврат в сохраненное продолжение
- *
- * @param cont продолжение
- * @param value возвращаемое значение
- */
-void call_continuation(object_t cont, object_t value)
-{
-    continuation_t *c = GET_CONTINUATION(cont);
-    // Сохраняем возвращаемое значение в глобальную переменную
-    return_obj = value;
-    // Восстанавливаем состояние интерпретатора
-    current_env = c->environment;
-    func_env = c->func_environment;
-    last_protected = c->last_protected;
-    longjmp(c->buffer, 1);
-}
-
 /**
  * Вычисление выражения
  * Если выражение число или строка, массив, одиночный символ, возвращаем его же
@@ -736,8 +718,6 @@ object_t eval(object_t obj, object_t env, object_t func)
     	debug_stack = new_pair(obj, debug_stack);
 #endif
 	int find = find_in_env(func, first, &res);
-	/* printf("func env: "); */
-	/* PRINT(func); */
 	if (s->lambda == NULLOBJ && s->func == NULL && s->macro == NULLOBJ && !find)
 	    error("Unknown func: %s", s->str);
 	int args_count = list_length(TAIL(obj));
@@ -758,9 +738,7 @@ object_t eval(object_t obj, object_t env, object_t func)
             args = eval_args(TAIL(obj), env, func);
 
         object_t result;
-        if (find && TYPE(res) == CONTINUATION)
-	    call_continuation(res, FIRST(args));
-        else if (find)
+        if (find)
             result = eval_func(GET_ARRAY(res)->data[2], args, env, func);
         else if (s->lambda != NULLOBJ)
             result = eval_func(s->lambda, args, env, func);
@@ -1088,19 +1066,38 @@ object_t function(object_t func)
 object_t callcc(object_t fun)
 {
     if (TYPE(fun) != FUNCTION)
-	error("callcc: not function");
+	error("call/cc: not function");
     function_t *f = GET_FUNCTION(fun);
     if (list_length(f->args) != 1)
-	error("callcc: function must be one arg: %d", f->count);
+	error("call/cc: function must be one arg: %d", f->count);
     jmp_buf buf;
     if (setjmp(buf) == 0) {
 	object_t cont = new_continuation(buf);
 	symbol_t *s = GET_SYMBOL(FIRST(f->args));
-	s->nary = 0;
-	s->count = 1;
-	return eval(new_pair(NEW_SYMBOL("PROGN"), f->body), f->env, new_pair(new_pair(FIRST(f->args), cont), f->func_env));
+	return eval_func(new_pair(NEW_SYMBOL("LAMBDA"), new_pair(f->args, f->body)),
+			 new_pair(cont, NULLOBJ), f->env, func_env);
     }
     return return_obj;
+}
+
+/** 
+ * Возврат в сохраненное продолжение
+ *
+ * @param cont продолжение
+ * @param value возвращаемое значение
+ */
+object_t call_continuation(object_t cont, object_t value)
+{
+    if (TYPE(cont) != CONTINUATION)
+	error("call-continuation: not continuation");
+    continuation_t *c = GET_CONTINUATION(cont);
+    // Сохраняем возвращаемое значение в глобальную переменную
+    return_obj = value;
+    // Восстанавливаем состояние интерпретатора
+    current_env = c->environment;
+    func_env = c->func_environment;
+    last_protected = c->last_protected;
+    longjmp(c->buffer, 1);
 }
 
 /*  
@@ -1130,6 +1127,7 @@ void init_eval()
     register_func("LABELS", labels, 1, 1);
     register_func("FUNCTION", function, 0, 1);
     register_func("CALL/CC", callcc, 0, 1);
+    register_func("CALL-CONTINUATION", call_continuation, 0, 2);
     t = NEW_SYMBOL("T"); 
     nil = NULLOBJ;
     bind_static(t);

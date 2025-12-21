@@ -1,14 +1,9 @@
-(defun A ()
+(defun A (p)
   (for i 0 10
-       (print "a" i)
+       (print p i)
        (yield)))
 
-(defun B ()
-  (for i 0 10
-       (print "b" i)
-       (yield)))
-
-(fork #'A)
-(fork #'B)
-(print *threads*)
+(fork #'A "a")
+(fork #'A "b")
+(fork #'A "c")
 (thread-exit)

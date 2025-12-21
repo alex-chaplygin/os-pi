@@ -5,10 +5,11 @@
 
 (defun thread-exit ()
   "Остановка текущего потока"
+  (print `(threads ,*threads*))
   (when *threads*
     (let ((cont (car *threads*)))
       (setq *threads* (cdr *threads*))
-      (funcall cont nil))))
+      (if (functionp cont) (funcall cont nil) (call-continuation cont nil)))))
 
 (defun fork(fn &rest args)
   "Запустить функцию fn в новом потоке с аргументами args"
@@ -21,7 +22,8 @@
 (defun yield ()
   "Передача управления на следующий поток"
   (call/cc #'(lambda (cont)
-	       (setq *threads* (append *threads* (list cont)))))
-  (thread-exit))
+	       (setq *threads* (append *threads* (list cont)))
+	       (thread-exit)))
+  )
 
 					  
