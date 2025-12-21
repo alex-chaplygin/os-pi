@@ -65,13 +65,33 @@
    (&&&
     (tiff-header)
     (tiff-directory))
-     #'second))
+   #'second))
+
+(defun convert-colors (pixel-array colors)
+  "Конвертировать цвета в массиве pixel-array, если colors = 1"
+  (when (= colors 1)
+      (for i 0 (array-size pixel-array)
+           (seta pixel-array i (- 1 (aref pixel-array i)))))
+  pixel-array)
+
+(defun array-to-matrix (pixel-array width height)
+  "Преобразовать массив pixel-array в матрицу шириной width и высотой height"
+  (let ((matrix (make-array height)))
+    (for y 0 height
+	 (seta matrix y (array-seq pixel-array (* y width) (* (+ y 1) width))))
+   matrix))
 
 (defun decode-tiff (arr)
+  "Прочитать tiff"
   (let* ((stream (stream-from-arr arr t))
 	 (tiff-hash (car (funcall (tiff) stream)))
 	 (a (print `(tiff ,tiff-hash)))
 	 (ofs (get-hash tiff-hash 'stripoffsets))
 	 (count (get-hash tiff-hash 'stripbytecounts))
-	 (s2 (stream-seek stream ofs 'seek-set)))
-    (print 'eol (car (funcall (parse-t4) (stream-seek stream ofs 'seek-set))))))
+	 (width (cdr (car tiff-hash)))
+	 (height (get-hash tiff-hash 'imagelength))
+	 (colors (get-hash tiff-hash 'photometricinterpretation))
+	 (s2 (stream-seek stream ofs 'seek-set))
+	 (data (convert-colors (list-to-array (car (funcall (parse-t4) (stream-seek stream ofs 'seek-set)))) colors)))
+    (print (array-to-matrix data width height))))
+
