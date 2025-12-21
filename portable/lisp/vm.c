@@ -73,7 +73,7 @@ struct prim {
     intern , 1, symbol_name , 1, symbol_function , 1, string_size , 1, int_to_str , 1, code_char , 1, char_code , 1, PUTCHAR , 1, str_char , 2, subseq , 3,
     make_array , 1, make_string , 2, array_size , 1, aref , 2, seta , 3, sets , 3,
     symbolp , 1, integerp , 1, pairp , 1, functionp , 1, gensym , 0, apply , 2,
-    ROUND, 1,
+    ROUND, 1, bitwise_not, 1,
 #ifdef OS
     INB, 1,
     INW, 1,
