@@ -316,6 +316,21 @@ object_t equal(object_t obj1, object_t obj2)
     return compare_obj(obj1, obj2) ? t : nil;
 }
 
+/**
+ * Побитовое И для 2-ух аргументов
+ *
+ * @param obj1 - число 1
+ * @param obj2 - число 2
+ *
+ * @return результат побитового И
+ */
+object_t bitwise_and2(object_t obj1, object_t obj2)
+{
+	if (!IS_NUMBER(obj1) || !IS_NUMBER(obj2))
+		error("bitwise_and2: Not a number");
+	return new_number(get_value(obj1) & get_value(obj2));
+}
+
 /** 
  * Побитовое И (& 1 2 3)
  *
@@ -325,20 +340,13 @@ object_t equal(object_t obj1, object_t obj2)
  */
 object_t bitwise_and(object_t list)
 {
-    if (!IS_NUMBER(FIRST(list))) 
-	error("bitwise_and: Not a number");
-    int num = get_value(FIRST(list));
-    list = TAIL(list);
-    while (list != NULLOBJ) {
-	object_t first = FIRST(list);
-	if (IS_NUMBER(first)) {  
-	    num &= get_value(first);
-	    list = TAIL(list);
+    object_t num = new_number(0xFFFFFFFF);
+	while (list != NULLOBJ) {
+	object_t obj2 = FIRST(list);
+	num = bitwise_and2(num, obj2);
+	list = TAIL(list);
 	}
-	else
-	    error("bitwise_and: Not number");
-    }
-    return new_number(num);
+	return num;
 }
 
 /** 
