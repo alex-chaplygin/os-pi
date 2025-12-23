@@ -1,12 +1,12 @@
 block = {stat [";"]} [laststat [";"]]
-stat = Name "=" exp 
+stat = var "=" exp 
 stat = "local" Name "=" exp
 stat = "if" exp "then" block {"elseif" exp "then" block} ["else" block] "end"
 stat = "for" Name "=" exp "," exp ["," exp] "do" block "end"
 stat = "repeat" block "until" exp
 stat = "while" exp "do" block "end"
 stat = functioncall
-stat = "function" Name funcbody
+stat = "function" funcname funcbody
 stat = "local" "function" Name funcbody
 stat = "do" block "end"
 laststat = ("return" exp) | "break"
@@ -16,15 +16,22 @@ conjunct = comparand {("==" comparand) | ("~=" comparand) | ("<" comparand) | ("
 comparand = concater {".." concater}
 concater = term {("+" term) | ("-" term)}
 term = factor {("*" factor) | ("/" factor)}
-factor = ["not"] | "-" ] value
+factor = ["not"] | [ "-" ] | [ "#" ] value
 primary_exp = "true" | "false" | "nil" | Num | prefixexp | function
 primary  = Name | "(" exp ")"
 functioncall = primary {prefixexp_tail} callargs
+var = primary {prefixexp_tail} ('[' exp ']') | ('.' Name)
 prefixexp = primary {prefixexp_tail}
-prefixexp_tail = ('[' exp ']') | ('.' Name) | callargs
+prefixexp_tail = ('[' exp ']') | ('.' Name) | [':' Name] callargs
 args = "(" [namelist] ")"
 callargs = "(" [explist] ")"
 namelist = Name {"," Name}
 explist = exp {, exp}
+varlist = var {, var}
+funcname = Name {"." Name} [":" Name]
 function = "function" funcbody
 funcbody = args block "end"
+tableconstructor = `{´ [fieldlist] `}´
+fieldlist = field {fieldsep field} [fieldsep]
+field = `[´ exp `]´ `=´ exp | Name `=´ exp | exp
+fieldsep = `,´ | `;´

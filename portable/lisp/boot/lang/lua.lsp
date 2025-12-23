@@ -18,7 +18,7 @@
 
 (defun is-lua-op(char)
   "Предикат проверки на оператор в Lua"
-  (contains (list #\- #\+ #\* #\/ #\> #\< #\= #\%) char))
+  (contains (list #\- #\+ #\* #\/ #\> #\< #\= #\% #\#) char))
 
 (defun is-lua-comp-op(char)
   "Предикат проверки на оператор сравнения в Lua"
@@ -64,7 +64,8 @@
   "Разбор строки"
   (parse-app (&&& (parse-elem quotes)
 		  (parse-app (parse-many (parse-str-char quotes)) #'(lambda (char-list) (implode char-list)))
-		  (parse-elem quotes)) #'second))
+		  (parse-elem quotes))
+	     #'second))
 
 (defun parse-numeral()
   "Лексический разбор числа"
@@ -76,6 +77,12 @@
 	    (parse-elem #\))
 	    (parse-elem #\,)
 	    (parse-elem #\;)
+	    (parse-elem #\{)
+	    (parse-elem #\})
+	    (parse-elem #\[)
+	    (parse-elem #\])
+	    (parse-elem #\:)
+	    (parse-app (parse-elem #\#) (parse-return 'lua-len))
 	    (parse-app (&&& (parse-elem #\.) (parse-elem #\.)) (parse-return 'lua-concat))
 	    (parse-elem #\.)
 	    (parse-app (&&& (parse-pred #'is-lua-comp-op) (parse-elem #\=)) #'char-list-to-symbol)
@@ -95,9 +102,13 @@
   "Является ли символ ключевым словом Lua"
   (contains '(if else elseif then end lua-set false-const true-const nil-const for do break repeat until while local function) sym))
 
+(defun is-lua-fieldsep(sym)
+  "Является ли символ унарным оператором Lua"
+  (contains '(#\; #\,) sym))
+
 (defun is-lua-unop(sym)
   "Является ли символ унарным оператором Lua"
-  (contains '(lua-not -) sym))
+  (contains '(lua-not - lua-len) sym))
 
 (defun is-lua-binop(sym)
   "Является ли символ бинарным оператором Lua"
@@ -131,7 +142,7 @@
   `(let ((,(second stat) ,(forth stat))
 	  (_limit ,(sixth stat))
 	  (_step ,(if (null (seventh stat)) 1 (second (seventh stat)))))
-     (lua-while (lua-is-true
+     (while (lua-is-true
 	     (lua-or
 	      (lua-and (lua-> _step 0) (lua-<= ,(second stat) _limit))
 	      (lua-and (lua-<= _step 0) (lua->= ,(second stat) _limit))))
@@ -140,11 +151,11 @@
 
 (defun translate-while(stat)
   "Транслирует цикл while"
-  `(lua-while (lua-is-true ,(second stat)) ,(forth stat)))
+  `(while (lua-is-true ,(second stat)) ,(forth stat)))
 
 (defun translate-until(stat)
   "Транслирует цикл repeat until"
-  `(lua-until (lua-is-true ,(forth stat)) ,(second stat)))
+  `(until (lua-is-true ,(forth stat)) ,(second stat)))
 
 (defun translate-list(l)
   "Транслирует список аргументов для вызова или определения функции"
@@ -156,7 +167,13 @@
 
 (defun translate-functionset(func)
   "Транслирует определение глобальной функции"
-  `(setq ,(second func) (function (lambda ,(car (third func)) ,(second (third func))))))
+  (if (pairp (second func))
+    `(lua-set-index ,(second (second func)) ,(third (second func)) (function (lambda ,(car (third func)) ,(second (third func)))))
+    `(setq ,(second func) (function (lambda ,(car (third func)) ,(second (third func)))))))
+
+(defun translate-functionselfset(func)
+  "Транслирует определение глобальной функции"
+    `(lua-set-index ,(second func) ,(symbol-name (forth func)) (function (lambda (self ,@(car (fifth func))) ,(second (fifth func))))))
 
 (defun translate-localfunction(func)
   "Транслирует определение локальной функции"
@@ -172,10 +189,21 @@
 	 (foldl #'(lambda (acc lst)
 		    (let ((op (car lst))
 			  (args (cdr lst)))
-               `(,op ,acc ,@args)))
+		      (if (eq op 'funcall-self)
+			  `(let ((__t ,acc)) (funcall (lua-get-index  __t ,(second lst)) __t ,@(third lst)))
+			  `(,op ,acc ,@args))))
            func-name
-           lists))
-      ))
+           lists))))
+
+(defun translate-funcname(prefixexp)
+  "Транслирует имя функции для присваивания таблице"
+  (if (null (second prefixexp))
+      (car prefixexp)
+    (let ((func-name (car prefixexp))
+	  (lists (second prefixexp))) 
+	 (foldl #'(lambda (acc lst) `(lua-get-index ,acc ,(symbol-name lst)))
+           func-name
+           lists))))
 
 (defun parse-const()
   "Парсит константы true, false и nil"
@@ -221,12 +249,49 @@
   "Парсит определение функции"
   (parse-app (&&& (parse-elem 'function) (parse-funcbody)) #'translate-function))
 
+(defun parse-funcname()
+  (parse-app (&&& (parse-name) (parse-many (parse-app (&&& (parse-elem #\.) (parse-name)) #'second)))
+	     #'translate-funcname))
+
 (defun parse-functioncall()
   "Парсит вызов функции"
   (parse-app #'(lambda (stream)
       (let ((res (funcall (&&& (parse-primary) (parse-some (parse-prefixexp-tail))) stream)))
 	(if (null res) nil
-	  (if (= (car (last (second (car res)))) 'funcall) res nil)))) #'translate-prefixexp))
+	  (let ((op (car (last (second (car res)))))) (if (or (eq op 'funcall) (eq op 'funcall-self)) res nil)))))
+	     #'translate-prefixexp))
+
+(defun parse-var()
+  "Парсит "
+  (parse-app #'(lambda (stream)
+      (let ((res (funcall (&&& (parse-primary) (parse-many (parse-prefixexp-tail))) stream)))
+	(if (null res) nil
+	  (if (not (pairp (second res))) res
+	    (if (not (pairp (car (second res)))) res
+	    (if (= (car (last (second (car res)))) 'lua-get-index) res nil))))))
+	     #'translate-prefixexp))
+
+(defun parse-varlist()
+  "Парсит список имен Name"
+  (parse-app (&&& (parse-var) (parse-many (&&& (parse-elem #\,) (parse-var))))
+	     #'translate-list))
+
+(defun parse-field()
+  (parse-or
+   (parse-app (&&& (parse-elem #\[) (parse-exp) (parse-elem #\]) (parse-elem 'lua-set) (parse-exp))
+	      #'(lambda (field) `(cons ,(second field) ,(fifth field))))
+   (parse-app (&&& (parse-name) (parse-elem 'lua-set) (parse-exp))
+	      #'(lambda (field) `(cons ,(symbol-name (car field)) ,(third field))))
+   (parse-app (parse-exp)
+	      #'(lambda (field) `(cons 'indexed ,field)))))
+
+(defun parse-fieldlist()
+  (parse-app (&&& (parse-field) (parse-many (&&& (parse-pred #'is-lua-fieldsep) (parse-field))) (parse-optional (parse-pred #'is-lua-fieldsep)))
+	     #'(lambda (field) `(list ,(car field) ,@(map #'second (second field))))))
+
+(defun parse-tableconstructor()
+  (parse-app (&&& (parse-elem #\{) (parse-optional (parse-fieldlist)) (parse-elem #\}))
+	     #'(lambda (table) `(lua-createtable ,(second table)))))
 
 (defun parse-primary()
   "Парсит первичную составляющую выражения - имя или другое выражение в скобочках"
@@ -241,9 +306,14 @@
 (defun parse-prefixexp-tail()
   "Парсит индексацию, обращение к полю или вызов функции"
   (parse-or
-	     (&&& (parse-elem #\[) (parse-rec (parse-exp)) (parse-elem #\])) ; TODO
-	     (&&& (parse-elem #\.) (parse-name)) ; TODO
-	     (parse-app (parse-callargs) #'(lambda (callargs) (cons 'funcall callargs)))))
+   (parse-app (&&& (parse-elem #\[) (parse-rec (parse-exp)) (parse-elem #\]))
+	      #'(lambda (name) `(lua-get-index ,(second name))))
+   (parse-app (&&& (parse-elem #\.) (parse-name))
+	      #'(lambda (name) `(lua-get-index ,(symbol-name (second name))))) 
+   (parse-app (&&& (parse-optional (&&& (parse-elem #\:) (parse-name))) (parse-callargs))
+	      #'(lambda (callargs) (if (null (car callargs))
+				       (cons 'funcall (second callargs))
+				       `(funcall-self ,(symbol-name (second (car callargs))) ,(second callargs)))))))
 
 
 (defun parse-value()
@@ -251,6 +321,7 @@
    (parse-or
     (parse-num)
     (parse-string)
+    (parse-tableconstructor)
     (parse-function)
     (parse-prefixexp)
     (parse-const)))
@@ -305,9 +376,9 @@
 (defun parse-stat()
   "Парсит инструкцию"
   (parse-or
-   ;; stat = Name "=" exp
-   (parse-app (&&& (parse-name) (parse-elem 'lua-set) (parse-exp))
-	      #'(lambda (stat) `(setq ,(car stat) ,(third stat))))
+   ;; stat = varlist "=" explist
+   (parse-app (&&& (parse-varlist) (parse-elem 'lua-set) (parse-explist))
+	      #'(lambda (stat) `(lua-set ,(car stat) ,(third stat))))
    ;; stat = "local" Name "=" exp
    (parse-app (&&& (parse-elem 'local) (parse-name) (parse-elem 'lua-set) (parse-exp) (parse-rec (parse-block)))
 	      #'(lambda (stat) `(let ((,(second stat) ,(forth stat))) ,(fifth stat))))
@@ -328,9 +399,11 @@
    ;; stat = "while" exp "do" block "end"
    (parse-app (&&& (parse-elem 'while) (parse-exp) (parse-elem 'do) (parse-rec (parse-block)) (parse-elem 'end))
 	      #'translate-while)
-   ;; stat = "function" Name funcbody
-   (parse-app (&&& (parse-elem 'function) (parse-name) (parse-funcbody))
-	      #'translate-functionset)
+   ;; stat = "function" funcname funcbody
+   (parse-app (&&& (parse-elem 'function) (parse-funcname) (parse-funcbody))
+    	      #'translate-functionset)
+   (parse-app (&&& (parse-elem 'function) (parse-funcname) (parse-elem #\:) (parse-name) (parse-funcbody))
+    	      #'translate-functionselfset)
    ;; stat = "local" "function" Name funcbody
    (parse-app (&&& (parse-elem 'local) (parse-elem 'function) (parse-name) (parse-funcbody) (parse-rec (parse-block)))
 	      #'translate-localfunction)
@@ -340,7 +413,7 @@
 
 (defun parse-laststat()
   "Парсит последнюю инструкцию в блоке: return exp или break"
-  (parse-or (parse-app (parse-elem 'break) (parse-return `(go lua-break)))
+  (parse-or (parse-app (parse-elem 'break) (parse-return `(go break)))
 	    (parse-app (&&& (parse-elem 'return) (parse-exp)) #'second)))
 
 (defun parse-block()

@@ -67,28 +67,62 @@
 (defun lua-concat(a b)
   (concat (lua-to-str a) (lua-to-str b)))
 
-(defmacro lua-while (test &rest bod)
-  "Цикл while"
-  (let ((loops (gensym))
-	(tests (gensym)))
-    `(tagbody
-	(go ,tests)
-	,loops
-	,@bod
-	,tests
-	(if ,test (go ,loops) nil)
-	lua-break
-	)))
+(defun lua-len(x)
+  (cond ((stringp x) (string-size x))
+	((pairp x) (- (list-length x) 1))))
 
-(defmacro lua-until (test &rest bod)
-  "Цикл while"
-  (let ((loops (gensym))
-	(tests (gensym)))
-    `(tagbody
-	(go ,loops)
-	,loops
-	,@bod
-	,tests
-	(if ,test (go ,loops) nil)
-	lua-break
-	)))
+(defun get-hash-unchecked* (hash key)
+  "Возвращает значение по ключу key из таблицы hash"
+  (if (null hash) nil-const
+  (if (equal key (caar hash)) (cdar hash)
+    (get-hash-unchecked* (cdr hash) key))))
+
+(defun get-hash-unchecked (hash key)
+  (if (empty-hash hash) nil-const
+  (get-hash-unchecked* (cdr hash) key)))
+
+(defun remove-key-unchecked* (prev hash key)
+  (unless (null hash) 
+  (if (equal key (caar hash)) (rplacd prev (cdr hash))
+    (remove-key-unchecked* (cdr prev) (cdr hash) key))))
+
+(defun remove-key-unchecked (hash key)
+  "Удаляет ключ key в таблице hash, без проверки вхождения"
+  (unless (null hash)
+    (remove-key-unchecked* hash (cdr hash) key)))
+
+(defun lua-set-index(table key value)
+  (when (eq key 'lua-nil) (error "table index is nil"))
+  (if (eq value 'lua-nil)
+      (remove-key-unchecked table key)
+      (set-hash table key value)))
+
+(defun lua-get-index(table key)
+  (when (eq key 'lua-nil) (error "table index is nil"))
+  (get-hash-unchecked table key))
+
+(defun lua-createtable(fieldlist)
+  (let ((table (make-hash))
+	(index 0))
+    (map
+     #'(lambda (field)
+	 (if (eq (car field) 'indexed)
+	     (set-hash table (setq index (++ index)) (cdr field))
+	     (set-hash table (car field) (cdr field))))
+     fieldlist)
+    table))
+
+(defmacro lua-set-internal(varlist exps)
+  `(progn ,@(let ((i -1)) (map #'(lambda (var)
+			   (let ((exp (if (<= (incf i) (list-length exps)) (nth exps i) 'nil-const)))
+			       (if (pairp var)
+				 `(lua-set-index ,(second var) ,(third var) ,exp)
+			         `(setq ,var ,exp))))
+			       varlist))))
+
+(defmacro lua-set(varlist explist)
+  (let ((exps (map #'(lambda (exp) (list (gensym) exp)) explist)))
+    
+   `(let ,exps (lua-set-internal ,varlist ,(map #'car exps)))))
+
+

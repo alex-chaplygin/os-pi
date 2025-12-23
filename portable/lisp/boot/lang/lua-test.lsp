@@ -17,15 +17,26 @@
 ; 		    '(#\( name1 #\, name2 #\, name3 #\)))))))
 
 
+
+(deftest test-hash()
+  "hash test"
+  (setq a 1)
+  (setq b 2)
+  (lua-set (a b) (b a))
+  (print a b)
+  (print (lua-createtable (list '("a" "first") '(indexed "second") '(indexed "third") '("b" "fourth")))))
+
 (deftest parse-function-test()
   "Выполняет тест парса функции"
   (print (car (funcall (parse-function) (stream-from-list
 		    '(FUNCTION #\( ARG #\) ARG LUA-SET 100 END))))))
 
+
 (deftest lua-lexer-test()
   "Выполняет тест лексического на Lua в Lisp-выражение"
    (print (car (lua-lexer "
-a = function (abc)
+print(a.b.c)
+a = { b = '1', c = '2', 3,4 };
 abc = 100
 end                        
  b = \"aboaasd\"           
@@ -34,50 +45,63 @@ end
 (deftest lua-test()
   "Выполняет тест преобразования строки на Lua в Lisp-выражение"
    (print (lua-to-lisp "
-function createMultiplier(factor)
-     return function(x)
-         a = x * factor
-         print(a)
-         return a
-     end
- end
+Person = {}
 
+function Person.new(name, age)
+   local p = {}
+   p.name = name
+   p.age = age
+   function p:get_name()
+      return self.name
+   end
 
- multiplyBy5 = createMultiplier(5)
- multiplyBy10 = createMultiplier(10)
+   function p:set_name(name)
+      self.name = name
+   end
 
- multiplyBy5(90) 
- multiplyBy10(90);
+   function p:hello()
+      return 'Hello, my name is ' .. self.name .. ', i am ' .. self.age .. ' years old'
+   end
 
- (function (x)
-    print('x * 2 = ' .. x * 2 .. ', x = ' .. x)
- end)(10)
+   return p
+end
 
- createMultiplier(10)(100)")))
+vasya = Person.new('Vasya', 30)
+kolya = Person.new('Kolya', 20)
+vasya, kolya = kolya, vasya
+print(vasya:hello())
+print(kolya:hello())")))
 
 (deftest lua-progn-test()
   "Выполняет тест исполнения Lisp-выражения, преобразованного из Lua кода"
    (eval (lua-to-lisp
- "function createMultiplier(factor)
-     return function(x)
-         a = x * factor
-         print('x * factor = ' .. a)
-         return a
-     end
- end
+ "
+Person = {}
 
+function Person.new(name, age)
+   local p = {}
+   p.name = name
+   p.age = age
+   function p:get_name()
+      return self.name
+   end
 
- multiplyBy5 = createMultiplier(5)
- multiplyBy10 = createMultiplier(10)
+   function p:set_name(name)
+      self.name = name
+   end
 
- multiplyBy5(90) 
- multiplyBy10(90);
+   function p:hello()
+      return 'Hello, my name is ' .. self.name .. ', i am ' .. self.age .. ' years old'
+   end
 
- (function (x)
-    print('x * 2 = ' .. x * 2 .. ', x = ' .. x)
- end)(10)
+   return p
+end
 
- createMultiplier(10)(100)"))
+vasya = Person.new('Vasya', 30)
+kolya = Person.new('Kolya', 20)
+vasya, kolya = kolya, vasya
+print(vasya:hello())
+print(kolya:hello())"))
   ; (print `(a = ,a b = ,b c = ,c))
    )
 
