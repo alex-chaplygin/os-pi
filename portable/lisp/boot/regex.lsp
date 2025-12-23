@@ -86,12 +86,6 @@
     (parse-optional (parse-elem #\?)))
    #'(lambda (x) (list (car x) (when (second x) 'lazy)))))
 
-(defun repeat-element (n element)
-"Создает список из n раз повторяющихся элементов element"
-  (if (<= n 0)
-      nil
-      (cons element (repeat-element (- n 1) element))))
-
 (defun app-quant (x)
   "Применяет квантификатор к элементу"
   (if (second x)
@@ -107,10 +101,10 @@
 	       ((and (<= start-count 0) (= end-count 1)) (if lazy `(or (epsilon) ,(car x)) `(or ,(car x) (epsilon))))
 	       ((and (= start-count 1) (null end-count)) (car x))
 	       (t `(seq
-		    ,@(repeat-element start-count (car x))
+		    ,@(make-list start-count (car x))
 		    ,@(cond
 			((= end-count 'more) `((,(if lazy 'lazy-star 'star) ,(car x))))
-			((integerp end-count) (repeat-element end-count (if lazy `(or (epsilon) ,(car x)) `(or ,(car x) (epsilon)))))
+			((integerp end-count) (make-list end-count (if lazy `(or (epsilon) ,(car x)) `(or ,(car x) (epsilon)))))
 			(t '())))))))
 	  
 	  ('star (app-quant (list (car x) `((repeat 0 more) ,lazy))))
