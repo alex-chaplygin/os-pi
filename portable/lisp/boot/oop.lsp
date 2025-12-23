@@ -1,8 +1,13 @@
 ;; Максимальное количество классов
 (defconst +max-class-count+ 100)
 
+;; Максимальное количество методов
+(defconst +max-methods-count+ 100)
+
 ;; Индекс последнего созданного класса
 (defvar *last-class* 0)
+;; Индекс последнего созданного метода
+(defvar *last-method* 0)
 
 ;; Индекс слотов в массиве класса
 (defconst +slots-id+ 0)
@@ -25,6 +30,12 @@
 
 ;;Массив имен классов (имена хранятся в форме символов)
 (defvar *class-names* (make-array +max-class-count+))
+
+;;Массив имен методов (имена методов хранятся в форме символов)
+(defvar *methods-names* (make-array +max-methods-count+))
+
+;;Хеш-таблица методов (хеш по class-id + method-id)
+(defvar *methods* (make-hash))
 
 (defun make-indexing-list (list start)
   "Преобразует список в список точечных пар (индекс . значение)"
@@ -74,14 +85,23 @@
     (seta obj +class-id+ index)
     obj))
 
+(defun check-class-type (child-class-id target-class-id)
+  "Проверяет принадлежит ли класс или его родители к target-class"
+  (if (null child-class-id) nil
+      (if (= child-class-id target-class-id) T
+	  (let ((child-class (aref *class-table* child-class-id)))
+            (if (null child-class) nil
+		(check-class-type (aref child-class +parent-id+) target-class-id))))))
+
+
 (defmacro defclass (name parent slots)
   "Создание нового класса
-  ;; make-point (x y)
-  ;; (seta obj 1 x)
-  ;; (seta obj 2 y)
   name - имя, parent - родительский класс,
   slots - список полей"
   "(defclass point (x y) ())"
+  ;; make-point (x y)
+  ;; (seta obj 1 x)
+  ;; (seta obj 2 y)
   `(let* ((parent-id (get-class-id ',parent))
 	  (class (make-array 3)))
      (seta class +slots-id+ ',slots)
@@ -90,42 +110,77 @@
      (seta *class-table* *last-class* class)
      (seta *class-names* *last-class* ',name))
   `(defun ,(intern (concat "MAKE-" (symbol-name name))) ,(get-slots *last-class*)
+     "Создает функцию-конструктор для класса"
      (let ((obj (make-instance ',name)))
        ,@(map #'(lambda(s) `(seta obj ,(car s) ,(cdr s)))
 	      (make-indexing-list (get-slots *last-class*) +slot-id+))
-        obj))
+       obj))
+  `(defun ,(intern (concat (symbol-name name) "P")) (obj)
+     "Создает функцию проверки типа (возвращает true, если объект принадлежит типу)"
+     (if (null obj) nil
+	 (check-class-type (aref obj +class-id+) ,*last-class*)))
   `(gen-class-functions ,name ,(make-indexing-list (get-slots *last-class*) +slot-id+))
   `(incf *last-class*)
   `',name)
 
-;; (defun get-method (class-name method-name)
-;;   "Рекурсивно возвращает тело метода method-name из класса class-name"
-;;   (if (null class-name) (error (concat "no method " (symbol-name method-name)))
-;;     (let ((class (slot *class-table* class-name)))
-;;       (if (check-key class method-name)
-;; 	  (slot class method-name)
-;; 	(get-method (slot class 'parent) method-name)))))
+(defun get-method-id (method-name)
+  "Получение id метода"
+  (if (null method-name) nil
+      (labels ((search (index)
+		 (if (= index *last-method*) nil
+                     (if (eq method-name (aref *methods-names* index)) index
+			 (search (++ index))))))
+	(search 0))))
 
-;; (defmacro defmethod (name args &rest body)
-;;   "Определяет метод с именем name"
-;;   "args - аргументы, первый аргумент состоит из имени экземпляра объекта и имени класса"
-;;   "body - тело метода"
-;;   `(let ((class (slot *class-table* ',(cadar args))))
-;;      (set-hash class ',name #'(lambda ,(cons (caar args) (cdr args)) ,@body)))
-;;   `(defun ,name ,(cons (caar args) (cdr args))
-;;      (funcall (get-method (slot ,(caar args) 'class) ',name) ,(caar args) ,@(cdr args))))
+(defun dispatch-method (class-id method-id)
+  "Ищет реализацию метода method-id класса class-id по родителям"
+  (if (null class-id) nil
+      (let* ((key (cons method-id class-id))
+             (dispatched-method (get-hash *methods* key)))
+	(if (null dispatched-method)
+            (let ((class (aref *class-table* class-id)))
+              (if (null class) nil
+		  (dispatch-method (aref class +parent-id+) method-id)))
+            dispatched-method))))
+
+(defun get-method (class-id method-name)
+  "Рекурентно возвращает тело метода method-name из класса class-name"
+  (let ((method-id (get-method-id method-name)))
+    (if (null method-id) (error (concat "no method " (symbol-name method-name)))
+	(let ((method (dispatch-method class-id method-id)))
+          (if (null method) (error (concat "no method " (symbol-name method-name)))
+              method)))))
+
+(defmacro defmethod (name args &rest body)
+  "Определяет метод с именем name"
+  (let* ((self   (caar args))
+         (class-name (cadar args))
+         (method-args (cdr args)))
+    `(let* ((class-id  (get-class-id ',class-name))
+            (method-id (get-method-id ',name)))
+       (if (null method-id)
+           (progn
+             (seta *methods-names* *last-method* ',name)
+             (setq method-id *last-method*)
+             (incf *last-method*))
+           nil)
+       (set-hash *methods* (cons method-id class-id) #'(lambda ,(cons self method-args) ,@body))
+       (defun ,name ,(cons self method-args)
+         (funcall (get-method (aref ,self +class-id+) ',name) ,self ,@method-args))
+       ',name)))
 
 (defmacro super (method-name obj &rest args)
   "Вызов метода method-name родителя экземпляра класса obj с аргументами args"
-  `(let ((origclass (slot ,obj 'class)) (res nil))
-     (setf (slot ,obj 'class) (slot (slot *class-table* (slot ,obj 'class)) 'parent))
-     (setq res (funcall (get-method (slot ,obj 'class) ',method-name) ,obj ,@args))
-     (setf (slot ,obj 'class) origclass)
-     res))
-
-(defun get-class (obj)
-  "Получить символ класса из объекта"
-  (get-hash obj 'class))
+  `(let* ((original-class-id (aref ,obj +class-id+))
+          (parent-class-id   (aref (aref *class-table* original-class-id) +parent-id+))
+          (call-result nil))
+     (if (null parent-class-id) (error (concat "no parent for " (itoa original-class-id)))
+	 (progn
+           (seta ,obj +class-id+ parent-class-id)
+           (setq call-result
+		 (funcall (get-method parent-class-id ',method-name) ,obj ,@args))
+           (seta ,obj +class-id+ original-class-id)
+	   call-result))))
 
 (defmacro with-slots (class vars obj &rest body)
   "Макрос для связывания полей vars объекта obj с переменными и выполнение действий"
