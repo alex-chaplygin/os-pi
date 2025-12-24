@@ -660,20 +660,6 @@ void test_bitwise_or(int num1, int num2, int res)
 }
 
 /**
- * Тест побитового ИЛИ для пустого ввода
- */
-void test_bitwise_or_null()
-{
-    printf("test_bitwise_or_null:");
-    if (setjmp(jmp_env) == 0) {
-        object_t list = NULLOBJ;
-        object_t obj_res = bitwise_or(list);
-        FAIL;
-    } else 
-        OK;
-}
-
-/**
  * Тест побитового ИЛИ для неверного ввода
  */
 void test_bitwise_or_no_number()
@@ -1236,7 +1222,6 @@ int main()
     test_bitwise_and_number_sym();
     test_bitwise_or(0xA, 5, 0xF);//1010|101
     test_bitwise_or(0, 0, 0);
-    test_bitwise_or_null();
     test_bitwise_or_no_number();
     test_shift_left(2, 3, 16); //10000
     test_shift_right(10, 2, 2);

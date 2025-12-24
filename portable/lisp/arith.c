@@ -326,9 +326,9 @@ object_t equal(object_t obj1, object_t obj2)
  */
 object_t bitwise_and2(object_t obj1, object_t obj2)
 {
-	if (!IS_NUMBER(obj1) || !IS_NUMBER(obj2))
-		error("bitwise_and2: Not a number");
-	return new_number(get_value(obj1) & get_value(obj2));
+    if (!IS_NUMBER(obj1) || !IS_NUMBER(obj2))
+	error("bitwise_and: Not a number");
+    return new_number(get_value(obj1) & get_value(obj2));
 }
 
 /** 
@@ -341,12 +341,27 @@ object_t bitwise_and2(object_t obj1, object_t obj2)
 object_t bitwise_and(object_t list)
 {
     object_t num = new_number(0xFFFFFFFF);
-	while (list != NULLOBJ) {
+    while (list != NULLOBJ) {
 	object_t obj2 = FIRST(list);
 	num = bitwise_and2(num, obj2);
 	list = TAIL(list);
-	}
-	return num;
+    }
+    return num;
+}
+
+/**
+ * Побитовое ИЛИ для 2-ух аргументов
+ *
+ * @param obj1 - число 1
+ * @param obj2 - число 2
+ *
+ * @return результат побитового ИЛИ
+ */
+object_t bitwise_or2(object_t obj1, object_t obj2)
+{
+    if (!IS_NUMBER(obj1) || !IS_NUMBER(obj2))
+	error("bitwise_or: Not a number");
+    return new_number(get_value(obj1) | get_value(obj2));
 }
 
 /** 
@@ -358,20 +373,28 @@ object_t bitwise_and(object_t list)
  */
 object_t bitwise_or(object_t list)
 {
-    if (list == NULLOBJ)
-	error("bitwise_or: no arguments");
-    int num = get_value(FIRST(list));
-    list = TAIL(list);
+    object_t num = new_number(0);
     while (list != NULLOBJ) {
-	object_t first = FIRST(list);
-	if (IS_NUMBER(first)) {  
-	    num |= get_value(first);
-	    list = TAIL(list);
-	}
-	else
-	    error("bitwise_or: Not number");
+	object_t obj2 = FIRST(list);
+	num = bitwise_or2(num, obj2);
+	list = TAIL(list);
     }
-    return new_number(num);
+    return num;
+}
+
+/**
+ * Побитовое исключающее ИЛИ для 2-ух аргументов
+ *
+ * @param obj1 - число 1
+ * @param obj2 - число 2
+ *
+ * @return результат побитового исключающее ИЛИ
+ */
+object_t bitwise_xor2(object_t obj1, object_t obj2)
+{
+    if (!IS_NUMBER(obj1) || !IS_NUMBER(obj2))
+	error("bitwise_xor: Not a number");
+    return new_number(get_value(obj1) ^ get_value(obj2));
 }
 
 /** 
@@ -383,20 +406,12 @@ object_t bitwise_or(object_t list)
  */
 object_t bitwise_xor(object_t list)
 {
-    if (list == NULLOBJ)
-	error("bitwise_xor: no arguments");
-    int num = get_value(FIRST(list));
-    list = TAIL(list);
+    object_t num = new_number(0xFFFFFFFF);
     while (list != NULLOBJ) {
-	object_t first = FIRST(list);
-	if (IS_NUMBER(first)) {  
-	    num ^= get_value(first);
-	    list = TAIL(list);
-	}
-	else
-	    error("bitwise_xor: Not number");
+	object_t obj2 = FIRST(list);
+	num = bitwise_xor2(num, obj2);
+	list = TAIL(list);
     }
-    return new_number(num);
 }
 
 /**
@@ -409,8 +424,8 @@ object_t bitwise_xor(object_t list)
  */
 object_t shift_left(object_t obj1, object_t obj2)
 {
-    if (obj1 == NULLOBJ || obj2 == NULLOBJ)
-        return 1;
+    if (!IS_NUMBER(obj1) || !IS_NUMBER(obj2))
+	error("<<: Not a number");
     int num = get_value(obj1) << get_value(obj2);
     return new_number(num);
 }
@@ -425,8 +440,8 @@ object_t shift_left(object_t obj1, object_t obj2)
  */
 object_t shift_right(object_t obj1, object_t obj2)
 {
-    if (obj1 == NULLOBJ || obj2 == NULLOBJ)
-        return 1;
+    if (!IS_NUMBER(obj1) || !IS_NUMBER(obj2))
+	error(">>: Not a number");
     int num = get_value(obj1) >> get_value(obj2);
     return new_number(num);
 }
@@ -461,7 +476,7 @@ object_t SIN(object_t obj1)
 {
     float num = 0;
     if(TYPE(obj1) != FLOAT)
-	return 1;
+	error("sin: not float");
     else
 	return new_float(sinf(GET_FLOAT(obj1)->value));
 }
@@ -477,7 +492,7 @@ object_t COS(object_t obj1)
 {
     float num = 0;
     if(TYPE(obj1) != FLOAT)
-	return 1;
+	error("cos: not float");
     else
 	return new_float(cosf(GET_FLOAT(obj1)->value));
 }
@@ -491,10 +506,8 @@ object_t COS(object_t obj1)
  */
 object_t ROUND(object_t obj1)
 {
-    if (obj1 == NULLOBJ)
-        return 1;
     if (TYPE(obj1) != FLOAT)
-	return 1;
+	error("round: not float");
     else {
 	int v = (int)roundf(GET_FLOAT(obj1)->value);
 	return new_number(v);
@@ -510,8 +523,8 @@ object_t ROUND(object_t obj1)
  */
 object_t SQRT(object_t obj1)
 {
-    if (obj1 == NULLOBJ)
-        return 1;
+    if (TYPE(obj1) != FLOAT)
+	error("sqrt: not float");
     float num;
     if (TYPE(obj1) == FLOAT) {
         num = GET_FLOAT(obj1)->value;
