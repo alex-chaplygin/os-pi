@@ -22,6 +22,7 @@ void print_stack_trace();
 extern token_t token;
 // точка начала цикла REPL
 extern jmp_buf repl_buf;
+extern unsigned char *stack_start;
 
 char *itoa(int num, char *str, int rad)
 {
@@ -48,6 +49,8 @@ char *itoa(int num, char *str, int rad)
 
 int main()
 {
+    register int esp asm("esp");
+    stack_start = (unsigned char *)esp;
     init_all();
     
     do {

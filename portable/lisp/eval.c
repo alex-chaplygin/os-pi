@@ -67,6 +67,8 @@ extern int ct_index_buf;
 object_t cur_label = NULLOBJ;
 /// объект, который возвращается при переходах управления
 object_t return_obj = NULLOBJ;
+/// Адрес начала копируемого стека для продолжений
+unsigned char *stack_start;
 #ifdef DEBUG
 /// Стек
 object_t debug_stack = NULLOBJ;
@@ -1064,15 +1066,21 @@ object_t function(object_t func)
  * @return значение функции или аргумент при возврате (продолжение вызывается как функция)
  */
 object_t callcc(object_t fun)
-{
+{    
     if (TYPE(fun) != FUNCTION)
 	error("call/cc: not function");
     function_t *f = GET_FUNCTION(fun);
     if (list_length(f->args) != 1)
 	error("call/cc: function must be one arg: %d", f->count);
     jmp_buf buf;
+    register int esp asm("esp");
     if (setjmp(buf) == 0) {
 	object_t cont = new_continuation(buf);
+	continuation_t *c = GET_CONTINUATION(cont);
+	c->size = stack_start - (unsigned char *)esp;
+	if (c->size >= MAX_CONT_STACK)
+	    error("call/cc: maximum stack");
+	memcpy(c->stack, (unsigned char *)esp, c->size);
 	symbol_t *s = GET_SYMBOL(FIRST(f->args));
 	return eval_func(new_pair(NEW_SYMBOL("LAMBDA"), new_pair(f->args, f->body)),
 			 new_pair(cont, NULLOBJ), f->env, func_env);
@@ -1097,6 +1105,7 @@ object_t call_continuation(object_t cont, object_t value)
     current_env = c->environment;
     func_env = c->func_environment;
     last_protected = c->last_protected;
+    memcpy(stack_start - c->size, c->stack, c->size);
     longjmp(c->buffer, 1);
 }
 

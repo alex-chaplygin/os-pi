@@ -1,3 +1,4 @@
+#define MAX_CONT_STACK (1024 * 16)
 
 /// Объект - продолжение
 typedef struct continuation_s {
@@ -5,13 +6,11 @@ typedef struct continuation_s {
     object_t environment;	/**< Сохраненное окружение переменных */
     object_t func_environment;	/**< Сохраненное окружение функций */
     int last_protected;		/**< Сохраненное число временных объектов */
+    unsigned char stack[MAX_CONT_STACK]; /**< Сохраненный стек */
+    int size;			/**< Размер стека */
     struct continuation_s *next;
     int free; // Если 1 - продолжение свободно
-#ifdef X32
     int pad[3]; 
-#else
-    int pad[4]; 
-#endif
 } continuation_t;
 
 /// Объект - точка возврата с меткой

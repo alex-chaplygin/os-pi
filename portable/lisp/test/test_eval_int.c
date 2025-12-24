@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <setjmp.h>
 #include "objects.h"
+#include "cont.h"
 #include "symbols.h"
 #include "eval.h"
 #include "test.h"
@@ -13,6 +14,7 @@
 extern object_t t;
 extern object_t nil;
 extern object_t current_env;
+extern unsigned char *stack_start;
 
 object_t  make_env(object_t args, object_t values);
 int find_in_env(object_t env, object_t sym, object_t *res);

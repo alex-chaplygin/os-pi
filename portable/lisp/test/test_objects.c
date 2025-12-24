@@ -139,6 +139,7 @@ void test_new_continuation()
         object_t cont = new_continuation(buf);
         ASSERT(TYPE(cont), CONTINUATION);
         continuation_t *c = (continuation_t *)GET_ADDR(cont);
+	printf("sizeof %d\n", sizeof(continuation_t));
         ASSERT(memcmp(c->buffer, buf, sizeof(jmp_buf)), 0);
         ASSERT(last_continuation, 1);
         free_continuation(c);

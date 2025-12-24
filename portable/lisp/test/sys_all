@@ -610,3 +610,9 @@ sh sys_test "(symbol-function (intern (concat \"C\" \"AR\")))" "(Function () () 
 echo "--- Тест CALL/CC ---"
 sh sys_test "(call/cc #'(lambda (k) 1 2 (call-continuation k 5) 3))" "5"
 sh sys_test "(call/cc #'(lambda (k) 1 2 3))" "3"
+sh sys_test "(setq i 0) 
+   	     (call/cc #'(lambda (k) (setq cont k)))
+	     cont
+	     (setq i (+ i 1))
+	     (if (< i 10) (progn (print cont) (call-continuation cont 2)) nil)
+	     i" "10"
