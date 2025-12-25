@@ -124,7 +124,7 @@
 	 (s2 (get-bit s))
 	 (s3 (get-bits (cdr s2) 2)))
     (print (assertcar s2 0))
-    (print (assertcar s3 1))))
+    (print (assertcar s3 2))))
 
 (run-tests)
 

@@ -115,8 +115,9 @@
       (setq byte-num (++ byte-num))
       (setq bit-num (if end 8 -1)))
     (let ((new-bit-num (if end (-- bit-num) (++ bit-num))))
-      (cons (& 1 (>> (aref arr byte-num) new-bit-num))
-	    (make-astream arr byte-num new-bit-num end)))))
+      (if (= byte-num (array-size arr)) nil
+	(cons (& 1 (>> (aref arr byte-num) new-bit-num))
+	      (make-astream arr byte-num new-bit-num end))))))
 
 (defun get-struct (stream struct)
   "Читает из потока структуру по шаблону"
@@ -141,8 +142,9 @@
 	(current-stream self))
     (for i 0 n
 	 (let ((b (get-bit current-stream)))
-	   (setq res (<< res 1))
-	   (setq res (+ res (car b)))
+	   (setq res (if (astream-endianness self)
+			 (+ (<< res 1) (car b))
+			 (+ res (<< (car b) (if (= i 0) 0 i)))))
 	   (setq current-stream (cdr b))))
     (cons res current-stream)))
 	   
