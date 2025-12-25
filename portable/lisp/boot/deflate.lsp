@@ -1,14 +1,64 @@
 (defconst +deflate-no-compress+ 0) ;; блок без сжатия
 (defconst +deflate-fixed-huff+ 1) ;; блок сжатый с предопределенными кодами Хаффмана
 (defconst +deflate-dynamic-huff+ 2) ;; блок сжатый с динамическими кодами Хаффмана
+(defconst +deflate-eof+ 256) ;; код окончания потока
+
+(defvar *fixed-huffman* (make-huff))
+(for i 0 144 (setq *fixed-huffman* (huff-add *fixed-huffman* (+ i 0x30) 8 i)))
+(for i 144 256 (setq *fixed-huffman* (huff-add *fixed-huffman* (+ 0x190 (- i 144)) 9 i)))
+(for i 256 280 (setq *fixed-huffman* (huff-add *fixed-huffman* (- i 256) 7 i)))
+(for i 280 288 (setq *fixed-huffman* (huff-add *fixed-huffman* (+ 0xC0 (- i 280)) 8 i)))
 
 (defun deflate-no-compress ()
   "Блок без сжатия"
   (parse-suc 'NO-COMPRESS))
 
+(defun deflate-fix-dist (val extra dist)
+  "Декодирование расстояния по значению val, дополнительные биты extra, смещение расстояния dist"
+  (&&& (parse-elem-bits 5 val) n-> (parse-bits extra) return (+ dist n)))
+
+(defun deflate-dist ()
+  "Декодирование кода расстояния по таблице huff"  
+  (parse-or
+   (deflate-fix-dist 0 0 1)))
+
+(defun deflate-fix-length (huff val extra len)
+  "Декодирование кода длины по значению val, дополнительные биты bits, смещение длины len"
+  (&&& (parse-elem-huff huff val) n-> (parse-bits extra) return (+ len n)))
+
+(defun deflate-length (huff)
+  "Декодирование кода длины по таблице huff"
+  (parse-or
+   (deflate-fix-length huff 258 0 4)
+   (deflate-fix-length huff 265 1 11)
+   (deflate-fix-length huff 267 1 15)
+   (deflate-fix-length huff 271 2 27)))
+
+(defun decode-lz77 (list)
+  "Декодирование пар длин и расстояний LZ77"
+  ;;(print `(lz77 ,list))
+  (let ((s (new-stream)))
+    (labels ((lz77 (l)
+	       (if (null l) (error "Invalid LZ77 stream")
+		   (let ((el (car l))
+			 (arr (ostream-arr s)))
+		     (if (= el +deflate-eof+) (ostream-data s)
+			 (progn
+			   (cond ((atom el) (write-byte s el))
+				 ((pairp el)
+				  (for i 0 (car el)
+				       (write-byte s (aref arr (- (ostream-ptr s) (second el)))))))
+			   (lz77 (cdr l))))))))
+      (lz77 list))))
+
+(defun deflate-lz77 (huff)
+  "Декодирование LZ77 по таблице huff"
+  (parse-app (parse-many (parse-or (&&& (deflate-length huff) (deflate-dist))
+				   (huff-decode *fixed-huffman*))) #'decode-lz77))
+
 (defun deflate-fix-huff ()
   "Блок с фиксированными кодами Хаффмана"
-  (parse-suc 'FIX-HUFF))
+  (deflate-lz77 *fixed-huffman*))
 
 (defun deflate-make-lens (len-ar)
   "Подсчёт массива lens по списку длин кодов"
@@ -58,15 +108,14 @@
 
 (defun deflate-block()
   "Чтение блока DEFLATE"
-  (&&& #'get-bit (parse-or
-		  (&&& (parse-elem-bits 2 +deflate-no-compress+) (deflate-no-compress))
-		  (&&& (parse-elem-bits 2 +deflate-fixed-huff+) (deflate-fix-huff))
-		  (&&& (parse-elem-bits 2 +deflate-dynamic-huff+) (deflate-dynamic-huff)))))
+  (parse-app (&&& #'get-bit (parse-or
+			     (&&& (parse-elem-bits 2 +deflate-no-compress+) (deflate-no-compress))
+			     (&&& (parse-elem-bits 2 +deflate-fixed-huff+) (deflate-fix-huff))
+			     (&&& (parse-elem-bits 2 +deflate-dynamic-huff+) (deflate-dynamic-huff))))
+       #'cadadr))
 
-
-
-
-
-      
-
+(defun deflate (arr)
+  "Разпаковать массив arr по алгоритму Deflate"
+  (let ((j (funcall (deflate-block) (stream-from-arr arr nil))))
+    (if j (car j) (error "Invalid deflate stream"))))
   

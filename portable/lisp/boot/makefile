@@ -84,7 +84,7 @@ nfa-test: $(BASELISP) fa/nfa.lsp $(TEST) test/nfa.lsp
 	make -C ../test /tmp/lisp
 	cat $^ | /tmp/lisp
 # модульные тесты Deflate
-deflate-test: $(BASELISP) $(PARSER) $(HUFFMAN) deflate.lsp $(TEST) test/deflate.lsp
+deflate-test: $(BASELISP) $(PARSER) $(DEFLATE) $(TEST) test/deflate.lsp
 	make -C ../test /tmp/lisp
 	cat $^ | /tmp/lisp
 # модульные тесты регулярные выражения
