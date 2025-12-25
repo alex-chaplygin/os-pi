@@ -10,7 +10,7 @@
 	  (make-leaf val)
 	(error "huff-add: invalid code"))
     (let* ((siz (-- size))
-	  (bit (= 0 (& 1 (>> code siz)))))
+	   (bit (= 0 (& 1 (>> code siz)))))
       (if (null huff)
 	  (if bit
 	      (make-tree (huff-add nil code siz val) nil nil)
@@ -56,3 +56,9 @@
 		      (incf code-val)
 		      (incf index)))))))
     huff))
+
+(defun parse-elem-huff (huff n)
+  "Парсер ожидающий заданное значение после декодирования Хаффмана"
+  #'(lambda (stream)
+      (let ((r (funcall (huff-decode huff) stream)))
+	(if r (if (= (car r) n) r nil) nil))))
