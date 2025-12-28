@@ -108,42 +108,19 @@
   "Тест: Вложенная точечная пара"
   (print (assert (parse-lisp "(a . (b . c))") '(A B . C))))
 
-; --- Тесты на ошибки ---
-;(deftest unclosed-list-error-test ()
-;  "Тест: Ошибка несбалансированной скобки"
-;  (let ((result (parse-lisp "(a b")))
-;    (print (assert result 'SYNTAX-ANALYZE-ERROR))
-;    (print (assert (car *syntax-analyze-errors*) "unclosed list"))))
+(defun lex-error-test (expr res)
+  (print (assert (handle (parse-list expr) (parse-error (e) e)) res)))
 
-;(deftest unexp-tok-err-test ()
-;  "Тест: Ошибка неожиданного токена"
-;  (let ((result (parse-lisp ")")))
-;    (print (assert result 'SYNTAX-ANALYZE-ERROR))
-;    (print (assert (car *syntax-analyze-errors*) "unexpected token"))))
+;; --- Тесты на ошибки ---
+(deftest lex-test-badstr ()
+  "Тест: Незакрытая строка"
+  (lex-error-test "\"string" '((1 8)"lisp-lexer: unterminated string"))
+  (lex-error-test "\"") '((1 2)"lisp-lexer: unterminated string"))
+  (lex-error-test "(1 2 \"hello") '((1 12)"lisp-lexer: unterminated string"))
 
-;(deftest inv-dotd-lst-err-test ()
-;  "Тест: Ошибка неверной точечной пары"
-;  (let ((result (parse-lisp "(a . b c)")))
-;    (print (assert result 'SYNTAX-ANALYZE-ERROR))
-;    (print (assert (car *syntax-analyze-errors*) "invalid dotted list"))))
-
-;(deftest invdd-list-nxpr-err-test ()
-;    "Тест: Ошибка неверной точечной пары без выражения"
-;    (let ((result (parse-lisp "(a . )")))
-;      (print (assert result 'SYNTAX-ANALYZE-ERROR))
-;      (print (assert (car *syntax-analyze-errors*) "invalid dotted list"))))
-
-;(deftest unxp-tok-inlst-err-test ()
-;    "Тест: Ошибка лишних токенов в списке"
-;    (let ((result (parse-lisp "(a))")))
-;      (print (assert result 'SYNTAX-ANALYZE-ERROR))
-;      (print (assert (car *syntax-analyze-errors*) "extra tokens at end of input"))))
-
-;(deftest prefix-expr-err-test ()
-;    "Тест: Ошибка отсутствия выражения после префикса"
-;    (let ((result (parse-lisp "'")))
-;      (print (assert result 'SYNTAX-ANALYZE-ERROR))
-;      (print (assert (car *syntax-analyze-errors*) "prefixed form expects an expression"))))
+(deftest lex-test-unknown-token ()
+  "Тест: Неизвестная лексема"
+  (lex-error-test "@") '((1 1)"lisp-lexer: Unknown token"))
 
 ; --- Тест на полную программу. Можно добавить и другие, я решил, что этого хватит ---
 ;; (deftest full-program-test ()

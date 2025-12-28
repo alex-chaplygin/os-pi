@@ -6,29 +6,30 @@
 	(unless con
 	  (raise 'parse-error (list pos message))))))
 
+(defun lisp-separator (sym)
+  "Разделители в Лиспе"
+  (contains (list (code-char 9) (code-char 10) #\  (code-char 0xa)) sym))
+
 (defun parse-float()
   "Парсит числовой токен с плавающей точкой."
-  (parse-app
-   (&&& (parse-optional (parse-elem #\-))
-        (parse-many (parse-pred #'is-digit))
-	(parse-elem #\.)
-	(parse-many (parse-pred #'is-digit)))
-   #'(lambda (x)
-       (let* ((sign (car x))
-              (int-part (second x))
-              (frac-part (forth x))
-              (float-str (concat (implode int-part) "." (implode frac-part))))
-	 (if (and (null int-part) (null frac-part)) #\.
-	     (strtofloat (if sign (concat "-" float-str) float-str)))))))
+  (&&& sign->(parse-optional (parse-elem #\-))
+       int-part->(parse-many (parse-pred #'is-digit))
+       (parse-elem #\.)
+       frac-part->(parse-many (parse-or (parse-pred #'is-digit)
+					 (&&& (parse-pred #'(lambda (s) (not (lisp-separator s))))
+					      (lisp-error "lisp-lexer: invalid float number"))))
+       res-> #'(lambda (stream)
+	   (let ((float-str (concat (implode int-part) "." (implode frac-part))))
+	     (if (and (null int-part) (null frac-part))
+		 (if sign (raise 'parse-error (list (PosStream-pos stream) "lisp-lexer: got dot with sign"))
+		     (cons #\. stream))
+		 (cons (strtofloat (if sign (concat "-" float-str) float-str)) stream))))
+       return res))
 
 ;; Вспомогательный предикат
 (defun is-lisp-symbol (sym)
   "Предикат проверки на особый символ"
   (contains '(#\+ #\- #\* #\/ #\= #\_ #\& #\| #\< #\> #\% #\! #\^ #\~) sym))
-
-(defun lisp-separator (sym)
-  "Разделители в Лиспе"
-  (contains (list (code-char 9) (code-char 10) #\  (code-char 0xa)) sym))
 
 (defun lisp-symbol ()
   "Разбор символа (идентификатора)"
@@ -44,18 +45,18 @@
 
 (defun parse-escape (char value)
   "Разбор экранированной последовательности"
-  (parse-app
-    (&&& (parse-elem #\\) (parse-elem char))
-    #'(lambda (parts) (list value))))
+    (&&& (parse-elem #\\) value->(parse-elem char) return (list value)))
 
 (defun parse-string ()
   "Разбор строки в двойных кавычках"
-  (parse-app
-    (&&& (parse-elem #\")
-         (parse-many (parse-or (parse-escape #\n (code-char 0xa))
-                               (parse-pred #'(lambda (sym) (!= sym #\")))))
-         (parse-or (parse-elem #\") (lisp-error "lisp-lexer: unterminated string")))
-    #'(lambda (parts) (implode (second parts)))))
+  (&&& (parse-elem #\")
+       chars->(parse-many (parse-or (parse-escape #\n (code-char 0xa))
+				    (parse-escape #\\ #\\)
+				    (parse-escape #\" #\")
+				    (&&& (parse-elem #\\) (lisp-error "lisp-lexer: invalid escape sequence"))
+				    (parse-pred #'(lambda (sym) (!= sym #\")))))
+       (parse-or (parse-elem #\") (lisp-error "lisp-lexer: unterminated string"))
+       return (implode chars)))
 
 (defun lisp-token ()
   "Лексема языка Лисп"
