@@ -74,7 +74,6 @@
   "Тест: Backquote внутри списка"
   (print (assert (parse-lisp "(a `(b ,c))") '(A (BACKQUOTE (B (COMMA C)))))))
 
-
 ; --- Тесты на функции ---
 (deftest simp-func-test ()
   "Тест: Простая функция"
@@ -109,24 +108,24 @@
   (print (assert (parse-lisp "(a . (b . c))") '(A B . C))))
 
 (defun lex-error-test (expr res)
-  (print (assert (handle (parse-list expr) (parse-error (e) e)) res)))
+  (print (assert (handle (parse-lisp expr) (parse-error (e) e)) res)))
 
 ;; --- Тесты на ошибки ---
 (deftest lex-test-badstr ()
   "Тест: Незакрытая строка"
-  (lex-error-test "\"string" '((1 8)"lisp-lexer: unterminated string"))
-  (lex-error-test "\"") '((1 2)"lisp-lexer: unterminated string"))
-  (lex-error-test "(1 2 \"hello") '((1 12)"lisp-lexer: unterminated string"))
+  (lex-error-test "\"string" '((1 8) "lisp-lexer: unterminated string"))
+  (lex-error-test "\"" '((1 2) "lisp-lexer: unterminated string"))
+  (lex-error-test "(1 2 \"hello" '((1 12) "lisp-lexer: unterminated string")))
 
 (deftest lex-test-unknown-token ()
   "Тест: Неизвестная лексема"
-  (lex-error-test "@") '((1 1)"lisp-lexer: Unknown token"))
+  (lex-error-test "@" '((1 1)"lisp-lexer: Unknown token")))
 
 ; --- Тест на полную программу. Можно добавить и другие, я решил, что этого хватит ---
-;; (deftest full-program-test ()
-;;   "Тест: Парсинг полной программы"
-;;   (let ((program "(defun factorial (n) (if (<= n 1) 1 (* n (factorial (- n 1)))))")
-;;         (expected-tree '(DEFUN FACTORIAL (N) (IF (<= N 1) 1 (* N (FACTORIAL (- N 1)))))))
-;;     (print (assert (parse-lisp program) expected-tree))))
+(deftest full-program-test ()
+  "Тест: Парсинг полной программы"
+  (let ((program "(defun factorial (n) (if (<= n 1) 1 (* n (factorial (- n 1)))))")
+        (expected-tree '(DEFUN FACTORIAL (N) (IF (<= N 1) 1 (* N (FACTORIAL (- N 1)))))))
+    (print (assert (parse-lisp program) expected-tree))))
 
 (run-tests)

@@ -13,7 +13,7 @@ lexer-test: $(BASELISP) ../stream.lsp ../posstream.lsp ../parser.lsp lexer.lsp .
 	make -C ../../test /tmp/lisp
 	cat $^ | /tmp/lisp
 
-parser-test: $(BASELISP) ../stream.lsp ../parser.lsp lexer.lsp parser.lsp ../test.lsp test-parser.lsp
+parser-test: $(BASELISP) ../stream.lsp ../posstream.lsp ../parser.lsp lexer.lsp parser.lsp ../test.lsp test-parser.lsp
 	make -C ../../test /tmp/lisp
 	cat $^ | /tmp/lisp
 
