@@ -60,7 +60,7 @@ int main()
 		longjmp(repl_buf, 1);
 	    //printf("parse: "); PRINT(o);
 	    PROTECT1(o);
-	    object_t res = eval(o, NULLOBJ, NULLOBJ);
+	    object_t res = eval(o, NULLOBJ);
 	    UNPROTECT;
 	    //printf("res: "); PRINT(res);
 #ifdef REPL
