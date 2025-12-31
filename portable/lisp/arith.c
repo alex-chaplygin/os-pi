@@ -406,7 +406,7 @@ object_t bitwise_xor2(object_t obj1, object_t obj2)
  */
 object_t bitwise_xor(object_t list)
 {
-    object_t num = new_number(0xFFFFFFFF);
+    object_t num = new_number(0);
     while (list != NULLOBJ) {
 	object_t obj2 = FIRST(list);
 	num = bitwise_xor2(num, obj2);
