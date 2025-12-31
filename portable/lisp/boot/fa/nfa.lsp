@@ -1,106 +1,77 @@
+; Библиотека функций недетерминированного конечного автомата (НКА)
+;; Класс недетерминированного конечного автомата
 (defclass Nfa ()
-  (cur-state ; текущее состояние
-   rules ; правила
-   final-states ; конечные состояния
+  (cur-state ; текущее состояние (множество состояний)
+   rules     ; правила (хэш-таблица)
+   final-states ; конечные состояния (множество)
    ))
-
 
 (defconst *any-char* 'ANY) ; метасимвол, обозначающий любой печатный символ
 (defconst *epsilon* 'E) ; метасимвол, обозначающий безусловный (эпсилон) переход
-(defconst *pred* 'PRED) ; метасимвол, обозначающий переход с предикатом
 
 (defun process-epsilon (states rules)
-  "Рекурсивно извлекает следующие за эпсилон-переходами состояния и возвращает их"
-  "Ввод: список состояний, список правил НКА"
-  "Вывод: состояния, следующие за эпсилон переходами, для обычных переходов не возвращается ничего"
-  (let ((new-states nil))
-    (labels ((process (list acc)
-	       (if (null list) acc
-		   (let* ((state (car list))
-			  (epsilon-state (cons state *epsilon*)))
-		     (if (or (contains new-states state) (not (check-key rules epsilon-state)))
-			 (process (cdr list) acc)
-			 (let ((targets (get-hash rules epsilon-state)))
-			   (setq new-states (append new-states `(,state)))
-			   (process (append targets (cdr list)) (append acc targets))))))))
-      (process states '()))))
+  "Рекурсивно извлекает все состояния, достижимые по эпсилон-переходам, с использованием множеств"
+  (if (empty-set states) (make-set)
+      (let* ((state (car states))  
+             (rest-states (cdr states)) 
+             (epsilon-key (cons state *epsilon*))
+             (direct-states (if (check-key rules epsilon-key)
+                                (list-to-set (get-hash rules epsilon-key))
+                              (make-set))))
+        (let ((recursive-states (process-epsilon direct-states rules))
+              (rest-result (process-epsilon rest-states rules)))
+          (set-union (set-union direct-states recursive-states) rest-result)))))
 
-(defun make-nfa(start-state rules final-states)
-  "Задаёт недетерминированный автомат"
-  "Ввод: начальное состояние, список правил, список конечных состояний"
-  "Вывод: объект НКА"
-  "Список начальных состояний - список из символов всех состояний, которые нужно проанализировать"
-  "Список правил - список вида (пара = список_состояний), например (s1.a = (s1 s3 s4))"
-  (let ((nfa (make-hash)) ; создаём хэш-таблицу для автомата
-	(start-states (list start-state))) 
+(defun build-nfa (start-state rules final-states)
+  "Создаёт недетерминированный автомат с использованием множеств и возвращает объект класса Nfa"
+  (let ((nfa-hash (make-hash))
+        (start-states (set-insert (make-set) start-state)))
     (dolist (rule rules)
-      (let* ((current-state (car rule))  ; атом
-             (input (cadr rule))         ; атом
-             (next-states (caddr rule))  ; список
-	     (pair (cons current-state input)))
-	(if (check-key nfa pair) ; если ключ уже есть в списке - объединяем состояния
-	    (set-hash nfa pair (append (get-hash nfa pair) next-states))
-	    (set-hash nfa pair next-states))))
-    (list (append start-states (process-epsilon start-states nfa)) nfa final-states)))
+      (let* ((current-state (car rule))
+             (input (cadr rule))
+             (next-states (list-to-set (caddr rule)))
+             (pair (cons current-state input)))
+        (if (check-key nfa-hash pair)
+            (set-hash nfa-hash pair (set-union (get-hash nfa-hash pair) next-states))
+            (set-hash nfa-hash pair next-states))))
+    (let ((epsilon-states (process-epsilon start-states nfa-hash)))
+      (let ((initial-states (set-union start-states epsilon-states))
+            (final-set (list-to-set final-states)))
+        (make-Nfa initial-states nfa-hash final-set)))))
 
-
-(defun make-backtrack-nfa(start-state rules final-states groups preds)
-  "Задаёт недетерминированный автомат для поиска с возвратом"
-  "Ввод: начальное состояние, список правил, список конечных состояний, список групп, список предикатов"
-  "Вывод: объект НКА"
-  "Список начальных состояний - список из символов всех состояний, которые нужно проанализировать"
-  "Список правил - список вида (состояние метасимвол_перехода (список_состояний)), например (s1 a (s1 s3 s4))"
-  (let ((nfa (make-hash)) ; создаём хэш-таблицу для автомата
-	(start-states (list start-state))
-	(groups-hash (make-hash))
-	(preds-hash (make-hash))
-	(group-number 0)) 
-    (dolist (rule rules)
-      (let* ((current-state (car rule))  ; атом
-             (input (cadr rule))         ; атом
-             (next-states (caddr rule))  ; список
-	     (pair (cons current-state input)))
-	(if (check-key nfa pair) ; если ключ уже есть в списке - объединяем состояния
-	    (set-hash nfa pair (append (get-hash nfa pair) next-states))
-	    (set-hash nfa pair next-states))))
-    (dolist (group groups)
-      (let ((start (car group))
-	    (end (second group)))
-	(set-hash groups-hash start `(start ,group-number))
-	(set-hash groups-hash end `(end ,group-number))
-	(setq group-number (+ group-number 1))))
-    (dolist (pred preds)
-	(set-hash preds-hash (car pred) (second pred)))
-    (list start-states nfa final-states groups-hash preds-hash)))
-
-
-(defun nfa-input(auto input)
+(defun nfa-input (auto input)
   "Добавляет символ на ленту автомата"
   "Ввод: объект НКА, символ"
-  "Вывод: объект НКА"
-  (let* ((start-states (car auto))     ; список начальных состояний
-	 (rules (cadr auto))           ; хэш-таблица правил
-	 (final-states (caddr auto)))  ; список конечных состояний
-    (labels ((process (list acc)
-	       (if (null list) acc
-		   (let* ((state (car list))
-			  (key (cons state input))
-			  (anychar-key (cons state *any-char*))
-			  (transitions-by-input (if (check-key rules key) (get-hash rules key) nil))
-			  (transitions-by-anychar (if (check-key rules anychar-key) (get-hash rules anychar-key) nil))
-			  (all-transitions (append transitions-by-input transitions-by-anychar)))
-		     (process (cdr list) (append all-transitions acc))))))
-      (let* ((new-states (process start-states '())))
-	(list (append new-states (process-epsilon new-states rules)) rules final-states)))))
+  "Вывод: новый объект НКА"  
+  "Если автомат уже находится в конечном состоянии, возвращаем автомат без изменений"
+  (if (nfa-end auto) auto
+    (let* ((current-states (Nfa-cur-state auto))
+           (rules (Nfa-rules auto))
+           (final-states (Nfa-final-states auto))
+           ;; Собираем все следующие состояния через переходы по символу
+           (next-states (foldl
+                         #'(lambda (acc state)
+                             (let* ((key (cons state input))
+                                    (anychar-key (cons state *any-char*))
+                                    (transitions-by-input 
+                                     (if (check-key rules key) 
+                                         (list-to-set (get-hash rules key)) 
+                                       (make-set)))
+                                    (transitions-by-anychar 
+                                     (if (check-key rules anychar-key) 
+                                         (list-to-set (get-hash rules anychar-key)) 
+                                       (make-set))))
+                               (set-union acc (set-union transitions-by-input transitions-by-anychar))))
+                         (make-set)
+                         current-states))
+           (epsilon-closure (process-epsilon next-states rules))
+           (final-states-after-input (set-union next-states epsilon-closure)))
+      (make-Nfa final-states-after-input rules final-states))))
 
-(defun nfa-end(auto)
-  "Возвращает вердикт, соответствует ли строка автомату"
-  "Ввод: объект НКА"
-  "Вывод: булево (T/NIL)"
-  (not (null (filter #'(lambda (state) 
-			 (not (null (filter #'(lambda (f) (equal f state)) (third auto)))))
-		     (car auto)))))
+(defun nfa-end (auto)
+  "Возвращает T, если автомат находится в конечном состоянии"
+  (not (empty-set (set-intersect (Nfa-cur-state auto) (Nfa-final-states auto)))))
 
-(defun nfa-states(auto)
-  "Вывод списка текущих состояний автомата (можно использовать в процессе передачи каждого символа на ленту автомата, чтобы визуализировать процесс)"
-  (car auto))
+(defun nfa-states (auto)
+  "Возвращает текущие состояния автомата"
+  (Nfa-cur-state auto))
