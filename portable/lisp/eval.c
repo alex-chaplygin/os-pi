@@ -957,11 +957,11 @@ object_t catch(object_t list)
     object_t first_param = eval(FIRST(list), current_env);
     object_t rest_params = TAIL(list);
     catch_buffers[--ct_index_buf].buff.environment = current_env;
+    if (ct_index_buf < 0)
+        error("catch: buffer overflow");
     catch_buffers[ct_index_buf].buff.func_environment = func_env;
     catch_buffers[ct_index_buf].buff.last_protected = last_protected;
     catch_buffers[ct_index_buf].tag = first_param;
-    if (ct_index_buf < 0)
-        error("catch: buffer haven't true length");
 
     if (setjmp(catch_buffers[ct_index_buf].buff.buffer) == 0) {
         res = progn(rest_params);
