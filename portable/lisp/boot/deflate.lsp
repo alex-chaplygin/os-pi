@@ -15,41 +15,41 @@
 
 (defun deflate-fix-dist (val extra dist)
   "Декодирование расстояния по значению val, дополнительные биты extra, смещение расстояния dist"
-  (&&& (parse-elem-bits 5 val) n-> (parse-bits extra) return (+ dist n)))
+  (&&& elem->(parse-elem-bits 5 val) n-> (parse-bits extra) return (+ dist n)))
 
 (defun deflate-dist ()
   "Декодирование кода расстояния по таблице huff"  
   (parse-or
    (deflate-fix-dist 0 0 1)
-   (deflate-fix-dist 1 0 2)
-   (deflate-fix-dist 2 0 3)
-   (deflate-fix-dist 3 0 4)
-   (deflate-fix-dist 4 1 5)
-   (deflate-fix-dist 5 1 7)
-   (deflate-fix-dist 6 2 9)
-   (deflate-fix-dist 7 2 13)
-   (deflate-fix-dist 8 3 17)
-   (deflate-fix-dist 9 3 25)
-   (deflate-fix-dist 10 4 33)
-   (deflate-fix-dist 11 4 49)
-   (deflate-fix-dist 12 5 65)
-   (deflate-fix-dist 13 5 97)
-   (deflate-fix-dist 14 6 129)
-   (deflate-fix-dist 15 6 193)
-   (deflate-fix-dist 16 7 257)
-   (deflate-fix-dist 17 7 385)
-   (deflate-fix-dist 18 8 513)
-   (deflate-fix-dist 19 8 769)
-   (deflate-fix-dist 20 9 1025)
-   (deflate-fix-dist 21 9 1537)
-   (deflate-fix-dist 22 10 2049)
-   (deflate-fix-dist 23 10 3073)
-   (deflate-fix-dist 24 11 4097)
-   (deflate-fix-dist 25 11 6145)
-   (deflate-fix-dist 26 12 8193)
-   (deflate-fix-dist 27 12 12289)
-   (deflate-fix-dist 28 13 16385)
-   (deflate-fix-dist 29 13 24577)))
+   (deflate-fix-dist 0x10 0 2) ;; 1 0000
+   (deflate-fix-dist 0x8 0 3)    ;; 0 1000
+   (deflate-fix-dist 0x18 0 4) ; 1 1000
+   (deflate-fix-dist 4 1 5) ; 0 0100
+   (deflate-fix-dist 0x14 1 7) ; 1 0100
+   (deflate-fix-dist 0xc 2 9) ;0 1100
+   (deflate-fix-dist 0x1c 2 13)
+   (deflate-fix-dist 2 3 17) ;0 0010
+   (deflate-fix-dist 0x12 3 25)
+   (deflate-fix-dist 10 4 33) ;01010
+   (deflate-fix-dist 0x1a 4 49) ; 1 1010
+   (deflate-fix-dist 6 5 65) ; 0 0110
+   (deflate-fix-dist 0x15 5 97) ; 1 0110
+   (deflate-fix-dist 14 6 129) ; 0 1110
+   (deflate-fix-dist 0x1e 6 193) ; 1 1110
+   (deflate-fix-dist 1 7 257) ; 0 0001
+   (deflate-fix-dist 0x11 7 385) ; 1 0001
+   (deflate-fix-dist 9 8 513) ; 0 1001
+   (deflate-fix-dist 0x19 8 769) ; 1 1001
+   (deflate-fix-dist 5 9 1025) ; 0 0101
+   (deflate-fix-dist 21 9 1537) ; 1 0101
+   (deflate-fix-dist 0xd 10 2049) ; 0 1101
+   (deflate-fix-dist 0x1d 10 3073) ; 1 1101
+   (deflate-fix-dist 3 11 4097) ; 0 0011
+   (deflate-fix-dist 0x13 11 6145) ; 1 0011
+   (deflate-fix-dist 0xb 12 8193) ; 0 1011
+   (deflate-fix-dist 27 12 12289) ; 1 1011
+   (deflate-fix-dist 7 13 16385) ; 0 0111
+   (deflate-fix-dist 0x17 13 24577))) ; 1 0111
 
 (defun deflate-fix-length (huff val extra len)
   "Декодирование кода длины по значению val, дополнительные биты bits, смещение длины len"
@@ -90,7 +90,6 @@
 
 (defun decode-lz77 (list)
   "Декодирование пар длин и расстояний LZ77"
-  ;;(print `(lz77 ,list))
   (let ((s (new-stream)))
     (labels ((lz77 (l)
 	       (if (null l) (error "Invalid LZ77 stream")
@@ -164,7 +163,7 @@
   "Чтение блока DEFLATE"
   (parse-app (&&& #'get-bit (parse-or
 			     (&&& (parse-elem-bits 2 +deflate-no-compress+) (deflate-no-compress))
-			     (&&& (parse-elem-bits 2 +deflate-fixed-huff+) (deflate-fix-huff))
+			     (&&& (parse-elem-bits 2 +deflate-fixed-huff+) (parse-rec (deflate-fix-huff)))
 			     (&&& (parse-elem-bits 2 +deflate-dynamic-huff+) (deflate-dynamic-huff))))
        #'cadadr))
 
