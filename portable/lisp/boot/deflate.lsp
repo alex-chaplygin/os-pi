@@ -19,74 +19,27 @@
 
 (defun deflate-dist ()
   "Декодирование кода расстояния по таблице huff"  
-  (parse-or
-   (deflate-fix-dist 0 0 1)
-   (deflate-fix-dist 0x10 0 2) ;; 1 0000
-   (deflate-fix-dist 0x8 0 3)    ;; 0 1000
-   (deflate-fix-dist 0x18 0 4) ; 1 1000
-   (deflate-fix-dist 4 1 5) ; 0 0100
-   (deflate-fix-dist 0x14 1 7) ; 1 0100
-   (deflate-fix-dist 0xc 2 9) ;0 1100
-   (deflate-fix-dist 0x1c 2 13)
-   (deflate-fix-dist 2 3 17) ;0 0010
-   (deflate-fix-dist 0x12 3 25)
-   (deflate-fix-dist 10 4 33) ;01010
-   (deflate-fix-dist 0x1a 4 49) ; 1 1010
-   (deflate-fix-dist 6 5 65) ; 0 0110
-   (deflate-fix-dist 0x15 5 97) ; 1 0110
-   (deflate-fix-dist 14 6 129) ; 0 1110
-   (deflate-fix-dist 0x1e 6 193) ; 1 1110
-   (deflate-fix-dist 1 7 257) ; 0 0001
-   (deflate-fix-dist 0x11 7 385) ; 1 0001
-   (deflate-fix-dist 9 8 513) ; 0 1001
-   (deflate-fix-dist 0x19 8 769) ; 1 1001
-   (deflate-fix-dist 5 9 1025) ; 0 0101
-   (deflate-fix-dist 21 9 1537) ; 1 0101
-   (deflate-fix-dist 0xd 10 2049) ; 0 1101
-   (deflate-fix-dist 0x1d 10 3073) ; 1 1101
-   (deflate-fix-dist 3 11 4097) ; 0 0011
-   (deflate-fix-dist 0x13 11 6145) ; 1 0011
-   (deflate-fix-dist 0xb 12 8193) ; 0 1011
-   (deflate-fix-dist 27 12 12289) ; 1 1011
-   (deflate-fix-dist 7 13 16385) ; 0 0111
-   (deflate-fix-dist 0x17 13 24577))) ; 1 0111
-
-(defun deflate-fix-length (huff val extra len)
-  "Декодирование кода длины по значению val, дополнительные биты bits, смещение длины len"
-  (&&& (parse-elem-huff huff val) n-> (parse-bits extra) return (+ len n)))
+  #'(lambda (st)
+      (let* ((codes '#((0 1)(7 257)(3 17)(11 4097)(1 5)(9 1025)(5 65)(13 16385)(0 3)(8 513)(4 33)(12 8193)(2 9)
+		       (10 2049)(6 129)(nil nil)(0 2)(7 385)(3 25)(11 6145)(1 7)(9 1537)(5 97)(13 24577)(0 4)
+		       (8 769)(4 49)(12 12289)(2 13)(10 3073)(6 193)))
+	     (r (get-bits st 5))
+	     (code (car r))
+	     (tab (aref codes code))
+	     (bits (get-bits (cdr r) (car tab))))
+	(cons (+ (second tab) (car bits)) (cdr bits)))))
 
 (defun deflate-length (huff)
   "Декодирование кода длины по таблице huff"
-  (parse-or
-   (deflate-fix-length huff 257 0 3)
-   (deflate-fix-length huff 258 0 4)
-   (deflate-fix-length huff 259 0 5)
-   (deflate-fix-length huff 260 0 6)
-   (deflate-fix-length huff 261 0 7)
-   (deflate-fix-length huff 262 0 8)
-   (deflate-fix-length huff 263 0 9)
-   (deflate-fix-length huff 264 0 10)
-   (deflate-fix-length huff 265 1 11)
-   (deflate-fix-length huff 266 1 13)
-   (deflate-fix-length huff 267 1 15)
-   (deflate-fix-length huff 268 1 17)
-   (deflate-fix-length huff 269 2 19)
-   (deflate-fix-length huff 270 2 23)
-   (deflate-fix-length huff 271 2 27)
-   (deflate-fix-length huff 272 2 31)
-   (deflate-fix-length huff 273 3 35)
-   (deflate-fix-length huff 274 3 43)
-   (deflate-fix-length huff 275 3 51)
-   (deflate-fix-length huff 276 3 59)
-   (deflate-fix-length huff 277 4 67)
-   (deflate-fix-length huff 278 4 83)
-   (deflate-fix-length huff 279 4 99)
-   (deflate-fix-length huff 280 4 115)
-   (deflate-fix-length huff 281 5 131)
-   (deflate-fix-length huff 282 5 163)
-   (deflate-fix-length huff 283 5 195)
-   (deflate-fix-length huff 284 5 227)
-   (deflate-fix-length huff 285 0 258)))
+  #'(lambda (st)
+      (let* ((codes '#((0 3)(0 4)(0 5)(0 6)(0 7)(0 8)(0 9)(0 10)(1 11)(1 13)(1 15)(1 17)(2 19)(2 23)(2 27)(2 31)
+		       (3 35)(3 43)(3 51)(3 59)(4 67)(4 83)(4 99)(4 115)(5 131)(5 163)(5 195)(5 227)(0 258)))
+	     (r (funcall (huff-decode huff) st))
+	     (code (if r (car r) 0)))
+	(if (< code 257) nil
+	    (let* ((tab (aref codes (- code 257)))
+		   (bits (get-bits (cdr r) (car tab))))
+	      (cons (+ (second tab) (car bits)) (cdr bits)))))))
 
 (defun decode-lz77 (list)
   "Декодирование пар длин и расстояний LZ77"
