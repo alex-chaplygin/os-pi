@@ -10,7 +10,7 @@ test-jpeg: $(BASELISP) $(PARSER) $(JPEG) jpeg/jpeg-test.lsp
 	cat $^ | /tmp/lisp
 
 # тест PNG
-test-png: $(BASELISP) $(PARSER) $(DEFLATE) png.lsp png-test.lsp
+test-png: $(BASELISP) $(PARSER) $(DEFLATE) png.lsp $(TEST) png-test.lsp
 	make -C ../../test /tmp/lisp
 	cat $^ | /tmp/lisp
 
