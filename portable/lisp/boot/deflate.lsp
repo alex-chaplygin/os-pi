@@ -13,10 +13,6 @@
   "Блок без сжатия"
   (parse-suc 'NO-COMPRESS))
 
-(defun deflate-fix-dist (val extra dist)
-  "Декодирование расстояния по значению val, дополнительные биты extra, смещение расстояния dist"
-  (&&& elem->(parse-elem-bits 5 val) n-> (parse-bits extra) return (+ dist n)))
-
 (defun deflate-dist ()
   "Декодирование кода расстояния по таблице huff"  
   #'(lambda (st)
@@ -29,38 +25,38 @@
 	     (bits (get-bits (cdr r) (car tab))))
 	(cons (+ (second tab) (car bits)) (cdr bits)))))
 
-(defun deflate-length (huff)
-  "Декодирование кода длины по таблице huff"
+(defun deflate-lit-or-length (huff)
+  "Декодирование кода символа или пары длины и расстояния по таблице huff"
   #'(lambda (st)
       (let* ((codes '#((0 3)(0 4)(0 5)(0 6)(0 7)(0 8)(0 9)(0 10)(1 11)(1 13)(1 15)(1 17)(2 19)(2 23)(2 27)(2 31)
 		       (3 35)(3 43)(3 51)(3 59)(4 67)(4 83)(4 99)(4 115)(5 131)(5 163)(5 195)(5 227)(0 258)))
 	     (r (funcall (huff-decode huff) st))
-	     (code (if r (car r) 0)))
-	(if (< code 257) nil
-	    (let* ((tab (aref codes (- code 257)))
-		   (bits (get-bits (cdr r) (car tab))))
-	      (cons (+ (second tab) (car bits)) (cdr bits)))))))
+	     (code (if r (car r) nil)))
+	(if (= code +deflate-eof+) nil
+	    (if (< code 257) (cons code (cdr r))
+		(let* ((tab (aref codes (- code 257)))
+		       (bits (get-bits (cdr r) (car tab)))
+		       (len (+ (second tab) (car bits)))
+		       (dist (funcall (deflate-dist) (cdr bits))))
+		  (cons (list len (car dist)) (cdr dist))))))))
 
 (defun decode-lz77 (list)
   "Декодирование пар длин и расстояний LZ77"
   (let ((s (new-stream)))
     (labels ((lz77 (l)
-	       (if (null l) (error "Invalid LZ77 stream")
+	       (if (null l) (ostream-data s)
 		   (let ((el (car l))
 			 (arr (ostream-arr s)))
-		     (if (= el +deflate-eof+) (ostream-data s)
-			 (progn
-			   (cond ((atom el) (write-byte s el))
-				 ((pairp el)
-				  (for i 0 (car el)
-				       (write-byte s (aref arr (- (ostream-ptr s) (second el)))))))
-			   (lz77 (cdr l))))))))
+		     (cond ((atom el) (write-byte s el))
+			   ((pairp el)
+			    (for i 0 (car el)
+				 (write-byte s (aref arr (- (ostream-ptr s) (second el)))))))
+		     (lz77 (cdr l))))))
       (lz77 list))))
 
 (defun deflate-lz77 (huff)
   "Декодирование LZ77 по таблице huff"
-  (parse-app (parse-many (parse-or (&&& (deflate-length huff) (deflate-dist))
-				   (huff-decode *fixed-huffman*))) #'decode-lz77))
+  (parse-app (parse-many (deflate-lit-or-length huff)) #'decode-lz77))
 
 (defun deflate-fix-huff ()
   "Блок с фиксированными кодами Хаффмана"
