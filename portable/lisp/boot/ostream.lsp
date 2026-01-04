@@ -1,5 +1,5 @@
 ;; Размер буфера
-(defconst +ostream-size+ 128)
+(defconst +ostream-size+ 1024)
 
 ;; Класс OStream
 ;; arr - массив байт
