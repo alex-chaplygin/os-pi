@@ -17,6 +17,17 @@
 ;; Таблицы Хаффмана
 (defvar *huffman-tables*) 
 
+(defun jpeg-huf-dc (id) (get-hash *huffman-tables* (cons 0 id))) ;; получить таблицу DC с номером id
+(defun jpeg-huf-ac (id) (get-hash *huffman-tables* (cons 1 id))) ;; получить таблицу AC с номером id
+(defun jpeg-quant (id) (get-hash *quantization-tables* id)) ;; получить квантования с номером id
+(defun jpeg-hufs (scan)
+  "Получить таблицы Хаффмана для всех каналов"
+
+(defun jpeg-init ()
+  "Инициализация структур данных"
+  (setq *quantization-tables* (make-hash))
+  (setq *huffman-tables* (make-hash)))
+
 ;; Ожидание заданного маркера
 (defun marker (marker) (parse-elem-word marker))
 
@@ -60,10 +71,10 @@
 ;;FrameHeader ::= SOF Lf P Y X Nf FComp[Nf] ; заголовок кадра
 ;;FComp ::= Cf HV Tq ; компонент кадра
 (defun frame-header ()
-  (parse-app (&&& (marker SOF)
-		  (parse-struct '((lf . word) (p . byte) (y . word) (x . word) (nf . byte)))
-		  (parse-many-n 3 (parse-struct '((c . byte) (hv . bits4) (tq . byte)))))
-	     #'(lambda (x) (list 'frame (cdr x)))))
+  (&&& (marker SOF)
+       st->(parse-struct '((lf . word) (p . byte) (y . word) (x . word) (nf . byte)))
+       ch->(parse-many-n 3 (parse-struct '((c . byte) (hv . bits4) (tq . byte))))
+       return (cons st (list-to-array ch))))
 
 ;; ScanHeader ::= SOS Ls Ns SComp[Ns] Ss Se Ahl ; заголовок скана
 (defun scan-header ()
@@ -71,19 +82,14 @@
        ns-> #'get-byte
        params-> (parse-many-n ns (parse-struct '((cs . byte) (tda . bits4))))
        #'get-byte #'get-byte #'get-4bit
-       return (list 'scan params)))
+       return (list-to-array params)))
 
 ;; JPEG ::= SOI Frame EOI
 ;; Frame ::= Table* FrameHeader Scan[Nf???]; кадр
 ;; Scan ::= Dnl? Table* ScanHeader ESC* ; скан с раделителем Dnl
 ;; Scomp ::= Cs Tda ; компонент скана
 (defun jpeg ()
-  (&&& (marker SOI) (parse-many (table)) (frame-header) (parse-many (table)) (scan-header)
-       (decode-dc (get-hash *huffman-tables* '(0 . 0)) 1)))
-
-(defun jpeg-init ()
-  "Инициализация структур данных"
-  (setq *quantization-tables* (make-hash))
-  (setq *huffman-tables* (make-hash)))
-
-(jpeg-init)
+  (&&& #'(lambda (stream) (jpeg-init) (cons nil stream))
+       (marker SOI) (parse-many (table)) frame->(frame-header) (parse-many (table)) scan->(scan-header)
+       (decode-mcu (jpeg-hufs scan) (jpeg-quants (cdr frame)))))
+;;       (decode-block (jpeg-huf-dc 0) (jpeg-huf-ac 0) (jpeg-quant 0))))

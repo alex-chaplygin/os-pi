@@ -37,21 +37,17 @@
     result))
 
 (defun dequant (coef quant_table)
-  (let ((result (make-array 64)))
-    (for i 0 64
-	 (seta result i (* (aref coef i) (aref quant_table i))))
-    result))
+  (for i 0 64
+       (seta coef i (* (aref coef i) (aref quant_table i))))
+  coef)
 
 (defun clamp (num)
   (let ((res num))
     (if (> res 255) (setq res 255) (if (< res 0) (setq res 0) nil))
     res))
 
-(defun level-shift (block8x8)
-  (let ((result (make-array 8)))
-    (for i 0 8
-	 (seta result i (make-array 8)))
-    (for i 0 8
+(defun level-shift (block)
+  (for i 0 8
        (for j 0 8
-	    (seta (aref result i) j (clamp (+ 128 (aref (aref block8x8 i) j))))))
-    result))
+	    (seta (aref block i) j (clamp (+ 128 (aref (aref block i) j))))))
+    block)
