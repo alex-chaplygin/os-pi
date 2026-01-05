@@ -22,11 +22,35 @@
 (defun jpeg-quant (id) (get-hash *quantization-tables* id)) ;; получить квантования с номером id
 (defun jpeg-hufs (scan)
   "Получить таблицы Хаффмана для всех каналов"
+  (array-map scan #'(lambda (x) (let ((d-a (get-hash x 'tda)))
+				  (cons (jpeg-huf-dc (car d-a)) (jpeg-huf-ac (cdr d-a)))))))
+(defun jpeg-quants (params)
+  "Получить таблицы квантования для всех каналов"
+  (array-map params #'(lambda (x) (jpeg-quant (get-hash x 'tq)))))
 
 (defun jpeg-init ()
   "Инициализация структур данных"
   (setq *quantization-tables* (make-hash))
   (setq *huffman-tables* (make-hash)))
+
+(defun ycbcr-to-rgb (my cb cr width height)
+  "Преобразует 3 матрицы Y Cb Cr в одну матрицу RGB с заданными размерами"
+  (labels ((pix (m x y)
+	     (aref (aref m y) x)))
+    (let* ((matrix (make-array height)))
+      (for y 0 height
+	   (let ((row (make-array width)))
+	     (for x 0 width
+		  (let ((comp (make-array 3))
+			(yy (pix my x y))
+			(cbb (- (pix cb x y) 0x80))
+			(crr (- (pix cr x y) 0x80)))
+		    (seta comp 0 (clamp (round (+ yy (* 1.40200 crr)))))
+		    (seta comp 1 (clamp (round (- yy (* 0.34414 cbb) (* 0.71414 crr)))))
+		    (seta comp 2 (clamp (round (+ yy (* 1.77200 cbb)))))
+		    (seta row x comp)))
+	     (seta matrix y row)))
+      matrix)))
 
 ;; Ожидание заданного маркера
 (defun marker (marker) (parse-elem-word marker))
@@ -91,5 +115,11 @@
 (defun jpeg ()
   (&&& #'(lambda (stream) (jpeg-init) (cons nil stream))
        (marker SOI) (parse-many (table)) frame->(frame-header) (parse-many (table)) scan->(scan-header)
-       (decode-mcu (jpeg-hufs scan) (jpeg-quants (cdr frame)))))
-;;       (decode-block (jpeg-huf-dc 0) (jpeg-huf-ac 0) (jpeg-quant 0))))
+       mcu->(decode-mcu (jpeg-hufs scan) (jpeg-quants (cdr frame)))
+       return (ycbcr-to-rgb (car mcu) (second mcu) (third mcu) (get-hash (car frame) 'x)
+			    (get-hash (car frame) 'y))))
+
+(defun decode-jpeg (jpeg)
+  "Декодировать массив байт JPEG"
+  (let ((j (funcall (jpeg) (stream-from-arr jpeg t))))
+    (if j (car j) nil)))

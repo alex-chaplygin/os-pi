@@ -5,7 +5,7 @@ SHELL = bash
 VPATH := ..
 
 # тест JPEG
-test-jpeg: $(BASELISP) $(PARSER) $(JPEG) jpeg/jpeg-test.lsp
+test-jpeg: $(BASELISP) $(PARSER) $(JPEG) $(TEST) jpeg/jpeg-test.lsp
 	make -C ../../test /tmp/lisp
 	cat $^ | /tmp/lisp
 

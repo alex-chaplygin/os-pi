@@ -50,11 +50,13 @@
 		       (setq stream (cdr r))))))
 	(cons arr stream))))
 
-(defun decode-block (huff-dc huff-ac quant)
+(defun decode-block (huffs quant)
   "Декодирование блока с таблицами Хаффмана для dc и ac и таблицей квантования"
-  (&&& dc-> (decode-dc huff-dc)
-       coefs-> (decode-ac huff-ac)
+  (&&& dc-> (decode-dc (car huffs))
+       coefs-> (decode-ac (cdr huffs))
        return (progn (seta coefs 0 dc) (level-shift (idct (unzip (dequant coefs quant)))))))
 
-(defun decode-mcu (hufs)
-  nil)
+(defun decode-mcu (hufs quants)
+  (&&& (decode-block (aref hufs 0) (aref quants 0))
+       (decode-block (aref hufs 1) (aref quants 1))
+       (decode-block (aref hufs 2) (aref quants 2))))
