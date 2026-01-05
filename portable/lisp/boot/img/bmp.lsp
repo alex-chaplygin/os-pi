@@ -52,32 +52,24 @@
       pixel-array)))
 
 ;матрица
-(defun parse-matrix-array (info pixel-array)
+(defun parse-matrix-array (info arr)
   (let* ((width (get-hash info 'width))
          (height (get-hash info 'height))
-         (bytes-per-pixel 4)
-         (row-data-len (* width bytes-per-pixel))
-         (stride (* (+ row-data-len 3) 4))
-         (matrix '())) 
-
-    ;цикл строк
-    (for i 0 height
-      (let* ((offset (* i stride)) ;смещение
-             (row '()))            
-        
-        (for p 0 width
-          (let* ((k (* p bytes-per-pixel));смещение
-                 (blue (aref pixel-array (+ offset k)))
-                 (green (aref pixel-array (+ offset k 1)))
-                 (red (aref pixel-array (+ offset k 2)))
-                 (alpha (aref pixel-array (+ offset k 3)))
-                 
-                 (pixel (list blue green red alpha)))
-            
-            (setq row (cons pixel row))))
-
-        (setq matrix (cons (reverse row) matrix))))
-    
+         (comp (>> (get-hash info 'bit-count) 3))
+         (matrix (make-array height))
+	 (idx 0))
+    (for y 0 height
+	 (let* ((row (array-seq arr idx (+ idx (* comp width))))
+		(newrow (make-array width)))
+	   (let ((pos 0))
+	     (for x 0 width
+		  (let ((pixel (make-array comp)))
+		    (for i 0 comp
+			 (seta pixel i (aref row pos))
+			 (incf idx)
+			 (incf pos))
+		    (seta newrow x pixel))))
+	   (seta matrix y newrow)))
     matrix))
 
 (defun bmp ()
