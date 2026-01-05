@@ -111,6 +111,14 @@
        (setq acum (funcall f acum (aref a i))))
   acum)
 
+(defun array-map (a f)
+  "Приминение функции f к каждому элементу массива"
+  (let* ((size (array-size a))
+	 (a2 (make-array size)))
+    (for i 0 size
+	 (seta a2 i (funcall f (aref a i))))
+    a2))
+
 (defun array-to-list (a)
   "Пеобразовать массив a в список"
   (array-fold a #'(lambda (a e) (append a (list e))) nil))
