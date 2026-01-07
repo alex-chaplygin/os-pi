@@ -20,37 +20,12 @@
 (defun jpeg-huf-dc (id) (get-hash *huffman-tables* (cons 0 id))) ;; получить таблицу DC с номером id
 (defun jpeg-huf-ac (id) (get-hash *huffman-tables* (cons 1 id))) ;; получить таблицу AC с номером id
 (defun jpeg-quant (id) (get-hash *quantization-tables* id)) ;; получить квантования с номером id
-(defun jpeg-hufs (scan)
-  "Получить таблицы Хаффмана для всех каналов"
-  (array-map scan #'(lambda (x) (let ((d-a (get-hash x 'tda)))
-				  (cons (jpeg-huf-dc (car d-a)) (jpeg-huf-ac (cdr d-a)))))))
-(defun jpeg-quants (params)
-  "Получить таблицы квантования для всех каналов"
-  (array-map params #'(lambda (x) (jpeg-quant (get-hash x 'tq)))))
 
 (defun jpeg-init ()
   "Инициализация структур данных"
+  (setq *pred* #(0 0 0))
   (setq *quantization-tables* (make-hash))
   (setq *huffman-tables* (make-hash)))
-
-(defun ycbcr-to-rgb (my cb cr width height)
-  "Преобразует 3 матрицы Y Cb Cr в одну матрицу RGB с заданными размерами"
-  (labels ((pix (m x y)
-	     (aref (aref m y) x)))
-    (let* ((matrix (make-array height)))
-      (for y 0 height
-	   (let ((row (make-array width)))
-	     (for x 0 width
-		  (let ((comp (make-array 3))
-			(yy (pix my x y))
-			(cbb (- (pix cb x y) 0x80))
-			(crr (- (pix cr x y) 0x80)))
-		    (seta comp 0 (clamp (round (+ yy (* 1.40200 crr)))))
-		    (seta comp 1 (clamp (round (- yy (* 0.34414 cbb) (* 0.71414 crr)))))
-		    (seta comp 2 (clamp (round (+ yy (* 1.77200 cbb)))))
-		    (seta row x comp)))
-	     (seta matrix y row)))
-      matrix)))
 
 ;; Ожидание заданного маркера
 (defun marker (marker) (parse-elem-word marker))
@@ -113,13 +88,31 @@
 ;; Scan ::= Dnl? Table* ScanHeader ESC* ; скан с раделителем Dnl
 ;; Scomp ::= Cs Tda ; компонент скана
 (defun jpeg ()
-  (&&& #'(lambda (stream) (jpeg-init) (cons nil stream))
-       (marker SOI) (parse-many (table)) frame->(frame-header) (parse-many (table)) scan->(scan-header)
-       mcu->(decode-mcu (jpeg-hufs scan) (jpeg-quants (cdr frame)))
-       return (ycbcr-to-rgb (car mcu) (second mcu) (third mcu) (get-hash (car frame) 'x)
-			    (get-hash (car frame) 'y))))
+  (&&& (marker SOI) (parse-many (table)) frame->(frame-header) (parse-many (table)) scan->(scan-header)
+       mcu->(parse-many-n (compute-mcu frame) (decode-mcu (jpeg-hufs scan) (jpeg-quants (cdr frame)) (get-hash (car frame) 'jpeg-hv)))
+       (marker EOI)
+       return (labels ((make-matrix (w h) (array-map (make-array h) #'(lambda (x) (make-array w)))))
+		(let* ((par (car frame))
+		       (width2 (get-hash par 'width2))
+		       (height2 (get-hash par 'height2))
+		       (mcu-h (get-hash par 'mcu-hcount))
+		       (mcu-v (get-hash par 'mcu-vcount))
+		       (mcu-width (get-hash par 'mcu-width))
+		       (mcu-height (get-hash par 'mcu-height))
+       		       (y (make-matrix width2 height2))
+       		       (cb (make-matrix width2 height2))
+       		       (cr (make-matrix width2 height2))
+		       (yy 0))
+       		  (for mcu-y 0 mcu-v
+		       (let ((x 0))
+			 (for mcu-x 0 mcu-h
+			      (put-mcu (car mcu) y cb cr x yy (get-hash par 'jpeg-hv))
+			      (setq mcu (cdr mcu) x (+ x mcu-width))))
+		       (setq yy (+ yy mcu-height)))
+       		  (ycbcr-to-rgb y cb cr (get-hash par 'x) (get-hash par 'y))))))
 
 (defun decode-jpeg (jpeg)
   "Декодировать массив байт JPEG"
+  (jpeg-init)
   (let ((j (funcall (jpeg) (stream-from-arr jpeg t))))
     (if j (car j) nil)))
