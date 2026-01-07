@@ -14,7 +14,7 @@
 #ifdef VM
 #define MAX_ARRAYS 2 * 1024 * 1024
 #else
-#define MAX_ARRAYS 400
+#define MAX_ARRAYS 4 * 1024
 #endif
 /// Максимальная длина символа
 #define MAX_SYM_STR 32
