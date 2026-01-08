@@ -2,11 +2,6 @@
 (defconst +KEY-BUFFER+ 0x60) ; номер порта буфера клавиатуры
 
 (defconst +key-irq+ 1) ; номер линии прерывания клавиатуры
-(defconst +key-left+ 0x4b)
-(defconst +key-right+ 0x4d)
-(defconst +key-up+ 0x48)
-(defconst +key-down+ 0x50)
-(defconst +key-0+ 0x0B)
 (defconst +key-1+ 0x02)
 (defconst +key-2+ 0x03)
 (defconst +key-3+ 0x04)
@@ -16,6 +11,12 @@
 (defconst +key-7+ 0x08)
 (defconst +key-8+ 0x09)
 (defconst +key-9+ 0x0A)
+(defconst +key-0+ 0x0B)
+(defconst +key-tab+ 0xf)
+(defconst +key-left+ 0x4b)
+(defconst +key-right+ 0x4d)
+(defconst +key-up+ 0x48)
+(defconst +key-down+ 0x50)
 
 (defvar *keys* (make-array 128)) ; массив нажатий клавиш
 (defvar *key-down-handler*) ; обработчик нажатия кнопки
