@@ -1,4 +1,4 @@
-(defclass block element (children))
+(defclass block element ())
 
 (defmethod add-child ((self block) ch)
   "Добавляет элемент ch в список children обьекта block"

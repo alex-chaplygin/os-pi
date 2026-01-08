@@ -1,22 +1,18 @@
-
-;; (defun screen (&rest windows)
-;;   "Отрисовка окон"
-;;   "windows - список окон"
-;;   (app #'(lambda (w) (draw w)) windows))
+(defvar *screen*)
+(defvar *selected*)
 
 (defmacro gen/elem (name)
   "Генерация макроса для класса name"
   "Макрос создает объект с заданным списком свойств"
   `(defmacro ,name (&rest params)
-     (let ((n ',name))
-       `(let ((new-elem (make-instance ,n)))
+     ;;(let ((n ',name))
+       `(let ((new-elem (make-instance ',name)))
 	  (set-defaults new-elem)
-	  ,@(map #'(lambda (elem) `( ,(intern (concat (symbol-name n) "-SET-" (symbol-name (car elem)))) new-elem ,(second elem))) params)
-	  new-elem))))
+	  ,@(map #'(lambda (elem) `( ,(intern (concat (symbol-name ',name) "-SET-" (symbol-name (car elem)))) new-elem ,(second elem))) params)
+	  new-elem)))
 
-;(gen/elem element)
+;;(gen/elem element)
 ;(gen/elem text)
-;(gen/elem edit)
 
 (defmacro element (&rest params)
   (let ((n 'element))
@@ -54,16 +50,68 @@
 		    params)
        new-elem)))
 
-;(setq elem (make-edit 10 10 0 0 12 6 "test 12 test test 111111111 222222222 33333333 444444444" +cyan+ +cyan+ +green+ nil nil 0 '(0 . 0) #(0 0 0 0)))
+(defmacro horiz (&rest params)
+  (let ((n 'horiz))
+    `(let ((new-elem (make-instance ,n)))
+       (set-defaults new-elem)
+       ,@(map #'(lambda (elem)
+		  (if (contains '(id x y width height back-colour active-colour parent keyup keydown padding curpos sizeable) (car elem))
+		      `( ,(intern (concat (symbol-name n) "-SET-" (symbol-name (car elem)))) new-elem ,(second elem))
+	      `(add-child new-elem ,elem)))
+		    params)
+       new-elem)))
 
-;; (setq w (window "test1" (width 20) (height 10)
-;; 	 (children
-;; 	  (text "abc" (text "123") (color +green+))
-;; 	  (text "1111155555557777" (width 5) (height 5))
-;; 	  (text "abcd" (x 10) (y 10))
-;; 	  (edit "abcddd" (x 10) (y 15)))))
-;; (screen
-;;  w
-;;  (window "test111111111111111111111111111111111111111111")
-;;  (window "test3" (height 15) (back-color +green+))
-;;  (window "test4" (width 20) (height 10)))
+(defun update-screen ()
+  "Перерисовать экран"
+  (gsave)
+  (draw *screen*)
+  (grestore)
+  (draw-screen))
+
+(defmacro set-screen (&rest params)
+  "Задать экран"
+  `(let ((b (block (width *screen-width*) (height *screen-height*) (back-colour +black+) ,@params)))
+     (setq *screen* b)
+     (setq *selected* (list (block-children b)))
+     (update-screen)))
+
+(defun svap-colours (elem)
+  "Поменять активный и фоновый цвета"
+  (let* ((bc (element-back-colour elem)))
+    (element-set-back-colour elem (element-active-colour elem))
+    (element-set-active-colour elem bc))
+  (update-screen))
+
+(defun next-selected ()
+  "Переключить на следующий выделенный элемент"
+  (let* ((prev (caar *selected*))
+  	 (children (element-children prev)))
+    (svap-colours prev)
+    (if (null children)
+  	(let ((cur (cdar *selected*)))
+  	  (if (null cur)
+  	      (progn (setq *selected* (cdr *selected*))
+  		     (while (and (not (null (cdr *selected*)))
+  				 (null (car *selected*)))
+  			    (setq *selected* (cdr *selected*)))
+  		     (if (null (cdr *selected*))
+  			 (setq *selected* (list (block-children *screen*)))
+  			 (setq *selected* (cdr *selected*))))
+  	      (rplaca *selected* cur)))
+  	(progn (rplaca *selected* (cdar *selected*))
+  	       (setq *selected* (append (list children) *selected*))))
+    (svap-colours (caar *selected*))
+    (update-screen)))
+
+(setq *key-down-handler*
+      #'(lambda (key)
+	  (if (= key +key-tab+) (next-selected)
+	      nil
+	      ;;(funcall (elem-keydown ?selected?) key))
+)))
+
+(setq *key-up-handler*
+      #'(lambda (key)
+	  nil
+	  ;;(funcall (elem-keyup ?selected?) key))
+	  ))
