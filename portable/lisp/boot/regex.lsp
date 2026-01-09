@@ -183,33 +183,39 @@
 
 ;; Возвращает предикаты для символьных классов \w \W \d \D \s
 (defun predefined-preds (class)
-  (let ((word '(or (and (>= sym 48) (<= sym 57)) (and (>= sym 65) (<= sym 90)) (and (>= sym 97) (<= sym 122)) (= sym 95)))
-	(digit '(and (>= sym 48) (<= sym 57)))
-	(space '(or (= sym 9) (= sym 10) (= sym 12) (= sym 13) (= sym 32))))
+  (let ((word #'(lambda (sym) (or (and (>= sym 48) (<= sym 57)) (and (>= sym 65) (<= sym 90)) (and (>= sym 97) (<= sym 122)) (= sym 95))))
+	(digit #'(lambda (sym) (and (>= sym 48) (<= sym 57))))
+	(space #'(lambda (sym) (or (= sym 9) (= sym 10) (= sym 12) (= sym 13) (= sym 32)))))
     (case class
       ('word word)
-      ('nword `(not ,word))
+      ('nword #'(lambda (sym) (not (funcall word sym))))
       ('digit digit)
-      ('ndigit `(not ,digit))
+      ('ndigit #'(lambda (sym) (not (funcall digit sym))))
       ('space space)
-      ('nspace `(not ,space)))))
+      ('nspace #'(lambda (sym) (not (funcall space sym)))))))
 
 (defun gen-preds (negative ranges)
   "Возвращает предикаты для диапазона символов"
-  (labels ((s1 (ranges acc)
-	     (if (null ranges) acc
-		 (s1 (cdr ranges)
-			    (let* ((range (car ranges))
-				   (start (car range))
-				   (end (second range)))
-			      (cons
-			       (if (= start 'class)
-				   (predefined-preds end)
-				   (if end `(and (>= sym ,start) (<= sym ,end)) `(= sym ,start)))
-			       acc))))))
-    (let ((result `(or ,@(s1 ranges nil))))
-      #'(lambda (x) (eval `(let ((sym ,x))
-             ,(if negative `(not ,result) result)))))))
+  (labels ((make-range-pred (range)
+             (let ((start (car range))
+                   (end (second range)))
+               (cond
+                ((= start 'class) (predefined-preds end))
+                ((null end) #'(lambda (sym) (= sym start)))
+                (t #'(lambda (sym) (and (>= sym start) (<= sym end)))))))
+           
+           (combine-preds (ranges)
+             (if (null ranges)
+                 #'(lambda (sym) nil)
+                 (let ((pred1 (make-range-pred (car ranges)))
+                       (rest-pred (combine-preds (cdr ranges))))
+                   #'(lambda (sym) (or (funcall pred1 sym) 
+                                     (funcall rest-pred sym)))))))
+    
+    (let ((combined-pred (combine-preds ranges)))
+      (if negative
+          #'(lambda (sym) (not (funcall combined-pred sym)))
+          combined-pred))))
 
 (defun regex-to-nfa (regex groups preds)
   "Преобразует разобранное регулярное выражение в НКА"

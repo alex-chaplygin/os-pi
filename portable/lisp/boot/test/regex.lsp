@@ -183,6 +183,7 @@
   (test-match "123" "\\D+" NIL)
   (test-match "123" "[^0-3]+" NIL)
   (test-match "^^^" "[\\^]+" "^^^")
+  (test-match "abc_123привет" "[^A-Za-z0-9_]+" "привет")
   (test-match ".*?" "\\.\\*\\?" ".*?")
   (test-match "nonnoncapturinggroups" "(?:non)+(?:capturing)(?:groups)" "nonnoncapturinggroups")
 
