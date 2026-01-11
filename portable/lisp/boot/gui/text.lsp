@@ -18,7 +18,8 @@
   	(set-colour bc)
   	(fill-rect x y width height))
     (gsave)
-    (move-to x y)
+    ;;(move-to x y)
+    (translate (cons x y))
     (set-colour (if bc (+ colour (<< bc 4)) colour))
     (for i 0 count
   	 (show-text (subseq text (* i width) (* (+ 1 i) width)))

@@ -1,5 +1,5 @@
-(defvar *screen*)
-(defvar *selected*)
+(defvar *gui-screen*)
+(defvar *gui-selected*)
 
 (defmacro gen/elem (name)
   "Генерация макроса для класса name"
@@ -63,55 +63,53 @@
 
 (defun update-screen ()
   "Перерисовать экран"
-  (gsave)
-  (draw *screen*)
-  (grestore)
+  (draw *gui-screen*)
+  (screen-add-rect (cons 0 0) (cons *screen-width* *screen-height*))
   (draw-screen))
 
 (defmacro set-screen (&rest params)
   "Задать экран"
   `(let ((b (block (width *screen-width*) (height *screen-height*) (back-colour +black+) ,@params)))
-     (setq *screen* b)
-     (setq *selected* (list (block-children b)))
+     (setq *gui-screen* b)
+     (setq *gui-selected* (list (block-children b)))
      (update-screen)))
 
-(defun svap-colours (elem)
+(defun swap-colours (elem)
   "Поменять активный и фоновый цвета"
   (let* ((bc (element-back-colour elem)))
     (element-set-back-colour elem (element-active-colour elem))
-    (element-set-active-colour elem bc))
-  (update-screen))
+    (element-set-active-colour elem bc)))
 
 (defun next-selected ()
   "Переключить на следующий выделенный элемент"
-  (let* ((prev (caar *selected*))
-  	 (children (element-children prev)))
-    (svap-colours prev)
+  (let* ((prev (caar *gui-selected*))
+	 (children (element-children prev)))
+    (swap-colours prev)
     (if (null children)
-  	(let ((cur (cdar *selected*)))
-  	  (if (null cur)
-  	      (progn (setq *selected* (cdr *selected*))
-  		     (while (and (not (null (cdr *selected*)))
-  				 (null (car *selected*)))
-  			    (setq *selected* (cdr *selected*)))
-  		     (if (null (cdr *selected*))
-  			 (setq *selected* (list (block-children *screen*)))
-  			 (setq *selected* (cdr *selected*))))
-  	      (rplaca *selected* cur)))
-  	(progn (rplaca *selected* (cdar *selected*))
-  	       (setq *selected* (append (list children) *selected*))))
-    (svap-colours (caar *selected*))
+	(let ((cur (cdar *gui-selected*)))
+	  (if (null cur)
+	      (progn (setq *gui-selected* (cdr *gui-selected*))
+		     (while (and (not (null (cdr *gui-selected*)))
+				 (null (car *gui-selected*)))
+			    (setq *gui-selected* (cdr *gui-selected*)))
+		     (when (and (null (cdr *gui-selected*))
+				(null (car *gui-selected*))) 
+		       (setq *gui-selected* (list (block-children *gui-screen*)))))
+	      (rplaca *gui-selected* cur)))
+	(progn (rplaca *gui-selected* (cdar *gui-selected*))
+	       (setq *gui-selected* (append (list children) *gui-selected*))))
+    (swap-colours (caar *gui-selected*))
     (update-screen)))
 
 (setq *key-down-handler*
       #'(lambda (key)
-	  (if (= key +key-tab+) (next-selected)
-	      nil
-	      ;;(funcall (elem-keydown ?selected?) key))
-)))
+	  (if (= key +key-tab+) (next-selected) nil)))
+	      ;; (let* ((sel (if (and *gui-selected* (car *gui-selected*)) (caar *gui-selected*) nil))
+	      ;; 	     (handler (if sel (element-keydown sel) nil)))
+	      ;; 	(when (and sel handler) (funcall handler key))))))
 
-(setq *key-up-handler*
-      #'(lambda (key)
-	  nil
-	  ;;(funcall (elem-keyup ?selected?) key))
-	  ))
+;; (setq *key-up-handler*
+;;       #'(lambda (key)
+;; 	  (let *((sel (if (and *gui-selected* (car *gui-selected*)) (caar *gui-selected*) nil))
+;; 		 (handler (if sel (element-keyup sel) nil)))
+;; 	    (when (and sel handler) (funcall handler key)))))
