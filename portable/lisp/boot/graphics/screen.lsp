@@ -12,10 +12,10 @@
 
 (defun add-to-redraw-rect (x1 y1 x2 y2)
   "Вспомогательная функция добавления прямоугольника в область отрисовки"
-  (when (< x1 (vec2-x *draw-top-left*)) (rplaca *draw-top-left* x1))
-  (when (< y1 (vec2-y *draw-top-left*)) (rplacd *draw-top-left* y1))
-  (when (> x2 (vec2-x *draw-bottom-right*)) (rplaca *draw-bottom-right* x2))
-  (when (> y2 (vec2-y *draw-bottom-right*)) (rplacd *draw-bottom-right* y2)))
+  (when (< x1 (vec2-x *draw-top-left*)) (setq *draw-top-left* (cons x1 (cdr *draw-top-left*))))
+  (when (< y1 (vec2-y *draw-top-left*)) (setq *draw-top-left* (cons (car *draw-top-left*) y1)))
+  (when (> x2 (vec2-x *draw-bottom-right*)) (setq *draw-bottom-right* (cons x2 (cdr *draw-bottom-right*))))
+  (when (> y2 (vec2-y *draw-bottom-right*)) (setq *draw-bottom-right* (cons (car *draw-bottom-right*) y2))))
 
 (defun screen-add-rect (ul size)
   "Добавить прямоугольник в область отрисовки"
