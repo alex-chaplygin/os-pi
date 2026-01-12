@@ -26,6 +26,9 @@
      `(let ((new-elem (make-instance ,n)))
 	(set-defaults new-elem)
 	,@(map #'(lambda (elem) `( ,(intern (concat (symbol-name n) "-SET-" (symbol-name (car elem)))) new-elem ,(second elem))) params)
+	(unless (text-width new-elem)
+	  (text-set-width new-elem (string-size (text-text new-elem)))
+	  (text-set-height new-elem 1))
 	new-elem)))
 
 (defmacro block (&rest params)
@@ -103,7 +106,7 @@
 
 (setq *key-down-handler*
       #'(lambda (key)
-	  (if (= key +key-tab+) (next-selected) nil)))
+	  (if (= key +key-tab+) (update-screen) nil)))
 	      ;; (let* ((sel (if (and *gui-selected* (car *gui-selected*)) (caar *gui-selected*) nil))
 	      ;; 	     (handler (if sel (element-keydown sel) nil)))
 	      ;; 	(when (and sel handler) (funcall handler key))))))

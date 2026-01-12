@@ -18,8 +18,7 @@
   	(set-colour bc)
   	(fill-rect x y width height))
     (gsave)
-    ;;(move-to x y)
-    (translate (cons x y))
+    (move-to x y)
     (set-colour (if bc (+ colour (<< bc 4)) colour))
     (for i 0 count
   	 (show-text (subseq text (* i width) (* (+ 1 i) width)))
@@ -30,14 +29,5 @@
 (defmethod set-defaults ((self text))
   "установка значений по умолчанию"
   (super set-defaults self)
-  (text-set-width self 4)
   (text-set-colour self +dark-gray+)
   (text-set-text self "text"))
-      
-;; (defmethod set-defaults ((self text))
-;;   (super set-defaults self)
-;;   (setf (slot self 'color) +black+)
-;;   (setf (slot self 'back-color) +blue+)
-;;   (setf (slot self 'height) 1)
-;;   (setf (slot self 'width) (string-size (slot self 'text)))
-;;   (set-padding self #(0 0 0 0)))
