@@ -1,8 +1,6 @@
 #ifndef REGIONS
 #define REGIONS
 
-/// Начальный адрес памяти
-#define MEM_START 0x200000 
 /// Всего байт для регионов
 #ifdef VM
 #define MAX_REGION_SIZE 512 * 1024 * 1024

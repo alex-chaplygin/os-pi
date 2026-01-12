@@ -17,7 +17,8 @@ void init_regions()
 #ifndef OS
     regions = (struct region *)malloc(MAX_REGION_SIZE);
 #else
-    regions = (struct region *)MEM_START;
+    extern char _end;
+    regions = (struct region *)(void *)&_end;
 #endif
 #ifdef X32
     regions = (struct region *)((((int)regions >> MARK_BIT) + 1) << MARK_BIT);

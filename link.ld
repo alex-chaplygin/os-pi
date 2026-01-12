@@ -12,4 +12,5 @@ SECTIONS
    	     *(.lisp*)
 	   }
    .bss  : { *(.bss)  }
+   _end = .;
  }
