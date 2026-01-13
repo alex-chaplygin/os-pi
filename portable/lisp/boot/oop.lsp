@@ -36,6 +36,23 @@
 ;;Хеш-таблица методов (хеш по class-id + method-id)
 (defvar *methods* (make-hash))
 
+(defmacro init-oop-system ()
+  (setq +max-class-count+ 100)
+  (setq +max-methods-count+ 100)
+  (setq +slots-id+ 0)
+  (setq +parent-id+ 1)
+  (setq +slots-count-id+ 2)
+  (setq +class-id+ 0)
+  (setq +slot-id+ 1)
+  (setq *last-class* 0)
+  (setq *last-method* 0)
+  (setq *class-table* (make-array +max-class-count+))
+  (setq *class-names* (make-array +max-class-count+))
+  (setq *methods-names* (make-array +max-methods-count+))
+  (let ((a (setq *methods* (make-hash)))) nil))
+
+(init-oop-system)
+
 (defun make-indexing-list (list start)
   "Преобразует список в список точечных пар (индекс . значение)"
   (if (null list) nil
@@ -94,8 +111,7 @@
   "(make-instance 'point) -> ((X.nil)(Y.nil))"
   (let* ((index (get-class-id class-name))
 	 (class (aref *class-table* index))
-	 (obj (make-array (++ (aref class +slots-count-id+))))
-	 )
+	 (obj (make-array (++ (aref class +slots-count-id+)))))
     (seta obj +class-id+ index)
     obj))
 
@@ -107,6 +123,13 @@
   ;; make-point (x y)
   ;; (seta obj 1 x)
   ;; (seta obj 2 y)
+  (let ((parent-id (get-class-id parent)))
+    (let ((class (make-array 3)))
+     (seta class +slots-id+ slots)
+     (seta class +parent-id+ parent-id)
+     (seta class +slots-count-id+ (+ (get-slots-count parent-id) (list-length slots)))
+     (seta *class-table* *last-class* class)
+     (seta *class-names* *last-class* name)))
   `(let* ((parent-id (get-class-id ',parent))
 	  (class (make-array 3)))
      (seta class +slots-id+ ',slots)
@@ -118,10 +141,11 @@
      "Создает функцию-конструктор для класса"
      (let ((obj (make-instance ',name)))
        ,@(map #'(lambda(s) `(seta obj ,(car s) ,(cdr s)))
-	      (make-indexing-list (get-slots *last-class*) +slot-id+))
+  	      (make-indexing-list (get-slots *last-class*) +slot-id+))
        obj))
   `(gen-class-functions ,name ,(make-indexing-list (get-slots *last-class*) +slot-id+))
   `(incf *last-class*)
+  (incf *last-class*)
   `',name)
 
 (defun get-method-id (method-name)
@@ -152,16 +176,22 @@
 
 (defmacro defmethod (name args &rest body)
   "Определяет метод с именем name"
+  ;; `(let ((method-id (get-method-id ,name)))
+  ;;        (when (null method-id)
+  ;;         (seta *methods-names* *last-method* ,name)
+  ;;         (setq method-id *last-method*)
+  ;;         (incf *last-method*)))
   (let* ((self-arg (caar args))
          (class-sym (cadar args))
          (method-args (cdr args))
          (method-id (get-method-id name)))
-    (if (null method-id)
-        (progn
+    (when (null method-id)
           (seta *methods-names* *last-method* name)
           (setq method-id *last-method*)
           (incf *last-method*))
-        nil)
+    ;; (let ((class-id (get-class-id class-sym)))
+    ;;   (set-hash *methods* (cons method-id class-id)
+    ;; 		#'(lambda (cons self-arg method-args) ,@body)))
     `(let ((class-id (get-class-id ',class-sym)))
        (set-hash *methods* (cons ,method-id class-id)
                  #'(lambda ,(cons self-arg method-args) ,@body))
