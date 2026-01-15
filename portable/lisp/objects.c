@@ -833,6 +833,7 @@ void print_array(object_t obj)
     	print_obj(a->data[i]);
     	if (i < a->length - 1)
     	    printf(" ");
+	print_counter++;
     }
 }
 
