@@ -48,8 +48,7 @@
   (setq *last-method* 0)
   (setq *class-table* (make-array +max-class-count+))
   (setq *class-names* (make-array +max-class-count+))
-  (setq *methods-names* (make-array +max-methods-count+))
-  (let ((a (setq *methods* (make-hash)))) nil))
+  (setq *methods-names* (make-array +max-methods-count+)))
 
 (init-oop-system)
 
@@ -58,14 +57,22 @@
   (if (null list) nil
       (append (list (cons start (car list))) (make-indexing-list (cdr list) (++ start)))))
 
+(defmacro gen-search (name names iter)
+  `(defun ,name (class-name index)
+     (if (= index ,iter) nil
+      (if (eq class-name (aref ,names index)) index
+	  (get-class-id-search class-name (++ index))))))
+
+(gen-search get-class-id-search *class-names* *last-class*)
+(gen-search get-method-id-search *methods-names* *last-method*)
+  
 (defun get-class-id (class-name)
   "Получение id класса"
-  (if (null class-name) nil
-    (labels ((search (index)
-	       (if (= index *last-class*) nil
-		 (if (eq class-name (aref *class-names* index)) index
-		   (search (++ index))))))
-	    (search 0))))
+  (if (null class-name) nil (get-class-id-search class-name 0)))
+
+(defun get-method-id (method-name)
+  "Получение id метода"
+  (if (null method-name) nil (get-method-id-search method-name 0)))
 
 (defun check-class-type (child-class-id target-class-id)
   "Проверяет принадлежит ли класс или его родители к target-class"
@@ -80,14 +87,15 @@
    функций мутаторов - <class>-set-<slot>,
    функции предиката принадлежности класса"
   `(progn
-     ,@(map #'(lambda (s) `(progn
-	      (defun ,(intern (concat (symbol-name class) "-" (symbol-name (cdr s)))) (obj)
-              "Генерация селекторов"
-                 (aref obj ,(car s)))
-              (defun ,(intern (concat (symbol-name class) "-SET-" (symbol-name (cdr s)))) (obj val)
-              "Генерация мутаторов"
-                 (seta obj ,(car s) val))))
-            ',indexed-slots)
+     ,@(map #'(lambda (s)
+		`(progn
+		   (defun ,(intern (concat (symbol-name class) "-" (symbol-name (cdr s)))) (obj)
+		     "Генерация селекторов"
+		     (aref obj ,(car s)))
+		   (defun ,(intern (concat (symbol-name class) "-SET-" (symbol-name (cdr s)))) (obj val)
+		     "Генерация мутаторов"
+		     (seta obj ,(car s) val))))
+            indexed-slots)
      (defun ,(intern (concat (symbol-name class) "P")) (obj)
        "Проверяет, является ли объект экземпляром класса или его потомком"
        (if (null obj) nil
@@ -123,13 +131,13 @@
   ;; make-point (x y)
   ;; (seta obj 1 x)
   ;; (seta obj 2 y)
-  (let ((parent-id (get-class-id parent)))
-    (let ((class (make-array 3)))
+  (let* ((parent-id (get-class-id parent))
+	 (class (make-array 3)))
      (seta class +slots-id+ slots)
      (seta class +parent-id+ parent-id)
      (seta class +slots-count-id+ (+ (get-slots-count parent-id) (list-length slots)))
      (seta *class-table* *last-class* class)
-     (seta *class-names* *last-class* name)))
+     (seta *class-names* *last-class* name))
   `(let* ((parent-id (get-class-id ',parent))
 	  (class (make-array 3)))
      (seta class +slots-id+ ',slots)
@@ -147,15 +155,6 @@
   `(incf *last-class*)
   (incf *last-class*)
   `',name)
-
-(defun get-method-id (method-name)
-  "Получение id метода"
-  (if (null method-name) nil
-      (labels ((search (index)
-		 (if (= index *last-method*) nil
-                     (if (eq method-name (aref *methods-names* index)) index
-			 (search (++ index))))))
-	(search 0))))
 
 (defun dispatch-method (class-id method-id)
   "Ищет реализацию метода method-id класса class-id по родителям"
@@ -176,25 +175,16 @@
 
 (defmacro defmethod (name args &rest body)
   "Определяет метод с именем name"
-  ;; `(let ((method-id (get-method-id ,name)))
-  ;;        (when (null method-id)
-  ;;         (seta *methods-names* *last-method* ,name)
-  ;;         (setq method-id *last-method*)
-  ;;         (incf *last-method*)))
   (let* ((self-arg (caar args))
          (class-sym (cadar args))
          (method-args (cdr args))
-         (method-id (get-method-id name)))
-    (when (null method-id)
-          (seta *methods-names* *last-method* name)
-          (setq method-id *last-method*)
-          (incf *last-method*))
-    ;; (let ((class-id (get-class-id class-sym)))
-    ;;   (set-hash *methods* (cons method-id class-id)
-    ;; 		#'(lambda (cons self-arg method-args) ,@body)))
+         (method-id2 (get-method-id name))
+	 (method-id (if (null method-id2) (progn
+					    (seta *methods-names* *last-method* name)
+					    (incf *last-method*)
+					    (-- *last-method*)) method-id2)))
     `(let ((class-id (get-class-id ',class-sym)))
-       (set-hash *methods* (cons ,method-id class-id)
-                 #'(lambda ,(cons self-arg method-args) ,@body))
+       (set-hash *methods* (cons ,method-id class-id) #'(lambda ,(cons self-arg method-args) ,@body))
        (defun ,name (,self-arg ,@method-args)
          (let* ((obj-class-id (aref ,self-arg +class-id+))
                 (method-func (get-method obj-class-id ,method-id)))
@@ -202,12 +192,18 @@
 
 (defmacro super (method-name obj &rest args)
   "Вызов метода method-name родителя экземпляра класса obj с аргументами args"
-  `(let* ((class-id (aref ,obj +class-id+))
-          (parent-class-id (aref (aref *class-table* class-id) +parent-id+))
-          (method-id (get-method-id ',method-name)))
-     (if (null parent-class-id) 
-         (error (concat "no parent for class " class-id))
-         (funcall (get-method parent-class-id method-id) ,obj ,@args))))
+  (let ((method-id (get-method-id method-name)))
+    `(let* ((class-id (aref ,obj +class-id+))
+	    (parent-class-id (aref (aref *class-table* class-id) +parent-id+)))
+       (if (null parent-class-id) 
+	   (error (concat "no parent for class " class-id))
+	   (funcall (get-method parent-class-id ,method-id) ,obj ,@args)))))
+
+(defun slot (obj slot)
+  "Получить значение поля по символьному имени"
+  (let* ((class-id (aref obj +class-id+))
+	 (slots (get-slots class-id)))
+    (list-search slots slot)))
 
 (defmacro with-slots (class vars obj &rest body)
   "Макрос для связывания полей vars объекта obj с переменными и выполнение действий"

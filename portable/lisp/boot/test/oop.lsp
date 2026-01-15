@@ -45,6 +45,12 @@
      (line-set-x2 self (+ (line-x2 self) dx))
      (line-set-y2 self (+ (line-y2 self) dy)))
 
+  (defmethod mul ((self line) k)
+    (line-set-x self (* (line-x self) k))
+    (line-set-y self (* (line-y self) k))
+    (line-set-x2 self (* (line-x2 self) k))
+    (line-set-y2 self (* (line-y2 self) k)))
+
   ;; Тестирует методы
   (move p2 20 30)
   (print (assert (point-x p2) 40))
@@ -62,6 +68,12 @@
   (print (assert (line-y l1) 50))
   (print (assert (line-x2 l1) 40))
   (print (assert (line-y2 l1) 55))
+  ;; Тест метода mul
+  (mul l1 2)
+  (print (assert (line-x l1) 100))
+  (print (assert (line-y l1) 100))
+  (print (assert (line-x2 l1) 80))
+  (print (assert (line-y2 l1) 110))
   
   ;; (print *class-table*)
   ;; (print *class-names*)
