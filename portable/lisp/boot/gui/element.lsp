@@ -17,7 +17,7 @@
   (set-colour (element-back-colour self))
   (unless (element-width self) (element-set-width self 1))
   (unless (element-height self) (element-set-height self 1))
-  (fill-rect (slot self 'x) (slot self 'y) (slot self 'width) (slot self 'height)))
+  (fill-rect (element-x self) (element-y self) (element-width self) (element-height self)))
 
 (defmethod set-defaults ((self element))
   "установка значений по умолчанию"
