@@ -61,7 +61,7 @@
   `(defun ,name (class-name index)
      (if (= index ,iter) nil
       (if (eq class-name (aref ,names index)) index
-	  (get-class-id-search class-name (++ index))))))
+	  (,name class-name (++ index))))))
 
 (gen-search get-class-id-search *class-names* *last-class*)
 (gen-search get-method-id-search *methods-names* *last-method*)
@@ -160,12 +160,12 @@
   "Ищет реализацию метода method-id класса class-id по родителям"
   (if (null class-id) nil
       (let* ((key (cons method-id class-id))
-             (dispatched-method (get-hash *methods* key)))
+             (dispatched-method (check-key *methods* key)))
 	(if (null dispatched-method)
             (let ((class (aref *class-table* class-id)))
               (if (null class) nil
 		  (dispatch-method (aref class +parent-id+) method-id)))
-            dispatched-method))))
+            (get-hash *methods* key)))))
 
 (defun get-method (class-id method-id)
   "Рекуррентно возвращает тело метода по id метода из класса class-id"

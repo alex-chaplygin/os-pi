@@ -3,6 +3,10 @@
   (defclass angle () (degrees))
   (defclass line point (x2 y2))
 
+  (setq point (make-instance 'point))
+  (print (assert (point-x point) nil))
+  (print (assert (point-y point) nil))
+  
   ;; Теститирует геттеры
   (setq p2 (make-point 10 20)) ; x = 10 y = 20
   (print (assert (point-x p2) 10))
