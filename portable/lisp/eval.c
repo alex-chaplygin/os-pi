@@ -865,6 +865,12 @@ object_t error_func(object_t args)
 {
     printf("ERROR: ");
     PRINT(args);
+#ifdef DEBUG
+    print_debug_stack();
+    debug_stack = NULLOBJ;
+    printf("env: ");
+    PRINT(current_env);
+#endif    
 #ifndef VM    
     last_protected = 0;
     longjmp(repl_buf, 1);
