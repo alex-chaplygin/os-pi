@@ -16,14 +16,14 @@
 
 (defmacro element (&rest params)
   (let ((n 'element))
-    `(let ((new-elem (make-instance ,n)))
+    `(let ((new-elem (make-instance ',n)))
        (set-defaults new-elem)
        ,@(map #'(lambda (elem) `( ,(intern (concat (symbol-name n) "-SET-" (symbol-name (car elem)))) new-elem ,(second elem))) params)
        new-elem)))
 
 (defmacro text (&rest params)
    (let ((n 'text))
-     `(let ((new-elem (make-instance ,n)))
+     `(let ((new-elem (make-instance ',n)))
 	(set-defaults new-elem)
 	,@(map #'(lambda (elem) `( ,(intern (concat (symbol-name n) "-SET-" (symbol-name (car elem)))) new-elem ,(second elem))) params)
 	(unless (text-width new-elem)
@@ -33,7 +33,7 @@
 
 (defmacro block (&rest params)
   (let ((n 'block))
-    `(let ((new-elem (make-instance ,n)))
+    `(let ((new-elem (make-instance ',n)))
        (set-defaults new-elem)
        ,@(map #'(lambda (elem)
 		  (if (contains '(id x y width height back-colour active-colour parent keyup keydown) (car elem))
@@ -44,7 +44,7 @@
 
 (defmacro vert (&rest params)
   (let ((n 'vert))
-    `(let ((new-elem (make-instance ,n)))
+    `(let ((new-elem (make-instance ',n)))
        (set-defaults new-elem)
        ,@(map #'(lambda (elem)
 		  (if (contains '(id x y width height back-colour active-colour parent keyup keydown padding curpos sizeable) (car elem))
@@ -55,7 +55,7 @@
 
 (defmacro horiz (&rest params)
   (let ((n 'horiz))
-    `(let ((new-elem (make-instance ,n)))
+    `(let ((new-elem (make-instance ',n)))
        (set-defaults new-elem)
        ,@(map #'(lambda (elem)
 		  (if (contains '(id x y width height back-colour active-colour parent keyup keydown padding curpos sizeable) (car elem))
@@ -67,15 +67,7 @@
 (defun update-screen ()
   "Перерисовать экран"
   (draw *gui-screen*)
-  (screen-add-rect (cons 0 0) (cons *screen-width* *screen-height*))
   (draw-screen))
-
-(defmacro set-screen (&rest params)
-  "Задать экран"
-  `(let ((b (block (width *screen-width*) (height *screen-height*) (back-colour +black+) ,@params)))
-     (setq *gui-screen* b)
-     (setq *gui-selected* (list (block-children b)))
-     (update-screen)))
 
 (defun swap-colours (elem)
   "Поменять активный и фоновый цвета"
@@ -83,36 +75,49 @@
     (element-set-back-colour elem (element-active-colour elem))
     (element-set-active-colour elem bc)))
 
+(defmacro set-screen (&rest params)
+  "Задать экран"
+  `(let ((b (block (width *screen-width*) (height *screen-height*) (back-colour +black+) ,@params)))
+     (setq *gui-screen* b)
+     (setq *gui-selected* (list b))
+     (swap-colours b)
+     (update-screen)))
+
 (defun next-selected ()
   "Переключить на следующий выделенный элемент"
-  (let* ((prev (caar *gui-selected*))
-	 (children (element-children prev)))
+  (let* ((prev (car *gui-selected*))
+  	 (children (element-children prev)))
     (swap-colours prev)
     (if (null children)
-	(let ((cur (cdar *gui-selected*)))
-	  (if (null cur)
-	      (progn (setq *gui-selected* (cdr *gui-selected*))
-		     (while (and (not (null (cdr *gui-selected*)))
-				 (null (car *gui-selected*)))
-			    (setq *gui-selected* (cdr *gui-selected*)))
-		     (when (and (null (cdr *gui-selected*))
-				(null (car *gui-selected*))) 
-		       (setq *gui-selected* (list (block-children *gui-screen*)))))
-	      (rplaca *gui-selected* cur)))
-	(progn (rplaca *gui-selected* (cdar *gui-selected*))
-	       (setq *gui-selected* (append (list children) *gui-selected*))))
-    (swap-colours (caar *gui-selected*))
+    	;; переходим на следующий элемент в списке если есть
+    	(setq *gui-selected* (cdr *gui-selected*))
+    	;; добавляем дочерние элементы в начало списка
+    	(setq *gui-selected* (append children (cdr *gui-selected*))))
+    (when (null *gui-selected*)
+      (setq *gui-selected* (list *gui-screen*)))
+    (swap-colours (car *gui-selected*))
     (update-screen)))
+
+(defun get-element-by-id (id)
+  "Найти элемент с id"
+  (labels ((search-id (node)
+	     (if (= id (element-id node)) t nil))
+	   (search-list (list)
+	     (if (null list) nil
+		 (let ((el (search-tree (car list))))
+		   (if el el (search-list (cdr list))))))
+	   (search-tree (node)
+	     (if (search-id node) node
+		 (search-list (element-children node)))))
+    (search-tree *gui-screen*)))
 
 (setq *key-down-handler*
       #'(lambda (key)
-	  (if (= key +key-tab+) (update-screen) nil)))
-	      ;; (let* ((sel (if (and *gui-selected* (car *gui-selected*)) (caar *gui-selected*) nil))
-	      ;; 	     (handler (if sel (element-keydown sel) nil)))
-	      ;; 	(when (and sel handler) (funcall handler key))))))
+	  (if (= key +key-tab+) (next-selected) 
+	      (let ((handler (element-keydown (car *gui-selected*))))
+	      	(when handler (funcall handler key))))))
 
-;; (setq *key-up-handler*
-;;       #'(lambda (key)
-;; 	  (let *((sel (if (and *gui-selected* (car *gui-selected*)) (caar *gui-selected*) nil))
-;; 		 (handler (if sel (element-keyup sel) nil)))
-;; 	    (when (and sel handler) (funcall handler key)))))
+(setq *key-up-handler*
+      #'(lambda (key)
+	  (let ((handler (element-keyup (car *gui-selected*))))
+	    (when handler (funcall handler key)))))
