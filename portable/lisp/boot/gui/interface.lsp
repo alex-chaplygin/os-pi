@@ -99,16 +99,16 @@
     (update-screen)))
 
 (defun get-element-by-id (id)
-  "Найти элемент с id"
-  (labels ((search-id (node)
+  "Найти элемент с id, возвращает или элемент или nil"
+  (labels ((search-id (node) ;; возвращает t или nil если id соответствует
 	     (if (= id (element-id node)) t nil))
 	   (search-list (list)
-	     (if (null list) nil
-		 (let ((el (search-tree (car list))))
-		   (if el el (search-list (cdr list))))))
-	   (search-tree (node)
-	     (if (search-id node) node
-		 (search-list (element-children node)))))
+	     (if (null list) nil ;; список закончился - не найдено
+		 (let ((el (search-tree (car list)))) ;; проверяем первый элемент
+		   (if el el (search-list (cdr list)))))) ;; проверяем остальные
+	   (search-tree (node) ;; поиск для группового элемента
+	     (if (search-id node) node ;; проверяем сам элемент
+		 (search-list (element-children node))))) ;; проверяем все дочерние элементы
     (search-tree *gui-screen*)))
 
 (setq *key-down-handler*
