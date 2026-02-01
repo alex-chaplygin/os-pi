@@ -2,7 +2,7 @@ include ../common.mak
 SHELL = bash
 VPATH := ..
 COMPILER = $(BASELISP) common.lsp macro.lsp compiler.lsp generator.lsp assembler.lsp 
-SOURCE = /tmp/regex
+SOURCE = /tmp/jpeg
 #../lib.lsp ../list.lsp ../hash.lsp ../array.lsp /tmp/c
 #common.lsp macro.lsp compiler.lsp generator.lsp assembler.lsp
 TARGET = /tmp/compile
@@ -50,7 +50,7 @@ compile-test: $(TARGET)
              cat /tmp/1;\
              exit 1;\
 	}
-	@[ "$$(head -n 1 /tmp/1)" == "\"Compiler error:\"" ] && cat /tmp/1 || cat /tmp/1 | sed -e "s/CONSTB/#(/" -e "s/CONSTE/)/" | tr '\n' ' ' >/tmp/res
+	@[ "$$(head -n 1 /tmp/1)" == "\"Compiler error:\"" ] && cat /tmp/1 || cat /tmp/1 | sed -e "s/CONSTB/#(/" -e "s/CONSTE/)/" | sed -E 's/\\(w|d|D|s|S|\+|\^|\*|\.|\?)/\\\\\1/g' | sed -E 's/#\\\\(\.|\?|w|d|D|s|S|\^|\*|\+)/#\\\1/g' | tr '\n' ' ' >/tmp/res
 	@[ "$$(head -n 1 /tmp/1)" == "\"Compiler error:\"" ] && echo "not compiled" || /tmp/test_comp </tmp/res
 
 # компиляция самого компилятора
