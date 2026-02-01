@@ -170,7 +170,7 @@
      ,(cadddr a2)
      ,(caddddr a2)))
 
-(defun regex-to-nfa (regex) nil)
+(defun regex-to-nfa (regex r2 r3) nil)
 
 (defun list-nfa(regex nfa f)
 "Рекурсивно создает автомат из последовательности, комбинируя функцией f"
