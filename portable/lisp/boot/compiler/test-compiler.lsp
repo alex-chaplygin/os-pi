@@ -2,17 +2,18 @@
 
 ;; Тест компиляции программы.
 (defun test-compile (expr expected-res)
-  (print (catch 'compiler
-    (print "Expression")
-    (print expr)
-    (print "Compiler")
-    (let ((program (compile expr)))
-      (print program)
-      (when (pairp program)
-	(print "Generator")
-	(dolist (ins (generate program))
-	  (print ins))
-	(throw 'compiler (assert program expected-res)))))))
+  (handle (progn
+	    (print "Expression")
+	    (print expr)
+	    (print "Compiler")
+	    (let ((program (compile expr)))
+	      (print program)
+	      (when (pairp program)
+		(print "Generator")
+		(dolist (ins (generate program))
+		  (print ins))
+		(print (assert program expected-res)))))
+	  (comp-err (m) (print "Compiler error" m))))
 
 (print "последовательность")
 (test-compile '(progn 1 2 3) '(seq (const 1) (seq (const 2) (const 3))))
@@ -255,6 +256,14 @@
 		;; 	  new-elem))))
 		;; (gen/elem element)
 		;; (setq e (element (x 4) (y 4) (width 2) (height 2)))
+
+;; тест labels со свободной переменной
+(test-compile '(progn
+		((lambda (x)
+		   (labels ((lz (k) (+ k x)))
+		     (lz 10))) 20))
+		   '(SEQ (NOP) (NOP) (NARY-PRIM + 0 ((CONST 1) (CONST 2) (CONST 3) (CONST 4)))))
+
 
 ;; тест глобальная переменная внутри макроса (print `(screen ,screen))
 
