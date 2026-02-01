@@ -14,6 +14,14 @@ typedef struct frame {
     int call_number;
 } frame_t;
 
+// Элемент стека CATCH
+typedef struct {
+    object_t label; // метка CATCH
+    int addr; // абсолютный адрес конца блока CATCH
+    object_t frame_reg; // значение регистра кадра активации в момент вызова CATCH
+    object_t *stack_top; // указатель на вершину стека в момент вызова CATCH
+} catch_t;
+
 //Функция инициализации виртуальной машины
 void vm_init(int *prog_mem, int prog_size,
 			  object_t *const_mem, int const_c, int glob_var_c);

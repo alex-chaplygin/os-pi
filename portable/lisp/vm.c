@@ -40,7 +40,10 @@ object_t *global_var_memory;
 object_t stack[STACK_SIZE];
 //Указатель на вершину стека
 object_t *stack_top;
-
+// Стек для catch
+catch_t catch_stack[STACK_SIZE];
+// Указатель стека catch
+catch_t *catch_top;
 //Хранит указатель на текущую выполняемую инструкцию
 int *pc_reg;
 //Хранит результат последней операции
@@ -146,6 +149,7 @@ void vm_init(int *prog_mem, int prog_size, object_t *const_mem, int const_c, int
     pc_reg = program_memory;
     acc_reg = NULLOBJ;
     stack_top = stack + STACK_SIZE - 1;
+    catch_top = catch_stack + STACK_SIZE - 1;
     frame_reg = NULLOBJ;
     working = 1;
 }
@@ -604,15 +608,34 @@ void nprim_closure()
 
 void catch_inst()
 {
-    fetch();
-    //    error("CATCH");
+    int ofs = fetch();
+#ifdef DEBUG
+    printf("CATCH %d\n", ofs);
+#endif       
+    if (catch_top < catch_stack)
+	error("catch stack overflow");
+    catch_top->label = acc_reg;
+    catch_top->addr = pc_reg - program_memory + ofs - 2;
+    catch_top->frame_reg = frame_reg;
+    catch_top->stack_top = stack_top;
+    catch_top--;
 }
 
 void throw_inst()
 {
-    pop();
-    PRINT(acc_reg);
-    error("THROW");
+    object_t label = pop();
+#ifdef DEBUG
+    printf("THROW ");
+    PRINT(label);
+#endif       
+    while (++catch_top < catch_stack + STACK_SIZE)
+	if (catch_top->label == label) {
+	    pc_reg = program_memory + catch_top->addr;
+	    frame_reg = catch_top->frame_reg;
+	    stack_top = catch_top->stack_top;
+	    return;
+	}
+    error("VM catch label not found");
 }   
 
 /** 
@@ -642,6 +665,7 @@ void garbage_collect()
 {
     int i;
     object_t *c;
+    catch_t *ct;
     extern int total_arrays;
     extern object_t consts;
     extern object_t static_bind[];
@@ -657,6 +681,10 @@ void garbage_collect()
     //    printf("mark stack\n");
     for (i = stack_top - stack + 1, c = stack_top + 1; i < STACK_SIZE; i++)
 	mark_object(*c++);
+    for (i = catch_top - catch_stack + 1, ct = catch_top + 1; i < STACK_SIZE; i++, ct++) {
+	mark_object(ct->label);
+	//mark_object(ct->frame_reg);
+    }
     //    printf("mark registers\n");
     mark_object(acc_reg);
     mark_object(frame_reg);
