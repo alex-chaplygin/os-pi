@@ -1,4 +1,4 @@
-(defvar *test-compile-failed*)
+;; (defvar *test-compile-failed*)
 
 ;; Тест компиляции программы.
 (defun test-compile (expr expected-res)
@@ -235,6 +235,28 @@
 		(append '(1 2) '(3 4))
 		(append '(1 2))
 		(append '(1 2) '())) '())
+
+;; тест макрос внутри макроса с двойным квазицитированием
+(test-compile '(progn
+		(defmacro gen/e (name)
+		  `(defmacro ,name (&rest params)
+		     `((lambda (n)
+			(+ ,@(cdr params))) 1)))
+		(gen/e my-macro)
+		(my-macro 1 2 3 4)) '(SEQ (NOP) (NOP) (NARY-PRIM + 0 ((CONST 1) (CONST 2) (CONST 3) (CONST 4)))))
+		;; (defmacro gen/elem (name)
+		;;   "Генерация макроса для класса name"
+		;;   "Макрос создает объект с заданным списком свойств"
+		;;   `(defmacro ,name (&rest params)
+		;;      (let ((n ',name))
+		;;        `(let ((new-elem (make-instance ,n)))
+		;; 	  (set-defaults new-elem)
+		;; 	  ,@(map #'(lambda (elem) `( ,(intern (concat (symbol-name n) "-SET-" (symbol-name (car elem)))) new-elem ,(second elem))) params)
+		;; 	  new-elem))))
+		;; (gen/elem element)
+		;; (setq e (element (x 4) (y 4) (width 2) (height 2)))
+
+;; тест глобальная переменная внутри макроса (print `(screen ,screen))
 
 ;; (print 'testing)
 ;; (print

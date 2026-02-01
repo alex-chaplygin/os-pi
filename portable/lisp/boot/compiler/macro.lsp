@@ -33,8 +33,9 @@
 
 (defun macro-eval-backquote (expr env)
 "макровычисление квазицитирования"
+  ;;(print `(meval-backquote ,expr ,env))
   (if (null expr) nil
-      (if (atom expr) expr
+      (if (or (atom expr) (eq (car expr) 'backquote)) expr
 	  (let ((el (car expr)))
 	    (cond ((eq el 'comma) (macro-eval (second expr) env))
 		  ((and (pairp el) (not (null el)) (eq (caar expr) 'comma-at))
@@ -145,7 +146,7 @@
    
 (defun macro-eval (expr env)
 "рекурсивное раскрытие макроса"
-;;  (print `(meval ,expr ,env))
+  ;;(print `(meval ,expr ,env))
   (if (functionp expr) expr
   (if (atom expr)
       (if (symbolp expr) (subst expr env) expr)
@@ -178,7 +179,7 @@
 		 (if (eq (car args) '&rest)
 		     (list (cons (second args) vals))
 		     (cons (cons (car args) (car vals)) (make (cdr args) (cdr vals)))))))
-;;    (print `(macro expand ,args ,vals ,body))
+    ;;(print `(macro expand ,args ,vals ,body))
     (let ((r (macro-expand-progn body (make args vals))))
-  ;;    (print `(macro-expand-res ,r))
+;;      (print `(macro-expand-res ,r))
       r)))
