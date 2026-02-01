@@ -2,7 +2,7 @@ include ../common.mak
 SHELL = bash
 VPATH := ..
 COMPILER = $(BASELISP) common.lsp macro.lsp compiler.lsp generator.lsp assembler.lsp 
-SOURCE = /tmp/jpeg
+SOURCE = /tmp/deflate
 #../lib.lsp ../list.lsp ../hash.lsp ../array.lsp /tmp/c
 #common.lsp macro.lsp compiler.lsp generator.lsp assembler.lsp
 TARGET = /tmp/compile
@@ -45,13 +45,20 @@ compile-file: $(COMPILER) $(TARGET)
 compile-test: $(TARGET)
 	make -C ../../test /tmp/test_comp
 	cat $(SOURCE) > $(TARGET) 
-	./compile
+	./compile bin/compiler
 	@/tmp/test_comp </tmp/bin >/tmp/1 || {\
              cat /tmp/1;\
              exit 1;\
 	}
 	@[ "$$(head -n 1 /tmp/1)" == "\"Compiler error:\"" ] && cat /tmp/1 || cat /tmp/1 | sed -e "s/CONSTB/#(/" -e "s/CONSTE/)/" | sed -E 's/\\(w|d|D|s|S|\+|\^|\*|\.|\?)/\\\\\1/g' | sed -E 's/#\\\\(\.|\?|w|d|D|s|S|\^|\*|\+)/#\\\1/g' | tr '\n' ' ' >/tmp/res
 	@[ "$$(head -n 1 /tmp/1)" == "\"Compiler error:\"" ] && echo "not compiled" || /tmp/test_comp </tmp/res
+
+# компиляция через готовый компилятор и выдача отладочной информации
+compile-debug: $(TARGET)
+	make -C ../../test /tmp/test_comp
+	cat $(SOURCE) > $(TARGET) 
+	./compile bin/debug
+	@/tmp/test_comp </tmp/bin >/tmp/debug
 
 # компиляция самого компилятора
 compiler: $(COMPILER)
@@ -60,5 +67,5 @@ compiler: $(COMPILER)
 	cat comp_begin >>$(TARGET)
 	echo " *TARGET* " >>$(TARGET)
 	cat comp_end >>$(TARGET)
-	./compile
+	./compile bin/compiler
 	/tmp/test_comp </tmp/bin | sed -e "s/CONSTB/#(/" -e "s/CONSTE/)/" | tr '\n' ' ' >/tmp/comp

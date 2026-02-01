@@ -22,7 +22,7 @@ lisp: /tmp/pci.lsp # здесь меняем набор библиотек
 vmlisp: /tmp/gui-ascii.lsp
 	make -C test /tmp/test_comp
 	cat $^ | head -n -1 >/tmp/compile
-	cd boot/compiler; ./compile
+	cd boot/compiler; ./compile bin/compiler
 	@/tmp/test_comp </tmp/bin >/tmp/1 || {\
              cat /tmp/1;\
              exit 1;\
