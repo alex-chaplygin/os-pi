@@ -1,10 +1,10 @@
 include ../common.mak
 SHELL = bash
 VPATH := ..
-COMPILER = $(BASELISP) common.lsp macro.lsp compiler.lsp generator.lsp assembler.lsp
-SOURCE = /tmp/gui-ascii.lsp
-#../lib.lsp ../list.lsp ../hash.lsp ../oop.lsp ../test.lsp ../test/oop.lsp
-#../compiler/common.lsp ../compiler/macro.lsp ../compiler/compiler.lsp ../compiler/generator.lsp ../compiler/assembler.lsp
+COMPILER = $(BASELISP) common.lsp macro.lsp compiler.lsp generator.lsp assembler.lsp 
+SOURCE = /tmp/oop.lsp
+#../lib.lsp ../list.lsp ../hash.lsp ../array.lsp /tmp/c
+#common.lsp macro.lsp compiler.lsp generator.lsp assembler.lsp
 TARGET = /tmp/compile
 
 compiler-test: $(COMPILER) ../test.lsp test-compiler.lsp
@@ -27,21 +27,19 @@ test: $(COMPILER) ../test.lsp vm.lsp test.lsp
 $(TARGET): $(SOURCE)
 	make target
 
+# создания шаблона для компиляции
 target: $(SOURCE)
-	echo "" >$(TARGET)
-	echo "(print (catch 'compiler (let ((comp (compile '(progn" >>$(TARGET)
+	cat comp_begin >$(TARGET)
 	cat $(SOURCE) >>$(TARGET)
-	echo ")))) (let* ((gen (assemble (generate comp))) (s (-- (array-size gen)))) (print s) (for i 0 s (print (aref gen i)))) *consts*))) (print *global-variables-count*)" >>$(TARGET)
+	cat comp_end >>$(TARGET)
 
 # компиляция через интерпретатор
 # предварительно нужно сделать make target
 compile-file: $(COMPILER) $(TARGET)
 	make -C ../../test /tmp/lisp
-	@cat $^ | /tmp/lisp >/tmp/1 || {\
-             cat /tmp/1;\
-             exit 1;\
-	}
-	cat /tmp/1 | sed -e "s/^(T/#(T/" | tr '\n' ' ' >/tmp/bin
+	cat $^ >/tmp/comp
+	cat $^ | /tmp/lisp >/tmp/1
+	@[ "$$(head -n 1 /tmp/1)" == "\"Compiler error:\"" ] && cat /tmp/1 || cat /tmp/1 | sed -e "s/CONSTB/#(/" -e "s/CONSTE/)/" | tr '\n' ' ' >/tmp/bin
 
 # компиляция через готовый компилятор и запуск готовой программы
 compile-test: $(TARGET)
@@ -52,15 +50,15 @@ compile-test: $(TARGET)
              cat /tmp/1;\
              exit 1;\
 	}
-	cat /tmp/1 | sed -e "s/^(T/#(T/" | tr '\n' ' ' >/tmp/res
+	cat /tmp/1 | sed -e "s/CONSTB/#(/" -e "s/CONSTE/)/" | tr '\n' ' ' >/tmp/res
 	/tmp/test_comp </tmp/res
 
 # компиляция самого компилятора
 compiler: $(COMPILER)
 	make -C ../../test /tmp/test_comp
 	cat $^ >$(TARGET)
-	echo "(print (catch 'compiler (let ((comp (compile '(progn" >>$(TARGET)
-	echo "*TARGET*" >>$(TARGET)
-	echo ")))) (let* ((gen (assemble (generate comp))) (s (-- (array-size gen)))) (print s) (for i 0 s (print (aref gen i)))) *consts*))) (print *global-variables-count*)" >>$(TARGET)
+	cat comp_begin >>$(TARGET)
+	echo " *TARGET* " >>$(TARGET)
+	cat comp_end >>$(TARGET)
 	./compile
-	/tmp/test_comp </tmp/bin | sed -e "s/^(T/#(T/" | tr '\n' ' ' >/tmp/comp
+	/tmp/test_comp </tmp/bin | sed -e "s/CONSTB/#(/" -e "s/CONSTE/)/" | tr '\n' ' ' >/tmp/comp

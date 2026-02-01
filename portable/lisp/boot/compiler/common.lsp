@@ -12,7 +12,7 @@
 
 (defun comp-err (msg &rest other)
 ";; Устанавливает флаг ошибки компиляции и сохраняет сообщение об ошибке."
-  (throw 'compiler (cons msg other)))
+  (throw 'comp-err (cons msg other)))
 
 (defun is-nary (args)
   ";; переменное число аргументов?"

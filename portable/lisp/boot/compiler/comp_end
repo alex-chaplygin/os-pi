@@ -1,0 +1,13 @@
+))))
+(let* ((gen (assemble (generate comp)))
+       (s (-- (array-size gen))))
+        (print s)
+	(for i 0 s (print (aref gen i)))
+(print 'CONSTB )
+(dolist (x *consts*)
+	(print x))
+(print 'CONSTE )
+(print *global-variables-count*)
+))
+
+   (comp-err (e) (print "Compiler error:") (print e)))

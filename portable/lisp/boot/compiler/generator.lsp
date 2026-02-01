@@ -132,7 +132,7 @@
 	   ('GOTO (emit (list 'JMP (second expr))))
 	   ('CATCH (generate-catch (second expr) (third expr)))
 	   ('THROW (generate-throw (second expr) (third expr)))
-	   (otherwise (emit (list 'UNKNOWN op))))))))
+	   (otherwise (comp-err "Unknown node " expr)))))))
 
 (defun generate (expr)
 "Генерация кода для скомпилированного выражения"

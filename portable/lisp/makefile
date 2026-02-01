@@ -27,8 +27,7 @@ vmlisp: /tmp/gui-ascii.lsp
              cat /tmp/1;\
              exit 1;\
 	}
-	cat /tmp/1 | sed -e "s/^(T/#(T/" | tr '\n' ' ' >/tmp/lisp.lsp
-        #cat /tmp/lisp.lsp
+	cat /tmp/1 | sed -e "s/CONSTB/#(/" -e "s/CONSTE/)/" | tr '\n' ' ' >/tmp/lisp.lsp
 
 # тесты jpeg
 jpeg-test: $(BASELISP) boot/bin-reader.lsp boot/bin-tree.lsp boot/huffman.lsp boot/img/jpeg/data-unit.lsp boot/img/jpeg/main.lsp boot/test/jpeg.lsp
