@@ -1,5 +1,5 @@
 include ../common.mak
-JPEG=$(HUFFMAN) jpeg/data-unit.lsp jpeg/dct.lsp jpeg/utils.lsp jpeg/jpeg.lsp
+JPEG=$(HUFFMAN) jpeg/dct.lsp jpeg/data-unit.lsp jpeg/utils.lsp jpeg/jpeg.lsp
 TIFF=$(HUFFMAN) t4.lsp tiff.lsp
 SHELL = bash
 VPATH := ..

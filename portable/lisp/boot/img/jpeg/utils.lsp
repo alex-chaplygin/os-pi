@@ -1,3 +1,7 @@
+(defun jpeg-huf-dc (id) nil)
+(defun jpeg-huf-ac (id) nil)
+(defun jpeg-quant (id) nil)
+
 (defun jpeg-hufs (scan)
   "Получить таблицы Хаффмана для всех каналов"
   (array-map scan #'(lambda (x) (let ((d-a (get-hash x 'tda)))
