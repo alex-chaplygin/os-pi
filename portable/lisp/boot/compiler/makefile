@@ -2,9 +2,8 @@ include ../common.mak
 SHELL = bash
 VPATH := ..
 COMPILER = $(BASELISP) common.lsp macro.lsp compiler.lsp generator.lsp assembler.lsp 
-SOURCE = /tmp/deflate
-#../lib.lsp ../list.lsp ../hash.lsp ../array.lsp /tmp/c
-#common.lsp macro.lsp compiler.lsp generator.lsp assembler.lsp
+SOURCE = /tmp/png
+#../lib.lsp ../list.lsp ../hash.lsp ../array.lsp common.lsp macro.lsp compiler.lsp generator.lsp assembler.lsp /tmp/c
 TARGET = /tmp/compile
 
 compiler-test: $(COMPILER) ../test.lsp test-compiler.lsp
@@ -56,6 +55,7 @@ compile-test: $(TARGET)
 # компиляция через готовый компилятор и выдача отладочной информации
 compile-debug: $(TARGET)
 	make -C ../../test /tmp/test_comp
+	make -C ../../test /tmp/test_comp_debug
 	cat $(SOURCE) > $(TARGET) 
 	./compile bin/debug
 	@/tmp/test_comp </tmp/bin >/tmp/debug
@@ -68,4 +68,4 @@ compiler: $(COMPILER)
 	echo " *TARGET* " >>$(TARGET)
 	cat comp_end >>$(TARGET)
 	./compile bin/compiler
-	/tmp/test_comp </tmp/bin | sed -e "s/CONSTB/#(/" -e "s/CONSTE/)/" | tr '\n' ' ' >/tmp/comp
+	/tmp/test_comp </tmp/bin | sed -e "s/CONSTB/#(/" -e "s/CONSTE/)/" | tr '\n' ' ' | sed -e "s/#( )/CONSTB CONSTE/" >/tmp/comp

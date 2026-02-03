@@ -86,11 +86,13 @@ nfa-test: $(BASELISP) fa/nfa.lsp $(TEST) test/nfa.lsp
 # модульные тесты Deflate
 deflate-test: $(BASELISP) $(PARSER) $(DEFLATE) $(TEST) test/deflate.lsp
 	make -C ../test /tmp/lisp
-	cat $^ | /tmp/lisp
+	cat $^ >/tmp/deflate
+	/tmp/lisp </tmp/deflate
 # модульные тесты регулярные выражения
 regex-test: $(BASELISP) fa/nfa.lsp stream.lsp parser.lsp regex.lsp $(TEST) test/regex.lsp
 	make -C ../test /tmp/lisp
-	cat $^ | /tmp/lisp
+	cat $^ >/tmp/regex
+	/tmp/lisp </tmp/regex
 # модульные тесты - потоки
 threads-test: $(BASELISP) threads.lsp $(TEST) test/threads.lsp
 	make -C ../test /tmp/lisp

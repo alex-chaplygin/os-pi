@@ -7,7 +7,8 @@ VPATH := ..
 
 aes-test: $(AES) $(TEST) test/aes.lsp
 	make -C ../../test /tmp/lisp
-	cat $^ | /tmp/lisp
+	cat $^ >/tmp/aes
+	/tmp/lisp </tmp/aes
 
 blowfish-test: $(BLOWFISH) $(TEST)
 	make -C ../../test /tmp/lisp
