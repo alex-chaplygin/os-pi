@@ -1,5 +1,5 @@
 #define MAX_STATIC 20000	/**< размер массива статических привязок */
-#define MAX_PROTECTED 80000	/**< размер массива временных объектов */
+#define MAX_PROTECTED 128 * 1024	/**< размер массива временных объектов */
 /// Печать массива текущих временных объектов
 #define PRINTPROT\
     object_t **pprot = protected;\

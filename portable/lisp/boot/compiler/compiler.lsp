@@ -86,9 +86,10 @@
 	 (type (car fun))
 	 (name (gensym)))
     (case type
-      ('lambda (list 'FIX-CLOSURE name (compile-lambda name (second f) (cons 'progn (cddr f)) env)))
-      ('fix-func (list 'FIX-CLOSURE f nil))
-      ('local-func (list 'FIX-CLOSURE (forth fun) nil))
+      ('lambda (list 'FIX-CLOSURE name (list-length env)
+		(compile-lambda name (second f) (cons 'progn (cddr f)) env)))
+      ('fix-func (list 'FIX-CLOSURE f (third fun) nil))
+      ('local-func (list 'FIX-CLOSURE (forth fun) (third fun) nil))
       ('fix-prim (list 'PRIM-CLOSURE f))
       ('nary-prim (list 'NPRIM-CLOSURE f))
       (otherwise (comp-err "invalid function argument" f fun)))))

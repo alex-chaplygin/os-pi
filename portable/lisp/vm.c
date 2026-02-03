@@ -403,12 +403,19 @@ void return_inst()
 void fix_closure_inst()
 {
     int ofs = fetch();
-    acc_reg = new_function(NULLOBJ, (pc_reg + ofs - program_memory - 2 << MARK_BIT), frame_reg, NULLOBJ);
+    int frame = fetch() - 1;
+    int count;
+    object_t fframe = frame_reg;
+    if (fframe != NULLOBJ) {
+	count = (GET_ARRAY(fframe)->data[1] >> MARK_BIT) - frame;
+	for (int i = 0; i < count; i++)
+	    fframe = GET_ARRAY(fframe)->data[0];
+    }
+    acc_reg = new_function(NULLOBJ, (pc_reg + ofs - program_memory - 3 << MARK_BIT), fframe, NULLOBJ);
 #ifdef DEBUG
-    printf("FIX-CLOSURE %d\n", ofs);
+    printf("FIX-CLOSURE %d %d\n", ofs, frame);
 #endif    
 }
-
 
 /**
  * @brief Функция, сохраняющая кадр активации в стеке
@@ -459,7 +466,11 @@ void restore_frame_inst()
  */
 void vm_apply(object_t fun, object_t args)
 {
-    extern int total_arrays;
+#ifdef DEBUG    
+    printf("APPLY ");
+    PRINT(fun);
+    PRINT(args);
+#endif
     int calls = 1;
     if (TYPE(fun) != FUNCTION)
 	error("vm_apply: not function\n");

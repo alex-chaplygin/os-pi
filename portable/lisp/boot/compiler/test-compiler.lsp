@@ -259,10 +259,13 @@
 
 ;; тест labels со свободной переменной
 (test-compile '(progn
+		(defun lz77(l)
 		((lambda (x)
-		   (labels ((lz (k) (+ k x)))
-		     (lz 10))) 20))
-		   '(SEQ (NOP) (NOP) (NARY-PRIM + 0 ((CONST 1) (CONST 2) (CONST 3) (CONST 4)))))
+		   (labels ((lz (k) (cons k x)))
+		     (lz l))) #(1 2)))
+		(lz77 '(3 4)))
+	      ;; lz(0->(3 4)) --- lam(0->#(1 2)) --- LZ77(0 -> (3 4))
+		   '(SEQ (LABEL LZ77 (SEQ (FIX-LET 1 ((CONST #(1 2))) (SEQ (SEQ (LABEL G743 (SEQ (FIX-PRIM CONS ((LOCAL-REF 0) (DEEP-REF 1 0))) (RETURN)))) (FIX-CALL G743 2 ((DEEP-REF 1 0))))) (RETURN))) (FIX-CALL LZ77 0 ((CONST (3 4))))))
 
 
 ;; тест глобальная переменная внутри макроса (print `(screen ,screen))
