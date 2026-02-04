@@ -504,7 +504,11 @@ void vm_apply(object_t fun, object_t args)
 #ifdef BIGDEBUG    
 	vm_dump();
 #endif
+#ifdef OS	
+    } while (calls != 0);
+#else    
     } while (working && calls != 0);
+#endif
     frame_reg = pop();
 }
 
