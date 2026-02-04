@@ -8,6 +8,8 @@
 (defvar *nary-functions*)
 ;; список локальных функций (локальное имя, смещение кадра, кол-во аргументов, скомплированное имя)
 (defvar *local-functions*)
+;; есть ли comma-at в коде
+(defvar *comma-at*)
 
 (defun extend-env (env args)
 ";; Расширить окружение новым кадром аргументов"
@@ -234,11 +236,11 @@
   ;; (print (list 'compile-backquote expr))
   ;; (when (null expr)
   ;;   (comp-err "backquote: no body"))
-  (if (atom expr)
-      (compile-constant expr)
-      (if (equal (car expr) 'COMMA)
-	  (inner-compile (second expr) env)
-	(list 'FIX-PRIM 'CONS (list (compile-backquote (car expr) env) (compile-backquote (cdr expr) env))))))
+  (cond ((atom expr) (compile-constant expr))
+	((equal (car expr) 'COMMA) (inner-compile (second expr) env))
+	((and (pairp (car expr)) (not (null (car expr))) (equal (caar expr) 'COMMA-AT)) (progn (setq *comma-at* t)
+	 (list 'FIX-CALL 'append2 0 (list (inner-compile (cadar expr) env) (compile-backquote (cdr expr) env)))))
+	(t (list 'FIX-PRIM 'CONS (list (compile-backquote (car expr) env) (compile-backquote (cdr expr) env))))))
 
 (defun compile-tagbody (body env)
 ";; Компиляция tagbody"
@@ -286,8 +288,12 @@
 "Компиляция в промежуточную форму"
   (setq *global-variables* '(t nil)
         *global-variables-count* (list-length *global-variables*)
+	*comma-at* nil
         *comp-err* nil
         *comp-err-msg* nil
         *fix-functions* nil
         *environment* nil)
-    (inner-compile expr nil))
+  (let ((c (inner-compile expr nil)))
+    (if *comma-at* (list 'SEQ (inner-compile
+			       '(defun append2 (l1 l2) (if (eq l1 nil) l2 (cons (car l1) (append2 (cdr l1) l2))))
+			       nil) c) c)))

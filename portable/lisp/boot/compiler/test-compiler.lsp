@@ -267,7 +267,8 @@
 	      ;; lz(0->(3 4)) --- lam(0->#(1 2)) --- LZ77(0 -> (3 4))
 		   '(SEQ (LABEL LZ77 (SEQ (FIX-LET 1 ((CONST #(1 2))) (SEQ (SEQ (LABEL G743 (SEQ (FIX-PRIM CONS ((LOCAL-REF 0) (DEEP-REF 1 0))) (RETURN)))) (FIX-CALL G743 2 ((DEEP-REF 1 0))))) (RETURN))) (FIX-CALL LZ77 0 ((CONST (3 4))))))
 
-
+;; тест comma-at
+(test-compile '(print `(1 2 ,@(cons 3 nil))) '(SEQ (LABEL APPEND2 (SEQ (ALTER (FIX-PRIM EQ ((LOCAL-REF 0) (GLOBAL-REF 1))) (LOCAL-REF 1) (FIX-PRIM CONS ((FIX-PRIM CAR ((LOCAL-REF 0))) (FIX-CALL APPEND2 0 ((FIX-PRIM CDR ((LOCAL-REF 0))) (LOCAL-REF 1)))))) (RETURN))) (NARY-PRIM PRINT 0 ((FIX-PRIM CONS ((CONST 1) (FIX-PRIM CONS ((CONST 2) (FIX-CALL APPEND2 () ((FIX-PRIM CONS ((CONST 3) (GLOBAL-REF 1))) (CONST ())))))))))))
 ;; тест глобальная переменная внутри макроса (print `(screen ,screen))
 
 ;; (print 'testing)
