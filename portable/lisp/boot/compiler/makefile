@@ -2,7 +2,7 @@ include ../common.mak
 SHELL = bash
 VPATH := ..
 COMPILER = $(BASELISP) common.lsp macro.lsp compiler.lsp generator.lsp assembler.lsp 
-SOURCE = /tmp/png
+SOURCE = /tmp/regex
 #../lib.lsp ../list.lsp ../hash.lsp ../array.lsp common.lsp macro.lsp compiler.lsp generator.lsp assembler.lsp /tmp/c
 TARGET = /tmp/compile
 
@@ -69,3 +69,4 @@ compiler: $(COMPILER)
 	cat comp_end >>$(TARGET)
 	./compile bin/compiler
 	/tmp/test_comp </tmp/bin | sed -e "s/CONSTB/#(/" -e "s/CONSTE/)/" | tr '\n' ' ' | sed -e "s/#( )/CONSTB CONSTE/" >/tmp/comp
+	cat /tmp/comp | sed -e "s/\*NODEBUG\*/*DEBUG*/" >/tmp/debug

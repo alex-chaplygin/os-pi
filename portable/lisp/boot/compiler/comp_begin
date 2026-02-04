@@ -1,1 +1,2 @@
+(defvar **debug** '*nodebug*)
 (handle (let ((comp (compile '(progn

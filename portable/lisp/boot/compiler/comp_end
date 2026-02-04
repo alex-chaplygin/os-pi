@@ -1,4 +1,10 @@
 ))))
+(if (eq **debug** '*debug*)
+    (let ((gen (generate comp)))
+  (print "Compiler:")
+  (print comp)
+  (print "Genearate:")
+  (dolist (x gen) (print x)))
 (let* ((gen (assemble (generate comp)))
        (s (-- (array-size gen))))
         (print s)
@@ -8,6 +14,6 @@
 	(print x))
 (print 'CONSTE )
 (print *global-variables-count*)
-))
+)))
 
    (comp-err (e) (print "Compiler error:") (print e)))
