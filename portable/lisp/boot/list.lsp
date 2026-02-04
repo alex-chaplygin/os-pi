@@ -7,9 +7,7 @@
   "(1 2 . (a b))"
   "(1 2 a b)"
   (if (null list1) list2
-    (if (null (cdr list1))
-	(cons (car list1) list2)
-      (cons (car list1) (append2 (cdr list1) list2)))))
+      (cons (car list1) (append2 (cdr list1) list2))))
 
 (defmacro append (&rest lists)
   "Объединение произвольного количества списков. Если нет аргументов, возвращает nil."
