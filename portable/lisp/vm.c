@@ -437,6 +437,9 @@ void set_frame_inst()
     int num = fetch() - 1;
     object_t frame = frame_reg;
     int count;
+#ifdef DEBUG
+    printf("SET-FRAME %d ", num);
+#endif    
     if (frame != NULLOBJ) {
 	count = (GET_ARRAY(frame)->data[1] >> MARK_BIT) - num;
 	for (int i = 0; i < count; i++)
@@ -444,7 +447,6 @@ void set_frame_inst()
 	frame_reg = frame;
     }
 #ifdef DEBUG
-    printf("SET-FRAME %d ", num);
     PRINT(frame_reg);
 #endif    
 }
