@@ -1,7 +1,11 @@
 object_t add(object_t list);
+object_t add2(object_t list);
 object_t sub(object_t first, object_t list);
+object_t sub2(object_t first, object_t list);
 object_t mul(object_t list);
+object_t mul2(object_t list);
 object_t DIV(object_t first, object_t list);
+object_t DIV2(object_t first, object_t list);
 object_t mod(object_t first, object_t list);
 object_t bitwise_and(object_t list);
 object_t bitwise_or(object_t list);

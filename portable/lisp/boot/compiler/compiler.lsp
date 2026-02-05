@@ -52,10 +52,10 @@
 	   (list 'fix-func (third r) (second r) (forth r) (fifth r)))  ; fix-func num-args env args body
 	  ((setq r (search-symbol *nary-functions* f))
 	   (list 'nary-func (third r) (second r) (forth r) (fifth r)))  ; nary-func num-args env args body
-	  ((setq r (search-symbol *fix-primitives* f))
-	   (list 'fix-prim (cdr r))) ; fix-prim num-args
 	  ((setq r (search-symbol *nary-primitives* f))
 	   (list 'nary-prim (cdr r))) ; nary-prim num-args
+	  ((setq r (search-symbol *fix-primitives* f))
+	   (list 'fix-prim (cdr r))) ; fix-prim num-args
 	  (t (comp-err "unknown function " f))))))
 
 (defun compile-progn (lst env) nil)
