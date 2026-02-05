@@ -5,7 +5,7 @@
   (print comp)
   (print "Genearate:")
   (dolist (x gen) (print x)))
-(let* ((gen (assemble (generate comp)))
+(let* ((gen (assemble (generate (optimize-tree comp))))
        (s (-- (array-size gen))))
         (print s)
 	(for i 0 s (print (aref gen i)))

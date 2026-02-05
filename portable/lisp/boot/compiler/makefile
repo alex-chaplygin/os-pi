@@ -1,12 +1,16 @@
 include ../common.mak
 SHELL = bash
 VPATH := ..
-COMPILER = $(BASELISP) common.lsp macro.lsp compiler.lsp generator.lsp assembler.lsp 
+COMPILER = $(BASELISP) common.lsp macro.lsp compiler.lsp generator.lsp assembler.lsp optimizer.lsp
 SOURCE = /tmp/regex
 #../lib.lsp ../list.lsp ../hash.lsp ../array.lsp common.lsp macro.lsp compiler.lsp generator.lsp assembler.lsp /tmp/c
 TARGET = /tmp/compile
 
 compiler-test: $(COMPILER) ../test.lsp test-compiler.lsp
+	make -C ../../test /tmp/lisp
+	cat $^ | /tmp/lisp
+
+optimizer-test: $(COMPILER) ../test.lsp test-optimizer.lsp
 	make -C ../../test /tmp/lisp
 	cat $^ | /tmp/lisp
 
@@ -68,5 +72,5 @@ compiler: $(COMPILER)
 	echo " *TARGET* " >>$(TARGET)
 	cat comp_end >>$(TARGET)
 	./compile bin/compiler
-	/tmp/test_comp </tmp/bin | sed -e "s/CONSTB/#(/" -e "s/CONSTE/)/" | tr '\n' ' ' | sed -e "s/#( )/CONSTB CONSTE/" >/tmp/comp
-	cat /tmp/comp | sed -e "s/\*NODEBUG\*/*DEBUG*/" >/tmp/debug
+	/tmp/test_comp </tmp/bin | sed -e "s/CONSTB/#(/" -e "s/CONSTE/)/" | tr '\n' ' ' | sed -e "s/#( )/CONSTB CONSTE/" >bin/compiler
+	cat bin/compiler | sed -e "s/\*NODEBUG\*/*DEBUG*/" >bin/debug
