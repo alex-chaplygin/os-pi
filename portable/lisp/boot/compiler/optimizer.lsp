@@ -53,7 +53,7 @@
   (if (contains *optimize-flags* 'simplify-arithmetic)
   (let ((prim (second tree))
         (args (forth tree)))
-    (if (and (contains '(+ - * /) prim)
+    (if (and (contains '(+ - * / & bitor ^) prim)
              (>= (list-length args) 2))
         (foldl #'(lambda (prev cur)
                    `(FIX-PRIM ,prim (,prev ,cur)))
