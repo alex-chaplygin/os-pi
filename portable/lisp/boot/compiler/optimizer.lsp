@@ -1,36 +1,40 @@
-(defvar *optimize-flags* ; список всех существующих флагов оптимизации промежуточного дерева
+(defvar *optimize-flags* ; список включенных флагов оптимизации промежуточного дерева
   '(trivial-condition
     simplify-arithmetic
     dead-code-elimination))
 
-;; (defun optimize-accumulator-loading (assembly)
-;;   "Удаляет избыточные формы загрузки значений в аккумулятор в коде ассемблера assembly"
-;;   (labels ((is-loading (inst) (contains '(CONST GLOBAL-REF LOCAL-REF DEEP-REF) (car inst)))
-;;            (is-set-ref (set-inst ref-inst)
-;;              (and (not (eq (car ref-inst) 'CONST))
-;;                   (not (null set-inst))
-;;                   (or (and (eq (car set-inst) 'GLOBAL-SET) (eq (car ref-inst) 'GLOBAL-REF))
-;;                       (and (eq (car set-inst) 'LOCAL-SET) (eq (car ref-inst) 'LOCAL-REF))
-;;                       (and (eq (car set-inst) 'DEEP-SET) (eq (car ref-inst) 'DEEP-REF)))
-;;                   (eq (cadr set-inst) (cadr ref-inst))))
-;;            (take-while (list pred acc)
-;;              (cond ((or (null list) (not (funcall pred (car list)))) (cons acc list))
-;;                    (t (take-while (cdr list) pred (append acc (list (car list)))))))
-;;            (compress-ref (assembly)
-;;              (if (null assembly)
-;;                  nil
-;;                  (let* ((pair (take-while assembly #'is-loading nil))
-;;                         (load-inst-list (car pair))
-;;                         (load-inst (if (null load-inst-list) nil (last load-inst-list)))
-;;                         (rest-inst-list (cdr pair)))
-;;                    (if (null load-inst)
-;;                        (cons (car rest-inst-list) (compress-ref (cdr rest-inst-list)))
-;;                        (cons load-inst (compress-ref rest-inst-list))))))
-;;            (simplify-set-ref (assembly prev-inst)
-;;              (cond ((null assembly) nil)
-;;                    ((is-set-ref prev-inst (car assembly)) (simplify-set-ref (cdr assembly) (car assembly)))
-;;                    (t (cons (car assembly) (simplify-set-ref (cdr assembly) (car assembly)))))))
-;;     (simplify-set-ref (compress-ref assembly) nil)))
+(defun accumulator-loading (tree)
+  "Удаляет избыточные формы загрузки значений в аккумулятор"
+  (labels ((is-loading (elem)
+             (and (not (null elem))
+                  (contains '(CONST GLOBAL-REF LOCAL-REF DEEP-REF) (car elem))))
+           (remove-acc-seqs (prev-elem subtree)
+             (if (null subtree)
+                 (if (is-loading prev-elem)
+                     (list prev-elem)
+                     nil)
+                 (let* ((cur-elem (car subtree))
+                        (next-elem (remove-acc-seqs cur-elem (cdr subtree))))
+                   (if (is-loading cur-elem)
+                       next-elem
+                       (if (or (null prev-elem) (not (is-loading prev-elem)))
+                           (cons cur-elem next-elem)
+                           (cons prev-elem (cons cur-elem next-elem)))))))
+           (is-set-ref (set ref)
+             (and (not (null set))
+                  (or (and (eq (car set) 'GLOBAL-SET) (eq (car ref) 'GLOBAL-REF))
+                      (and (eq (car set) 'LOCAL-SET) (eq (car ref) 'LOCAL-REF))
+                      (and (eq (car set) 'DEEP-SET) (eq (car ref) 'DEEP-REF)))
+                  (eq (second set) (second ref))))
+           (remove-set-ref (prev-elem subtree)
+             (if (null subtree)
+                 nil
+                 (let* ((cur-elem (car subtree))
+                        (next-elem (remove-set-ref cur-elem (cdr subtree))))
+                   (if (is-set-ref prev-elem cur-elem)
+                       next-elem
+                       (cons cur-elem next-elem))))))
+    (cons 'SEQ (remove-set-ref nil (remove-acc-seqs nil (cdr tree))))))
 
 (defun trivial-condition (alter)
   "Если условие формы ALTER - константа, то считает значение условия и сокращает форму ALTER до одной из её веток"
@@ -83,7 +87,9 @@
   "Убирает из формы SEQ неиспользуемый код"
   "К неиспользованнму коду относится:"
   " - последовательность команд загрузки аккумулятора (кроме последней команды)"
-  tree)
+  (if (contains *optimize-flags* 'dead-code-elimination)
+      (accumulator-loading tree)
+      tree))
   ;; (labels ((eliminate-dead-code (tree res)
   ;;            (let* ((subtree (car tree))
   ;;                   (res-added (append res (list subtree))))
@@ -119,5 +125,5 @@
 		   ('NARY-CALL (list (car tree) (second tree) (third tree) (forth tree) (optimize-many (fifth tree))))
 		   ('CATCH (list (car tree) (optimize (second tree)) (optimize (third tree))))
 		   ('THROW (list (car tree) (optimize (second tree)) (optimize (third tree))))
-		   (otherwise (comp-err "optimize-tree: invalid expresion" tree))))))
+		   (otherwise (comp-err "optimize-tree: invalid expression" tree))))))
     (optimize tree)))

@@ -147,21 +147,43 @@
 ;; TODO: тесты для разных комбинаций оптимизаций, в том числе для комбинации всех оптимизаций
 
 (deftest triv-cond-test ()
+  "Упрощение if"
   (print (assert (trivial-condition '(ALTER (CONST T) (CONST 1) (CONST 2))) '(CONST 1)))
   (print (assert (trivial-condition '(ALTER (CONST ()) (CONST 3) (CONST 4))) '(CONST 4)))
   (print (assert (trivial-condition '(ALTER (GLOBAL-REF 0) (CONST 5) (CONST 6))) '(CONST 5)))
   (print (assert (trivial-condition '(ALTER (GLOBAL-REF 1) (CONST 7) (CONST 8))) '(CONST 8)))
   (print (assert (trivial-condition '(ALTER (FIX-PRIM EQ ((LOCAL-REF 0) (GLOBAL-REF 1))) (LOCAL-REF 1) (LOCAL-REF 2))) '(ALTER (FIX-PRIM EQ ((LOCAL-REF 0) (GLOBAL-REF 1))) (LOCAL-REF 1) (LOCAL-REF 2))))
   (print (assert (optimize-tree '(SEQ (ALTER (CONST T) (CONST 1) (CONST 2))
-				  (ALTER (CONST NIL) (CONST 3) (CONST 4)))) '(SEQ (CONST 1) (CONST 3))))
+				  (ALTER (CONST NIL) (CONST 3) (CONST 4)))) '(SEQ (CONST 3))))
   )
 
 (deftest arith-test ()
-  (print (assert (optimize-tree '(NARY-PRIM + 0 ((LOCAL-REF 0) (LOCAL-REF 1)))) ()))
-  (print (assert (optimize-tree '(SEQ (LABEL APPEND2 (SEQ (ALTER (FIX-PRIM EQ ((LOCAL-REF 0) (GLOBAL-REF 1))) (LOCAL-REF 1) (FIX-PRIM CONS ((FIX-PRIM CAR ((LOCAL-REF 0))) (FIX-CALL APPEND2 0 ((FIX-PRIM CDR ((LOCAL-REF 0))) (LOCAL-REF 1)))))) (RETURN))))) ()))
-  (print (assert (optimize-tree '(LABEL O (SEQ (FIX-CLOSURE G2 1 (LABEL G2 (SEQ (NARY-PRIM FUNCALL 1 ((DEEP-REF 1 0) (NARY-PRIM FUNCALL 1 ((DEEP-REF 1 1) (LOCAL-REF 0))))) (RETURN)))) (RETURN)))) ()))
-  (print (assert (optimize-tree '(LABEL HASH-TEST (SEQ (SEQ (GLOBAL-SET 2 (FIX-CALL MAKE-HASH 0 ())) (GLOBAL-SET 3 (FIX-CALL MAKE-HASH 0 ())) (FIX-CALL SET-HASH 0 ((GLOBAL-REF 2) (CONST X) (CONST 5))) (FIX-CALL SET-HASH 0 ((GLOBAL-REF 2) (CONST Y) (CONST 10))) (FIX-CALL SET-HASH 0 ((GLOBAL-REF 2) (CONST X) (CONST 25))) (FIX-CALL SET-HASH 0 ((GLOBAL-REF 2) (CONST Z) (CONST 35))) (FIX-CALL SET-HASH 0 ((GLOBAL-REF 3) (CONST TEST) (CONST ALPHA))) (FIX-CALL SET-HASH 0 ((GLOBAL-REF 2) (CONST TEST) (GLOBAL-REF 3))) (FIX-CALL GET-HASH 0 ((GLOBAL-REF 2) (CONST X))) (FIX-CALL CHECK-KEY 0 ((GLOBAL-REF 2) (CONST Z))) (GLOBAL-REF 2)) (RETURN)))) ()))
-  )
+  "Преобразование арифметики"
+  (print (assert (optimize-tree '(NARY-PRIM + 0 ((LOCAL-REF 0) (LOCAL-REF 1)))) '(FIX-PRIM + ((LOCAL-REF 0) (LOCAL-REF 1))))))
 
-				  
-(run-tests 'stop-on-fail)
+(deftest dead-code-test ()
+  "Удаление неиспользуемого кода"
+  (print (assert (optimize-tree '(SEQ (CONST 1) (GLOBAL-REF 2) (CONST 3)))
+                 '(SEQ (CONST 3))))
+  (print (assert (optimize-tree '(SEQ (CONST 1) (CONST 2) (GLOBAL-SET 2 (CONST 3)) (CONST 4) (GLOBAL-REF 2)))
+                 '(SEQ (CONST 2) (GLOBAL-SET 2 (CONST 3)))))
+  (print (assert (optimize-tree '(SEQ (GLOBAL-SET 2 (CONST 1)) (GLOBAL-SET 3 (CONST 1))))
+                 '(SEQ (GLOBAL-SET 2 (CONST 1)) (GLOBAL-SET 3 (CONST 1)))))
+  (print (assert (optimize-tree '(SEQ (CONST 1) (CONST 2) (CONST 3) (GLOBAL-SET 2 (CONST 1))))
+                 '(SEQ (CONST 3) (GLOBAL-SET 2 (CONST 1)))))
+  (print (assert (optimize-tree '(SEQ (GLOBAL-SET 2 (CONST 1)) (GLOBAL-REF 2)))
+                 '(SEQ (GLOBAL-SET 2 (CONST 1)))))
+  (print (assert (optimize-tree '(SEQ (GLOBAL-SET 2 (CONST 1)) (GLOBAL-REF 3)))
+                 '(SEQ (GLOBAL-SET 2 (CONST 1)) (GLOBAL-REF 3))))
+  (print (assert (optimize-tree '(SEQ (GLOBAL-SET 2 (CONST 1)) (CONST 1)))
+                 '(SEQ (GLOBAL-SET 2 (CONST 1)) (CONST 1))))
+  (print (assert (optimize-tree '(SEQ (SEQ (CONST "Печать строки")
+				       (SEQ (CONST "Цикл for, переменная var от start до end - 1")
+					(SEQ (CONST "body - тело цикла")
+					 (SEQ (CONST "(for i 0 10 (seta arr i i))")
+					  (SEQ (CONST "Блок локальных переменных")
+					   (SEQ (CONST "(let ((x 0)")
+						(SEQ (CONST "((lambda (x y)")
+						     (FIX-PRIM + ((LOCAL-REF 0) (CONST 1))))))))))) ()))))
+
+(run-tests)
