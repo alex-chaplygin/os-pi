@@ -5,23 +5,23 @@ SHELL = bash
 VPATH := ..
 
 # тест JPEG
-test-jpeg: $(BASELISP) $(PARSER) $(JPEG) $(TEST) jpeg/jpeg-test.lsp
+jpeg-test: $(BASELISP) $(PARSER) $(JPEG) $(TEST) jpeg/jpeg-test.lsp
 	make -C ../../test /tmp/lisp
 	cat $^ >/tmp/jpeg
 	/tmp/lisp </tmp/jpeg
 
 # тест PNG
-test-png: $(BASELISP) $(PARSER) $(DEFLATE) png.lsp $(TEST) png-test.lsp
+png-test: $(BASELISP) $(PARSER) $(DEFLATE) png.lsp $(TEST) png-test.lsp
 	make -C ../../test /tmp/lisp
 	cat $^ >/tmp/png
 	/tmp/lisp </tmp/png
 
 # тест TIFF
-test-tiff: $(BASELISP) $(PARSER) $(TIFF) tiff-test.lsp
+tiff-test: $(BASELISP) $(PARSER) $(TIFF) tiff-test.lsp
 	make -C ../../test /tmp/lisp
 	cat $^ | /tmp/lisp
 
 # тест BMP
-test-bmp: $(BASELISP) $(PARSER) bmp.lsp bmp-test.lsp
+bmp-test: $(BASELISP) $(PARSER) bmp.lsp bmp-test.lsp
 	make -C ../../test /tmp/lisp
 	cat $^ | /tmp/lisp

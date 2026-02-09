@@ -44,6 +44,18 @@ compile-file: $(COMPILER) $(TARGET)
 	cat $^ | /tmp/lisp >/tmp/1
 	@[ "$$(head -n 1 /tmp/1)" == "\"Compiler error:\"" ] && cat /tmp/1 || cat /tmp/1 | sed -e "s/CONSTB/#(/" -e "s/CONSTE/)/" | tr '\n' ' ' >/tmp/bin
 
+/tmp/aes:
+	make -C ../crypt/ aes-test
+
+/tmp/png:
+	make -C ../img/ png-test
+
+/tmp/jpeg:
+	make -C ../img/ jpeg-test
+
+/tmp/%:
+	make -C ../ $*-test
+
 # компиляция через готовый компилятор и запуск готовой программы
 compile-test: $(TARGET)
 	make -C ../../test /tmp/test_comp
@@ -54,7 +66,8 @@ compile-test: $(TARGET)
              exit 1;\
 	}
 	@[ "$$(head -n 1 /tmp/1)" == "\"Compiler error:\"" ] && cat /tmp/1 || cat /tmp/1 | sed -e "s/CONSTB/#(/" -e "s/CONSTE/)/" | sed -E 's/\\(w|d|D|s|S|\+|\^|\*|\.|\?)/\\\\\1/g' | sed -E 's/#\\\\(\.|\?|w|d|D|s|S|\^|\*|\+)/#\\\1/g' | tr '\n' ' ' >/tmp/res
-	@[ "$$(head -n 1 /tmp/1)" == "\"Compiler error:\"" ] && echo "not compiled" || /tmp/test_comp </tmp/res
+# 	@[ "$$(head -n 1 /tmp/1)" == "\"Compiler error:\"" ] && echo "not compiled" || /tmp/test_comp </tmp/res
+	@time ([ "$$(head -n 1 /tmp/1)" == "\"Compiler error:\"" ] && echo "not compiled" || /tmp/test_comp </tmp/res)
 
 # компиляция через готовый компилятор и выдача отладочной информации
 compile-debug: $(TARGET)

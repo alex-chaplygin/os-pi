@@ -42,7 +42,8 @@ hash-test: $(BASELISP) $(TEST) test/hash.lsp
 # модульные тесты ООП
 oop-test: $(BASELISP) $(TEST) test/oop.lsp
 	make -C ../test /tmp/repl_lisp
-	cat $^ | /tmp/repl_lisp
+	cat $^ > /tmp/oop
+	cat /tmp/oop | /tmp/repl_lisp
 # модульные тесты строк
 str-test: $(BASELISP) $(TEST) test/str.lsp
 	make -C ../test /tmp/repl_lisp

@@ -1,5 +1,4 @@
 #!/bin/bash
-SOURCE=$(printf '%s' "$(cat /tmp/compile)")
-ESC=$(echo "${SOURCE}" | sed -e 's/[&"*+^/\\]/\\&/g' -e 's/$/\\/'; echo " ")
-#echo "s/\*TARGET\*/$ESC/" >/tmp/1
-cat $1 | sed -e "s/\*TARGET\*/$ESC/" >/tmp/bin
+sed 's/\*TARGET\*/\
+\*TARGET\*\
+/g' $1 | sed -e "/\*TARGET\*/e cat \/tmp\/compile" -e "/\*TARGET\*/d" >/tmp/bin
