@@ -24,7 +24,7 @@
     (print (assertcar (funcall (parse-range) s2) '(RANGE NEGATIVE ((65 ())))))
     (print (assertcar (funcall (parse-range) s3) '(RANGE () ((65 122) (66 115)))))))
 
-(deftest parse-sym-test ()
+(deftest parse-quant-test ()
   "Тестирование квантификатора"
   (let ((s1 (stream-from-str "{12}?"))
 	(s2 (stream-from-str "+?"))
