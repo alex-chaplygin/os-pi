@@ -16,7 +16,7 @@
 
 (defun ata-get-status-reg (bit)
   "Получение значения бита bit регистра статуса"
-  (get-bit (inb +ata-status+) bit))
+  (get-bit-from-num (inb +ata-status+) bit))
 
 (defmacro mk/ata-wait-status (name bit val)
   "генерация функций ожидания бита регистра статуса"
