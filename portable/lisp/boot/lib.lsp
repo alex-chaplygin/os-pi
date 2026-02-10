@@ -42,7 +42,7 @@
 
 (defun o (f g) #'(lambda (x) (funcall f (funcall g x)))) ; математическая композиция функций f и g
 
-(defun get-bit (num bit)
+(defun get-bit-from-num (num bit)
   "Получение бита с номером bit у числа num"
   (& (>> num bit) 1))
 
