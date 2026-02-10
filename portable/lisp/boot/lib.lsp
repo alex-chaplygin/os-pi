@@ -114,8 +114,7 @@
   `(let ((,var ,start))
      (tagbody
 	(while (< ,var ,end)
-	       ,@body (setq ,var (+ ,var 1)))
-	break)))
+	       ,@body (setq ,var (+ ,var 1))))))
 
 (defmacro while (test &rest bod)
   "Цикл while"
