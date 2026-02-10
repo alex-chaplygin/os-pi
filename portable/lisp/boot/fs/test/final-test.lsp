@@ -1,0 +1,3 @@
+(clear-screen)
+
+(run-tests)
