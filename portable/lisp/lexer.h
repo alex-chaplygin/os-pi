@@ -1,5 +1,5 @@
 #define MAX_STR 500
-#define MAX_SYMBOL 25
+#define MAX_SYMBOL 40
 
 typedef enum {
     T_NUMBER, // целое число

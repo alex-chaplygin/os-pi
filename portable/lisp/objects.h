@@ -7,7 +7,7 @@
 #define MAX_PAIRS 800000
 #endif
 /// Всего символов
-#define MAX_SYMBOLS (2*1024)
+#define MAX_SYMBOLS (4*1024)
 /// Всего строк
 #define MAX_STRINGS 20000
 /// Всего массивов
@@ -17,7 +17,7 @@
 #define MAX_ARRAYS 4 * 1024
 #endif
 /// Максимальная длина символа
-#define MAX_SYM_STR 32
+#define MAX_SYM_STR 64
 /// Всего больших чисел
 #ifdef VM
 #define MAX_NUMBERS 512
