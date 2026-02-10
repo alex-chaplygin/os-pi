@@ -19,3 +19,8 @@ clean:
 	rm bin/kernel portable/*.o portable/lisp/*.o x86/*.o
 tags:
 	etags include/portable/*.h include/x86/*.h portable/*.c x86/*.c
+
+fs-test:
+	cat disk.qcow2 > /tmp/disk.qcow2.copy
+	make run
+	cat /tmp/disk.qcow2.copy > disk.qcow2
