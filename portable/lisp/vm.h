@@ -1,18 +1,5 @@
-#define STACK_SIZE (1024 * 64)
+#define STACK_SIZE (64 * 1024)
 #define FRAME_SIZE 1024
-#define MAX_LOCAL_ARGS 16
-
-//Структура кадра активации
-typedef struct frame {
-    //Число аргументов в кадре
-    int count_args;
-    //Массив, в котором хранятся локальные аргументы кадра
-    object_t local_args[MAX_LOCAL_ARGS];
-    //Указатель на предыдущий кадр
-    struct frame *prev;
-    //Номер глубины вызова
-    int call_number;
-} frame_t;
 
 // Элемент стека CATCH
 typedef struct {
