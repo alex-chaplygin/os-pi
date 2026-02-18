@@ -269,7 +269,29 @@
 
 ;; тест comma-at
 (test-compile '(print `(1 2 ,@(cons 3 nil))) '(SEQ (LABEL APPEND2 (SEQ (ALTER (FIX-PRIM EQ ((LOCAL-REF 0) (GLOBAL-REF 1))) (LOCAL-REF 1) (FIX-PRIM CONS ((FIX-PRIM CAR ((LOCAL-REF 0))) (FIX-CALL APPEND2 0 ((FIX-PRIM CDR ((LOCAL-REF 0))) (LOCAL-REF 1)))))) (RETURN))) (NARY-PRIM PRINT 0 ((FIX-PRIM CONS ((CONST 1) (FIX-PRIM CONS ((CONST 2) (FIX-CALL APPEND2 () ((FIX-PRIM CONS ((CONST 3) (GLOBAL-REF 1))) (CONST ())))))))))))
-;; тест глобальная переменная внутри макроса (print `(screen ,screen))
+
+;; тест хвостового вызова
+(test-compile '(progn (defun notail-call () 1)
+		(defun tail-call () (notail-call) (tail-call))
+		(notail-call))
+	      '(SEQ (LABEL NOTAIL-CALL (SEQ (CONST 1) (RETURN))) (SEQ (LABEL TAIL-CALL (SEQ (SEQ (FIX-CALL NOTAIL-CALL 0 ()) (TAIL-CALL TAIL-CALL 0 ())) (RETURN))) (FIX-CALL NOTAIL-CALL 0 ()))))
+
+;; тест хвостового вызова в labels
+(test-compile '(labels ((f1 () (f1))
+			(f2 () (f3))
+			(f3 () (f2)))
+		(f1)
+		(f2))
+	      '(SEQ (SEQ (LABEL G872 (SEQ (TAIL-CALL G872 0 ()) (RETURN))) (LABEL G873 (SEQ (TAIL-CALL G874 0 ()) (RETURN))) (LABEL G874 (SEQ (TAIL-CALL G873 0 ()) (RETURN)))) (SEQ (FIX-CALL G872 0 ()) (FIX-CALL G873 0 ()))))
+
+(test-compile '(defun lab-test ()
+		(labels ((f1 () (f1))
+			(f2 () (f3))
+			(f3 () (f2)))
+		(f1)
+		  (f2)
+		  (lab-test)))
+	      '(LABEL LAB-TEST (SEQ (SEQ (SEQ (LABEL G915 (SEQ (TAIL-CALL G915 1 ()) (RETURN))) (LABEL G916 (SEQ (TAIL-CALL G917 1 ()) (RETURN))) (LABEL G917 (SEQ (TAIL-CALL G916 1 ()) (RETURN)))) (SEQ (FIX-CALL G915 1 ()) (SEQ (FIX-CALL G916 1 ()) (TAIL-CALL LAB-TEST 0 ())))) (RETURN))))
 
 ;; (print 'testing)
 ;; (print

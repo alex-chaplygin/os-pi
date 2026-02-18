@@ -128,7 +128,9 @@
 	   ('FIX-PRIM (generate-fix-prim (second expr) (third expr))) ; вызов примитива
 	   ('NARY-PRIM (generate-nary-prim (second expr) (third expr) (cadddr expr))) ; вызов nary примитива
 	   ('FIX-CALL (generate-reg-call (second expr) nil (third expr) (cadddr expr))) ; обычный вызов
+	   ('TAIL-CALL (generate-reg-call (second expr) nil (third expr) (cadddr expr)))
 	   ('NARY-CALL (generate-reg-call (second expr) (third expr) (cadddr expr) (caddddr expr))) ; вызов с переменным числом аргументов
+	   ('TAIL-NCALL (generate-reg-call (second expr) (third expr) (cadddr expr) (caddddr expr))) ; вызов с переменным числом аргументов
 	   ('GOTO (emit (list 'JMP (second expr))))
 	   ('CATCH (generate-catch (second expr) (third expr)))
 	   ('THROW (generate-throw (second expr) (third expr)))

@@ -10,6 +10,8 @@
 (defvar *local-functions*)
 ;; есть ли comma-at в коде
 (defvar *comma-at*)
+;; текущая функция для проверки рекурсии
+(defvar *current-func*)
 
 (defun extend-env (env args)
 ";; Расширить окружение новым кадром аргументов"
@@ -19,13 +21,13 @@
 (mk/add-func add-nary-func *nary-functions* args body) ;; переменное число аргументов
 (mk/add-func add-local-func *local-functions* real-name) ;; локальные функции
 
-(defun inner-compile (expr env) nil)
+(defun inner-compile (expr env tail) nil)
 
 (defun compile-func-body (name args body env)
-";; Компиляция тела функции"
+  ";; Компиляция тела функции"
   (list 'LABEL name
 	(list 'SEQ
-	      (inner-compile body (extend-env env args))
+	      (inner-compile body (extend-env env args) t)
 	      (list 'RETURN))))
 
 (defun compile-lambda (name args body env)
@@ -58,27 +60,29 @@
 	   (list 'fix-prim (cdr r))) ; fix-prim num-args
 	  (t (comp-err "unknown function " f))))))
 
-(defun compile-progn (lst env) nil)
+(defun compile-progn (lst env tail) nil)
 
-(defun compile-application (f args env)
+(defun compile-application (f args env tail)
 ";; Применение функции"
-;; f - имя функции или lambda, args - аргументы, env - окружение
+  ;; f - имя функции или lambda, args - аргументы, env - окружение
   (let* ((fun (find-func f))
 	 (type (car fun))
 	 (count (second fun))
-	 (cur-env (list-length env)))
+	 (cur-env (list-length env))
+	 (old-func *current-func*))
     (check-arguments f type count args)
     (if (eq type 'fix-macro)
-	(inner-compile (macroexpand (third fun) args (forth fun)) env)
+	(inner-compile (macroexpand (third fun) args (forth fun)) env tail)
 	(if (eq type 'nary-macro)
 	    (let ((r (macroexpand (third fun) (make-nary-args count args) (forth fun))))
-	      (inner-compile r env))
-	(let ((vals (map #'(lambda (a) (inner-compile a env)) args)))
+	      (inner-compile r env tail))
+	(let ((vals (map #'(lambda (a) (inner-compile a env nil)) args))) ;; параметры - не хвостовой вызов
 	  (case type
-	    ('lambda (list 'FIX-LET count vals (compile-progn (cddr f) (extend-env env (second f)))))
-	    ('local-func (list 'FIX-CALL (forth fun) (third fun) vals))
-	    ('fix-func (list 'FIX-CALL f (third fun) vals))
-	    ('nary-func (list 'NARY-CALL f count (third fun) vals))
+	    ('lambda (list 'FIX-LET count vals (compile-progn (cddr f) (extend-env env (second f)) tail)))
+	    ('local-func (list (if (and tail (pairp *current-func*) (contains *current-func* f)) 'TAIL-CALL
+				   'FIX-CALL) (forth fun) (third fun) vals))
+	    ('fix-func (list (if (and tail (eq f *current-func*)) 'TAIL-CALL 'FIX-CALL) f (third fun) vals))
+	    ('nary-func (list (if (and tail (eq f *current-func*)) 'TAIL-NCALL 'NARY-CALL) f count (third fun) vals))
 	    ('fix-prim (list 'FIX-PRIM f vals))
 	    ('nary-prim (list 'NARY-PRIM f count vals))))))))
 
@@ -103,6 +107,7 @@
   (let ((name (car expr))
 	(args (second expr))
 	(body (cddr expr)))
+    (setq *current-func* name)
     (compile-lambda name args (cons 'progn body) env)))
 
 (defun add-global (sym)
@@ -162,7 +167,7 @@
 		 (if (< (list-length body) 2)
 		     (comp-err "setq: no expression to set")
 		     (let* ((var (car body))
-			    (val (inner-compile (second body) env))
+			    (val (inner-compile (second body) env nil))
 			    (res (find-var var env)))
 		       (if (not (symbolp var))
 			   (comp-err "setq: invalid variable: " var)
@@ -175,14 +180,14 @@
 				 (otherwise (error "Unreachable")))))))))
 	    (compile-all-setq body))))
 
-(defun compile-if (expr env)
+(defun compile-if (expr env tail)
 ";; Компилирует if-выражение."
 ;; if-body - тело if-выражения (условие, ветка по "Да" и по "Нет").
   (if (!= (list-length expr) 3)
       (comp-err "if: invalid params")  
-      (let ((cond (inner-compile (car expr) env))
-	    (true (inner-compile (second expr) env))
-	    (false (inner-compile (third expr) env)))
+      (let ((cond (inner-compile (car expr) env nil))
+	    (true (inner-compile (second expr) env tail))
+	    (false (inner-compile (third expr) env tail)))
       (list 'ALTER cond true false))))
 
 (defun compile-constant (c)
@@ -190,21 +195,24 @@
   ;; (print (list 'compile-constant c))
   (list 'CONST c))
 
-(defun compile-progn (lst env)
+(defun compile-progn (lst env tail)
 ";; Компилирует блок progn."
 ;; lst - список S-выражений внутри блока progn.
   (if (null lst) (compile-constant '())
-    (if (null (cdr lst))
-	(inner-compile (car lst) env)
-      (cons 'SEQ (map #'(lambda (x) (inner-compile x env)) lst)))))
+      (if (null (cdr lst))
+	  (inner-compile (car lst) env tail)
+      (list 'SEQ (inner-compile (car lst) env nil) (compile-progn (cdr lst) env tail)))))
 
-(defun compile-labels (lst env)
+(defun compile-labels (lst env tail)
 ";; Компилирует labels."
 ;; lst - (<список функций> <форма1> ... <формаn>).
-  (let ((old *local-functions*))
+  (let ((old *local-functions*)
+	(old-func *current-func*))
+    (setq *current-func* nil)
     (labels ((extend-func (funcs)
 	       (app
 		#'(lambda (f)
+		    (setq *current-func* (cons (car f) *current-func*))
 		    (add-local-func (car f) (list-length env) (list-length (second f)) (gensym))) funcs))
 	     (compile-funcs (funcs)
 	       (cons 'SEQ (map
@@ -216,10 +224,9 @@
 			   funcs))))
       (extend-func (car lst))
       (let ((f (compile-funcs (car lst)))
-	    (body (compile-progn (cdr lst) env)))
+	    (body (progn (setq *current-func* old-func) (compile-progn (cdr lst) env tail))))
 	(setq *local-functions* old)
 	(list 'SEQ f body)))))
-
 
 (defun compile-variable (v env)
 ";; Компиляция перемнной"
@@ -237,9 +244,9 @@
   ;; (when (null expr)
   ;;   (comp-err "backquote: no body"))
   (cond ((atom expr) (compile-constant expr))
-	((equal (car expr) 'COMMA) (inner-compile (second expr) env))
+	((equal (car expr) 'COMMA) (inner-compile (second expr) env nil))
 	((and (pairp (car expr)) (not (null (car expr))) (equal (caar expr) 'COMMA-AT)) (progn (setq *comma-at* t)
-	 (list 'FIX-CALL 'append2 0 (list (inner-compile (cadar expr) env) (compile-backquote (cdr expr) env)))))
+	 (list 'FIX-CALL 'append2 0 (list (inner-compile (cadar expr) env nil) (compile-backquote (cdr expr) env)))))
 	(t (list 'FIX-PRIM 'CONS (list (compile-backquote (car expr) env) (compile-backquote (cdr expr) env))))))
 
 (defun compile-tagbody (body env)
@@ -247,20 +254,20 @@
   (if (null body) (list 'CONST 'nil)
       (list 'SEQ (let ((e (car body)))
 		   (if (symbolp e) (list 'LABEL e)
-		       (inner-compile e env)))
+		       (inner-compile e env nil)))
 	    (compile-tagbody (cdr body) env))))
 
 (defun compile-catch (args env)
 ";; Компиляция CATCH"
-     (list 'CATCH (inner-compile (car args) env) (compile-progn (cdr args) env)))
+     (list 'CATCH (inner-compile (car args) env nil) (compile-progn (cdr args) env nil)))
 
 (defun compile-throw (args env)
 ";; Компиляция THROW"
-     (list 'THROW (inner-compile (car args) env) (inner-compile (second args) env)))
+     (list 'THROW (inner-compile (car args) env nil) (inner-compile (second args) env nil)))
 
-(defun inner-compile (expr env)
+(defun inner-compile (expr env tail)
 "Рекурсивная функция компиляции в промежуточную форму"
-;; expr - выражение, env - лексическое окружение
+  ;; expr - выражение, env - лексическое окружение, tail - если t, то выражение в хвостовой позиции, иначе nil
   ;; (print (list 'inner-compile expr))
   (if (atom expr)
       (if (symbolp expr)
@@ -270,11 +277,11 @@
 	    (args (cdr expr)))
 	(case func
 	  ('quote (compile-constant (second expr)))
-	  ('progn (compile-progn args env))
-	  ('if (compile-if args env))
+	  ('progn (compile-progn args env tail))
+	  ('if (compile-if args env tail))
 	  ('setq (compile-setq args env))
 	  ('defun (compile-defun args env))
-	  ('labels (compile-labels args env))
+	  ('labels (compile-labels args env tail))
 	  ('function (compile-function (second expr) env))
 	  ('defmacro (progn (make-macro args) (list 'NOP)))
 	  ('backquote (compile-backquote (second expr) env))
@@ -282,7 +289,7 @@
 	  ('go (list 'GOTO (second expr)))
 	  ('catch (compile-catch (cdr expr) env))
 	  ('throw (compile-throw (cdr expr) env))
-	  (otherwise (compile-application func args env))))))
+	  (otherwise (compile-application func args env tail))))))
 
 (defun compile (expr)
 "Компиляция в промежуточную форму"
@@ -293,7 +300,7 @@
         *comp-err-msg* nil
         *fix-functions* nil
         *environment* nil)
-  (let ((c (inner-compile expr nil)))
+  (let ((c (inner-compile expr nil t))) ;; начальный вызов - хвостовой
     (if *comma-at* (list 'SEQ (inner-compile
 			       '(defun append2 (l1 l2) (if (eq l1 nil) l2 (cons (car l1) (append2 (cdr l1) l2))))
-			       nil) c) c)))
+			       nil nil) c) c)))
