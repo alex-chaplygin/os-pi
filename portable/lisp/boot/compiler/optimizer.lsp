@@ -5,27 +5,18 @@
 
 (defun accumulator-loading (tree)
   "Удаляет избыточные формы загрузки значений в аккумулятор"
-  (labels ((is-loading (elem)
-             (and (not (null elem))
-                  (contains '(CONST GLOBAL-REF LOCAL-REF DEEP-REF) (car elem))))
-           (remove-acc-seqs (prev-elem subtree)
-             (if (null subtree)
-                 (if (is-loading prev-elem)
-                     (list prev-elem)
-                     nil)
-                 (let* ((cur-elem (car subtree))
-                        (next-elem (remove-acc-seqs cur-elem (cdr subtree))))
-                   (if (is-loading cur-elem)
-                       next-elem
-                       (if (or (null prev-elem) (not (is-loading prev-elem)))
-                           (cons cur-elem next-elem)
-                           (cons prev-elem (cons cur-elem next-elem)))))))
+  (labels ((is-same-param (set ref)
+             (let ((set-expr (if (eq (car set) 'DEEP-SET) (forth set) (third set))))
+               (and (contains '(CONST GLOBAL-REF LOCAL-REF DEEP-REF FIX-CLOSURE PRIM-CLOSURE NPRIM-CLOSURE) (car set-expr))
+                    (equal set-expr ref))))
            (is-set-ref (set ref)
              (and (not (null set))
-                  (or (and (eq (car set) 'GLOBAL-SET) (eq (car ref) 'GLOBAL-REF))
-                      (and (eq (car set) 'LOCAL-SET) (eq (car ref) 'LOCAL-REF))
-                      (and (eq (car set) 'DEEP-SET) (eq (car ref) 'DEEP-REF)))
-                  (eq (second set) (second ref))))
+                  (contains '(GLOBAL-SET LOCAL-SET DEEP-SET) (car set))
+                  (or (and (or (and (eq (car set) 'GLOBAL-SET) (eq (car ref) 'GLOBAL-REF))
+                               (and (eq (car set) 'LOCAL-SET) (eq (car ref) 'LOCAL-REF))
+                               (and (eq (car set) 'DEEP-SET) (eq (car ref) 'DEEP-REF)))
+                           (eq (second set) (second ref)))
+                      (is-same-param set ref))))
            (remove-set-ref (prev-elem subtree)
              (if (null subtree)
                  nil
@@ -34,7 +25,7 @@
                    (if (is-set-ref prev-elem cur-elem)
                        next-elem
                        (cons cur-elem next-elem))))))
-    (cons 'SEQ (remove-set-ref nil (remove-acc-seqs nil (cdr tree))))))
+    (cons 'SEQ (remove-set-ref nil (cdr tree)))))
 
 (defun trivial-condition (alter)
   "Если условие формы ALTER - константа, то считает значение условия и сокращает форму ALTER до одной из её веток"
@@ -83,20 +74,34 @@
 ;;          (unless (contains vals nil)
 ;;            (list (apply (symbol-function prim) (map #'car vals)))))))))
 
+(defun expand-seqs (tree)
+  "Разворачивает вложенные SEQ"
+  "tree - SEQ-форма"
+  (labels ((expand (subtree)
+             (if (null subtree)
+                 nil
+                 (let ((cur-elem (car subtree))
+                       (next-elems (expand (cdr subtree))))
+                   (if (eq (car cur-elem) 'SEQ)
+                       (append (expand (cdr cur-elem)) next-elems)
+                       (cons cur-elem next-elems))))))
+    (cons 'SEQ (expand (cdr tree)))))
+
 (defun dead-code-elimination (tree)
   "Убирает из формы SEQ неиспользуемый код"
   "К неиспользованнму коду относится:"
   " - последовательность команд загрузки аккумулятора (кроме последней команды)"
-  (if (contains *optimize-flags* 'dead-code-elimination)
-      (accumulator-loading tree)
-      tree))
-  ;; (labels ((eliminate-dead-code (tree res)
-  ;;            (let* ((subtree (car tree))
-  ;;                   (res-added (append res (list subtree))))
-  ;;              (if (null (cdr tree))
-  ;;                  res-added
-  ;;                  (eliminate-dead-code (cdr tree) (if (eq (car subtree) 'CONST) res res-added))))))
-  ;;   (eliminate-dead-code (cdr tree) (list (car tree)))))
+  (labels ((remove-acc-loading (subtree)
+             (let ((cur-elem (car subtree))
+                   (rest-elems (cdr subtree)))
+               (cond ((null rest-elems) (list cur-elem))
+                     ((and (not (eq (car (second subtree)) 'RETURN))
+                           (contains '(CONST GLOBAL-REF LOCAL-REF DEEP-REF) (car cur-elem)))
+                      (remove-acc-loading rest-elems))
+                     (t (cons cur-elem (remove-acc-loading rest-elems)))))))
+    (if (contains *optimize-flags* 'dead-code-elimination)
+        (accumulator-loading (cons 'SEQ (remove-acc-loading (cdr (expand-seqs tree)))))
+        tree)))
 
 (defun optimize-tree (tree)
   "Оптимизация промежуточной формы tree методами, указанными флагами flags"
