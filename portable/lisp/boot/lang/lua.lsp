@@ -241,6 +241,10 @@
   "Парсит аргументы для вызова функции"
   (parse-app (&&& (parse-elem #\() (parse-optional (parse-explist)) (parse-elem #\))) #'second))
 
+(defun parse-block () nil)
+(defun parse-primary () nil)
+(defun parse-prefixexp-tail () nil)
+
 (defun parse-funcbody()
   "Парсит тело функции с аргументами"
   (&&& (parse-args) (parse-rec (parse-block)) (parse-elem 'end)))

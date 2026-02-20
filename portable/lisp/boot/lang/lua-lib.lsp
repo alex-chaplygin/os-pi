@@ -12,7 +12,7 @@
 	(t (make-string 0 #\0))))
 
 (defun lua-to-int(a)
-  (cond ((stringp a) (strtoint a))
+  (cond ((stringp a) (strtoint a 10))
 	((integerp a) a)
 	(t (error "invalid arg: lua-to-int"))))
 
@@ -53,7 +53,7 @@
   (* (lua-to-int a) (lua-to-int b)))
 
 (defun lua-mod(a b)
-  (mod (lua-to-int a) (lua-to-int b)))
+  (% (lua-to-int a) (lua-to-int b)))
 
 (defun lua-not(a)
   (lua-is-false a))
