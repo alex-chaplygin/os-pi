@@ -53,6 +53,9 @@ compile-file: $(COMPILER) $(TARGET)
 /tmp/jpeg:
 	make -C ../img/ jpeg-test
 
+/tmp/lua:
+	make -C ../lang/ lua-test
+
 /tmp/%:
 	make -C ../ $*-test
 
