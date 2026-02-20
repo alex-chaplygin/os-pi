@@ -78,6 +78,7 @@ struct prim {
     symbolp , 1, integerp , 1, pairp , 1, functionp , 1, gensym , 0, apply , 2,
     ROUND, 1, bitwise_not, 1,
     add2, 2, sub2, 2, mul2, 2, DIV2, 2, bitwise_and2, 2, bitwise_or2, 2, bitwise_xor2, 2,
+    arrayp, 1, stringp, 1,
 #ifdef OS
     INB, 1,
     INW, 1,
