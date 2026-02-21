@@ -1,4 +1,4 @@
-#define STACK_SIZE (64 * 1024)
+#define STACK_SIZE (128 * 1024)
 #define FRAME_SIZE 1024
 
 // Элемент стека CATCH
