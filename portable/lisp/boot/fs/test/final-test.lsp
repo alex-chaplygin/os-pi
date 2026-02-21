@@ -1,3 +1,8 @@
-(clear-screen)
+(handle
+ (progn
+   (clear-screen)
 
-(run-tests)
+   (run-tests 'stop-on-fail)
+  )
+ (error (message)
+	(print "error:" message)))

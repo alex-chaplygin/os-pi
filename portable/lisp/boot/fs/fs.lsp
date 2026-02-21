@@ -84,12 +84,12 @@
              (+ offset (File-size self)))
             (otherwise
              (throw 'error "seek-file: unknown origin")))))
-    (when (or (> file-offset (File-size self)) (< offset 0))
+    (when (or (> file-offset (File-size self)) (< file-offset 0))
       (throw 'error "seek-file: position out of bounds of file"))
     (File-set-position self (get-blocks-pos (File-blocks self) file-offset))))
 
 (defmethod read-file ((self File) size)
-  "Прочить size байт из файла и сместить позицию на тоже число"
+  "Прочитать size байт из файла и сместить позицию на тоже число"
   "Добавить изменения метаданных в конкретной файловой системе"
   (unless (integerp size)
     (throw 'error "read-file: size must be integer"))
@@ -130,6 +130,8 @@
         (blocks (File-blocks self))
         (left-size (array-size buf))
         (block-buf nil))
+    (for i 0 (car pos)
+         (setq blocks (cdr blocks)))
     (unless (= (cdr pos) 0)
       (setq block-buf (block-read (car blocks)))
       (setq block-buf (if (>= left-size (- *block-size* (cdr pos)))
@@ -142,17 +144,20 @@
                             (array-seq buf 0 left-size))
                            (array-seq block-buf (+ (cdr pos) left-size) *block-size*))))
       (block-write (car blocks) block-buf)
-      (setq buf (array-seq buf (- *block-size* (cdr pos)) left-size))
-      (setq blocks (cdr blocks))
       (setq left-size (- left-size (- *block-size* (cdr pos))))
-      (setq pos (cons (+ (car pos) 1) 0)))
+      (if (> left-size 0)
+          (progn
+            (setq blocks (cdr blocks))
+            (setq pos (cons (+ (car pos) 1) 0))
+            (setq buf (array-seq buf (- *block-size* (cdr pos)) left-size)))
+          (setq pos (cons (car pos) (+ (cdr pos) (array-size buf))))))
     (while (>= left-size *block-size*)
       (block-write (car blocks) (array-seq buf 0 *block-size*))
       (setq blocks (cdr blocks))
       (setq buf (array-seq buf *block-size* left-size))
       (setq left-size (- left-size *block-size*))
       (setq pos (cons (+ (car pos) 1) (cdr pos))))
-    (unless (= left-size 0)
+    (unless (<= left-size 0)
       (setq block-buf (block-read (car blocks)))
       (setq block-buf (array-cat
                        (array-seq buf 0 left-size)

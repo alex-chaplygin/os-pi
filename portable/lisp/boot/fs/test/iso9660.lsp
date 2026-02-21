@@ -1,22 +1,22 @@
-(deftest get-date-time-entry-test () ()
+(deftest get-date-time-entry-test () "get date time from entry test"
          "Проверка получения даты и времени из строки байт"
          (let* ((date-time-arr #(41 6 22 3 15 0 0)))
            (assert (get-date-time-entry date-time-arr) '(1941 6 22 3 15 0))))
 
-(deftest get-attributes-entry-test1 () ()
+(deftest get-attributes-entry-test1 () "get attributes from entry test 1"
          "Проверка получения списка атрибутов из байта"
          (let ((attr-byte 19))
            (assert (get-attributes-entry attr-byte) '(PERMISSIONS-IN-EXT-ATTR DIRECTORY HIDDEN))))
-(deftest get-attributes-entry-test2 () ()
+(deftest get-attributes-entry-test2 () "get attributes from entry test 2"
          "Проверка получения списка атрибутов из байта"
          (let ((attr-byte 0))
            (assert (get-attributes-entry attr-byte) ())))
-(deftest get-attributes-entry-test3 () ()
+(deftest get-attributes-entry-test3 () "get attributes from entry test 3"
          "Проверка получения списка атрибутов из байта"
          (let ((attr-byte 254))
            (assert (get-attributes-entry attr-byte) '(NOT-LAST-ENTRY PERMISSIONS-IN-EXT-ATTR FORMAT-IN-EXT-ATTR ASSOCIATIVE DIRECTORY))))
 
-(deftest parse-root-dir-entry-test () ()
+(deftest parse-root-dir-entry-test () "parse root dir entry test"
          "Проверка получения хеш-объекта корневого каталога"
          (set-block-size 4)
          (let ((root-dir-entry #(34
@@ -43,7 +43,7 @@
            (assert (car (funcall (parse-cdfs-dir-entry) (stream-from-arr root-dir-entry nil))) test-hash)
            ))
 
-(deftest parse-cdfs-dir-entry-test1 () ()
+(deftest parse-cdfs-dir-entry-test1 () "parse dir entry test 1"
          "Проверка получения хеш-объекта файла"
          (set-block-size 4)
          (let ((dir-entry #(46
@@ -71,7 +71,7 @@
            (assert (car (funcall (parse-cdfs-dir-entry) (stream-from-arr dir-entry nil))) test-hash)
            ))
 
-(deftest parse-cdfs-dir-entry-test2 () ()
+(deftest parse-cdfs-dir-entry-test2 () "parse dir entry test 2"
          "Проверка получения 2 хеш-объектов: каталога и файла"
          (set-block-size 4)
          (let* ((dir-entry-1 #(42
@@ -128,7 +128,7 @@
            (assert (append entry1 entry2) (append test-hash1 test-hash2))
            ))
 
-(deftest parse-cdfs-dir-entry-test3 () ()
+(deftest parse-cdfs-dir-entry-test3 () "parse dir entry test 3"
          "Проверка получения 2 хеш-объектов: каталога и файла"
          (set-block-size 4)
          (let* ((dir-entry-1 #(41
@@ -184,7 +184,7 @@
            (assert (append entry1 entry2) (append test-hash1 test-hash2))
            ))
 
-(deftest parse-descriptor-test1 () ()
+(deftest parse-descriptor-test1 () "parse boot record descriptor test"
          "Проверка парсинга дескрипторов типа Boot Record"
          (let ((descriptor (make-array 2048))
                (cdfsfs (make-instance 'CDFSFileSystem)))
@@ -196,7 +196,7 @@
            (for i 71 2048 (seta descriptor i 0))
            (assert (car (funcall (parse-descriptor cdfsfs) (stream-from-arr descriptor nil))) t)))
 
-(deftest parse-descriptor-test2 () ()
+(deftest parse-descriptor-test2 () "parse descriptor set terminator test"
          "Проверка парсинга дескрипторов типа Volume Descriptor Set Terminator"
          (let ((descriptor (make-array 2048))
                (cdfsfs (make-instance 'CDFSFileSystem)))
@@ -260,7 +260,7 @@
 	  (for i 0 1165 (seta primary-descriptor-add i 0))
 	  (array-cat primary-descriptor1 primary-descriptor-add))))
 
-(deftest parse-descriptor-test3 () ()
+(deftest parse-descriptor-test3 () "parse primary volume descriptor test"
          "Проверка парсинга дескрипторов типа Primary Volume Descriptor"
          (set-block-size 4)
          (let* ((test-hash (make-hash))
@@ -276,7 +276,7 @@
             (list parse-res *block-sector-offset* *block-size* (CDFSFileSystem-fs-block-count cdfsfs) (CDFSFileSystem-path-table-size cdfsfs) (CDFSFileSystem-path-table-sector cdfsfs) (CDFSFileSystem-root-entry cdfsfs))
             (list t 0 2048 16777216 1024 128 test-hash))))
 
-(deftest fs-init-test () ()
+(deftest fs-init-test () "fs init test"
          "Проверка загрузки файловой системы ISO9660 с диска"
          (let ((test-hash (make-hash))
                (cdfsfs (make-instance 'CDFSFileSystem))
@@ -310,7 +310,7 @@
             (list 0 2048 16777216 1024 128 test-hash))
            ))
 
-(deftest load-dir-test () ()
+(deftest load-dir-test () "load dir test"
          "Проверка раскрытия каталога"
          (let ((test-hash (make-hash))
                (cdfsfs (make-instance 'CDFSFileSystem))
@@ -366,7 +366,7 @@
            (load-dir cdfsfs test-hash)
            (assert (get-hash test-hash 'dir) '((HASH (NAME . "first-file.txt;1") (SIZE . 21) (BLOCKS 22) (CREATION-DATE-TIME 2025 1 7 12 0 0) (ATTRIBUTES) (DIR)) (HASH (NAME . "first-dir;1") (SIZE . 50) (BLOCKS 23) (CREATION-DATE-TIME 2025 4 7 22 30 0) (ATTRIBUTES DIRECTORY) (DIR . T))))))
 
-(deftest fstat-test () ()
+(deftest fstat-test () "fstat test"
          "Проверка получения метаданных файла и каталога"
          (let ((test-hash1 ())
                (test-hash2 ())
@@ -377,7 +377,7 @@
                    (list '(HASH (NAME . "first-file.txt;1") (SIZE . 21) (CREATE-DATE 7 1 2025) (CREATE-TIME 12 0 0) (MODIFY-DATE) (MODIFY-TIME) (ACCESS-DATE) (ACCESS-TIME) (ISDIR) (FLAGS))
                          '(HASH (NAME . "first-dir;1") (SIZE . 0) (CREATE-DATE 7 4 2025) (CREATE-TIME 22 30 0) (MODIFY-DATE) (MODIFY-TIME) (ACCESS-DATE) (ACCESS-TIME) (ISDIR . T) (FLAGS DIRECTORY))))))
 
-(deftest open-file-test () ()
+(deftest open-file-test () "open file test"
          "Проверка открытия файла"
          (let ((test-hash ())
                (cdfsfs (make-instance 'CDFSFileSystem))
@@ -398,7 +398,7 @@
              '(22)
              nil))))
 
-(deftest read-file-cdfs-test () ()
+(deftest read-file-cdfs-test () "read file test"
          "Проверка на чтении файла файла CDFS"
          (let ((test-sector (make-array 512))
                (file (make-CDFSFile "test" 512 '(0 . 0) '(10) nil))

@@ -1,11 +1,6 @@
-(defconst +fat-block-free+ 0) ;; блок свободен
-(defconst +fat-block-damaged+ 268435447) ;; 0xFFFFFF7 блок повреждён
-(defconst +fat-block-end+ 268435455) ;; 0xFFFFFFF блок является концом цепочки
+(defconst +fat32-fsinfo-eval+ 0xFFFFFFFF)
 
-;; Класс файловой системы FAT32
-(defclass FAT32FileSystem FileSystem (fat-table fat-start-sectors fat-sectors fat-active-num fat-copying fsinfo-sector free-blocks-count free-block-num volume-size root-entry))
-
-(defun parse-bios-parameter-block (fat32fs)
+(defun parse-bios-parameter-block ()
   "Парсер блока параметров BIOS"
   (&&& bpb-struct-> (parse-struct '((jmp-command . 3)
                                     (oem-id . 8)
@@ -41,36 +36,37 @@
                   (throw 'error "parse-bios-parameter-block: bytes per sector in bpb is not 512"))
 		(let ((fat-tables-count (arr-get-num (get-hash bpb-struct 'fat-tables-count) 0 1))
                       (active-fat-struct (arr-get-num (get-hash bpb-struct 'active-fat-struct) 0 2)))
-                  (FAT32FileSystem-set-fat-start-sectors fat32fs (make-array fat-tables-count))
-                  (FAT32FileSystem-set-fat-sectors fat32fs (arr-get-num (get-hash bpb-struct 'sectors-per-fat-fat32) 0 4))
+                  (FAT32FileSystem-set-fat-start-sectors *file-system* (make-array fat-tables-count))
+                  (FAT32FileSystem-set-fat-sectors *file-system* (arr-get-num (get-hash bpb-struct 'sectors-per-fat-fat32) 0 4))
                   (for i 0 fat-tables-count
-                       (seta (FAT32FileSystem-fat-start-sectors fat32fs) i (+ (arr-get-num (get-hash bpb-struct 'reserved-sectors-count) 0 2) (* i (FAT32FileSystem-fat-sectors fat32fs)))))
-                  (FAT32FileSystem-set-fat-active-num fat32fs (& active-fat-struct 15))
-                  (FAT32FileSystem-set-fat-copying fat32fs (if (= (get-bit-from-num active-fat-struct 7) 0) t nil)))
+                       (seta (FAT32FileSystem-fat-start-sectors *file-system*) i (+ (arr-get-num (get-hash bpb-struct 'reserved-sectors-count) 0 2) (* i (FAT32FileSystem-fat-sectors *file-system*)))))
+                  (FAT32FileSystem-set-fat-active-num *file-system* (& active-fat-struct 15))
+                  (FAT32FileSystem-set-fat-copying *file-system* (if (= (get-bit-from-num active-fat-struct 7) 0) t nil)))
 		(set-block-size (arr-get-num (get-hash bpb-struct 'sectors-per-block) 0 1))
 		(let ((volume-size-small (arr-get-num (get-hash bpb-struct 'volume-size-small) 0 2))
                       (volume-size-large (arr-get-num (get-hash bpb-struct 'volume-size-large) 0 4)))
-                  (if (= volume-size-small 0) (FAT32FileSystem-set-volume-size fat32fs volume-size-large)
-                      (FAT32FileSystem-set-volume-size fat32fs volume-size-small)))
+                  (if (= volume-size-small 0) (FAT32FileSystem-set-volume-size *file-system* volume-size-large)
+                      (FAT32FileSystem-set-volume-size *file-system* volume-size-small)))
 		(set-block-offset (- (+
-                                      (aref (FAT32FileSystem-fat-start-sectors fat32fs)
-					    (- (array-size (FAT32FileSystem-fat-start-sectors fat32fs)) 1))
-                                      (FAT32FileSystem-fat-sectors fat32fs))
+                                      (aref (FAT32FileSystem-fat-start-sectors *file-system*)
+					    (- (array-size (FAT32FileSystem-fat-start-sectors *file-system*)) 1))
+                                      (FAT32FileSystem-fat-sectors *file-system*))
                                      (* 2 *block-sectors*)))
 		(set-blocks-start-num 2)
-		(FAT32FileSystem-set-fsinfo-sector fat32fs (arr-get-num (get-hash bpb-struct 'fsinfo-sector) 0 2))
+		(FAT32FileSystem-set-fsinfo-sector *file-system* (arr-get-num (get-hash bpb-struct 'fsinfo-sector) 0 2))
 		(let ((root-entry (make-hash)))
                   (set-hash root-entry 'name 'root)
                   (set-hash root-entry 'size -1)
-                  (set-hash root-entry 'blocks (list (arr-get-num (get-hash bpb-struct 'root-entry-first-block) 0 4)))
+                  (set-hash root-entry 'first-block (arr-get-num (get-hash bpb-struct 'root-entry-first-block) 0 4))
                   (set-hash root-entry 'creation-date-time nil)
                   (set-hash root-entry 'modify-date-time nil)
                   (set-hash root-entry 'access-date nil)
                   (set-hash root-entry 'attributes '(DIRECTORY))
+                  (set-hash root-entry 'parent-first-block nil)
                   (set-hash root-entry 'dir t)
-                  (FAT32FileSystem-set-root-entry fat32fs root-entry)))))
+                  (FAT32FileSystem-set-root-entry *file-system* root-entry)))))
 
-(defun parse-fsinfo (fat32fs)
+(defun parse-fsinfo ()
   "Парсер структуры FSInfo"
   (&&& fsinfo-struct->(parse-struct '((struct-signature . 4) ;; 1096897106(0x41615252)
 				      (reserved1 . 480)
@@ -80,171 +76,28 @@
 				      (reserved2 . 12)
 				      (end-signature . 4))) ;; 43605(0xAA550000)
        return (progn
-		(FAT32FileSystem-set-free-blocks-count fat32fs (arr-get-num (get-hash fsinfo-struct 'free-blocks-count) 0 4))
-		(FAT32FileSystem-set-free-block-num fat32fs (arr-get-num (get-hash fsinfo-struct 'free-block-num) 0 4)))))
+		(FAT32FileSystem-set-free-blocks-count *file-system* (arr-get-num (get-hash fsinfo-struct 'free-blocks-count) 0 4))
+		(FAT32FileSystem-set-free-block-num *file-system* (arr-get-num (get-hash fsinfo-struct 'free-block-num) 0 4)))))
 
-(defun fat32-get-date-time (date-bytes time-bytes &rest creation-time-ms)
-  "Получить список даты и времени из массивов байт date-bytes, time-bytes и creation-time-ms"
-  (let ((date-num (arr-get-num date-bytes 0 2))
-        (time-num (when (not (null time-bytes)) (arr-get-num time-bytes 0 2)))
-        (time-ms-num (when (not (null creation-time-ms)) (arr-get-num (car creation-time-ms) 0 1)))
-        (sec-plus 0)
-        (date-time nil))
-    (when (and (not (null time-ms-num)) (not (null time-num)) (>= time-ms-num 100))
-      (setq sec-plus 1)
-      (setq time-ms-num (- time-ms-num 100)))
-    (setq date-time (list (+ (>> (& date-num 0xFE00) 9) 1980) (>> (& date-num 0x1E0) 5) (& date-num 0x1F)))
-    (if (not (null time-num))
-        (setq date-time (append date-time (list (>> (& time-num 0xF800) 11) (>> (& time-num 0x7E0) 5) (+ (* (& time-num 0x1F) 2) sec-plus))))
-        (setq date-time (append date-time '(0 0 0))))
-    (when (not (null time-ms-num))
-      (setq date-time (append date-time (list (* time-ms-num 10)))))
-    date-time))
-
-(defun fat32-get-attributes (attribute-byte)
-  "Получить список аттрибутов из записи в каталоге из байта attribute-byte"
-  (let ((attributes nil)
-        (all-attributes #(READ-ONLY HIDDEN SYSTEM VOLUME-ID DIRECTORY ARCHIVE nil nil)))
-    (setq attribute-byte (arr-get-num attribute-byte 0 1))
-    (for i 0 8
-         (unless (or (= i 6) (= i 7))
-           (unless (= 0 (& attribute-byte (expt 2 i)))
-             (setq attributes (cons (aref all-attributes i) attributes)))))
-    attributes))
-
-(defun fat-elem-pos (idx)
-  "Получить пару из смещение сектора + смещение в секторе для элемента с индексом idx таблицы FAT"
-  (cons (/ (* idx 4) +sector-size+) (% (* idx 4) +sector-size+))) ;; TODO Запись при new-block на диск
-
-(defun get-fat-chain (fat32fs block-num)
-  "Получить цепочку блоков из таблицы FAT, начиная с блока block-num"
-  (let ((fat-hash (FAT32FileSystem-fat-table fat32fs))
-        (fat-table nil)
-        (cur-elem nil)
-        (prev-elem nil)
-        (fat-chain nil))
-    (when (>= block-num (/ (* (FAT32FileSystem-fat-sectors fat32fs) +sector-size+) 4))
-      (throw 'error "get-fat-chain: block-num out of range"))
-    (if (check-key fat-hash block-num) (cons block-num (get-hash fat-hash block-num))
-        (progn
-          (setq fat-table (make-array (/ (* (FAT32FileSystem-fat-sectors fat32fs) +sector-size+) 4)))
-          (let ((cur-table-elem 0))
-            (for i 0 (FAT32FileSystem-fat-sectors fat32fs)
-                 (let ((sector-array (ata-read-sectors *disk* (+ (aref (FAT32FileSystem-fat-start-sectors fat32fs) (FAT32FileSystem-fat-active-num fat32fs)) i) 1))
-                       (cur-pos 0))
-                   (while (<= cur-pos (- +sector-size+ 4))
-                     (let ((fat-elem (arr-get-num sector-array cur-pos 4)))
-                       (seta fat-table cur-table-elem fat-elem)
-                       (incf cur-table-elem)
-                       (setq cur-pos (+ cur-pos 4)))))))
-          (setq prev-elem block-num)
-          (setq cur-elem (aref fat-table block-num))
-          (while (!= cur-elem +fat-block-end+)
-            (setq fat-chain (append fat-chain (list prev-elem)))
-            (seta fat-table prev-elem -1)
-            (setq prev-elem cur-elem
-                  cur-elem (aref fat-table cur-elem))
-            (when (and (< cur-elem +fat-block-damaged+) (>= cur-elem (* (FAT32FileSystem-fat-sectors fat32fs) (/ +sector-size+ 4))))
-              (throw 'error "get-fat-chain: elem in fat-chain is out of range"))
-            (when (= cur-elem +fat-block-free+)
-              (throw 'error (concat "get-fat-chain: fat table elem in chain is free on block num = " (inttostr prev-elem))))
-            (when (= cur-elem +fat-block-damaged+)
-              (throw 'error (concat "get-fat-chain: fat table elem in chain is damaged. Block num = " (inttostr prev-elem))))
-            (when (= cur-elem -1)
-              (throw 'error (concat "get-fat-chain: fat table elem in chain is recursive starting at block num = " (inttostr prev-elem)))))
-          (setq fat-chain (append fat-chain (list prev-elem)))
-          (set-hash fat-hash block-num (cdr fat-chain))
-          fat-chain))))
-
-;; Каждый символ 2 байта
-(defun parse-lfn-entry ()
-  "Парсер структуры записи длинного имени"
-  (&&& lfn-entry->(parse-struct '((lfn-number . 1)
-                                  (str-1 . 10)
-                                  (attributes . 1) ;; 15(0x0F)
-                                  (entry-type . 1) ;; 0
-                                  (checksum . 1) ;; из dir-entry
-                                  (str-2 . 12)
-                                  (reserved . 2) ;; 0
-                                  (str-3 . 4)))
-       return (progn
-		(let ((lfn-string "")
-                      (str-ended nil))
-                  (for i 0 5
-                       (unless str-ended
-                         (let ((code (arr-get-num (get-hash lfn-entry 'str-1) (* i 2) 2)))
-                           (if (= code 255)
-                               (setq str-ended t)
-                               (setq lfn-string (concat lfn-string (make-string 1 (code-char code))))))))
-                  (for i 0 6
-                       (unless str-ended
-                         (let ((code (arr-get-num (get-hash lfn-entry 'str-2) (* i 2) 2)))
-                           (if (= code 255)
-                               (setq str-ended t)
-                               (setq lfn-string (concat lfn-string (make-string 1 (code-char code))))))))
-                  (for i 0 2
-                       (unless str-ended
-                         (let ((code (arr-get-num (get-hash lfn-entry 'str-3) (* i 2) 2)))
-                           (if (= code 255)
-                               (setq str-ended t)
-                               (setq lfn-string (concat lfn-string (make-string 1 (code-char code))))))))
-                  lfn-string))))
-
-;; Каждый символ 1 байт
-(defun parse-fat32-dir-entry (fat32fs)
-  "Парсер структур записи в каталоге"
-  (&&& fat32-dir-entry->(parse-struct '((short-name . 11)
-					(attributes . 1)
-					(reserved . 1)
-					(creation-time-ms . 1)
-					(creation-time . 2) ;; seconds * 2
-					(creation-date . 2)
-					(access-date . 2)
-					(first-block-1 . 2)
-					(modification-time . 2)
-					(modification-date . 2)
-					(first-block-2 . 2)
-					(size-bytes . 4)))
-       return (progn
-		(let ((dir-entry (make-hash))
-                      (name-first (car (split #\  (arr-get-str (get-hash fat32-dir-entry 'short-name) 0 8))))
-                      (name-second (car (split #\  (arr-get-str (get-hash fat32-dir-entry 'short-name) 8 3)))))
-                  (set-hash dir-entry 'name (if (equal name-second "")
-						name-first
-						(concat (concat name-first ".") name-second)))
-                  (set-hash dir-entry 'size (arr-get-num (get-hash fat32-dir-entry 'size-bytes) 0 4))
-                  (set-hash dir-entry 'blocks (get-fat-chain fat32fs (arr-get-num (array-cat (get-hash fat32-dir-entry 'first-block-1) (get-hash fat32-dir-entry 'first-block-2)) 0 4)))
-                  (set-hash dir-entry 'creation-date-time (fat32-get-date-time (get-hash fat32-dir-entry 'creation-date) (get-hash fat32-dir-entry 'creation-time) (get-hash fat32-dir-entry 'creation-time-ms)))
-                  (set-hash dir-entry 'modify-date-time (fat32-get-date-time (get-hash fat32-dir-entry 'modification-date) (get-hash fat32-dir-entry 'modification-time)))
-                  (set-hash dir-entry 'access-date (fat32-get-date-time (get-hash fat32-dir-entry 'access-date) nil))
-                  (set-hash dir-entry 'attributes (fat32-get-attributes (get-hash fat32-dir-entry 'attributes)))
-                  (set-hash dir-entry 'dir (contains (get-hash dir-entry 'attributes) 'DIRECTORY))
-                  (set-hash dir-entry 'short-name (get-hash dir-entry 'name))
-                  dir-entry))))
-
-(defmethod fs-init ((self FAT32FileSystem) disk start-sector sector-count)
+(defmethod fs-init ((fat32fs FAT32FileSystem) disk start-sector sector-count)
   "Загрузка файловой системы FAT32 с диска disk, начиная с сектора start-sector, с количеством секторов sector-count. Чтение блока параметров BIOS, структуры FSInfo, таблицы FAT."
   (set-block-disk disk)
-  (funcall (parse-bios-parameter-block self) (stream-from-arr (ata-read-sectors disk start-sector 1) nil))
-  (when (> (FAT32FileSystem-volume-size self) sector-count) (throw 'error "fs-init(fat32): volume size in bpb is higher than volume size in args"))
-  (funcall (parse-fsinfo self) (stream-from-arr (ata-read-sectors disk (FAT32FileSystem-fsinfo-sector self) 1) nil))
-  (FAT32FileSystem-set-fat-table self (make-hash))
-  (let ((root-entry (FAT32FileSystem-root-entry self)))
-    (set-hash
-     root-entry
-     'blocks
-     (get-fat-chain self (car (get-hash root-entry 'blocks))))
+  (funcall (parse-bios-parameter-block) (stream-from-arr (ata-read-sectors disk start-sector 1) nil))
+  (when (> (FAT32FileSystem-volume-size fat32fs) sector-count) (throw 'error "fs-init(fat32): volume size in bpb is higher than volume size in args"))
+  (funcall (parse-fsinfo) (stream-from-arr (ata-read-sectors disk (FAT32FileSystem-fsinfo-sector fat32fs) 1) nil))
+  (FAT32FileSystem-set-fat-table fat32fs (make-hash))
+  (let ((root-entry (FAT32FileSystem-root-entry fat32fs)))
     (set-hash
      root-entry
      'size
-     (* *block-size* (list-length (get-hash root-entry 'blocks)))))
-  self)
-;; TODO Посчитать free block count и free block num при вызове new-block
+     0))
+  (setq *file-system* fat32fs)
+  fat32fs)
 
-(defmethod load-dir ((self FAT32FileSystem) dir)
+(defmethod load-dir ((fat32fs FAT32FileSystem) dir)
   "Раскрыть и сохранить содержимое каталога dir"
   (if (or (null (get-hash dir 'dir)) (not (equal (get-hash dir 'dir) t))) nil
-      (let ((blocks (get-hash dir 'blocks))
+      (let ((blocks (get-fat-chain (get-hash dir 'first-block)))
             (dir-list ())
             (block-stream nil)
             (lfn-name ""))
@@ -254,29 +107,30 @@
             (let ((next-byte (get-byte block-stream)))
               (unless (null next-byte)
                 (case (car next-byte)
-                  (0xE5 block-stream (cdr (get-array block-stream 32)))
-                  (0 (setq block '(nil) block-stream nil))
+                  (+fat32-entry-deleted+ block-stream (cdr (get-array block-stream 32)))
+                  (+fat32-entry-free+ (setq blocks '(nil) block-stream nil))
                   (otherwise
                    (let ((entry-attributes (aref (car (get-array block-stream 12)) 11)))
-                     (if (= entry-attributes 0xF)
+                     (if (= entry-attributes +fat32-lfn-attribute+)
                          (progn
                            (let ((parse-res (funcall (parse-lfn-entry) block-stream)))
                              (setq lfn-name (concat (car parse-res) lfn-name))
                              (setq block-stream (cdr parse-res))))
                          (progn
-                           (let ((parse-res (funcall (parse-fat32-dir-entry self) block-stream)))
+                           (let ((parse-res (funcall (parse-fat32-dir-entry) block-stream)))
+                             (set-hash (car parse-res) 'parent-first-block (car (get-fat-chain (get-hash dir 'first-block))))
                              (set-hash (car parse-res) 'name lfn-name)
                              (setq lfn-name "")
                              (setq dir-list (append dir-list (list (car parse-res)))
                                    block-stream (cdr parse-res)))))))))))
           (setq blocks (cdr blocks)))
-        (set-hash dir 'dir dir-list))))
+        (set-hash dir 'dir (list dir-list)))))
 
-(defmethod fstat ((self FAT32FileSystem) file-hash)
+(defmethod fstat ((fat32fs FAT32FileSystem) file-hash)
   "Получение метаданных файлового объекта file-hash"
   (let ((stat (make-hash)))
     (set-hash stat 'name (get-hash file-hash 'name))
-    (set-hash stat 'size (if (get-hash file-hash 'dir) 0 (get-hash file-hash 'size)))
+    (set-hash stat 'size (if (not (null (get-hash file-hash 'dir))) 0 (get-hash file-hash 'size)))
     (set-hash stat 'create-date (list (nth (get-hash file-hash 'creation-date-time) 2)
                                       (nth (get-hash file-hash 'creation-date-time) 1)
                                       (nth (get-hash file-hash 'creation-date-time) 0)))
@@ -298,14 +152,140 @@
     (set-hash stat 'flags (get-hash file-hash 'attributes))
     stat))
 
-(defmethod open-file ((self FAT32FileSystem) file-hash)
-  "Отркыть файл как поток для чтения и записи"
+(defmethod open-file ((fat32fs FAT32FileSystem) file-hash)
+  "Открыть файл file-hash в каталоге dir как поток для чтения и записи. Изменить время последнего доступа"
   (when (not (null (get-hash file-hash 'dir))) (throw 'error "open-file: directories cannot be opened"))
   (let ((file (make-instance 'FAT32File)))
     (FAT32File-set-name file (get-hash file-hash 'name))
     (FAT32File-set-size file (get-hash file-hash 'size))
     (FAT32File-set-position file '(0 . 0))
-    (FAT32File-set-blocks file (get-hash file-hash 'blocks))
+    (FAT32File-set-blocks file (get-fat-chain (get-hash file-hash 'first-block)))
     (FAT32File-set-dir file (if (null (get-hash file-hash 'dir)) nil t))
     (FAT32File-set-read-only file (contains (get-hash file-hash 'attributes) 'READ-ONLY))
-    file)) ;;TODO добавить изменение времени последнего доступа
+    (FAT32File-set-dir-entry file file-hash)
+    (let ((time-list (get-cur-time))
+          (access-date nil))
+      (setq access-date (list (nth time-list 0) (nth time-list 1) (nth time-list 2)))
+      (fat32-update-entry file-hash `((access-date . ,access-date))))
+    file))
+
+(defun update-fsinfo (free-count free-num)
+  "Обновить значения структуры fsinfo на диске"
+  (let ((fsinfo-bytes (make-array 512)))
+    (arr-set-num fsinfo-bytes 0 0x41615252 4)
+    (for i 4 484
+         (seta fsinfo-bytes i 0))
+    (arr-set-num fsinfo-bytes 484 0x61417272 4)
+    (arr-set-num fsinfo-bytes 488 free-count 4)
+    (arr-set-num fsinfo-bytes 492 free-num 4)
+    (for i 496 508
+         (seta fsinfo-bytes i 0))
+    (arr-set-num fsinfo-bytes 508 0xAA550000 4)
+    (ata-write-sectors *disk* (FAT32FileSystem-fsinfo-sector *file-system*) 1 fsinfo-bytes)
+    (FAT32FileSystem-set-free-blocks-count *file-system* free-count)
+    (FAT32FileSystem-set-free-block-num *file-system* free-num)))
+
+(defmethod new-block ((fat32fs FAT32FileSystem) file-object)
+  "Выделить новый блок для файла file-object"
+  (let ((fat-table (make-array (/ (* (FAT32FileSystem-fat-sectors fat32fs) +sector-size+) 4)))
+        (cur-table-elem 0)
+        (free-count (FAT32FileSystem-free-blocks-count fat32fs))
+        (free-num (FAT32FileSystem-free-block-num fat32fs)))
+    (for i 0 (FAT32FileSystem-fat-sectors fat32fs)
+         (let ((sector-array (ata-read-sectors *disk* (+ (aref (FAT32FileSystem-fat-start-sectors fat32fs) (FAT32FileSystem-fat-active-num fat32fs)) i) 1))
+               (cur-pos 0))
+           (while (<= cur-pos (- +sector-size+ 4))
+             (let ((fat-elem (arr-get-num sector-array cur-pos 4)))
+               (seta fat-table cur-table-elem fat-elem)
+               (incf cur-table-elem)
+               (setq cur-pos (+ cur-pos 4))))))
+    (when (= free-count +fat32-fsinfo-eval+)
+      (setq free-count 0)
+      (for i +fat-min-elem+ (array-size fat-table)
+           (when (= (aref fat-table i) +fat-block-free+)
+             (incf free-count))))
+    (when (= free-num +fat32-fsinfo-eval+)
+      (for i +fat-min-elem+ (array-size fat-table)
+           (when (= (aref fat-table i) +fat-block-free+)
+             (setq free-num (- i 1))
+             (setq i (array-size fat-table)))))
+    (when (not (null file-object))
+      (let ((free-block (get-free-block fat-table free-num))
+            (first-block (get-hash file-object 'first-block)))
+        (if (null first-block)
+            (progn
+              (set-hash file-object 'first-block free-block)
+              (update-fat-elem free-block +fat-block-end+))
+            (append-fat-chain first-block free-block))
+        (decf free-count)
+        (setq free-num free-block)))
+    (when (or
+           (!= free-count (FAT32FileSystem-free-blocks-count fat32fs))
+           (!= free-num (FAT32FileSystem-free-block-num fat32fs)))
+      (update-fsinfo free-count free-num))))
+
+(defmethod rename ((fat32fs FAT32FileSystem) entry new-name)
+  "Переименовать файл или каталог entry на new-name"
+  (fat32-update-entry entry `((name . ,new-name))))
+
+(defmethod remove-file ((fat32fs FAT32FileSystem) dir entry)
+  "Пометить файл entry на удаление"
+  (when (not (null (get-hash entry 'dir)))
+    (throw 'error "remove-file: entry is not a file"))
+  (fat32-mark-for-delete entry)
+  (set-hash dir 'dir (list (filter #'(lambda (elem) (not (equal entry elem))) (car (get-hash dir 'dir))))))
+
+(defmethod remove-dir ((fat32fs FAT32FileSystem) parent-dir dir)
+  "Пометить каталог entry на удаление если он пустой"
+  (when (null (get-hash dir 'dir))
+    (throw 'error "remove-dir: entry is not a dir"))
+  (when (not (null (car (get-hash dir 'dir))))
+    (throw 'error "remove-dir: dir is not empty"))
+  (fat32-mark-for-delete dir)
+  (set-hash parent-dir 'dir (list (filter #'(lambda (elem) (not (equal dir elem))) (car (get-hash parent-dir 'dir))))))
+
+(defmethod free-space ((fat32fs FAT32FileSystem))
+  "Получить объём свободного места в текущем разделе в байтах"
+  (let ((free-count (FAT32FileSystem-free-blocks-count fat32fs)))
+    (when (= free-count +fat32-fsinfo-eval+)
+      (new-block fat32fs nil)
+      (setq free-count (FAT32FileSystem-free-blocks-count fat32fs)))
+    free-count))
+
+(defmethod create-file ((fat32fs FAT32FileSystem) dir name)
+  "Создать файл с названием name в каталоге dir"
+  (let ((new-entry (make-hash))
+        (date-time (get-cur-time)))
+    (set-hash new-entry 'name name)
+    (set-hash new-entry 'size 0)
+    (set-hash new-entry 'first-block ())
+    (new-block fat32fs new-entry)
+    (set-hash new-entry 'creation-date-time (append date-time (list 0)))
+    (set-hash new-entry 'modify-date-time date-time)
+    (set-hash new-entry 'access-date (list (nth date-time 0) (nth date-time 1) (nth date-time 2) 0 0 0))
+    (set-hash new-entry 'attributes ())
+    (set-hash new-entry 'parent-first-block (get-hash dir 'first-block))
+    (set-hash new-entry 'short-name (fat32-generate-short-name dir name))
+    (set-hash new-entry 'dir nil)
+    (fat32-add-entry new-entry)
+    (set-hash dir 'dir
+              (list (append (car (get-hash dir 'dir)) (list new-entry))))))
+
+(defmethod create-dir ((fat32fs FAT32FileSystem) dir name)
+  "Создать каталог с названием name в каталоге dir"
+  (let ((new-entry (make-hash))
+        (date-time (get-cur-time)))
+    (set-hash new-entry 'name name)
+    (set-hash new-entry 'size 0)
+    (set-hash new-entry 'first-block ())
+    (new-block fat32fs new-entry)
+    (set-hash new-entry 'creation-date-time (append date-time (list 0)))
+    (set-hash new-entry 'modify-date-time date-time)
+    (set-hash new-entry 'access-date (list (nth date-time 0) (nth date-time 1) (nth date-time 2) 0 0 0))
+    (set-hash new-entry 'attributes ())
+    (set-hash new-entry 'parent-first-block (get-hash dir 'first-block))
+    (set-hash new-entry 'short-name (fat32-generate-short-name dir name))
+    (set-hash new-entry 'dir t)
+    (fat32-add-entry new-entry)
+    (set-hash dir 'dir
+              (list (append (car (get-hash dir 'dir)) (list new-entry))))))
