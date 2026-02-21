@@ -207,5 +207,20 @@
     (t
      (append2 (flatten (car list))
               (flatten (cdr list))))))
-   
-    
+
+(defun array-cat (array1 array2) nil)
+
+(defun copy-tree (elem)
+  "Копирование объекта-дерева"
+  (labels ((copy-tree-array (arr)
+             (let ((new-arr (make-array (array-size arr))))
+               (for i 0 (array-size arr)
+                    (seta new-arr i (copy-tree (aref arr i)))))))
+    (cond ((arrayp elem) (copy-tree-array elem))
+          ((stringp elem) (concat elem ""))
+          ((atom elem) elem)
+          ((pairp elem) (if (null elem)
+                            nil
+                            (cons (copy-tree (car elem))
+                                  (copy-tree (cdr elem)))))
+          (t (throw 'error "copy-tree: unknown type")))))
