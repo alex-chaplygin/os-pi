@@ -68,7 +68,8 @@
   (let* ((fun (find-func f))
 	 (type (car fun))
 	 (count (second fun))
-	 (cur-env (list-length env)))
+	 (cur-env (list-length env))
+	 (is-tail-call (and tail (eq f *current-func*))))
     (check-arguments f type count args)
     (if (eq type 'fix-macro)
 	(inner-compile (macroexpand (third fun) args (forth fun)) env tail)
@@ -78,10 +79,12 @@
 	(let ((vals (map #'(lambda (a) (inner-compile a env nil)) args))) ;; параметры - не хвостовой вызов
 	  (case type
 	    ('lambda (list 'FIX-LET count vals (compile-progn (cddr f) (extend-env env (second f)) tail)))
-	    ('local-func (list (if (and tail (pairp *current-func*) (contains *current-func* f)) 'TAIL-CALL
-				   'FIX-CALL) (forth fun) (third fun) vals))
-	    ('fix-func (list (if (and tail (eq f *current-func*)) 'TAIL-CALL 'FIX-CALL) f (third fun) vals))
-	    ('nary-func (list (if (and tail (eq f *current-func*)) 'TAIL-NCALL 'NARY-CALL) f count (third fun) vals))
+	    ('local-func (list (if is-tail-call 'TAIL-CALL 'FIX-CALL)
+                           (forth fun) (if is-tail-call (- cur-env (++ (third fun))) (third fun)) vals))
+	    ('fix-func (list (if is-tail-call 'TAIL-CALL 'FIX-CALL)
+                         f (if is-tail-call (- cur-env (++ (third fun))) (third fun)) vals))
+	    ('nary-func (list (if is-tail-call 'TAIL-NCALL 'NARY-CALL)
+                          f count (if is-tail-call (- cur-env (++ (third fun))) (third fun)) vals))
 	    ('fix-prim (list 'FIX-PRIM f vals))
 	    ('nary-prim (list 'NARY-PRIM f count vals))))))))
 
@@ -207,11 +210,9 @@
 ;; lst - (<список функций> <форма1> ... <формаn>).
   (let ((old *local-functions*)
 	(old-func *current-func*))
-    (setq *current-func* nil)
     (labels ((extend-func (funcs)
 	       (app
 		#'(lambda (f)
-		    (setq *current-func* (cons (car f) *current-func*))
 		    (add-local-func (car f) (list-length env) (list-length (second f)) (gensym))) funcs))
 	     (compile-funcs (funcs)
 	       (cons 'SEQ (map
@@ -219,6 +220,7 @@
 			       (let ((name (forth (find-func (car f))))
 				     (args (second f))
 				     (body (cddr f)))
+				 (setq *current-func* (car f))
 				 (compile-func-body name args (cons 'progn body) env)))
 			   funcs))))
       (extend-func (car lst))

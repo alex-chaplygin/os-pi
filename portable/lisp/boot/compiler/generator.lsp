@@ -109,6 +109,24 @@
   (inner-generate res)
   (emit (list 'THROW)))
 
+(defun generate-tail-call (name fix-num depth args)
+  "Генерация хвостового вызова функции"
+  (let ((num (list-length args)))
+    (generate-args args 'PUSH)
+    (when fix-num
+      (emit (list 'PACK (- num fix-num)))
+      (setq num (++ fix-num)))
+    (decf num)
+    (while (>= num 0)
+	   (emit (list 'POP))
+	   (emit (if (= depth 0)
+		     (list 'LOCAL-SET num)
+		     (list 'DEEP-SET depth num)))
+	   (decf num))
+    (for i 0 depth
+	 (emit (list 'RESTORE-ENV)))
+    (emit (list 'JMP name))))
+
 (defun inner-generate (expr)
 "Рекурсивная генерация кода для скомпилированного выражения"
   ;; (print (list 'inner-generate expr))
@@ -128,9 +146,9 @@
 	   ('FIX-PRIM (generate-fix-prim (second expr) (third expr))) ; вызов примитива
 	   ('NARY-PRIM (generate-nary-prim (second expr) (third expr) (cadddr expr))) ; вызов nary примитива
 	   ('FIX-CALL (generate-reg-call (second expr) nil (third expr) (cadddr expr))) ; обычный вызов
-	   ('TAIL-CALL (generate-reg-call (second expr) nil (third expr) (cadddr expr)))
+	   ('TAIL-CALL (generate-tail-call (second expr) nil (third expr) (forth expr)))
 	   ('NARY-CALL (generate-reg-call (second expr) (third expr) (cadddr expr) (caddddr expr))) ; вызов с переменным числом аргументов
-	   ('TAIL-NCALL (generate-reg-call (second expr) (third expr) (cadddr expr) (caddddr expr))) ; вызов с переменным числом аргументов
+	   ('TAIL-NCALL (generate-tail-call (second expr) (third expr) (forth expr) (fifth expr))) ; вызов с переменным числом аргументов
 	   ('GOTO (emit (list 'JMP (second expr))))
 	   ('CATCH (generate-catch (second expr) (third expr)))
 	   ('THROW (generate-throw (second expr) (third expr)))

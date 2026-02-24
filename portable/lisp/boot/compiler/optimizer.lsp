@@ -1,7 +1,8 @@
 (defvar *optimize-flags* ; список включенных флагов оптимизации промежуточного дерева
   '(trivial-condition
     simplify-arithmetic
-    dead-code-elimination))
+    dead-code-elimination
+    tail-call))
 
 (defun accumulator-loading (tree)
   "Удаляет избыточные формы загрузки значений в аккумулятор"
@@ -103,6 +104,13 @@
         (accumulator-loading (cons 'SEQ (remove-acc-loading (cdr (expand-seqs tree)))))
         tree)))
 
+(defun tail-call (tree)
+  "Оптимизация хвостовой рекурсии"
+  "tree - форма TAIL-CALL или TAIL-NCALL"
+  (if (contains *optimize-flags* 'tail-call)
+      tree
+      (cons (if (eq (car tree) 'TAIL-CALL) 'FIX-CALL 'NARY-CALL) (cdr tree))))
+
 (defun optimize-tree (tree)
   "Оптимизация промежуточной формы tree методами, указанными флагами flags"
   "Возвращает оптимизированное дерево"
@@ -127,9 +135,9 @@
 		   ('FIX-LET (list (car tree) (second tree) (optimize-many (third tree)) (optimize (forth tree))))
 		   ('FIX-PRIM (list (car tree) (second tree) (optimize-many (third tree))))
 		   ('FIX-CALL (list (car tree) (second tree) (third tree) (optimize-many (forth tree))))
-		   ('TAIL-CALL (list (car tree) (second tree) (third tree) (optimize-many (forth tree))))
+		   ('TAIL-CALL (tail-call (list (car tree) (second tree) (third tree) (optimize-many (forth tree)))))
 		   ('NARY-CALL (list (car tree) (second tree) (third tree) (forth tree) (optimize-many (fifth tree))))
-		   ('TAIL-NCALL (list (car tree) (second tree) (third tree) (forth tree) (optimize-many (fifth tree))))
+		   ('TAIL-NCALL (tail-call (list (car tree) (second tree) (third tree) (forth tree) (optimize-many (fifth tree)))))
 		   ('CATCH (list (car tree) (optimize (second tree)) (optimize (third tree))))
 		   ('THROW (list (car tree) (optimize (second tree)) (optimize (third tree))))
 		   (otherwise (comp-err "optimize-tree: invalid expression" tree))))))
