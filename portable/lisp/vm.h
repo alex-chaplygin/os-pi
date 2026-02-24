@@ -43,4 +43,5 @@ void prim_closure();
 void nprim_closure();
 void catch_inst();
 void throw_inst();
+void pop_inst();
 void vm_garbage_collect();

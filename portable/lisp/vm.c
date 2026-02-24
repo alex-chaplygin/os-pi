@@ -127,6 +127,7 @@ void (*instructions[])() =
 	nprim_closure,
 	catch_inst,
 	throw_inst,
+	pop_inst,
     };
 
 /** 
@@ -656,6 +657,14 @@ void throw_inst()
 	}
     error("VM catch label not found");
 }   
+
+void pop_inst()
+{
+    acc_reg = pop();
+#ifdef DEBUG
+    printf("POP\n");
+#endif
+}
 
 /** 
  * Печать состояния виртуальной машины
