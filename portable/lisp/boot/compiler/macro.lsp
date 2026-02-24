@@ -115,12 +115,13 @@
 
 (defun macro-eval-funcall (f args env)
 "макро вычисление вызова функции"
-;; подставить тело lambda, расширить окружение подстановки
+  ;; подставить тело lambda, расширить окружение подстановки
+  (if (functionp f) (apply f args)
   (let ((type (car f))
   	(lam (second f)))
     (if (and (eq type 'function) (correct-lambda lam))
       (macro-eval-progn (cddr lam) (extend-macro-env env (second lam) args))
-      (comp-err "macro-eval-funcall: invalid function" f))))
+      (comp-err "macro-eval-funcall: invalid function" f)))))
 
 (defun macro-eval-cond (list env)
 "макро вычисление cond"
