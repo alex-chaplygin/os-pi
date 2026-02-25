@@ -836,6 +836,21 @@ void print_array(object_t obj)
     }
 }
 
+/** 
+ * Печать строки с экранированием символов: "
+ *
+ * @param str строка
+ */
+void print_with_escape(char *str)
+{
+    char c;
+    while (c = *str++) {
+	if (c == '"')
+	    printf("\\");
+	putchar(c);
+    }
+}
+
 /**
  * Печать объекта
  */
@@ -861,9 +876,11 @@ void print_obj(object_t obj)
     }
     else if (TYPE(obj) == FLOAT)
 	printf("%f", (GET_FLOAT(obj))->value);
-    else if (TYPE(obj) == STRING)
- 	printf("\"%s\"", GET_STRING(obj)->data);
-    else if (TYPE(obj) == SYMBOL)
+    else if (TYPE(obj) == STRING) {
+ 	printf("\"");
+	print_with_escape(GET_STRING(obj)->data);
+ 	printf("\"");
+    } else if (TYPE(obj) == SYMBOL)
  	printf("%s", ((symbol_t *)GET_ADDR(obj))->str);
     else if (TYPE(obj) == CHAR)
         printf("#\\%c", (int)GET_CHAR(obj));
