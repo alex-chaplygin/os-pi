@@ -133,11 +133,18 @@
 	    (macro-eval-cond (cdr list) env)))))
 
 (defun macro-eval-setq (var expr env)
-";; присвоение глобальной переменной в мире макросов"
+";; присвоение локальной или глобальной переменной в мире макросов"
   (unless (symbolp var)
     (comp-err "macro setq: not variable" var))
-  (let ((val (macro-eval expr env)))
-    (set-hash *macro-globals* var val)))
+  (labels ((search (env)
+	     (cond ((null env) nil)
+		   ((eq var (caar env)) env)
+		   (t (search (cdr env))))))
+    (let ((val (macro-eval expr env))
+	  (r (search env)))
+      (if (null r) (set-hash *macro-globals* var val)
+	  (rplacd (car r) val))
+      val)))
 
 (defun macro-eval-function (s)
 "макро вычисление объекта-функции"
