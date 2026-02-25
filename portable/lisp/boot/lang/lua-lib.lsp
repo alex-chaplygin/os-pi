@@ -112,17 +112,18 @@
      fieldlist)
     table))
 
-(defmacro lua-set-internal(varlist exps)
-  `(progn ,@(let ((i -1)) (map #'(lambda (var)
-			   (let ((exp (if (<= (incf i) (list-length exps)) (nth exps i) 'nil-const)))
-			       (if (pairp var)
-				 `(lua-set-index ,(second var) ,(third var) ,exp)
-			         `(setq ,var ,exp))))
-			       varlist))))
+(defun lua-set-internal(varlist exps)
+  (if (null varlist) nil
+      (cons (let ((exp (if (null exps) 'nil-const (car exps)))
+		  (var (car varlist)))
+	      (if (pairp var)
+		  `(lua-set-index ,(second var) ,(third var) ,exp)
+		  `(setq ,var ,exp)))
+	    (lua-set-internal (cdr varlist) (if (null exps) nil (cdr exps))))))
 
 (defmacro lua-set(varlist explist)
   (let ((exps (map #'(lambda (exp) (list (gensym) exp)) explist)))
     
-   `(let ,exps (lua-set-internal ,varlist ,(map #'car exps)))))
+   `(let ,exps (progn ,@(lua-set-internal varlist (map #'car exps))))))
 
 
