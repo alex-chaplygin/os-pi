@@ -78,7 +78,7 @@ struct prim {
     symbolp , 1, integerp , 1, pairp , 1, functionp , 1, gensym , 0, apply , 2,
     ROUND, 1, bitwise_not, 1,
     add2, 2, sub2, 2, mul2, 2, DIV2, 2, bitwise_and2, 2, bitwise_or2, 2, bitwise_xor2, 2,
-    arrayp, 1, stringp, 1,
+    arrayp, 1, stringp, 1, lisp_eval, 1
 #ifdef OS
     INB, 1,
     INW, 1,
@@ -683,6 +683,22 @@ void vm_dump()
 	PRINT(o);
     }
     printf("-------------------------\n");
+}
+
+/** 
+ * Запустить скомпилированную функцию
+ *
+ * @param addr адрес функции
+ * @param args список аргументов
+ *
+ * @return возвращаемое значение функции
+ */
+object_t vm_run_func(int addr, object_t args)
+{
+    object_t func = new_function(NULLOBJ, addr << MARK_BIT, frame_reg, NULLOBJ);
+    vm_apply(func, args);
+    free_function(GET_FUNCTION(func));
+    return acc_reg;
 }
 
 #ifdef VM

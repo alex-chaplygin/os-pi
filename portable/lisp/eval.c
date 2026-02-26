@@ -69,6 +69,10 @@ object_t cur_label = NULLOBJ;
 object_t return_obj = NULLOBJ;
 /// Адрес начала копируемого стека для продолжений
 unsigned char *stack_start;
+#ifdef VM
+object_t vm_run_func(int addr, object_t args);
+extern object_t symbol_table;
+#endif
 #ifdef DEBUG
 /// Стек
 object_t debug_stack = NULLOBJ;
@@ -715,6 +719,11 @@ object_t eval(object_t obj, object_t env)
 #endif
 	int find = find_in_env(func_env, first, &res);
 	if (s->lambda == NULLOBJ && s->func == NULL && s->macro == NULLOBJ && !find)
+#ifdef VM
+	    if (find_in_env(symbol_table, first, &res))
+		return vm_run_func(get_value(res), eval_args(TAIL(obj), env));
+	    else
+#endif	    
 	    error("Unknown func: %s", s->str);
 	int args_count = list_length(TAIL(obj));
 	if (find) {

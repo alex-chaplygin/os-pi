@@ -1,9 +1,11 @@
 ))))
 (if (eq **debug** '*debug*)
-    (let* ((opt (optimize-tree comp))
+    (let* ((opt (progn
+    	  (print "Compiler:")
+	  (print comp)
+    	  (optimize-tree comp)))
     (gen (generate opt)))
-  (print "Compiler:")
-  (print comp)
+  
   (print "Optimizer:")
   (print opt)
   (print "Generate:")
@@ -17,6 +19,7 @@
 	(print x))
 (print 'CONSTE )
 (print *global-variables-count*)
+(print (cdr jmp-addrs))
 )))
 
    (comp-err (e) (print "Compiler error:") (print e)))

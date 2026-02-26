@@ -15,6 +15,8 @@
 
 extern jmp_buf repl_buf;
 object_t consts;
+/// Таблица символов с адресами
+object_t symbol_table;
 
 char *itoa(int num, char *str, int rad)
 {
@@ -51,6 +53,7 @@ int main()
     consts = parse();
     array_t *const_a = GET_ARRAY(consts);
     int num_vars = get_value(parse());
+    symbol_table = parse();
     vm_init(prog, prog_size, const_a->data, const_a->length, num_vars);
 	vm_run();
 	return 0;
