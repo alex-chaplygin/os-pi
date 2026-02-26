@@ -74,7 +74,7 @@ print(kolya:hello())")))
 
 (deftest lua-progn-test()
   "Выполняет тест исполнения Lisp-выражения, преобразованного из Lua кода"
-   (eval (lua-to-lisp
+  (print (lua-to-lisp
  "
 Person = {}
 
