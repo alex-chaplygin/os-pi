@@ -16,6 +16,7 @@
 (defun forth(x) (car (cdr (cdr (cdr x)))))
 (defun caddddr(x) (car (cdr (cdr (cdr (cdr x))))))
 (defun fifth(x) (car (cdr (cdr (cdr (cdr x))))))
+(defun sixth(x) (car (cdr (cdr (cdr (cdr (cdr x)))))))
 (defun cadar(x) (car (cdr (car x))))
 (defun cadadr(x) (car (cdr (car (cdr x)))))
 (defun cdar(x) (cdr (car x)))
