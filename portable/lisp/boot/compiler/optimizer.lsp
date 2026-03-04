@@ -2,7 +2,17 @@
   '(trivial-condition
     simplify-arithmetic
     dead-code-elimination
-    tail-call))
+    tail-call
+    constant-folding))
+
+(defconst +const-fix-prims+ ; список FIX-примитивов, которые можно посчитать заранее на этапе компиляции
+  '(car cdr atom cons
+    % << >> eq equal > < sin cos sqrt
+    intern symbol-name string-size inttostr code-char char-code char subseq
+    array-size aref symbolp integerp pairp functionp
+    round ~ + - * / & bitor ^ arrayp stringp))
+(defconst +const-nary-prims+ ; список NARY-примитивов, которые можно посчитать заранее на этапе компиляции
+  '(+ - * / & bitor ^ concat))
 
 (defun accumulator-loading (tree)
   "Удаляет избыточные формы загрузки значений в аккумулятор"
@@ -56,24 +66,27 @@
                (car args) (cdr args))
         tree)) tree))
 
-;; (defun optimize-constant-folding (tree) ;; TODO: не использовано
-;;   "Пытается вычислить значение промежуточной формы, если она константа"
-;;   "Возвращает список, состоящий из одного элемента - вычисленного выражения, либо nil"
-;;   (case (car tree)
-;;     ('CONST (list (cadr tree)))
-;;     ('GLOBAL-REF (list (case (cadr tree) (0 t) (1 nil))))
-;;     (otherwise
-;;      (when (contains '(FIX-PRIM NARY-PRIM) (car tree))
-;;        (let ((prim (cadr tree))
-;;              (vals (map #'optimize-constant-folding
-;;                         (funcall
-;;                          (case (car tree)
-;;                            ('FIX-PRIM #'third)
-;;                            ('NARY-PRIM #'forth)
-;;                            (otherwise (unreachable)))
-;;                          tree))))
-;;          (unless (contains vals nil)
-;;            (list (apply (symbol-function prim) (map #'car vals)))))))))
+(defun constant-folding (tree)
+  "Свёртка и распространение констант"
+  (labels ((try-compute (tree)
+             "Пытается вычислить значение промежуточной формы, если она константа"
+             "Возвращает список, состоящий из одного элемента - вычисленного выражения, либо nil"
+             (case (car tree)
+               ('CONST (list (second tree)))
+               ('GLOBAL-REF (case (second tree) (0 (list t)) (1 (list nil)) (otherwise nil)))
+               (otherwise
+                (when (or (and (eq (car tree) 'FIX-PRIM) (contains +const-fix-prims+ (second tree)))
+                          (and (eq (car tree) 'NARY-PRIM) (contains +const-nary-prims+ (second tree))))
+                  (let ((prim (second tree))
+                        (vals (map #'try-compute (if (eq (car tree) 'FIX-PRIM) (third tree) (forth tree)))))
+                    (unless (contains vals nil)
+                      (list (apply (symbol-function prim) (map #'car vals))))))))))
+    (if (contains *optimize-flags* 'constant-folding)
+        (let ((const-val (try-compute tree)))
+          (if (null const-val)
+              tree
+              (list 'CONST (car const-val))))
+        tree)))
 
 (defun expand-seqs (tree)
   "Разворачивает вложенные SEQ"
@@ -125,19 +138,19 @@
 		 (case (car tree)
 		   ('SEQ (dead-code-elimination (optimize-cdr tree)))
 		   ('ALTER (trivial-condition (optimize-cdr tree)))
-		   ('NARY-PRIM (simplify-arithmetic
-				(list (car tree) (second tree) (third tree) (optimize-many (forth tree)))))
+		   ('NARY-PRIM (constant-folding (simplify-arithmetic
+				(list (car tree) (second tree) (third tree) (optimize-many (forth tree))))))
 		   ('LABEL (if (null (cddr tree)) tree (list (car tree) (second tree) (optimize (third tree)))))
 		   ('FIX-CLOSURE (if (null (forth tree)) tree (optimize-nth tree 4)))
 		   ('GLOBAL-SET (optimize-nth tree 3))
 		   ('LOCAL-SET (optimize-nth tree 3))
 		   ('DEEP-SET (optimize-nth tree 4))
 		   ('FIX-LET (list (car tree) (second tree) (optimize-many (third tree)) (optimize (forth tree))))
-		   ('FIX-PRIM (list (car tree) (second tree) (optimize-many (third tree))))
+		   ('FIX-PRIM (constant-folding (list (car tree) (second tree) (optimize-many (third tree)))))
 		   ('FIX-CALL (list (car tree) (second tree) (third tree) (optimize-many (forth tree))))
-		   ('TAIL-CALL (tail-call (list (car tree) (second tree) (third tree) (optimize-many (forth tree)))))
+		   ('TAIL-CALL (tail-call (list (car tree) (second tree) (third tree) (optimize-many (forth tree)) (fifth tree))))
 		   ('NARY-CALL (list (car tree) (second tree) (third tree) (forth tree) (optimize-many (fifth tree))))
-		   ('TAIL-NCALL (tail-call (list (car tree) (second tree) (third tree) (forth tree) (optimize-many (fifth tree)))))
+		   ('TAIL-NCALL (tail-call (list (car tree) (second tree) (third tree) (forth tree) (optimize-many (fifth tree)) (sixth tree))))
 		   ('CATCH (list (car tree) (optimize (second tree)) (optimize (third tree))))
 		   ('THROW (list (car tree) (optimize (second tree)) (optimize (third tree))))
 		   (otherwise (comp-err "optimize-tree: invalid expression" tree))))))

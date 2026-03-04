@@ -189,4 +189,9 @@
   (print (assert (optimize-tree '(SEQ (GLOBAL-SET 2 (NPRIM-CLOSURE +)) (NPRIM-CLOSURE +)))
                  '(SEQ (GLOBAL-SET 2 (NPRIM-CLOSURE +))))))
 
+(deftest constant-folding-test ()
+  "Свёртка констант"
+  (print (assert (optimize-tree '(GLOBAL-SET 2 (FIX-PRIM + ((CONST 1) (CONST 2)))))
+                 '(GLOBAL-SET 2 (CONST 3)))))
+
 (run-tests)

@@ -12,6 +12,8 @@
 (defvar *comma-at*)
 ;; текущая функция для проверки рекурсии
 (defvar *current-func*)
+;; хэш скомпилированных значений констант по имени переменной
+(defvar *const-vals*)
 
 (defun extend-env (env args)
 ";; Расширить окружение новым кадром аргументов"
@@ -80,11 +82,11 @@
 	  (case type
 	    ('lambda (list 'FIX-LET count vals (compile-progn (cddr f) (extend-env env (second f)) tail)))
 	    ('local-func (list (if is-tail-call 'TAIL-CALL 'FIX-CALL)
-                           (forth fun) (if is-tail-call (- cur-env (++ (third fun))) (third fun)) vals))
+                           (forth fun) (third fun) vals (when is-tail-call (- cur-env (++ (third fun))))))
 	    ('fix-func (list (if is-tail-call 'TAIL-CALL 'FIX-CALL)
-                         f (if is-tail-call (- cur-env (++ (third fun))) (third fun)) vals))
+                         f (third fun) vals (when is-tail-call (- cur-env (++ (third fun))))))
 	    ('nary-func (list (if is-tail-call 'TAIL-NCALL 'NARY-CALL)
-                          f count (if is-tail-call (- cur-env (++ (third fun))) (third fun)) vals))
+                         f count (third fun) vals (when is-tail-call (- cur-env (++ (third fun))))))
 	    ('fix-prim (list 'FIX-PRIM f vals))
 	    ('nary-prim (list 'NARY-PRIM f count vals))))))))
 
@@ -157,30 +159,32 @@
         (find-global-var var))))
 
 (defun compile-setq (body env)
-";; Компилирует setq-выражение."
-;; setq-body - пара из символа и выражения, которое необходимо установить этому символу.
+  ";; Компилирует setq-выражение."
+  ;; setq-body - пара из символа и выражения, которое необходимо установить этому символу.
   (if (null body)
       (comp-err "setq: no params")
       (labels ((compile-all-setq (body)
-		 (if (= (list-length body) 2)
-		     (compile-single-setq body)
-		     (list 'SEQ (compile-single-setq body) (compile-all-setq (cddr body)))))
-	       (compile-single-setq (body)
-		 (if (< (list-length body) 2)
-		     (comp-err "setq: no expression to set")
-		     (let* ((var (car body))
-			    (val (inner-compile (second body) env nil))
-			    (res (find-var var env)))
-		       (if (not (symbolp var))
-			   (comp-err "setq: invalid variable: " var)
-			   (if (null res)
-			       (list 'GLOBAL-SET (add-global var) val)
-			       (case (car res)
-				 ('global (list 'GLOBAL-SET (second res) val))
-				 ('local (list 'LOCAL-SET (second res) val))
-				 ('deep (list 'DEEP-SET (second res) (third res) val))
-				 (otherwise (error "Unreachable")))))))))
-	    (compile-all-setq body))))
+                 (if (= (list-length body) 2)
+                     (compile-single-setq body)
+                     (list 'SEQ (compile-single-setq body) (compile-all-setq (cddr body)))))
+               (compile-single-setq (body)
+                 (if (< (list-length body) 2)
+                     (comp-err "setq: no expression to set")
+                     (let* ((var (car body))
+                            (val (inner-compile (second body) env nil))
+                            (res (find-var var env)))
+                       (when (not (symbolp var))
+                         (comp-err "setq: invalid variable: " var))
+                       (when (check-key *const-vals* var)
+                         (comp-err "setq: can't modify a constant variable:" var))
+                       (if (null res)
+                           (list 'GLOBAL-SET (add-global var) val)
+                           (case (car res)
+                             ('global (list 'GLOBAL-SET (second res) val))
+                             ('local (list 'LOCAL-SET (second res) val))
+                             ('deep (list 'DEEP-SET (second res) (third res) val))
+                             (otherwise (error "Unreachable"))))))))
+        (compile-all-setq body))))
 
 (defun compile-if (expr env tail)
 ";; Компилирует if-выражение."
@@ -230,14 +234,16 @@
 	(list 'SEQ f body)))))
 
 (defun compile-variable (v env)
-";; Компиляция перемнной"
-  (let ((res (find-var v env)))
-    (if (null res)
-	(comp-err "Unknown symbol" v)
-      (case (car res)
-	    ('local (list 'LOCAL-REF (second res)))
-	    ('global (list 'GLOBAL-REF (second res)))
-	    ('deep (list 'DEEP-REF (second res) (third res)))))))
+  ";; Компиляция переменной"
+  (if (check-key *const-vals* v)
+      (get-hash *const-vals* v)
+      (let ((res (find-var v env)))
+        (if (null res)
+            (comp-err "Unknown symbol" v)
+            (case (car res)
+              ('local (list 'LOCAL-REF (second res)))
+              ('global (list 'GLOBAL-REF (second res)))
+              ('deep (list 'DEEP-REF (second res) (third res))))))))
 
 (defun compile-backquote (expr env)
 ";; Комиляция квазицитирования"
@@ -266,6 +272,15 @@
 ";; Компиляция THROW"
      (list 'THROW (inner-compile (car args) env nil) (inner-compile (second args) env nil)))
 
+(defun compile-defconst (body env tail)
+  "Компиляция DEFCONST, замопинаем константу"
+  (let ((var (car body))
+        (expr (if (null (cdr body)) nil (second body))))
+    (when (check-key *const-vals* var)
+          (comp-err "defconst: redefinition of const:" var))
+    (set-hash *const-vals* var (inner-compile expr env tail))
+    (list 'NOP)))
+
 (defun inner-compile (expr env tail)
 "Рекурсивная функция компиляции в промежуточную форму"
   ;; expr - выражение, env - лексическое окружение, tail - если t, то выражение в хвостовой позиции, иначе nil
@@ -290,6 +305,7 @@
 	  ('go (list 'GOTO (second expr)))
 	  ('catch (compile-catch (cdr expr) env))
 	  ('throw (compile-throw (cdr expr) env))
+	  ('defconst (compile-defconst (cdr expr) env tail))
 	  (otherwise (compile-application func args env tail))))))
 
 (defun compile (expr)
@@ -300,7 +316,8 @@
         *comp-err* nil
         *comp-err-msg* nil
         *fix-functions* nil
-        *environment* nil)
+        *environment* nil
+        *const-vals* (make-hash))
   (let ((c (inner-compile expr nil t))) ;; начальный вызов - хвостовой
     (if *comma-at* (list 'SEQ (inner-compile
 			       '(defun append2 (l1 l2) (if (eq l1 nil) l2 (cons (car l1) (append2 (cdr l1) l2))))
