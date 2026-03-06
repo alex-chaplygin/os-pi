@@ -36,6 +36,7 @@ void init_all();
 
 #ifdef VM
 object_t consts;
+object_t symbol_table = NULLOBJ;
 #endif
 /** 
  * Загрузка начального кода lisp
