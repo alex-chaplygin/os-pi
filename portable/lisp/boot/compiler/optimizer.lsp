@@ -3,7 +3,8 @@
     simplify-arithmetic
     dead-code-elimination
     tail-call
-    constant-folding))
+    constant-folding
+    unused-functions))
 
 (defconst +const-fix-prims+ ; список FIX-примитивов, которые можно посчитать заранее на этапе компиляции
   '(car cdr atom cons
@@ -124,6 +125,14 @@
       tree
       (cons (if (eq (car tree) 'TAIL-CALL) 'FIX-CALL 'NARY-CALL) (cdr tree))))
 
+(defun unused-functions (tree)
+  "Удаление неиспользуемых функций"
+  "tree - LABEL-форма"
+  (if (and (check-key *used-functions-count* (second tree))
+           (= (get-hash *used-functions-count* (second tree)) 0))
+      (list 'NOP)
+      tree))
+
 (defun optimize-tree (tree)
   "Оптимизация промежуточной формы tree методами, указанными флагами flags"
   "Возвращает оптимизированное дерево"
@@ -140,7 +149,7 @@
 		   ('ALTER (trivial-condition (optimize-cdr tree)))
 		   ('NARY-PRIM (constant-folding (simplify-arithmetic
 				(list (car tree) (second tree) (third tree) (optimize-many (forth tree))))))
-		   ('LABEL (if (null (cddr tree)) tree (list (car tree) (second tree) (optimize (third tree)))))
+		   ('LABEL (unused-functions (if (null (cddr tree)) tree (list (car tree) (second tree) (optimize (third tree))))))
 		   ('FIX-CLOSURE (if (null (forth tree)) tree (optimize-nth tree 4)))
 		   ('GLOBAL-SET (optimize-nth tree 3))
 		   ('LOCAL-SET (optimize-nth tree 3))

@@ -194,4 +194,18 @@
   (print (assert (optimize-tree '(GLOBAL-SET 2 (FIX-PRIM + ((CONST 1) (CONST 2)))))
                  '(GLOBAL-SET 2 (CONST 3)))))
 
+(deftest unused-functions-test ()
+  "Удаление неиспользуемых функций"
+  (print (assert (optimize-tree (compile '(progn
+                                           (defun f1 () nil)
+                                           (defun f2 () nil)
+                                           (defun f3 () nil)
+                                           (f3))))
+                 '(SEQ (NOP) (NOP) (LABEL F3 (SEQ (GLOBAL-REF 1) (RETURN))) (FIX-CALL F3 0 ()))))
+  (print (assert (optimize-tree (compile '(progn
+                                           (defun f1 () nil)
+                                           (defun f2 () nil)
+                                           (defun f3 () (f2)))))
+                 '(SEQ (NOP) (LABEL F2 (SEQ (GLOBAL-REF 1) (RETURN))) (NOP)))))
+
 (run-tests)

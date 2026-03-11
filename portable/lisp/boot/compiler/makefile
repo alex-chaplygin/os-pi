@@ -56,6 +56,9 @@ compile-file: $(COMPILER) $(TARGET)
 /tmp/lua:
 	make -C ../lang/ lua-test
 
+/tmp/compiler: $(COMPILER)
+	cat $^ > /tmp/compiler
+
 /tmp/%:
 	make -C ../ $*-test
 

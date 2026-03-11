@@ -14,6 +14,8 @@
 (defvar *current-func*)
 ;; хэш скомпилированных значений констант по имени переменной
 (defvar *const-vals*)
+;; хэш числа использования функций
+(defvar *used-functions-count*)
 
 (defun extend-env (env args)
 ";; Расширить окружение новым кадром аргументов"
@@ -27,6 +29,8 @@
 
 (defun compile-func-body (name args body env)
   ";; Компиляция тела функции"
+  (when (not (check-key *used-functions-count* name))
+    (set-hash *used-functions-count* name 0))
   (list 'LABEL name
 	(list 'SEQ
 	      (inner-compile body (extend-env env args) t)
@@ -64,6 +68,11 @@
 
 (defun compile-progn (lst env tail) nil)
 
+(defun inc-function-ref (name)
+  "Увеличить число ссылок на функцию"
+  (set-hash *used-functions-count* name
+	    (if (check-key *used-functions-count* name) (++ (get-hash *used-functions-count* name)) 1)))
+
 (defun compile-application (f args env tail)
 ";; Применение функции"
   ;; f - имя функции или lambda, args - аргументы, env - окружение
@@ -73,6 +82,8 @@
 	 (cur-env (list-length env))
 	 (is-tail-call (and tail (eq f *current-func*))))
     (check-arguments f type count args)
+    (when (contains '(fix-func nary-func local-func lambda) type)
+      (inc-function-ref (case type ('lambda (third fun)) ('local-func (forth fun)) (otherwise f))))
     (if (eq type 'fix-macro)
 	(inner-compile (macroexpand (third fun) args (forth fun)) env tail)
 	(if (eq type 'nary-macro)
@@ -95,6 +106,8 @@
   (let* ((fun (find-func f))
 	 (type (car fun))
 	 (name (gensym)))
+    (when (contains '(fix-func nary-func local-func lambda) type)
+      (inc-function-ref (case type ('lambda name) ('local-func (forth fun)) (otherwise f))))
     (case type
       ('lambda (list 'FIX-CLOSURE name (list-length env)
 		(compile-lambda name (second f) (cons 'progn (cddr f)) env)))
@@ -110,9 +123,13 @@
   ;; проверка на правильность expr
   (let ((name (car expr))
 	(args (second expr))
-	(body (cddr expr)))
-    (setq *current-func* name)
-    (compile-lambda name args (cons 'progn body) env)))
+	(body (cddr expr))
+	(old-func *current-func*)
+	(res nil))
+    (setq *current-func* name
+          res (compile-lambda name args (cons 'progn body) env)
+          *current-func* old-func)
+    res))
 
 (defun add-global (sym)
 ";; Добавить глобальную переменную"
@@ -317,7 +334,8 @@
         *comp-err-msg* nil
         *fix-functions* nil
         *environment* nil
-        *const-vals* (make-hash))
+        *const-vals* (make-hash)
+        *used-functions-count* (make-hash))
   (let ((c (inner-compile expr nil t))) ;; начальный вызов - хвостовой
     (if *comma-at* (list 'SEQ (inner-compile
 			       '(defun append2 (l1 l2) (if (eq l1 nil) l2 (cons (car l1) (append2 (cdr l1) l2))))
