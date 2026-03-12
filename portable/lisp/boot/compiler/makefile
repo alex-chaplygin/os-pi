@@ -71,7 +71,7 @@ compile-test: $(TARGET)
              cat /tmp/1;\
              exit 1;\
 	}
-	@[ "$$(head -n 1 /tmp/1)" == "\"Compiler error:\"" ] && cat /tmp/1 || cat /tmp/1 | sed -e "s/CONSTB/#(/" -e "s/CONSTE/)/" | sed -E 's/\\(w|d|D|s|S|\+|\^|\*|\.|\?)/\\\\\1/g' | sed -E 's/#\\\\(\.|\?|w|d|D|s|S|\^|\*|\+)/#\\\1/g' | tr '\n' ' ' >/tmp/res
+	@[ "$$(head -n 1 /tmp/1)" == "\"Compiler error:\"" ] && cat /tmp/1 || cat /tmp/1 | sed -e "s/CONSTB/#(/" -e "s/CONSTE/)/" | sed -E 's/\\(w|d|D|s|S|\+|\^|\*|\.|\?)/\\\\\1/g' | sed -E 's/#\\\\(\.|\?|w|d|D|s|S|\^|\*|\+)/#\\\1/g' | sed -E 's/#\\$$/#\\Newline/' | tr '\n' ' ' | sed -E 's/#\\Newline/#\\\n/g' >/tmp/res
 # 	@[ "$$(head -n 1 /tmp/1)" == "\"Compiler error:\"" ] && echo "not compiled" || /tmp/test_comp </tmp/res
 	@time ([ "$$(head -n 1 /tmp/1)" == "\"Compiler error:\"" ] && echo "not compiled" || /tmp/test_comp </tmp/res)
 
