@@ -5,8 +5,9 @@
   (contains (list (code-char 10) #\ ) c))
 
 (defun get-str ()
-  "Получить строку до разделителя"
-  (parse-app (parse-many (parse-pred #'(lambda (x) (not (is-com-separator x))))) #'implode))
+  "Получить строку до разделителя или конца потока"
+  (parse-app (&&& s->(parse-app (parse-many (parse-pred #'(lambda (x) (not (is-com-separator x))))) #'implode)
+		  #'(lambda (x) (if (= s "") nil (cons t x)))) #'car))
 
 (defun parse-elem-str (str)
   "Ожидает ввода строки"
@@ -16,8 +17,8 @@
 (defmacro parse-command (com fun)
   "Обработка команды"
   `(&&& (parse-elem-str ,com)
-	args->(parse-many-n 4 (parse-app (&&& (parse-many (parse-pred #'is-com-separator))
-					      (get-str)) #'second))
+	args->(parse-many (parse-app (&&& (parse-many (parse-pred #'is-com-separator))
+					  (get-str)) #'second))
 	return (progn ,fun 'ok)))
 
 (defun parse-commands ()
