@@ -13,18 +13,58 @@
 (defconst +key-9+ 0x0A)
 (defconst +key-0+ 0x0B)
 (defconst +key-tab+ 0xf)
+(defconst +key-enter+ 0x1c)
 (defconst +key-left+ 0x4b)
 (defconst +key-right+ 0x4d)
 (defconst +key-up+ 0x48)
 (defconst +key-down+ 0x50)
-
+;; карта скан код в символ
+(defconst +key-map+ #(
+ ()  () #\1 #\2 #\3 #\4 #\5 #\6 #\7 #\8	;; 9 */
+  #\9 #\0 #\- #\= ()	;; Backspace */
+  ()			;; Tab */
+  #\q #\w #\e #\r	;; 19 */
+  #\t #\y #\u #\i #\o #\p #\[ #\] #\
+  ;; Enter key */
+    ()			;; 29   - Control */
+  #\a #\s #\d #\f #\g #\h #\j #\k #\l #\;	;; 39 */
+ #\' #\`   ()		;; Left shift */
+ #\\ #\z #\x #\c #\v #\b #\n			;; 49 */
+  #\m #\, #\. #\/   ()				;; Right shift */
+  #\*
+    ()	;; Alt */
+   #\ 	;; Space bar */
+    ()	;; Caps lock */
+    ()	;; 59 - F1 key ... > */
+    ()   ()   ()   ()   ()   ()   ()   ()
+    ()	;; < ... F1() */
+    ()	;; 69 - Num lock*/
+    ()	;; Scroll Lock */
+    ()	;; Home key */
+    ()	;; Up Arrow */
+    ()	;; Page Up */
+  #\-
+    ()	;; Left Arrow */
+    ()
+    ()	;; Right Arrow */
+  #\+
+    ()	;; 79 - End key*/
+    ()	;; Down Arrow */
+    ()	;; Page Down */
+    ()	;; Insert Key */
+    ()	;; Delete Key */
+    ()   ()   ()
+    ()	;; F11 Key */
+    ()	;; F12 Key */
+    ()	;; All other keys are undefined */
+		      ))
 (defvar *keys* (make-array 128)) ; массив нажатий клавиш
 (defvar *key-down-handler*) ; обработчик нажатия кнопки
 (defvar *key-up-handler*) ; обработчик отпускания кнопки
 
 (defun key-handler ()
   "Простой обработчик прерывания клавиатуры"
-  (let ((status (inb +KEY-STATUS+))) ; получает статус, есть ли данные в буфере клавиатуры  
+  (let ((status (inb +KEY-STATUS+))) ; получает статус есть ли данные в буфере клавиатуры  
     (when (equal (& status 1) 1) ; если есть (младший бит регистра статуса)
       (let ((scan (inb +KEY-BUFFER+))) ; читаем скан код из буфера
 	(if (< scan 128)
@@ -39,5 +79,9 @@
 (defun key-pressed (key)
   "Вовращает состояние нажатия клавиши key"
   (aref *keys* key))
+
+(defun scan-to-char (scan)
+  "Возвращает символ по скан коду"
+  (aref +key-map+ scan))
 
 (set-int-handler +key-irq+ #'key-handler)
