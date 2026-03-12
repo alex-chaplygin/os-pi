@@ -19,7 +19,7 @@ lisp: /tmp/pci.lsp # здесь меняем набор библиотек
 	cp $^ /tmp/lisp.lsp
 
 # компиляция кода в ядро
-vmlisp: /tmp/fs.lsp
+vmlisp: /tmp/console.lsp
 	make -C test /tmp/test_comp
 	cat $^ | head -n -1 >/tmp/compile
 	cd boot/compiler; ./compile bin/compiler
@@ -27,7 +27,7 @@ vmlisp: /tmp/fs.lsp
              cat /tmp/1;\
              exit 1;\
 	}
-	cat /tmp/1 | sed -e "s/CONSTB/#(/" -e "s/CONSTE/)/" | tr '\n' ' ' >/tmp/lisp.lsp
+	cat /tmp/1 | sed -e "s/CONSTB/#(/" -e "s/CONSTE/)/" | sed -E 's/#\\$$/#\\Newline/' | tr '\n' ' ' | sed -E 's/#\\Newline/#\\\n/g' >/tmp/lisp.lsp
 
 # тесты jpeg
 jpeg-test: $(BASELISP) boot/bin-reader.lsp boot/bin-tree.lsp boot/huffman.lsp boot/img/jpeg/data-unit.lsp boot/img/jpeg/main.lsp boot/test/jpeg.lsp
