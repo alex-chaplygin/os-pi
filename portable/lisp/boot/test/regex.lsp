@@ -186,6 +186,9 @@
   (test-match "abc_123привет" "[^A-Za-z0-9_]+" "привет")
   (test-match ".*?" "\\.\\*\\?" ".*?")
   (test-match "nonnoncapturinggroups" "(?:non)+(?:capturing)(?:groups)" "nonnoncapturinggroups")
+  (test-match "_134_" "(1)(2|34|9)" "134")
+  (test-match "_1345_" "(1)(34|3|2)(45)" "1345")
+  (test-match "_13445_" "(1)(34|3|2)(45)" "13445")
 
   (test-matches "three cool words" "\\w{5}" '("three" "words"))
   (test-matches "three cool words" "^\\w{5}" '("three"))
