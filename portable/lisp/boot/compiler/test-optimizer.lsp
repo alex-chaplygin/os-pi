@@ -208,4 +208,19 @@
                                            (defun f3 () (f2)))))
                  '(SEQ (NOP) (LABEL F2 (SEQ (GLOBAL-REF 1) (RETURN))) (NOP)))))
 
+(deftest beta-expansion-test ()
+  "Тесты функций для бета подстановки"
+  (print (assert (no-local-set '(SEQ (CONST "(let ((x 0)")
+						(SEQ (CONST "((lambda (x y)")
+						 (FIX-PRIM + ((LOCAL-REF 0) (CONST 1)))))) t))
+  (print (assert (no-local-set '(SEQ (CONST "(let ((x 0)")
+						(SEQ (CONST "((lambda (x y)")
+						 (FIX-PRIM + ((LOCAL-REF 0) (LOCAL-SET 0 (CONST 1))))))) nil))
+  (print (assert (one-ref-args '(seq (local-ref 0) (local-ref 1) (local-ref 2))) t))
+  (print (assert (one-ref-args '(seq (local-ref 0) (local-ref 1) (local-ref 2) (local-ref 0))) nil))
+
+  (print (assert (beta-exp '(SEQ (FIX-PRIM EQ ((LOCAL-REF 0) (CONST ()))) (RETURN)) '((CONST (1 2 3))))
+		 '(SEQ (FIX-PRIM EQ ((CONST (1 2 3)) (CONST ()))) (NOP))))
+  )
+
 (run-tests)

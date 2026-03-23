@@ -2,7 +2,7 @@ include ../common.mak
 SHELL = bash
 VPATH := ..
 COMPILER = $(BASELISP) common.lsp macro.lsp compiler.lsp generator.lsp assembler.lsp optimizer.lsp
-SOURCE = /tmp/regex
+SOURCE = /tmp/lua
 #../lib.lsp ../list.lsp ../hash.lsp ../array.lsp common.lsp macro.lsp compiler.lsp generator.lsp assembler.lsp /tmp/c
 TARGET = /tmp/compile
 

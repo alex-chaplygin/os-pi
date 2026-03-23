@@ -4,7 +4,8 @@
     dead-code-elimination
     tail-call
     constant-folding
-    unused-functions))
+    unused-functions
+    beta-expansion))
 
 (defconst +const-fix-prims+ ; список FIX-примитивов, которые можно посчитать заранее на этапе компиляции
   '(car cdr atom cons
@@ -128,10 +129,57 @@
 (defun unused-functions (tree)
   "Удаление неиспользуемых функций"
   "tree - LABEL-форма"
-  (if (and (check-key *used-functions-count* (second tree))
-           (= (get-hash *used-functions-count* (second tree)) 0))
-      (list 'NOP)
+  (if (contains *optimize-flags* 'unused-functions)
+      (if (and (check-key *functions-info* (second tree))
+	       (= (get-hash (get-hash *functions-info* (second tree)) 'count) 0))
+	  (list 'NOP) tree)
       tree))
+
+(defun no-local-set (exp)
+  "В выражении отсутствует LOCAL-SET или FIX-LET"
+  (cond ((null exp) t)
+	((atom exp) t)
+	((and (pairp exp) (atom (car exp)) (or (eq (car exp) 'LOCAL-SET) (eq (car exp) 'FIX-LET) (eq (car exp) 'FIX-CLOSURE))) nil)
+	(t (and (no-local-set (car exp)) (no-local-set (cdr exp))))))
+
+(defun one-ref-args (body)
+  "К каждому аргументу только одно обращение"
+  (let ((counts (make-hash)))
+    (labels ((refs (exp)
+	       (cond ((null exp) t)
+		     ((atom exp) t)
+		     ((and (pairp exp) (atom (car exp)) (eq (car exp) 'LOCAL-REF))
+		      (if (check-key counts (second exp)) nil (set-hash counts (second exp) t)))
+		     (t (and (refs (car exp)) (refs (cdr exp)))))))
+      (refs body))))
+
+(defun beta-exp (exp args)
+  "Выполнить подстановку тела функции"
+  (cond ((null exp) nil)
+	((atom exp) exp)
+	((and (pairp exp) (atom (car exp)))
+	 (case (car exp)
+	   ('LOCAL-REF (nth args (second exp)))
+	   ('DEEP-REF (let ((lev (-- (second exp))))
+			(if (= lev 0) (list 'LOCAL-REF (third exp)) (list 'DEEP-REF lev (third exp)))))
+	   ('DEEP-SET (list 'DEEP-SET (-- (second exp)) (third exp) (forth exp)))
+	   ('RETURN (list 'NOP))
+	   (otherwise (cons (beta-exp (car exp) args) (beta-exp (cdr exp) args)))))
+	(t (cons (beta-exp (car exp) args) (beta-exp (cdr exp) args)))))
+
+(defun beta-expansion (call)
+  "Подстановка тела функции, когда функция вызывается один раз и это возможно"
+  (if (contains *optimize-flags* 'beta-expansion)
+      (let* ((f (get-hash *functions-info* (second call)))
+  	     (count (get-hash f 'count))
+	     (rec (check-key f 'rec))
+  	     (body (if rec nil (get-hash f 'body))))
+  	(if (and (= count 1) (not rec)
+  		 (= (case (car call) ('FIX-CALL (third call)) ('NARY-CALL (forth call))) 0)
+		 (no-local-set body) (one-ref-args body)) ;;(no-side-effects args))
+	    (progn ;(print `(beta-exp ,call))
+		   (beta-exp body (last call))) call))
+      call))
 
 (defun optimize-tree (tree)
   "Оптимизация промежуточной формы tree методами, указанными флагами flags"
@@ -149,16 +197,19 @@
 		   ('ALTER (trivial-condition (optimize-cdr tree)))
 		   ('NARY-PRIM (constant-folding (simplify-arithmetic
 				(list (car tree) (second tree) (third tree) (optimize-many (forth tree))))))
-		   ('LABEL (unused-functions (if (null (cddr tree)) tree (list (car tree) (second tree) (optimize (third tree))))))
+		   ('LABEL (let ((body (if (null (cddr tree)) nil (optimize (third tree)))))
+			     (when (check-key *functions-info* (second tree))
+			       (set-hash (get-hash *functions-info* (second tree)) 'body body))
+			     (unused-functions (if (null (cddr tree)) tree (list (car tree) (second tree) body)))))
 		   ('FIX-CLOSURE (if (null (forth tree)) tree (optimize-nth tree 4)))
 		   ('GLOBAL-SET (optimize-nth tree 3))
 		   ('LOCAL-SET (optimize-nth tree 3))
 		   ('DEEP-SET (optimize-nth tree 4))
 		   ('FIX-LET (list (car tree) (second tree) (optimize-many (third tree)) (optimize (forth tree))))
 		   ('FIX-PRIM (constant-folding (list (car tree) (second tree) (optimize-many (third tree)))))
-		   ('FIX-CALL (list (car tree) (second tree) (third tree) (optimize-many (forth tree))))
+		   ('FIX-CALL (beta-expansion (list (car tree) (second tree) (third tree) (optimize-many (forth tree)))))
 		   ('TAIL-CALL (tail-call (list (car tree) (second tree) (third tree) (optimize-many (forth tree)) (fifth tree))))
-		   ('NARY-CALL (list (car tree) (second tree) (third tree) (forth tree) (optimize-many (fifth tree))))
+		   ('NARY-CALL (beta-expansion (list (car tree) (second tree) (third tree) (forth tree) (optimize-many (fifth tree)))))
 		   ('TAIL-NCALL (tail-call (list (car tree) (second tree) (third tree) (forth tree) (optimize-many (fifth tree)) (sixth tree))))
 		   ('CATCH (list (car tree) (optimize (second tree)) (optimize (third tree))))
 		   ('THROW (list (car tree) (optimize (second tree)) (optimize (third tree))))

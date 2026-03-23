@@ -6,7 +6,7 @@
 (defvar *fix-functions*)
 ;; список функций с переменным числом аргументов
 (defvar *nary-functions*)
-;; список локальных функций (локальное имя, смещение кадра, кол-во аргументов, скомплированное имя)
+;; список локальных функций (локальное имя, смещение кадра, кол-во аргументов, скомплированное тело)
 (defvar *local-functions*)
 ;; есть ли comma-at в коде
 (defvar *comma-at*)
@@ -14,8 +14,9 @@
 (defvar *current-func*)
 ;; хэш скомпилированных значений констант по имени переменной
 (defvar *const-vals*)
-;; хэш числа использования функций
-(defvar *used-functions-count*)
+;; хэш информации о функциях, ключ - имя,
+;; внутри хеш {count, rec, body} - число обращений, рекурсивная?, оптимизированное тело
+(defvar *functions-info*)
 
 (defun extend-env (env args)
 ";; Расширить окружение новым кадром аргументов"
@@ -29,8 +30,9 @@
 
 (defun compile-func-body (name args body env)
   ";; Компиляция тела функции"
-  (when (not (check-key *used-functions-count* name))
-    (set-hash *used-functions-count* name 0))
+  (when (not (check-key *functions-info* name))
+    (set-hash *functions-info* name (make-hash))
+    (set-hash (get-hash *functions-info* name) 'count 0))
   (list 'LABEL name
 	(list 'SEQ
 	      (inner-compile body (extend-env env args) t)
@@ -70,8 +72,12 @@
 
 (defun inc-function-ref (name)
   "Увеличить число ссылок на функцию"
-  (set-hash *used-functions-count* name
-	    (if (check-key *used-functions-count* name) (++ (get-hash *used-functions-count* name)) 1)))
+  (if (check-key *functions-info* name)
+    (let* ((f (get-hash *functions-info* name))
+	   (count (get-hash f 'count)))
+      (set-hash f 'count (++ count)))
+    (progn (set-hash *functions-info* name (make-hash))
+	   (set-hash (get-hash *functions-info* name) 'count 1))))
 
 (defun compile-application (f args env tail)
 ";; Применение функции"
@@ -80,10 +86,13 @@
 	 (type (car fun))
 	 (count (second fun))
 	 (cur-env (list-length env))
-	 (is-tail-call (and tail (eq f *current-func*))))
+	 (rec (eq f *current-func*))
+	 (is-tail-call (and tail rec))
+	 (name (case type ('lambda (third fun)) ('local-func (forth fun)) (otherwise f))))
     (check-arguments f type count args)
     (when (contains '(fix-func nary-func local-func lambda) type)
-      (inc-function-ref (case type ('lambda (third fun)) ('local-func (forth fun)) (otherwise f))))
+      (inc-function-ref name))
+    (when rec (set-hash (get-hash *functions-info* name) 'rec t))
     (if (eq type 'fix-macro)
 	(inner-compile (macroexpand (third fun) args (forth fun)) env tail)
 	(if (eq type 'nary-macro)
@@ -335,7 +344,7 @@
         *fix-functions* nil
         *environment* nil
         *const-vals* (make-hash)
-        *used-functions-count* (make-hash))
+        *functions-info* (make-hash))
   (let ((c (inner-compile expr nil t))) ;; начальный вызов - хвостовой
     (if *comma-at* (list 'SEQ (inner-compile
 			       '(defun append2 (l1 l2) (if (eq l1 nil) l2 (cons (car l1) (append2 (cdr l1) l2))))
