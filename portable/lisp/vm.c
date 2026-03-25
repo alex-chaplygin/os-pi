@@ -677,11 +677,12 @@ void vm_dump()
     PRINT(acc_reg);
     printf("FRAME: ");
     PRINT(frame_reg);
+    printf("PC: %d\n", pc_reg - program_memory);
     printf("STACK: \n");
-    for (int i = stack_top - stack + 1; i < STACK_SIZE; i++) {
-	o = stack[i];
-	PRINT(o);
-    }
+    /* for (int i = stack_top - stack + 1; i < STACK_SIZE; i++) { */
+    /* 	o = stack[i]; */
+    /* 	PRINT(o); */
+    /* } */
     printf("-------------------------\n");
 }
 
