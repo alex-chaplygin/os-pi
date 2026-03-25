@@ -4,10 +4,10 @@
     	  (print "Compiler:")
 	  (print comp)
     	  (optimize-tree comp)))
-    (gen (generate opt)))
-  
+    (gen (progn
   (print "Optimizer:")
   (print opt)
+   (generate opt))))
   (print "Generate:")
   (dolist (x gen) (print x)))
 (let* ((gen (assemble (generate (optimize-tree comp))))

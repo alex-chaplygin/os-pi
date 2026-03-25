@@ -210,17 +210,19 @@
 
 (deftest beta-expansion-test ()
   "Тесты функций для бета подстановки"
-  (print (assert (no-local-set '(SEQ (CONST "(let ((x 0)")
+  (print (assert (search-abs-tree '(SEQ (CONST "(let ((x 0)")
 						(SEQ (CONST "((lambda (x y)")
-						 (FIX-PRIM + ((LOCAL-REF 0) (CONST 1)))))) t))
-  (print (assert (no-local-set '(SEQ (CONST "(let ((x 0)")
+						 (FIX-PRIM + ((LOCAL-REF 0) (CONST 1))))) '(LOCAL-SET)) nil))
+  (print (assert (search-abs-tree '(SEQ (CONST "(let ((x 0)")
 						(SEQ (CONST "((lambda (x y)")
-						 (FIX-PRIM + ((LOCAL-REF 0) (LOCAL-SET 0 (CONST 1))))))) nil))
+						 (FIX-PRIM + ((LOCAL-REF 0) (LOCAL-SET 0 (CONST 1)))))) '(LOCAL-SET)) t))
   (print (assert (one-ref-args '(seq (local-ref 0) (local-ref 1) (local-ref 2))) t))
   (print (assert (one-ref-args '(seq (local-ref 0) (local-ref 1) (local-ref 2) (local-ref 0))) nil))
 
-  (print (assert (beta-exp '(SEQ (FIX-PRIM EQ ((LOCAL-REF 0) (CONST ()))) (RETURN)) '((CONST (1 2 3))))
+  (print (assert (beta-exp '(SEQ (FIX-PRIM EQ ((LOCAL-REF 0) (CONST ()))) (RETURN)) '((CONST (1 2 3))) 0)
 		 '(SEQ (FIX-PRIM EQ ((CONST (1 2 3)) (CONST ()))) (NOP))))
+  (print (assert (beta-exp '(FIX-CLOSURE parse-struct 0 (SEQ (FIX-CALL parse-struct ((LOCAL-REF 0) (DEEP-REF 1 0) (DEEP-REF 2 1))) (RETURN))) '((CONST (1 2 3))) 0)
+		 '(FIX-CLOSURE PARSE-STRUCT 0 (SEQ (FIX-CALL PARSE-STRUCT ((LOCAL-REF 0) (CONST (1 2 3)) (DEEP-REF 1 1))) (RETURN)))))
   )
 
 (run-tests)
