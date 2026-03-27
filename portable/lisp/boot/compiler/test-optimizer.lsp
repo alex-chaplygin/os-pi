@@ -232,6 +232,12 @@
 		 '(SEQ (FIX-PRIM EQ ((CONST (1 2 3)) (CONST ()))) (NOP))))
   (print (assert (beta-exp '(FIX-CLOSURE parse-struct 0 (SEQ (FIX-CALL parse-struct ((LOCAL-REF 0) (DEEP-REF 1 0) (DEEP-REF 2 1))) (RETURN))) '((CONST (1 2 3))) 0)
 		 '(FIX-CLOSURE PARSE-STRUCT 0 (SEQ (FIX-CALL PARSE-STRUCT ((LOCAL-REF 0) (CONST (1 2 3)) (DEEP-REF 1 1))) (RETURN)))))
+  (print (assert (optimize-tree (compile '((lambda (x) x) 10)))
+                 '(CONST 10)))
+  (print (assert (optimize-tree (compile '((lambda (x) ((lambda (y) (+ x y)) 20)) 10)))
+                 '(FIX-PRIM + ((CONST 10) (CONST 20)))))
+  (print (assert (optimize-tree (compile '((lambda (x) (+ x x)) 10)))
+                 '(FIX-LET 1 ((CONST 10)) (FIX-PRIM + ((LOCAL-REF 0) (LOCAL-REF 0))))))
   )
 
 (run-tests)

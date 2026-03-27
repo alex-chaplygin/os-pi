@@ -193,8 +193,12 @@
   (let* ((rec (check-key f 'rec))
 	 (body (if rec nil (get-hash f 'body))))
     (and (not rec) ;;(= (case (car call) ('FIX-CALL (third call)) ('NARY-CALL (forth call))) 0)
-	 (not (search-abs-tree body '(LOCAL-SET DEEP-SET FIX-LET))) (one-ref-args body)
+	 (not (search-abs-tree body '(LOCAL-SET DEEP-SET))) (one-ref-args body)
 	 (search-closure-deep-ref body))))
+
+(defun side-effects (exp)
+  "Есть ли в выражении побочные эффекты"
+  (search-abs-tree exp '(LOCAL-SET GLOBAL-SET DEEP-SET)))
 
 (defun optimize-tree1 (tree)
   "Оптимизация промежуточной формы tree методами, указанными флагами flags"
@@ -227,7 +231,10 @@
 		   ('DEEP-SET (optimize-nth tree 4))
 		   ('FIX-LET (list (car tree) (second tree) (optimize-many (third tree)) (optimize (forth tree))))
 		   ('FIX-PRIM (constant-folding (list (car tree) (second tree) (optimize-many (third tree)))))
-		   ('FIX-CALL (list (car tree) (second tree) (third tree) (optimize-many (forth tree))))
+		   ('FIX-CALL (let ((args (optimize-many (forth tree))))
+				(when (side-effects args)
+				  (set-hash (get-hash *functions-info* (second tree)) 'can-inline nil))
+				(list (car tree) (second tree) (third tree) args)))
 		   ('TAIL-CALL (tail-call (list (car tree) (second tree) (third tree) (optimize-many (forth tree)) (fifth tree))))
 		   ('NARY-CALL (list (car tree) (second tree) (third tree) (forth tree) (optimize-many (fifth tree))))
 		   ('TAIL-NCALL (tail-call (list (car tree) (second tree) (third tree) (forth tree) (optimize-many (fifth tree)) (sixth tree))))
@@ -235,7 +242,6 @@
 		   ('THROW (list (car tree) (optimize (second tree)) (optimize (third tree))))
 		   (otherwise (comp-err "optimize-tree: invalid expression" tree))))))
     (optimize tree)))
-
 
 (defun optimize-tree2 (tree)
   "Второй проход оптимизатора - встраивание функций, удаление после встраивания"
@@ -252,9 +258,15 @@
 			   (if (and (contains *optimize-flags* 'dead-code-elimination) (= (get-hash f 'count) 1)
 				    (get-hash f 'can-inline) (not (check-key f 'closure)))
 			       (list 'NOP) l))))
-	   ('FIX-CALL (beta-expansion (list 'FIX-CALL (second tree) (third tree) (optimize-tree2 (forth tree)))))
-	   ('NARY-CALL (list 'NARY-CALL (second tree) (third tree) (forth tree) (optimize-tree2 (fifth tree))))
-	   (otherwise (cons (optimize-tree2 (car tree)) (optimize-tree2 (cdr tree))))))
+	     ('FIX-LET (let ((args (optimize-tree2 (third tree)))
+			     (body (optimize-tree2 (forth tree))))
+			 (if (and (not (search-abs-tree body '(LOCAL-SET DEEP-SET))) (one-ref-args body)
+				  (search-closure-deep-ref body) (not (side-effects args)))
+			     (beta-exp body (optimize-tree2 (third tree)) 0)
+			     (list 'FIX-LET (second tree) args body))))
+	     ('FIX-CALL (beta-expansion (list 'FIX-CALL (second tree) (third tree) (optimize-tree2 (forth tree)))))
+	     ('NARY-CALL (list 'NARY-CALL (second tree) (third tree) (forth tree) (optimize-tree2 (fifth tree))))
+	     (otherwise (cons (optimize-tree2 (car tree)) (optimize-tree2 (cdr tree))))))
 	(t (cons (optimize-tree2 (car tree)) (optimize-tree2 (cdr tree))))))
       
 (defun optimize-tree (tree)
