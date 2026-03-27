@@ -5,7 +5,8 @@
     tail-call
     constant-folding
     unused-functions
-    beta-expansion))
+    beta-expansion
+    all-inline))
 
 (defconst +const-fix-prims+ ; список FIX-примитивов, которые можно посчитать заранее на этапе компиляции
   '(car cdr atom cons
@@ -184,7 +185,7 @@
 	 (count (get-hash f 'count))
 	 (body (get-hash f 'body))
 	 (can-inline (get-hash f 'can-inline)))
-    (if (and (= count 1) can-inline)
+    (if (and can-inline (or (= count 1) (contains *optimize-flags* 'all-inline)))
 	(progn ;;(print `(beta-expansion ,call))
 	  (beta-exp body (last call) 0)) call)))
 
@@ -255,7 +256,8 @@
 			 (let ((f (get-hash *functions-info* (second tree)))
 			       (l (list 'LABEL (second tree) (optimize-tree2 (third tree)))))
 			   (set-hash f 'body (third l))
-			   (if (and (contains *optimize-flags* 'dead-code-elimination) (= (get-hash f 'count) 1)
+			   (if (and (contains *optimize-flags* 'dead-code-elimination)
+				    (= (get-hash f 'count) 1) ;;(contains *optimize-flags* 'all-inline))
 				    (get-hash f 'can-inline) (not (check-key f 'closure)))
 			       (list 'NOP) l))))
 	     ('FIX-LET (let ((args (optimize-tree2 (third tree)))
