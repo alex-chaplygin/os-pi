@@ -201,12 +201,21 @@
                                            (defun f2 () nil)
                                            (defun f3 () nil)
                                            (f3))))
-                 '(SEQ (NOP) (NOP) (LABEL F3 (SEQ (GLOBAL-REF 1) (RETURN))) (FIX-CALL F3 0 ()))))
+                 '(SEQ (NOP) (NOP) (NOP) (SEQ (GLOBAL-REF 1) (NOP)))))
   (print (assert (optimize-tree (compile '(progn
                                            (defun f1 () nil)
-                                           (defun f2 () nil)
-                                           (defun f3 () (f2)))))
-                 '(SEQ (NOP) (LABEL F2 (SEQ (GLOBAL-REF 1) (RETURN))) (NOP)))))
+                                           (defun f2 () (f1))
+                                           (defun f3 () (f2))
+					   (f3))))
+                 '(SEQ (NOP) (NOP) (NOP) (SEQ (SEQ (SEQ (GLOBAL-REF 1) (NOP)) (NOP)) (NOP)))))
+  (print (assert (optimize-tree (compile '(progn
+                                           (defun f1 () nil)
+                                           (defun f2 () (f1))
+                                           (defun f3 () (f2))
+					   (defun f1 () 1)
+					   (f3))))
+                 '(SEQ (LABEL F1 (SEQ (GLOBAL-REF 1) (RETURN))) (NOP) (NOP) (LABEL F1 (SEQ (CONST 1) (RETURN))) (SEQ (SEQ (FIX-CALL F1 0 ()) (NOP)) (NOP)))))
+  )
 
 (deftest beta-expansion-test ()
   "Тесты функций для бета подстановки"

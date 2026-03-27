@@ -182,14 +182,19 @@
   "Подстановка тела функции, когда функция вызывается один раз и это возможно"
   (let* ((f (get-hash *functions-info* (second call)))
 	 (count (get-hash f 'count))
-	 (rec (check-key f 'rec))
-	 (body (if rec nil (get-hash f 'body))))
-    (if (and (= count 1) (not rec)
-	     (= (case (car call) ('FIX-CALL (third call)) ('NARY-CALL (forth call))) 0)
-	     (not (search-abs-tree body '(LOCAL-SET DEEP-SET FIX-LET))) (one-ref-args body)
-	     (search-closure-deep-ref body)) ;;(no-side-effects args))
+	 (body (get-hash f 'body))
+	 (can-inline (get-hash f 'can-inline)))
+    (if (and (= count 1) can-inline)
 	(progn ;;(print `(beta-expansion ,call))
 	  (beta-exp body (last call) 0)) call)))
+
+(defun can-inline (f)
+  "Определение возможно ли встривание функции"
+  (let* ((rec (check-key f 'rec))
+	 (body (if rec nil (get-hash f 'body))))
+    (and (not rec) ;;(= (case (car call) ('FIX-CALL (third call)) ('NARY-CALL (forth call))) 0)
+	 (not (search-abs-tree body '(LOCAL-SET DEEP-SET FIX-LET))) (one-ref-args body)
+	 (search-closure-deep-ref body))))
 
 (defun optimize-tree1 (tree)
   "Оптимизация промежуточной формы tree методами, указанными флагами flags"
@@ -209,9 +214,14 @@
 				(list (car tree) (second tree) (third tree) (optimize-many (forth tree))))))
 		   ('LABEL (let ((body (if (null (cddr tree)) nil (optimize (third tree)))))
 			     (when (check-key *functions-info* (second tree))
-			       (set-hash (get-hash *functions-info* (second tree)) 'body body))
+			       (let ((f (get-hash *functions-info* (second tree))))
+				 (set-hash f 'body body)
+				 (if (check-key f 'can-inline) (set-hash f 'can-inline nil)
+				     (set-hash f 'can-inline (can-inline f)))))
 			     (unused-functions (if (null (cddr tree)) tree (list (car tree) (second tree) body)))))
-		   ('FIX-CLOSURE (if (null (forth tree)) tree (optimize-nth tree 4)))
+		   ('FIX-CLOSURE (if (null (forth tree))
+				     (progn (set-hash (get-hash *functions-info* (second tree)) 'closure t) tree)
+				     (optimize-nth tree 4)))
 		   ('GLOBAL-SET (optimize-nth tree 3))
 		   ('LOCAL-SET (optimize-nth tree 3))
 		   ('DEEP-SET (optimize-nth tree 4))
@@ -226,14 +236,25 @@
 		   (otherwise (comp-err "optimize-tree: invalid expression" tree))))))
     (optimize tree)))
 
+
 (defun optimize-tree2 (tree)
-  "Второй проход оптимизатора - встраивание функций"
+  "Второй проход оптимизатора - встраивание функций, удаление после встраивания"
+  ;;(print `(o2 ,tree))
   (cond ((null tree) tree)
 	((atom tree) tree)
-	((and (pairp tree) (atom (car tree)) (cdr tree) (or (eq (car tree) 'FIX-CALL)));; (eq (car tree) 'NARY-CALL)))
-	      (case (car tree)
-	      	('FIX-CALL (beta-expansion (list 'FIX-CALL (second tree) (third tree) (optimize-tree2 (forth tree)))))))
-	      ;;	('NARY-CALL (beta-expansion (list 'NARY-CALL (second tree) (third tree) (forth tree) (optimize-tree2 (fifth tree)))))))
+	((and (pairp tree) (cdr tree))
+	   (case (car tree)
+	     ('FIX-CLOSURE (if (and (cdddr tree) (forth tree) (pairp (forth tree))) (list 'FIX-CLOSURE (second tree) (third tree) (if (null (forth tree)) nil (list 'LABEL (second tree) (optimize-tree2 (third (forth tree)))))) tree))
+	     ('LABEL (if (null (cddr tree)) tree
+			 (let ((f (get-hash *functions-info* (second tree)))
+			       (l (list 'LABEL (second tree) (optimize-tree2 (third tree)))))
+			   (set-hash f 'body (third l))
+			   (if (and (contains *optimize-flags* 'dead-code-elimination) (= (get-hash f 'count) 1)
+				    (get-hash f 'can-inline) (not (check-key f 'closure)))
+			       (list 'NOP) l))))
+	   ('FIX-CALL (beta-expansion (list 'FIX-CALL (second tree) (third tree) (optimize-tree2 (forth tree)))))
+	   ('NARY-CALL (list 'NARY-CALL (second tree) (third tree) (forth tree) (optimize-tree2 (fifth tree))))
+	   (otherwise (cons (optimize-tree2 (car tree)) (optimize-tree2 (cdr tree))))))
 	(t (cons (optimize-tree2 (car tree)) (optimize-tree2 (cdr tree))))))
       
 (defun optimize-tree (tree)
