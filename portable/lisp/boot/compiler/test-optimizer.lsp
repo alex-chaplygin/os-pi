@@ -238,6 +238,10 @@
                  '(FIX-PRIM + ((CONST 10) (CONST 20)))))
   (print (assert (optimize-tree (compile '((lambda (x) (+ x x)) 10)))
                  '(FIX-LET 1 ((CONST 10)) (FIX-PRIM + ((LOCAL-REF 0) (LOCAL-REF 0))))))
+  (print (assert (optimize-tree (compile '(progn (defun my-list (&rest args) args) (my-list 1 2 3))))
+		 '(SEQ (NOP) (SEQ (NARY ((CONST 1) (CONST 2) (CONST 3))) (NOP)))))
+  (print (assert (optimize-tree (compile '(progn (defun my-nary (m &rest args) (cons m args)) (my-nary 1 2 3) (my-nary 1))))
+		 '(SEQ (NOP) (SEQ (FIX-PRIM CONS ((CONST 1) (NARY ((CONST 2) (CONST 3))))) (NOP)))))
   )
 
 (run-tests)

@@ -179,6 +179,12 @@
 	   (otherwise (cons (beta-exp (car exp) args level) (beta-exp (cdr exp) args level)))))
 	(t (cons (beta-exp (car exp) args level) (beta-exp (cdr exp) args level)))))
 
+(defun make-nary-param (num args)
+  "Создать выражение для подстановки аргументов args, num - число фиксированных аргументов"
+  (cond ((null args) (cons (list 'GLOBAL-REF 1) ()))
+	((= num 0) (cons (list 'NARY args) ()))
+	(t (cons (car args) (make-nary-param (-- num) (cdr args))))))
+
 (defun beta-expansion (call)
   "Подстановка тела функции, когда функция вызывается один раз и это возможно"
   (let* ((f (get-hash *functions-info* (second call)))
@@ -187,13 +193,14 @@
 	 (can-inline (get-hash f 'can-inline)))
     (if (and can-inline (or (= count 1) (contains *optimize-flags* 'all-inline)))
 	(progn ;;(print `(beta-expansion ,call))
-	  (beta-exp body (last call) 0)) call)))
+	  (beta-exp body (if (eq (car call) 'FIX-CALL) (forth call)
+			     (make-nary-param (third call) (fifth call))) 0)) call)))
 
 (defun can-inline (f)
   "Определение возможно ли встривание функции"
   (let* ((rec (check-key f 'rec))
 	 (body (if rec nil (get-hash f 'body))))
-    (and (not rec) ;;(= (case (car call) ('FIX-CALL (third call)) ('NARY-CALL (forth call))) 0)
+    (and (not rec)
 	 (not (search-abs-tree body '(LOCAL-SET DEEP-SET))) (one-ref-args body)
 	 (search-closure-deep-ref body))))
 
@@ -257,7 +264,7 @@
 			       (l (list 'LABEL (second tree) (optimize-tree2 (third tree)))))
 			   (set-hash f 'body (third l))
 			   (if (and (contains *optimize-flags* 'dead-code-elimination)
-				    (= (get-hash f 'count) 1) ;;(contains *optimize-flags* 'all-inline))
+				    (or (= (get-hash f 'count) 1) (contains *optimize-flags* 'all-inline))
 				    (get-hash f 'can-inline) (not (check-key f 'closure)))
 			       (list 'NOP) l))))
 	     ('FIX-LET (let ((args (optimize-tree2 (third tree)))
@@ -267,7 +274,7 @@
 			     (beta-exp body (optimize-tree2 (third tree)) 0)
 			     (list 'FIX-LET (second tree) args body))))
 	     ('FIX-CALL (beta-expansion (list 'FIX-CALL (second tree) (third tree) (optimize-tree2 (forth tree)))))
-	     ('NARY-CALL (list 'NARY-CALL (second tree) (third tree) (forth tree) (optimize-tree2 (fifth tree))))
+	     ('NARY-CALL (beta-expansion (list 'NARY-CALL (second tree) (third tree) (forth tree) (optimize-tree2 (fifth tree)))))
 	     (otherwise (cons (optimize-tree2 (car tree)) (optimize-tree2 (cdr tree))))))
 	(t (cons (optimize-tree2 (car tree)) (optimize-tree2 (cdr tree))))))
       

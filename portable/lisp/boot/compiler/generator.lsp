@@ -127,6 +127,12 @@
 	 (emit (list 'RESTORE-ENV)))
     (emit (list 'JMP name))))
 
+(defun generate-nary (args)
+  "Генерация списка необязательных аргументов"
+  (generate-args args 'PUSH)
+  (emit (list 'PACK (list-length args)))
+  (emit (list 'POP)))
+
 (defun inner-generate (expr)
 "Рекурсивная генерация кода для скомпилированного выражения"
   ;; (print (list 'inner-generate expr))
@@ -152,6 +158,7 @@
 	   ('GOTO (emit (list 'JMP (second expr))))
 	   ('CATCH (generate-catch (second expr) (third expr)))
 	   ('THROW (generate-throw (second expr) (third expr)))
+	   ('NARY (generate-nary (second expr)))
 	   (otherwise (comp-err "Unknown node " expr)))))))
 
 (defun generate (expr)
