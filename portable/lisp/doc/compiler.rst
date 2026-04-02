@@ -422,3 +422,181 @@
 :23   CATCH ofs:      добавляет запись в стек catch, сохраняется имя метки в acc, абсолютный адрес по смещению ofs, текущий кадр активации, укзатель стека.
 :24   THROW:          извлекает из стека имя метки блока catch, ищет в стеке catch запись с этим именем (если не найдена - ошибка), восстанавливает кадр активации, указатель стека, выполяет переход на сохраненный адрес конца блока catch, отбрасывает все кадры стека catch выше найденного (включая его самого).
 :25   POP:            извлекает из стека значение и записывает в аккумулятор
+
+
+Генерация машинного кода (x86-64)
+---------------------------------
+
+Помимо компиляции в байт-код поддерживается генерация машинного кода. В качестве стека общего назначения используется машинный стек. В качестве регистра аккумулятора используется регистр eax/rax. Для регистра текущего кадра окружения, стека catch используем переменную в vm.c. Массивы констант, глобальных переменных, таблицы примитвов и стек исключений также остается в vm.c. Таким образом, сгенерированный код будет компоноваться с виртуальной машиной.
+
+Константы хранятся как строка, содержащая массив объектов. Перед входом в пользовательский код сначала вызывается функция init, которая парсит это строковое представление, выделяет память для объектов констант и заполняет память константами (const_mem), а также инициализирует регистр кадра окружения (устанавливает для frame_reg значение NIL), и затем передаёт управление пользовательскому коду.
+
+Шапка исполняемого файла:
+
+.. code-block:: asm
+
+   ;; константы
+   CONST_LEN equ <длина массива констант>
+   GLOBAL_LEN equ <длина массива глобальных переменных>
+   NIL equ 4
+   TYPE_BITS equ 4
+   MARK_BIT equ TYPE_BITS + 1
+
+   ;; #define GET_ADDR(obj) ((obj) & (0xFFFFFFFFFFFFFFFF << MARK_BIT))
+   ;; rax = obj
+   %macro GET_ADDR 0
+      mov rbx, 0xFFFFFFFFFFFFFFFF
+      shl rbx, MARK_BIT
+      and rax, rbx
+   %endmacro
+
+   ;; внешние функции
+   extern init
+   extern alloc
+   ...
+
+   section .rodata
+   global const_text
+   const_text:
+      <строковое представление констант>
+
+   section .bss
+   global const_mem
+   const_mem:
+      resq CONST_LEN
+   global_mem:
+      resq GLOBAL_LEN
+   global frame_reg
+   frame_reg:
+      resq 1
+
+   section .text
+   global _start
+   ;; точка входа
+   _start:
+      call init
+      <пользовательский код>
+
+
+Трансляция команд ассемблера в машинный код:
+
+* HALT
+
+.. code-block:: asm
+
+   mov rax, 60
+   mov rdi, 0
+   syscall ;; exit(0)
+
+
+* CONST i
+
+.. code-block:: asm
+
+   mov rax, [const_mem + i*8]
+
+
+* GLOBAL-REF i
+
+.. code-block:: asm
+
+   mov rax, [global_mem + i*8]
+
+
+* GLOBAL-SET i
+
+.. code-block:: asm
+
+   mov [global_mem + i*8], rax
+
+
+* PUSH
+
+.. code-block:: asm
+
+   push rax
+
+
+* POP
+
+.. code-block:: asm
+
+   pop rax
+
+
+* JMP label
+
+.. code-block:: asm
+
+   jmp label
+
+
+* JNT label
+
+.. code-block:: asm
+
+   cmp rax, NIL
+   je label
+
+
+* REG-CALL label
+
+.. code-block:: asm
+
+   call label
+
+
+* RETURN
+
+.. code-block:: asm
+
+   ret
+
+
+* ALLOC n
+
+.. code-block:: asm
+
+   mov rdi, n
+   call alloc
+
+
+* LOCAL-REF i
+
+.. code-block:: asm
+
+   ;; acc_reg = GET_ARRAY(frame_reg)->data[i + 2];
+   ;; #define GET_ARRAY(arr) ((array_t *)(GET_ADDR(arr)))
+   mov rax, [frame_reg]
+   GET_ADDR
+   mov rax, [rax]
+   mov rax, [rax + i + 2]
+
+
+* LOCAL-SET i
+
+.. code-block:: asm
+
+   ;; GET_ARRAY(frame_reg)->data[i + 2] = acc_reg;
+   ;; #define GET_ARRAY(arr) ((array_t *)(GET_ADDR(arr)))
+   mov r8, rax ;; временно сохраняем аккумулятор в r8
+   mov rax, [frame_reg]
+   GET_ADDR
+   mov rax, [rax]
+   mov [rax + i + 2], r8
+   mov rax, r8
+
+
+.. DEEP-REF i j
+.. DEEP-SET i j
+.. PACK n
+.. FIX-CLOSURE ofs
+.. SAVE-FRAME
+.. SET-FRAME num
+.. RESTORE-FRAME
+.. PRIM n
+.. NPRIM n
+.. PRIM-CLOSURE n
+.. NPRIM-CLOSURE n
+.. CATCH ofs
+.. THROW
