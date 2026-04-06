@@ -1,7 +1,8 @@
 include ../common.mak
-CONSOLE = $(BASELISP) $(PARSER) keyboard.lsp shell.lsp
+include ../fs/makefile
+CONSOLE = $(BASELISP) $(PARSER) $(FSVFS) keyboard.lsp shell.lsp
 SHELL = bash
-VPATH := ..
+VPATH := .. ../fs
 
 all: /tmp/pci.lsp /tmp/console.lsp
 

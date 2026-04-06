@@ -24,7 +24,9 @@
 (defun parse-commands ()
   "Обработка команд"
   (parse-or (parse-command "clear" (print `(clear ,args)))
-	    (parse-command "ls" (print `(ls ,args)))
+	    (parse-command "cwd" (print (cur-dir)))
+	    (parse-command "ls" (print (list-dir (cur-dir))))
+	    (parse-command "cd" (change-dir (car args)))
 	    #'(lambda (x) (print "Unknown command"))))
 
 (defun print-start ()
@@ -46,4 +48,5 @@
 	      (putchar c)
 	      (when (= scan +key-enter+) (process-command *command*) (setq *command* nil))))))
 
+(load-partition 0 0)
 (print-start)
