@@ -2,6 +2,11 @@
 (defconst +fat32-entry-deleted+ 0xE5)
 (defconst +fat32-lfn-attribute+ 0xF)
 
+(defun fat32-is-special-name (name)
+  "Проверка на специальное имя каталога"
+  (or (equal name ".")
+      (equal name "..")))
+
 (defun fat32-get-date-time (date-bytes time-bytes &rest creation-time-ms)
   "Получить список даты и времени из массивов байт date-bytes, time-bytes и creation-time-ms"
   (let ((date-num (arr-get-num date-bytes 0 2))
@@ -112,7 +117,7 @@
 						name-first
 						(concat (concat name-first ".") name-second)))
                   (set-hash dir-entry 'size (arr-get-num (get-hash fat32-dir-entry 'size-bytes) 0 4))
-                  (set-hash dir-entry 'first-block (arr-get-num (array-cat (get-hash fat32-dir-entry 'first-block-1) (get-hash fat32-dir-entry 'first-block-2)) 0 4))
+                  (set-hash dir-entry 'first-block (arr-get-num (array-cat (get-hash fat32-dir-entry 'first-block-2) (get-hash fat32-dir-entry 'first-block-1)) 0 4))
                   (set-hash dir-entry 'creation-date-time (fat32-get-date-time (get-hash fat32-dir-entry 'creation-date) (get-hash fat32-dir-entry 'creation-time) (get-hash fat32-dir-entry 'creation-time-ms)))
                   (set-hash dir-entry 'modify-date-time (fat32-get-date-time (get-hash fat32-dir-entry 'modification-date) (get-hash fat32-dir-entry 'modification-time)))
                   (set-hash dir-entry 'access-date (fat32-get-date-time (get-hash fat32-dir-entry 'access-date) nil))
@@ -138,12 +143,12 @@
   (let ((left-length 8)
         (short-name-1 (car short-name))
         (short-name-2 (if (= (list-length short-name) 2) (cadr short-name) nil)))
-    (when (> (string-size short-name-1) 8) (throw 'error "create-dir-entry: short name name-size in entry is more than 8 symbols"))
+    (when (> (string-size short-name-1) 8) (raise 'error "create-dir-entry: short name name-size in entry is more than 8 symbols"))
     (setq left-length (- left-length (string-size short-name-1)))
     (setq short-name-1 (concat short-name-1 (make-string left-length #\ )))
     (setq short-name short-name-1)
     (when (not (null short-name-2))
-      (when (> (string-size short-name-2) 3) (throw 'error "create-dir-entry: short name extension-size in entry is more than 3 symbols"))
+      (when (> (string-size short-name-2) 3) (raise 'error "create-dir-entry: short name extension-size in entry is more than 3 symbols"))
       (setq left-length (- 3 (string-size short-name-2)))
       (setq short-name-2 (concat short-name-2 (make-string left-length #\ ))))
     (if (not (null short-name-2))
@@ -187,16 +192,22 @@
   "Создать массив байт записи в каталоге entry"
   (let ((byte-array (make-array 12))
         (short-name (split #\. (get-hash entry 'short-name))))
+    (when (fat32-is-special-name (get-hash entry 'short-name))
+          (setq short-name
+              (case (get-hash entry 'short-name)
+                ("." '(".       " "   "))
+                (".." '("..      " "   "))
+                (otherwise (raise 'error "fat32-create-dir-entry: unknown special name")))))
     (let ((left-length 8)
           (short-name-1 (car short-name))
           (short-name-2 (if (= (list-length short-name) 2) (cadr short-name) nil)))
-      (when (> (string-size short-name-1) 8) (throw 'error "create-dir-entry: short name name-size in entry is more than 8 symbols"))
+      (when (> (string-size short-name-1) 8) (raise 'error "create-dir-entry: short name name-size in entry is more than 8 symbols"))
       (setq left-length (- left-length (string-size short-name-1)))
       (setq short-name-1 (concat short-name-1 (make-string left-length #\ )))
       (arr-set-str byte-array 0 short-name-1 8)
       (if (not (null short-name-2))
           (progn
-            (when (> (string-size short-name-2) 3) (throw 'error "create-dir-entry: short name extension-size in entry is more than 3 symbols"))
+            (when (> (string-size short-name-2) 3) (raise 'error "create-dir-entry: short name extension-size in entry is more than 3 symbols"))
             (setq left-length (- 3 (string-size short-name-2)))
             (setq short-name-2 (concat short-name-2 (make-string left-length #\ ))))
           (setq short-name-2 "   "))
@@ -212,9 +223,9 @@
         (setq byte-array (array-cat byte-array #(0)))
         (setq byte-array (array-cat byte-array creation-date-time))
         (setq byte-array (array-cat byte-array access-date))
-        (setq byte-array (array-cat byte-array (array-seq blocks-arr 0 2)))
-        (setq byte-array (array-cat byte-array modify-date-time))
         (setq byte-array (array-cat byte-array (array-seq blocks-arr 2 4)))
+        (setq byte-array (array-cat byte-array modify-date-time))
+        (setq byte-array (array-cat byte-array (array-seq blocks-arr 0 2)))
         (setq byte-array (array-cat byte-array size-arr))))
     byte-array))
 
@@ -305,7 +316,7 @@
          (let ((next-byte-arr (read-file blocks-stream 1))
                (dir-entry nil))
            (when (= (aref next-byte-arr 0) +fat32-entry-free+)
-             (throw 'error "fat32-mark-for-delete: entry not found"))
+             (raise 'error "fat32-mark-for-delete: entry not found"))
            (seek-file blocks-stream 10 'CUR)
            (if (= (aref (read-file blocks-stream 1) 0) +fat32-lfn-attribute+)
                (progn
@@ -324,6 +335,22 @@
                    (setq i (/ parent-block-len 32)))
                  (setq lfn-count 0)))))))
 
+(defun fat32-add-entry (entry)
+  "Добавление записи entry на диск"
+  (let ((lfn-count (fat32-calc-lfn-count (get-hash entry 'name)))
+        (dir-stream (make-instance 'File))
+        (byte-array nil)
+        (create-lfn (not (equal (get-hash entry 'name) (get-hash entry 'short-name)))))
+    (setq byte-array (if create-lfn
+                         (setq byte-array (fat32-create-lfn-dir-entries entry))
+                         (setq byte-array (fat32-create-dir-entry entry))))
+    (File-set-position dir-stream (fat32-get-free-entry-pos
+                                   (get-hash entry 'parent-first-block)
+                                   (/ (array-size byte-array) 32)))
+    (File-set-size dir-stream (* *block-size* (list-length (get-fat-chain (get-hash entry 'parent-first-block)))))
+    (File-set-blocks dir-stream (get-fat-chain (get-hash entry 'parent-first-block)))
+    (write-file dir-stream byte-array)))
+
 (defun fat32-update-entry (entry changes)
   "Обновить запись в каталоге entry выполнив изменения changes. Если количество записей длинного имени для новой записи отличается, то записи длинного имени и запись в каталоге будет пересоздана"
   (let ((new-entry (copy-tree entry))
@@ -341,34 +368,14 @@
       (File-set-blocks dir-stream (get-fat-chain (get-hash entry 'parent-first-block)))
       (if (!= lfn-count-new lfn-count-old)
           (progn
-            (setq byte-array (fat32-create-lfn-dir-entries new-entry))
             (fat32-mark-for-delete entry)
-            (File-set-position dir-stream (fat32-get-free-entry-pos
-                                           (get-hash entry 'parent-first-block)
-                                           (/ (array-size byte-array) 32)))
-            (write-file dir-stream byte-array))
+            (fat32-add-entry new-entry))
           (progn
             (setq byte-array (fat32-create-dir-entry new-entry))
             (write-file dir-stream byte-array)))
       (while (not (null changes))
         (set-hash entry (caar changes) (cdar changes))
         (setq changes (cdr changes))))))
-
-(defun fat32-add-entry (entry)
-  "Добавление записи entry на диск"
-  (let ((new-entry (copy-tree entry))
-        (lfn-count (fat32-calc-lfn-count (get-hash entry 'name)))
-        (dir-stream (make-instance 'File))
-        (byte-array nil))
-    (File-set-size dir-stream (* *block-size* (list-length (get-fat-chain (get-hash entry 'first-block)))))
-    (File-set-blocks dir-stream (get-fat-chain (get-hash entry 'parent-first-block)))
-    (setq byte-array (fat32-create-lfn-dir-entries new-entry))
-    (File-set-position dir-stream (fat32-get-free-entry-pos
-                                   (get-hash entry 'parent-first-block)
-                                   (/ (array-size byte-array) 32)))
-    (write-file dir-stream byte-array)
-    (setq byte-array (fat32-create-dir-entry new-entry))
-    (write-file dir-stream byte-array)))
 
 (defun is-short-name-sym (symbol)
   "Проверка на символ короткой строки"
@@ -398,7 +405,7 @@
   "Сгенерировать короткое имя из длинного имени long-name в каталоге dir"
   (let ((short-name "")
         (short-name2 "")
-        (long-name (split #\. long-name))
+        (long-name (split #\. (copy-tree long-name)))
         (long-name1 "")
         (long-name2 ""))
     (if (>= (list-length long-name) 2)
@@ -433,3 +440,34 @@
     (when (!= (string-size short-name2) 0)
       (setq short-name (concat (concat short-name ".") short-name2)))
     short-name))
+
+(defun fat32-sort-attributes (attributes is-dir)
+  "Отсортировать список атрибутов attribute с проверкой атрибута DIRECTORY в зависимости от того является ли файл каталогом(is-dir)"
+  (let ((all-attributes '(READ-ONLY HIDDEN SYSTEM VOLUME-ID DIRECTORY ARCHIVE))
+        (output-attributes ()))
+    (if is-dir
+        (setq attributes (append attributes '(DIRECTORY)))
+        (when (contains attributes 'DIRECTORY) (raise 'not-directory "fat32-sort-attributes: attempt to set a directory attribute for a file")))
+    (while (not (null all-attributes))
+      (when (contains attributes (car all-attributes))
+        (setq output-attributes (append output-attributes (list (car all-attributes)))))
+      (setq all-attributes (cdr all-attributes)))
+    output-attributes))
+
+(defun fat32-create-special-entries (dir)
+  (let ((new-entry (make-hash)))
+    (set-hash new-entry 'name ".")
+    (set-hash new-entry 'size 0)
+    (set-hash new-entry 'first-block (get-hash dir 'first-block))
+    (set-hash new-entry 'creation-date-time (get-hash dir 'creation-date-time))
+    (set-hash new-entry 'modify-date-time (get-hash dir 'modify-date-time))
+    (set-hash new-entry 'access-date (get-hash dir 'access-date))
+    (set-hash new-entry 'attributes '(DIRECTORY))
+    (set-hash new-entry 'parent-first-block (get-hash dir 'first-block))
+    (set-hash new-entry 'short-name ".")
+    (set-hash new-entry 'dir t)
+    (fat32-add-entry new-entry)
+    (set-hash new-entry 'name "..")
+    (set-hash new-entry 'short-name "..")
+    (set-hash new-entry 'first-block (get-hash dir 'parent-first-block))
+    (fat32-add-entry new-entry)))

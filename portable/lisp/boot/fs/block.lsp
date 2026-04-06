@@ -7,33 +7,33 @@
 
 (defun set-block-disk (disk)
   "Установить диск disk, с которого читать блоки"
-  (unless (integerp disk) (throw 'error "set-block-disk: disk must be integer"))
+  (unless (integerp disk) (raise 'argument-error "set-block-disk: disk must be integer"))
   (setq *disk* disk))
 
 (defun set-block-size (size)
   "Установить размер блока диска size в секторах"
-  (unless (integerp size) (throw 'error "set-block-size: size must be integer"))
+  (unless (integerp size) (raise 'argument-error "set-block-size: size must be integer"))
   (setq *block-sectors* size)
   (setq *block-size* (* size +sector-size+)))
 
 (defun set-block-offset (offset)
   "Установить смещение в секторах для отсчета блоков диска"
-  (unless (integerp offset) (throw 'error "set-block-offset: offset must be integer"))
+  (unless (integerp offset) (raise 'argument-error "set-block-offset: offset must be integer"))
   (setq *block-sector-offset* offset))
 
 (defun set-blocks-start-num (start-num)
   "Установить значение минимального номера первого блока"
-  (unless (integerp start-num) (throw 'error "set-blocks-start-num: offset must be integer"))
+  (unless (integerp start-num) (raise 'argument-error "set-blocks-start-num: offset must be integer"))
   (setq *block-start-num* start-num))
 
 (defun block-read (num)
   "Прочитать блок с номером num"
-  (when (< num *block-start-num*) (throw 'error "block-read: block num cant be less the block-start-num"))
+  (when (< num *block-start-num*) (raise 'argument-error "block-read: block num cant be less the block-start-num"))
   (let* ((sec (+ *block-sector-offset* (* num *block-sectors*))))
     (ata-read-sectors *disk* sec *block-sectors*)))
 
 (defun block-write (num buf)
-  (when (< num *block-start-num*) (throw 'error "block-write: block num cant be less the block-start-num"))
+  (when (< num *block-start-num*) (raise 'argument-error "block-write: block num cant be less the block-start-num"))
   "Записать буфер buf в блок с номером num"
   (ata-write-sectors *disk* (+ *block-sector-offset* (* num *block-sectors*)) *block-sectors* buf))
 
@@ -41,7 +41,7 @@
   "Получить индекс блока и смещение по смещению offset в списке блоков blocks"
   (let ((pos nil)
         (len (list-length blocks)))
-    (when (> offset (* len *block-size*)) (throw 'error "get-blocks-pos: position outside of blocks"))
+    (when (> offset (* len *block-size*)) (raise 'argument-error "get-blocks-pos: position outside of blocks"))
     (for i 0 (+ len 1)
          (if (< offset *block-size*) (setq pos (cons i offset)
 					   i len)

@@ -53,11 +53,7 @@
 
 ;; Класс абстрактного файла
 (defclass File ()
-  (name size position blocks dir))
-
-(defmethod is-directory ((self File))
-  "Проверка на каталог"
-  (File-dir self))
+  (name size position blocks))
 
 (defmethod close-file ((self File))
   "Закрытие файла"
@@ -83,20 +79,20 @@
             ('END
              (+ offset (File-size self)))
             (otherwise
-             (throw 'error "seek-file: unknown origin")))))
+             (raise 'argument-error "seek-file: unknown origin")))))
     (when (or (> file-offset (File-size self)) (< file-offset 0))
-      (throw 'error "seek-file: position out of bounds of file"))
+      (raise 'end-of-file "seek-file: position out of bounds of file"))
     (File-set-position self (get-blocks-pos (File-blocks self) file-offset))))
 
 (defmethod read-file ((self File) size)
   "Прочитать size байт из файла и сместить позицию на тоже число"
   "Добавить изменения метаданных в конкретной файловой системе"
   (unless (integerp size)
-    (throw 'error "read-file: size must be integer"))
+    (raise 'argument-error "read-file: size must be integer"))
   (when (< size 0)
-    (throw 'error "read-file: size must be positive"))
+    (raise 'argument-error "read-file: size must be positive"))
   (when (> (+ (tell-file self) size) (File-size self))
-    (throw 'error "read-file: size out of bounds of file"))
+    (raise 'end-of-file "read-file: size out of bounds of file"))
   (let ((pos (File-position self))
         (blocks (File-blocks self))
         (buf nil)
@@ -122,10 +118,10 @@
   "Записать в файл массив байт buf, сместив позицию на соответствующее число"
   "Добавить изменения метаданных в конкретной файловой системе"
   "Добавить добавление новых блоков к файлу в конкретной файловой системе"
-  ;; (unless (arrayp buf)
-  ;;   (throw 'error "write-file: buf must be array"))
+  (unless (arrayp buf)
+    (raise 'argument-error "write-file: buf must be array"))
   (when (> (+ (tell-file self) (array-size buf)) (File-size self))
-    (throw 'error "write-file: size out of bounds of file"))
+    (raise 'argument-error "write-file: size out of bounds of file"))
   (let ((pos (File-position self))
         (blocks (File-blocks self))
         (left-size (array-size buf))
@@ -149,7 +145,7 @@
           (progn
             (setq blocks (cdr blocks))
             (setq pos (cons (+ (car pos) 1) 0))
-            (setq buf (array-seq buf (- *block-size* (cdr pos)) left-size)))
+            (setq buf (array-seq buf (cdr pos) left-size)))
           (setq pos (cons (car pos) (+ (cdr pos) (array-size buf))))))
     (while (>= left-size *block-size*)
       (block-write (car blocks) (array-seq buf 0 *block-size*))

@@ -4,15 +4,19 @@ VPATH := ..
 GRAPHICS=$(BASELISP) ../sys/bgr.lsp ../graphics/matrix.lsp ../graphics/image.lsp ../graphics/screen.lsp ../graphics/backend.lsp ../graphics/frontend.lsp
 ASCII_GRAPHICS=$(GRAPHICS) ../graphics/ascii-backend.lsp
 FSBASE=$(ASCII_GRAPHICS) $(PARSER) ../sys/ata.lsp ../sys/time.lsp block.lsp fs.lsp
-FSTEST=$(FSBASE) ../test.lsp test/ata.lsp test/block.lsp test/fs.lsp test/final-test.lsp
+TESTFS=$(FSBASE) ../test.lsp test/ata.lsp test/block.lsp test/fs.lsp test/final-test.lsp
 FSISO=iso9660-file.lsp iso9660-fs.lsp
 TESTISO=$(FSBASE) $(FSISO) ../test.lsp test/iso9660.lsp test/final-test.lsp
 TESTISODISK=$(FSBASE) $(FSISO) test/iso9660-disk.lsp
 FSFAT=fat32-class.lsp fat32-fat.lsp fat32-entry.lsp fat32-file.lsp fat32-fs.lsp
 TESTFAT=$(FSBASE) $(FSFAT) ../test.lsp test/fat32.lsp test/final-test.lsp
-
+TESTFATDISK=$(FSBASE) $(FSFAT) test/fat32-disk.lsp
+TESTMBR=$(FSBASE) ../test.lsp test/mbr-pre.lsp mbr.lsp test/mbr.lsp test/final-test.lsp
+FSVFS= $(FSBASE) $(FSISO) $(FSFAT) mbr.lsp vfs.lsp
+TESTVFS= $(FSVFS) ../test.lsp test/vfs.lsp test/final-test.lsp
+TESTVFSDISK = $(FSVFS) test/vfs-disk.lsp
 all: /tmp/fs.lsp
 
-/tmp/fs.lsp: $(TESTFAT)
+/tmp/fs.lsp: $(TESTVFS)
 	cat $^ >$@ ;
 	echo -e -n "\xff" >>$@

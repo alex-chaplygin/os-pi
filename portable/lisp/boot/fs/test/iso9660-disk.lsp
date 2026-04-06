@@ -169,11 +169,11 @@
 
 (print 'LOAD-ROOT-DIR-END)
 
-(setq file1 (open-file cdfsfs (car (get-hash (CDFSFileSystem-root-entry cdfsfs) 'dir))))
+(setq file1 (open-file* cdfsfs (caar (get-hash (CDFSFileSystem-root-entry cdfsfs) 'dir))))
 
 (print (arr-get-str (read-file file1 21) 0 21))
 
-(setq dir (cadr (get-hash (CDFSFileSystem-root-entry cdfsfs) 'dir)))
+(setq dir (cadar (get-hash (CDFSFileSystem-root-entry cdfsfs) 'dir)))
 
 (print 'LOAD-DIR-START)
 
@@ -181,7 +181,7 @@
 
 (print 'LOAD-DIR-END)
 
-(setq file2 (open-file cdfsfs (car (get-hash dir 'dir))))
+(setq file2 (open-file* cdfsfs (caar (get-hash dir 'dir))))
 
 (print (arr-get-str (read-file file2 40) 0 40))
 

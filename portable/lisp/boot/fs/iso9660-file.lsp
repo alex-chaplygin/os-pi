@@ -1,9 +1,5 @@
 (defclass CDFSFile File ())
 
-(defmethod is-directory ((self CDFSFile))
-  "Проверка на каталог"
-  (super is-directory self))
-
 (defmethod close-file ((self CDFSFile))
   "Закрытие файла"
   (super close-file self))
@@ -22,4 +18,4 @@
 
 (defmethod write-file ((self CDFSFile) buf)
   "Вызов ошибки при попытке записи в файл в файловой системы CDFS(ISO9660)"
-  (throw 'error "write-file: CDFS(ISO9660) is read-only"))
+  (raise 'read-only "write-file: CDFS(ISO9660) is read-only"))

@@ -107,7 +107,7 @@
        dir-entry2->(parse-struct `((file-name . ,(arr-get-num (get-hash dir-entry1 'file-name-len) 0 1))
                                    (entry-padding . ,(if (= (% (arr-get-num (get-hash dir-entry1 'file-name-len) 0 1) 2) 0) 1 0))))
        return (let ((dir-entry (make-hash)))
-                (set-hash dir-entry 'name (arr-get-str (get-hash dir-entry2 'file-name) 0 (array-size (get-hash dir-entry2 'file-name))))
+                (set-hash dir-entry 'name (car (split #\; (arr-get-str (get-hash dir-entry2 'file-name) 0 (array-size (get-hash dir-entry2 'file-name))))))
                 (set-hash dir-entry 'size (arr-get-num (get-hash dir-entry1 'extent-size-lsb) 0 4))
                 (set-hash dir-entry 'blocks (list (arr-get-num (get-hash dir-entry1 'extent-block-num-lsb) 0 4)))
                 (let ((left-size (get-hash dir-entry 'size))
@@ -149,7 +149,7 @@
 						 (stream-from-arr (get-hash descriptor2 'root-dir-entry) nil))))
                                   (set-hash (CDFSFileSystem-root-entry cdfsfs) 'name "root")
                                   t))
-            (otherwise (throw 'error "parse-descriptor: unknown descriptor")))))
+            (otherwise (raise 'error "parse-descriptor: unknown descriptor")))))
 
 (defmethod fs-init ((self CDFSFileSystem) disk start-sector sector-count)
   "Загрузка файловой системы ISO9660 с диска disk, начиная с сектора start-sector, с количеством секторов sector-count. Чтение основного дескриптора тома, записи в каталоге для корневого каталога из основного дескриптора тома."
@@ -161,6 +161,10 @@
             (car (funcall (parse-descriptor self)
 			  (stream-from-arr (ata-read-sectors disk descriptor-sector +descriptor-size+) nil)))
             descriptor-sector (+ descriptor-sector +descriptor-size+)))
+    (setq *file-system* self)
+    (setq *root-directory* (CDFSFileSystem-root-entry *file-system*))
+    (setq *working-directory* *root-directory*)
+    (setq *working-path* '("root"))
     self))  
 
 (defmethod load-dir ((self CDFSFileSystem) dir)
@@ -182,9 +186,9 @@
                              (setq dir-list (append dir-list (list (car parse-res)))
                                    block-stream (cdr parse-res))))))))
           (setq blocks (cdr blocks)))
-	(set-hash dir 'dir dir-list))))
+	(set-hash dir 'dir (list dir-list)))))
 
-(defmethod fstat ((self CDFSFileSystem) file-hash)
+(defmethod fstat* ((self CDFSFileSystem) file-hash)
   "Получение метаданных файлового объекта file-hash"
   (let ((stat (make-hash)))
     (set-hash stat 'name (get-hash file-hash 'name))
@@ -203,13 +207,12 @@
     (set-hash stat 'flags (get-hash file-hash 'attributes))
     stat))
 
-(defmethod open-file ((self CDFSFileSystem) file-hash)
-  "Открыть файл как поток для чтения и записи"
-  (when (not (null (get-hash file-hash 'dir))) (throw 'error "open-file: directories cannot be opened"))
+(defmethod open-file* ((self CDFSFileSystem) file-hash)
+  "Открыть файл как поток для чтения"
+  (when (not (null (get-hash file-hash 'dir))) (raise 'not-file "open-file: directories cannot be opened"))
   (let ((file (make-instance 'CDFSFile)))
     (CDFSFile-set-name file (get-hash file-hash 'name))
     (CDFSFile-set-size file (get-hash file-hash 'size))
     (CDFSFile-set-position file '(0 . 0))
     (CDFSFile-set-blocks file (get-hash file-hash 'blocks))
-    (CDFSFile-set-dir file (if (null (get-hash file-hash 'dir)) nil t))
     file))
