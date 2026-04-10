@@ -424,14 +424,44 @@
 :25   POP:            извлекает из стека значение и записывает в аккумулятор
 
 
-Генерация машинного кода (x86-64)
----------------------------------
+Генерация машинного кода
+------------------------
 
-Помимо компиляции в байт-код поддерживается генерация машинного кода. В качестве стека общего назначения используется машинный стек. В качестве регистра аккумулятора используется регистр eax/rax. Для регистра текущего кадра окружения, стека catch используем переменную в vm.c. Массивы констант, глобальных переменных, таблицы примитвов и стек исключений также остается в vm.c. Таким образом, сгенерированный код будет компоноваться с виртуальной машиной.
+Генерация машинного кода происходит с помощью ассемблера nasm. Лисп программа вместо собственного ассемблирования байт кода выдает список команд после генерации. Эти команды преобразовываются в вызовы макросов nasm:
+::
 
-Константы хранятся как строка, содержащая массив объектов. Перед входом в пользовательский код сначала вызывается функция init, которая парсит это строковое представление, выделяет память для объектов констант и заполняет память константами (const_mem), а также инициализирует регистр кадра окружения (устанавливает для frame_reg значение NIL), и затем передаёт управление пользовательскому коду.
+   (LOCAL-REF 1) -> LOCAL_REF(1)
+   (DEEP-REF 0 2) -> DEEP_REF(0, 2)
+   (HALT) -> HALT
 
-Шапка исполняемого файла:
+После ассемблирования получается объектный файл, который компонуется с главной программой на C. Главная программа сначала вызывает функцию init, которая выделяет память и заполняет массив констант (const_mem), выделяет память под глобальные переменные (global_mem), устанавливает для frame_reg значение NIL. Сгенерированный код находится в ассемблерной функции run, которая вызывается из главной программы.
+
+Трудность генерации для x86-64 заключается в том, что перед инструкцией call требуется, чтобы указатель стека rsp был выровнен по границе 16 байт. Для этого в начале функции добавляется инструкция push rbp, а в конце - pop rbp. Если число аргументов функции было нечетным, то требуется выравнивание sub rsp, 8 перед call и add rsp, 8 после. Эти макросы ALIGN и UNALIGN генерирует Лисп компилятор.
+
+LABEL, которые относятся к функциям компилятор заменяет на FUNC.
+
+Распределение регистров и памяти виртуальной машины
+---------------------------------------------------
+
+В качестве стека общего назначения используется машинный стек. В качестве регистра аккумулятора используется регистр eax/rax. Для регистра текущего кадра окружения, стека catch используем переменные в vm.c. Массивы констант, глобальных переменных, таблицы примитвов и стек исключений также остается в vm.c.
+
+Реализация команд
+-----------------
+
+PUSH, POP, JMP, JNT, REG_CALL имеют прямые аналоги.
+
+HALT - пусто, потому что в этом месте программа закончилась.
+
+CONST, LOCAL_REF, GLOBAL_REF, DEEP_REF / SET - работаем с массивами из vm.c
+
+FIX-PRIM - примитивы вызываются из таблицы примитивов, перед примитивом с нечетным числом аргументов требуется выравнивание и после - восстановление. Здесь тоже макросы ALIGN и UNALIGN генерирует Лисп компилятор.
+
+FUNC - в начале делаем выравнивание и метку.
+RETURN - делаем восстановление выравнивания и ret.
+ALLOC, PACK, FIX_CLOSURE, SAVE_FRAME, SET_FRAME, RESTORE_FRAME, vm_apply, FIX_PRIM, NARY_PRIM, PRIM_CLOSURE, BPRIM_CLOSURE, CATCH, THROW - реализуем на ассемблере (аналог как в vm.c)
+
+Пример генерации
+----------------
 
 .. code-block:: asm
 
@@ -439,164 +469,163 @@
    CONST_LEN equ <длина массива констант>
    GLOBAL_LEN equ <длина массива глобальных переменных>
    NIL equ 4
-   TYPE_BITS equ 4
-   MARK_BIT equ TYPE_BITS + 1
 
-   ;; #define GET_ADDR(obj) ((obj) & (0xFFFFFFFFFFFFFFFF << MARK_BIT))
-   ;; rax = obj
-   %macro GET_ADDR 0
-      mov rbx, 0xFFFFFFFFFFFFFFFF
-      shl rbx, MARK_BIT
-      and rax, rbx
-   %endmacro
-
-   ;; внешние функции
-   extern init
-   extern alloc
+   ;; подключаем макросы
+   %include macro.inc
+   
+   ;; внешние символы
+   extern frame_reg
+   extern const_mem
+   extern global_mem
    ...
 
    section .rodata
    global const_text
    const_text:
-      <строковое представление констант>
+       <строковое представление констант>
 
-   section .bss
-   global const_mem
-   const_mem:
-      resq CONST_LEN
-   global_mem:
-      resq GLOBAL_LEN
-   global frame_reg
-   frame_reg:
-      resq 1
 
    section .text
-   global _start
-   ;; точка входа
-   _start:
-      call init
-      <пользовательский код>
+   global run
+   ;; основная функция программы
+   run:
+       ALIGN
 
+       FUNC(f1)
+       LOCAL_REF(0)
+       PUSH
+       LOCAL_REF(1)
+       PUSH
+       FIX_PRIM(3)
+       RETURN
 
-Трансляция команд ассемблера в машинный код:
+       FUNC(f2)
+       LOCAL_REF(0)
+       PUSH
+       ALIGN
+       FIX_PRIM(0)
+       UNALIGN
+       RETURN
+       
+   
+       CONST(0)
+       PUSH
+       CONST(1)
+       PUSH       
+       REG_CALL(f1)
 
-* HALT
+       CONST(3)
+       PUSH
+       ALIGN
+       REG_CALL(f2)
+       UNALIGN
+       
+       UNALIGN
+       ret
 
-.. code-block:: asm
+       
+Примеры макросов
+----------------
+       
+   %define <целевая платформа (TARGET_i386 / TARGET_x86_64)>
 
-   mov rax, 60
-   mov rdi, 0
-   syscall ;; exit(0)
+   ;; платформо-зависимые макросы
+   %ifdef   TARGET_i386
+       %define ACC eax
+       %define DX edx
+       %define DI edi
+       %define SI esi
+       %define SP esp
+       %define BP ebp
+       ARRAY_ADDR equ 0xFFFFFFE0
 
+       %macro ALLOC 1
+           push %1
+           call alloc
+           add SP, 4
+       %endmacro
 
-* CONST i
+   %elifdef TARGET_x86_64
+       %define ACC rax
+       %define DX rdx
+       %define DI rdi
+       %define SI rsi
+       %define SP rsp
+       %define BP rbp
+       ARRAY_ADDR equ 0xFFFFFFFFFFFFFFE0
 
-.. code-block:: asm
+       %macro ALLOC 1
+           mov rdi, %1
+           call alloc
+       %endmacro
 
-   mov rax, [const_mem + i*8]
+   %else
+       %error Unknown target
+   %endif
 
+   ;; платформо-независимые макросы инструкций
+   %define HALT            jmp <метка конца программы (генерируется через gensym)>
+   %define CONST(i)        mov ACC, [const_mem + i*8]
+   %define GLOBAL_REF(i)   mov ACC, [global_mem + i*8]
+   %define GLOBAL_SET(i)   mov [global_mem + i*8], ACC
+   %define PUSH            push ACC
+   %define POP             pop ACC
+   %define JMP(label)      jmp label
+   %define REG_CALL(label) call label
+   %define RETURN          ret
 
-* GLOBAL-REF i
+   %macro JNT 1
+       cmp ACC, NIL
+       je %1
+   %endmacro
 
-.. code-block:: asm
+   %macro LOCAL_REF 1
+       mov DX, [frame_reg]
+       and DX, ARRAY_ADDR
+       mov DX, [DX]
+       mov ACC, [DX + %1 + 2]
+   %endmacro
 
-   mov rax, [global_mem + i*8]
+   %macro LOCAL_SET 1
+       mov DX, [frame_reg]
+       and DX, ARRAY_ADDR
+       mov DX, [DX]
+       mov [DX + %1 + 2], ACC
+   %endmacro
 
+   %macro DEEP_REF 2
+       mov DX, [frame_reg]
+       %rep %1
+           and DX, ARRAY_ADDR ;; GET_ARRAY
+           mov DX, [DX] ;; ->data
+           mov DX, [DX + 0] ;; [0]
+       %endrep
+       and DX, ARRAY_ADDR
+       mov DX, [DX]
+       mov ACC, [DX + %2 + 2]
+   %endmacro
 
-* GLOBAL-SET i
+   %macro DEEP_SET 2
+       mov DX, [frame_reg]
+       %rep %1
+           and DX, ARRAY_ADDR ;; GET_ARRAY
+           mov DX, [DX] ;; ->data
+           mov DX, [DX + 0] ;; [0]
+       %endrep
+       and DX, ARRAY_ADDR
+       mov DX, [DX]
+       mov [DX + %2 + 2], ACC
+   %endmacro
 
-.. code-block:: asm
+   ;; PACK n
+   ;; FIX-CLOSURE ofs
+   ;; SAVE-FRAME
+   ;; SET-FRAME num
+   ;; RESTORE-FRAME
+   ;; PRIM n
+   ;; NPRIM n
+   ;; PRIM-CLOSURE n
+   ;; NPRIM-CLOSURE n
+   ;; CATCH ofs
+   ;; THROW
 
-   mov [global_mem + i*8], rax
-
-
-* PUSH
-
-.. code-block:: asm
-
-   push rax
-
-
-* POP
-
-.. code-block:: asm
-
-   pop rax
-
-
-* JMP label
-
-.. code-block:: asm
-
-   jmp label
-
-
-* JNT label
-
-.. code-block:: asm
-
-   cmp rax, NIL
-   je label
-
-
-* REG-CALL label
-
-.. code-block:: asm
-
-   call label
-
-
-* RETURN
-
-.. code-block:: asm
-
-   ret
-
-
-* ALLOC n
-
-.. code-block:: asm
-
-   mov rdi, n
-   call alloc
-
-
-* LOCAL-REF i
-
-.. code-block:: asm
-
-   ;; acc_reg = GET_ARRAY(frame_reg)->data[i + 2];
-   ;; #define GET_ARRAY(arr) ((array_t *)(GET_ADDR(arr)))
-   mov rax, [frame_reg]
-   GET_ADDR
-   mov rax, [rax]
-   mov rax, [rax + i + 2]
-
-
-* LOCAL-SET i
-
-.. code-block:: asm
-
-   ;; GET_ARRAY(frame_reg)->data[i + 2] = acc_reg;
-   ;; #define GET_ARRAY(arr) ((array_t *)(GET_ADDR(arr)))
-   mov r8, rax ;; временно сохраняем аккумулятор в r8
-   mov rax, [frame_reg]
-   GET_ADDR
-   mov rax, [rax]
-   mov [rax + i + 2], r8
-   mov rax, r8
-
-
-.. DEEP-REF i j
-.. DEEP-SET i j
-.. PACK n
-.. FIX-CLOSURE ofs
-.. SAVE-FRAME
-.. SET-FRAME num
-.. RESTORE-FRAME
-.. PRIM n
-.. NPRIM n
-.. PRIM-CLOSURE n
-.. NPRIM-CLOSURE n
-.. CATCH ofs
-.. THROW
