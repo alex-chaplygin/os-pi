@@ -70,7 +70,7 @@
       (rplacd *consts-end* lc)
       (setq *consts-end* lc)
       (decf i))
-    (asm-emit (list-search *inst-table* 'CONST) i)))
+    (asm-emit (list 'CONST i))))
 
 (defun assemble-prim (inst)
 ";; Ассемблирование инструкции вызова примитива."
@@ -86,22 +86,23 @@
     (when (null prim-i)
       (error (concat "Unknown " (symbol-name prim-type)
                      ": " (symbol-name prim))))
-    (asm-emit (list-search *inst-table* prim-type) prim-i)))
+    (asm-emit (list prim-type prim-i))))
 
 (defun assemble-inst (inst jmp-labels)
 ";; Ассемблирование инструкции общего вида."
-  (let ((opcode (list-search *inst-table* (car inst))))
-    (when (null opcode)
-      (error (concat "Unknown inst: " (symbol-name (car inst)))))
-    (when (contains *inst-jmp-table* (car inst))
-      (setq jmp-labels
-            (append jmp-labels
-                    (list (cons (++ pc) (cadr inst))))))
-    (when (not (null opcode))
-      (asm-emit opcode)
-      (app #'(lambda (elem)
-               (asm-emit elem))
-           (cdr inst))))
+ ;; (let ((opcode (list-search *inst-table* (car inst))))
+  ;;  (when (null opcode)
+    ;;  (error (concat "Unknown inst: " (symbol-name (car inst)))))
+    ;; (when (contains *inst-jmp-table* (car inst))
+    ;;   (setq jmp-labels
+    ;;         (append jmp-labels
+    ;;                 (list (cons (++ pc) (cadr inst))))))
+    ;; (when (not (null opcode))
+    ;;   (asm-emit opcode)
+    ;;   (app #'(lambda (elem)
+    ;;            (asm-emit elem))
+  ;;        (cdr inst))))
+  (asm-emit inst)
   jmp-labels)
 
 (defun assemble-first-pass (program)
@@ -125,7 +126,7 @@
 		    ('const (assemble-const inst))
 		    (otherwise (setq jmp-labels (assemble-inst inst jmp-labels)))))))
 	 program)
-    (asm-emit (list-search *inst-table* 'HALT))
+    (asm-emit (list 'HALT))
     (setq pc (++ pc))
     (list bytecode pc jmp-labels)))
 

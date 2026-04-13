@@ -93,3 +93,18 @@ compiler: $(COMPILER)
 	./compile bin/compiler
 	/tmp/test_comp </tmp/bin | sed -e "s/CONSTB/#(/" -e "s/CONSTE/)/" | tr '\n' ' ' | sed -e "s/#( )/CONSTB CONSTE/" >bin/compiler
 	cat bin/compiler | sed -e "s/\*NODEBUG\*/*DEBUG*/" >bin/debug
+
+/tmp/compiler: $(COMPILER)
+	make -C ../../test /tmp/test_comp
+	cat $^ >$(TARGET)
+	cat comp_begin >>$(TARGET)
+	echo " *TARGET* " >>$(TARGET)
+	cat comp_end_gen >>$(TARGET)
+	./compile bin/compiler
+	/tmp/test_comp </tmp/bin | sed -e "s/CONSTB/#(/" -e "s/CONSTE/)/" | tr '\n' ' ' | sed -e "s/#( )/CONSTB CONSTE/" >$@
+
+codegen-test: /tmp/compiler /tmp/source
+	cat /tmp/source > $(TARGET) 
+	./compile /tmp/compiler
+	/tmp/test_comp </tmp/bin | perl x86-64/translate.pl >/tmp/code
+	make -C x86-64 /tmp/code.o
