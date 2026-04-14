@@ -5,6 +5,8 @@
 (defvar *program* (make-array +max-prog-size+))
 ;; *program-size* - размер программы на выходе
 (defvar *program-size*)
+;; если t, то аргументы генерируются в обратном порядке
+(defvar reverse-args)
 
 (defun emit (val)
 "Добавить инструкцию в программу"
@@ -50,8 +52,9 @@
 
 (defun generate-args (args set)
 "Генерация вычисления аргументов"
-  (let ((i 0))
-    (dolist (a args)
+  (let ((i 0)
+	(ar (if reverse-args (reverse args) args)))
+    (dolist (a ar)
       (inner-generate a) ; код аргумента
       (emit (if (eq set 'PUSH)
 		(list set)
@@ -64,9 +67,11 @@
   (emit (list 'PRIM type)))
 
 (defun generate-nary-prim (type num args)
-"Генерация вызова примитива с переменным числом аргументов"
-  (generate-args args 'PUSH)
-  (emit (list 'PACK (- (list-length args) num)))
+  "Генерация вызова примитива с переменным числом аргументов"
+  (if reverse-args (progn (generate-args args 'PUSH) (emit (list 'PACK (- (list-length args) num)))
+			  )
+      (progn (generate-args args 'PUSH)
+	     (emit (list 'PACK (- (list-length args) num)))))
   (emit (list 'NPRIM type)))
 
 (defun generate-reg-call (name fix-num env args)
