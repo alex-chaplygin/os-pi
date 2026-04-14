@@ -2,12 +2,10 @@
 NULLOBJ equ 4
 	
 ;; внешние символы
-extern t
-extern frame_reg
+extern t, frame_reg, boot_load, boot_code, parse, prims, nprims, new_pair
 
 %include "macro.inc"
 
-section .text
 global run
 %include "/tmp/code"
 	UNALIGN

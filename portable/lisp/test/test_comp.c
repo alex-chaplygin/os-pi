@@ -41,22 +41,31 @@ char *itoa(int num, char *str, int rad)
     return p;
 }
 
+#ifdef MACHINE
+void run();
+#endif	
+
 int main()
 {
     init_all();
     if (setjmp(repl_buf) == 0) {
-    int prog_size = get_value(parse());
-    int *prog = alloc_region(prog_size * sizeof(int));
-    int *p = prog;
-    for (int i = 0; i < prog_size; i++)
-	*p++ = get_value(parse());
-    consts = parse();
-    array_t *const_a = GET_ARRAY(consts);
-    int num_vars = get_value(parse());
-    symbol_table = parse();
-    vm_init(prog, prog_size, const_a->data, const_a->length, num_vars);
+#ifdef VM	
+	int prog_size = get_value(parse());
+	int *prog = alloc_region(prog_size * sizeof(int));
+	int *p = prog;
+	for (int i = 0; i < prog_size; i++)
+	    *p++ = get_value(parse());
+	consts = parse();
+	array_t *const_a = GET_ARRAY(consts);
+	int num_vars = get_value(parse());
+	symbol_table = parse();
+	vm_init(prog, prog_size, const_a->data, const_a->length, num_vars);
 	vm_run();
 	return 0;
+#endif
+#ifdef MACHINE
+	run();
+#endif	
     } else {
 #ifndef VM	    
 	    vm_dump();

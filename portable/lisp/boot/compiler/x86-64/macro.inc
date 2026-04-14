@@ -2,13 +2,23 @@
 
 ;; глобальные макросы
 %macro ENTRY 0
+section .text	
 run:
 	ALIGN
 %include "init.asm"
 %endmacro
 	
-%define GLOBALS(i) global_mem: times (i * WORD_SIZE) db 0
-%define CONSTS(i) const_mem: times (i * WORD_SIZE) db 0
+%macro GLOBALS 1
+	NUM_GLOBALS equ %1
+	section .bss
+global_mem: resb (%1 * WORD_SIZE)
+%endmacro
+	
+%macro CONSTS 1
+	NUM_CONSTS equ %1
+const_mem: resb (%1 * WORD_SIZE)
+section .data
+%endmacro	
 
 ;; платформо-зависимые макросы
 %ifdef   TARGET_x86
@@ -16,8 +26,9 @@ run:
        %define WORD_SIZE 4
        %define ALIGN
        %define UNALIGN
-       %define ACC eax
        %define AX eax
+       %define BX ebx
+       %define CX ecx
        %define DX edx
        %define DI edi
        %define SI esi
@@ -36,8 +47,9 @@ run:
        %define WORD_SIZE 8
        %define ALIGN sub rsp, 8
        %define UNALIGN add rsp, 8
-       %define ACC rax
        %define AX rax
+       %define BX rbx
+       %define CX rcx
        %define DX rdx
        %define DI rdi
        %define SI rsi
@@ -56,16 +68,19 @@ run:
 
 ;; платформо-независимые макросы инструкций
 %define HALT            
-%define CONST(i)        mov ACC, [const_mem + i * WORD_SIZE]
-%define GLOBAL_REF(i)   mov ACC, [global_mem + i * WORD_SIZE]
-%define GLOBAL_SET(i)   mov [global_mem + i * WORD_SIZE], ACC
-%define PUSH            push ACC
-%define POP             pop ACC
+%define CONST(i)        mov AX, [const_mem + i * WORD_SIZE]
+%define GLOBAL_REF(i)   mov AX, [global_mem + i * WORD_SIZE]
+%define GLOBAL_SET(i)   mov [global_mem + i * WORD_SIZE], AX
+%define PUSH            push AX
+%define POP             pop AX
 %define JMP(label)      jmp label
 %define REG_CALL(label) call label
 %define RETURN          ret
 
 %macro JNT 1
-   cmp ACC, NIL
+   cmp AX, NULLOBJ
    je %1
 %endmacro
+
+%include "prim.asm"
+	

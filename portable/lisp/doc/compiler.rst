@@ -434,31 +434,34 @@
    (DEEP-REF 0 2) -> DEEP_REF(0, 2)
    (HALT) -> HALT
 
-После ассемблирования получается объектный файл, который компонуется с главной программой на C. Главная программа сначала вызывает функцию init, которая выделяет память и заполняет массив констант (const_mem), выделяет память под глобальные переменные (global_mem), устанавливает для frame_reg значение NIL. Сгенерированный код находится в ассемблерной функции run, которая вызывается из главной программы.
+После ассемблирования получается объектный файл, который компонуется с главной программой на C. Сгенерированный код находится в ассемблерной функции run, которая вызывается из главной программы.
 
-Трудность генерации для x86-64 заключается в том, что перед инструкцией call требуется, чтобы указатель стека rsp был выровнен по границе 16 байт. Для этого в начале функции добавляется инструкция push rbp, а в конце - pop rbp. Если число аргументов функции было нечетным, то требуется выравнивание sub rsp, 8 перед call и add rsp, 8 после. Эти макросы ALIGN и UNALIGN генерирует Лисп компилятор.
+Трудность генерации для x86-64 заключается в том, что перед инструкцией call требуется, чтобы указатель стека rsp был выровнен по границе 16 байт. Для этого в начале функции добавляется инструкция push rbp, а в конце - pop rbp. Если число аргументов функции было нечетным, то требуется выравнивание sub rsp, 8 перед call и add rsp, 8 после. Эти макросы ALIGN и UNALIGN генерирует Лисп компилятор, используя отдельный модуль machine.lsp.
 
 LABEL, которые относятся к функциям компилятор заменяет на FUNC.
 
 Распределение регистров и памяти виртуальной машины
 ---------------------------------------------------
 
-В качестве стека общего назначения используется машинный стек. В качестве регистра аккумулятора используется регистр eax/rax. Для регистра текущего кадра окружения, стека catch используем переменные в vm.c. Массивы констант, глобальных переменных, таблицы примитвов и стек исключений также остается в vm.c.
+В качестве стека общего назначения используется машинный стек. В качестве регистра аккумулятора используется регистр eax/rax. Для регистра текущего кадра окружения, стека catch используем переменные в vm.c. Массивы констант, глобальных переменных выделяются статически в сегменте BSS, таблицы примитвов и стек исключений используются из vm.c.
 
 Реализация команд
 -----------------
 
 PUSH, POP, JMP, JNT, REG_CALL имеют прямые аналоги.
 
-HALT - пусто, потому что в этом месте программа закончилась.
+HALT - не генерируется.
 
 CONST, LOCAL_REF, GLOBAL_REF, DEEP_REF / SET - работаем с массивами из vm.c
 
 FIX-PRIM - примитивы вызываются из таблицы примитивов, перед примитивом с нечетным числом аргументов требуется выравнивание и после - восстановление. Здесь тоже макросы ALIGN и UNALIGN генерирует Лисп компилятор.
+Для x86 удобно, когда аргументы генерируются в обратном порядке. В этом случае аргументы уже лежат в стеке в нужном порядке. Для n-арных примитивов сначала в стек кладутся списочные аргументы, затем PACK, затем остальные - в обратном порядке.
 
 FUNC - в начале делаем выравнивание и метку.
 RETURN - делаем восстановление выравнивания и ret.
-ALLOC, PACK, FIX_CLOSURE, SAVE_FRAME, SET_FRAME, RESTORE_FRAME, vm_apply, FIX_PRIM, NARY_PRIM, PRIM_CLOSURE, BPRIM_CLOSURE, CATCH, THROW - реализуем на ассемблере (аналог как в vm.c)
+ALLOC, PACK, FIX_CLOSURE, SAVE_FRAME, SET_FRAME, RESTORE_FRAME, vm_apply, FIX_PRIM, NARY_PRIM, PRIM_CLOSURE, BPRIM_CLOSURE, CATCH, THROW - реализуем на ассемблере (аналог как в vm.c).
+
+При реализации команд важно соблюдать соглашения о регистрах. Для x86 в результате вызова любой функции (например примитива) могут быть перезаписаны регистры EAX, ECX, EDX. В x86-64 могут быть перезаписаны все регистры кроме RBP, RBX, RSP, R12, R13, R14, R15.
 
 Пример генерации
 ----------------
@@ -466,8 +469,11 @@ ALLOC, PACK, FIX_CLOSURE, SAVE_FRAME, SET_FRAME, RESTORE_FRAME, vm_apply, FIX_PR
 .. code-block:: asm
 
    ;; константы
+   section .bss
    CONST_LEN equ <длина массива констант>
+   const_mem: resb 4 * WORD_SIZE
    GLOBAL_LEN equ <длина массива глобальных переменных>
+   global_mem: resb 3 * WORD_SIZE
    NIL equ 4
 
    ;; подключаем макросы
@@ -475,15 +481,11 @@ ALLOC, PACK, FIX_CLOSURE, SAVE_FRAME, SET_FRAME, RESTORE_FRAME, vm_apply, FIX_PR
    
    ;; внешние символы
    extern frame_reg
-   extern const_mem
-   extern global_mem
-   ...
 
-   section .rodata
+   section .data
    global const_text
    const_text:
        <строковое представление констант>
-
 
    section .text
    global run
@@ -496,14 +498,14 @@ ALLOC, PACK, FIX_CLOSURE, SAVE_FRAME, SET_FRAME, RESTORE_FRAME, vm_apply, FIX_PR
        PUSH
        LOCAL_REF(1)
        PUSH
-       FIX_PRIM(3)
+       PRIM(3)
        RETURN
 
        FUNC(f2)
        LOCAL_REF(0)
        PUSH
        ALIGN
-       FIX_PRIM(0)
+       PRIM(0)
        UNALIGN
        RETURN
        
@@ -522,110 +524,3 @@ ALLOC, PACK, FIX_CLOSURE, SAVE_FRAME, SET_FRAME, RESTORE_FRAME, vm_apply, FIX_PR
        
        UNALIGN
        ret
-
-       
-Примеры макросов
-----------------
-       
-   %define <целевая платформа (TARGET_i386 / TARGET_x86_64)>
-
-   ;; платформо-зависимые макросы
-   %ifdef   TARGET_i386
-       %define ACC eax
-       %define DX edx
-       %define DI edi
-       %define SI esi
-       %define SP esp
-       %define BP ebp
-       ARRAY_ADDR equ 0xFFFFFFE0
-
-       %macro ALLOC 1
-           push %1
-           call alloc
-           add SP, 4
-       %endmacro
-
-   %elifdef TARGET_x86_64
-       %define ACC rax
-       %define DX rdx
-       %define DI rdi
-       %define SI rsi
-       %define SP rsp
-       %define BP rbp
-       ARRAY_ADDR equ 0xFFFFFFFFFFFFFFE0
-
-       %macro ALLOC 1
-           mov rdi, %1
-           call alloc
-       %endmacro
-
-   %else
-       %error Unknown target
-   %endif
-
-   ;; платформо-независимые макросы инструкций
-   %define HALT            jmp <метка конца программы (генерируется через gensym)>
-   %define CONST(i)        mov ACC, [const_mem + i*8]
-   %define GLOBAL_REF(i)   mov ACC, [global_mem + i*8]
-   %define GLOBAL_SET(i)   mov [global_mem + i*8], ACC
-   %define PUSH            push ACC
-   %define POP             pop ACC
-   %define JMP(label)      jmp label
-   %define REG_CALL(label) call label
-   %define RETURN          ret
-
-   %macro JNT 1
-       cmp ACC, NIL
-       je %1
-   %endmacro
-
-   %macro LOCAL_REF 1
-       mov DX, [frame_reg]
-       and DX, ARRAY_ADDR
-       mov DX, [DX]
-       mov ACC, [DX + %1 + 2]
-   %endmacro
-
-   %macro LOCAL_SET 1
-       mov DX, [frame_reg]
-       and DX, ARRAY_ADDR
-       mov DX, [DX]
-       mov [DX + %1 + 2], ACC
-   %endmacro
-
-   %macro DEEP_REF 2
-       mov DX, [frame_reg]
-       %rep %1
-           and DX, ARRAY_ADDR ;; GET_ARRAY
-           mov DX, [DX] ;; ->data
-           mov DX, [DX + 0] ;; [0]
-       %endrep
-       and DX, ARRAY_ADDR
-       mov DX, [DX]
-       mov ACC, [DX + %2 + 2]
-   %endmacro
-
-   %macro DEEP_SET 2
-       mov DX, [frame_reg]
-       %rep %1
-           and DX, ARRAY_ADDR ;; GET_ARRAY
-           mov DX, [DX] ;; ->data
-           mov DX, [DX + 0] ;; [0]
-       %endrep
-       and DX, ARRAY_ADDR
-       mov DX, [DX]
-       mov [DX + %2 + 2], ACC
-   %endmacro
-
-   ;; PACK n
-   ;; FIX-CLOSURE ofs
-   ;; SAVE-FRAME
-   ;; SET-FRAME num
-   ;; RESTORE-FRAME
-   ;; PRIM n
-   ;; NPRIM n
-   ;; PRIM-CLOSURE n
-   ;; NPRIM-CLOSURE n
-   ;; CATCH ofs
-   ;; THROW
-
