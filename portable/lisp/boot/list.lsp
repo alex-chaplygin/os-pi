@@ -224,3 +224,13 @@
                             (cons (copy-tree (car elem))
                                   (copy-tree (cdr elem)))))
           (t (throw 'error "copy-tree: unknown type")))))
+
+(defun take (list n)
+  "Взять первые n элементов списка"
+  (if (= n 0) nil (cons (car list) (take list (-- n)))))
+
+(defun drop (list n)
+  "Удалить первые n элементов списка"
+  (if (= n 0) list
+      (if (null list) (error "drop: n > list length")
+	  (drop (cdr list) (-- n)))))
