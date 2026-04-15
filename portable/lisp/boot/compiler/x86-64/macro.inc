@@ -34,14 +34,7 @@ section .data
        %define SI esi
        %define SP esp
        %define BP ebp
-       ARRAY_ADDR equ 0xFFFFFFE0
-
-       %macro ALLOC 1
-           push %1
-           call alloc
-           add SP, 4
-       %endmacro
-
+       OBJ_ADDR equ 0xFFFFFFE0
    %elifdef TARGET_x86_64
        USE64
        %define WORD_SIZE 8
@@ -55,13 +48,7 @@ section .data
        %define SI rsi
        %define SP rsp
        %define BP rbp
-       ARRAY_ADDR equ 0xFFFFFFFFFFFFFFE0
-
-       %macro ALLOC 1
-           mov rdi, %1
-           call alloc
-       %endmacro
-
+       OBJ_ADDR equ 0xFFFFFFFFFFFFFFE0
    %else
        %error Unknown target
    %endif
@@ -73,6 +60,7 @@ section .data
 %define GLOBAL_SET(i)   mov [global_mem + i * WORD_SIZE], AX
 %define PUSH            push AX
 %define POP             pop AX
+%define LABEL(l) l:
 %define JMP(label)      jmp label
 %define REG_CALL(label) call label
 %define RETURN          ret
@@ -83,4 +71,4 @@ section .data
 %endmacro
 
 %include "prim.asm"
-	
+%include "func.asm"

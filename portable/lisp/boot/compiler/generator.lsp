@@ -81,7 +81,7 @@
 (defun generate-reg-call (name fix-num env args)
 "Обычный вызов функции"
   (let ((num (list-length args)))
-    (generate-args args 'PUSH reverse-args)
+    (generate-args args 'PUSH nil)
     (when fix-num (emit (list 'PACK (- (list-length args) fix-num))))
     (emit (list 'SAVE-ENV))
     (emit (list 'SET-ENV env))
