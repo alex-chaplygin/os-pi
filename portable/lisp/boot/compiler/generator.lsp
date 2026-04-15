@@ -50,10 +50,10 @@
   (inner-generate (third expr))
   (emit (list (car expr) (second expr))))
 
-(defun generate-args (args set)
-"Генерация вычисления аргументов"
+(defun generate-args (args set rev)
+"Генерация вычисления аргументов, rev - в обратном порядке"
   (let ((i 0)
-	(ar (if reverse-args (reverse args) args)))
+	(ar (if rev (reverse args) args)))
     (dolist (a ar)
       (inner-generate a) ; код аргумента
       (emit (if (eq set 'PUSH)
@@ -63,21 +63,25 @@
 
 (defun generate-fix-prim (type args)
 "Генерация вызова примитива"
-  (generate-args args 'PUSH)
+  (generate-args args 'PUSH reverse-args)
   (emit (list 'PRIM type)))
 
 (defun generate-nary-prim (type num args)
   "Генерация вызова примитива с переменным числом аргументов"
-  (if reverse-args (progn (generate-args args 'PUSH) (emit (list 'PACK (- (list-length args) num)))
-			  )
-      (progn (generate-args args 'PUSH)
+  (if reverse-args
+      (let ((fix (take args num))
+	    (nary (drop args num)))
+	(generate-args nary 'PUSH nil)
+	(emit (list 'PACK (- (list-length args) num)))
+	(generate-args fix 'PUSH t))
+      (progn (generate-args args 'PUSH nil)
 	     (emit (list 'PACK (- (list-length args) num)))))
   (emit (list 'NPRIM type)))
 
 (defun generate-reg-call (name fix-num env args)
 "Обычный вызов функции"
   (let ((num (list-length args)))
-    (generate-args args 'PUSH)
+    (generate-args args 'PUSH reverse-args)
     (when fix-num (emit (list 'PACK (- (list-length args) fix-num))))
     (emit (list 'SAVE-ENV))
     (emit (list 'SET-ENV env))
@@ -87,7 +91,7 @@
 
 (defun generate-let (count args body)
   "Генерация let - форма, расширение окружения, тело lambda без вызова функции"
-  (generate-args args 'PUSH)
+  (generate-args args 'PUSH nil)
   (emit (list 'SAVE-ENV))
   (emit (list 'ALLOC count))
   (inner-generate body)
@@ -117,7 +121,7 @@
 (defun generate-tail-call (name fix-num depth args)
   "Генерация хвостового вызова функции"
   (let ((num (list-length args)))
-    (generate-args args 'PUSH)
+    (generate-args args 'PUSH reverse-args)
     (when fix-num
       (emit (list 'PACK (- num fix-num)))
       (setq num (++ fix-num)))
@@ -134,7 +138,7 @@
 
 (defun generate-nary (args)
   "Генерация списка необязательных аргументов"
-  (generate-args args 'PUSH)
+  (generate-args args 'PUSH nil)
   (emit (list 'PACK (list-length args)))
   (emit (list 'POP)))
 
