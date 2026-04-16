@@ -28,7 +28,10 @@
                 ('nprim-closure *nary-primitives*)))
          (prim (search-symbol lst (cadr inst)))
          (prim-i (list-search lst prim)))
-    (list prim-type prim-i)))
+    (case prim-type
+      ('nprim (if (eq (second inst) 'funcall) (list 'APPLY) (list prim-type prim-i)))
+      ('prim (if (eq (second inst) 'apply) (list 'APPLY) (list prim-type prim-i)))
+      (otherwise (list prim-type prim-i)))))
 
 (defun assemble-machine (gen)
   "Преобразование списка инструкций виртуальной машины в список инструкций для ассемблера nasm"
