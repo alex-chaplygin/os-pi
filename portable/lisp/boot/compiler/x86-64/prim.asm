@@ -8,6 +8,21 @@
 %endif
 %endmacro
 
+%macro PRIM_CLOSURE_ 2
+%ifdef   TARGET_x86
+	mov BX, prims + %1 * 2 * WORD_SIZE ; адрес в таблице примитивов
+	push dword [BX + WORD_SIZE] ; число аргументов
+	mov AX, %2
+	push AX
+	push dword [BX]
+	call new_prim_function
+	add SP, 12 		; восстанавливаем стек
+%endif
+%endmacro
+
+%define PRIM_CLOSURE(n) PRIM_CLOSURE_ n, 0
+%define NPRIM_CLOSURE(n) PRIM_CLOSURE_ n, 1
+	
 %macro PACK 1
 	mov SI, %1
 	mov BX, NULLOBJ
