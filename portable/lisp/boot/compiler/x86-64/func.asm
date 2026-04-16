@@ -57,8 +57,9 @@
 	and AX, OBJ_ADDR
 	mov BX, [AX]
 	loop %%env_loop
-%%end:
 	add AX, ARRAY
+	mov [frame_reg], ax
+%%end:
 %endmacro	
 	
 %macro ALLOC 1
@@ -94,3 +95,70 @@
 	add AX, ARRAY
 	mov [frame_reg], AX
 %endmacro
+
+%macro FIX_CLOSURE 2
+	mov AX, [frame_reg]
+	cmp AX, NULLOBJ
+	je %%end
+	and AX, OBJ_ADDR
+	mov BX, [AX]
+	mov CX, [BX + WORD_SIZE]
+	shr CX, MARK_BIT
+	sub CX, %2 - 1
+%%env_loop:
+	mov AX, [BX]
+	and AX, OBJ_ADDR
+	mov BX, [AX]
+	loop %%env_loop
+	add AX, ARRAY
+%ifdef TARGET_x86
+	mov DX, NULLOBJ
+	push DX
+	push AX
+	push dword %1
+	push DX
+	call new_function
+	add SP, 16
+%endif		
+%%end:
+%endmacro
+
+%macro APPLY
+	mov BX, [SP] ;fun
+	and BX, OBJ_ADDR
+	mov AX, [BX + 2 * WORD_SIZE] ;func
+	cmp AX, NULLOBJ
+	je %%func
+%ifdef TARGET_x86
+	mov DX, [BX]		; count
+	push DX			
+	push DX
+	push dword [BX + WORD_SIZE] ; nary
+	push dword [SP + WORD_SIZE] ; args
+	push AX
+	call call_form
+	add SP, 7 * WORD_SIZE	; call_from - 5, apply - 2
+	jmp %%end
+%endif		
+%%func:
+	mov DX, [SP + WORD_SIZE] ; args
+	xor CX, CX
+%%args_loop:	
+	cmp DX, NULLOBJ
+	je %%call
+	and DX, OBJ_ADDR
+	push dword [DX]		; car
+	mov DX, [DX + WORD_SIZE] ; cdr
+	inc CX
+	jmp %%args_loop
+%%call:
+	push dword [frame_reg]
+	mov DX, [AX + 3 * WORD_SIZE] ; env
+	mov [frame_reg], DX
+
+	call [AX + WORD_SIZE]	; body
+	
+	pop dword [frame_reg]
+	add SP, 2 * WORD_SIZE	; восстанавливаем параметры APPLY
+%%end:	
+%endmacro	
