@@ -160,7 +160,7 @@ void vm_init(int *prog_mem, int prog_size, object_t *const_mem, int const_c, int
 /**
  * @brief Извлекает очередной код из программы и передвигает указатель
  */
-int fetch()
+static inline int fetch()
 {
     return *pc_reg++;
 }
@@ -293,7 +293,7 @@ void deep_set_inst()
 /** 
  * @brief Помещает объект в стек
  */
-void push(object_t obj)
+static inline void push(object_t obj)
 {
     if (stack_top < stack)
 	error("stack overflow");
@@ -318,7 +318,7 @@ void push_inst()
  *
  * @return объект из стека
  */
-object_t pop()
+static inline object_t pop()
 {
     return *(++stack_top);
 }
@@ -327,7 +327,7 @@ object_t pop()
  * @brief Функция, создающая новый кадр активации с числом аргументов n.
  * Извлекает из стека аргументы начиная с позиции 1 (0-й элемент остается в стеке)
  */
-void alloc(int n)
+static inline void alloc(int n)
 {
     array_t *ar = new_empty_array(n + 2);
     object_t frame = NEW_OBJECT(ARRAY, ar);
@@ -373,7 +373,7 @@ void pack_inst()
  * @brief Вызов подпрограммы
  * Функция, добавляющая адрес следующей инструкции в стэк и производит переход по смещению ofs
  */
-void call(int *addr)
+static inline void call(int *addr)
 {
     push((object_t)(pc_reg - program_memory << MARK_BIT));
     pc_reg = addr;
