@@ -31,7 +31,7 @@ all: $(TESTS)
 /tmp/test_comp: test_comp.c ../eval.c ../objects.c ../parser.c ../lexer.c ../arith.c ../str.c ../array.c ../pair.c ../predicates.c ../alloc.c ../error.c ../vm.c ../bind.c ../predicates.c ../symbols.c
 	gcc $^ $(CFLAGS) -D REPL -D VM $(LDFLAGS) -o $@
 /tmp/prog: test_comp.c ../eval.c ../objects.c ../parser.c ../lexer.c ../arith.c ../str.c ../array.c ../pair.c ../predicates.c ../alloc.c ../error.c ../vm.c ../bind.c ../predicates.c ../symbols.c /tmp/code.o
-	gcc $^ $(CFLAGS) -D MACHINE $(LDFLAGS) -o $@
+	gcc $^ $(CFLAGS) -D MACHINE $(LDFLAGS) -o $@ -no-pie
 /tmp/test_comp_debug: test_comp.c ../eval.c ../objects.c ../parser.c ../lexer.c ../arith.c ../str.c ../array.c ../pair.c ../predicates.c ../alloc.c ../error.c ../vm.c ../bind.c ../predicates.c ../symbols.c
 	gcc $^ $(CFLAGS) -D REPL -D VM -D DEBUG $(LDFLAGS) -o $@
 /tmp/lisp: test_sys.c ../eval.c ../symbols.c ../objects.c ../parser.c ../lexer.c ../arith.c ../str.c ../array.c ../pair.c ../predicates.c ../alloc.c ../error.c ../bind.c
