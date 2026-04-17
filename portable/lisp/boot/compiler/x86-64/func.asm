@@ -52,13 +52,14 @@
 	mov CX, [BX + WORD_SIZE]
 	shr CX, MARK_BIT
 	sub CX, %1 - 1
+	mov AX, frame_reg
 %%env_loop:
-	mov AX, [BX]
-	and AX, OBJ_ADDR
 	mov BX, [AX]
+	and BX, OBJ_ADDR
+	mov AX, [BX]
+	mov AX, [AX]
 	loop %%env_loop
-	add AX, ARRAY
-	mov [frame_reg], ax
+	mov [frame_reg], AX
 %%end:
 %endmacro	
 	
@@ -123,7 +124,7 @@
 %%end:
 %endmacro
 
-%macro APPLY
+%macro APPLY 0
 	mov BX, [SP] ;fun
 	and BX, OBJ_ADDR
 	mov AX, [BX + 2 * WORD_SIZE] ;func
