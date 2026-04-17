@@ -30,7 +30,11 @@
          (prim-i (list-search lst prim)))
     (case prim-type
       ('nprim (if (eq (second inst) 'funcall) (list 'APPLY) (list prim-type prim-i)))
-      ('prim (if (eq (second inst) 'apply) (list 'APPLY) (list prim-type prim-i)))
+      ('prim (case (second inst)
+	       ('apply (list 'APPLY))
+	       ('+ (list 'ADD))
+	       ('* (list 'MUL))
+	       (otherwise (list prim-type prim-i))))
       (otherwise (list prim-type prim-i)))))
 
 (defun assemble-machine (gen)

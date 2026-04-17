@@ -38,10 +38,8 @@
    mov [BX + (%2 + 2) * WORD_SIZE], AX
 %endmacro	
 	
-%ifdef TARGET_x86
-%define SAVE_ENV push dword [frame_reg]
-%define RESTORE_ENV pop dword [frame_reg]	
-%endif
+%define SAVE_ENV push MWORD [frame_reg]
+%define RESTORE_ENV pop MWORD [frame_reg]
 	
 %macro SET_ENV 1
 	mov AX, [frame_reg]
@@ -59,24 +57,26 @@
 	mov AX, [BX]
 	mov AX, [AX]
 	loop %%env_loop
-	mov [frame_reg], AX
 %%end:
+	mov [frame_reg], AX
 %endmacro	
 	
 %macro ALLOC 1
 %ifdef TARGET_x86
-	mov AX, %1
-	add AX, 2
+	mov AX, %1 + 2
 	push AX
 	call new_empty_array	;AX - указатель на массив
 	add SP, 4
+%elifdef TARGET_x86_64
+	mov DI, %1 + 2
+	call new_empty_array
 %endif	
 	mov DX, [frame_reg]
 	mov BX, [AX]		; data
 	mov [BX], DX		;сохранили data[0]
 	cmp DX, NULLOBJ
 	jne %%not_null
-	mov dword [BX + WORD_SIZE], 0	;уровень 0
+	mov MWORD [BX + WORD_SIZE], 0	;уровень 0
 	jmp %%alloc
 %%not_null:
 	and DX, OBJ_ADDR	;DX - адрес массива frame_reg
@@ -89,7 +89,7 @@
 	mov DI, BX
 	add DI, (%1 + 1) * WORD_SIZE
 	%rep %1
-	pop dword [DI]
+	pop MWORD [DI]
 	sub DI, WORD_SIZE
 	%endrep
 	push DX
@@ -162,4 +162,4 @@
 	pop dword [frame_reg]
 	add SP, 2 * WORD_SIZE	; восстанавливаем параметры APPLY
 %%end:	
-%endmacro	
+%endmacro

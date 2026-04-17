@@ -24,6 +24,7 @@ section .data
 %ifdef   TARGET_x86
        USE32
        %define WORD_SIZE 4
+       %define MWORD dword
        %define ALIGN
        %define UNALIGN
        %define AX eax
@@ -34,10 +35,12 @@ section .data
        %define SI esi
        %define SP esp
        %define BP ebp
+       %define REG1 SI
        OBJ_ADDR equ 0xFFFFFFE0
    %elifdef TARGET_x86_64
        USE64
        %define WORD_SIZE 8
+       %define MWORD qword
        %define ALIGN sub rsp, 8
        %define UNALIGN add rsp, 8
        %define AX rax
@@ -48,6 +51,7 @@ section .data
        %define SI rsi
        %define SP rsp
        %define BP rbp
+       %define REG1 r12
        OBJ_ADDR equ 0xFFFFFFFFFFFFFFE0
    %else
        %error Unknown target
@@ -72,3 +76,4 @@ section .data
 
 %include "prim.asm"
 %include "func.asm"
+%include "arith.asm"

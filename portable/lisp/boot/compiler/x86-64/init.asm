@@ -11,13 +11,13 @@
 	mov AX, consts
 	mov [boot_code], AX
 	mov CX, NUM_CONSTS
-	xor DI, DI
+	xor REG1, REG1
 load_consts:
 	push CX
 	ALIGN
 	call parse
 	UNALIGN
 	pop CX
-	mov [const_mem + DI], AX
-	add DI, WORD_SIZE
+	mov [const_mem + REG1], AX
+	add REG1, WORD_SIZE
 	loop load_consts
