@@ -33,6 +33,7 @@
       ('prim (case (second inst)
 	       ('apply (list 'APPLY))
 	       ('+ (list 'ADD))
+	       ('- (list 'SUB))
 	       ('* (list 'MUL))
 	       ('< (list 'LESS))
 	       ('eq (list 'EQ))

@@ -4,8 +4,13 @@
 	add SP, 2 * WORD_SIZE
 %endmacro
 
+%macro SUB 0
+	mov AX, [SP]
+	sub AX, [SP + WORD_SIZE]
+	add SP, 2 * WORD_SIZE
+%endmacro
+	
 %macro MUL 0
-	xor DX, DX
 	mov AX, [SP]
 	shr AX, MARK_BIT
 	mov CX, [SP + WORD_SIZE]
