@@ -34,6 +34,8 @@
 	       ('apply (list 'APPLY))
 	       ('+ (list 'ADD))
 	       ('* (list 'MUL))
+	       ('< (list 'LESS))
+	       ('eq (list 'EQ))
 	       (otherwise (list prim-type prim-i))))
       (otherwise (list prim-type prim-i)))))
 
