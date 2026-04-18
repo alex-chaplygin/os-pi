@@ -81,9 +81,9 @@
 %%not_null:
 	and DX, OBJ_ADDR	;DX - адрес массива frame_reg
 	mov SI, [DX]
-	mov DI, [SI + WORD_SIZE] ;data[1]
-	add DI,1 << MARK_BIT
-	mov [SI + WORD_SIZE], DI
+	mov CX, [SI + WORD_SIZE] ;data[1]
+	add CX, 1 << MARK_BIT
+	mov [BX + WORD_SIZE], CX
 %%alloc:
 	pop DX			; old frame_reg
 	mov DI, BX
@@ -125,41 +125,61 @@
 %endmacro
 
 %macro APPLY 0
+	cld
 	mov BX, [SP] ;fun
-	and BX, OBJ_ADDR
-	mov AX, [BX + 2 * WORD_SIZE] ;func
+	and BX, OBJ_ADDR	     ; f
+	mov AX, [BX + 2 * WORD_SIZE] ; func
 	cmp AX, NULLOBJ
 	je %%func
 %ifdef TARGET_x86
 	mov DX, [BX]		; count
 	push DX			
 	push DX
-	push dword [BX + WORD_SIZE] ; nary
-	push dword [SP + WORD_SIZE] ; args
+	push MWORD [BX + WORD_SIZE] ; nary
+	push MWORD [SP + WORD_SIZE] ; args
 	push AX
 	call call_form
 	add SP, 7 * WORD_SIZE	; call_from - 5, apply - 2
 	jmp %%end
 %endif		
 %%func:
-	mov DX, [SP + WORD_SIZE] ; args
-	xor CX, CX
-%%args_loop:	
+%ifdef TARGET_x86	
+	mov AX, MAX_ARGS
+	push AX
+	call new_empty_array
+	add SP, WORD_SIZE
+%endif
+	push MWORD [frame_reg]		; сохраняем текущий frame
+	mov DX, [BX + 3 * WORD_SIZE] ; env
+	mov DI, [AX]		; data
+	mov [DI], DX		;сохранили data[0]
 	cmp DX, NULLOBJ
+	jne %%not_null
+	mov MWORD [DI + WORD_SIZE], 0	;уровень 0
+	jmp %%app_alloc
+%%not_null:
+	and DX, OBJ_ADDR	;DX - адрес массива frame_reg
+	mov SI, [DX]
+	mov CX, [SI + WORD_SIZE] ;data[1]
+	add CX, 1 << MARK_BIT
+	mov [DI + WORD_SIZE], CX ; записываем новый уровень
+%%app_alloc:	
+	mov SI, [SP + WORD_SIZE * 2] ; args
+	add DI, 2 * WORD_SIZE	 ; куда записываются аргументы
+%%args_loop:	
+	cmp SI, NULLOBJ
 	je %%call
-	and DX, OBJ_ADDR
-	push dword [DX]		; car
-	mov DX, [DX + WORD_SIZE] ; cdr
-	inc CX
+	and SI, OBJ_ADDR
+%ifdef TARGET_x86
+	movsd			; записываем car в кадр
+%endif	
+	mov SI, [SI] ; cdr
 	jmp %%args_loop
 %%call:
-	push dword [frame_reg]
-	mov DX, [AX + 3 * WORD_SIZE] ; env
-	mov [frame_reg], DX
-
-	call [AX + WORD_SIZE]	; body
+	mov [frame_reg], AX	; устанавливаем новый кадр
+	call [BX + WORD_SIZE]	; body
 	
-	pop dword [frame_reg]
+	pop MWORD [frame_reg]
 	add SP, 2 * WORD_SIZE	; восстанавливаем параметры APPLY
 %%end:	
 %endmacro
