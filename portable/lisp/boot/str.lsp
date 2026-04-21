@@ -60,6 +60,10 @@
         (code-char (- c (- (char-code #\a) (char-code #\A))))
         char)))
 
+(defun str-toupper (str)
+  "Преобразовать строку в верхний регистр"
+  (implode (map #'(lambda (char) (toupper char)) (explode str))))
+
 (defun strtoint (str base)
   "Конвертирует строку str в число в системе счисления base"
   (let ((res 0))
