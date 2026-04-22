@@ -51,14 +51,16 @@
 	shr CX, MARK_BIT
 	sub CX, %1 - 1
 	mov AX, frame_reg
+	cmp CX, 0
+	je %%end
 %%env_loop:
 	mov BX, [AX]
 	and BX, OBJ_ADDR
 	mov AX, [BX]
 	mov AX, [AX]
 	loop %%env_loop
-%%end:
 	mov [frame_reg], AX
+%%end:
 %endmacro	
 	
 %macro ALLOC 1
@@ -100,7 +102,7 @@
 %macro FIX_CLOSURE 2
 	mov AX, [frame_reg]
 	cmp AX, NULLOBJ
-	je %%end
+	je %%new_func
 	and AX, OBJ_ADDR
 	mov BX, [AX]
 	mov CX, [BX + WORD_SIZE]
@@ -112,6 +114,7 @@
 	mov BX, [AX]
 	loop %%env_loop
 	add AX, ARRAY
+%%new_func:
 %ifdef TARGET_x86
 	mov DX, NULLOBJ
 	push DX
@@ -120,8 +123,13 @@
 	push DX
 	call new_function
 	add SP, 16
-%endif		
-%%end:
+%elifdef TARGET_x86_64
+	mov DI, NULLOBJ
+	mov SI, %1
+	mov DX, AX
+	mov CX, NULLOBJ
+	call new_function
+%endif
 %endmacro
 
 %macro APPLY 0
@@ -129,7 +137,7 @@
 	mov BX, [SP] ;fun
 	and BX, OBJ_ADDR	     ; f
 	mov AX, [BX + 2 * WORD_SIZE] ; func
-	cmp AX, NULLOBJ
+	cmp AX, NULL
 	je %%func
 %ifdef TARGET_x86
 	mov DX, [BX]		; count
@@ -141,6 +149,15 @@
 	call call_form
 	add SP, 7 * WORD_SIZE	; call_from - 5, apply - 2
 	jmp %%end
+%elifdef TARGET_x86_64
+	mov DI, AX
+	mov SI, [SP + WORD_SIZE]
+	mov DX, [BX + WORD_SIZE]
+	mov CX, [BX]
+	mov r8, CX
+	call call_form
+	add SP, 2 * WORD_SIZE
+	jmp %%end
 %endif		
 %%func:
 %ifdef TARGET_x86	
@@ -148,6 +165,9 @@
 	push AX
 	call new_empty_array
 	add SP, WORD_SIZE
+%elifdef TARGET_x86_64
+	mov DI, MAX_ARGS
+	call new_empty_array
 %endif
 	push MWORD [frame_reg]		; сохраняем текущий frame
 	mov DX, [BX + 3 * WORD_SIZE] ; env
@@ -172,6 +192,8 @@
 	and SI, OBJ_ADDR
 %ifdef TARGET_x86
 	movsd			; записываем car в кадр
+%elifdef TARGET_x86_64
+	movsq
 %endif	
 	mov SI, [SI] ; cdr
 	jmp %%args_loop

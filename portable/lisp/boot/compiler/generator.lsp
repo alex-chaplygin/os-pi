@@ -121,7 +121,7 @@
 (defun generate-tail-call (name fix-num depth args)
   "Генерация хвостового вызова функции"
   (let ((num (list-length args)))
-    (generate-args args 'PUSH reverse-args)
+    (generate-args args 'PUSH nil)
     (when fix-num
       (emit (list 'PACK (- num fix-num)))
       (setq num (++ fix-num)))

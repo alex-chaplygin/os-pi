@@ -4,7 +4,7 @@
 %macro ENTRY 0
 section .text	
 run:
-	ALIGN
+	SAVE_REGS
 %include "init.asm"
 %endmacro
 	
@@ -37,6 +37,18 @@ section .data
        %define BP ebp
        %define REG1 SI
        OBJ_ADDR equ 0xFFFFFFE0
+       %macro SAVE_REGS 0
+              push BX
+              push SI
+              push DI
+              push BP
+       %endmacro
+       %macro RESTORE_REGS 0
+              pop BP
+              pop DI
+              pop SI
+              pop BX
+       %endmacro
    %elifdef TARGET_x86_64
        USE64
        %define WORD_SIZE 8
@@ -53,6 +65,24 @@ section .data
        %define BP rbp
        %define REG1 r12
        OBJ_ADDR equ 0xFFFFFFFFFFFFFFE0
+       %macro SAVE_REGS 0
+              push BX
+              push BP
+              push r12
+              push r13
+              push r14
+              push r15
+              ALIGN
+       %endmacro
+       %macro RESTORE_REGS 0
+              UNALIGN
+              pop r15
+              pop r14
+              pop r13
+              pop r12
+              pop BP
+              pop BX
+       %endmacro
    %else
        %error Unknown target
    %endif
