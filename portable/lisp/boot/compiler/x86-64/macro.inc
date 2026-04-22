@@ -98,6 +98,8 @@ section .data
 %define JMP(label)      jmp label
 %define REG_CALL(label) call label
 %define RETURN          ret
+%define CATCH
+%define THROW
 
 %macro JNT 1
    cmp AX, NULLOBJ

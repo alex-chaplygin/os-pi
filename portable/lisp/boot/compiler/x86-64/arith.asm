@@ -1,16 +1,16 @@
-%macro ADD 0
+%macro _ADD 0
 	mov AX, [SP]
 	add AX, [SP + WORD_SIZE]
 	add SP, 2 * WORD_SIZE
 %endmacro
 
-%macro SUB 0
+%macro _SUB 0
 	mov AX, [SP]
 	sub AX, [SP + WORD_SIZE]
 	add SP, 2 * WORD_SIZE
 %endmacro
 	
-%macro MUL 0
+%macro _MUL 0
 	mov AX, [SP]
 	shr AX, MARK_BIT
 	mov CX, [SP + WORD_SIZE]
@@ -20,7 +20,7 @@
 	add SP, 2 * WORD_SIZE
 %endmacro
 
-%macro EQ 0
+%macro _EQ 0
 	mov AX, 1 << MARK_BIT
 	mov DX, [SP]
 	cmp DX, [SP + WORD_SIZE]
@@ -30,7 +30,7 @@
 	add SP, 2 * WORD_SIZE
 %endmacro
 
-%macro LESS 0
+%macro _LESS 0
 	mov AX, 1 << MARK_BIT
 	mov DX, [SP]
 	cmp DX, [SP + WORD_SIZE]
