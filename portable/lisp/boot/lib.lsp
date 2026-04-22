@@ -127,7 +127,7 @@
 	,@bod
 	,tests
 	(when ,test (go ,loops))
-      break)))
+      )))
 
 (defmacro until (test &rest bod)
   "Цикл until"
@@ -138,7 +138,7 @@
 	,@bod
 	,tests
 	(unless ,test (go ,loops))
-	break)))
+	)))
 
 (defmacro break ()
   "Прерывание текущего цикла while, for, until"
