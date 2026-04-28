@@ -161,7 +161,7 @@
 %endif		
 %%func:
 %ifdef TARGET_x86	
-	mov AX, MAX_ARGS
+	mov AX, MAX_ARGS + 2
 	push AX
 	call new_empty_array
 	add SP, WORD_SIZE
@@ -198,6 +198,7 @@
 	mov SI, [SI] ; cdr
 	jmp %%args_loop
 %%call:
+	add AX, ARRAY
 	mov [frame_reg], AX	; устанавливаем новый кадр
 	call [BX + WORD_SIZE]	; body
 	
