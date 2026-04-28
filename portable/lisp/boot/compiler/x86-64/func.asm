@@ -50,14 +50,13 @@
 	mov CX, [BX + WORD_SIZE]
 	shr CX, MARK_BIT
 	sub CX, %1 - 1
-	mov AX, frame_reg
 	cmp CX, 0
 	je %%end
+	mov AX, [frame_reg]
 %%env_loop:
+	and AX, OBJ_ADDR
 	mov BX, [AX]
-	and BX, OBJ_ADDR
 	mov AX, [BX]
-	mov AX, [AX]
 	loop %%env_loop
 	mov [frame_reg], AX
 %%end:
@@ -108,12 +107,15 @@
 	mov CX, [BX + WORD_SIZE]
 	shr CX, MARK_BIT
 	sub CX, %2 - 1
+	mov AX, [frame_reg]
+	cmp CX, 0
+	je %%loop_end
 %%env_loop:
-	mov AX, [BX]
 	and AX, OBJ_ADDR
 	mov BX, [AX]
+	mov AX, [BX]
 	loop %%env_loop
-	add AX, ARRAY
+%%loop_end:
 %%new_func:
 %ifdef TARGET_x86
 	mov DX, NULLOBJ
@@ -166,7 +168,7 @@
 	call new_empty_array
 	add SP, WORD_SIZE
 %elifdef TARGET_x86_64
-	mov DI, MAX_ARGS
+	mov DI, MAX_ARGS + 2
 	call new_empty_array
 %endif
 	push MWORD [frame_reg]		; сохраняем текущий frame
