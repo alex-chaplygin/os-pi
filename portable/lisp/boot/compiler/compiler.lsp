@@ -120,7 +120,12 @@
       (inc-function-ref (case type ('lambda name) ('local-func (forth fun)) (otherwise f))))
     (case type
       ('lambda (list 'FIX-CLOSURE name (list-length env)
-		(compile-lambda name (second f) (cons 'progn (cddr f)) env)))
+		(let ((old-func *current-func*)
+		      (res nil))
+		  (setq *current-func* nil
+			res (compile-lambda name (second f) (cons 'progn (cddr f)) env)
+			*current-func* old-func)
+		  res)))
       ('fix-func (list 'FIX-CLOSURE f (third fun) nil))
       ('local-func (list 'FIX-CLOSURE (forth fun) (third fun) nil))
       ('fix-prim (list 'PRIM-CLOSURE f))
@@ -308,6 +313,14 @@
     (set-hash *const-vals* var (inner-compile expr env tail))
     (list 'NOP)))
 
+(defun compile-apply (func args pack env tail)
+  "Компиляция применения функции к аргументам"
+  (list 'APPLY (inner-compile func env tail) args pack))
+
+(defun compile-args (args env)
+  "Компиляция аргментов для APPLY"
+  (map #'(lambda (a) (inner-compile a env nil)) args))
+  
 (defun inner-compile (expr env tail)
 "Рекурсивная функция компиляции в промежуточную форму"
   ;; expr - выражение, env - лексическое окружение, tail - если t, то выражение в хвостовой позиции, иначе nil
@@ -333,6 +346,9 @@
 	  ('catch (compile-catch (cdr expr) env))
 	  ('throw (compile-throw (cdr expr) env))
 	  ('defconst (compile-defconst (cdr expr) env tail))
+	  ('funcall (compile-apply (car args) (compile-args (cdr args) env) t env tail))
+	  ('apply (if (search-symbol *local-functions* 'apply) (compile-application func args env tail)
+		      (compile-apply (car args) (list (inner-compile (second args) env nil)) nil env tail)))
 	  (otherwise (compile-application func args env tail))))))
 
 (defun compile (expr)

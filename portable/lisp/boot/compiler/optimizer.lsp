@@ -248,6 +248,7 @@
 		   ('TAIL-NCALL (tail-call (list (car tree) (second tree) (third tree) (forth tree) (optimize-many (fifth tree)) (sixth tree))))
 		   ('CATCH (list (car tree) (optimize (second tree)) (optimize (third tree))))
 		   ('THROW (list (car tree) (optimize (second tree)) (optimize (third tree))))
+		   ('APPLY (list 'APPLY (optimize (second tree)) (optimize-many (third tree)) (forth tree)))
 		   (otherwise (comp-err "optimize-tree: invalid expression" tree))))))
     (optimize tree)))
 

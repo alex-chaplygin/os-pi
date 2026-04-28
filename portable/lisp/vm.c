@@ -22,6 +22,7 @@
 #define APPLY 37 // номер примитива apply
 #define REG_CALL 12 // операция return
 #define RETURN_OP 13 // операция return
+#define MAX_ARGS 16 // максимальное число аргументов в функции-замыкании
 
 //Размер памяти программы
 int program_size;
@@ -50,6 +51,8 @@ int *pc_reg;
 object_t acc_reg;
 //Хранит текущий кадр активации
 object_t frame_reg;
+//Регистр замыкания - объекта-функции
+object_t func_reg;
 //хранит флаг работы машины
 int working = 1;
 
@@ -128,6 +131,9 @@ void (*instructions[])() =
 	catch_inst,
 	throw_inst,
 	pop_inst,
+	func_call_inst,
+	check_prim_inst,
+	prim_call_inst,
     };
 
 /** 
@@ -504,7 +510,8 @@ void vm_apply(object_t fun, object_t args)
 	printf("%d: ", pc_reg - program_memory);
 #endif
 	instructions[c]();
-#ifdef BIGDEBUG    
+#ifdef BIGDEBUG
+	printf("calls = %d, c = %d\n", calls, c);
 	vm_dump();
 #endif
 #ifdef OS	
@@ -513,6 +520,9 @@ void vm_apply(object_t fun, object_t args)
     } while (working && calls != 0);
 #endif
     frame_reg = pop();
+#ifdef DEBUG    
+	printf("end of apply, pop");
+#endif
 }
 
 /**
@@ -655,6 +665,8 @@ void throw_inst()
 	    stack_top = catch_top->stack_top;
 	    return;
 	}
+    printf("label: ");
+    PRINT(label);
     error("VM catch label not found");
 }   
 
@@ -663,6 +675,67 @@ void pop_inst()
     acc_reg = pop();
 #ifdef DEBUG
     printf("POP\n");
+#endif
+}
+
+/** 
+ * Вызов функции из объекта-замыкания
+ * Стек: <frame> <func> <args>
+ */
+void func_call_inst()
+{
+    function_t *f = GET_FUNCTION(stack_top[2]);
+    array_t *ar = new_empty_array(MAX_ARGS + 2);
+    object_t frame = NEW_OBJECT(ARRAY, ar);
+    frame_reg = f->env;
+    ar->data[0] = frame_reg;
+    if (frame_reg == NULLOBJ)
+	ar->data[1] = 0;
+    else
+	ar->data[1] = (object_t)(GET_ARRAY(frame_reg)->data[1] + (1 << MARK_BIT));
+    object_t args = stack_top[3];
+    int count = 2;
+    while (args != NULLOBJ) {
+	ar->data[count++] = FIRST(args);
+	args = TAIL(args);
+    }
+    frame_reg = frame;
+    stack_top[3] = stack_top[1]; // Копируем frame
+    stack_top += 2;
+    call(program_memory + (f->body >> MARK_BIT));
+#ifdef DEBUG
+    printf("FUNC-CALL\n");
+#endif
+}
+
+/** 
+ * Проверка является ли объект функцией-замыканием
+ * Стек: <func> <args>
+ */
+void check_prim_inst()
+{
+    acc_reg = NULLOBJ;
+    if (GET_FUNCTION(stack_top[1])->func)
+	acc_reg = 1 << MARK_BIT;
+#ifdef DEBUG
+    printf("CHECK-PRIM: ");
+    PRINT(acc_reg);
+#endif
+}
+
+/** 
+ * Вызов замыкания примитива
+ * Стек: <func> <args>
+ */
+void prim_call_inst()
+{
+    function_t *f = GET_FUNCTION(stack_top[1]);
+    object_t args = stack_top[2];
+    acc_reg = call_form(f->func, args, f->nary, f->count, f->count);
+    stack_top += 2;
+#ifdef DEBUG
+    printf("PRIM-CALL: ");
+    PRINT(acc_reg);
 #endif
 }
 
@@ -679,11 +752,11 @@ void vm_dump()
     PRINT(frame_reg);
     printf("PC: %d\n", pc_reg - program_memory);
     printf("STACK: \n");
-    /* for (int i = stack_top - stack + 1; i < STACK_SIZE; i++) { */
-    /* 	o = stack[i]; */
-    /* 	PRINT(o); */
-    /* } */
-    printf("-------------------------\n");
+    for (int i = stack_top - stack + 1; i < STACK_SIZE; i++) {
+    	o = stack[i];
+    	PRINT(o);
+    }
+    printf("^^^^^^^^^^^^^^^^^^^^^^^^^\n");
 }
 
 /** 
@@ -728,7 +801,9 @@ void garbage_collect()
 	mark_object(*c++);
     for (i = catch_top - catch_stack + 1, ct = catch_top + 1; i < STACK_SIZE; i++, ct++) {
 	mark_object(ct->label);
-	//mark_object(ct->frame_reg);
+	/* mark_object(ct->frame_reg); */
+	/* for (i = ct->stack_top - stack + 1, c = stack_top + 1; i < STACK_SIZE; i++) */
+	/*     mark_object(*c++); */
     }
     //    printf("mark registers\n");
     mark_object(acc_reg);

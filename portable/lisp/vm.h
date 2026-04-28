@@ -44,4 +44,7 @@ void nprim_closure();
 void catch_inst();
 void throw_inst();
 void pop_inst();
+void func_call_inst();
+void check_prim_inst();
+void prim_call_inst();
 void vm_garbage_collect();

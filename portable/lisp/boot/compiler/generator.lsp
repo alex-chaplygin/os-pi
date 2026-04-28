@@ -142,6 +142,24 @@
   (emit (list 'PACK (list-length args)))
   (emit (list 'POP)))
 
+(defun generate-apply (func args pack)
+  "Генерация применения функции к аргументам (только с фиксированными аргументами)"
+  (let ((not-prim (gensym))
+	(exit (gensym)))
+    (generate-args args 'PUSH nil)
+    (when pack (emit (list 'PACK (list-length args))))
+    (inner-generate func)
+    (emit (list 'PUSH))
+    (emit (list 'CHECK-PRIM))
+    (emit (list 'JNT not-prim))
+    (emit (list 'PRIM-CALL))
+    (emit (list 'JMP exit))
+    (emit (list 'LABEL not-prim))    
+    (emit (list 'SAVE-ENV))
+    (emit (list 'FUNC-CALL))
+    (emit (list 'RESTORE-ENV))
+    (emit (list 'LABEL exit))))   
+
 (defun inner-generate (expr)
 "Рекурсивная генерация кода для скомпилированного выражения"
   ;; (print (list 'inner-generate expr))
@@ -168,6 +186,7 @@
 	   ('CATCH (generate-catch (second expr) (third expr)))
 	   ('THROW (generate-throw (second expr) (third expr)))
 	   ('NARY (generate-nary (second expr)))
+	   ('APPLY (generate-apply (second expr) (third expr) (forth expr)))
 	   (otherwise (comp-err "Unknown node " expr)))))))
 
 (defun generate (expr)

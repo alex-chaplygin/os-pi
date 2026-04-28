@@ -16,7 +16,10 @@
     nprim-closure
     catch
     throw
-    pop))
+    pop
+    func-call
+    check-prim
+    prim-call))
 ;; *inst-jmp-table* - список номеров инструкций перехода.
 (defvar *inst-jmp-table* '(jmp jnt fix-closure reg-call catch))
 ;; *consts* - список констант.

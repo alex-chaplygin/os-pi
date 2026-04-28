@@ -15,6 +15,18 @@
 		(print (assert program expected-res)))))
 	  (comp-err (m) (print "Compiler error" m))))
 
+(defun test-assembler (expr)
+  (handle (progn
+	    (print "Expression")
+	    (print expr)
+	    (print "Assembler")
+	    (let* ((program (compile expr))
+		   (op (optimize-tree program))
+		   (gen (generate op))
+		   (as (assemble gen)))
+	      (print as)))
+	  (comp-err (m) (print "Compiler error" m))))
+
 (print "последовательность")
 (test-compile '(progn 1 2 3) '(seq (const 1) (seq (const 2) (const 3))))
 (print "пустой progn")
@@ -292,6 +304,30 @@
 		  (f2)
 		  (lab-test)))
 	      '(LABEL LAB-TEST (SEQ (SEQ (SEQ (LABEL G915 (SEQ (TAIL-CALL G915 1 ()) (RETURN))) (LABEL G916 (SEQ (TAIL-CALL G917 1 ()) (RETURN))) (LABEL G917 (SEQ (TAIL-CALL G916 1 ()) (RETURN)))) (SEQ (FIX-CALL G915 1 ()) (SEQ (FIX-CALL G916 1 ()) (TAIL-CALL LAB-TEST 0 ())))) (RETURN))))
+
+(test-compile '(progn
+		(defun f (x y)
+		(+ x x y))
+	      (funcall #'f 1 2)
+		(apply #'f '(3 4))
+		)
+	      '(SEQ (LABEL F (SEQ (NARY-PRIM + 0 ((LOCAL-REF 0) (LOCAL-REF 0) (LOCAL-REF 1))) (RETURN))) (SEQ (APPLY (FIX-CLOSURE F 0 ()) ((CONST 1) (CONST 2)) T) (APPLY (FIX-CLOSURE F 0 ()) ((CONST (3 4))) ()))))
+
+(test-assembler '(progn
+		(defun f (x y)
+		(+ x x y))
+	      (print (funcall #'f 1 2))
+		(print (apply #'f '(3 4)))
+	      (print (funcall #'+ 1 2))
+	      (print (apply #'+ '(3 4)))
+		))
+
+(test-compile '(progn
+		(defun f (x y)
+		  (if (equal x 1) (funcall #'(lambda (x) (f x x)) '(1 2 3))
+		(+ x x y)))
+	      (f 1 2))
+	      '(SEQ (LABEL F (SEQ (ALTER (FIX-PRIM EQUAL ((LOCAL-REF 0) (CONST 1))) (APPLY (FIX-CLOSURE G1081 1 (LABEL G1081 (SEQ (FIX-CALL F 0 ((LOCAL-REF 0) (LOCAL-REF 0)) ()) (RETURN)))) ((CONST (1 2 3))) T) (NARY-PRIM + 0 ((LOCAL-REF 0) (LOCAL-REF 0) (LOCAL-REF 1)))) (RETURN))) (FIX-CALL F 0 ((CONST 1) (CONST 2)) ())))
 
 ;; (print 'testing)
 ;; (print
