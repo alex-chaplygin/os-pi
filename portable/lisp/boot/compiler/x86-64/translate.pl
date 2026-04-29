@@ -1,7 +1,7 @@
 $const_mode = 0;
 
 while (<>) {
-    s/-/_/g;
+    s/-/_/g unless (/^-?\d+/);
     s/\*/_/g;
     s/ABS/_ABS/g;
     if (/^CONSTB/) {
