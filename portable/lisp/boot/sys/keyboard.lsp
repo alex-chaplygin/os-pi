@@ -74,7 +74,8 @@
 	    (progn
 	      (seta *keys* (- scan 128) nil) ; иначе это отпускание клавиши
 	      (when *key-up-handler* (funcall *key-up-handler* (- scan 128))))
-	    )))))
+	    )))
+    (interrupt-return))) ;; обязательный примитив возврата из прерывания
 
 (defun key-pressed (key)
   "Вовращает состояние нажатия клавиши key"
