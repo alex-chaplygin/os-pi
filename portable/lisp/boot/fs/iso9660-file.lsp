@@ -17,5 +17,5 @@
   (super read-file self size))
 
 (defmethod write-file ((self CDFSFile) buf)
-  "Вызов ошибки при попытке записи в файл в файловой системы CDFS(ISO9660)"
+  "Вызов ошибки при попытке записи в файл в файловой системе CDFS(ISO9660)"
   (raise 'read-only "write-file: CDFS(ISO9660) is read-only"))

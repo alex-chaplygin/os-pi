@@ -22,4 +22,6 @@
 	(print "not-empty-dir:" message))
  (argument-error (message)
 	(print "argument-error:" message))
+ (file-exists (message)
+	(print "file-exists:" message))
  )

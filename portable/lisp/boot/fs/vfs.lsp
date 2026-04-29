@@ -96,7 +96,7 @@
       (unless (get-hash path-dir 'dir) (raise 'path-not-found "load-path: file in the middle of the path"))
       (setq path-dir (find-entry path-dir (car path-list)))
       (setq path-list (cdr path-list)))
-    (unless path-dir (print path) (raise 'path-not-found "load-path: path not found"))
+    (unless path-dir (raise 'path-not-found "load-path: path not found"))
     (load-dir *file-system* path-dir)
     path-dir))
 
@@ -121,7 +121,8 @@
 
 (defun cur-dir ()
   "Получить путь текущего каталога"
-  (join #\/ (append '("") (cdr *working-path*))))
+  (let ((path (join #\/ (append '("") (cdr *working-path*)))))
+    (if (equal path "") "/" path)))
 
 (defun list-dir (path)
   "Получить содержимое каталога по пути path"
@@ -226,3 +227,4 @@
 ;; end-of-file чтение за пределами файла
 ;; not-empty-dir попытка удаления не пустого каталога
 ;; argument-error некорректные аргументы
+;; file-exists файл или каталог уже существует

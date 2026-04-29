@@ -33,8 +33,8 @@
     (ata-read-sectors *disk* sec *block-sectors*)))
 
 (defun block-write (num buf)
-  (when (< num *block-start-num*) (raise 'argument-error "block-write: block num cant be less the block-start-num"))
   "Записать буфер buf в блок с номером num"
+  (when (< num *block-start-num*) (raise 'argument-error "block-write: block num cant be less the block-start-num"))
   (ata-write-sectors *disk* (+ *block-sector-offset* (* num *block-sectors*)) *block-sectors* buf))
 
 (defun get-blocks-pos (blocks offset)

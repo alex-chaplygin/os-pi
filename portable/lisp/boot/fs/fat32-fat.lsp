@@ -15,10 +15,17 @@
         (sector-array (ata-read-sectors *disk* (+ (aref (FAT32FileSystem-fat-start-sectors *file-system*) (FAT32FileSystem-fat-active-num *file-system*)) sector-num) 1))
         (cur-pos 0))
     (while (<= cur-pos (- +sector-size+ +fat-elem-size+))
-           (let ((fat-elem (arr-get-num sector-array cur-pos +fat-elem-size+)))
-             (seta fat-table cur-table-elem fat-elem)
-             (incf cur-table-elem)
-             (setq cur-pos (+ cur-pos +fat-elem-size+))))))
+      (let ((fat-elem (arr-get-num sector-array cur-pos +fat-elem-size+)))
+        (seta fat-table cur-table-elem fat-elem)
+        (incf cur-table-elem)
+        (setq cur-pos (+ cur-pos +fat-elem-size+))))))
+
+(defun fat-check-for-read (fat-table fat-read-sectors elem-num)
+  "Проверить прочитан ли сектор таблицы FAT, в котором находится элемент elem-num через массив прочитанных секторов fat-read-sectors"
+  "Если нет то прочитать сектор таблицы FAT в fat-table"
+  (unless (aref fat-read-sectors (car (fat-elem-pos elem-num)))
+    (fat-read-sector fat-table (car (fat-elem-pos elem-num)))
+    (seta fat-read-sectors (car (fat-elem-pos elem-num)) t)))
 
 (defun get-fat-chain (block-num)
   "Получить цепочку блоков из таблицы FAT, начиная с блока block-num"
@@ -48,9 +55,7 @@
               (raise 'error (concat "get-fat-chain: fat table elem in chain is damaged. Block num = " (inttostr prev-elem))))
             (when (= cur-elem -1)
               (raise 'error (concat "get-fat-chain: fat table elem in chain is recursive starting at block num = " (inttostr prev-elem))))
-            (unless (aref fat-read-sectors (car (fat-elem-pos cur-elem)))
-                  (fat-read-sector fat-table (car (fat-elem-pos cur-elem)))
-                  (seta fat-read-sectors (car (fat-elem-pos cur-elem)) t))
+            (fat-check-for-read fat-table fat-read-sectors cur-elem)
             (setq fat-chain (append fat-chain (list prev-elem)))
             (seta fat-table prev-elem -1)
             (setq prev-elem cur-elem
@@ -59,15 +64,17 @@
           (set-hash fat-hash block-num (cdr fat-chain))
           fat-chain))))
 
-(defun get-free-block (fat-table free-block-num)
-  "Найти первый свободный блок в таблице FAT fat-table, начиная поиск с free-block-num"
+(defun get-free-block (fat-table fat-read-sectors free-block-num)
+  "Найти первый свободный блок в таблице FAT fat-table, где массив прочитанных секторов таблицы FAT fat-read-sectors, начиная поиск с free-block-num"
   (let ((free-num nil))
     (for i (+ free-block-num 1) (array-size fat-table)
+         (fat-check-for-read fat-table fat-read-sectors i)
          (when (= (aref fat-table i) +fat-block-free+)
            (setq free-num i)
            (setq i (array-size fat-table))))
     (when (null free-num)
       (for i +fat-min-elem+ (+ free-block-num 1)
+           (fat-check-for-read fat-table fat-read-sectors i)
            (when (= (aref fat-table i) +fat-block-free+)
              (setq free-num i)
              (setq i (+ free-block-num 1))))

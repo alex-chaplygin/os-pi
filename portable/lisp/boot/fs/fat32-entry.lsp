@@ -160,7 +160,7 @@
       checksum)))
 
 (defun fat32-create-lfn-entry (name-part-str lfn-num checksum)
-  "Создать одну запись длинного имени для строки name-part-str"
+  "Создать одну запись длинного имени для строки name-part-str, с номером lfn-num и контрольной суммой checksum"
   (let ((byte-array (make-array 32)))
     (seta byte-array 0 (+ 0x40 lfn-num))
     (when (< (string-size name-part-str) 13)
@@ -193,11 +193,11 @@
   (let ((byte-array (make-array 12))
         (short-name (split #\. (get-hash entry 'short-name))))
     (when (fat32-is-special-name (get-hash entry 'short-name))
-          (setq short-name
-              (case (get-hash entry 'short-name)
-                ("." '(".       " "   "))
-                (".." '("..      " "   "))
-                (otherwise (raise 'error "fat32-create-dir-entry: unknown special name")))))
+      (setq short-name
+            (case (get-hash entry 'short-name)
+              ("." '(".       " "   "))
+              (".." '("..      " "   "))
+              (otherwise (raise 'error "fat32-create-dir-entry: unknown special name")))))
     (let ((left-length 8)
           (short-name-1 (car short-name))
           (short-name-2 (if (= (list-length short-name) 2) (cadr short-name) nil)))
@@ -218,7 +218,7 @@
             (access-date (fat32-generate-date-time (get-hash entry 'access-date)))
             (blocks-arr (make-array 4))
             (size-arr (make-array 4)))
-        (arr-set-num blocks-arr 0 (car (get-fat-chain (get-hash entry 'first-block))) 4)
+        (arr-set-num blocks-arr 0 (get-hash entry 'first-block) 4)
         (arr-set-num size-arr 0 (get-hash entry 'size) 4)
         (setq byte-array (array-cat byte-array #(0)))
         (setq byte-array (array-cat byte-array creation-date-time))
@@ -455,6 +455,7 @@
     output-attributes))
 
 (defun fat32-create-special-entries (dir)
+  "Создать особые файлы указывающие на текущий каталог и на родительский каталог"
   (let ((new-entry (make-hash)))
     (set-hash new-entry 'name ".")
     (set-hash new-entry 'size 0)
@@ -471,3 +472,8 @@
     (set-hash new-entry 'short-name "..")
     (set-hash new-entry 'first-block (get-hash dir 'parent-first-block))
     (fat32-add-entry new-entry)))
+
+(defun fat32-is-name-duplicate (dir name)
+  "Проверить есть ли в каталоге dir файл с названием name"
+  (let ((dir-list (map #'(lambda (elem) (get-hash elem 'name)) (car (get-hash dir 'dir)))))
+    (contains dir-list name)))

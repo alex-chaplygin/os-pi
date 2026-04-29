@@ -686,7 +686,10 @@
 
 (deftest get-free-block-test () "get free block test"
 	 "Проверка получения номера первого свободного блока"
-	 (let ((fat-table-small (make-array 256)))
+	 (let ((fat-table-small (make-array 256))
+               (fat-read-sectors (make-array 2)))
+	   (seta fat-read-sectors 0 t)
+	   (seta fat-read-sectors 1 t)
 	   (for i 0 256 (seta fat-table-small i +fat-block-free+))
 	   (seta fat-table-small 2 +fat-block-end+)
 	   (seta fat-table-small 3 5)
@@ -701,7 +704,7 @@
 	   (seta fat-table-small 160 9)
 	   (seta fat-table-small 9 100)
 	   (seta fat-table-small 100 +fat-block-end+)
-	   (assert (get-free-block fat-table-small 1)
+	   (assert (get-free-block fat-table-small fat-read-sectors 1)
 		   4)))
 
 (deftest update-fat-elem-test1 () "update fat elem test1"

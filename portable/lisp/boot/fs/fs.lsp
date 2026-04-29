@@ -164,3 +164,8 @@
       (setq pos (cons (+ (car pos) 1) (- (cdr pos) *block-size*))))
     (File-set-position self pos)
     nil))
+
+(defmethod clear-file ((self File))
+  "Очистить содержимое файла"
+  (File-set-size self 0)
+  (File-set-position self '(0 . 0)))
