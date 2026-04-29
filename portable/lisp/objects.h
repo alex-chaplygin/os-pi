@@ -7,7 +7,7 @@
 #define MAX_PAIRS 800000
 #endif
 /// Всего символов
-#define MAX_SYMBOLS (4*1024)
+#define MAX_SYMBOLS (8*1024)
 /// Всего строк
 #define MAX_STRINGS 20000
 /// Всего массивов

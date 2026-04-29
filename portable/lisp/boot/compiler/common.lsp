@@ -6,7 +6,7 @@
     (make-array . 1) (make-string . 2) (array-size . 1) (aref . 2) (seta . 3) (sets . 3)
     (symbolp . 1) (integerp . 1) (pairp . 1) (functionp . 1) (gensym . 0) (apply . 2) (round . 1) (~ . 1)
     (+ . 2) (- . 2) (* . 2) (/ . 2) (& . 2) (bitor . 2) (^ . 2) (arrayp . 1) (stringp . 1) (eval . 1)
-    (inb . 1) (inw . 1) (indw . 1) (insw . 2) (outb . 2) (outw . 2) (outdw . 2) (outsw . 2) (set-cursor . 2) (set-color . 1) (set-back-color . 1) (hide-cursor . 0) (show-cursor . 0) (set-int-handler . 2) (send-text-buffer . 5) (send-graphics-buffer . 5) (memcpy . 2)))
+    (inb . 1) (inw . 1) (indw . 1) (insw . 2) (outb . 2) (outw . 2) (outdw . 2) (outsw . 2) (set-cursor . 2) (set-color . 1) (set-back-color . 1) (hide-cursor . 0) (show-cursor . 0) (set-int-handler . 2) (send-text-buffer . 5) (send-graphics-buffer . 5) (memcpy . 2) (interrupt-return . 0)))
 ;; список примитивов с переменным количеством аргументов
 (defvar *nary-primitives*
   '((+ . 0) (- . 1) (* . 0) (/ . 1) (& . 0) (bitor . 0) (^ . 0) (concat . 0) (funcall . 1) (print . 0) (error . 0)))

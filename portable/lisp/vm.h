@@ -47,4 +47,5 @@ void pop_inst();
 void func_call_inst();
 void check_prim_inst();
 void prim_call_inst();
+object_t halt_return();
 void vm_garbage_collect();

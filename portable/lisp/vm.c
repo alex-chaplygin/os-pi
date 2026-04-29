@@ -99,7 +99,8 @@ struct prim {
     SET_INT_HANDLER, 2,
     send_text_buffer, 5,
     send_graphics_buffer, 5,
-    MEMCPY, 2
+    MEMCPY, 2,
+    halt_return, 0,
 #endif
 };
 
@@ -737,6 +738,32 @@ void prim_call_inst()
     printf("PRIM-CALL: ");
     PRINT(acc_reg);
 #endif
+}
+
+/** 
+ * Останов машины и возврат из функции
+ *
+ * @return nil
+ */
+object_t halt_return()
+{
+    halt();
+    return_inst();
+    return NULLOBJ;
+}
+
+/**
+ * @brief Запуск пользовательского обработчика прерывания
+ */
+void vm_run_int(object_t fun)
+{
+    push(NULLOBJ);
+    push(fun);
+    save_frame_inst();
+    func_call_inst();
+    working = 1;
+    vm_run();
+    restore_frame_inst();
 }
 
 /** 

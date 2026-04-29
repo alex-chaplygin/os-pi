@@ -61,7 +61,7 @@ void exception_handler(int num)
     panic();
 }
 
-void vm_apply(object_t fun, object_t args);
+void vm_run_int(object_t fun);
 /** 
  * Обработчик прерываний
  * 
@@ -74,7 +74,7 @@ void interrupt_handler(int num)
     object_t h = int_handlers[num - IRQ_BASE];
     if (h)
 #ifdef VM
-	vm_apply(h, NULLOBJ);
+	vm_run_int(h);
 #else
         funcall(h, NULLOBJ);
 #endif
