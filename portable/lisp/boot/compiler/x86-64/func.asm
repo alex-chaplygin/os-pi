@@ -208,3 +208,54 @@
 	add SP, 2 * WORD_SIZE	; восстанавливаем параметры APPLY
 %%end:	
 %endmacro
+
+%macro FUNC_CALL 0
+	cld
+%ifdef TARGET_x86
+	mov AX, MAX_ARGS + 2
+ 	push AX
+	call new_empty_array
+	add SP, WORD_SIZE
+%elifdef TARGET_x86_64
+	mov DI, MAX_ARGS
+	add DI, 2
+	call new_empty_array
+%endif
+	mov BX, [SP + WORD_SIZE] ; f
+	and BX, OBJ_ADDR
+	mov DX, [BX + 3 * WORD_SIZE] ; f->env
+	mov [frame_reg], DX
+	mov DI, [AX] ; ar->data
+	mov [DI], DX ; ar->data[0] = frame_reg
+	cmp DX, NULLOBJ
+	je %%set_zero
+	and DX, OBJ_ADDR
+	mov SI, [DX] ; frame_reg->data
+	mov CX, [SI + WORD_SIZE] ; frame_reg->data[1]
+	add CX, 1 << MARK_BIT
+	mov [DI + WORD_SIZE], CX
+	jmp %%set_after
+%%set_zero:
+	mov MWORD [AX + WORD_SIZE], 0
+%%set_after:
+	mov SI, [SP + WORD_SIZE * 2] ; args
+	add DI, 2 * WORD_SIZE	 ; куда записываются аргументы
+%%args_loop:	
+	cmp SI, NULLOBJ
+	je %%call
+	and SI, OBJ_ADDR
+%ifdef TARGET_x86
+	movsd			; записываем car в кадр
+%elifdef TARGET_x86_64
+	movsq
+%endif	
+	mov SI, [SI] ; cdr
+	jmp %%args_loop	
+%%call:
+	add AX, ARRAY
+	mov [frame_reg], AX
+	mov DX, [SP]
+	mov [SP + 2 * WORD_SIZE], DX
+	add SP, 2 * WORD_SIZE
+	call [BX + WORD_SIZE] ; f->body
+%endmacro

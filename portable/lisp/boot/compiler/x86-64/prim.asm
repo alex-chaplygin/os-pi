@@ -31,8 +31,8 @@
 %endif
 %endmacro
 
-%macro PRIM_CLOSURE_ 2
-	mov BX, prims + %1 * 2 * WORD_SIZE ; адрес в таблице примитивов
+%macro PRIM_CLOSURE_ 3
+	mov BX, %3 + %1 * 2 * WORD_SIZE ; адрес в таблице примитивов
 %ifdef   TARGET_x86
 	push dword [BX + WORD_SIZE] ; число аргументов
 	mov AX, %2
@@ -48,8 +48,8 @@
 %endif
 %endmacro
 
-%define PRIM_CLOSURE(n) PRIM_CLOSURE_ n, 0
-%define NPRIM_CLOSURE(n) PRIM_CLOSURE_ n, 1
+%define PRIM_CLOSURE(n) PRIM_CLOSURE_ n, 0, prims
+%define NPRIM_CLOSURE(n) PRIM_CLOSURE_ n, 1, nprims
 	
 %macro PACK 1
 	mov REG1, %1
@@ -101,4 +101,39 @@
 %%call:
 	call [BX]
 %endif
+%endmacro
+
+%macro CHECK_PRIM 0
+	mov AX, NULLOBJ
+	mov BX, [SP]
+	and BX, OBJ_ADDR
+	mov DX, [BX + 2 * WORD_SIZE]
+	cmp DX, 0
+	je %%false
+	mov AX, 1 << MARK_BIT
+%%false:
+%endmacro
+
+%macro PRIM_CALL 0
+	mov BX, [SP] ;fun
+	and BX, OBJ_ADDR	     ; f
+	mov AX, [BX + 2 * WORD_SIZE] ; func
+%ifdef TARGET_x86
+	mov DX, [BX]		; count
+	push DX			
+	push DX
+	push MWORD [BX + WORD_SIZE] ; nary
+	push MWORD [SP + (3 + 1) * WORD_SIZE] ; args
+	push AX
+	call call_form
+	add SP, 5 * WORD_SIZE	; call_from - 5
+%elifdef TARGET_x86_64
+	mov DI, AX
+	mov SI, [SP + WORD_SIZE]
+	mov DX, [BX + WORD_SIZE]
+	mov CX, [BX]
+	mov r8, CX
+	call call_form
+%endif
+	add SP, 2 * WORD_SIZE
 %endmacro
