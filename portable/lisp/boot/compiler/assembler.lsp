@@ -125,6 +125,7 @@
 		(assemble-prim inst))
 	       (t (case (car inst)
 		    ('label (assemble-label inst))
+		    ('func (assemble-label inst))
 		    ('const (assemble-const inst))
 		    (otherwise (setq jmp-labels (assemble-inst inst jmp-labels)))))))
 	 program)

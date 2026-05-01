@@ -34,7 +34,7 @@
   (when (not (check-key *functions-info* name))
     (set-hash *functions-info* name (make-hash))
     (set-hash (get-hash *functions-info* name) 'count 0))
-  (list 'LABEL name
+  (list 'FUNC name
 	(list 'SEQ
 	      (inner-compile body (extend-env env args) t)
 	      (list 'RETURN))))

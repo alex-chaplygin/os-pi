@@ -172,6 +172,7 @@
 	   ('NOP nil)
 	   ('DEEP-SET  (generate-deep (second expr) (third expr) (forth expr)))
 	   ('LABEL (generate-2-params expr))
+	   ('FUNC (generate-2-params expr))
 	   ('SEQ (app #'inner-generate (cdr expr))) ; последовательность
 	   ('ALTER (generate-if (cdr expr))) ; ветвление
 	   ('FIX-LET (generate-let (second expr) (third expr) (cadddr expr))) ; let форма
