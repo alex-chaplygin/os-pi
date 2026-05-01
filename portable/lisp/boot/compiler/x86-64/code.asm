@@ -12,5 +12,6 @@ extern t, frame_reg, boot_load, boot_code, parse, prims, nprims, new_pair, new_e
 
 global run
 %include "/tmp/code"
+	pop BP
 	RESTORE_REGS
 	ret

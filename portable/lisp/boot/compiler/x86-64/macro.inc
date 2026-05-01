@@ -5,7 +5,10 @@
 section .text	
 run:
 	SAVE_REGS
+       push BP
+       mov BP, SP
 %include "init.asm"
+run_code:
 %endmacro
 	
 %macro GLOBALS 1
@@ -41,10 +44,8 @@ section .data
               push BX
               push SI
               push DI
-              push BP
        %endmacro
        %macro RESTORE_REGS 0
-              pop BP
               pop DI
               pop SI
               pop BX
@@ -67,20 +68,16 @@ section .data
        OBJ_ADDR equ 0xFFFFFFFFFFFFFFE0
        %macro SAVE_REGS 0
               push BX
-              push BP
               push r12
               push r13
               push r14
               push r15
-              ALIGN
        %endmacro
        %macro RESTORE_REGS 0
-              UNALIGN
               pop r15
               pop r14
               pop r13
               pop r12
-              pop BP
               pop BX
        %endmacro
    %else
@@ -97,7 +94,6 @@ section .data
 %define LABEL(l) l:
 %define JMP(label)      jmp label
 %define REG_CALL(label) call label
-%define RETURN          ret
 %define CATCH
 %define THROW
 

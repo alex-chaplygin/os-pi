@@ -236,7 +236,7 @@
 	mov [DI + WORD_SIZE], CX
 	jmp %%set_after
 %%set_zero:
-	mov MWORD [AX + WORD_SIZE], 0
+	mov MWORD [DI + WORD_SIZE], 0
 %%set_after:
 	mov SI, [SP + WORD_SIZE * 2] ; args
 	add DI, 2 * WORD_SIZE	 ; куда записываются аргументы
@@ -258,4 +258,17 @@
 	mov [SP + 2 * WORD_SIZE], DX
 	add SP, 2 * WORD_SIZE
 	call [BX + WORD_SIZE] ; f->body
+%endmacro
+
+%macro FUNC_ 1
+%1:
+	push BP
+	mov BP, SP
+%endmacro
+
+%define FUNC(l) FUNC_ l
+
+%macro RETURN 0
+	pop BP
+	ret
 %endmacro
