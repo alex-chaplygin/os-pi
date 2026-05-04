@@ -127,6 +127,7 @@
 		    ('label (assemble-label inst))
 		    ('func (assemble-label inst))
 		    ('const (assemble-const inst))
+		    ('jmptail (setq jmp-labels (assemble-inst (cons 'JMP (cdr inst)) jmp-labels)))
 		    (otherwise (setq jmp-labels (assemble-inst inst jmp-labels)))))))
 	 program)
     (asm-emit (list-search *inst-table* 'HALT))

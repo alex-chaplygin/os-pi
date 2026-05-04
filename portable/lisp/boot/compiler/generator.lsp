@@ -134,7 +134,7 @@
 	   (decf num))
     (for i 0 depth
 	 (emit (list 'RESTORE-ENV)))
-    (emit (list 'JMP name))))
+    (emit (list 'JMPTAIL name))))
 
 (defun generate-nary (args)
   "Генерация списка необязательных аргументов"
