@@ -5,16 +5,17 @@
 section .text	
 run:
 	SAVE_REGS
-       push BP
-       mov BP, SP
+	push BP
+	mov BP, SP
+       mov [first_frame], BP
 %include "init.asm"
-run_code:
 %endmacro
 	
 %macro GLOBALS 1
 	NUM_GLOBALS equ %1
 	section .bss
 global_mem: resb (%1 * WORD_SIZE)
+first_frame: resb WORD_SIZE
 %endmacro
 	
 %macro CONSTS 1
@@ -54,7 +55,7 @@ section .data
        USE64
        %define WORD_SIZE 8
        %define MWORD qword
-       %define ALIGN sub rsp, 8
+       %define ALIGN push NULLOBJ
        %define UNALIGN add rsp, 8
        %define AX rax
        %define BX rbx
@@ -94,6 +95,7 @@ section .data
 %define LABEL(l) l:
 %define JMP(label)      jmp label
 %define REG_CALL(label) call label
+%define JMPTAIL(l) jmp l%+_TAIL
 %define CATCH
 %define THROW
 
@@ -105,3 +107,4 @@ section .data
 %include "prim.asm"
 %include "func.asm"
 %include "arith.asm"
+%include "gc.asm"

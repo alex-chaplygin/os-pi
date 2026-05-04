@@ -139,7 +139,7 @@
 	mov BX, [SP] ;fun
 	and BX, OBJ_ADDR	     ; f
 	mov AX, [BX + 2 * WORD_SIZE] ; func
-	cmp AX, NULL
+	cmp AX, _NULL
 	je %%func
 %ifdef TARGET_x86
 	mov DX, [BX]		; count
@@ -264,6 +264,7 @@
 %1:
 	push BP
 	mov BP, SP
+%1%+_TAIL:
 %endmacro
 
 %define FUNC(l) FUNC_ l
@@ -272,3 +273,4 @@
 	pop BP
 	ret
 %endmacro
+

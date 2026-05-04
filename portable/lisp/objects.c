@@ -634,7 +634,9 @@ void mark_object(object_t obj)
 	mark_object(f->env);
 	mark_object(f->func_env);
 	if (f->func == NULL) {
+#ifndef MACHINE
 	    mark_object(f->body);
+#endif
 	    mark_object(f->args);
 	}
 	f->free |= mask;
@@ -763,6 +765,7 @@ object_t dump_mem(object_t args)
 }
 
 #ifndef VM
+#ifndef MACHINE
 /**
  * Сборка мусора для интерпретатора
  */
@@ -792,6 +795,7 @@ void garbage_collect()
     sweep();
     allocated_pairs = 0;
 }
+#endif    
 #endif    
 
 int print_counter = 0;

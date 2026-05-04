@@ -11,23 +11,29 @@
 	jmp %%test
 %%switch:
 	dq %%prim0, %%prim1, %%prim2, %%prim3
+%%size:
+	dq 0, 16, 16, 32
 %%test:
+	mov REG1, [SI + %%size]
 	jmp [SI + %%switch]
 %%prim0:
 	jmp %%call
 %%prim1:
-	pop DI
+	mov DI, [SP]
+	ALIGN
 	jmp %%call
 %%prim2:
-	pop DI
-	pop SI
+	mov DI, [SP]
+	mov SI, [SP + WORD_SIZE]
 	jmp %%call
 %%prim3:
-	pop DI
-	pop SI
-	pop DX
+	mov DI, [SP]
+	mov SI, [SP + WORD_SIZE]
+	mov DX, [SP + 2 * WORD_SIZE]
+	ALIGN
 %%call:	
 	call [BX]
+	add SP, REG1
 %endif
 %endmacro
 
@@ -93,13 +99,15 @@
 %%test:
 	jmp [SI + %%switch]
 %%nprim1:
-	pop DI
+	mov DI, [SP]
+	ALIGN
 	jmp %%call
 %%nprim2:
-	pop DI
-	pop SI
+	mov DI, [SP]
+	mov SI, [SP + WORD_SIZE]
 %%call:
 	call [BX]
+	add SP, 16
 %endif
 %endmacro
 
