@@ -13,6 +13,6 @@ global run, garbage_collect
 %include "macro.inc"
 
 %include "/tmp/code"
-	pop BP
+	RESTORE_FRAME
 	RESTORE_REGS
 	ret

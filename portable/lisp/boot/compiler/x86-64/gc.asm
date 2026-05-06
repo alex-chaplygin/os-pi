@@ -30,8 +30,7 @@
 ;;; функции создания: new_bignumber, new_function, new_prim_function, new_float, new_pair, new_symbol,
 ;;; new_empty_array
 garbage_collect:
-	push BP
-	mov BP, SP
+	NEW_FRAME
 	SAVE_REGS
 %ifdef TARGET_x86
 	push MWORD [frame_reg]
@@ -46,7 +45,9 @@ garbage_collect:
 	MARK_LOOP global_mem, NUM_GLOBALS
 	mov BX, BP		; указывает на начало кадра
 	NEXT_FRAME		; garbage collect
+%ifdef TARGET_x86	
 	NEXT_FRAME		; создание объекта
+%endif	
 	mov REG1, BX		; указатель внутри кадра
 	add REG1, 2 * WORD_SIZE		; пропуск BP, адрес возврата
 .stack_loop:
@@ -73,5 +74,5 @@ garbage_collect:
 .stack_end:
 	call sweep
 	RESTORE_REGS
-	pop BP
+	RESTORE_FRAME
 	ret

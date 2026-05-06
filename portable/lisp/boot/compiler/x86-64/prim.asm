@@ -40,12 +40,14 @@
 %macro PRIM_CLOSURE_ 3
 	mov BX, %3 + %1 * 2 * WORD_SIZE ; адрес в таблице примитивов
 %ifdef   TARGET_x86
+	NEW_FRAME
 	push dword [BX + WORD_SIZE] ; число аргументов
 	mov AX, %2
 	push AX
 	push dword [BX]
 	call new_prim_function
 	add SP, 12 		; восстанавливаем стек
+	RESTORE_FRAME
 %elifdef TARGET_x86_64
 	mov DI, [BX]
 	mov SI, %2

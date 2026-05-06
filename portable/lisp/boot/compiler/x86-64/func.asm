@@ -64,10 +64,12 @@
 	
 %macro ALLOC 1
 %ifdef TARGET_x86
+	NEW_FRAME
 	mov AX, %1 + 2
 	push AX
 	call new_empty_array	;AX - указатель на массив
 	add SP, 4
+	RESTORE_FRAME
 %elifdef TARGET_x86_64
 	mov DI, %1 + 2
 	call new_empty_array
@@ -117,7 +119,8 @@
 	loop %%env_loop
 %%loop_end:
 %%new_func:
-%ifdef TARGET_x86
+	%ifdef TARGET_x86
+	NEW_FRAME
 	mov DX, NULLOBJ
 	push DX
 	push AX
@@ -125,6 +128,7 @@
 	push DX
 	call new_function
 	add SP, 16
+	RESTORE_FRAME
 %elifdef TARGET_x86_64
 	mov DI, NULLOBJ
 	mov SI, %1
@@ -212,10 +216,12 @@
 %macro FUNC_CALL 0
 	cld
 %ifdef TARGET_x86
+	NEW_FRAME
 	mov AX, MAX_ARGS + 2
  	push AX
 	call new_empty_array
 	add SP, WORD_SIZE
+	RESTORE_FRAME
 %elifdef TARGET_x86_64
 	mov DI, MAX_ARGS
 	add DI, 2
@@ -262,15 +268,14 @@
 
 %macro FUNC_ 1
 %1:
-	push BP
-	mov BP, SP
+	NEW_FRAME
 %1%+_TAIL:
 %endmacro
 
 %define FUNC(l) FUNC_ l
 
 %macro RETURN 0
-	pop BP
+	RESTORE_FRAME
 	ret
 %endmacro
 

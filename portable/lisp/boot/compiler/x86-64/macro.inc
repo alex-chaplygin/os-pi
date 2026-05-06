@@ -5,9 +5,8 @@
 section .text	
 run:
 	SAVE_REGS
-	push BP
-	mov BP, SP
-       mov [first_frame], BP
+	NEW_FRAME
+        mov [first_frame], BP
 %include "init.asm"
 %endmacro
 	
@@ -103,7 +102,14 @@ section .data
    cmp AX, NULLOBJ
    je %1
 %endmacro
-
+;;; создает новый кадр стека
+%macro NEW_FRAME 0
+	push BP
+	mov BP, SP
+%endmacro
+;;; восстанавливает предыдущий кадр стека
+%define RESTORE_FRAME pop BP
+	
 %include "prim.asm"
 %include "func.asm"
 %include "arith.asm"
