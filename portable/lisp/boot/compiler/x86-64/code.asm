@@ -6,7 +6,7 @@ ARRAY equ 6			; как в objects.h
 MAX_ARGS equ 16	
 	
 ;; внешние символы
-extern t, frame_reg, boot_load, boot_code, parse, prims, nprims, new_pair, new_empty_array, new_function, new_prim_function, call_form, mark_object, sweep
+extern t, frame_reg, boot_load, boot_code, parse, prims, nprims, new_pair, new_empty_array, new_function, new_prim_function, call_form, mark_object, sweep, add2, sub2, bitwise_xor2, less, gt, equal, DIV, mod, mul2, new_bignumber
 
 global run, garbage_collect
 
