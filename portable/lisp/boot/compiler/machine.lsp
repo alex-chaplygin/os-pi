@@ -36,7 +36,7 @@
 	       ('/ (list '_DIV))
 	       ('< (list '_LESS))
 	       ('> (list '_GT))
-	       ('= (list '_EQUAL))
+	       ('equal (list '_EQUAL))
 	       ('% (list '_MOD))
 	       ('^ (list '_XOR))
 	       ('eq (list '_EQ))
