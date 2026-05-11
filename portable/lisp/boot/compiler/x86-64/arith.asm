@@ -80,7 +80,7 @@
 	shl AX, MARK_BIT
 	jmp %%exit
 %%com:
-	call DIV
+	call DIV2
 %%exit:	
 	add SP, 2 * WORD_SIZE
 %endmacro	
