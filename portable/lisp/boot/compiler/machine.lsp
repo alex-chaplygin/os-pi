@@ -40,6 +40,7 @@
 	       ('% (list '_MOD))
 	       ('^ (list '_XOR))
 	       ('eq (list '_EQ))
+	       ('make-array (list '_MAKE_ARRAY))
 	       (otherwise (list prim-type prim-i))))
       (otherwise (list prim-type prim-i)))))
 
