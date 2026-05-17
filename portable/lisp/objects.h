@@ -7,14 +7,14 @@
 #define MAX_PAIRS 800000
 #endif
 /// Всего символов
-#define MAX_SYMBOLS (8*1024)
+#define MAX_SYMBOLS (8 * 1024)
 /// Всего строк
 #define MAX_STRINGS 20000
 /// Всего массивов
 #ifdef VM
 #define MAX_ARRAYS 2 * 1024 * 1024
 #else
-#define MAX_ARRAYS 4 * 1024
+#define MAX_ARRAYS 2 * 1024 * 1024
 #endif
 /// Максимальная длина символа
 #define MAX_SYM_STR 64
@@ -26,17 +26,17 @@
 #endif
 /// Всего вещественных чисел
 #ifdef VM
-#define MAX_FLOATS 10*1024
+#define MAX_FLOATS 16 * 1024
 #else
-#define MAX_FLOATS 2000
+#define MAX_FLOATS 16 * 1024
 #endif
 /// Всего продолжений
 #define MAX_CONTINUATIONS 16
 /// Всего функций 
 #ifdef VM
-#define MAX_FUNCTIONS (16*1024)
+#define MAX_FUNCTIONS (16 * 1024)
 #else
-#define MAX_FUNCTIONS 10000
+#define MAX_FUNCTIONS (16 * 1024)
 #endif
 /// Макросы сборки мусора
 #define GC_THRESHOLD(max) (max * 9 / 10)
