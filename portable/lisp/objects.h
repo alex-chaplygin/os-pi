@@ -26,9 +26,9 @@
 #endif
 /// Всего вещественных чисел
 #ifdef VM
-#define MAX_FLOATS 16 * 1024
+#define MAX_FLOATS 1024 * 1024
 #else
-#define MAX_FLOATS 16 * 1024
+#define MAX_FLOATS 1024 * 1024
 #endif
 /// Всего продолжений
 #define MAX_CONTINUATIONS 16
