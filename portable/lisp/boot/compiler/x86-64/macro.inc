@@ -114,3 +114,4 @@ section .data
 %include "func.asm"
 %include "arith.asm"
 %include "gc.asm"
+%include "array.asm"

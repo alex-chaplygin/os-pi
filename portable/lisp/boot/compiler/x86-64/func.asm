@@ -64,12 +64,13 @@
 	
 %macro ALLOC 1
 %ifdef TARGET_x86
+	sub SP, 4
 	NEW_FRAME
 	mov AX, %1 + 2
 	push AX
 	call new_empty_array	;AX - указатель на массив
-	add SP, 4
-	RESTORE_FRAME
+	mov BP, [SP + WORD_SIZE]
+	add SP, 3 * WORD_SIZE
 %elifdef TARGET_x86_64
 	mov DI, %1 + 2
 	call new_empty_array

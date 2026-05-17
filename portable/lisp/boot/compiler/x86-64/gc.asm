@@ -49,7 +49,7 @@ garbage_collect:
 	NEXT_FRAME		; создание объекта
 %endif	
 	mov REG1, BX		; указатель внутри кадра
-	add REG1, WORD_SIZE		; пропуск BP
+	add REG1, 2 * WORD_SIZE	; пропуск BP и адреса возврата
 .stack_loop:
 	cmp BX, [first_frame]	; если дошли до кадра run
 	je .stack_end
