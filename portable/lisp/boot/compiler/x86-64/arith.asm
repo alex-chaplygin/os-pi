@@ -34,7 +34,28 @@
 	add SP, 2 * WORD_SIZE
 %endmacro
 	
-%define _ADD _ARITH add, add2
+%macro _ADD 0
+	mov AX, [SP]
+	test AX, MASK
+	jnz %%com
+	mov DX, [SP + WORD_SIZE]
+	test DX, MASK
+	jnz %%com
+	add AX, DX
+	jno %%exit
+	shr AX, MARK_BIT - 1
+	NEW_FRAME
+	push AX
+	call new_bignumber
+	add SP, WORD_SIZE
+	RESTORE_FRAME
+	jmp %%exit
+%%com:
+	call add2
+%%exit:	
+	add SP, 2 * WORD_SIZE
+%endmacro
+	
 %define _SUB _ARITH sub, sub2
 %define _XOR _ARITH xor, bitwise_xor2
 %define _LESS _COMPARE jl, less
