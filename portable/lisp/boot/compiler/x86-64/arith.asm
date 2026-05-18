@@ -1,5 +1,5 @@
 %define MASK ((1 << MARK_BIT) - 1)
-
+	
 %macro _ARITH 2
 	mov AX, [SP]
 	test AX, MASK
@@ -82,7 +82,8 @@
 	call new_bignumber
 	add SP, WORD_SIZE
 	RESTORE_FRAME
-%%com:
+	jmp %%exit
+%%com:	
 	call mul2
 %%exit:	
 	add SP, 2 * WORD_SIZE
