@@ -14,6 +14,7 @@ while (<>) {
 	print "db 0\nENTRY\n";
     } elsif ($const_mode == 1) {
 	chomp;
+	s/'/', 39, '/g;
 	s/\\(w|d|D|s|S|\+|\^|\*|\.|\?)/\\\\\1/g;
 	s/#\\\\(\.|\?|w|d|D|s|S|\^|\*|\+)/#\\\1/g;
 	print "db '$_ '\n";
