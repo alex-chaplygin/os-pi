@@ -10,6 +10,10 @@
 	%1 AX, DX
 	jmp %%exit
 %%com:
+%ifdef TARGET_x86_64
+	mov DI, [SP]
+	mov SI, [SP + WORD_SIZE]
+%endif	
 	call %2
 %%exit:	
 	add SP, 2 * WORD_SIZE
@@ -29,6 +33,10 @@
 %%l:
 	jmp %%exit
 %%com:
+%ifdef TARGET_x86_64
+	mov DI, [SP]
+	mov SI, [SP + WORD_SIZE]
+%endif
 	call %2
 %%exit:	
 	add SP, 2 * WORD_SIZE
@@ -43,14 +51,23 @@
 	jnz %%com
 	add AX, DX
 	jno %%exit
-	shr AX, MARK_BIT - 1
+	sar AX, MARK_BIT - 1
 	NEW_FRAME
+%ifdef TARGET_x86
 	push AX
 	call new_bignumber
 	add SP, WORD_SIZE
+%elifdef TARGET_x86_64
+	mov DI, AX
+	call new_bignumber
+%endif
 	RESTORE_FRAME
 	jmp %%exit
 %%com:
+%ifdef TARGET_x86_64
+	mov DI, [SP]
+	mov SI, [SP + WORD_SIZE]
+%endif	
 	call add2
 %%exit:	
 	add SP, 2 * WORD_SIZE
@@ -62,28 +79,36 @@
 %define _GT _COMPARE jg, gt
 %define _EQUAL _COMPARE je, equal
 
-;;; дописать обработку знаков
 %macro _MUL 0
 	mov AX, [SP]
 	test AX, MASK
 	jnz %%com
-	shr AX, MARK_BIT
+	sar AX, MARK_BIT
 	mov CX, [SP + WORD_SIZE]
 	test CX, MASK
 	jnz %%com
-	mul CX
+	imul CX
 	cmp DX, 0
 	je %%exit
-	shl DX, WORD_SIZE - MARK_BIT
+	shl DX, 32 - MARK_BIT
 	shr AX, MARK_BIT
 	add AX, DX
 	NEW_FRAME
+%ifdef TARGET_x86
 	push AX
 	call new_bignumber
 	add SP, WORD_SIZE
+%elifdef TARGET_x86_64
+	mov DI, AX
+	call new_bignumber
+%endif
 	RESTORE_FRAME
 	jmp %%exit
-%%com:	
+%%com:
+%ifdef TARGET_x86_64
+	mov DI, [SP]
+	mov SI, [SP + WORD_SIZE]
+%endif	
 	call mul2
 %%exit:	
 	add SP, 2 * WORD_SIZE
@@ -102,6 +127,10 @@
 	shl AX, MARK_BIT
 	jmp %%exit
 %%com:
+%ifdef TARGET_x86_64
+	mov DI, [SP]
+	mov SI, [SP + WORD_SIZE]
+%endif	
 	call DIV2
 %%exit:	
 	add SP, 2 * WORD_SIZE
@@ -119,6 +148,10 @@
 	mov AX, DX
 	jmp %%exit
 %%com:
+%ifdef TARGET_x86_64
+	mov DI, [SP]
+	mov SI, [SP + WORD_SIZE]
+%endif
 	call mod
 %%exit:	
 	add SP, 2 * WORD_SIZE
