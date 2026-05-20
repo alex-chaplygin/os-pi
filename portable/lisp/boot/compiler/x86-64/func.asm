@@ -270,7 +270,7 @@
 %macro FUNC_ 1
 %1:
 	NEW_FRAME
-%1%+_TAIL:
+%1%+__TAIL__:
 %endmacro
 
 %define FUNC(l) FUNC_ l

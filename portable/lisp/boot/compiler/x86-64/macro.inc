@@ -94,7 +94,7 @@ section .data
 %define LABEL(l) l:
 %define JMP(label)      jmp label
 %define REG_CALL(label) call label
-%define JMPTAIL(l) jmp l%+_TAIL
+%define JMPTAIL(l) jmp l%+__TAIL__
 %define CATCH
 %define THROW
 
