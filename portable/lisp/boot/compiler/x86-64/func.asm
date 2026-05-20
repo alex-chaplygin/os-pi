@@ -121,7 +121,6 @@
 %%loop_end:
 %%new_func:
 	%ifdef TARGET_x86
-	NEW_FRAME
 	mov DX, NULLOBJ
 	push DX
 	push AX
@@ -129,7 +128,6 @@
 	push DX
 	call new_function
 	add SP, 16
-	RESTORE_FRAME
 %elifdef TARGET_x86_64
 	mov DI, NULLOBJ
 	mov SI, %1
