@@ -90,7 +90,7 @@
 	imul CX
 	cmp DX, 0
 	je %%exit
-	shl DX, 32 - MARK_BIT
+	shl DX, (WORD_SIZE << 3) - MARK_BIT
 	shr AX, MARK_BIT
 	add AX, DX
 	NEW_FRAME
