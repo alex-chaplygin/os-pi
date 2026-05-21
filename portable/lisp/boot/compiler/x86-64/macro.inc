@@ -95,8 +95,6 @@ section .data
 %define JMP(label)      jmp label
 %define REG_CALL(label) call label
 %define JMPTAIL(l) jmp l%+__TAIL__
-%define CATCH
-%define THROW
 
 %macro JNT 1
    cmp AX, NULLOBJ
@@ -113,5 +111,6 @@ section .data
 %include "prim.asm"
 %include "func.asm"
 %include "arith.asm"
-%include "gc.asm"
 %include "array.asm"
+%include "catch.asm"
+%include "gc.asm"

@@ -5,6 +5,8 @@
 	mov [const_mem + WORD_SIZE], AX
 	mov [global_mem + WORD_SIZE], AX
 	mov [frame_reg], AX
+	mov AX, catch_stack + (STACK_SIZE - 1) * CATCH_STRUCT
+	mov [catch_top], AX
 ;; загружаем константы
 	mov AX, 1
 	mov [boot_load], ax

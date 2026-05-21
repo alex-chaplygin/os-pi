@@ -4,9 +4,10 @@ NULLOBJ equ 4
 MARK_BIT equ 5			; как в objects.h
 ARRAY equ 6			; как в objects.h
 MAX_ARGS equ 16	
+STACK_SIZE equ (128 * 1024)	; как в vm.h
 	
 ;; внешние символы
-extern t, frame_reg, boot_load, boot_code, parse, prims, nprims, new_pair, new_empty_array, new_function, new_prim_function, call_form, mark_object, sweep, add2, sub2, bitwise_xor2, less, gt, equal, DIV2, mod, mul2, new_bignumber
+extern t, frame_reg, catch_stack, catch_top, boot_load, boot_code, parse, prims, nprims, new_pair, new_empty_array, new_function, new_prim_function, call_form, mark_object, sweep, add2, sub2, bitwise_xor2, less, gt, equal, DIV2, mod, mul2, new_bignumber
 
 global run, garbage_collect
 
