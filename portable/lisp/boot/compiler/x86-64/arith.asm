@@ -52,16 +52,16 @@
 	add AX, DX
 	jno %%exit
 	sar AX, MARK_BIT - 1
-	NEW_FRAME
 %ifdef TARGET_x86
+	NEW_FRAME
 	push AX
 	call new_bignumber
-	add SP, WORD_SIZE
+	mov BP, [SP + WORD_SIZE]
+	add SP, 3 * WORD_SIZE
 %elifdef TARGET_x86_64
 	mov DI, AX
 	call new_bignumber
 %endif
-	RESTORE_FRAME
 	jmp %%exit
 %%com:
 %ifdef TARGET_x86_64
@@ -93,16 +93,17 @@
 	shl DX, (WORD_SIZE << 3) - MARK_BIT
 	shr AX, MARK_BIT
 	add AX, DX
-	NEW_FRAME
 %ifdef TARGET_x86
+	sub SP, 4
+	NEW_FRAME
 	push AX
 	call new_bignumber
-	add SP, WORD_SIZE
+	mov BP, [SP + WORD_SIZE]
+	add SP, 3 * WORD_SIZE
 %elifdef TARGET_x86_64
 	mov DI, AX
 	call new_bignumber
 %endif
-	RESTORE_FRAME
 	jmp %%exit
 %%com:
 %ifdef TARGET_x86_64

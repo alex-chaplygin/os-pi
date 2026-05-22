@@ -112,22 +112,24 @@
 	sub CX, %2 - 1
 	mov AX, [frame_reg]
 	cmp CX, 0
-	je %%loop_end
+	je %%new_func
 %%env_loop:
 	and AX, OBJ_ADDR
 	mov BX, [AX]
 	mov AX, [BX]
 	loop %%env_loop
-%%loop_end:
 %%new_func:
-	%ifdef TARGET_x86
+%ifdef TARGET_x86
+	sub SP, 4
+	NEW_FRAME
 	mov DX, NULLOBJ
 	push DX
 	push AX
 	push dword %1
 	push DX
 	call new_function
-	add SP, 16
+	mov BP, [SP + 4 * WORD_SIZE]
+	add SP, 6 * WORD_SIZE
 %elifdef TARGET_x86_64
 	mov DI, NULLOBJ
 	mov SI, %1
@@ -215,12 +217,13 @@
 %macro FUNC_CALL 0
 	cld
 %ifdef TARGET_x86
+	sub SP, 4
 	NEW_FRAME
 	mov AX, MAX_ARGS + 2
  	push AX
 	call new_empty_array
-	add SP, WORD_SIZE
-	RESTORE_FRAME
+	mov BP, [SP + WORD_SIZE]
+	add SP, 3 * WORD_SIZE
 %elifdef TARGET_x86_64
 	mov DI, MAX_ARGS
 	add DI, 2
