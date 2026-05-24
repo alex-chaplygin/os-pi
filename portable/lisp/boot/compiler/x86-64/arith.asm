@@ -53,6 +53,7 @@
 	jno %%exit
 	sar AX, MARK_BIT - 1
 %ifdef TARGET_x86
+	sub SP, 4
 	NEW_FRAME
 	push AX
 	call new_bignumber

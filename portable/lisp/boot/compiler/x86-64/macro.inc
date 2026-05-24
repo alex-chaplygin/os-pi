@@ -112,5 +112,7 @@ section .data
 %include "func.asm"
 %include "arith.asm"
 %include "array.asm"
+%include "pair.asm"
+%include "str.asm"
 %include "catch.asm"
 %include "gc.asm"

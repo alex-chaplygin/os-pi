@@ -1,4 +1,4 @@
-CODE=code.asm init.asm macro.inc prim.asm func.asm arith.asm gc.asm array.asm catch.asm
+CODE=code.asm init.asm macro.inc prim.asm func.asm arith.asm gc.asm array.asm pair.asm str.asm catch.asm
 FLAGS=-f elf32 -g -w-number-overflow
 
 /tmp/code.o: $(CODE) /tmp/source

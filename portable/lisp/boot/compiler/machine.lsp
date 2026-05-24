@@ -41,6 +41,13 @@
 	       ('^ (list '_XOR))
 	       ('eq (list '_EQ))
 	       ('make-array (list '_MAKE_ARRAY))
+	       ('array-size (list '_ARRAY_SIZE))
+	       ('seta (list '_SETA))
+	       ('aref (list '_AREF))
+	       ('car (list '_CAR))
+	       ('cdr (list '_CDR))
+	       ('cons (list '_CONS))
+	       ('char (list '_CHAR))
 	       (otherwise (list prim-type prim-i))))
       (otherwise (list prim-type prim-i)))))
 
