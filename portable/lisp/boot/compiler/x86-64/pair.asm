@@ -13,6 +13,10 @@
 %endmacro	
 
 %macro _CONS 0
+%ifdef TARGET_x86_64
+	mov DI, [SP]
+	mov SI, [SP + WORD_SIZE]
+%endif
 	call new_pair
 	add SP, 2* WORD_SIZE
 %endmacro	
