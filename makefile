@@ -11,7 +11,7 @@ $(SUBDIRS):
 .PHONY:	/bin/kernel $(SUBDIRS)
 
 run: bin/kernel
-	qemu-system-i386 -m 512M -hda disk.qcow2 -kernel bin/kernel -vga vmware
+	qemu-system-i386 -m 512M -hda disk.qcow2 -kernel bin/kernel -vga vmware -netdev user,id=net0 -device rtl8139,netdev=net0
 
 debug:
 	qemu-system-i386 -m 512M -hda disk.qcow2 -kernel bin/kernel -vga vmware -s -S
