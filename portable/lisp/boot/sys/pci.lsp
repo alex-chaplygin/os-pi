@@ -60,7 +60,7 @@
     (& bar (~ (if (& bar 1) 0xF 0xF)))))
 
 (defun get-pci-vendor-device (pci)
-  "Функция читает Vendor ID b Device ID, возвращает пару (vendor . device)"
+  "Функция читает Vendor ID и Device ID, возвращает пару (vendor . device)"
   (let ((id (pci-config-read32 pci +pci-config-vendor+)))
     (cons (& id 0xffff) ; Vendor ID
 	  (& (>> id 16) 0xffff)))) ; Device ID
