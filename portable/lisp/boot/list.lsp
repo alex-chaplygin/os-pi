@@ -234,3 +234,10 @@
   (if (= n 0) list
       (if (null list) (error "drop: n > list length")
 	  (drop (cdr list) (-- n)))))
+
+(defun list-split(list elem)
+  "Разбить список на два списка по элементу. Возвращает пару"
+  (labels ((take (list res)
+	     (if (= (car list) elem) (cons res (cdr list))
+		 (take (cdr list) (append res (list (car list)))))))
+    (take list nil)))

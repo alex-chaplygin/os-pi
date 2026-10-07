@@ -238,4 +238,10 @@
   (print (assert (flatten '((1 2) (3 4) (5 6))) '(1 2 3 4 5 6)))
   (print (assert (flatten '((1 2 (3 4)) (5 6))) '(1 2 3 4 5 6))))
 
+(deftest split-tests ()
+  "Тесты разбиения списка"
+  (print (assert (list-split '(1 2 3) 2) '((1) . (3))))
+  (print (assert (list-split '(1 2 3) 1) '(() 2 3)))
+  (print (assert (list-split '(1 2 3) 3) '((1 2) . ()))))
+
 (run-tests)
