@@ -58,6 +58,7 @@ void boot_lisp()
     consts = parse();
     array_t *const_a = GET_ARRAY(consts);
     int num_vars = get_value(parse());
+    symbol_table = parse();
     vm_init(prog, prog_size, const_a->data, const_a->length, num_vars);
     if (setjmp(repl_buf) == 0)
 	vm_run();

@@ -1,7 +1,7 @@
 include boot/common.mak
 SHELL=bash
 SRC=parser.o lexer.o objects.o symbols.o eval.o arith.o array.o str.o pair.o predicates.o alloc.o mpa.o error.o bind.o vm.o
-CFLAGS=-g -m32 -nostdlib -nodefaultlibs -Wno-builtin-declaration-mismatch -I../include -MD -D OS -D X32 -DVM -fno-stack-protector -fstack-check=no
+CFLAGS=-g -m32 -nostdlib -nodefaultlibs -Wno-builtin-declaration-mismatch -I../include -MD -D OS -D X32 -DVM -D DEBUG -fno-stack-protector -fstack-check=no
 
 all: $(SRC) subdirs vmlisp
 
@@ -19,7 +19,7 @@ lisp: /tmp/pci.lsp # здесь меняем набор библиотек
 	cp $^ /tmp/lisp.lsp
 
 # компиляция кода в ядро
-vmlisp: /tmp/console.lsp
+vmlisp: /tmp/gui-ascii.lsp
 	make -C test /tmp/test_comp
 	cat $^ | head -n -1 >/tmp/compile
 	cd boot/compiler; ./compile bin/compiler

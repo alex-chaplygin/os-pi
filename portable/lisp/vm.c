@@ -179,7 +179,7 @@ void const_inst()
 {
     int n = fetch();
     acc_reg = const_memory[n];
-#ifdef DEBUG    
+#ifdef VMDEBUG    
     printf("CONST %d ", n);
     PRINT(acc_reg);
 #endif    
@@ -192,7 +192,7 @@ void jmp_inst()
 {
     int ofs = fetch(); 
     pc_reg += ofs - 2;
-#ifdef DEBUG    
+#ifdef VMDEBUG    
     printf("JMP %d\n", ofs);
 #endif    
 }
@@ -205,7 +205,7 @@ void jnt_inst()
     int ofs = fetch();
     if (acc_reg == NULLOBJ)
         pc_reg += ofs - 2;
-#ifdef DEBUG
+#ifdef VMDEBUG
     printf("JNT %d ", ofs);
     PRINT(acc_reg);
 #endif    
@@ -218,7 +218,7 @@ void global_ref_inst()
 {
     int i = fetch();
     acc_reg = global_var_memory[i]; 
-#ifdef DEBUG
+#ifdef VMDEBUG
     printf("GLOBAL-REF %d ", i);
     PRINT(acc_reg);
 #endif    
@@ -231,7 +231,7 @@ void global_set_inst()
 {
     int i = fetch();
     global_var_memory[i] = acc_reg;
-#ifdef DEBUG
+#ifdef VMDEBUG
     printf("GLOBAL-SET %d ", i);
     PRINT(acc_reg);
 #endif    
@@ -244,7 +244,7 @@ void local_ref_inst()
 {
     int i = fetch();
     acc_reg = GET_ARRAY(frame_reg)->data[i + 2];
-#ifdef DEBUG
+#ifdef VMDEBUG
     printf("LOCAL-REF %d ", i);
     PRINT(acc_reg);
 #endif    
@@ -257,7 +257,7 @@ void local_set_inst()
 {
     int i =  fetch();
     GET_ARRAY(frame_reg)->data[i + 2] = acc_reg;
-#ifdef DEBUG
+#ifdef VMDEBUG
     printf("LOCAL-SET %d ", i);
     PRINT(acc_reg);
 #endif    
@@ -274,7 +274,7 @@ void deep_ref_inst()
     for (int i = 0; i < frame_num; i++)
 	frame = GET_ARRAY(frame)->data[0];
     acc_reg = GET_ARRAY(frame)->data[var_num + 2];
-#ifdef DEBUG
+#ifdef VMDEBUG
     printf("DEEP-REF %d %d ", frame_num, var_num);
     PRINT(acc_reg);
 #endif    
@@ -291,7 +291,7 @@ void deep_set_inst()
     for (int i = 0; i < frame_num; i++)
 	frame = GET_ARRAY(frame)->data[0];
     GET_ARRAY(frame)->data[var_num + 2] = acc_reg;
-#ifdef DEBUG
+#ifdef VMDEBUG
     printf("DEEP-SET %d %d ", frame_num, var_num);
     PRINT(acc_reg);
 #endif    
@@ -314,7 +314,7 @@ static inline void push(object_t obj)
 void push_inst()
 {
     push(acc_reg);
-#ifdef DEBUG
+#ifdef VMDEBUG
     printf("PUSH ");
     PRINT(acc_reg);
 #endif    
@@ -354,7 +354,7 @@ void alloc_inst()
 {
     int n =  fetch();
     alloc(n);
-#ifdef DEBUG
+#ifdef VMDEBUG
     printf("ALLOC %d ", n);
     PRINT(frame_reg);
 #endif    
@@ -370,7 +370,7 @@ void pack_inst()
     for (int i = 0; i < n; i++)
     	list = new_pair(pop(), list);
     push(list);
-#ifdef DEBUG
+#ifdef VMDEBUG
     printf("PACK %d ", n);
     PRINT(list);
 #endif    
@@ -391,6 +391,10 @@ void reg_call_inst()
     int ofs = fetch();
     call(pc_reg + ofs - 2);
 #ifdef DEBUG
+    debug_stack = new_pair(new_pair(NEW_STRING("call"), new_number(ofs)), debug_stack);
+#endif
+
+#ifdef VMDEBUG
     printf("REG-CALL %d\n", ofs);
 #endif    
 }
@@ -402,7 +406,7 @@ void reg_call_inst()
 void return_inst()
 {
     pc_reg = program_memory + (pop() >> MARK_BIT);
-#ifdef DEBUG
+#ifdef VMDEBUG
     printf("RETURN\n");
 #endif    
 }
@@ -422,7 +426,7 @@ void fix_closure_inst()
 	    fframe = GET_ARRAY(fframe)->data[0];
     }
     acc_reg = new_function(NULLOBJ, (pc_reg + ofs - program_memory - 3 << MARK_BIT), fframe, NULLOBJ);
-#ifdef DEBUG
+#ifdef VMDEBUG
     printf("FIX-CLOSURE %d %d\n", ofs, frame);
 #endif    
 }
@@ -433,7 +437,7 @@ void fix_closure_inst()
 void save_frame_inst()
 {
     push(frame_reg);
-#ifdef DEBUG
+#ifdef VMDEBUG
     printf("SAVE-FRAME ");
     PRINT(frame_reg);
 #endif    
@@ -447,7 +451,7 @@ void set_frame_inst()
     int num = fetch() - 1;
     object_t frame = frame_reg;
     int count;
-#ifdef DEBUG
+#ifdef VMDEBUG
     printf("SET-FRAME %d ", num);
 #endif    
     if (frame != NULLOBJ) {
@@ -456,7 +460,7 @@ void set_frame_inst()
 	    frame = GET_ARRAY(frame)->data[0];
 	frame_reg = frame;
     }
-#ifdef DEBUG
+#ifdef VMDEBUG
     PRINT(frame_reg);
 #endif    
 }
@@ -467,7 +471,7 @@ void set_frame_inst()
 void restore_frame_inst()
 {
     frame_reg = pop();
-#ifdef DEBUG
+#ifdef VMDEBUG
     printf("RESTORE-FRAME ");
     PRINT(frame_reg);
 #endif    
@@ -478,7 +482,7 @@ void restore_frame_inst()
  */
 void vm_apply(object_t fun, object_t args)
 {
-#ifdef DEBUG    
+#ifdef VMDEBUG    
     printf("APPLY ");
     PRINT(fun);
     PRINT(args);
@@ -507,11 +511,11 @@ void vm_apply(object_t fun, object_t args)
 	    calls++;
 	else if (c == RETURN_OP)
 	    calls--;
-#ifdef DEBUG    
+#ifdef VMDEBUG    
 	printf("%d: ", pc_reg - program_memory);
 #endif
 	instructions[c]();
-#ifdef BIGDEBUG
+#ifdef BIGVMDEBUG
 	printf("calls = %d, c = %d\n", calls, c);
 	vm_dump();
 #endif
@@ -521,7 +525,7 @@ void vm_apply(object_t fun, object_t args)
     } while (working && calls != 0);
 #endif
     frame_reg = pop();
-#ifdef DEBUG    
+#ifdef VMDEBUG    
 	printf("end of apply, pop");
 #endif
 }
@@ -533,7 +537,7 @@ void prim_inst()
 {
     int n = fetch();
     object_t arg1, arg2, arg3, arg4, arg5;
-#ifdef DEBUG
+#ifdef VMDEBUG
     printf("PRIM %d ", n);
 #endif
     if (n == APPLY) {
@@ -572,7 +576,7 @@ void prim_inst()
 	    break;
 	}
     }
-#ifdef DEBUG
+#ifdef VMDEBUG
     PRINT(acc_reg);
 #endif    
 }
@@ -583,7 +587,7 @@ void prim_inst()
 void nprim_inst()
 {
     int n = fetch();
-#ifdef DEBUG
+#ifdef VMDEBUG
     printf("NPRIM %d ", n);
 #endif    
     object_t args = pop();
@@ -603,7 +607,7 @@ void nprim_inst()
 	    break;
 	}
     }
-#ifdef DEBUG
+#ifdef VMDEBUG
     PRINT(acc_reg);
 #endif    
 }
@@ -613,7 +617,7 @@ void nprim_inst()
  */
 void halt()
 {
-#ifdef DEBUG
+#ifdef VMDEBUG
     printf("HALT\n");
 #endif    
     working = 0;
@@ -623,7 +627,7 @@ void prim_closure()
 {
     int n = fetch();
     acc_reg = new_prim_function((func0_t)prims[n].func, 0, prims[n].args_count);
-#ifdef DEBUG
+#ifdef VMDEBUG
     printf("PRIM_CLOSURE %d\n", n);
 #endif    
 }
@@ -632,7 +636,7 @@ void nprim_closure()
 {
     int n = fetch();
     acc_reg = new_prim_function((func0_t)nprims[n].func, 1, nprims[n].args_count);
-#ifdef DEBUG
+#ifdef VMDEBUG
     printf("NPRIM_CLOSURE %d\n", n);
 #endif    
 }
@@ -640,7 +644,7 @@ void nprim_closure()
 void catch_inst()
 {
     int ofs = fetch();
-#ifdef DEBUG
+#ifdef VMDEBUG
     printf("CATCH %d\n", ofs);
 #endif       
     if (catch_top < catch_stack)
@@ -655,7 +659,7 @@ void catch_inst()
 void throw_inst()
 {
     object_t label = pop();
-#ifdef DEBUG
+#ifdef VMDEBUG
     printf("THROW ");
     PRINT(label);
 #endif       
@@ -674,7 +678,7 @@ void throw_inst()
 void pop_inst()
 {
     acc_reg = pop();
-#ifdef DEBUG
+#ifdef VMDEBUG
     printf("POP\n");
 #endif
 }
@@ -704,7 +708,7 @@ void func_call_inst()
     stack_top[3] = stack_top[1]; // Копируем frame
     stack_top += 2;
     call(program_memory + (f->body >> MARK_BIT));
-#ifdef DEBUG
+#ifdef VMDEBUG
     printf("FUNC-CALL\n");
 #endif
 }
@@ -718,7 +722,7 @@ void check_prim_inst()
     acc_reg = NULLOBJ;
     if (GET_FUNCTION(stack_top[1])->func)
 	acc_reg = 1 << MARK_BIT;
-#ifdef DEBUG
+#ifdef VMDEBUG
     printf("CHECK-PRIM: ");
     PRINT(acc_reg);
 #endif
@@ -734,7 +738,7 @@ void prim_call_inst()
     object_t args = stack_top[2];
     acc_reg = call_form(f->func, args, f->nary, f->count, f->count);
     stack_top += 2;
-#ifdef DEBUG
+#ifdef VMDEBUG
     printf("PRIM-CALL: ");
     PRINT(acc_reg);
 #endif
@@ -816,9 +820,12 @@ void garbage_collect()
     extern int total_arrays;
     extern object_t consts;
     extern object_t static_bind[];
-#ifdef DEBUG
+#ifdef VMDEBUG
     printf("VM garbage collect: arrays = %d\n", total_arrays);
     //    printf("mark const\n");
+#endif
+#ifdef DEBUG
+    mark_object(debug_stack);
 #endif
     mark_object(consts);
     for (i = 0, c = static_bind; i < last_static; i++)
@@ -839,7 +846,7 @@ void garbage_collect()
     mark_object(frame_reg);
     //    printf("sweep\n");
     sweep();
-#ifdef DEBUG
+#ifdef VMDEBUG
     printf("VM garbage collect done: arrays = %d\n", total_arrays);
 #endif
     total_arrays = 0;
@@ -854,7 +861,7 @@ void vm_run()
     extern int total_arrays;
     while (working == 1)
     {
-#ifdef DEBUG    
+#ifdef VMDEBUG    
 	printf("%d: ", pc_reg - program_memory);
 #endif
 	instructions[fetch()]();
@@ -863,4 +870,3 @@ void vm_run()
 #endif
     }
 }
-
