@@ -8,6 +8,7 @@
    active-colour ; Цвет фона, когда элемент активен
    parent ; Родительский элемент
    children ; Список дочерних элементов
+   attr ; Пользовательские атрибуты: хеш
    keyup ; Функция обработки нажатия клавиши
    keydown)) ; Функция обработки отжатия клавиши
 
@@ -23,6 +24,10 @@
   "установка значений по умолчанию"
   (element-set-back-colour self +yellow+)
   (element-set-active-colour self +red+)
+  (element-set-attr self (make-hash))
   (element-set-x self 0)
   (element-set-y self 0))
-  
+
+(defmethod set-attr ((self element) key val)
+  "Установить пользовательский аттрибут"
+  (set-hash (element-attr self) key val))

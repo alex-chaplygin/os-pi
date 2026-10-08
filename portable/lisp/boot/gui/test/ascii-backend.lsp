@@ -1,10 +1,10 @@
 (clear-screen)
 
 (set-screen
- (block (x 2) (y 2) (width 10) (height 10) (active-colour +green+)
+ (block (x 2) (y 2) (width 10) (height 10) (active-colour +green+) (my-attr '(1 2 3)) children
 	(horiz (width 1) (height 1) (id 2) (keydown #'(lambda (k)
 							(add-child (get-element-by-id 2)
-								   (block (width 3) (height 2)))
+								   (block (width 3) (height 2) children))
 							(update-screen))))
 	(vert (id 1) (x 4) (y 4) (width 10) (height 9) (back-colour +white+) (active-colour +green+)
 	      (text (x 2) (y 2) (text "123") (width 4) (height 3) (back-colour +red+) (active-colour +green+))

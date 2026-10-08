@@ -15,6 +15,7 @@
 ;(gen/elem text)
 
 (defmacro element (&rest params)
+  "Макрос создания минимального элемента"
   (let ((n 'element))
     `(let ((new-elem (make-instance ',n)))
        (set-defaults new-elem)
@@ -22,6 +23,7 @@
        new-elem)))
 
 (defmacro text (&rest params)
+  "Создание текстового элемента"
    (let ((n 'text))
      `(let ((new-elem (make-instance ',n)))
 	(set-defaults new-elem)
@@ -32,17 +34,22 @@
 	new-elem)))
 
 (defmacro block (&rest params)
-  (let ((n 'block))
+  "Создание блока с абсолютным позиционированием элементов"
+  (let ((n 'block)
+	(attr (list-split params 'children)))
     `(let ((new-elem (make-instance ',n)))
        (set-defaults new-elem)
        ,@(map #'(lambda (elem)
 		  (if (contains '(id x y width height back-colour active-colour parent keyup keydown) (car elem))
 		      `( ,(intern (concat (symbol-name n) "-SET-" (symbol-name (car elem)))) new-elem ,(second elem))
-	      `(add-child new-elem ,elem)))
-		    params)
+		      `(set-attr new-elem ',(car elem) ,(second elem))))
+		    (car attr))
+       ,@(map #'(lambda (elem)
+		  `(add-child new-elem ,elem)) (cdr attr))
        new-elem)))
 
 (defmacro vert (&rest params)
+  "Создание блока вертикально расположенных элементов"
   (let ((n 'vert))
     `(let ((new-elem (make-instance ',n)))
        (set-defaults new-elem)
@@ -54,6 +61,7 @@
        new-elem)))
 
 (defmacro horiz (&rest params)
+  "Создание блока горизонтально расположенных элементов"
   (let ((n 'horiz))
     `(let ((new-elem (make-instance ',n)))
        (set-defaults new-elem)
@@ -77,7 +85,7 @@
 
 (defmacro set-screen (&rest params)
   "Задать экран"
-  `(let ((b (block (width *screen-width*) (height *screen-height*) (back-colour +black+) ,@params)))
+  `(let ((b (block (width *screen-width*) (height *screen-height*) (back-colour +black+) children ,@params)))
      (setq *gui-screen* b)
      (setq *gui-selected* (list b))
      (swap-colours b)
