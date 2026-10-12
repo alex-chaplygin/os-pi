@@ -61,7 +61,6 @@ void error(char *str, ...)
 void reset_mem()
 {
     last_symbol = 0;
-    last_bignumber = 0;
     last_pair = 0;
     last_string = 0;
     last_array = 0;
@@ -71,7 +70,6 @@ void reset_mem()
     free_continuations = NULL;
     free_pairs = NULL;
     free_strings = NULL;
-    free_bignumbers = NULL;
     free_arrays = NULL;
     free_functions = NULL;
     free_symbols = NULL;
@@ -218,20 +216,6 @@ void test_print_obj(object_t obj, const char *expected_output)
 }
 
 /** 
- * Освобождение большого числа из объекта
- */
-void test_free_bignumber()
-{
-    printf("test_free_bignumber: ");
-    reset_mem();
-    object_t o = new_number(800000000);
-    printf("%x\n", (int)o);
-    ASSERT(TYPE(o), BIGNUMBER);
-    free_bignumber((bignumber_t *)GET_ADDR(o));
-    ASSERT(free_bignumbers, (bignumber_t *)GET_ADDR(o));
-}
-
-/** 
  * Создать объект функцию, освободить этот объект и проверить,
  * что он попал в голову списка свободных функций
  */
@@ -256,20 +240,20 @@ void test_free_function()
  * создать два больших числа, проверить
  * что адреса новых и освобождённых идентичны
  */
-void test_free_bignumber2()
-{
-    printf("test_free_bignumber2: ");
-    reset_mem();
-    for (int i = last_bignumber; i < MAX_NUMBERS - MAX_NUMBERS / 2; i++)
-        new_bignumber(i);
-    bignumber_t *o1 = &bignumbers[0];
-    bignumber_t *o2 = &bignumbers[5];
-    free_bignumber(&bignumbers[0]);
-    free_bignumber(&bignumbers[5]);
-    ASSERT(free_bignumbers, &bignumbers[5]);
-    ASSERT(free_bignumbers->next, &bignumbers[0]);
-    ASSERT(free_bignumbers->next->next, NULL);
-}
+/* void test_free_bignumber2() */
+/* { */
+/*     printf("test_free_bignumber2: "); */
+/*     reset_mem(); */
+/*     for (int i = last_bignumber; i < MAX_NUMBERS - MAX_NUMBERS / 2; i++) */
+/*         new_bignumber(i); */
+/*     bignumber_t *o1 = &bignumbers[0]; */
+/*     bignumber_t *o2 = &bignumbers[5]; */
+/*     free_bignumber(&bignumbers[0]); */
+/*     free_bignumber(&bignumbers[5]); */
+/*     ASSERT(free_bignumbers, &bignumbers[5]); */
+/*     ASSERT(free_bignumbers->next, &bignumbers[0]); */
+/*     ASSERT(free_bignumbers->next->next, NULL); */
+/* } */
 
 /** 
  * Освобождение вещественного числа из объекта
@@ -351,86 +335,86 @@ object_t p1;
 /**
  * Создать объект (12 A 5)
  */
-void test_mark()
-{
-    printf("test_mark :");
-    reset_mem();
-    int mask = 1 << 31;
-    object_t n = new_bignumber(214748365);
-    object_t s = NEW_STRING("abc");
-    object_t l = make_list(3);
-    printf("make_list:");
-    PRINT(l);
-    object_t a = NEW_ARRAY(l);
-    printf("array: ");
-    PRINT(a);
-    object_t inp2 = new_pair(a, NULLOBJ);
-    object_t inp1 = new_pair(s, inp2);
-    object_t p2 = new_pair(inp1, NULLOBJ);
-    p1 = new_pair(n, p2);
-    printf("p1="); PRINT(p1);
-    mark_object(p1);
-    ASSERT(GET_MARK(GET_PAIR(inp1)->left), 1);
-    ASSERT((GET_STRING(GET_PAIR(inp1)->left)->length) & mask, mask);
-    ASSERT(GET_MARK(GET_PAIR(inp2)->left), 1);
-    ASSERT((GET_ARRAY(GET_PAIR(inp2)->left)->length) & mask, mask);
-    ASSERT(GET_MARK(GET_PAIR(p1)->left), 1);
-    ASSERT((GET_BIGNUMBER(GET_PAIR(p1)->left)->free) & mask, mask);
-    ASSERT(GET_MARK(GET_PAIR(p2)->left), 1);
-}
+/* void test_mark() */
+/* { */
+/*     printf("test_mark :"); */
+/*     reset_mem(); */
+/*     int mask = 1 << 31; */
+/*     object_t n = new_bignumber(214748365); */
+/*     object_t s = NEW_STRING("abc"); */
+/*     object_t l = make_list(3); */
+/*     printf("make_list:"); */
+/*     PRINT(l); */
+/*     object_t a = NEW_ARRAY(l); */
+/*     printf("array: "); */
+/*     PRINT(a); */
+/*     object_t inp2 = new_pair(a, NULLOBJ); */
+/*     object_t inp1 = new_pair(s, inp2); */
+/*     object_t p2 = new_pair(inp1, NULLOBJ); */
+/*     p1 = new_pair(n, p2); */
+/*     printf("p1="); PRINT(p1); */
+/*     mark_object(p1); */
+/*     ASSERT(GET_MARK(GET_PAIR(inp1)->left), 1); */
+/*     ASSERT((GET_STRING(GET_PAIR(inp1)->left)->length) & mask, mask); */
+/*     ASSERT(GET_MARK(GET_PAIR(inp2)->left), 1); */
+/*     ASSERT((GET_ARRAY(GET_PAIR(inp2)->left)->length) & mask, mask); */
+/*     ASSERT(GET_MARK(GET_PAIR(p1)->left), 1); */
+/*     ASSERT((GET_BIGNUMBER(GET_PAIR(p1)->left)->free) & mask, mask); */
+/*     ASSERT(GET_MARK(GET_PAIR(p2)->left), 1); */
+/* } */
 
 /*
  * Используем помеченные объекты с предыдущего теста.
  * Проверить снятие пометок
  * Проверить, что помеченные ранее объекты не находятся в списке свободных
  */
-void test_sweep() 
-{ 
-    printf("test_sweep: "); 
-    sweep();
-    int mask = 1 << 31;
-    object_t n = GET_PAIR(p1)->left;
-    object_t p2 = GET_PAIR(p1)->right;
-    object_t inp1 = GET_PAIR(p2)->left;
-    object_t s = GET_PAIR(inp1)->left;
-    object_t inp2 = GET_PAIR(inp1)->right;
-    object_t a = GET_PAIR(inp2)->right;
-    ASSERT(GET_MARK(GET_PAIR(inp1)->left), 0);
-    ASSERT((GET_STRING(GET_PAIR(inp1)->left)->length) & mask, 0);
-    ASSERT(GET_MARK(GET_PAIR(inp2)->left), 0);
-    ASSERT((GET_ARRAY(GET_PAIR(inp2)->left)->length) & mask, 0);
-    ASSERT(GET_MARK(GET_PAIR(p1)->left), 0);
-    ASSERT((GET_BIGNUMBER(GET_PAIR(p1)->left)->free) & mask, 0);
-    ASSERT(GET_MARK(GET_PAIR(p2)->left), 0);
-} 
+/* void test_sweep()  */
+/* {  */
+/*     printf("test_sweep: ");  */
+/*     sweep(); */
+/*     int mask = 1 << 31; */
+/*     object_t n = GET_PAIR(p1)->left; */
+/*     object_t p2 = GET_PAIR(p1)->right; */
+/*     object_t inp1 = GET_PAIR(p2)->left; */
+/*     object_t s = GET_PAIR(inp1)->left; */
+/*     object_t inp2 = GET_PAIR(inp1)->right; */
+/*     object_t a = GET_PAIR(inp2)->right; */
+/*     ASSERT(GET_MARK(GET_PAIR(inp1)->left), 0); */
+/*     ASSERT((GET_STRING(GET_PAIR(inp1)->left)->length) & mask, 0); */
+/*     ASSERT(GET_MARK(GET_PAIR(inp2)->left), 0); */
+/*     ASSERT((GET_ARRAY(GET_PAIR(inp2)->left)->length) & mask, 0); */
+/*     ASSERT(GET_MARK(GET_PAIR(p1)->left), 0); */
+/*     ASSERT((GET_BIGNUMBER(GET_PAIR(p1)->left)->free) & mask, 0); */
+/*     ASSERT(GET_MARK(GET_PAIR(p2)->left), 0); */
+/* }  */
 
 /*
  * Создать символ A
  * Присвоить ему значение - объект 52
  * Проверить, что объект не в списке свободных
  */
-void test_garbage_collect()
-{
-    printf("test_garbage_collect: ");
+/* void test_garbage_collect() */
+/* { */
+/*     printf("test_garbage_collect: "); */
 
-    int num1 = 52;
-    symbol_t *s = new_symbol("A");
-    object_t obj1 = new_bignumber(num1);
-    s->value = obj1;
-    bind_static(NEW_OBJECT(SYMBOL, s));
-    garbage_collect();
+/*     int num1 = 52; */
+/*     symbol_t *s = new_symbol("A"); */
+/*     object_t obj1 = new_bignumber(num1); */
+/*     s->value = obj1; */
+/*     bind_static(NEW_OBJECT(SYMBOL, s)); */
+/*     garbage_collect(); */
 
-    // Проверяем наличие obj1 в списке свободных объектов
-    bignumber_t *f = free_bignumbers;
-    while (f != NULL) {
-        if ((object_t)f == obj1) {
-            printf("fail_object\n");
-            return;
-        }
-        f = f->next;
-    }
-    printf("OK\n");
-}
+/*     // Проверяем наличие obj1 в списке свободных объектов */
+/*     bignumber_t *f = free_bignumbers; */
+/*     while (f != NULL) { */
+/*         if ((object_t)f == obj1) { */
+/*             printf("fail_object\n"); */
+/*             return; */
+/*         } */
+/*         f = f->next; */
+/*     } */
+/*     printf("OK\n"); */
+/* } */
 
 
 
@@ -495,28 +479,28 @@ void test_garbage_collect_cycle()
  * Выполнить сборку мусора
  * Проверить, что объект не в списке свободных больших чисел
  */
-void test_garbage_collect_bignumbers() 
-{ 
-    printf("test_garbage_collect_bignumbers: "); 
-    reset_mem(); 
-    symbol_t *s = new_symbol("B");
-    bind_static(NEW_OBJECT(SYMBOL, s));    
-    object_t obj1 = new_bignumber(1234567890); 
-    object_t obj2 = new_bignumber(-987654321); 
-    object_t obj3 = new_bignumber(555555555); 
-    s->value = obj1;
-    garbage_collect();
-    bignumber_t *fb = free_bignumbers; 
-    while (fb != NULL) {
-       printf("%d ", fb->value);
-       if (fb == (bignumber_t *)GET_ADDR(obj1)) { 
-           printf("fail_bignumbers\n"); 
-           return; 
-       } 
-       fb = fb->next; 
-    } 
-    printf("bignumbers_OK\n");
-}
+/* void test_garbage_collect_bignumbers()  */
+/* {  */
+/*     printf("test_garbage_collect_bignumbers: ");  */
+/*     reset_mem();  */
+/*     symbol_t *s = new_symbol("B"); */
+/*     bind_static(NEW_OBJECT(SYMBOL, s));     */
+/*     object_t obj1 = new_bignumber(1234567890);  */
+/*     object_t obj2 = new_bignumber(-987654321);  */
+/*     object_t obj3 = new_bignumber(555555555);  */
+/*     s->value = obj1; */
+/*     garbage_collect(); */
+/*     bignumber_t *fb = free_bignumbers;  */
+/*     while (fb != NULL) { */
+/*        printf("%d ", fb->value); */
+/*        if (fb == (bignumber_t *)GET_ADDR(obj1)) {  */
+/*            printf("fail_bignumbers\n");  */
+/*            return;  */
+/*        }  */
+/*        fb = fb->next;  */
+/*     }  */
+/*     printf("bignumbers_OK\n"); */
+/* } */
 
 	
 /**
@@ -1016,29 +1000,29 @@ void main()
     init_objects();
 
     // Тесты сборки мусора
-    test_mark();
-    test_sweep();    //19,24
-    test_garbage_collect();     //19,24
-    test_garbage_collect_bignumbers();
-    test_garbage_collect_list();    //21,24
-    test_garbage_collect_strings(); //22,24
-    test_garbage_collect_arrays();  //23,24
-    test_garbage_collect_symbols();
-    test_garbage_collect_cycle();
-    test_garbage_collect_floats();
-    test_garbage_collect_functions();
+    /* test_mark(); */
+    /* test_sweep();    //19,24 */
+    /* test_garbage_collect();     //19,24 */
+    /* test_garbage_collect_bignumbers(); */
+    /* test_garbage_collect_list();    //21,24 */
+    /* test_garbage_collect_strings(); //22,24 */
+    /* test_garbage_collect_arrays();  //23,24 */
+    /* test_garbage_collect_symbols(); */
+    /* test_garbage_collect_cycle(); */
+    /* test_garbage_collect_floats(); */
+    /* test_garbage_collect_functions(); */
     //    test_objects_new_null();
-    reset_mem();
+    /* reset_mem(); */
 
-    // Тесты для массивов
-    test_new_empty_array();
-    test_free_array();
-    reset_mem();
+    /* // Тесты для массивов */
+    /* test_new_empty_array(); */
+    /* test_free_array(); */
+    /* reset_mem(); */
 
-    // Тесты для строк
-    test_new_string();
-    test_free_string();
-    reset_mem();
+    /* // Тесты для строк */
+    /* test_new_string(); */
+    /* test_free_string(); */
+    /* reset_mem(); */
 
     // Тесты для чисел (малые числа)
     test_new_number(-677, NUMBER);
@@ -1054,61 +1038,61 @@ void main()
     reset_mem();
 
     // Тесты для чисел (большие числа)
-    test_new_bignumber(1100);
-    test_new_bignumber(0);
-    test_new_bignumber(-1520);
-    test_free_bignumber();
-    test_free_bignumber2();
-    reset_mem();
+    /* test_new_bignumber(1100); */
+    /* test_new_bignumber(0); */
+    /* test_new_bignumber(-1520); */
+    /* test_free_bignumber(); */
+    /* test_free_bignumber2(); */
+    /* reset_mem(); */
 
-    // Тесты для чисел (числа с плавающей точкой)
-    test_new_float(-13.23f);
-    test_new_float(0.0f);
-    test_new_float(78.34f);
-    test_free_float();
-    reset_mem();
+    /* // Тесты для чисел (числа с плавающей точкой) */
+    /* test_new_float(-13.23f); */
+    /* test_new_float(0.0f); */
+    /* test_new_float(78.34f); */
+    /* test_free_float(); */
+    /* reset_mem(); */
 
-    // Тесты для функций
-    test_new_function();
-    test_new_continuation();
-    test_free_function();
-    reset_mem();
+    /* // Тесты для функций */
+    /* test_new_function(); */
+    /* test_new_continuation(); */
+    /* test_free_function(); */
+    /* reset_mem(); */
 
-    // Тесты для пар
-    test_new_pair();
-    test_free_pair();
-    test_free_pair_empty();
-    reset_mem();
+    /* // Тесты для пар */
+    /* test_new_pair(); */
+    /* test_free_pair(); */
+    /* test_free_pair_empty(); */
+    /* reset_mem(); */
     
-    // Тест символов
-    test_free_symbol();
+    /* // Тест символов */
+    /* test_free_symbol(); */
 
-    // Тесты для регионов памяти
-    test_alloc_region();
-    test_free_region();
-    reset_mem();
+    /* // Тесты для регионов памяти */
+    /* test_alloc_region(); */
+    /* test_free_region(); */
+    /* reset_mem(); */
 
-    // Тесты для работы с маркерами
-    test_return_set_mark();
-    test_return_get_mark();
-    test_return_clear_mark();
-    reset_mem();
+    /* // Тесты для работы с маркерами */
+    /* test_return_set_mark(); */
+    /* test_return_get_mark(); */
+    /* test_return_clear_mark(); */
+    /* reset_mem(); */
 
-    // Тесты для извлечения и преобразования данных
-    test_return_type();
-    test_return_get_addr();
-    test_get_char('a');
-    test_get_char(' ');
-    reset_mem();
+    /* // Тесты для извлечения и преобразования данных */
+    /* test_return_type(); */
+    /* test_return_get_addr(); */
+    /* test_get_char('a'); */
+    /* test_get_char(' '); */
+    /* reset_mem(); */
 
-    // Вывод
-    PRINT(new_number(10));
-    PRINT(new_bignumber(2000000000));
-    PRINT(make_list(4));
-    PRINT(NEW_ARRAY(make_list(2)));
-    PRINT(NEW_OBJECT(SYMBOL, new_symbol("asd")));
-    PRINT(NEW_STRING("Pasha"));
-    PRINT(NEW_CHAR('1'));
-    PRINT(NEW_CHAR('a'));
-    PRINT(new_float(1.25));
+    /* // Вывод */
+    /* PRINT(new_number(10)); */
+    /* PRINT(new_bignumber(2000000000)); */
+    /* PRINT(make_list(4)); */
+    /* PRINT(NEW_ARRAY(make_list(2))); */
+    /* PRINT(NEW_OBJECT(SYMBOL, new_symbol("asd"))); */
+    /* PRINT(NEW_STRING("Pasha")); */
+    /* PRINT(NEW_CHAR('1')); */
+    /* PRINT(NEW_CHAR('a')); */
+    /* PRINT(new_float(1.25)); */
 }

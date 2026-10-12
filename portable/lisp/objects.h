@@ -1,5 +1,8 @@
 #ifndef OBJECTS
 #define OBJECTS
+typedef unsigned char byte;
+/// Размер памяти для объектов в байтах
+#define OBJECTS_MEMORY_SIZE 1024
 /// Всего пар
 #ifdef VM
 #define MAX_PAIRS (4 * 1024 * 1024)
@@ -61,8 +64,15 @@
 #define TYPE_BITS 4
 /// Номер бита пометки для сборщика мусора
 #define MARK_BIT (TYPE_BITS + 1)
-/// Число бит в адресе
-#define ADDR_BITS (32 - MARK_BIT)
+/// Число бит в адресе указателей объектов
+#ifdef X32
+#define ADDR_BITS 30
+#else
+#define ADDR_BITS 62
+#endif
+/// Тег в 2-х младших битах
+#define TAG_NUMBER 1		/**< непосредственное целое число */
+#define TAG_CHAR 3		/**< непосредственный символ строки */
 /// Возвращение типа объекта в младших битах
 #define TYPE(obj) ((obj) & ((1 << TYPE_BITS) - 1))
 /// Установить бит пометки
@@ -147,14 +157,8 @@ typedef  object_t (*func5_t)(object_t, object_t, object_t, object_t, object_t);
 /// Структура большого целого числа
 typedef struct bignumber_s
 {
+    object_t descriptor; // дескриптор объекта
     int value; // значение числа
-    struct bignumber_s *next; // указатель на следующее свободное число
-    int free; // Если 1 - число свободно
-#ifdef X32
-    int pad[5]; // выравнивание 12 + 20
-#else
-    int pad[2]; // выравнивание 24 + 8
-#endif
 } bignumber_t;
 
 /// Структура функции
@@ -264,7 +268,11 @@ extern int print_counter;
 
 void init_objects();
 object_t new_bignumber(int num);
+#ifdef X32
 object_t new_number(int num);
+#else
+object_t new_number(long long num);
+#endif
 object_t new_float(float nuw);
 object_t new_function(object_t args, object_t body, object_t env, object_t func_env);
 object_t new_prim_function(func0_t f, int nary, int count);

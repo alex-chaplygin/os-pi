@@ -10,12 +10,8 @@
 #include "bind.h"
 #include "eval.h"
 
-/// Индекс последнего большого числа
-int last_bignumber = 0;
-/// Хранилище больших чисел
-bignumber_t *bignumbers;
-/// Список свободных больших чисел
-bignumber_t *free_bignumbers = NULL;
+/// Память для всех объектов
+byte *objects_memory;
 
 /// Индекс последнего вещественного числа
 int last_float = 0;
@@ -104,8 +100,8 @@ int ct_index_buf;
  */
 void init_objects()
 {
+    objects_memory = alloc_region(OBJECTS_MEMORY_SIZE);
     symbols = (symbol_t *)alloc_region(MAX_SYMBOLS * sizeof(symbol_t));
-    bignumbers = (bignumber_t *)alloc_region(MAX_NUMBERS * sizeof(bignumber_t));
     floats = (float_t *)alloc_region(MAX_FLOATS * sizeof(float_t));
     pairs = (pair_t *)alloc_region(MAX_PAIRS * sizeof(pair_t));
     strings = (string_t *)alloc_region(MAX_STRINGS * sizeof(string_t));
@@ -123,38 +119,54 @@ void init_objects()
 /*  */
 object_t new_bignumber(int num)
 {
-    bignumber_t *number;
-    GARBAGE_COLLECT(total_bignumbers, MAX_NUMBERS)
-    if (last_bignumber == MAX_NUMBERS)
-    {
-	if (free_bignumbers == NULL)
-	    error("Error: out of memory: numbers");
-	number = free_bignumbers;
-	free_bignumbers = free_bignumbers -> next;
-    } else
-	number = &bignumbers[last_bignumber++];
-    number->next = NULL;
-    number->free = 0;
-    number->value = num;
-    total_bignumbers++;
-    return NEW_OBJECT(BIGNUMBER, number);
+    return NULLOBJ;
 }
 
 /**
- * Освобождение памяти для большого числа
+ * Создание нового объекта целого числа
+ * -1 11111111111111111111111...
+ * GET_ADDR -> 00001111111111111111...
+ * -MAX_NUM 11111000000000000000...
+ * GET_ADDR -> 0000100000000000...
  *
- * @param o  объект для освобождения
+ * @param num целое число
+ *
+ * @return указатель на объект числа
  */
-void free_bignumber(bignumber_t *o)
+#ifdef X32
+object_t new_number(int num)
+#else
+object_t new_number(long long num)
+#endif
 {
-    if (o == NULL)
-    	error("free_bignumber: null pointer: obj");
-    if (o->free)
-	return;
-    o->next = free_bignumbers;
-    free_bignumbers = o;
-    o->free = 1;
-    total_bignumbers--;
+    object_t mask = (1 << ADDR_BITS - 1) - 1;
+#ifdef X32
+    int min_val = ((1 << 3) - 1) << ADDR_BITS - 1;
+#else
+    long long min_val = ((1 << 3) - 1) << ADDR_BITS - 1;
+#endif
+    if (num >= 0 && num <= mask)
+	return (num << 2) + TAG_NUMBER;
+    else if (num >= min_val && num < 0)
+	return (num << 2) + TAG_NUMBER;
+    else
+	return new_bignumber(num);
+}
+
+/**
+ * Возвращает значение маленького числа из объекта
+ * @param obj объект
+ *
+ * @return число
+ */
+int get_value(object_t obj)
+{
+    /*    if (TYPE(obj) == BIGNUMBER)
+	  return GET_BIGNUMBER(obj)->value;*/
+    if ((int)obj < 0)
+	return (obj >> 2) | (((1 << 2) - 1) << ADDR_BITS);
+    else
+	return obj >> 2;
 }
 
 /**
@@ -314,45 +326,6 @@ void free_float(float_t *f)
     free_floats = f;
     f->free = 1;
     total_floats--;
-}
-
-/**
- * Создание нового объекта целого числа
- * -1 11111111111111111111111...
- * GET_ADDR -> 00001111111111111111...
- * -MAX_NUM 11111000000000000000...
- * GET_ADDR -> 0000100000000000...
- *
- * @param num целое число
- *
- * @return указатель на объект числа
- */
-object_t new_number(int num)
-{
-    unsigned int mask = (1 << ADDR_BITS - 1) - 1;
-    int min_val = ((1 << (TYPE_BITS + 2)) - 1) << ADDR_BITS - 1;
-    if (num >= 0 && num <= mask)
-	return NEW_OBJECT(NUMBER, num << MARK_BIT);
-    else if (num >= min_val && num < 0)
-	return NEW_OBJECT(NUMBER, num << MARK_BIT);
-    else
-	return new_bignumber(num);
-}
-
-/**
- * Возвращает значение маленького числа из объекта
- * @param obj объект
- *
- * @return число
- */
-int get_value(object_t obj)
-{
-    if (TYPE(obj) == BIGNUMBER)
-	return GET_BIGNUMBER(obj)->value;
-    if ((int)obj < 0)
-	return (obj >> MARK_BIT) | (((1 << TYPE_BITS + 1) - 1) << ADDR_BITS);
-    else
-	return obj >> MARK_BIT;
 }
 
 
@@ -618,10 +591,10 @@ void mark_object(object_t obj)
        mark_object(s->lambda);
        mark_object(s->macro);
     } else if (TYPE(obj) == BIGNUMBER) {
-	bignumber_t *b = GET_BIGNUMBER(obj);
-	if (((b->free) & mask) != 0)
-	    return;
-	b->free |= mask;
+	/* bignumber_t *b = GET_BIGNUMBER(obj); */
+	/* if (((b->free) & mask) != 0) */
+	/*     return; */
+	/* b->free |= mask; */
     } else if (TYPE(obj) == FLOAT) {
 	float_t *f = GET_FLOAT(obj);
 	if (((f->free) & mask) != 0)
@@ -661,13 +634,6 @@ void mark_object(object_t obj)
 void sweep()
 {
     int mask = 1 << 31;
-    bignumber_t *big_num = bignumbers;
-    for (int i = 0; i < last_bignumber; i++, big_num++) {
-        if ((big_num->free & mask) == 0)
-	    free_bignumber(big_num);
-	else
-	    big_num->free &= ~mask;
-    }
     float_t *flt = floats;
     for (int i = 0; i < last_float; i++, flt++) {
 	if ((flt->free & mask) == 0)
@@ -709,11 +675,6 @@ void sweep()
 
 object_t dump_mem(object_t args)
 {
-    printf("dump_mem:\nbignumbers: ");
-    for (int i = 0; i < last_bignumber; i++) {
-        bignumber_t *big_num = &bignumbers[i];
-    	printf("%d %d,", big_num->free, big_num->value);
-    }
     printf("\nfloats: ");
     for (int i = 0; i < last_float; i++) {
     	float_t *flt = &floats[i];
@@ -909,7 +870,6 @@ void print_obj(object_t obj)
  */
 object_t print_gc_stat(object_t o)
 {
-    printf("bignumbers: %d(%d) of %d\n", last_bignumber, total_bignumbers, MAX_NUMBERS);
     printf("floats: %d(%d) of %d\n", last_float, total_floats, MAX_FLOATS);
     printf("pairs: %d(%d) of %d\n", last_pair, total_pairs, MAX_PAIRS);
     printf("symbols: %d(%d) of %d\n", last_symbol, total_symbols, MAX_SYMBOLS);
