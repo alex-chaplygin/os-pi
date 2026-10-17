@@ -386,12 +386,34 @@ static inline void call(int *addr)
     pc_reg = addr;
 }
 
+/**
+ * Поиск символа в таблице символов по адресу
+ */
+object_t search_sym_table(object_t addr)
+{
+    extern object_t symbol_table;
+    object_t o = symbol_table;
+    object_t p;
+    while (o != NULLOBJ) {
+	p = FIRST(o);
+	if (TAIL(p) == addr)
+	    return FIRST(p);
+	o = TAIL(o);
+    }
+    return addr;
+}
+
 void reg_call_inst()
 {
     int ofs = fetch();
     call(pc_reg + ofs - 2);
 #ifdef DEBUG
-    debug_stack = new_pair(new_pair(NEW_STRING("call"), new_number(ofs)), debug_stack);
+    object_t args = NULLOBJ;
+    array_t *a = GET_ARRAY(frame_reg);
+    for (int i = 2; i < 3; i++)
+	args = new_pair(a->data[i], args);
+    debug_stack = new_pair(new_pair(search_sym_table(new_number(pc_reg - program_memory)),
+				    args), debug_stack);
 #endif
 
 #ifdef VMDEBUG
@@ -406,6 +428,9 @@ void reg_call_inst()
 void return_inst()
 {
     pc_reg = program_memory + (pop() >> MARK_BIT);
+#ifdef DEBUG
+    debug_stack = TAIL(debug_stack);
+#endif
 #ifdef VMDEBUG
     printf("RETURN\n");
 #endif    
