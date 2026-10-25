@@ -85,17 +85,12 @@ int total_symbols = 0;
 ///Количество созданных пар с момента последней сборки мусора
 int allocated_pairs = 0;
 
-/// текущее окружение
-extern object_t current_env;
-/// окружение функции
-extern object_t func_env;
-
 /// точка вычисления меток tagbody
-continuation_t tagbody_buffers[MAX_TAGBODY_SIZE];
+continuation_t *tagbody_buffers;
 ///текущий индекс-буфер для tagbody
 int tb_index_buf = 0;
 /// точка вычисления меток catch
-catch_t catch_buffers[MAX_CATCH_SIZE];
+catch_t *catch_buffers;
 ///текущий индекс-буфер для catch
 int ct_index_buf;
 

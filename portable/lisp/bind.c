@@ -10,7 +10,7 @@ object_t static_bind[MAX_STATIC];
 /// Число статических объектов
 int last_static = 0;
 /// Временные объекты, защищенные от сборки мусора
-object_t *protected[MAX_PROTECTED];
+object_t **protected = NULL;
 /// Текущее число временных объектов
 int last_protected = 0;
 

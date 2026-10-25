@@ -53,16 +53,8 @@ symbol_t *func_sym;
 object_t current_env = NULLOBJ;
 /// окружение для пользовательских функций
 object_t func_env = NULLOBJ;
-/// точка вычисления меток tagbody
-extern continuation_t tagbody_buffers[MAX_TAGBODY_SIZE];
-///текущий индекс-буфер для tagbody
-extern int tb_index_buf;
 /// точка для возврата в цикл REPL
 jmp_buf repl_buf;
-/// точка вычисления меток catch
-extern catch_t catch_buffers[MAX_CATCH_SIZE];
-/// текущий индекс-буфер для catch
-extern int ct_index_buf;
 /// метка для поиска в tagbody
 object_t cur_label = NULLOBJ;
 /// объект, который возвращается при переходах управления

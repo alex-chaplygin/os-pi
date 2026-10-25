@@ -47,7 +47,7 @@
     last_protected = old_ped;
 
 extern object_t static_bind[];
-extern object_t *protected[];
+extern object_t **protected;
 extern int last_static;
 extern int last_protected;
 
