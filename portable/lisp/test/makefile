@@ -24,6 +24,8 @@ all: $(TESTS)
 	gcc $(CFLAGS) $(LDFLAGS) -o $@ $^
 /tmp/test_str_int: test_str_int.c ../symbols.c ../objects.c ../str.c ../alloc.c ../bind.c
 	gcc $(CFLAGS) $(LDFLAGS) -o $@ $^
+/tmp/test_threads: test_threads.c ../symbols.c ../objects.c ../threads.c ../alloc.c ../bind.c
+	gcc $(CFLAGS) $(LDFLAGS) -o $@ $^
 /tmp/test_sys: test_sys.c ../eval.c ../symbols.c ../objects.c ../parser.c ../lexer.c ../arith.c ../str.c ../array.c ../pair.c ../predicates.c ../alloc.c ../error.c ../bind.c
 	gcc $^ $(CFLAGS) -D REPL $(LDFLAGS) -o $@
 /tmp/test_comp_d: test_comp.c ../eval.c ../objects.c ../parser.c ../lexer.c ../arith.c ../str.c ../array.c ../pair.c ../predicates.c ../alloc.c ../error.c ../vm.c ../bind.c ../predicates.c ../symbols.c
