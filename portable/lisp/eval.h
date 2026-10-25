@@ -14,3 +14,15 @@ void print_debug_stack();
 
 extern object_t t;
 extern object_t nil;
+/// точка вычисления меток tagbody
+extern continuation_t *tagbody_buffers;
+///текущий индекс-буфер для tagbody
+extern int tb_index_buf;
+/// точка вычисления меток catch
+extern catch_t *catch_buffers;
+/// текущий индекс-буфер для catch
+extern int ct_index_buf;
+/// текущее окружение
+extern object_t current_env;
+/// окружение для пользовательских функций
+extern object_t func_env;
