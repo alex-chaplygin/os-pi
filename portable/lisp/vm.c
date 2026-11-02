@@ -56,7 +56,8 @@ object_t func_reg;
 //хранит флаг работы машины
 int working = 1;
 
-//Таблица примитивов
+// Таблица примитивов
+// Должна соответствовать таблице компилятора boot/compiler/common.lsp
 struct prim {
     void* func; 
     int args_count;
@@ -78,10 +79,11 @@ struct prim {
     SIN , 1, COS , 1, SQRT , 1,
     intern , 1, symbol_name , 1, symbol_function , 1, string_size , 1, int_to_str , 1, code_char , 1, char_code , 1, PUTCHAR , 1, str_char , 2, subseq , 3,
     make_array , 1, make_string , 2, array_size , 1, aref , 2, seta , 3, sets , 3,
-    symbolp , 1, integerp , 1, pairp , 1, functionp , 1, gensym , 0, apply , 2,
+    symbolp , 1, integerp , 1, pairp , 1,
+    functionp , 1, gensym , 0, apply , 2,
     ROUND, 1, bitwise_not, 1,
     add2, 2, sub2, 2, mul2, 2, DIV2, 2, bitwise_and2, 2, bitwise_or2, 2, bitwise_xor2, 2,
-    arrayp, 1, stringp, 1, lisp_eval, 1,
+    arrayp, 1, stringp, 1, lisp_eval, 1, floatp, 1, charp, 1,
 #ifdef OS
     INB, 1,
     INW, 1,
