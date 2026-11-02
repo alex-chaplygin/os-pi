@@ -568,6 +568,38 @@ array_t *new_empty_array(int length)
 }
 
 /**
+ * Создание нового массива байт (используем структуру array_t,
+ * в data лежат байты, length - число байт)
+ *
+ * @param length - длина в байтах
+ *
+ * @return указатель на структуру массива
+ */
+array_t *new_byte_array(int length)
+{
+    array_t *array;
+    if (length < 0)
+	error("alloc: negative length");
+    GARBAGE_COLLECT(total_arrays, MAX_ARRAYS)
+    if (last_array == MAX_ARRAYS) {
+	if (free_arrays == NULL)
+	    error("Error: out of memory: arrays");
+	array = free_arrays;
+	free_arrays = free_arrays->next;
+    } else
+	array = &arrays[last_array++];
+    array->length = length;
+    array->next = NULL;
+    array->free = 0;
+    array->data = alloc_region(length);
+    unsigned char *d = (unsigned char *)array->data;
+    for (int i = 0; i < length; i++)
+	*d++ = 0;
+    total_arrays++;
+    return array;
+}
+
+/**
  * Освобождение памяти для массива
  *
  * @param s объект для освобождения
@@ -651,6 +683,11 @@ void mark_object(object_t obj)
 	    return;
 	for (int i = 0; i < a->length; i++)
 	    mark_object(a->data[i]);
+	a->length |= mask;
+    } else if (TYPE(obj) == BYTE_ARRAY) {
+        array_t *a = GET_ARRAY(obj);
+        if (((a->length) & mask) != 0)
+	    return;
 	a->length |= mask;
     }
 }
@@ -840,6 +877,20 @@ void print_array(object_t obj)
     }
 }
 
+/**
+ * Печать массива байт
+ */
+ void print_byte_array(object_t obj)
+ {
+     array_t *a = (array_t*)(GET_ADDR(obj));
+     unsigned char *data = (unsigned char *)a->data;
+     for (int i = 0; i < a->length; i++) {
+         printf("%d", data[i]);
+         if (i < a->length - 1)
+             printf(" ");
+     }
+ }
+
 /** 
  * Печать строки с экранированием символов: "
  *
@@ -896,6 +947,11 @@ void print_obj(object_t obj)
     else if (TYPE(obj) == ARRAY) {
  	    printf("#(");
  	    print_array(obj);
+ 	    printf(")");
+    }
+    else if (TYPE(obj) == BYTE_ARRAY) {
+ 	    printf("#b(");
+ 	    print_byte_array(obj);
  	    printf(")");
     }
     else if (TYPE(obj) == CONTINUATION)

@@ -191,6 +191,176 @@ void test_array_size_null()
     
 }
 
+/**
+ * Проверка создания массива байт с отрицательной длиной
+ * Ожидается, что вызов завершится ошибкой
+ */
+void test_make_byte_array_negative_length()
+{
+    printf("test_make_byte_array_negative_length: ");
+    int size = -5; // Отрицательная длина массива
+    if (setjmp(jmp_env) == 0) {
+	object_t arr = alloc_bytes(new_number(size)); // Попытка создать массив
+	FAIL; // Если не вызвана ошибка, тест провален
+    } else 
+	OK; // Если вызвана ошибка, тест успешен
+}
+
+/**
+ * Тест для alloc_bytes: создание массива с нулевой длиной
+ */
+void test_make_byte_array_zero_length()
+{
+    printf("test_make_byte_array_zero_length: ");
+    int size = 0;
+    object_t arr = alloc_bytes(new_number(size));
+    ASSERT(TYPE(arr), BYTE_ARRAY);
+    ASSERT(GET_ARRAY(arr)->length, size);
+}
+
+/**
+ * Тест для make_byte_array: создание массива с некорректным аргументом
+ */
+void test_make_byte_array_invalid_argument()
+{
+    printf("test_make_byte_array_invalid_argument: ");
+    object_t size = NEW_SYMBOL("invalid");
+    if (setjmp(jmp_env) == 0) {
+        object_t arr = alloc_bytes(size);
+        FAIL;
+    } else
+        OK;
+}
+
+/**
+ * Проверка присваивания значения байтовому массиву c index NULLOBJ
+ */
+void test_seta_byte_array_invalid_arguments()
+{
+    printf("test_seta_byte_array_invalid_arguments: ");
+    object_t arr_o = alloc_bytes(new_number(10));
+    object_t obj = new_number(42);
+    if (setjmp(jmp_env) == 0) {
+        object_t result = seta(arr_o, NULLOBJ, obj);
+        FAIL;
+    } else
+        OK;
+}
+
+/**
+ * Проверка присваивания в байтовый массив не числа
+ */
+void test_seta_byte_array_not_number()
+{
+    printf("test_seta_byte_array_not_number: ");
+    object_t arr_o = alloc_bytes(new_number(10));
+    object_t value = NEW_SYMBOL("invalid");
+    if (setjmp(jmp_env) == 0) {
+        object_t result = seta(arr_o, new_number(0), value);
+        FAIL;
+    } else
+        OK;
+}
+
+/**
+ * Тест для seta: обновление существующего элемента байтового массива
+ */
+void test_seta_byte_array_update_value()
+{
+    printf("test_seta_byte_array_update_value: ");
+    object_t arr_o = alloc_bytes(new_number(10));
+    seta(arr_o, new_number(0), new_number(10));
+    seta(arr_o, new_number(0), new_number(1));
+    ASSERT(get_value(aref(arr_o, new_number(0))), 1);
+}
+
+/**
+ * Тест для seta: значение больше байта обрезается до младшего байта
+ */
+void test_seta_byte_array_truncation()
+{
+    printf("test_seta_byte_array_truncation: ");
+    object_t arr_o = alloc_bytes(new_number(2));
+    seta(arr_o, new_number(0), new_number(256));
+    seta(arr_o, new_number(1), new_number(257));
+    ASSERT(get_value(aref(arr_o, new_number(0))), 0);
+    ASSERT(get_value(aref(arr_o, new_number(1))), 1);
+}
+
+/**
+ * Тест для seta: индекс вне диапазона байтового массива
+ */
+void test_seta_byte_array_out_of_bounds()
+{
+    printf("test_seta_byte_array_out_of_bounds: ");
+    object_t arr_o = alloc_bytes(new_number(5));
+    object_t value = new_number(42);
+
+    if (setjmp(jmp_env) == 0) {
+        object_t result = seta(arr_o, new_number(-1), value);
+        FAIL;
+    } else {
+        OK;
+    }
+
+    if (setjmp(jmp_env) == 0) {
+        object_t result = seta(arr_o, new_number(5), value);
+        FAIL;
+    } else {
+        OK;
+    }
+}
+
+/**
+ * Тестирование чтения элемента байтового массива
+ * Создать массив на 3 байта, присвоить во 2 ячейку число 4,
+ * проверить число во 2 ячейке (aref arr 1) и начальный ноль в соседней
+ */
+void test_aref_byte_array()
+{
+    printf("test_aref_byte_array: ");
+    object_t arr_o = alloc_bytes(new_number(3));
+    seta(arr_o, new_number(1), new_number(4));
+    ASSERT(get_value(aref(arr_o, new_number(1))), 4);
+    ASSERT(get_value(aref(arr_o, new_number(0))), 0);
+}
+
+/**
+ * Тест для array_size: проверка байтового массива длиной 10
+ */
+void test_correct_byte_array_size()
+{
+    printf("test_correct_byte_array_size: ");
+    object_t arr_o = alloc_bytes(new_number(10));
+    object_t result = array_size(arr_o);
+    ASSERT(get_value(result), 10);
+}
+
+/**
+ * Тест для array_addr: адрес совпадает с полем data массива
+ */
+void test_array_addr()
+{
+    printf("test_array_addr: ");
+    object_t arr_o = alloc_bytes(new_number(8));
+    object_t addr = array_addr(arr_o);
+    ASSERT(get_value(addr), (int)(long)GET_ARRAY(arr_o)->data);
+}
+
+/**
+ * Тест для array_addr: передан обычный массив
+ */
+void test_array_addr_not_byte_array()
+{
+    printf("test_array_addr_not_byte_array: ");
+    object_t arr_o = make_array(new_number(4));
+    if (setjmp(jmp_env) == 0) {
+        object_t result = array_addr(arr_o);
+        FAIL;
+    } else
+        OK;
+}
+
 int main()
 {
     printf("------------test_arrays---------\n");
@@ -207,5 +377,17 @@ int main()
     test_correct_array_size();
     test_array_size_invalid_input();
     test_array_size_null();
+    test_make_byte_array_negative_length();
+    test_make_byte_array_zero_length();
+    test_make_byte_array_invalid_argument();
+    test_seta_byte_array_invalid_arguments();
+    test_seta_byte_array_not_number();
+    test_seta_byte_array_update_value();
+    test_seta_byte_array_truncation();
+    test_seta_byte_array_out_of_bounds();
+    test_aref_byte_array();
+    test_correct_byte_array_size();
+    test_array_addr();
+    test_array_addr_not_byte_array();
     return 0;
 }

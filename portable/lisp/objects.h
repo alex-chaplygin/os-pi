@@ -122,6 +122,7 @@ typedef enum {
     PAIR,    ///пара
     STRING,  ///строка
     ARRAY, ///массив
+    BYTE_ARRAY, ///массив байт
     CHAR, ///одиночный символ
     FUNCTION, /// lambda функция
     CONTINUATION, ///продолжение
@@ -286,6 +287,7 @@ string_t *new_string(char *str);
 void free_string(string_t *s);
 array_t *new_array(object_t list);
 array_t *new_empty_array(int length);
+array_t *new_byte_array(int length);
 void free_array(array_t *a);
 object_t print_gc_stat(object_t o);
 int need_grabage_collect();
