@@ -1,105 +1,65 @@
-# os-pi
+# Операционная система на основе Common Lisp
 
-## Настройка git
+## Концептуальная модель
 
-Для начала работы:
+Операционная система полностью написана на языке Common Lisp.
 
-	git clone https://github.com/alex-chaplygin/os-pi
+Благодаря динамическим возможностям языка, пользователь может на лету менять любую часть системы.
 
+Программы на Common Lisp работают или в режиме интепретатора или компилируются в байт код, который выполняется в виртуальной машине.
 
-Настройка удалённого репозитория
+Интерпретируемый и скомпилированный код может обращаться друг у другу (функции, глобальные переменные).
 
-	git remote set-url origin https://github.com/alex-chaplygin/os-pi
+## Версия 0.1
 
+При запуске система компилирует весь код. Запускается интерактивный терминал. В нем пользователь может ввести любое выражение,
+просмотреть глобальные переменные, вызвать любую скомпилированную функцию.
+Также пользователь может создать новую функцию или переопределить скомпилированную функцию.
+Она регистриуется и будет выполняться в интерпретаторе, но скомпилированный код будет вызывать ее новую версию.
+Пример:
 
+	> (defun myfun (x) ; создаем новую функцию
+	>   (+ x x)) ; пустая строка - признак окончания ввода
+	>
+	MYFUN
+	> (myfun 1)
+	>
+	2
 
+## Стандартная библиотека
 
+* lib.lsp - глобальные макросы (условия, циклы)
+* list.lsp - работа со списками
+* str.lsp - работа с символами и строками
+* array.lsp - работа с массивами
+* math.lsp - математические функции
+* hash.lsp - хеш таблицы
+* bin-tree.lsp - двоичное дерево
+* test.lsp - библиотека модульного тестирования
+* oop.lsp - объектно-ориентированное программирование
+* stream.lsp - потоки ввода
+* ostream.lsp - потоки вывода
+* posstream.lsp - текстовый поток, который хранит позицию (строка, столбец) в потоке
+* parser.lsp - библиотека комбинаторного разбора контекстно-свободных грамматик
+* regex.lsp - библиотека регулярных выражений
+* huffman.lsp - декодирование кодов Хаффмана
+* deflate.lsp - раcпаковка по алгоритму Deflate
+* fa/ - конечные автоматы
+* compiler/ - оптимизирующий компилятор Common Lisp
+* fs/ - работа с файловой системой (FAT32)
+* graphics/ - графическая бибилотека
+* crypt/ - шифрование/дешифрование по алгоритму AES
+* img/ - чтение форматов изображений (JPEG, PNG, BMP, TIFF)
+* lang/ - поддержка других языков программирования (Lua)
+* gui/ - библиотека графического пользовательского интерфейса
+* game/ - игровая бибилотека
+* sys/ - системные модули (драйвер ATA, клавиатура, драйвер PCI, драйвер видео)
 
+## Планируемые улучшения
 
-
-Настройка профиля:
-	
-	git config --global user.name "ВАШЕ ИМЯ НА GITHUB"
-	git config --global user.email "ВАША ПОЧТА"
-
-	
-
-***
-## Порядок работы
-
-0. Удаляем свою старую ветку
-
-git checkout master
-
-git branch -D iss<номер сделанной ветки>
-
-1. Смотрим задание в разделе Issues
-
-2. Синхронизировать удаленное хранилище и локальное
-
-git checkout master
-
-git pull origin master
-
-3. Создаем ветку
-
-git branch iss<номер>
-
-git checkout iss<номер>
-
-4. Работаем
-
-5. Фиксация изменений
-
-выполняем для каждого измененного файла
-
-git add имя_файла
-
-git commit -m "Краткое сообщение что было сделано"
-
-6. Загрузить ветку на удаленный репозиторий
-
-git push origin iss<номер>
-
-## Настройка Emacs
-
-(defun do-all-tests()
-  (interactive)
-  (save-some-buffers (lambda () t))
-  (compile "make test"))
-
-(defun do-cur-test()
-  (interactive)
-  (save-some-buffers (lambda () t))
-  (let* ((buf (file-name-base (buffer-file-name (window-buffer (minibuffer-selected-window)))))
-	 (buf2 (concat "/tmp/" buf)))
-    (add-hook 'compilation-finish-functions 'my-compilation-finish-function)
-    (compile (concat "make " buf2))
-    (sit-for 2)
-    (shell-command buf2)))
-
-(require 'doxymacs)
-
-(global-set-key [f1] 'doxymacs-insert-file-comment)
-
-(global-set-key [f2] 'doxymacs-insert-function-comment)
-
-(global-set-key [f3] 'doxymacs-insert-member-comment)
-
-(global-set-key [f4] 'do-all-tests)
-
-(global-set-key [f5] 'do-cur-test)
-
-(global-set-key (kbd "C-v") 'yank)
-
-(define-key input-decode-map (kbd "C-c") (kbd "M-w"))
-
-(global-set-key (kbd "C-s") 'save-buffer)
-
-(global-set-key (kbd "C-z") 'undo)
-
-(global-set-key (kbd "C-f") 'find-file)
-
-(global-set-key (kbd "C-w") 'other-window)
-
-(setq-default c-basic-offset 4)
+* поддержка кооперативных потоков
+* поддержка сети Ethernet
+* графическая библиотека (поддержка 32 бит на цвет, заливка контуров)
+* регулярные выражения (реализация через конечные автоматы, а не через обход в глубину)
+* новая система времени выполнения (выделение памяти объектов, сборка мусора)
+* новый компилятор и виртуальная машина: компиляция на основе продолжений, регистровая машина.
