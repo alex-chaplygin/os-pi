@@ -1,5 +1,13 @@
+#TARGET=X32
+TARGET=X64
 SHELL=bash
-CFLAGS=-O3 -I. -I../ -I../../../include -g -Wno-pointer-to-int-cast -Wno-int-to-pointer-cast -Wno-int-conversion -fno-omit-frame-pointer #--coverage
+ifeq ($(TARGET), X64)
+	CFLAGS=-O3 -I. -I../ -I../../../include -g -Wno-incompatible-pointer-types -Wno-pointer-to-int-cast -Wno-int-to-pointer-cast -Wno-int-conversion -fno-omit-frame-pointer #--coverage
+	ASMFLAGS=-f elf64 -g -dTARGET_x86_64
+else
+	CFLAGS=-O3 -DX32 -I. -I../ -I../../../include -g -Wno-incompatible-pointer-types -Wno-pointer-to-int-cast -Wno-int-to-pointer-cast -Wno-int-conversion -fno-omit-frame-pointer #--coverage
+	ASMFLAGS=-f elf32 -g -dTARGET_x86
+endif
 LDFLAGS=-lgcov -lm
 TESTS=/tmp/test_lexer /tmp/test_symbols /tmp/test_objects /tmp/test_parser /tmp/test_eval_int /tmp/test_arrays /tmp/test_arith /tmp/test_str_int /tmp/test_pair /tmp/test_mpa
 PROFILE=/tmp/baselisp.lsp
@@ -24,6 +32,8 @@ all: $(TESTS)
 	gcc $(CFLAGS) $(LDFLAGS) -o $@ $^
 /tmp/test_str_int: test_str_int.c ../symbols.c ../objects.c ../str.c ../alloc.c ../bind.c
 	gcc $(CFLAGS) $(LDFLAGS) -o $@ $^
+/tmp/switch.o: ../../../x86/switch.asm
+	nasm $(ASMFLAGS) -o $@ $^
 /tmp/test_threads: test_threads.c ../symbols.c ../objects.c ../threads.c ../alloc.c ../bind.c
 	gcc $(CFLAGS) $(LDFLAGS) -o $@ $^
 /tmp/test_sys: test_sys.c ../eval.c ../symbols.c ../objects.c ../parser.c ../lexer.c ../arith.c ../str.c ../array.c ../pair.c ../predicates.c ../alloc.c ../error.c ../bind.c
