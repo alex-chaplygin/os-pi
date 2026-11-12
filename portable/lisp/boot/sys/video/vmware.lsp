@@ -75,7 +75,7 @@
     (write-dword s min-offset) ;; NEXT: писать сюда (в начало)
     (write-dword s min-offset) ;; STOP: читать до сюда (в начало)
     (print `(fifo ,min-offset ,(ostream-data s)))
-    (memcpy *svga-fifo-base* (ostream-data s))))
+    (memcpy *svga-fifo-base* (array-addr (ostream-arr s)) 16)))
 
 ;; Инициализация SVGA 
 (defun svga-init (bus device)
@@ -108,18 +108,19 @@
 
 (defun svga-command (c)
   "Послать команду в очередь"
-  (memcpy (+ *svga-fifo-base* *svga-fifo-cursor*) c)
-  (setq *svga-fifo-cursor* (+ *svga-fifo-cursor* (array-size c)))
-  (when (>= *svga-fifo-cursor* *svga-fifo-size*)
-    (setq *svga-fifo-cursor* *svga-fifo-start*))
-  (let ((next (new-stream)))
-    (write-dword next *svga-fifo-cursor*)
-    (memcpy (+ *svga-fifo-base* 8) (ostream-data next)))
-  (svga-sync))
+  (let ((size (ostream-ptr c)))
+    (memcpy (+ *svga-fifo-base* *svga-fifo-cursor*) (array-addr (ostream-arr c)) size)
+    (setq *svga-fifo-cursor* (+ *svga-fifo-cursor* size))
+    (when (>= *svga-fifo-cursor* *svga-fifo-size*)
+      (setq *svga-fifo-cursor* *svga-fifo-start*))
+    (let ((next (new-stream)))
+      (write-dword next *svga-fifo-cursor*)
+      (memcpy (+ *svga-fifo-base* 8) (array-addr (ostream-arr next)) 4))
+    (svga-sync)))
 
 (defun svga-update (x y width height)
   "Обновление области экрана из фреймбуфера"
   (let ((s (new-stream)))
     (dolist (val (list +svga-cmd-update+ x y width height))
       (write-dword s val))
-    (svga-command (ostream-data s))))
+    (svga-command s)))
