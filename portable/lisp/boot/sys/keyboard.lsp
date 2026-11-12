@@ -14,6 +14,8 @@
 (defconst +key-0+ 0x0B)
 (defconst +key-tab+ 0xf)
 (defconst +key-enter+ 0x1c)
+(defconst +key-left-shift+ 0x2a)
+(defconst +key-right-shift+ 0x36)
 (defconst +key-left+ 0x4b)
 (defconst +key-right+ 0x4d)
 (defconst +key-up+ 0x48)
@@ -31,6 +33,46 @@
  #\' #\`   ()		;; Left shift */
  #\\ #\z #\x #\c #\v #\b #\n			;; 49 */
   #\m #\, #\. #\/   ()				;; Right shift */
+  #\*
+    ()	;; Alt */
+   #\ 	;; Space bar */
+    ()	;; Caps lock */
+    ()	;; 59 - F1 key ... > */
+    ()   ()   ()   ()   ()   ()   ()   ()
+    ()	;; < ... F1() */
+    ()	;; 69 - Num lock*/
+    ()	;; Scroll Lock */
+    ()	;; Home key */
+    ()	;; Up Arrow */
+    ()	;; Page Up */
+  #\-
+    ()	;; Left Arrow */
+    ()
+    ()	;; Right Arrow */
+  #\+
+    ()	;; 79 - End key*/
+    ()	;; Down Arrow */
+    ()	;; Page Down */
+    ()	;; Insert Key */
+    ()	;; Delete Key */
+    ()   ()   ()
+    ()	;; F11 Key */
+    ()	;; F12 Key */
+    ()	;; All other keys are undefined */
+		      ))
+;; карта скан код в символ с нажатым Shift
+(defconst +key-shift-map+ #(
+ ()  () #\! #\@ #\# #\$ #\% #\^ #\& #\*	;; 9 */
+  #\( #\) #\_ #\+ ()	;; Backspace */
+  ()			;; Tab */
+  #\Q #\W #\E #\R	;; 19 */
+  #\T #\Y #\U #\I #\O #\P #\{ #\} #\
+  ;; Enter key */
+    ()			;; 29   - Control */
+  #\A #\S #\D #\F #\G #\H #\J #\K #\L #\:	;; 39 */
+ #\" #\~   ()		;; Left shift */
+ #\| #\Z #\X #\C #\V #\B #\N			;; 49 */
+  #\M #\< #\> #\?   ()				;; Right shift */
   #\*
     ()	;; Alt */
    #\ 	;; Space bar */
@@ -84,5 +126,9 @@
 (defun scan-to-char (scan)
   "Возвращает символ по скан коду"
   (aref +key-map+ scan))
+
+(defun scan-to-shift-char (scan)
+  "Возвращает символ по скан коду с нажатым Shift"
+  (aref +key-shift-map+ scan))
 
 (set-int-handler +key-irq+ #'key-handler)
