@@ -91,24 +91,17 @@ object_t send_graphics_buffer(object_t bb, object_t xx, object_t yy, object_t ww
  * Копирование массива байт в память
  *
  * @param dst адрес в памяти (число)
- * @param src массив байт
+ * @param src адрес в памяти (число)
  *
  * @return nil
  */
-object_t MEMCPY(object_t dst, object_t src)
+object_t MEMCPY(object_t dst, object_t src, object_t len)
 {
     if (!IS_NUMBER(dst))
 	error("memcpy: dst - not number");
-    if (TYPE(src) != ARRAY)
-	error("memcpy: src - not array");
-    array_t *a = GET_ARRAY(src);
-    byte *buf = alloc_region(a->length);
-    byte *b = buf;
-    object_t *s = a->data;
-    for (int i = 0; i < a->length; i++)
-	*b++ = get_value(*s++);
-    memcpy((unsigned int *)get_value(dst), buf, a->length);
-    free_region(buf);
+    if (!IS_NUMBER(src))
+	error("memcpy: src - not number");
+    memcpy((void *)get_value(dst), (void *)get_value(src), get_value(len));
 }
 
 void graph_init()
@@ -116,6 +109,6 @@ void graph_init()
     // register_func("GRAPH-SEND-BUFFER", graph_send_buffer);
     register_func("SEND-TEXT-BUFFER", send_text_buffer, 0, 5);
     register_func("SEND-GRAPHICS-BUFFER", send_graphics_buffer, 0, 5);
-    register_func("MEMCPY", MEMCPY, 0, 2);
+    register_func("MEMCPY", MEMCPY, 0, 3);
 }
 

@@ -84,6 +84,7 @@ struct prim {
     ROUND, 1, bitwise_not, 1,
     add2, 2, sub2, 2, mul2, 2, DIV2, 2, bitwise_and2, 2, bitwise_or2, 2, bitwise_xor2, 2,
     arrayp, 1, stringp, 1, lisp_eval, 1, floatp, 1, charp, 1,
+    alloc_bytes, 1, array_addr, 1,
 #ifdef OS
     INB, 1,
     INW, 1,
@@ -101,7 +102,7 @@ struct prim {
     SET_INT_HANDLER, 2,
     send_text_buffer, 5,
     send_graphics_buffer, 5,
-    MEMCPY, 2,
+    MEMCPY, 3,
     halt_return, 0,
 #endif
 };
