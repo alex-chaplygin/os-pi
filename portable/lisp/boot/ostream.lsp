@@ -8,13 +8,13 @@
 
 (defun new-stream ()
   "Создает новый поток записи"
-    (make-OStream (make-array +ostream-size+) 0))
+    (make-OStream (alloc +ostream-size+) 0))
 
 (defmethod write-byte ((self OStream) byte)
   "Записать 1 байт в поток и сдвинуть курсор"
   (let ((arr (OStream-arr self))
         (ptr (OStream-ptr self)))
-    (seta arr ptr (& byte 0xff))
+    (seta arr ptr byte)
     (OStream-set-ptr self (+ ptr 1))))
 
 (defmethod write-word ((self OStream) w)
@@ -29,6 +29,10 @@
   (write-word self dw)
   (write-word self (>> dw 16)))
 
-(defun ostream-data (self)
-  "Возвращает только записанную часть массива"
-  (array-seq (OStream-arr self) 0 (OStream-ptr self)))
+(defun ostream-data (s)
+  "Возвращает только записанную часть потока как массив байт"
+  (let* ((size (OStream-ptr s))
+	 (a (alloc size))
+	 (ar (Ostream-arr s)))
+    (for i 0 size (seta a i (aref ar i)))
+    a))
