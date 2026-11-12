@@ -1,6 +1,6 @@
 include ../common.mak
 include ../fs/makefile
-CONSOLE = $(BASELISP) $(PARSER) $(FSVFS) keyboard.lsp shell.lsp
+CONSOLE = $(BASELISP) $(PARSER) ../posstream.lsp compiler/lexer.lsp compiler/parser.lsp keyboard.lsp terminal.lsp
 NET = $(BASELISP) pci.lsp net/ethernet.lsp
 SHELL = bash
 VPATH := .. ../fs
