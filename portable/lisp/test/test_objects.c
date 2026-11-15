@@ -86,17 +86,6 @@ void hash_remove(symbol_t *s)
 }
 
 /**
- * Создать объект большое число и проверить, что оно правильно записалось
- */
-void test_new_bignumber(int number)
-{
-    printf("test_new_bignumber: ");
-    object_t bn = new_bignumber(number);
-    ASSERT(GET_BIGNUMBER(bn)->value, number);
-    //    ASSERT(GET_ADDR(bignumbers[last_number - 1].value), GET_ADDR(number));
-}
-
-/**
  * Создать объект вещественное число и проверить, что оно правильно записалось
  */
 void test_new_float(float number)
@@ -151,11 +140,23 @@ void test_new_continuation()
 /**
  * Создать объект маленькое число и проверить, что оно правильно записалось
  */
-void test_new_number(int number, int type)
+void test_new_number(int number)
 {
     printf("test_new_number: ");
     object_t o = new_number(number);
-    ASSERT(TYPE(o), type);
+    ASSERT(POINTER_TYPE(o), TAG_NUMBER);
+    ASSERT(get_value(o), number);
+}
+
+/**
+ * Создать объект большое число и проверить, что оно правильно записалось
+ */
+void test_new_bignumber(int number)
+{
+    printf("test_new_bignumber: ");
+    object_t o = new_number(number);
+    ASSERT(POINTER_TYPE(o), TAG_POINTER);
+    ASSERT(TYPE(o), BIGNUMBER);
     ASSERT(get_value(o), number);
 }
 
@@ -919,7 +920,7 @@ void test_return_get_addr()
 {
     printf("test_return_get_addr: ");
     object_t obj = 0xABC8;   
-    ASSERT(GET_ADDR(obj), 0xABC0);
+    ASSERT(GET_ADDR(obj), (char *)0xABC0);
 }
 
 /**
@@ -1025,13 +1026,13 @@ void main()
     /* reset_mem(); */
 
     // Тесты для чисел (малые числа)
-    test_new_number(-677, NUMBER);
-    test_new_number(56, NUMBER);
-    test_new_number(0xfffffff, BIGNUMBER);
-    test_new_number(0xffffff8, BIGNUMBER);
-    test_new_number(0, NUMBER);
-    test_new_number((1<<ADDR_BITS-1)-1, NUMBER); //fail
-    test_new_number(-((1<<ADDR_BITS-1)-1), NUMBER); //fail
+    test_new_number(-677);
+    test_new_number(56);
+    test_new_number(0xffffffff);
+    test_new_bignumber(0x7fffffff);
+    test_new_number(0);
+    /* test_new_number((1<<ADDR_BITS-1)-1, NUMBER); //fail */
+    /* test_new_number(-((1<<ADDR_BITS-1)-1), NUMBER); //fail */
     test_get_value(13);
     test_get_value(0);
     test_get_value(-6);

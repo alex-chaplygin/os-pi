@@ -12,6 +12,8 @@
 
 /// Память для всех объектов
 byte *objects_memory;
+// Конец используемой памяти
+char *memory_used;
 
 /// Индекс последнего вещественного числа
 int last_float = 0;
@@ -101,6 +103,7 @@ int ct_index_buf;
 void init_objects()
 {
     objects_memory = alloc_region(OBJECTS_MEMORY_SIZE);
+    memory_used = objects_memory;
     symbols = (symbol_t *)alloc_region(MAX_SYMBOLS * sizeof(symbol_t));
     floats = (float_t *)alloc_region(MAX_FLOATS * sizeof(float_t));
     pairs = (pair_t *)alloc_region(MAX_PAIRS * sizeof(pair_t));
@@ -119,7 +122,11 @@ void init_objects()
 /*  */
 object_t new_bignumber(int num)
 {
-    return NULLOBJ;
+    bignumber_t *p = (bignumber_t *)memory_used;
+    p->descriptor = DESCRIPTOR(BIGNUMBER, 1);
+    p->value = num;
+    memory_used += sizeof(bignumber_t);
+    return (object_t)p;
 }
 
 /**
@@ -161,12 +168,13 @@ object_t new_number(long long num)
  */
 int get_value(object_t obj)
 {
-    /*    if (TYPE(obj) == BIGNUMBER)
-	  return GET_BIGNUMBER(obj)->value;*/
-    if ((int)obj < 0)
-	return (obj >> 2) | (((1 << 2) - 1) << ADDR_BITS);
-    else
-	return obj >> 2;
+    if (POINTER_TYPE(obj) == TAG_NUMBER) {
+	if ((int)obj < 0)
+	    return (obj >> 2) | (((1 << 2) - 1) << ADDR_BITS);
+	else
+	    return obj >> 2;
+    }
+    return GET_BIGNUMBER(obj)->value;
 }
 
 /**

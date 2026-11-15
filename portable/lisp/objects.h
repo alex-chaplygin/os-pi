@@ -5,6 +5,7 @@ typedef unsigned char byte;
 #define OBJECTS_MEMORY_SIZE 1024
 /// Всего пар
 #ifdef VM
+
 #define MAX_PAIRS (4 * 1024 * 1024)
 #else
 #define MAX_PAIRS 800000
@@ -51,7 +52,6 @@ typedef unsigned char byte;
 #define MAX_TAGBODY_SIZE 100
 /// Размер стека для catch
 #define MAX_CATCH_SIZE 128
-
 /// Печать объекта с переводом строки и учетом рекурсии
 #define PRINT(o) print_counter++; print_obj(o); printf("\n");
 
@@ -71,10 +71,15 @@ typedef unsigned char byte;
 #define ADDR_BITS 62
 #endif
 /// Тег в 2-х младших битах
+#define TAG_POINTER 0		/**< указатель на объект */
 #define TAG_NUMBER 1		/**< непосредственное целое число */
 #define TAG_CHAR 3		/**< непосредственный символ строки */
 /// Возвращение типа объекта в младших битах
-#define TYPE(obj) ((obj) & ((1 << TYPE_BITS) - 1))
+//#define TYPE(obj) (((*(int *)((obj) & (0xFFFFFFFF << MARK_BIT)))>>2) & 0b1111)
+//#define TYPE(obj) (((*(int *)GET_ADDR(obj))>>2) & 0b1111)
+#define TYPE(obj) ((*(GET_ADDR(obj))) & 0xf)
+#define POINTER_TYPE(obj) (obj & 0x3)
+#define DESCRIPTOR(type, len) ((object_t)((type) | ((len) << 4)))
 /// Установить бит пометки
 #define SET_MARK(obj) ((obj) |= (1 << TYPE_BITS))
 /// Возврат значения бита пометки
@@ -82,11 +87,12 @@ typedef unsigned char byte;
 /// Очистка бита пометки
 #define CLEAR_MARK(obj) ((obj) &= ~(1 << TYPE_BITS))
 /// Получить адрес объекта
-#ifdef X32
-#define GET_ADDR(obj) ((obj) & (0xFFFFFFFF << MARK_BIT))
-#else
-#define GET_ADDR(obj) ((obj) & (0xFFFFFFFFFFFFFFFF << MARK_BIT))
-#endif
+// #ifdef X32
+// #define GET_ADDR(obj) ((obj) & (0xFFFFFFFF << MARK_BIT))
+// #else
+// #define GET_ADDR(obj) ((obj) & (0xFFFFFFFFFFFFFFFF << MARK_BIT))
+// #endif
+#define GET_ADDR(num) ((char*)(num))
 //макрос, который строит указатель, состоящий из типа в младших битах и значения в остальных
 #define NEW_OBJECT(type, val) ((object_t)(val) + (type))
 //Получение указателя на структуру пары из объекта
@@ -150,6 +156,8 @@ typedef  object_t (*func2_t)(object_t, object_t);
 typedef  object_t (*func3_t)(object_t, object_t, object_t);
 typedef  object_t (*func4_t)(object_t, object_t, object_t, object_t);
 typedef  object_t (*func5_t)(object_t, object_t, object_t, object_t, object_t);
+
+extern char memory[];
 
 /* Структуры объектов должны иметь размер, кратный 2^MARKBIT (сейчас 32 байт) */
 /* Структура региона должна иметь размер, кратный 2^MARKBIT (сейчас 32 байт) */
