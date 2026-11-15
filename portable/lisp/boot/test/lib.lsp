@@ -362,7 +362,25 @@
 			 (a (k) k)) 2))
   (print (assert (handle (progn (raise 'b 2) 5)
   			 (a (k) (+ k 1))
-  			 (b (k) (- k 2))) 0)))
+			 (b (k) (- k 2))) 0))
+  (print (assert (handle (car 1)
+			 (error (k) (list 'cau k))) (list 'cau nil)))
+  (print (assert (handle (handle (car 1)
+				 (error (k) (list 'in k)))
+			 (error (k) 'out)) (list 'in nil)))
+  (print (assert (handle (handle (car 1)
+				 (error (k) (car 1)))
+			 (error (k) (list 'out k))) (list 'out nil)))
+  (print (assert (handle (catch 6 (car 1))
+			 (error (k) (list 'cau k))) (list 'cau nil)))
+  (for i 0 3
+       (print (assert (handle (car 1)
+			      (error (k) (list i k))) (list i nil))))
+  (print (assert (handle (progn
+			  (handle (labels ((local () 2)) (car 1))
+				  (error (k) nil))
+			  (local))
+			 (error (k) 'no-local)) 'no-local)))
 
 (deftest while-break-test ()
   "Тестирование break в цикле while"

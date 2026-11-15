@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <setjmp.h>
 #include <stdarg.h>
+#include <string.h>
 #include "objects.h"
+#include "cont.h"
 #include "eval.h"
 
 // точка начала цикла REPL
@@ -16,6 +18,15 @@ void print_debug_lines();
  */
 void error(char *str, ...)
 {
+    extern catch_t catch_buffers[MAX_CATCH_SIZE];
+    extern int ct_index_buf;
+    for (int i = ct_index_buf; i < MAX_CATCH_SIZE; i++) {
+        object_t tag = catch_buffers[i].tag;
+        if (TYPE(tag) == SYMBOL && !strcmp(GET_SYMBOL(tag)->str, "ERROR")) {
+            throw(tag, NULLOBJ);
+            return;
+        }
+    }
 #ifdef OS
     void set_cursor(int x, int y);
     set_cursor(0, 0);

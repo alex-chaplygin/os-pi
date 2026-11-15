@@ -980,10 +980,12 @@ object_t catch(object_t list)
 
     if (setjmp(catch_buffers[ct_index_buf].buff.buffer) == 0) {
         res = progn(rest_params);
-        ct_index_buf++;
     } 
     else 
         res = return_obj;
+    current_env = catch_buffers[ct_index_buf].buff.environment;
+    func_env = catch_buffers[ct_index_buf].buff.func_environment;
+    ct_index_buf++;
     UNPROTECT;
     return res;
 }
