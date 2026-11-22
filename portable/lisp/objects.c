@@ -302,40 +302,12 @@ void free_continuation(continuation_t *c)
 /*  */
 object_t new_float(float num)
 {
-    float_t *number;
-    GARBAGE_COLLECT(total_floats, MAX_FLOATS)
-    if (last_float == MAX_FLOATS)
-    {
-	if (free_floats == NULL)
-	    error("Error: out of memory: floats");
-	number = free_floats;
-	free_floats = free_floats -> next;
-    } else
-	number = &floats[last_float++];
-    number->next = NULL;
-    number->free = 0;
-    number->value = num;
-    total_floats++;
-    return NEW_OBJECT(FLOAT, number);
+    float_t *p = (float_t *)memory_used;
+    p->descriptor = DESCRIPTOR(FLOAT, 1);
+    p->value = num;
+    memory_used += sizeof(float_t);
+    return (object_t)p;
 }
-
-/**
- * Освобождение памяти для вещественного числа
- *
- * @param obj объект
- */
-void free_float(float_t *f)
-{
-    if (f == NULL)
-    	error("free_float: null pointer: obj");
-    if (f->free)
-	return;
-    f->next = free_floats;
-    free_floats = f;
-    f->free = 1;
-    total_floats--;
-}
-
 
 /**
  * Создание нового объекта пары
@@ -604,10 +576,10 @@ void mark_object(object_t obj)
 	/*     return; */
 	/* b->free |= mask; */
     } else if (TYPE(obj) == FLOAT) {
-	float_t *f = GET_FLOAT(obj);
-	if (((f->free) & mask) != 0)
-	    return;
-	f->free |= mask;
+	// float_t *f = GET_FLOAT(obj);
+	// if (((f->free) & mask) != 0)
+	//     return;
+	// f->free |= mask;
     } else if (TYPE(obj) == FUNCTION) {
 	function_t *f = GET_FUNCTION(obj);
         if ((f->free & mask) != 0)
@@ -642,12 +614,12 @@ void mark_object(object_t obj)
 void sweep()
 {
     int mask = 1 << 31;
-    float_t *flt = floats;
-    for (int i = 0; i < last_float; i++, flt++) {
-	if ((flt->free & mask) == 0)
-	    free_float(flt);
-	else flt->free &= ~mask;
-    }
+    // float_t *flt = floats;
+    // for (int i = 0; i < last_float; i++, flt++) {
+	// if ((flt->free & mask) == 0)
+	//     free_float(flt);
+	// else flt->free &= ~mask;
+    // }
     function_t *func = functions;
     for (int i = 0; i < last_function; i++, func++) {
 	if ((func->free & mask) == 0)
@@ -683,11 +655,11 @@ void sweep()
 
 object_t dump_mem(object_t args)
 {
-    printf("\nfloats: ");
-    for (int i = 0; i < last_float; i++) {
-    	float_t *flt = &floats[i];
-    	printf("%d %f,", flt->free, flt->value);
-    }
+    // printf("\nfloats: ");
+    // for (int i = 0; i < last_float; i++) {
+    // 	float_t *flt = &floats[i];
+    // 	printf("%d %f,", flt->free, flt->value);
+    // }
     printf("\nfunctions: ");
     for (int i = 0; i < last_function; i++) {
     	function_t *func = &functions[i];

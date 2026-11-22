@@ -85,15 +85,6 @@ void hash_remove(symbol_t *s)
 {
 }
 
-/**
- * Создать объект вещественное число и проверить, что оно правильно записалось
- */
-void test_new_float(float number)
-{
-    printf("test_new_float: ");
-    object_t fl = new_float(number);
-    ASSERT(GET_FLOAT(fl)->value, number);
-}
 
 /**
  * Создать объект функции, напечатать и проверить тип объекта
@@ -171,6 +162,28 @@ void test_get_value(int number)
 }
 
 /**
+ * Создать объект число с плавающей точкой и проверить, что оно правильно записалось
+ */
+void test_new_float(float number)
+{
+    printf("test_new_float: ");
+    object_t o = new_float(number);
+    ASSERT(POINTER_TYPE(o), TAG_POINTER);
+    ASSERT(TYPE(o), FLOAT);
+    ASSERT(GET_FLOAT(o)->value, number);
+}
+
+/**
+ * Создать объект число с плавающей точкой и проверить получение значения
+ */
+void test_get_float(float number)
+{
+    printf("test_get_float: ");
+    object_t o = new_float(number);
+    ASSERT(GET_FLOAT(o)->value, number);
+}
+
+/**
  * Создать две пары и проверить массив пар
  */
 void test_new_pair()
@@ -196,25 +209,25 @@ void test_new_pair()
 /**
  * Проверка правильной печати объекта (1 2)
  */
-void test_print_obj(object_t obj, const char *expected_output)
-{
-    printf("test_print_obj: ");
+// void test_print_obj(object_t obj, const char *expected_output)
+// {
+//     printf("test_print_obj: ");
     
-    int outdes = dup(1);
-    FILE *file = freopen("/tmp/test.txt", "w", stdout);
-    print_counter++;
-    print_obj(obj);
-    fclose(file);
+//     int outdes = dup(1);
+//     FILE *file = freopen("/tmp/test.txt", "w", stdout);
+//     print_counter++;
+//     print_obj(obj);
+//     fclose(file);
 
-    stdout = fdopen(outdes, "w");
+//     stdout = fdopen(outdes, "w");
     
-    FILE *output_file = fopen("/tmp/test.txt", "r");
-    char output_buffer[20];
-    char *s = fgets(output_buffer, sizeof(output_buffer), output_file);
-    fclose(output_file);
+//     FILE *output_file = fopen("/tmp/test.txt", "r");
+//     char output_buffer[20];
+//     char *s = fgets(output_buffer, sizeof(output_buffer), output_file);
+//     fclose(output_file);
 
-    ASSERT(strcmp(output_buffer, expected_output), 0);
-}
+//     ASSERT(strcmp(output_buffer, expected_output), 0);
+// }
 
 /** 
  * Создать объект функцию, освободить этот объект и проверить,
@@ -260,16 +273,16 @@ void test_free_function()
  * Освобождение вещественного числа из объекта
  */
 
-void test_free_float()
-{
-    printf("test_free_float: ");
-    reset_mem();
-    object_t o = new_float(800000.1232f);
-    printf("%x\n", (int)o);
-    ASSERT(TYPE(o), FLOAT);
-    free_float((float_t *)GET_ADDR(o));
-    ASSERT(free_floats, (float_t *)GET_ADDR(o));
-}
+// void test_free_float()
+// {
+//     printf("test_free_float: ");
+//     reset_mem();
+//     object_t o = new_float(800000.1232f);
+//     printf("%x\n", (int)o);
+//     ASSERT(TYPE(o), FLOAT);
+//     free_float((float_t *)GET_ADDR(o));
+//     ASSERT(free_floats, (float_t *)GET_ADDR(o));
+// }
 
 /**
  * Проверка корректности работы сборщика мусора
@@ -683,31 +696,31 @@ void test_garbage_collect_strings()
  * Выполнить сборку мусора
  * Проверить, что объект не в списке свободных вещественных чисел
  */
-void test_garbage_collect_floats() 
-{ 
-    printf("test_garbage_collect_floats: "); 
-    reset_mem(); 
-    symbol_t *s = new_symbol("B"); 
-    object_t obj1 = new_float(12.837f); 
-    object_t obj2 = new_float(0.5f); 
-    object_t obj3 = new_float(28391.9213f); 
-    s->value = obj1;
-    bind_static(NEW_OBJECT(SYMBOL, s));    
-    garbage_collect();
+// void test_garbage_collect_floats() 
+// { 
+//     printf("test_garbage_collect_floats: "); 
+//     reset_mem(); 
+//     symbol_t *s = new_symbol("B"); 
+//     object_t obj1 = new_float(12.837f); 
+//     object_t obj2 = new_float(0.5f); 
+//     object_t obj3 = new_float(28391.9213f); 
+//     s->value = obj1;
+//     bind_static(NEW_OBJECT(SYMBOL, s));    
+//     garbage_collect();
     
-    float_t *fs = free_floats; 
-    while (fs != NULL) {
-	printf("%f\n", fs->value);
-	if (fs == (float_t *)GET_ADDR(obj1)) { 
-	    printf("fail_floats\n"); 
-	    return; 
-	} 
-	fs = fs->next; 
-    } 
-    printf("floats_OK\n");
-    ASSERT(regions->free, 0);
-    ASSERT((regions->next != NULL), 1);
-}
+//     float_t *fs = free_floats; 
+//     while (fs != NULL) {
+// 	printf("%f\n", fs->value);
+// 	if (fs == (float_t *)GET_ADDR(obj1)) { 
+// 	    printf("fail_floats\n"); 
+// 	    return; 
+// 	} 
+// 	fs = fs->next; 
+//     } 
+//     printf("floats_OK\n");
+//     ASSERT(regions->free, 0);
+//     ASSERT((regions->next != NULL), 1);
+// }
 
 /*
  * Создать две функции
@@ -1038,6 +1051,12 @@ void main()
     test_get_value(-6);
     reset_mem();
 
+
+    test_new_float(123.3);
+    test_new_float(10);
+    test_get_float(91.56);
+    test_get_float(-13.4);
+    reset_mem();
     // Тесты для чисел (большие числа)
     /* test_new_bignumber(1100); */
     /* test_new_bignumber(0); */

@@ -194,14 +194,8 @@ typedef struct function_s
 
 typedef struct float_s
 {
+    object_t descriptor; //дескриптор объекта
     float value; // значение вещественного числа
-    struct float_s *next; // указатель на следующее свободное число
-    int free; // Если число свободно
-#ifdef X32
-    int pad[5]; // выравнивание 12 + 20
-#else
-    int pad[2]; // выравнивание 24 + 8
-#endif
 } float_t;
 
 /// Структура пары
