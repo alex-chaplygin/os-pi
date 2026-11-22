@@ -9,5 +9,8 @@ mem_check.o: mem_check.asm
 x86.o: x86.asm /tmp/lisp.lsp
 	nasm -f elf32 -g x86.asm -o x86.o
 
+switch.o: switch.asm
+	nasm -f elf32 -g switch.asm -o switch.o	
+
 syslib.o: syslib.asm
 	nasm -f elf32 -g syslib.asm -o syslib.o

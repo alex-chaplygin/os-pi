@@ -1,10 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include <stdint.h>
 #include "objects.h"
 #include "bind.h"
 #include "threads.h"
 #include "symbols.h"
+#include "eval.h"
 
 extern object_t current_env;
 extern object_t func_env;
@@ -19,6 +21,11 @@ thread_t *free_threads = NULL;
 int total_threads = 1;
 thread_t *current_thread = threads;
 
+/**
+ * Выделяет динамическую память для буферов потока
+ *
+ * @param thread - указатель на структуру потока
+ */
 void alloc_thread(thread_t *thread)
 {
     thread->protected = malloc(sizeof(object_t *) * MAX_PROTECTED);
@@ -27,17 +34,50 @@ void alloc_thread(thread_t *thread)
     thread->stack = malloc(MAX_THREAD_STACK_SIZE);
 }
 
+thread_t *dead_threads = NULL;
+
+/**
+ * Освобождает динамическую память буферов и стека потока
+ *
+ * @param thread - указатель на структуру потока
+ */
 void free_thread(thread_t *thread)
 {
     free(thread->protected);
     free(thread->tagbody_buffers);
     free(thread->catch_buffers);
     free(thread->stack);
+    thread->protected = NULL;
+    thread->tagbody_buffers = NULL;
+    thread->catch_buffers = NULL;
+    thread->stack = NULL;
 }
 
+/**
+ * Освобождает динамическую память всех завершенных потоков в dead_threads
+ * и возвращает их в список свободных потоков free_threads.
+ */
+void free_dead_threads()
+{
+    while (dead_threads != NULL)
+    {
+        thread_t *t = dead_threads;
+        dead_threads = dead_threads->next;
+        free_thread(t);
+        t->next = free_threads;
+        t->prev = NULL;
+        t->free = 1;
+        free_threads = t;
+    }
+}
+
+/**
+ * Сохраняет контекст интерпретатора текущего потока
+ *
+ * @param from - поток, контекст которого сохраняется
+ */
 void save_env(thread_t *from)
 {
-    // сохранение стека потока
     from->current_env = current_env;
     from->func_env = func_env;
     from->last_protected = last_protected;
@@ -45,9 +85,13 @@ void save_env(thread_t *from)
     from->ct_index_buf = ct_index_buf;
 }
 
+/**
+ * Восстанавливает контекст интерпретатора целевого потока
+ *
+ * @param to - поток, контекст которого восстанавливается
+ */
 void restore_env(thread_t *to)
 {
-    // восстановление стека потока
     current_env = to->current_env;
     func_env = to->func_env;
     protected = to->protected;
@@ -58,9 +102,34 @@ void restore_env(thread_t *to)
     ct_index_buf = to->ct_index_buf;
 }
 
-void switch_to(thread_t *from, thread_t *to)
+/**
+ * Переключает контекст между двумя потоками.
+ * Сохраняет окружение и регистры потока prev, переключает current_thread на next,
+ * восстанавливает окружение next и передает управление через restore_regs.
+ * При возобновлении потока prev очищает память завершенного потока (если был).
+ *
+ * @param prev - текущий поток
+ * @param next - целевой поток
+ */
+static void switch_context(thread_t *prev, thread_t *next)
 {
-    printf("switch_to: not implemented");
+    save_env(prev);
+    restore_env(next);
+    current_thread = next;
+    if (save_regs(prev) == 0)
+        restore_regs(next);
+}
+
+/**
+ * Завершает выполнение потока после возврата из eval.
+ * Вызывается из kill_current_thread.
+ *
+ * @param result - результат вычисления выражения функцией eval
+ */
+void thread_finish(object_t result)
+{
+    current_thread->result = result;
+    thread_kill(new_number(current_thread - threads));
 }
 
 /**
@@ -68,7 +137,7 @@ void switch_to(thread_t *from, thread_t *to)
  *
  * @param thread_id - идентификатор потока
  *
- * @return указатель на поток
+ * @return Указатель на поток
  */
 thread_t *get_thread(object_t thread_id)
 {
@@ -81,7 +150,7 @@ thread_t *get_thread(object_t thread_id)
  *
  * @param thread_id - объект идентификатора потока
  *
- * @return идентификатор потока
+ * @return Идентификатор потока
  */
 int get_thread_id(object_t thread_id)
 {
@@ -102,26 +171,86 @@ int get_thread_id(object_t thread_id)
  */
 object_t thread_spawn(object_t fun)
 {
-    if (free_threads == NULL)
-        error("Error: out of memory: threads");
+    thread_t *thread = NULL;
 
-    thread_t *thread = free_threads;
-    free_threads = free_threads->next;
+    if (dead_threads != NULL)
+    {
+        // Переиспользуем готовый мертвый поток (буферы уже выделены)
+        thread = dead_threads;
+        dead_threads = dead_threads->next;
+
+        // Очищаем все остальные накопившиеся мертвые потоки и пополняем free_threads
+        free_dead_threads();
+    }
+    else if (free_threads != NULL)
+    {
+        // Первый запуск слота - выделяем динамические буферы
+        thread = free_threads;
+        free_threads = free_threads->next;
+        alloc_thread(thread);
+    }
+    else
+    {
+        error("Error: out of memory: threads");
+    }
 
     thread->next = current_thread;
     thread->prev = current_thread->prev;
     current_thread->prev->next = thread;
     current_thread->prev = thread;
-    alloc_thread(thread);
 
     thread->last_protected = 0;
     thread->tb_index_buf = 0;
-    thread->ct_index_buf = 0;
+    thread->ct_index_buf = MAX_CATCH_SIZE;
+    thread->current_env = current_env;
+    thread->func_env = func_env;
 
     thread->free = 0;
     thread->function = fun;
     thread->result = 0;
+
+    // Инициализация первого кадра стека и регистров для запуска eval
+#ifndef X32
+    void *stack_top = (char *)thread->stack + MAX_THREAD_STACK_SIZE;
+    void **sp = (void **)((uintptr_t)stack_top & ~15UL);
+    *(--sp) = (void *)kill_current_thread; // адрес возврата при ret из eval
+    thread->regs[_SP] = (object_t)sp;
+    thread->regs[_IP] = (object_t)eval;
+    thread->regs[_DI] = fun;         // 1-й аргумент eval (объект-выражение)
+    thread->regs[_SI] = current_env; // 2-й аргумент eval (окружение переменных)
+    thread->regs[_DX] = 0;
+    thread->regs[_AX] = 0;
+    thread->regs[_BX] = 0;
+    thread->regs[_CX] = 0;
+    thread->regs[_BP] = 0;
+    thread->regs[_R8] = 0;
+    thread->regs[_R9] = 0;
+    thread->regs[_R10] = 0;
+    thread->regs[_R11] = 0;
+    thread->regs[_R12] = 0;
+    thread->regs[_R13] = 0;
+    thread->regs[_R14] = 0;
+    thread->regs[_R15] = 0;
+    thread->regs[_FLAGS] = 0x202; // IF = 1
+#else
+    void **sp = (void **)((char *)thread->stack + MAX_THREAD_STACK_SIZE);
+    *(--sp) = (void *)current_env;         // 2-й аргумент eval
+    *(--sp) = (void *)fun;                 // 1-й аргумент eval
+    *(--sp) = (void *)kill_current_thread; // адрес возврата при ret из eval
+    thread->regs[_SP] = (object_t)sp;
+    thread->regs[_IP] = (object_t)eval;
+    thread->regs[_AX] = 0;
+    thread->regs[_BX] = 0;
+    thread->regs[_CX] = 0;
+    thread->regs[_DX] = 0;
+    thread->regs[_SI] = 0;
+    thread->regs[_DI] = 0;
+    thread->regs[_BP] = 0;
+    thread->regs[_FLAGS] = 0x202; // IF = 1
+#endif
+
     total_threads++;
+
     return new_number(thread - threads);
 }
 
@@ -130,21 +259,22 @@ object_t thread_spawn(object_t fun)
  */
 void thread_yield()
 {
+    free_dead_threads();
+
     thread_t *next_thread = current_thread->next;
     if (current_thread == next_thread)
         return; // если в очереди только один поток, то ничего не делаем
 
-    save_env(current_thread);
-    restore_env(next_thread);
-    switch_to(current_thread, next_thread);
-    current_thread = next_thread;
+    switch_context(current_thread, next_thread);
+
+    free_dead_threads();
 }
 
 /**
  * Ожидает завершения одного или нескольких потоков
  *
  * @param thread_id - идентификатор потока
- * @return результат выполнения (объект или массив объектов результатов)
+ * @return Результат выполнения (объект или массив объектов результатов)
  */
 object_t thread_wait(object_t thread_id)
 {
@@ -168,30 +298,25 @@ void thread_kill(object_t thread_id)
     if (thread == threads) // если это главный поток
         error("thread_kill: cannot kill main thread");
 
-    thread->result = 0;
-
     thread_t *next_thread = thread->next;
-
-    free_thread(thread);
 
     // удаляем поток из списка активных потоков
     thread->prev->next = thread->next;
     thread->next->prev = thread->prev;
-
-    // добавляем поток в список свободных потоков
-    thread->next = free_threads;
-    thread->prev = NULL;
-    free_threads = thread;
-
-    thread->free = 1;
     total_threads--;
+
+    // помещаем поток в стек мертвых потоков для переиспользования
+    thread->free = 1;
+    thread->next = dead_threads;
+    thread->prev = NULL;
+    dead_threads = thread;
 
     // переключаемся на следующий поток, если текущий поток был убит
     if (current_thread == thread)
     {
-        restore_env(next_thread);
-        switch_to(current_thread, next_thread);
         current_thread = next_thread;
+        restore_env(next_thread);
+        restore_regs(next_thread);
     }
 }
 
@@ -200,12 +325,15 @@ void thread_kill(object_t thread_id)
  */
 void init_threads()
 {
+    free_dead_threads();
+    dead_threads = NULL;
     register_func("THREAD-SPAWN", (func0_t)thread_spawn, 0, 1);
-    register_func("THREAD-YIELD", (func0_t)thread_yield, 0, 1);
+    register_func("THREAD-YIELD", (func0_t)thread_yield, 0, 0);
     register_func("THREAD-WAIT", (func0_t)thread_wait, 0, 1);
     register_func("THREAD-KILL", (func0_t)thread_kill, 0, 1);
 
     // инициализация главного потока
+    current_thread = threads;
     current_thread->free = 0;
     current_thread->next = current_thread;
     current_thread->prev = current_thread;

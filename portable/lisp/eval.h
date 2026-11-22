@@ -1,3 +1,8 @@
+#ifndef EVAL_H
+#define EVAL_H
+
+#include "cont.h"
+
 object_t eval(object_t obj, object_t env);
 object_t funcall(object_t fun, object_t args);
 object_t atom(object_t obj1);
@@ -27,3 +32,5 @@ extern int ct_index_buf;
 extern object_t current_env;
 /// окружение для пользовательских функций
 extern object_t func_env;
+
+#endif

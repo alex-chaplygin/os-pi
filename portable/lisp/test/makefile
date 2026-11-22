@@ -34,7 +34,7 @@ all: $(TESTS)
 	gcc $(CFLAGS) $(LDFLAGS) -o $@ $^
 /tmp/switch.o: ../../../x86/switch.asm
 	nasm $(ASMFLAGS) -o $@ $^
-/tmp/test_threads: test_threads.c ../symbols.c ../objects.c ../threads.c ../alloc.c ../bind.c
+/tmp/test_threads: test_threads.c ../eval.c ../symbols.c ../objects.c ../threads.c ../alloc.c ../bind.c /tmp/switch.o
 	gcc $(CFLAGS) $(LDFLAGS) -o $@ $^
 /tmp/test_sys: test_sys.c ../eval.c ../symbols.c ../objects.c ../parser.c ../lexer.c ../arith.c ../str.c ../array.c ../pair.c ../predicates.c ../alloc.c ../error.c ../bind.c
 	gcc $^ $(CFLAGS) -D REPL $(LDFLAGS) -o $@

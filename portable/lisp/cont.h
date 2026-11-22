@@ -1,3 +1,8 @@
+#ifndef CONT_H
+#define CONT_H
+
+#include <setjmp.h>
+
 #define MAX_CONT_STACK (1024 * 16)
 
 /// Объект - продолжение
@@ -23,3 +28,5 @@ typedef struct {
 
 object_t new_continuation(jmp_buf buf);
 void free_continuation(continuation_t *c);
+
+#endif

@@ -60,3 +60,6 @@ dkms.conf
 tools/fs
 html
 latex
+
+# JetBrains IDEAs
+.idea/
